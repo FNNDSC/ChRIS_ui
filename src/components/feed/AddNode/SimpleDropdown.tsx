@@ -27,10 +27,16 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   const [dropdownState, setDropdownState] =
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
-  const inputElement = useRef<any>();
   const [paramFlag, value, type, placeholder, paramName] = unPackForKeyValue(
     dropdownInput[id]
   );
+
+  useEffect(() => {
+    if (paramFlag && !value) {
+      const input = document.getElementById(paramFlag);
+      input?.focus();
+    }
+  }, [paramFlag]);
 
   const onToggle = (isOpen: boolean) => {
     setDropdownState({
@@ -88,7 +94,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const useParam = findUsedParam();
     const parameters =
       params &&
-      params
+      params["dropdown"]
         .filter(
           (param) =>
             param.data.optional === true && !useParam.has(param.data.flag)
@@ -98,13 +104,6 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
             <DropdownItem
               key={param.data.id}
               onClick={() => handleClick(param, id)}
-              onKeyDown={(event) => {
-                if (event.key === "Tab") {
-                  if (inputElement) {
-                    inputElement.current.focus();
-                  }
-                }
-              }}
               component="button"
               className="plugin-configuration__parameter"
               value={param.data.flag}
@@ -136,7 +135,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           dropdownItems={dropdownItems()}
         />
         <input
-          ref={inputElement}
+          id={paramFlag}
           type="text"
           aria-label="text"
           className={css(styles.formControl, `plugin-configuration__input`)}
