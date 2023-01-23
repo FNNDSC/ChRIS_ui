@@ -2,24 +2,13 @@ import React, { useCallback, useContext, useEffect } from "react";
 import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { LocalFile, Types } from "./types/feed";
-import FileUpload from "../../common/fileupload";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
+
 
 const LocalFileUpload: React.FC = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { localFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext);
-  const handleDispatch = useCallback(
-    (files: LocalFile[]) => {
-      dispatch({
-        type: Types.AddLocalFile,
-        payload: {
-          files,
-        },
-      });
-    },
-    [dispatch]
-  );
 
   const handleDeleteDispatch = (file: string) => {
     dispatch({
@@ -33,17 +22,13 @@ const LocalFileUpload: React.FC = () => {
   return (
     <div className="pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
-        <h1 className="pf-c-title pf-m-2xl">
-          File Selection: Local File Upload
-        </h1>
-        <p>Choose files from your local computer to create an analysis</p>
+        <h1>Selected Files:</h1>
         <FileUploadComponent
           className="local-file-upload"
           handleDeleteDispatch={handleDeleteDispatch}
           localFiles={localFiles}
           onNext={onNext}
           onBack={onBack}
-          dispatchFn={handleDispatch}
         />
       </div>
     </div>
@@ -54,7 +39,6 @@ export default LocalFileUpload;
 
 type FileUploadProps = {
   localFiles: LocalFile[];
-  dispatchFn: (files: LocalFile[]) => void;
   handleDeleteDispatch: (file: string) => void;
   onNext: () => void;
   onBack: () => void;
@@ -64,26 +48,12 @@ type FileUploadProps = {
 
 const FileUploadComponent = ({
   localFiles,
-  dispatchFn,
-  uploadName,
-  onBack,
+   onBack,
   onNext,
   handleDeleteDispatch,
   className,
 }: FileUploadProps) => {
-  const handleChoseFilesClick = useCallback(
-    (files: any[]) => {
-      const filesConvert = Array.from(files).map((file) => {
-        return {
-          name: file.name,
-          blob: file,
-        };
-      });
-      dispatchFn(filesConvert);
-    },
-    [dispatchFn]
-  );
-
+ 
   const handleKeyDown = useCallback(
     (e: any) => {
       if (e.code == "ArrowLeft") {
@@ -117,24 +87,15 @@ const FileUploadComponent = ({
       : null;
 
   return (
-    <div className={className}>
+    <div className={className} >
       <Grid hasGutter={true}>
-        <GridItem
-          span={4}
-          rowSpan={4}
-          style={{ minWidth: "9rem" }}
-          onKeyDown={(e) => handleKeyDown(e)}
-        >
-          <FileUpload handleLocalUploadFiles={handleChoseFilesClick} />
-          {uploadName && uploadName}
-        </GridItem>
+
         <GridItem
           className={`${className}-grid`}
-          span={8}
+          span={12}
           rowSpan={12}
-          style={{ marginLeft: "1rem" }}
         >
-          <div className="file-list">{fileList}</div>
+          <div className="file-list" >{fileList}</div>
         </GridItem>
       </Grid>
     </div>

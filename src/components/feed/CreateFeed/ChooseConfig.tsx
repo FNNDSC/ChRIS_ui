@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, {  useCallback, useContext, useEffect } from "react";
 import { Card, CardActions, CardBody, CardHeader, CardTitle, Chip, Grid, GridItem, Tooltip } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
@@ -6,13 +6,30 @@ import { FaUpload } from "react-icons/fa";
 import { BiCloudUpload } from "react-icons/bi";
 import { MdSettings } from "react-icons/md";
 import { WizardContext } from "@patternfly/react-core/";
-
-const ChooseConfig: React.FC = () => {
+import { useDropzone } from "react-dropzone";
+import LocalFileUpload from "./LocalFileUpload";
+ 
+const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) => void }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig } = state
-  const { isDataSelected } = state.data;
-  const { onNext, onBack } = useContext(WizardContext)
-
+  const { isDataSelected, localFiles } = state.data;
+  const { onNext, onBack, activeStep } = useContext(WizardContext)
+  const {
+    open,
+    getInputProps,
+     acceptedFiles
+  } = useDropzone();
+ 
+  React.useEffect(() => {
+       if(activeStep.name == "Local File Upload" && localFiles.length == 0){
+        open()
+       }
+  }, [activeStep.name, localFiles.length, open])
+  React.useEffect(() => {
+    if (acceptedFiles.length > 0) {
+      handleFileUpload(acceptedFiles);
+     }
+  }, [acceptedFiles, handleFileUpload])
 
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
     dispatch({
@@ -21,7 +38,11 @@ const ChooseConfig: React.FC = () => {
         selectedConfig: selectedPluginId == "" ? event.currentTarget.id : selectedPluginId,
       },
     });
-  }, [dispatch])
+    if(selectedPluginId == "" && activeStep.name == "Local File Upload"){
+      open()
+    }
+
+  }, [dispatch, open, activeStep])
 
   const handleKeyDown = useCallback((e: any) => {
 
@@ -31,24 +52,25 @@ const ChooseConfig: React.FC = () => {
         onNext()
         break;
       case "KeyU":
-        if (selectedConfig != "local_select") handleClick(e, "local_select")
-        onNext()
+        if (selectedConfig != "local_select") handleClick(e, "local_select");
+        (activeStep.name == "Local File Upload")? open(): onNext()
         break;
       case "KeyF":
         if (selectedConfig != "swift_storage") handleClick(e, "swift_storage")
         onNext()
         break;
       case "ArrowRight":
-        if (selectedConfig) onNext()
+        if (selectedConfig && activeStep.name == "Local File Upload" && localFiles.length < 0) return;
+        else {onNext()}
         break;
       case "ArrowLeft":
-       onBack()
+        onBack()
         break;
       default:
         break;
     }
 
-  }, [onBack, onNext, handleClick, selectedConfig])
+  }, [selectedConfig, handleClick, onNext, open, onBack, activeStep.name, localFiles.length])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -70,6 +92,7 @@ const ChooseConfig: React.FC = () => {
     width: "100%",
     justifyContent: 'flex-end'
   }
+
   return (
     <div className="local-file-upload">
       <h1 className="pf-c-title pf-m-2xl">Analysis Type Selection</h1>
@@ -98,7 +121,7 @@ const ChooseConfig: React.FC = () => {
                 </Tooltip>
               </CardActions>
             </CardHeader>
-            <CardTitle><MdSettings size="53px" /><br/>Generate Data</CardTitle>
+            <CardTitle><MdSettings size="53px" /><br />Generate Data</CardTitle>
             <CardBody>Generate files from running an FS plugin from this ChRIS server</CardBody>
           </Card>
         </GridItem>
@@ -138,11 +161,14 @@ const ChooseConfig: React.FC = () => {
                 <Chip key="KeyboardShortcut" isReadOnly>U</Chip>
               </Tooltip>
             </CardHeader>
-            <CardTitle><FaUpload size="40px" /><br/>Upload New Data</CardTitle>
+            <CardTitle><FaUpload size="40px" /><br />Upload New Data</CardTitle>
             <CardBody>Upload new files from your local computer</CardBody>
           </Card>
         </GridItem>
-
+      </Grid>
+       <input {...getInputProps()}/>
+      <Grid >
+        {activeStep.name == "Local File Upload" && <LocalFileUpload />}
       </Grid>
     </div>
   );
