@@ -34,7 +34,6 @@ const rejectStyle = {
 };
 
 const DragAndUpload = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleLocalUploadFiles,
 }: {
   handleLocalUploadFiles: (files: any[]) => void;
@@ -54,6 +53,7 @@ const DragAndUpload = ({
       handleLocalUploadFiles(acceptedFiles);
     }
   }, [acceptedFiles, handleLocalUploadFiles]);
+  
   const style = React.useMemo(
     () => ({
       ...baseStyle,
