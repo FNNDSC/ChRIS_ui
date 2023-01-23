@@ -10,7 +10,6 @@ import { getNodeOperations, getParams } from "../../../store/plugin/actions";
 import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
-import { handleGetTokens } from "./lib/utils";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 import "./styles/AddNode.scss";
 import { useTypedSelector } from "../../../store/hooks";
@@ -260,7 +259,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       id: 2,
       name: "Plugin Configuration-Form",
       component: form,
-      canJumpTo: stepIdReached > 2,
+      nextButtonText: "Add Node",
     },
   ];
 

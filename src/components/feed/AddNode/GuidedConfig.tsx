@@ -45,14 +45,7 @@ const GuidedConfig = ({
         componentList: [v4()],
       };
     });
-  }, [dropdownInput]);
-
-  const handleDocsToggle = () => {
-    setConfigState({
-      ...configState,
-      docsExpanded: !configState.docsExpanded,
-    });
-  };
+  }, []);
 
   const deleteComponent = (id: string) => {
     const filteredList = componentList.filter((key) => {
