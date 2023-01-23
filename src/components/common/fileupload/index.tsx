@@ -1,6 +1,5 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useDropzone } from "react-dropzone";
-import { CreateFeedContext } from "../../feed/CreateFeed/context";
 
 const baseStyle: React.CSSProperties = {
   flex: 1,
@@ -35,33 +34,13 @@ const rejectStyle = {
 };
 
 const DragAndUpload = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   handleLocalUploadFiles,
 }: {
   handleLocalUploadFiles: (files: any[]) => void;
 }) => {
-  const {
-    acceptedFiles,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    open,
-    isDragActive,
-    isDragAccept,
-    isDragReject,
-  } = useDropzone();
-  const { state } = useContext(CreateFeedContext);
-  const { localFiles } = state.data
-  React.useEffect(() => {
-    if (acceptedFiles.length > 0) {
-      handleLocalUploadFiles(acceptedFiles);
-    }
-  }, [acceptedFiles, handleLocalUploadFiles, open]);
  
-  React.useEffect(() => {
-     if(acceptedFiles.length == 0 && localFiles.length == 0){
-      open()
-     }
-  }, [acceptedFiles.length, localFiles.length, open])
+  const {getRootProps, isFocused, isDragReject, isDragActive, isDragAccept, getInputProps} = useDropzone()
  
   const style = React.useMemo(
     () => ({
