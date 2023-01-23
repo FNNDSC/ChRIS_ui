@@ -74,7 +74,10 @@ export interface AddNodeProps {
     error: any;
     loading: boolean;
   };
-  params?: PluginParameter[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   addNode: (item: {
     pluginItem: PluginInstance;
     nodes?: PluginInstance[];
@@ -87,12 +90,15 @@ export interface GuidedConfigState {
   count: number;
   errors: string[];
   alertVisible: boolean;
-  docsExpanded: boolean;
+  editorValue: string;
 }
 export interface GuidedConfigProps extends InputProps {
   defaultValueDisplay: boolean;
   renderComputeEnv?: boolean;
-  params?: PluginParameter[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   computeEnvs?: any[];
   inputChange(
     id: string,
@@ -129,7 +135,10 @@ export interface SimpleDropdownState {
 
 export interface SimpleDropdownProps {
   defaultValueDisplay: boolean;
-  params?: PluginParameter[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   toggle?: React.ReactElement<any>;
   onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
   isOpen?: boolean;

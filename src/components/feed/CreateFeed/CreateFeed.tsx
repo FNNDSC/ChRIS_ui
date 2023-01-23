@@ -72,6 +72,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   };
 
   const RequiredParamsNotEmpty = () => {
+    /*
     if(params && params.length > 0){
       for(const param of params){
         const paramObject = requiredInput[param.data.id]
@@ -84,6 +85,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         }
       }
     }
+    */
     return true;
   }
 

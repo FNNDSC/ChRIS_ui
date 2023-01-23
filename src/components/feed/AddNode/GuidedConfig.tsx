@@ -1,8 +1,11 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   Alert,
   AlertActionCloseButton,
-  ExpandableSection,
+  CodeBlock,
+  CodeBlockAction,
+  CodeBlockCode,
+  ClipboardCopyButton,
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
@@ -11,8 +14,7 @@ import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
-import { WizardContext } from "@patternfly/react-core";
-
+import { unpackParametersIntoString } from "./lib/utils";
 const GuidedConfig = ({
   defaultValueDisplay,
   renderComputeEnv,
@@ -31,11 +33,10 @@ const GuidedConfig = ({
     count: 0,
     errors: [],
     alertVisible: false,
-    docsExpanded: false,
+    editorValue: "",
   });
 
-  const { componentList, count, errors, alertVisible, docsExpanded } =
-    configState;
+  const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
     setConfigState((configState) => {
@@ -47,6 +48,55 @@ const GuidedConfig = ({
     });
   }, []);
 
+  useEffect(() => {
+    let derivedValue = "";
+
+    if (requiredInput) {
+      derivedValue += unpackParametersIntoString(requiredInput);
+    }
+
+    if (dropdownInput) {
+      derivedValue += unpackParametersIntoString(dropdownInput);
+    }
+
+    setConfigState((state) => {
+      return {
+        ...state,
+        editorValue: derivedValue,
+      };
+    });
+  }, [dropdownInput, requiredInput]);
+
+  const { componentList, count, errors, alertVisible } = configState;
+
+  const clipboardCopyFunc = (event: any, text: string) => {
+    navigator.clipboard.writeText(text.toString());
+  };
+
+  const onClick = (event: any, text: string) => {
+    clipboardCopyFunc(event, text);
+    setCopied(true);
+  };
+
+  const actions = (
+    <React.Fragment>
+      <CodeBlockAction>
+        <ClipboardCopyButton
+          id="basic-copy-button"
+          textId="code-content"
+          aria-label="Copy to clipboard"
+          onClick={(e) => onClick(e, configState.editorValue)}
+          exitDelay={copied ? 1500 : 600}
+          maxWidth="110px"
+          variant="plain"
+          onTooltipHidden={() => setCopied(false)}
+        >
+          {copied ? "Successfully copied to clipboard!" : "Copy to clipboard"}
+        </ClipboardCopyButton>
+      </CodeBlockAction>
+    </React.Fragment>
+  );
+
   const deleteComponent = (id: string) => {
     const filteredList = componentList.filter((key) => {
       return key !== id;
@@ -56,23 +106,16 @@ const GuidedConfig = ({
       ...configState,
       componentList: filteredList,
       count: configState.count - 1,
+      errors: [],
     });
   };
 
   const addParam = () => {
-    if (params && count < params.length - 1) {
+    if (params && count < params["dropdown"].length) {
       setConfigState({
         ...configState,
         componentList: [...configState.componentList, v4()],
         count: configState.count + 1,
-      });
-    }
-
-    if (params && count >= params.length) {
-      setConfigState({
-        ...configState,
-        errors: ["You cannot add more parameters to this plugin"],
-        alertVisible: !configState.alertVisible,
       });
     }
   };
@@ -104,20 +147,18 @@ const GuidedConfig = ({
   };
 
   const renderRequiredParams = () => {
-    if (params && params.length > 0) {
-      return params.map((param, index) => {
-        if (param.data.optional === false) {
-          return (
-            <React.Fragment key={index}>
-              <RequiredParam
-                param={param}
-                requiredInput={requiredInput}
-                inputChange={inputChange}
-                id={v4()}
-              />
-            </React.Fragment>
-          );
-        }
+    if (params && params["required"].length > 0) {
+      return params["required"].map((param, index) => {
+        return (
+          <React.Fragment key={index}>
+            <RequiredParam
+              param={param}
+              requiredInput={requiredInput}
+              inputChange={inputChange}
+              id={v4()}
+            />
+          </React.Fragment>
+        );
       });
     }
   };
@@ -165,6 +206,7 @@ const GuidedConfig = ({
 
             {renderComputeEnv && renderComputeEnvs()}
           </div>
+
           {alertVisible &&
             errors.length > 0 &&
             errors.map((error, index) => {
@@ -179,6 +221,15 @@ const GuidedConfig = ({
               );
             })}
         </div>
+      </div>
+      <div
+        style={{
+          marginTop: "3rem",
+        }}
+      >
+        <CodeBlock actions={actions}>
+          <CodeBlockCode>{configState.editorValue}</CodeBlockCode>
+        </CodeBlock>
       </div>
     </>
   );

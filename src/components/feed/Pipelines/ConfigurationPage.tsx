@@ -165,7 +165,13 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
               }
             }
           });
-          dispatchStore(getParamsSuccess(newParamDict));
+
+          dispatchStore(
+            getParamsSuccess({
+              required: [],
+              dropdown: newParamDict,
+            })
+          );
         }
       }
     }
