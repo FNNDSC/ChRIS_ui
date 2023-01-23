@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Dropdown, DropdownToggle, DropdownItem } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
@@ -36,7 +36,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
       const input = document.getElementById(paramFlag);
       input?.focus();
     }
-  }, [paramFlag]);
+  }, [paramFlag, value]);
 
   const onToggle = (isOpen: boolean) => {
     setDropdownState({
@@ -60,7 +60,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     return usedParam;
   };
 
-  const handleClick = (param: PluginParameter, componentId: string) => {
+  const handleClick = (param: PluginParameter) => {
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
@@ -103,7 +103,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           return (
             <DropdownItem
               key={param.data.id}
-              onClick={() => handleClick(param, id)}
+              onClick={() => handleClick(param)}
               component="button"
               className="plugin-configuration__parameter"
               value={param.data.flag}

@@ -6,7 +6,7 @@ import {
   AccordionToggle,
   TextInput,
 } from "@patternfly/react-core";
-import { Plugin, PluginMeta, PluginInstance } from "@fnndsc/chrisapi";
+import { Plugin, PluginMeta } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { LoadingContent } from "../../common/loading/LoadingContent";
 import {

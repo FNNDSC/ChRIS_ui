@@ -253,6 +253,7 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
                   deleteInput={deleteInput}
                   dropdownInput={dropdownInput}
                   requiredInput={requiredInput}
+                  errors={{}}
                 />
               )}
             </GridItem>
