@@ -1,4 +1,4 @@
-import React, {  useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import { Card, CardActions, CardBody, CardHeader, CardTitle, Chip, Grid, GridItem, Tooltip } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
@@ -6,30 +6,14 @@ import { FaUpload } from "react-icons/fa";
 import { BiCloudUpload } from "react-icons/bi";
 import { MdSettings } from "react-icons/md";
 import { WizardContext } from "@patternfly/react-core/";
-import { useDropzone } from "react-dropzone";
 import LocalFileUpload from "./LocalFileUpload";
- 
+import DragAndUpload from "../../common/fileupload";
+
 const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) => void }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig } = state
   const { isDataSelected, localFiles } = state.data;
   const { onNext, onBack, activeStep } = useContext(WizardContext)
-  const {
-    open,
-    getInputProps,
-     acceptedFiles
-  } = useDropzone();
- 
-  React.useEffect(() => {
-       if(activeStep.name == "Local File Upload" && localFiles.length == 0){
-        open()
-       }
-  }, [activeStep.name, localFiles.length, open])
-  React.useEffect(() => {
-    if (acceptedFiles.length > 0) {
-      handleFileUpload(acceptedFiles);
-     }
-  }, [acceptedFiles, handleFileUpload])
 
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
     dispatch({
@@ -37,12 +21,9 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
       payload: {
         selectedConfig: selectedPluginId == "" ? event.currentTarget.id : selectedPluginId,
       },
-    });
-    if(selectedPluginId == "" && activeStep.name == "Local File Upload"){
-      open()
-    }
+    })
 
-  }, [dispatch, open, activeStep])
+  }, [dispatch])
 
   const handleKeyDown = useCallback((e: any) => {
 
@@ -53,7 +34,7 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
         break;
       case "KeyU":
         if (selectedConfig != "local_select") handleClick(e, "local_select");
-        (activeStep.name == "Local File Upload")? open(): onNext()
+        onNext()
         break;
       case "KeyF":
         if (selectedConfig != "swift_storage") handleClick(e, "swift_storage")
@@ -61,7 +42,7 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
         break;
       case "ArrowRight":
         if (selectedConfig && activeStep.name == "Local File Upload" && localFiles.length < 0) return;
-        else {onNext()}
+        else { onNext() }
         break;
       case "ArrowLeft":
         onBack()
@@ -70,7 +51,7 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
         break;
     }
 
-  }, [selectedConfig, handleClick, onNext, open, onBack, activeStep.name, localFiles.length])
+  }, [selectedConfig, handleClick, onNext, onBack, activeStep.name, localFiles.length])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -166,10 +147,14 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
           </Card>
         </GridItem>
       </Grid>
-       <input {...getInputProps()}/>
-      <Grid >
-        {activeStep.name == "Local File Upload" && <LocalFileUpload />}
-      </Grid>
+      {activeStep.name == "Local File Upload" && <Grid hasGutter span={12} rowSpan={12} >
+       <GridItem  style={{marginTop: "15px"}} md={6} >
+          <DragAndUpload handleLocalUploadFiles={handleFileUpload}/>
+        </GridItem>
+        <GridItem md={6}>
+         <LocalFileUpload />
+        </GridItem>
+      </Grid>}
     </div>
   );
 };
