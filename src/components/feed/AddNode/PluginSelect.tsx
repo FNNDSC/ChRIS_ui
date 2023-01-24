@@ -103,21 +103,12 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
   const fetchAllPlugins = React.useCallback(async () => {
     const client = ChrisAPIClient.getClient();
     const params = { limit: 25, offset: 0 };
-    let pluginMetaList = await client.getPluginMetas(params);
-    let pluginMetas = pluginMetaList.getItems();
-
-    while (pluginMetaList.hasNextPage) {
-      try {
-        params.offset += params.limit;
-        pluginMetaList = await client.getPluginMetas(params);
-        const itemsList = pluginMetaList.getItems();
-        if (itemsList && pluginMetas) {
-          pluginMetas.push(...itemsList);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    const fn = client.getPluginMetas;
+    const boundFn = fn.bind(client);
+    let { resource: pluginMetas } = await fetchResource<PluginMeta>(
+      params,
+      boundFn
+    );
 
     pluginMetas =
       pluginMetas &&

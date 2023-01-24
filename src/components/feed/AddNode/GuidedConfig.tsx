@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
 import {
-  CodeBlock,
-  CodeBlockAction,
-  CodeBlockCode,
-  ClipboardCopyButton,
+  ClipboardCopy,
   Dropdown,
   DropdownToggle,
   DropdownItem,
+  Card,
+  CardBody,
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
@@ -17,7 +16,7 @@ import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { Plugin } from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { FaCheck } from "react-icons/fa";
 import ReactJson from "react-json-view";
 
@@ -44,7 +43,6 @@ const GuidedConfig = ({
     editorValue: "",
   });
 
-  const [copied, setCopied] = React.useState(false);
   const [plugins, setPlugins] = React.useState<Plugin[]>();
   const [pluginVersion, setPluginVersion] = React.useState<string>("");
 
@@ -93,34 +91,6 @@ const GuidedConfig = ({
 
   const { componentList, count } = configState;
 
-  const clipboardCopyFunc = (event: any, text: string) => {
-    navigator.clipboard.writeText(text.toString());
-  };
-
-  const onClick = (event: any, text: string) => {
-    clipboardCopyFunc(event, text);
-    setCopied(true);
-  };
-
-  const actions = (
-    <React.Fragment>
-      <CodeBlockAction>
-        <ClipboardCopyButton
-          id="basic-copy-button"
-          textId="code-content"
-          aria-label="Copy to clipboard"
-          onClick={(e) => onClick(e, configState.editorValue)}
-          exitDelay={copied ? 1500 : 600}
-          maxWidth="110px"
-          variant="plain"
-          onTooltipHidden={() => setCopied(false)}
-        >
-          {copied ? "Successfully copied to clipboard!" : "Copy to clipboard"}
-        </ClipboardCopyButton>
-      </CodeBlockAction>
-    </React.Fragment>
-  );
-
   const deleteComponent = (id: string) => {
     const filteredList = componentList.filter((key) => {
       return key !== id;
@@ -162,21 +132,19 @@ const GuidedConfig = ({
     }
   };
 
-  const renderRequiredParams = () => {
-    if (params && params["required"].length > 0) {
-      return params["required"].map((param, index) => {
-        return (
-          <React.Fragment key={index}>
-            <RequiredParam
-              param={param}
-              requiredInput={requiredInput}
-              inputChange={inputChange}
-              id={v4()}
-            />
-          </React.Fragment>
-        );
-      });
-    }
+  const renderRequiredParams = (params: PluginParameter[]) => {
+    return params.map((param, index) => {
+      return (
+        <React.Fragment key={index}>
+          <RequiredParam
+            param={param}
+            requiredInput={requiredInput}
+            inputChange={inputChange}
+            id={v4()}
+          />
+        </React.Fragment>
+      );
+    });
   };
 
   const renderDropdowns = () => {
@@ -271,6 +239,9 @@ const GuidedConfig = ({
     );
   };
 
+  const requiredLength = params && params["required"].length;
+  const dropdownLength = params && params["dropdown"].length;
+
   return (
     <>
       <div className="configuration">
@@ -278,40 +249,58 @@ const GuidedConfig = ({
           {!defaultValueDisplay && (
             <h1 className="pf-c-title pf-m-2xl">{`Configure ${pluginName}`}</h1>
           )}
-          <div className="configuration__renders">
-            <h4 style={{ display: "inline", marginRight: "1rem" }}>Version</h4>
-            <DropdownBasic />
-          </div>
+          <CardComponent>
+            <>
+              <h4 style={{ display: "inline", marginRight: "1rem" }}>
+                Version
+              </h4>
+              <DropdownBasic />
+            </>
+          </CardComponent>
 
-          <div className="configuration__renders">
-            <div>
-              <h4>Required Parameters</h4>
-              {renderRequiredParams()}
+          <CardComponent>
+            <>
+              <div>
+                <h4>
+                  Required Parameters{" "}
+                  <ItalicsComponent length={requiredLength} />
+                </h4>
+
+                {params &&
+                  params["required"].length > 0 &&
+                  renderRequiredParams(params["required"])}
+              </div>
+
+              <div>
+                <h4>
+                  Optional Parameters{" "}
+                  <ItalicsComponent length={dropdownLength} />
+                </h4>
+                {renderDropdowns()}
+              </div>
+            </>
+          </CardComponent>
+
+          <CardComponent>
+            <div className="configuration__renders">
+              {renderComputeEnv && renderComputeEnvs()}
             </div>
-
-            <div
-              style={{
-                margin: "1.5em 0 1.5em 0",
-              }}
-            >
-              <h4>Optional Parameters</h4>
-              {renderDropdowns()}
-            </div>
-
-            {renderComputeEnv && renderComputeEnvs()}
-          </div>
+          </CardComponent>
         </div>
       </div>
-      {errors && <ReactJson src={errors} />}
-      <div
-        style={{
-          marginTop: "3rem",
-        }}
-      >
-        <CodeBlock actions={actions}>
-          <CodeBlockCode>{configState.editorValue}</CodeBlockCode>
-        </CodeBlock>
-      </div>
+      <>
+        <CardComponent>
+          <div>
+            {Object.keys(errors).length > 0 && <ReactJson src={errors} />}
+          </div>
+        </CardComponent>
+
+        <div className="autogenerated__text">
+          <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="copied">
+            {configState.editorValue}
+          </ClipboardCopy>
+        </div>
+      </>
     </>
   );
 };
@@ -322,3 +311,28 @@ const mapStateToProps = ({ plugin }: ApplicationState) => ({
 });
 
 export default connect(mapStateToProps, null)(GuidedConfig);
+
+const CardComponent = ({ children }: { children: React.ReactElement }) => {
+  return (
+    <Card>
+      <CardBody>{children}</CardBody>
+    </Card>
+  );
+};
+
+const ItalicsComponent = ({ length }: { length?: number }) => {
+  return (
+    <i
+      style={{
+        color: "#4f5255",
+        fontSize: "0.9rem",
+      }}
+    >
+      (
+      {`${length && length > 0 ? length : "No required"}${
+        length === 1 ? " parameter" : " parameters"
+      }`}
+      )
+    </i>
+  );
+};
