@@ -251,6 +251,8 @@ const AddNode: React.FC<AddNodeProps> = ({
       setNodeState({
         ...addNodeState,
         autoFill: !addNodeState.autoFill,
+        dropdownInput: {},
+        requiredInput: {},
       });
     }
   };

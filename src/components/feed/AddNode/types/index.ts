@@ -204,3 +204,5 @@ export interface ReviewProps extends InputState {
     [key: string]: string[];
   };
 }
+
+export interface AddNodeStateActions {}
