@@ -6,13 +6,14 @@ import { FaUpload } from "react-icons/fa";
 import { BiCloudUpload } from "react-icons/bi";
 import { MdSettings } from "react-icons/md";
 import { WizardContext } from "@patternfly/react-core/";
+import LocalFileUpload from "./LocalFileUpload";
+import DragAndUpload from "../../common/fileupload";
 
-const ChooseConfig: React.FC = () => {
+const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) => void }) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig } = state
-  const { isDataSelected } = state.data;
+  const { isDataSelected, localFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext)
-
 
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
     dispatch({
@@ -20,7 +21,8 @@ const ChooseConfig: React.FC = () => {
       payload: {
         selectedConfig: selectedPluginId == "" ? event.currentTarget.id : selectedPluginId,
       },
-    });
+    })
+
   }, [dispatch])
 
   const handleKeyDown = useCallback((e: any) => {
@@ -31,24 +33,24 @@ const ChooseConfig: React.FC = () => {
         onNext()
         break;
       case "KeyU":
-        if (selectedConfig != "local_select") handleClick(e, "local_select")
-        onNext()
+        if (selectedConfig != "local_select") handleClick(e, "local_select");
         break;
       case "KeyF":
         if (selectedConfig != "swift_storage") handleClick(e, "swift_storage")
         onNext()
         break;
       case "ArrowRight":
-        if (selectedConfig) onNext()
+        if (selectedConfig  && localFiles.length > 0) return;
+        else { onNext() }
         break;
       case "ArrowLeft":
-       onBack()
+        onBack()
         break;
       default:
         break;
     }
 
-  }, [onBack, onNext, handleClick, selectedConfig])
+  }, [selectedConfig, handleClick, onNext, onBack, localFiles.length])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -62,7 +64,8 @@ const ChooseConfig: React.FC = () => {
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "center",
-    textAlign: "center"
+    textAlign: "center",
+    height: "100%"
   }
 
   const cardHeaderStyle: any = {
@@ -70,6 +73,7 @@ const ChooseConfig: React.FC = () => {
     width: "100%",
     justifyContent: 'flex-end'
   }
+
   return (
     <div className="local-file-upload">
       <h1 className="pf-c-title pf-m-2xl">Analysis Type Selection</h1>
@@ -81,7 +85,7 @@ const ChooseConfig: React.FC = () => {
       </p>
       <br />
       <Grid hasGutter md={4}>
-        <GridItem >
+        <GridItem rowSpan={1}>
           <Card
             id="fs_plugin"
             isSelectableRaised
@@ -98,11 +102,11 @@ const ChooseConfig: React.FC = () => {
                 </Tooltip>
               </CardActions>
             </CardHeader>
-            <CardTitle><MdSettings size="53px" /><br/>Generate Data</CardTitle>
+            <CardTitle><MdSettings size="40" /><br />Generate Data</CardTitle>
             <CardBody>Generate files from running an FS plugin from this ChRIS server</CardBody>
           </Card>
         </GridItem>
-        <GridItem>
+        <GridItem rowSpan={1}>
           <Card
             id="swift_storage"
             isSelectableRaised
@@ -119,12 +123,12 @@ const ChooseConfig: React.FC = () => {
               </Tooltip>
             </CardHeader>
             <CardTitle>
-              <BiCloudUpload size="40px" /><br />Fetch Data from ChRIS</CardTitle>
+              <BiCloudUpload size="40" /><br />Fetch Data from ChRIS</CardTitle>
             <CardBody>Choose existing files already registered to ChRIS</CardBody>
           </Card>
         </GridItem>
-        <GridItem>
-          <Card
+        <GridItem rowSpan={1}>
+          {selectedConfig != "local_select"?<Card
             id="local_select"
             isSelectableRaised
             hasSelectableInput
@@ -138,11 +142,16 @@ const ChooseConfig: React.FC = () => {
                 <Chip key="KeyboardShortcut" isReadOnly>U</Chip>
               </Tooltip>
             </CardHeader>
-            <CardTitle><FaUpload size="40px" /><br/>Upload New Data</CardTitle>
+            <CardTitle><FaUpload size="40" /><br />Upload New Data</CardTitle>
             <CardBody>Upload new files from your local computer</CardBody>
-          </Card>
+          </Card>:
+          <DragAndUpload handleLocalUploadFiles={handleFileUpload}/>}
         </GridItem>
-
+      </Grid>
+      <Grid hasGutter span={12}>
+        <GridItem>
+         {localFiles.length > 0? <LocalFileUpload />: null}
+        </GridItem>
       </Grid>
     </div>
   );

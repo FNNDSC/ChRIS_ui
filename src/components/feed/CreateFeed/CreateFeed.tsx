@@ -9,10 +9,9 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedContext, PipelineContext } from "./context";
-import { Types, CreateFeedReduxProp } from "./types/feed";
+import { Types, CreateFeedReduxProp, LocalFile } from "./types/feed";
 import BasicInformation from "./BasicInformation";
 import ChrisFileSelect from "./ChrisFileSelect";
-import LocalFileUpload from "./LocalFileUpload";
 import ChooseConfig from "./ChooseConfig";
 import DataPacks from "./DataPacks";
 import GuidedConfig from "../AddNode/GuidedConfig";
@@ -96,6 +95,30 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
+
+  const handleDispatch = React.useCallback(
+    (files: LocalFile[]) => {
+      dispatch({
+        type: Types.AddLocalFile,
+        payload: {
+          files,
+        },
+      });
+    },
+    [dispatch]
+  );
+  const handleChoseFilesClick = React.useCallback(
+    (files: any[]) => {
+      const filesConvert = Array.from(files).map((file) => {
+        return {
+          name: file.name,
+          blob: file,
+        };
+      });
+      handleDispatch(filesConvert);
+    },
+    [handleDispatch]
+  );
 
   const setComputeEnvironment = React.useCallback(
     (computeEnvironment: string) => {
@@ -213,11 +236,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   };
 
   const basicInformation = <BasicInformation />;
-  const chooseConfig = <ChooseConfig />;
+  const chooseConfig = <ChooseConfig  handleFileUpload={handleChoseFilesClick}/>;
   const chrisFileSelect = user && user.username && (
     <ChrisFileSelect username={user.username} />
   );
-  const localFileUpload = <LocalFileUpload />;
+  // const localFileUpload = <LocalFileUpload />;
   const packs = <DataPacks />;
   let pluginName = selectedPlugin?.data.title
     ? selectedPlugin?.data.title
@@ -274,14 +297,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         {
           id: 3,
           name: "Local File Upload",
-          component: localFileUpload,
+          component: withSelectionAlert(chooseConfig),
           enableNext: data.localFiles.length > 0,
           canJumpTo: step > 3,
         },
       ];
     }
   };
-  const steps = data.isDataSelected
+  const steps = data.isDataSelected || selectedConfig == "local_select"
     ? [
         {
           id: 1,
@@ -294,14 +317,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 2,
           name: "Analysis Data Selection",
           component: withSelectionAlert(chooseConfig),
-          enableNext: selectedConfig.length > 0,
+          enableNext: (selectedConfig == "local_select")?data.localFiles.length > 0: selectedConfig.length > 0,
           canJumpTo: step > 2,
         },
         {
           id: 5,
           name: "Pipelines",
           component: pipelines,
-          canJumpTp: step > 5,
+          canJumpTo: step > 5,
         },
         {
           id: 6,
