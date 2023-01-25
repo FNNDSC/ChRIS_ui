@@ -64,7 +64,8 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
     alignItems: "center",
     flexDirection: "column",
     justifyContent: "center",
-    textAlign: "center"
+    textAlign: "center",
+    height: "100%"
   }
 
   const cardHeaderStyle: any = {
