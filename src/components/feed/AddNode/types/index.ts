@@ -81,6 +81,7 @@ export interface AddNodeState extends InputState {
   errors: {};
   editorValue: string;
   loading: boolean;
+  autoFill: boolean;
 }
 
 export interface AddNodeProps {
@@ -129,6 +130,8 @@ export interface GuidedConfigProps extends InputProps {
   setComputeEnviroment?: (computeEnv: string) => void;
   selectedPluginFromMeta?: Plugin;
   handlePluginSelect: (plugin: Plugin) => void;
+  handleCheckboxChange?: (checked: boolean) => void;
+  checked?: boolean;
   pluginMeta?: PluginMeta;
   errors: {};
 }

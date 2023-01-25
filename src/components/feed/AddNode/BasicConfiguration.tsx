@@ -24,12 +24,7 @@ const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
   parent,
   selectedPlugin,
 }) => {
-  // const [parentDropdownOpen, setParentDropdownOpen] = useState(false);
-  // const [typeDropdownOpen, setTypeDropdownOpen] = useState(false);
-  // const [nodes, setNodes] = useState<BasicConfigurationState["nodes"]>([]);
-
   const value = parent.data.title || parent.data.plugin_name;
-  // const handleTypeDropdownToggle = (open: boolean) => setTypeDropdownOpen(open);
 
   return (
     <div className="screen-one">
@@ -139,7 +134,7 @@ const PluginList: React.FC<PluginMetaListProps> = ({
       <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
     ));
 
-  const getPluginFromMeta = (pluginMeta: PluginMeta) => {
+  const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
     handlePluginSelect(pluginMeta);
   };
 

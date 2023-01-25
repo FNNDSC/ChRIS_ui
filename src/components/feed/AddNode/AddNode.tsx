@@ -7,13 +7,20 @@ import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
 import { getNodeOperations, getParams } from "../../../store/plugin/actions";
-import { Plugin, PluginMeta, PluginInstance } from "@fnndsc/chrisapi";
+import {
+  Plugin,
+  PluginMeta,
+  PluginInstance,
+  PluginInstanceParameter,
+} from "@fnndsc/chrisapi";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 import "./styles/AddNode.scss";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
+import { fetchResource } from "../../../api/common";
+import { v4 } from "uuid";
 
 function getInitialState() {
   return {
@@ -26,6 +33,7 @@ function getInitialState() {
     editorValue: "",
     loading: false,
     errors: {},
+    autoFill: false,
   };
 }
 
@@ -34,6 +42,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   pluginInstances,
   getParams,
   addNode,
+  params,
 }: AddNodeProps) => {
   const dispatch = useDispatch();
   const [addNodeState, setNodeState] =
@@ -45,6 +54,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     requiredInput,
     dropdownInput,
     selectedComputeEnv,
+    autoFill,
   } = addNodeState;
   const { childNode } = useTypedSelector(
     (state) => state.plugin.nodeOperations
@@ -91,6 +101,7 @@ const AddNode: React.FC<AddNodeProps> = ({
           ...addNodeState.requiredInput,
           [id]: input,
         },
+        errors: {},
       });
     } else {
       setNodeState({
@@ -99,6 +110,7 @@ const AddNode: React.FC<AddNodeProps> = ({
           ...addNodeState.dropdownInput,
           [id]: input,
         },
+        errors: {},
       });
     }
   };
@@ -189,6 +201,60 @@ const AddNode: React.FC<AddNodeProps> = ({
     });
   };
 
+  const handleCheckboxChange = async (checked: boolean) => {
+    if (checked === true) {
+      const pluginInstanceList =
+        await data.selectedPluginFromMeta?.getPluginInstances({
+          limit: 1,
+        });
+
+      const pluginInstances = pluginInstanceList?.getItems();
+      if (pluginInstances) {
+        const pluginInstance: PluginInstance = pluginInstances[0];
+        const paramsToFn = { limit: 10, offset: 0 };
+        const fn = pluginInstance.getParameters;
+        const boundFn = fn.bind(pluginInstance);
+        const { resource: pluginParameters } =
+          await fetchResource<PluginInstanceParameter>(paramsToFn, boundFn);
+
+        const requiredInput: { [id: string]: InputIndex } = {};
+        const dropdownInput: { [id: string]: InputIndex } = {};
+        for (let i = 0; i < pluginParameters.length; i++) {
+          const parameter: PluginInstanceParameter = pluginParameters[i];
+          const { id, param_name, type, value } = parameter.data;
+
+          if (params && params["required"].includes(param_name)) {
+            requiredInput[id] = {
+              value,
+              flag: `--${param_name}`,
+              type,
+              placeholder: "",
+            };
+            //  inputChange(id, param_name, value, type, "", true);
+          } else {
+            dropdownInput[v4()] = {
+              value,
+              flag: `--${param_name}`,
+              type,
+              placeholder: "",
+            };
+          }
+        }
+        setNodeState({
+          ...addNodeState,
+          requiredInput,
+          dropdownInput,
+          autoFill: !addNodeState.autoFill,
+        });
+      }
+    } else {
+      setNodeState({
+        ...addNodeState,
+        autoFill: !addNodeState.autoFill,
+      });
+    }
+  };
+
   const handleSave = async () => {
     const { dropdownInput, requiredInput, selectedComputeEnv } = addNodeState;
     const { selectedPluginFromMeta: plugin } = addNodeState.data;
@@ -256,8 +322,10 @@ const AddNode: React.FC<AddNodeProps> = ({
       selectedComputeEnv={selectedComputeEnv}
       setComputeEnviroment={setComputeEnv}
       handlePluginSelect={handlePluginSelectVersion}
+      handleCheckboxChange={handleCheckboxChange}
       pluginMeta={data.pluginMeta}
       errors={addNodeState.errors}
+      checked={autoFill}
     />
   ) : (
     <Spinner size="xl" />
