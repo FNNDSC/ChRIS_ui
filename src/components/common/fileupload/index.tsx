@@ -55,7 +55,7 @@ const DragAndUpload = ({
   const { state } = useContext(CreateFeedContext);
 
   React.useEffect(() => {
-    if (acceptedFiles.length > 0 && state.data.localFiles.length < 0) {
+    if (acceptedFiles.length > 0 ) {
       handleLocalUploadFiles(acceptedFiles);
     }
   }, [acceptedFiles, handleLocalUploadFiles, state.data.localFiles.length]);
