@@ -1,4 +1,4 @@
-import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { Tag, PluginMeta, PluginInstance, Plugin } from "@fnndsc/chrisapi";
 import { InputState, InputIndex } from "../../AddNode/types";
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
@@ -26,7 +26,8 @@ export enum Types {
   RemoveChrisFile = "REMOVE_ChRIS_FILE",
   AddLocalFile = "ADD_LOCAL_FILE",
   RemoveLocalFile = "REMOVE_LOCAL_FILE",
-  SelectPlugin = "SELECT_PLUGIN",
+  SelectPluginMeta = "SELECT_PLUGIN_META",
+  SelectPluginFromMeta = "SELECT_PLUGIN_FROM_META",
   RequiredInput = "REQUIRED_INPUT",
   DropdownInput = "DROPDOWN_INPUT",
   DeleteInput = "DELETE_INPUT",
@@ -70,9 +71,13 @@ type CreateFeedPayload = {
   [Types.RemoveLocalFile]: {
     filename: string;
   };
-  [Types.SelectPlugin]: {
-    plugin: Plugin;
+  [Types.SelectPluginMeta]: {
+    plugin: PluginMeta;
     checked: boolean;
+  };
+
+  [Types.SelectPluginFromMeta]: {
+    plugin: Plugin;
   };
   [Types.DropdownInput]: {
     id: string;
@@ -161,7 +166,8 @@ export interface CreateFeedState extends InputState {
   step: number;
   data: CreateFeedData;
   selectedConfig: string;
-  selectedPlugin?: Plugin;
+  pluginMeta?: PluginMeta;
+  selectedPluginFromMeta?: Plugin;
   feedProgress: string;
   feedError: any;
   value: number;

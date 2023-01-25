@@ -14,7 +14,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     dropdownInput,
     requiredInput,
     selectedConfig,
-    selectedPlugin,
+    selectedPluginFromMeta,
     computeEnvironment,
   } = state;
 
@@ -26,27 +26,28 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
       <span className="pf-c-chip__text">{tag.data.name}</span>
     </div>
   ));
-  const { onNext, onBack } = useContext(WizardContext)
+  const { onNext, onBack } = useContext(WizardContext);
 
-  const handleKeyDown = useCallback((e: any) => {
-    if (e.code == "Enter" || e.code == "ArrowRight") {
-      e.preventDefault()
-      handleSave()
-      onNext()
-    } else if (e.code == "ArrowLeft") {
-      e.preventDefault()
-      onBack()
-    }
-  }, [onNext, handleSave, onBack])
-
+  const handleKeyDown = useCallback(
+    (e: any) => {
+      if (e.code == "Enter" || e.code == "ArrowRight") {
+        e.preventDefault();
+        handleSave();
+        onNext();
+      } else if (e.code == "ArrowLeft") {
+        e.preventDefault();
+        onBack();
+      }
+    },
+    [onNext, handleSave, onBack]
+  );
 
   useEffect(() => {
-
-    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [handleKeyDown])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const getReviewDetails = () => {
     if (selectedConfig === "fs_plugin") {
@@ -63,7 +64,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         <Grid hasGutter={true}>
           <PluginDetails
             generatedCommand={generatedCommand}
-            selectedPlugin={selectedPlugin}
+            selectedPlugin={selectedPluginFromMeta}
             computeEnvironment={computeEnvironment}
           />
         </Grid>

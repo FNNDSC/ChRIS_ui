@@ -244,9 +244,9 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
         >
           <Grid hasGutter={true}>
             <GridItem span={6}>
-              {selectedPlugin && (
+              {/*
+                selectedPlugin && (
                 <GuidedConfig
-                  pluginName={pluginVersion}
                   defaultValueDisplay={true}
                   renderComputeEnv={false}
                   inputChange={inputChange}
@@ -255,7 +255,7 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
                   requiredInput={requiredInput}
                   errors={{}}
                 />
-              )}
+                )*/}
             </GridItem>
             <GridItem span={6}>
               <h4>Configure Compute Environment</h4>

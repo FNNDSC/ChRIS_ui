@@ -7,7 +7,7 @@ import {
 } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { Feed } from "@fnndsc/chrisapi";
+import { Feed, Plugin } from "@fnndsc/chrisapi";
 import { CreateFeedContext, PipelineContext } from "./context";
 import { Types, CreateFeedReduxProp } from "./types/feed";
 import BasicInformation from "./BasicInformation";
@@ -28,10 +28,14 @@ import { InputIndex } from "../AddNode/types";
 import "./createfeed.scss";
 import { PipelineTypes } from "./types/pipeline";
 
+import { useDispatch } from "react-redux";
+import { getParams } from "../../../store/plugin/actions";
+
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
   addFeed,
 }: CreateFeedReduxProp) => {
+  const dispatchStore = useDispatch();
   const { state, dispatch } = useContext(CreateFeedContext);
   const { state: pipelineState, dispatch: pipelineDispatch } =
     useContext(PipelineContext);
@@ -42,23 +46,20 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     step,
     data,
     selectedConfig,
-    selectedPlugin,
+    pluginMeta,
     dropdownInput,
     requiredInput,
     computeEnvironment,
+    selectedPluginFromMeta,
   } = state;
-  /*
-  const { parameters: params } = useSelector(
-    (state: ApplicationState) => state.plugin
-  );
-  */
+
   const { pipelineData, selectedPipeline } = pipelineState;
   const enableSave =
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
     Object.keys(requiredInput).length > 0 ||
     Object.keys(dropdownInput).length > 0 ||
-    selectedPlugin !== undefined
+    pluginMeta !== undefined
       ? true
       : false;
   const getStepName = (): string => {
@@ -163,6 +164,17 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
+
+  const handlePluginSelect = (plugin: Plugin) => {
+    dispatch({
+      type: Types.SelectPluginFromMeta,
+      payload: {
+        plugin,
+      },
+    });
+    dispatchStore(getParams(plugin));
+  };
+
   const handleSave = async () => {
     // Set the progress to 'Started'
     const username = user && user.username;
@@ -171,7 +183,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         state.data,
         dropdownInput,
         requiredInput,
-        selectedPlugin,
+        selectedPluginFromMeta,
         username,
         pipelineData,
         getCreationStatus,
@@ -223,22 +235,21 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   );
   const localFileUpload = <LocalFileUpload />;
   const packs = <DataPacks />;
-  let pluginName = selectedPlugin?.data.title
-    ? selectedPlugin?.data.title
-    : selectedPlugin?.data.name;
-  const pluginVersion = (pluginName += `${selectedPlugin?.data.version}`);
+
   const guidedConfig = (
     <GuidedConfig
+      selectedPluginFromMeta={selectedPluginFromMeta}
+      pluginMeta={pluginMeta}
       defaultValueDisplay={false}
       renderComputeEnv={true}
       inputChange={inputChange}
       deleteInput={deleteInput}
-      pluginName={pluginVersion}
       dropdownInput={dropdownInput}
       requiredInput={requiredInput}
       selectedComputeEnv={computeEnvironment}
       setComputeEnviroment={setComputeEnvironment}
       errors={{}}
+      handlePluginSelect={handlePluginSelect}
     />
   );
   const pipelines = <PipelineContainer />;
@@ -253,7 +264,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 3,
           name: "Select an FS Plugin",
           component: withSelectionAlert(packs, false),
-          enableNext: selectedPlugin !== undefined,
+          enableNext: pluginMeta !== undefined,
           canJumpTo: step > 3,
         },
         {

@@ -40,7 +40,8 @@ export function getInitialState(
     wizardOpen: isInitDataSelected,
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
-    selectedPlugin: undefined,
+    pluginMeta: undefined,
+    selectedPluginFromMeta: undefined,
     selectedConfig: isInitDataSelected ? "swift_storage" : "",
     requiredInput: {},
     dropdownInput: {},
@@ -97,7 +98,7 @@ export const createFeedReducer = (
         },
         requiredInput: {},
         dropdownInput: {},
-        selectedPlugin: undefined,
+        pluginMeta: undefined,
         selectedConfig: action.payload.selectedConfig,
       };
     case Types.AddChrisFile:
@@ -165,18 +166,25 @@ export const createFeedReducer = (
         },
       };
 
-    case Types.SelectPlugin: {
+    case Types.SelectPluginMeta: {
       if (action.payload.checked === true) {
         return {
           ...state,
-          selectedPlugin: action.payload.plugin,
+          pluginMeta: action.payload.plugin,
         };
       } else {
         return {
           ...state,
-          selectedPlugin: undefined,
+          pluginMeta: undefined,
         };
       }
+    }
+
+    case Types.SelectPluginFromMeta: {
+      return {
+        ...state,
+        selectedPluginFromMeta: action.payload.plugin,
+      };
     }
 
     case Types.DropdownInput: {
@@ -215,7 +223,7 @@ export const createFeedReducer = (
         ...state,
         data: getDefaultCreateFeedData(),
         step: 1,
-        selectedPlugin: undefined,
+        pluginMeta: undefined,
         selectedConfig: "",
         requiredInput: {},
         dropdownInput: {},

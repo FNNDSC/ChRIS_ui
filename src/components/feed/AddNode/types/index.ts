@@ -26,8 +26,8 @@ export interface InputState {
 export interface BasicConfigurationProps {
   nodes: PluginInstance[];
   parent: PluginInstance;
-  selectedPlugin?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
+  selectedPlugin?: PluginMeta;
+  handlePluginSelect: (plugin: PluginMeta) => void;
 }
 
 export interface BasicConfigurationState {
@@ -37,15 +37,15 @@ export interface BasicConfigurationState {
 }
 
 export interface PluginListProps {
-  handlePluginSelect: (plugin: Plugin) => void;
+  handlePluginSelect: (plugin: PluginMeta) => void;
   plugins?: Plugin[];
-  selected?: Plugin;
+  selected?: PluginMeta;
 }
 
 export interface PluginMetaListProps {
-  handlePluginSelect: (plugin: Plugin) => void;
+  handlePluginSelect: (plugin: PluginMeta) => void;
   pluginMetas?: PluginMeta[];
-  selected?: Plugin;
+  selected?: PluginMeta;
 }
 
 export interface PluginListState {
@@ -53,8 +53,8 @@ export interface PluginListState {
 }
 
 export interface PluginSelectProps {
-  selected?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
+  selected?: PluginMeta;
+  handlePluginSelect: (plugin: PluginMeta) => void;
 }
 
 export interface PluginSelectState {
@@ -73,7 +73,8 @@ export interface AddNodeState extends InputState {
   stepIdReached: number;
   nodes?: PluginInstance[];
   data: {
-    plugin?: Plugin;
+    pluginMeta?: PluginMeta;
+    selectedPluginFromMeta?: Plugin;
     parent?: PluginInstance;
   };
   selectedComputeEnv: string;
@@ -126,9 +127,9 @@ export interface GuidedConfigProps extends InputProps {
   deleteInput(input: string): void;
   selectedComputeEnv?: string;
   setComputeEnviroment?: (computeEnv: string) => void;
-  pluginName: string;
-  handlePluginSelect?: (plugin: Plugin) => void;
-  plugin?: Plugin;
+  selectedPluginFromMeta?: Plugin;
+  handlePluginSelect: (plugin: Plugin) => void;
+  pluginMeta?: PluginMeta;
   errors: {};
 }
 

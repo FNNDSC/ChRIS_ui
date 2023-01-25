@@ -15,8 +15,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
-import ChrisAPIClient from "../../../api/chrisapiclient";
-import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter, PluginMeta } from "@fnndsc/chrisapi";
 import { FaCheck } from "react-icons/fa";
 import ReactJson from "react-json-view";
 
@@ -31,9 +30,9 @@ const GuidedConfig = ({
   selectedComputeEnv,
   setComputeEnviroment,
   deleteInput,
-  pluginName,
+  selectedPluginFromMeta,
   handlePluginSelect,
-  plugin,
+  pluginMeta,
   errors,
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
@@ -44,21 +43,23 @@ const GuidedConfig = ({
   });
 
   const [plugins, setPlugins] = React.useState<Plugin[]>();
-  const [pluginVersion, setPluginVersion] = React.useState<string>("");
-
-  // Hard way
 
   React.useEffect(() => {
     const selectPluginVersion = async () => {
-      const client = ChrisAPIClient.getClient();
-      const pluginList = await client.getPlugins({ name_exact: pluginName });
-      const pluginItems = pluginList.getItems() as unknown as Plugin[];
+      const pluginList = await pluginMeta?.getPlugins({
+        limit: 1000,
+      });
 
-      setPlugins(pluginItems);
+      if (pluginList) {
+        const pluginItems = pluginList.getItems() as unknown as Plugin[];
+        setPlugins(pluginItems);
+        handlePluginSelect &&
+          handlePluginSelect(pluginItems[pluginItems.length - 1]);
+      }
     };
 
     selectPluginVersion();
-  }, [pluginName]);
+  }, [pluginMeta]);
 
   React.useEffect(() => {
     setConfigState((configState) => {
@@ -120,13 +121,11 @@ const GuidedConfig = ({
           <span className="configure-compute__label">
             Select a compute environment:{" "}
           </span>
-          {
-            <ComputeEnvironments
-              selectedOption={selectedComputeEnv}
-              computeEnvs={computeEnvs}
-              setComputeEnvironment={setComputeEnviroment}
-            />
-          }
+          <ComputeEnvironments
+            selectedOption={selectedComputeEnv}
+            computeEnvs={computeEnvs}
+            setComputeEnvironment={setComputeEnviroment}
+          />
         </div>
       );
     }
@@ -165,80 +164,6 @@ const GuidedConfig = ({
     });
   };
 
-  const DropdownBasic = () => {
-    const [isOpen, setIsOpen] = React.useState(false);
-
-    const onToggle = (isOpen: boolean) => {
-      setIsOpen(isOpen);
-    };
-
-    const onFocus = () => {
-      const element = document.getElementById("toggle-child-node-version");
-      element && element.focus();
-    };
-
-    const onSelect = () => {
-      setIsOpen(false);
-      onFocus();
-    };
-
-    const dropdownItems =
-      plugins && plugins?.length > 0 && typeof handlePluginSelect === "function"
-        ? plugins
-            .sort((a, b) =>
-              a.data.version > b.data.version
-                ? -1
-                : b.data.version > a.data.version
-                ? 1
-                : 0
-            )
-            .map((selectedPlugin: Plugin) => {
-              return (
-                <DropdownItem
-                  style={{ padding: "0" }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") {
-                      event.preventDefault();
-                      handlePluginSelect(selectedPlugin);
-                    }
-                  }}
-                  icon={
-                    selectedPlugin.data.version === plugin?.data.version ? (
-                      <FaCheck style={{ color: "green" }} />
-                    ) : (
-                      <></>
-                    )
-                  }
-                  onClick={() => {
-                    setPluginVersion(selectedPlugin.data.version);
-                    handlePluginSelect(selectedPlugin);
-                  }}
-                  key={selectedPlugin.data.id}
-                  name={selectedPlugin.data.version}
-                  value={selectedPlugin.data.value}
-                >
-                  {selectedPlugin.data.version}
-                </DropdownItem>
-              );
-            })
-        : [];
-
-    return (
-      <Dropdown
-        onSelect={onSelect}
-        isOpen={isOpen}
-        toggle={
-          <span style={{ display: "inline-flex" }}>
-            <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
-              {pluginVersion || plugin?.data.version}
-            </DropdownToggle>
-          </span>
-        }
-        dropdownItems={dropdownItems}
-      />
-    );
-  };
-
   const requiredLength = params && params["required"].length;
   const dropdownLength = params && params["dropdown"].length;
 
@@ -247,14 +172,18 @@ const GuidedConfig = ({
       <div className="configuration">
         <div className="configuration__options">
           {!defaultValueDisplay && (
-            <h1 className="pf-c-title pf-m-2xl">{`Configure ${pluginName}`}</h1>
+            <h1 className="pf-c-title pf-m-2xl">{`Configure ${selectedPluginFromMeta?.data.name} v.${selectedPluginFromMeta?.data.version}`}</h1>
           )}
           <CardComponent>
             <>
               <h4 style={{ display: "inline", marginRight: "1rem" }}>
                 Version
               </h4>
-              <DropdownBasic />
+              <DropdownBasic
+                plugins={plugins}
+                selectedPluginFromMeta={selectedPluginFromMeta}
+                handlePluginSelect={handlePluginSelect}
+              />
             </>
           </CardComponent>
 
@@ -334,5 +263,79 @@ const ItalicsComponent = ({ length }: { length?: number }) => {
       }`}
       )
     </i>
+  );
+};
+
+const DropdownBasic = ({
+  plugins,
+  handlePluginSelect,
+  selectedPluginFromMeta,
+}: {
+  plugins?: Plugin[];
+  selectedPluginFromMeta?: Plugin;
+  handlePluginSelect: (plugin: Plugin) => void;
+}) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const onToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const onFocus = () => {
+    const element = document.getElementById("toggle-child-node-version");
+    element && element.focus();
+  };
+
+  const onSelect = () => {
+    setIsOpen(false);
+    onFocus();
+  };
+
+  const dropdownItems =
+    plugins && plugins?.length > 0 && typeof handlePluginSelect === "function"
+      ? plugins.map((selectedPlugin: Plugin) => {
+          return (
+            <DropdownItem
+              style={{ padding: "0" }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handlePluginSelect(selectedPlugin);
+                }
+              }}
+              icon={
+                selectedPlugin.data.version ===
+                selectedPluginFromMeta?.data.version ? (
+                  <FaCheck style={{ color: "green" }} />
+                ) : (
+                  <></>
+                )
+              }
+              onClick={() => {
+                handlePluginSelect(selectedPlugin);
+              }}
+              key={selectedPlugin.data.id}
+              name={selectedPlugin.data.version}
+              value={selectedPlugin.data.value}
+            >
+              {selectedPlugin.data.version}
+            </DropdownItem>
+          );
+        })
+      : [];
+
+  return (
+    <Dropdown
+      onSelect={onSelect}
+      isOpen={isOpen}
+      toggle={
+        <span style={{ display: "inline-flex" }}>
+          <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
+            {selectedPluginFromMeta?.data.version}
+          </DropdownToggle>
+        </span>
+      }
+      dropdownItems={dropdownItems}
+    />
   );
 };
