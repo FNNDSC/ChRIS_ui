@@ -6,6 +6,7 @@ import {
   DropdownItem,
   Card,
   CardBody,
+  Checkbox,
 } from "@patternfly/react-core";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
@@ -15,7 +16,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
 import { GuidedConfigState, GuidedConfigProps } from "./types";
 import { unpackParametersIntoString } from "./lib/utils";
-import { Plugin, PluginParameter, PluginMeta } from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { FaCheck } from "react-icons/fa";
 import ReactJson from "react-json-view";
 
@@ -32,8 +33,10 @@ const GuidedConfig = ({
   deleteInput,
   selectedPluginFromMeta,
   handlePluginSelect,
+  handleCheckboxChange,
   pluginMeta,
   errors,
+  checked,
 }: GuidedConfigProps) => {
   const [configState, setConfigState] = React.useState<GuidedConfigState>({
     componentList: [],
@@ -59,7 +62,25 @@ const GuidedConfig = ({
     };
 
     selectPluginVersion();
-  }, [pluginMeta]);
+  }, []);
+
+  React.useEffect(() => {
+    if (Object.keys(dropdownInput).length > 0 && checked === true) {
+      const defaultComponentList = Object.entries(dropdownInput).map(
+        ([key]) => {
+          return key;
+        }
+      );
+
+      setConfigState((configState) => {
+        return {
+          ...configState,
+          componentList: defaultComponentList,
+          count: defaultComponentList.length,
+        };
+      });
+    }
+  }, [checked, dropdownInput]);
 
   React.useEffect(() => {
     setConfigState((configState) => {
@@ -184,6 +205,20 @@ const GuidedConfig = ({
                 selectedPluginFromMeta={selectedPluginFromMeta}
                 handlePluginSelect={handlePluginSelect}
               />
+              <div
+                style={{
+                  marginTop: "1rem",
+                }}
+              >
+                <Checkbox
+                  isChecked={checked ? true : false}
+                  id="fill-parameters"
+                  label="Fill the form using a latest run of this plugin"
+                  onChange={(checked) => {
+                    handleCheckboxChange && handleCheckboxChange(checked);
+                  }}
+                />
+              </div>
             </>
           </CardComponent>
 
