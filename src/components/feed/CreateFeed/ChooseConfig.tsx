@@ -13,7 +13,7 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig } = state
   const { isDataSelected, localFiles } = state.data;
-  const { onNext, onBack, activeStep } = useContext(WizardContext)
+  const { onNext, onBack } = useContext(WizardContext)
 
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
     dispatch({
@@ -34,14 +34,13 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
         break;
       case "KeyU":
         if (selectedConfig != "local_select") handleClick(e, "local_select");
-        onNext()
         break;
       case "KeyF":
         if (selectedConfig != "swift_storage") handleClick(e, "swift_storage")
         onNext()
         break;
       case "ArrowRight":
-        if (selectedConfig && activeStep.name == "Local File Upload" && localFiles.length < 0) return;
+        if (selectedConfig  && localFiles.length > 0) return;
         else { onNext() }
         break;
       case "ArrowLeft":
@@ -51,7 +50,7 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
         break;
     }
 
-  }, [selectedConfig, handleClick, onNext, onBack, activeStep.name, localFiles.length])
+  }, [selectedConfig, handleClick, onNext, onBack, localFiles.length])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -85,7 +84,7 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
       </p>
       <br />
       <Grid hasGutter md={4}>
-        <GridItem >
+        <GridItem rowSpan={1}>
           <Card
             id="fs_plugin"
             isSelectableRaised
@@ -102,11 +101,11 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
                 </Tooltip>
               </CardActions>
             </CardHeader>
-            <CardTitle><MdSettings size="53px" /><br />Generate Data</CardTitle>
+            <CardTitle><MdSettings size="40" /><br />Generate Data</CardTitle>
             <CardBody>Generate files from running an FS plugin from this ChRIS server</CardBody>
           </Card>
         </GridItem>
-        <GridItem>
+        <GridItem rowSpan={1}>
           <Card
             id="swift_storage"
             isSelectableRaised
@@ -123,12 +122,12 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
               </Tooltip>
             </CardHeader>
             <CardTitle>
-              <BiCloudUpload size="40px" /><br />Fetch Data from ChRIS</CardTitle>
+              <BiCloudUpload size="40" /><br />Fetch Data from ChRIS</CardTitle>
             <CardBody>Choose existing files already registered to ChRIS</CardBody>
           </Card>
         </GridItem>
-        <GridItem>
-          <Card
+        <GridItem rowSpan={1}>
+          {selectedConfig != "local_select"?<Card
             id="local_select"
             isSelectableRaised
             hasSelectableInput
@@ -142,19 +141,17 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
                 <Chip key="KeyboardShortcut" isReadOnly>U</Chip>
               </Tooltip>
             </CardHeader>
-            <CardTitle><FaUpload size="40px" /><br />Upload New Data</CardTitle>
+            <CardTitle><FaUpload size="40" /><br />Upload New Data</CardTitle>
             <CardBody>Upload new files from your local computer</CardBody>
-          </Card>
+          </Card>:
+          <DragAndUpload handleLocalUploadFiles={handleFileUpload}/>}
         </GridItem>
       </Grid>
-      {activeStep.name == "Local File Upload" && <Grid hasGutter span={12} rowSpan={12} >
-       <GridItem  style={{marginTop: "15px"}} md={6} >
-          <DragAndUpload handleLocalUploadFiles={handleFileUpload}/>
+      <Grid hasGutter span={12}>
+        <GridItem>
+         {localFiles.length > 0? <LocalFileUpload />: null}
         </GridItem>
-        <GridItem md={6}>
-         <LocalFileUpload />
-        </GridItem>
-      </Grid>}
+      </Grid>
     </div>
   );
 };

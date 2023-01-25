@@ -1,6 +1,6 @@
-import { WizardContext } from "@patternfly/react-core";
 import React, { useContext } from "react";
 import { useDropzone } from "react-dropzone";
+import { MdOutlineUploadFile } from "react-icons/md";
 import { CreateFeedContext } from "../../feed/CreateFeed/context";
 
 const baseStyle: React.CSSProperties = {
@@ -8,6 +8,7 @@ const baseStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  justifyContent:"center",
   padding: "20px",
   borderWidth: 2,
   borderRadius: 2,
@@ -18,6 +19,7 @@ const baseStyle: React.CSSProperties = {
   outline: "none",
   transition: "border .24s ease-in-out",
 };
+
 
 const activeStyle = {
   borderColor: "#2196f3",
@@ -50,7 +52,6 @@ const DragAndUpload = ({
     getInputProps,
     open,
   } = useDropzone();
-  const { activeStep } = useContext(WizardContext)
   const { state } = useContext(CreateFeedContext);
 
   React.useEffect(() => {
@@ -60,10 +61,10 @@ const DragAndUpload = ({
   }, [acceptedFiles, handleLocalUploadFiles]);
   
   React.useEffect(() => {
-    if (activeStep.name == "Local File Upload" && state.data.localFiles.length == 0) {
+    if (state.data.localFiles.length == 0) {
       open()
     }
-  }, [activeStep.name, open, state.data.localFiles.length])
+  }, [ open, state.data.localFiles.length])
   const style = React.useMemo(
     () => ({
       ...baseStyle,
@@ -71,13 +72,15 @@ const DragAndUpload = ({
       ...(isDragActive ? activeStyle : {}),
       ...(isDragAccept ? acceptStyle : {}),
       ...(isDragReject ? rejectStyle : {}),
+      height: "100%",
     }),
     [isDragActive, isDragReject, isDragAccept, isFocused]
   );
   return (
-    <section className="container">
+    <section className="container" style={{height:"100%"}}>
       <div {...getRootProps({ style })} >
         <input {...getInputProps()} />
+        <MdOutlineUploadFile size="40"/>
         <p>Drag &apos;n&apos; drop some files here or click to select files</p>
       </div>
     </section>

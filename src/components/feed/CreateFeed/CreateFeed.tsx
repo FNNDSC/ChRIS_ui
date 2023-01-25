@@ -304,7 +304,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       ];
     }
   };
-  const steps = data.isDataSelected
+  const steps = data.isDataSelected || selectedConfig == "local_select"
     ? [
         {
           id: 1,
@@ -317,14 +317,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           id: 2,
           name: "Analysis Data Selection",
           component: withSelectionAlert(chooseConfig),
-          enableNext: selectedConfig.length > 0,
+          enableNext: (selectedConfig == "local_select")?data.localFiles.length > 0: selectedConfig.length > 0,
           canJumpTo: step > 2,
         },
         {
           id: 5,
           name: "Pipelines",
           component: pipelines,
-          canJumpTp: step > 5,
+          canJumpTo: step > 5,
         },
         {
           id: 6,
