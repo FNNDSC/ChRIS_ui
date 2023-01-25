@@ -7,7 +7,7 @@ import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
 import { addNodeRequest } from "../../../store/pluginInstance/actions";
 import { getNodeOperations, getParams } from "../../../store/plugin/actions";
-import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
+import { Plugin, PluginMeta, PluginInstance } from "@fnndsc/chrisapi";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { AddNodeState, AddNodeProps, InputType, InputIndex } from "./types";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
@@ -144,10 +144,20 @@ const AddNode: React.FC<AddNodeProps> = ({
     }
   };
 
-  const handlePluginSelect = (plugin: Plugin) => {
+  const handlePluginSelect = (plugin: PluginMeta) => {
     setNodeState((prevState) => ({
       ...prevState,
-      data: { ...prevState.data, plugin },
+      data: { ...prevState.data, pluginMeta: plugin },
+    }));
+  };
+
+  const handlePluginSelectVersion = (plugin: Plugin) => {
+    setNodeState((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState.data,
+        selectedPluginFromMeta: plugin,
+      },
     }));
     getParams(plugin);
   };
@@ -181,7 +191,7 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const handleSave = async () => {
     const { dropdownInput, requiredInput, selectedComputeEnv } = addNodeState;
-    const { plugin } = addNodeState.data;
+    const { selectedPluginFromMeta: plugin } = addNodeState.data;
 
     if (!plugin || !selectedPlugin || !pluginInstances) {
       return;
@@ -227,20 +237,16 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   const basicConfiguration = selectedPlugin && nodes && (
     <BasicConfiguration
-      selectedPlugin={addNodeState.data.plugin}
+      selectedPlugin={addNodeState.data.pluginMeta}
       parent={selectedPlugin}
       nodes={nodes}
       handlePluginSelect={handlePluginSelect}
     />
   );
 
-  const pluginName = data.plugin?.data.name;
-
-  // const pluginVersion = (pluginName);
-
-  const form = data.plugin ? (
+  const form = data.pluginMeta ? (
     <GuidedConfig
-      pluginName={pluginName}
+      selectedPluginFromMeta={data.selectedPluginFromMeta}
       defaultValueDisplay={false}
       renderComputeEnv={true}
       inputChange={inputChange}
@@ -249,8 +255,8 @@ const AddNode: React.FC<AddNodeProps> = ({
       requiredInput={requiredInput}
       selectedComputeEnv={selectedComputeEnv}
       setComputeEnviroment={setComputeEnv}
-      handlePluginSelect={handlePluginSelect}
-      plugin={data.plugin}
+      handlePluginSelect={handlePluginSelectVersion}
+      pluginMeta={data.pluginMeta}
       errors={addNodeState.errors}
     />
   ) : (
@@ -262,7 +268,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       id: 1,
       name: "Plugin Selection",
       component: basicConfiguration,
-      enableNext: !!data.plugin,
+      enableNext: !!data.pluginMeta,
       canJumpTo: stepIdReached > 1,
     },
     {
