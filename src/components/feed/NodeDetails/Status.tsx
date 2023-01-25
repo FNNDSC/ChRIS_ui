@@ -11,6 +11,7 @@ const Status = () => {
     const items = pluginStatus.map((label: any, index: number) => {
       return {
         key: index,
+        description: label.description,
         icon: label.process && <Spin />,
         status:
           label.wait === true
@@ -23,36 +24,13 @@ const Status = () => {
       };
     });
 
-    const descriptionItems = pluginStatus.map((label: any, index: number) => {
-      return {
-        key: index,
-        description: label.description,
-        status:
-          label.status === true
-            ? "finish"
-            : label.error === true
-            ? "error"
-            : undefined,
-      };
-    });
-
     return (
-      <>
-        <Steps
+         <Steps
           className="node-details__status"
-          direction="horizontal"
-          size="small"
+          labelPlacement="vertical"
           items={items}
         />
-
-        <Steps
-          direction="horizontal"
-          size="small"
-          className="node-details__status-descriptions"
-          items={descriptionItems}
-        />
-      </>
-    );
+     );
   } else return null;
 };
 

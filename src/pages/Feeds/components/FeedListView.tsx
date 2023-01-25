@@ -148,9 +148,8 @@ const FeedListView: React.FC = () => {
     <React.Fragment>
       <PageSection className="feed-header" variant="light">
         <InfoIcon
-          title={`New and Existing Analyses (${
-            totalFeedsCount > 0 ? totalFeedsCount : 0
-          })`}
+          title={`New and Existing Analyses (${totalFeedsCount > 0 ? totalFeedsCount : 0
+            })`}
           p1={
             <Paragraph style={style}>
               Analyses (aka ChRIS feeds) are computational experiments where
@@ -168,14 +167,38 @@ const FeedListView: React.FC = () => {
       </PageSection>
 
       <PageSection className="feed-list">
+
         <div className="feed-list__split">
-          <DataTableToolbar
+          <Checkbox
+            id="test"
+            isChecked={selectAllToggle}
+            label="Select all"
+            onChange={() => {
+              if (!selectAllToggle) {
+                if (allFeeds.data) {
+                  dispatch(setAllSelect(allFeeds.data));
+                }
+
+                dispatch(toggleSelectAll(true));
+              } else {
+                if (allFeeds.data) {
+                  dispatch(removeAllSelect(allFeeds.data));
+                }
+                dispatch(toggleSelectAll(false));
+              }
+            }}
+          />
+          
+                    {generatePagination()}
+
+         
+        </div>
+        <div className="feed-list__split">
+        <DataTableToolbar
             onSearch={handleFilterChange}
             label="filter by name"
           />
           {bulkSelect.length > 0 && <IconContainer />}
-
-          {generatePagination()}
         </div>
         {(!data && !loading) || (data && data.length === 0) ? (
           <EmptyStateTable
@@ -196,26 +219,7 @@ const FeedListView: React.FC = () => {
             {
               <Thead>
                 <Tr>
-                  <Th>
-                    <Checkbox
-                      id="test"
-                      isChecked={selectAllToggle}
-                      onChange={() => {
-                        if (!selectAllToggle) {
-                          if (allFeeds.data) {
-                            dispatch(setAllSelect(allFeeds.data));
-                          }
-
-                          dispatch(toggleSelectAll(true));
-                        } else {
-                          if (allFeeds.data) {
-                            dispatch(removeAllSelect(allFeeds.data));
-                          }
-                          dispatch(toggleSelectAll(false));
-                        }
-                      }}
-                    />
-                  </Th>
+                  <Th></Th>
                   <Th>Id</Th>
                   <Th>Analysis</Th>
                   <Th>Created</Th>
@@ -229,7 +233,7 @@ const FeedListView: React.FC = () => {
                   >
                     Size
                   </Th>
-                  <Th></Th>
+                  <Th>Progress</Th>
                 </Tr>
               </Thead>
             }
@@ -314,12 +318,7 @@ const TableRow = ({
   );
 
   const feedSize = (
-    <p
-      style={{
-        textAlign: "center",
-        margin: "0 auto",
-      }}
-    >
+    <p>
       <span className="feed-list__name">
         <Tooltip content={<div>View files in library</div>}>
           <Link to={`/library/`}>
@@ -416,14 +415,14 @@ const TableRow = ({
         backgroundColor: selectedBgRow,
       }}
     >
-      <Td>{bulkChecbox}</Td>
-      <Td>{feedId}</Td>
-      <Td>{name}</Td>
-      <Td>{created}</Td>
-      <Td>{creator}</Td>
-      <Td>{runTime}</Td>
-      <Td>{feedSize}</Td>
-      <Td>{circularProgress}</Td>
+      <Td >{bulkChecbox}</Td>
+      <Td dataLabel="Id" >{feedId}</Td>
+      <Td dataLabel="Analysis" >{name}</Td>
+      <Td dataLabel="Created">{created}</Td>
+      <Td dataLabel="Creator">{creator}</Td>
+      <Td dataLabel="Run Time">{runTime}</Td>
+      <Td dataLabel="Size">{feedSize}</Td>
+      <Td dataLabel="Progress">{circularProgress}</Td>
     </Tr>
   );
 };
