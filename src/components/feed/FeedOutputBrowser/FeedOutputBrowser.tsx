@@ -16,6 +16,7 @@ import { DataNode } from "../../../store/explorer/types";
 import "./FeedOutputBrowser.scss";
 import { useFeedBrowser } from "./useFeedBrowser";
 import { SpinContainer } from "../../common/loading/LoadingContent";
+import { FaWindowClose } from "react-icons/fa";
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
 const { DirectoryTree } = Tree;
@@ -47,16 +48,26 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   return (
     <>
+      <Grid  className="feed-output-browser__title">
+       {explore && (
+          <FaWindowClose
+          onClick={() => {
+            expandDrawer("bottom_panel");
+          }}
+          className="feed-output-browser__button"
+        />
+        )}
+        </Grid>
       <Grid hasGutter={true} className="feed-output-browser ">
         <GridItem
           className="feed-output-browser__sidebar"
-          xl={2}
+          xl={6}
           xlRowSpan={12}
-          xl2={2}
+          xl2={6}
           xl2RowSpan={12}
-          lg={2}
+          lg={6}
           lgRowSpan={12}
-          md={2}
+          md={6}
           mdRowSpan={12}
           sm={12}
           smRowSpan={12}
@@ -71,13 +82,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         </GridItem>
         <GridItem
           className="feed-output-browser__main"
-          xl={10}
+          xl={6}
           xlRowSpan={12}
-          xl2={10}
+          xl2={6}
           xl2RowSpan={12}
-          lg={10}
+          lg={6}
           lgRowSpan={12}
-          md={10}
+          md={6}
           mdRowSpan={12}
           sm={12}
           smRowSpan={12}
