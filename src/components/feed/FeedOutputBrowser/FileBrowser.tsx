@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../../store/hooks";
@@ -6,11 +6,10 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Grid,
-  GridItem,
   Button,
   HelperTextItem,
   HelperText,
-  ClipboardCopyButton, clipboardCopyFunc
+  ClipboardCopyButton, clipboardCopyFunc, DrawerHead, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, DrawerActions, DrawerCloseButton, DrawerPanelBody
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
@@ -21,7 +20,6 @@ import {
   AiFillFile,
   AiFillFolder,
   AiOutlineExpandAlt,
-  AiFillCloseCircle,
 } from "react-icons/ai";
 import { FaFileCode, FaFilm } from "react-icons/fa";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
@@ -52,11 +50,12 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleDicomViewerOpen,
     handleXtkViewerOpen,
     explore,
-    expandDrawer,
     filesLoading,
   } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const dispatch = useDispatch();
+
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const { files, folders, path } = pluginFilesPayload;
   const cols = [{ title: "Name" }, { title: "Size" }, { title: "" }];
@@ -162,7 +161,16 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const previewPanel = (
-    <>
+    <DrawerPanelContent defaultSize="70%" minSize={"25%"}  >
+      <DrawerHead>
+        <span tabIndex={isExpanded ? 0 : -1} >
+        </span>
+        <DrawerActions>
+          <DrawerCloseButton onClick={() => setIsExpanded(false)} />
+        </DrawerActions>
+      </DrawerHead>
+
+      <DrawerPanelBody>
       <div
         style={{
           display: "flex",
@@ -191,40 +199,31 @@ const FileBrowser = (props: FileBrowserProps) => {
         ) : (
           <span>Click on a file to preview:</span>
         )}
-        {explore && (
-          <Button
-            onClick={() => expandDrawer("bottom_panel")}
-            variant="tertiary"
-            type="button"
-            icon={<AiFillCloseCircle />}
-          />
-        )}
       </div>
 
       {selectedFile && (
         <FileDetailView selectedFile={selectedFile} preview="large" />
       )}
-    </>
+
+      </DrawerPanelBody>
+
+    </DrawerPanelContent>
   );
 
   const [copied, setCopied] = React.useState(false);
+  useEffect(() => {
 
+    if(selectedFile){
+       setIsExpanded(true);
+    }
+  }, [selectedFile])
   return (
     <Grid hasGutter className="file-browser">
-      <GridItem
-        xl2={5}
-        xl2RowSpan={12}
-        xl={6}
-        xlRowSpan={12}
-        lg={4}
-        lgRowSpan={12}
-        md={4}
-        mdRowSpan={12}
-        sm={12}
-        smRowSpan={12}
-        className="file-browser__firstGrid"
-      >
-        <div className="file-browser__header">
+      <Drawer isExpanded={isExpanded} >
+      <DrawerContent panelContent={previewPanel} className="file-browser__firstGrid"
+>
+          <DrawerContentBody >
+          <div className="file-browser__header">
           <div className="file-browser__header--breadcrumbContainer">
             <ClipboardCopyButton
               onClick={(event: any) => {
@@ -276,22 +275,9 @@ const FileBrowser = (props: FileBrowserProps) => {
             />
           )}
         </Table>
-      </GridItem>
-      <GridItem
-        xl2={7}
-        xl2RowSpan={12}
-        xl={6}
-        xlRowSpan={12}
-        lg={8}
-        lgRowSpan={12}
-        md={8}
-        mdRowSpan={12}
-        sm={12}
-        smRowSpan={12}
-        className="file-browser__grid2"
-      >
-        {previewPanel}
-      </GridItem>
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
     </Grid>
   );
 };
