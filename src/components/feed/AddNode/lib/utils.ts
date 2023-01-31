@@ -29,6 +29,7 @@ export const unpackParametersIntoObject = (input: InputType) => {
 };
 
 export const unpackParametersIntoString = (input: InputType) => {
+  console.log("Input", input);
   let string = "";
 
   for (const parameter in input) {
@@ -78,7 +79,14 @@ export function getRequiredParamsWithName(
   return result;
 }
 
-export const handleGetTokens = (value: string, params?: PluginParameter[]) => {
+export const handleGetTokens = (
+  value: string,
+  params: {
+    required: PluginParameter[];
+    dropdown: PluginParameter[];
+  }
+) => {
+  const totalParams = [...params.required, ...params.dropdown];
   const userValue = value.trim();
   const lookupTable: InputIndex = {};
   const dictionary: InputIndex = {};
@@ -86,10 +94,10 @@ export const handleGetTokens = (value: string, params?: PluginParameter[]) => {
   let dropdownInput: InputType = {};
   let specialCharIndex = undefined;
 
-  const flags = params && params.map((param) => param.data.flag);
+  const flags = totalParams && totalParams.map((param) => param.data.flag);
   const helperValues =
-    params &&
-    params.map((param) => {
+    totalParams &&
+    totalParams.map((param) => {
       return {
         id: param.data.id,
         flag: param.data.flag,
