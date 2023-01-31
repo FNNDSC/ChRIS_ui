@@ -22,11 +22,9 @@ const ChooseConfig = ({ handleFileUpload }: { handleFileUpload: (files: any[]) =
         selectedConfig: selectedPluginId == "" ? event.currentTarget.id : selectedPluginId,
       },
     })
-
   }, [dispatch])
 
   const handleKeyDown = useCallback((e: any) => {
-
     switch (e.code) {
       case "KeyG":
         if (selectedConfig != "fs_plugin") handleClick(e, "fs_plugin")
