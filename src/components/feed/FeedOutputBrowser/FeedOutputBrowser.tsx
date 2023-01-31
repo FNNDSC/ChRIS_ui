@@ -61,13 +61,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       <Grid hasGutter={true} className="feed-output-browser ">
         <GridItem
           className="feed-output-browser__sidebar"
-          xl={6}
+          xl={4}
           xlRowSpan={12}
           xl2={2}
           xl2RowSpan={12}
-          lg={6}
+          lg={4}
           lgRowSpan={12}
-          md={6}
+          md={5}
           mdRowSpan={12}
           sm={12}
           smRowSpan={12}
@@ -82,13 +82,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         </GridItem>
         <GridItem
           className="feed-output-browser__main"
-          xl={6}
+          xl={8}
           xlRowSpan={12}
           xl2={10}
           xl2RowSpan={12}
-          lg={6}
+          lg={8}
           lgRowSpan={12}
-          md={6}
+          md={7}
           mdRowSpan={12}
           sm={12}
           smRowSpan={12}
