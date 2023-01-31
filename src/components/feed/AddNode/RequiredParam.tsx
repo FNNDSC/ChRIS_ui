@@ -25,7 +25,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const placeholder = param.data.help;
     const type = param.data.type;
     const value = event.target.value;
-    const paramName = param.data.name;
+
     dispatch({
       types: Types.RequiredInput,
       payload: {
@@ -37,6 +37,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
             type,
           },
         },
+        editorValue: false,
       },
     });
   };

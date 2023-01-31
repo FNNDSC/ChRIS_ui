@@ -153,7 +153,6 @@ export interface AddNodeState extends InputState {
   errors: Record<string, unknown>;
   editorValue: string;
   loading: boolean;
-  autoFill: boolean;
   isOpen: boolean;
   pluginMetas: PluginMeta[];
   componentList: string[];
@@ -171,6 +170,9 @@ export enum Types {
   SetComponentList = "SET_COMPONENT_LIST",
   DeleteComponentList = "DELETE_COMPONENT_LIST",
   SetEditorValue = "SET_EDITOR_VALUE",
+  SetComputeEnv = "SET_COMPUTE_ENV",
+  ResetState = "RESET_STATE",
+  SetShowPreviousRun = "SET_SHOW_PREVIOUS_RUN",
 }
 
 export interface AddNodeStateActions {
@@ -178,12 +180,14 @@ export interface AddNodeStateActions {
     input: {
       [id: string]: InputIndex;
     };
+    editorValue: boolean;
   };
 
   [Types.DropdownInput]: {
     input: {
       [id: string]: InputIndex;
     };
+    editorValue: boolean;
   };
   [Types.SetPluginMeta]: {
     pluginMeta: PluginMeta;
@@ -214,4 +218,14 @@ export interface AddNodeStateActions {
   [Types.SetEditorValue]: {
     value: string;
   };
+
+  [Types.SetComputeEnv]: {
+    computeEnv: string;
+  };
+
+  [Types.SetShowPreviousRun]: {
+    showPreviousRun: boolean;
+  };
+
+  [Types.ResetState]: Record<string, unknown>;
 }

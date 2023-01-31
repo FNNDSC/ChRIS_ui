@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useReducer } from "react";
+import React, { createContext, useReducer } from "react";
 import { addNodeReducer } from "../reducer";
 import { AddNodeState } from "../types";
 
-function getInitialNodeState(): AddNodeState {
+export function getInitialNodeState(): AddNodeState {
   return {
     stepIdReached: 1,
     nodes: [],
@@ -14,7 +14,6 @@ function getInitialNodeState(): AddNodeState {
     editorValue: "",
     loading: false,
     errors: {},
-    autoFill: false,
     isOpen: false,
     pluginMetas: [],
     componentList: [],

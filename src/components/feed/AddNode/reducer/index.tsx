@@ -1,7 +1,26 @@
+import { getInitialNodeState } from "../context";
 import { AddNodeState, Types, InputType } from "../types";
 
 export const addNodeReducer = (state: AddNodeState, action: any) => {
   switch (action.type) {
+    case Types.SetStepIdReached: {
+      const { id } = action.payload;
+
+      if (id === 1) {
+        return {
+          ...state,
+          dropdownInput: {},
+          requiredInput: {},
+          stepIdReached: id,
+        };
+      } else {
+        return {
+          ...state,
+          stepIdReached: id,
+        };
+      }
+    }
+
     case Types.SetPluginMeta: {
       return {
         ...state,
@@ -59,32 +78,70 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
     }
 
     case Types.DropdownInput: {
-      const { input } = action.payload;
+      const { input, editorValue } = action.payload;
 
-      return {
-        ...state,
-        dropdownInput: {
-          ...state.dropdownInput,
-          ...input,
-        },
-      };
+      if (editorValue) {
+        return {
+          ...state,
+          dropdownInput: input,
+        };
+      } else {
+        return {
+          ...state,
+          dropdownInput: {
+            ...state.dropdownInput,
+            ...input,
+          },
+        };
+      }
     }
 
     case Types.RequiredInput: {
-      const { input } = action.payload;
-      return {
-        ...state,
-        requiredInput: {
-          ...state.requiredInput,
-          ...input,
-        },
-      };
+      const { input, editorValue } = action.payload;
+
+      if (editorValue) {
+        return {
+          ...state,
+          requiredInput: input,
+        };
+      } else {
+        return {
+          ...state,
+          requiredInput: {
+            ...state.requiredInput,
+            ...input,
+          },
+        };
+      }
     }
 
     case Types.SetEditorValue: {
       return {
         ...state,
         editorValue: action.payload.value,
+      };
+    }
+
+    case Types.SetComputeEnv: {
+      return {
+        ...state,
+        selectedComputeEnv: action.payload.computeEnv,
+      };
+    }
+
+    case Types.SetShowPreviousRun: {
+      return {
+        ...state,
+        showPreviousRun: action.payload.showPreviousRun,
+      };
+    }
+
+    case Types.ResetState: {
+      const newState = getInitialNodeState();
+
+      console.log("New State", newState);
+      return {
+        ...newState,
       };
     }
 

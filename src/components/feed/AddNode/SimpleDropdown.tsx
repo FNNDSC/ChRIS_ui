@@ -27,7 +27,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
   const [dropdownState, setDropdownState] =
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
-  const [paramFlag, value, type, placeholder, paramName] = unPackForKeyValue(
+  const [paramFlag, value, type, placeholder] = unPackForKeyValue(
     dropdownInput[id]
   );
 
@@ -87,6 +87,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
             placeholder,
           },
         },
+        editorValue: false,
       },
     });
   };
@@ -112,6 +113,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
             placeholder,
           },
         },
+        editorValue: false,
       },
     });
   };
