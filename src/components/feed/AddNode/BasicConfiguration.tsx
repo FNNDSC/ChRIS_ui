@@ -12,36 +12,30 @@ import { BasicConfigurationProps } from "./types";
 import { PluginMeta } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { LoadingContent } from "../../common/loading/LoadingContent";
-import {
-  PluginSelectProps,
-  PluginMetaListProps,
-  PluginMetaSelectState,
-} from "./types";
+import { PluginMetaSelectState } from "./types";
 import { fetchResource } from "../../../api/common";
+import { useContext } from "react";
+import { AddNodeContext } from "./context";
+import { Types } from "./types";
 
 const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
-  handlePluginSelect,
-  parent,
   selectedPlugin,
 }) => {
-  const value = parent.data.title || parent.data.plugin_name;
+  const value = selectedPlugin.data.title || selectedPlugin.data.plugin_name;
 
   return (
     <div className="screen-one">
       <Title headingLevel="h1">Plugin Selection</Title>
       <FormGroup label="Parent node:" fieldId="parent-node">
         <TextInput
-          value={`${value} v.${parent.data.plugin_version}`}
+          value={`${value} v.${selectedPlugin.data.plugin_version}`}
           aria-label="Selected Plugin Name"
           readOnly={true}
         />
       </FormGroup>
 
       <FormGroup label="Select plugin to add:" fieldId="plugin">
-        <PluginSelect
-          selected={selectedPlugin}
-          handlePluginSelect={handlePluginSelect}
-        />
+        <PluginSelect />
       </FormGroup>
     </div>
   );
@@ -49,14 +43,10 @@ const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
 
 export default BasicConfiguration;
 
-const PluginSelect: React.FC<PluginSelectProps> = ({
-  selected,
-  handlePluginSelect,
-}) => {
+const PluginSelect: React.FC = () => {
   const [isMounted, setMounted] = useState(false);
-  const [allPlugins, setAllPlugins] = useState<
-    PluginMetaSelectState["allPlugins"]
-  >([]);
+  const { dispatch } = useContext(AddNodeContext);
+
   const [expanded, setExpanded] =
     useState<PluginMetaSelectState["expanded"]>("all-toggle");
 
@@ -73,9 +63,15 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
     pluginMetas =
       pluginMetas &&
       pluginMetas.filter((pluginMeta) => pluginMeta.data.type !== "fs");
-
-    if (isMounted && pluginMetas) setAllPlugins(pluginMetas);
-  }, [isMounted]);
+    if (isMounted && pluginMetas) {
+      dispatch({
+        type: Types.SetPluginMetaList,
+        payload: {
+          pluginMetas: pluginMetas,
+        },
+      });
+    }
+  }, [isMounted, dispatch]);
 
   useEffect(() => {
     setMounted(true);
@@ -101,23 +97,17 @@ const PluginSelect: React.FC<PluginSelectProps> = ({
           All Plugins
         </AccordionToggle>
         <AccordionContent id="all-content" isHidden={expanded !== "all-toggle"}>
-          <PluginList
-            pluginMetas={allPlugins}
-            selected={selected}
-            handlePluginSelect={handlePluginSelect}
-          />
+          <PluginList />
         </AccordionContent>
       </AccordionItem>
     </Accordion>
   );
 };
 
-const PluginList: React.FC<PluginMetaListProps> = ({
-  pluginMetas,
-  selected,
-  handlePluginSelect,
-}) => {
+const PluginList: React.FC = () => {
   const [filter, setFilter] = useState("");
+  const { state, dispatch } = useContext(AddNodeContext);
+  const { pluginMetas, pluginMeta } = state;
 
   const handleFilterChange = (filter: string) => setFilter(filter);
   const matchesFilter = useCallback(
@@ -135,7 +125,12 @@ const PluginList: React.FC<PluginMetaListProps> = ({
     ));
 
   const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
-    handlePluginSelect(pluginMeta);
+    dispatch({
+      type: Types.SetPluginMeta,
+      payload: {
+        pluginMeta,
+      },
+    });
   };
 
   return (
@@ -151,14 +146,14 @@ const PluginList: React.FC<PluginMetaListProps> = ({
         ? pluginMetas
             .sort((a, b) => a.data.name.localeCompare(b.data.name))
             .filter(matchesFilter)
-            .map((pluginMeta) => {
-              const { id, name, title } = pluginMeta.data;
-              const isSelected = selected && name === selected.data.name;
+            .map((item) => {
+              const { id, name, title } = item.data;
+              const isSelected = pluginMeta && name === pluginMeta.data.name;
               return (
                 <li
                   key={id}
                   className={isSelected ? "selected" : ""}
-                  onClick={() => getPluginFromMeta(pluginMeta)}
+                  onClick={() => getPluginFromMeta(item)}
                 >
                   <span>{name}</span>
                   <span className="description">Description: {title}</span>

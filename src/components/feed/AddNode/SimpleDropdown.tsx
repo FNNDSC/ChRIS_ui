@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Dropdown, DropdownToggle, DropdownItem } from "@patternfly/react-core";
 import { AiFillCaretDown } from "react-icons/ai";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
@@ -7,6 +7,9 @@ import { PluginParameter } from "@fnndsc/chrisapi";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
 import { MdClose } from "react-icons/md";
+import { AddNodeContext } from "./context";
+import { Types } from "./types";
+import { v4 } from "uuid";
 
 function getInitialState() {
   return {
@@ -15,19 +18,16 @@ function getInitialState() {
 }
 
 const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
-  defaultValueDisplay,
-  dropdownInput,
   id,
   params,
-  handleChange,
-  addParam,
-  deleteInput,
-  deleteComponent,
 }: SimpleDropdownProps) => {
+  const { state, dispatch } = useContext(AddNodeContext);
+
+  const { dropdownInput, componentList } = state;
   const [dropdownState, setDropdownState] =
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
-  const [paramFlag, value, type, placeholder, paramName] = unPackForKeyValue(
+  const [paramFlag, value, type, placeholder] = unPackForKeyValue(
     dropdownInput[id]
   );
 
@@ -54,9 +54,11 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
 
   const findUsedParam = () => {
     const usedParam = new Set();
+
     for (const input in dropdownInput) {
-      usedParam.add(dropdownInput[input].flag);
+      dropdownInput[input] && usedParam.add(dropdownInput[input].flag);
     }
+
     return usedParam;
   };
 
@@ -64,30 +66,56 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
     const flag = param.data.flag;
     const placeholder = param.data.help;
     const type = param.data.type;
-    const defaultValue = value
-      ? value
-      : defaultValueDisplay
-      ? param.data.default
-      : "";
-    addParam();
-    handleChange(id, flag, defaultValue, type, placeholder, false, paramName);
+
+    if (params && params["dropdown"].length > 0) {
+      dispatch({
+        type: Types.SetComponentList,
+        payload: {
+          componentList: [...componentList, v4()],
+        },
+      });
+    }
+
+    dispatch({
+      type: Types.DropdownInput,
+      payload: {
+        input: {
+          [id]: {
+            flag,
+            value: "",
+            type,
+            placeholder,
+          },
+        },
+        editorValue: false,
+      },
+    });
   };
 
   const deleteDropdown = () => {
-    deleteInput(id);
-    deleteComponent(id);
+    dispatch({
+      type: Types.DeleteComponentList,
+      payload: {
+        id,
+      },
+    });
   };
 
   const handleInputChange = (e: any) => {
-    handleChange(
-      id,
-      paramFlag,
-      e.target.value,
-      type,
-      placeholder,
-      false,
-      paramName
-    );
+    dispatch({
+      type: Types.DropdownInput,
+      payload: {
+        input: {
+          [id]: {
+            flag: paramFlag,
+            value: e.target.value,
+            type,
+            placeholder,
+          },
+        },
+        editorValue: false,
+      },
+    });
   };
 
   const dropdownItems = () => {

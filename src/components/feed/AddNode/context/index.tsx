@@ -1,35 +1,36 @@
 import React, { createContext, useReducer } from "react";
-import { AddNodeState } from "../types";
 import { addNodeReducer } from "../reducer";
+import { AddNodeState } from "../types";
 
-function getInitialState() {
+export function getInitialNodeState(): AddNodeState {
   return {
     stepIdReached: 1,
     nodes: [],
-    data: {},
+    pluginMeta: undefined,
+    selectedPluginFromMeta: undefined,
     requiredInput: {},
     dropdownInput: {},
     selectedComputeEnv: "",
     editorValue: "",
     loading: false,
     errors: {},
-    autoFill: false,
+    isOpen: false,
+    pluginMetas: [],
+    componentList: [],
+    showPreviousRun: false,
   };
 }
 
-const AddNodeContext = createContext<{ state: AddNodeState; dispatch: any }>({
-  state: getInitialState(),
+const AddNodeContext = createContext<{
+  state: AddNodeState;
+  dispatch: React.Dispatch<any>;
+}>({
+  state: getInitialNodeState(),
   dispatch: () => null,
 });
 
-interface AddNodeProviderProps {
-  children: React.ReactNode;
-}
-
-const AddNodeProvider: React.FC<AddNodeProviderProps> = ({
-  children,
-}: AddNodeProviderProps) => {
-  const initialState = getInitialState();
+const AddNodeProvider = ({ children }: { children: React.ReactNode }) => {
+  const initialState = getInitialNodeState();
   const [state, dispatch] = useReducer(addNodeReducer, initialState);
   return (
     <AddNodeContext.Provider value={{ state, dispatch }}>
@@ -38,4 +39,4 @@ const AddNodeProvider: React.FC<AddNodeProviderProps> = ({
   );
 };
 
-export { AddNodeProvider, AddNodeContext };
+export { AddNodeContext, AddNodeProvider };
