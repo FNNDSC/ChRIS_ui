@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../../store/hooks";
@@ -211,12 +211,6 @@ const FileBrowser = (props: FileBrowserProps) => {
   );
 
   const [copied, setCopied] = React.useState(false);
-  useEffect(() => {
-
-    if(selectedFile){
-       setIsExpanded(true);
-    }
-  }, [selectedFile])
   return (
     <Grid hasGutter className="file-browser">
       <Drawer isExpanded={isExpanded} >
@@ -270,6 +264,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                   handleFileClick(`${path}/${item}`);
                 } else {
                   dispatch(setSelectedFile(item));
+                  setIsExpanded(true);
                 }
               }}
             />
