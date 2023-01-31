@@ -29,7 +29,6 @@ export const unpackParametersIntoObject = (input: InputType) => {
 };
 
 export const unpackParametersIntoString = (input: InputType) => {
-  console.log("Input", input);
   let string = "";
 
   for (const parameter in input) {

@@ -8,38 +8,27 @@ import {
   CardBody,
   Checkbox,
 } from "@patternfly/react-core";
+import { PluginInstance, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
 import ComputeEnvironments from "./ComputeEnvironment";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../../store/root/applicationState";
 import { v4 } from "uuid";
-import { GuidedConfigState, GuidedConfigProps } from "./types";
 import { handleGetTokens, unpackParametersIntoString } from "./lib/utils";
 import { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { FaCheck } from "react-icons/fa";
-import ReactJson from "react-json-view";
 import { AddNodeContext } from "./context";
-import { Types } from "./types";
+import { Types, InputIndex } from "./types";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import { getParams } from "../../../store/plugin/actions";
+import { fetchResource } from "../../../api/common";
 
 const GuidedConfig = () => {
   const dispatch = useDispatch();
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const params = useTypedSelector((state) => state.plugin.parameters);
-  const {
-    pluginMeta,
-    dropdownInput,
-    requiredInput,
-    showPreviousRun,
-    componentList,
-    editorValue,
-  } = state;
+  const { pluginMeta, dropdownInput, requiredInput, componentList } = state;
   const [plugins, setPlugins] = React.useState<Plugin[]>();
-
-  console.log("STATE", state);
 
   useEffect(() => {
     const fetchPluginVersions = async () => {
@@ -50,7 +39,7 @@ const GuidedConfig = () => {
       if (pluginList) {
         const pluginItems = pluginList.getItems() as unknown as Plugin[];
         setPlugins(pluginItems);
-        const plugin = pluginItems[pluginItems.length - 1];
+        const plugin = pluginItems[0];
         nodeDispatch({
           type: Types.SetSelectedPluginFromMeta,
           payload: {
@@ -61,15 +50,18 @@ const GuidedConfig = () => {
       }
     };
     fetchPluginVersions();
-  }, [dispatch, pluginMeta]);
+  }, [dispatch, pluginMeta, nodeDispatch]);
 
   useEffect(() => {
-    if (Object.keys(dropdownInput).length > 0 && showPreviousRun === false) {
-      const defaultComponentList = Object.entries(dropdownInput).map(
-        ([key]) => {
-          return key;
-        }
-      );
+    let defaultComponentList = [];
+    if (Object.keys(dropdownInput).length > 0) {
+      defaultComponentList = Object.entries(dropdownInput).map(([key]) => {
+        return key;
+      });
+
+      if (params && defaultComponentList.length < params["dropdown"].length) {
+        defaultComponentList = [...defaultComponentList, v4()];
+      }
       nodeDispatch({
         type: Types.SetComponentList,
         payload: {
@@ -77,7 +69,7 @@ const GuidedConfig = () => {
         },
       });
     }
-  }, [showPreviousRun, dropdownInput]);
+  }, [dropdownInput, nodeDispatch, params]);
 
   useEffect(() => {
     let derivedValue = "";
@@ -96,7 +88,7 @@ const GuidedConfig = () => {
         value: derivedValue,
       },
     });
-  }, [dropdownInput, requiredInput]);
+  }, [dropdownInput, requiredInput, nodeDispatch]);
 
   useEffect(() => {
     nodeDispatch({
@@ -123,6 +115,17 @@ const GuidedConfig = () => {
     });
   };
 
+  const renderComputeEnvs = () => {
+    return (
+      <div className="configure-compute">
+        <span className="configure-compute__label">
+          Select a compute environment:{" "}
+        </span>
+        <ComputeEnvironments />
+      </div>
+    );
+  };
+
   const requiredLength = params && params["required"].length;
   const dropdownLength = params && params["dropdown"].length;
 
@@ -133,6 +136,13 @@ const GuidedConfig = () => {
           <>
             <h4 style={{ display: "inline", marginRight: "1rem" }}>Version</h4>
             <DropdownBasic plugins={plugins} />
+            <div
+              style={{
+                marginTop: "1rem",
+              }}
+            >
+              <CheckboxComponent />
+            </div>
           </>
         </CardComponent>
       </div>
@@ -141,66 +151,31 @@ const GuidedConfig = () => {
           <>
             <div>
               <h4>
-                Required Parameters{""}
-                <ItalicsComponent length={requiredLength} />
+                Required Parameters <ItalicsComponent length={requiredLength} />
               </h4>
               {params &&
                 params["required"].length > 0 &&
                 renderRequiredParams(params["required"])}
             </div>
             <div>
-              <h4>Optional Parameters{""}</h4>
-              <ItalicsComponent length={dropdownLength} />
+              <h4>
+                Optional Parameters <ItalicsComponent length={dropdownLength} />
+              </h4>
+
               {renderDropdowns()}
             </div>
           </>
         </CardComponent>
+        <div>
+          <CardComponent>
+            <div className="configuration__renders">{renderComputeEnvs()}</div>
+          </CardComponent>
+        </div>
       </div>
       <div>
-        <ClipboardCopy
-          onChange={(text?: string | number) => {
-            if (text) {
-              nodeDispatch({
-                type: Types.SetEditorValue,
-                payload: {
-                  value: text as string,
-                },
-              });
-            }
-          }}
-          hoverTip="Copy"
-          clickTip="copied"
-        >
-          {editorValue}
-        </ClipboardCopy>
-        <FaCheck
-          onClick={() => {
-            if (params) {
-              const { optional, nonOptional } = handleGetTokens(
-                editorValue,
-                params
-              );
-
-              if (Object.keys(optional).length > 0) {
-                nodeDispatch({
-                  type: Types.DropdownInput,
-                  payload: {
-                    input: optional,
-                  },
-                });
-              }
-
-              if (Object.keys(nonOptional).length > 0) {
-                nodeDispatch({
-                  type: Types.RequiredInput,
-                  payload: {
-                    input: nonOptional,
-                  },
-                });
-              }
-            }
-          }}
-        />
+        <CardComponent>
+          <EditorValue params={params} />
+        </CardComponent>
       </div>
     </div>
   );
@@ -213,6 +188,104 @@ const CardComponent = ({ children }: { children: React.ReactElement }) => {
     <Card>
       <CardBody>{children}</CardBody>
     </Card>
+  );
+};
+
+const CheckboxComponent = () => {
+  const params = useTypedSelector((state) => state.plugin.parameters);
+  const { state, dispatch } = useContext(AddNodeContext);
+  const { showPreviousRun, selectedPluginFromMeta } = state;
+
+  const handleCheckboxChange = async () => {
+    const pluginInstanceList = await selectedPluginFromMeta?.getPluginInstances(
+      {
+        limit: 1,
+      }
+    );
+    const pluginInstances = pluginInstanceList?.getItems();
+
+    if (pluginInstances && pluginInstances.length > 0) {
+      const pluginInstance: PluginInstance = pluginInstances[0];
+      const paramsToFn = { limit: 10, offset: 0 };
+      const fn = pluginInstance.getParameters;
+      const boundFn = fn.bind(pluginInstance);
+      const { resource: pluginParameters } =
+        await fetchResource<PluginInstanceParameter>(paramsToFn, boundFn);
+
+      const requiredInput: { [id: string]: InputIndex } = {};
+      const dropdownInput: { [id: string]: InputIndex } = {};
+
+      for (let i = 0; i < pluginParameters.length; i++) {
+        const parameter: PluginInstanceParameter = pluginParameters[i];
+        const { id, param_name, type, value } = parameter.data;
+
+        if (params && params["required"].includes(param_name)) {
+          requiredInput[id] = {
+            value,
+            flag: `--${param_name}`,
+            type,
+            placeholder: "",
+          };
+        } else {
+          dropdownInput[v4()] = {
+            value,
+            flag: `--${param_name}`,
+            type,
+            placeholder: "",
+          };
+        }
+      }
+
+      dispatch({
+        type: Types.DropdownInput,
+        payload: {
+          input: dropdownInput,
+          editorValue: true,
+        },
+      });
+
+      dispatch({
+        type: Types.RequiredInput,
+        payload: {
+          input: requiredInput,
+          editorValue: true,
+        },
+      });
+    }
+  };
+
+  return (
+    <Checkbox
+      isChecked={showPreviousRun ? true : false}
+      id="fill-parameters"
+      label="Fill the form using a latest run of this plugin"
+      onChange={(checked) => {
+        if (checked === true) {
+          handleCheckboxChange();
+        } else {
+          dispatch({
+            type: Types.RequiredInput,
+            payload: {
+              input: {},
+              editorValue: true,
+            },
+          });
+          dispatch({
+            type: Types.DropdownInput,
+            payload: {
+              input: {},
+              editorValue: true,
+            },
+          });
+        }
+        dispatch({
+          type: Types.SetShowPreviousRun,
+          payload: {
+            showPreviousRun: checked,
+          },
+        });
+      }}
+    />
   );
 };
 
@@ -312,361 +385,65 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
   );
 };
 
-/*
-
-const GuidedConfig = ({
-  defaultValueDisplay,
-  renderComputeEnv,
-  dropdownInput,
-  requiredInput,
-  inputChange,
+const EditorValue = ({
   params,
-  computeEnvs,
-  selectedComputeEnv,
-  setComputeEnviroment,
-  deleteInput,
-  selectedPluginFromMeta,
-  handlePluginSelect,
-  handleCheckboxChange,
-  pluginMeta,
-  errors,
-  checked,
-}: GuidedConfigProps) => {
-  
-  const [configState, setConfigState] = React.useState<GuidedConfigState>({
-    componentList: [],
-    count: 0,
-    alertVisible: false,
-    editorValue: "",
-  });
-
-  const [plugins, setPlugins] = React.useState<Plugin[]>();
-
-  React.useEffect(() => {
-    const selectPluginVersion = async () => {
-      const pluginList = await pluginMeta?.getPlugins({
-        limit: 1000,
-      });
-
-      if (pluginList) {
-        const pluginItems = pluginList.getItems() as unknown as Plugin[];
-        setPlugins(pluginItems);
-        handlePluginSelect &&
-          handlePluginSelect(pluginItems[pluginItems.length - 1]);
-      }
-    };
-
-    selectPluginVersion();
-  }, []);
-
-  React.useEffect(() => {
-    if (Object.keys(dropdownInput).length > 0 && checked === true) {
-      const defaultComponentList = Object.entries(dropdownInput).map(
-        ([key]) => {
-          return key;
-        }
-      );
-
-      setConfigState((configState) => {
-        return {
-          ...configState,
-          componentList: defaultComponentList,
-          count: defaultComponentList.length,
-        };
-      });
-    }
-  }, [checked, dropdownInput]);
-
-  React.useEffect(() => {
-    setConfigState((configState) => {
-      return {
-        ...configState,
-        count: 1,
-        componentList: [v4()],
-      };
-    });
-  }, []);
-
-  useEffect(() => {
-    let derivedValue = "";
-
-    if (requiredInput) {
-      derivedValue += unpackParametersIntoString(requiredInput);
-    }
-
-    if (dropdownInput) {
-      derivedValue += unpackParametersIntoString(dropdownInput);
-    }
-
-    setConfigState((state) => {
-      return {
-        ...state,
-        editorValue: derivedValue,
-      };
-    });
-  }, [dropdownInput, requiredInput]);
-
-  const { componentList, count } = configState;
-
-  const deleteComponent = (id: string) => {
-    const filteredList = componentList.filter((key) => {
-      return key !== id;
-    });
-
-    setConfigState({
-      ...configState,
-      componentList: filteredList,
-      count: configState.count - 1,
-    });
-  };
-
-  const addParam = () => {
-    if (params && count < params["dropdown"].length) {
-      setConfigState({
-        ...configState,
-        componentList: [...configState.componentList, v4()],
-        count: configState.count + 1,
-      });
-    }
-  };
-
-  const renderComputeEnvs = () => {
-    if (computeEnvs && computeEnvs.length > 0) {
-      return (
-        <div className="configure-compute">
-          <span className="configure-compute__label">
-            Select a compute environment:{" "}
-          </span>
-          <ComputeEnvironments
-            selectedOption={selectedComputeEnv}
-            computeEnvs={computeEnvs}
-            setComputeEnvironment={setComputeEnviroment}
-          />
-        </div>
-      );
-    }
-  };
-
-  const renderRequiredParams = (params: PluginParameter[]) => {
-    return params.map((param, index) => {
-      return (
-        <React.Fragment key={index}>
-          <RequiredParam
-            param={param}
-            requiredInput={requiredInput}
-            inputChange={inputChange}
-            id={v4()}
-          />
-        </React.Fragment>
-      );
-    });
-  };
-
-  const renderDropdowns = () => {
-    return componentList.map((id, index) => {
-      return (
-        <SimpleDropdown
-          defaultValueDisplay={defaultValueDisplay}
-          key={index}
-          params={params}
-          handleChange={inputChange}
-          id={id}
-          deleteComponent={deleteComponent}
-          deleteInput={deleteInput}
-          dropdownInput={dropdownInput}
-          addParam={addParam}
-        />
-      );
-    });
-  };
-
-  const requiredLength = params && params["required"].length;
-  const dropdownLength = params && params["dropdown"].length;
-
-  return (
-    <>
-      <div className="configuration">
-        <div className="configuration__options">
-          {!defaultValueDisplay && (
-            <h1 className="pf-c-title pf-m-2xl">{`Configure ${selectedPluginFromMeta?.data.name} v.${selectedPluginFromMeta?.data.version}`}</h1>
-          )}
-          <CardComponent>
-            <>
-              <h4 style={{ display: "inline", marginRight: "1rem" }}>
-                Version
-              </h4>
-              <DropdownBasic
-                plugins={plugins}
-                selectedPluginFromMeta={selectedPluginFromMeta}
-                handlePluginSelect={handlePluginSelect}
-              />
-              <div
-                style={{
-                  marginTop: "1rem",
-                }}
-              >
-                <Checkbox
-                  isChecked={checked ? true : false}
-                  id="fill-parameters"
-                  label="Fill the form using a latest run of this plugin"
-                  onChange={(checked) => {
-                    handleCheckboxChange && handleCheckboxChange(checked);
-                  }}
-                />
-              </div>
-            </>
-          </CardComponent>
-
-          <CardComponent>
-            <>
-              <div>
-                <h4>
-                  Required Parameters{" "}
-                  <ItalicsComponent length={requiredLength} />
-                </h4>
-
-                {params &&
-                  params["required"].length > 0 &&
-                  renderRequiredParams(params["required"])}
-              </div>
-
-              <div>
-                <h4>
-                  Optional Parameters{" "}
-                  <ItalicsComponent length={dropdownLength} />
-                </h4>
-                {renderDropdowns()}
-              </div>
-            </>
-          </CardComponent>
-
-          <CardComponent>
-            <div className="configuration__renders">
-              {renderComputeEnv && renderComputeEnvs()}
-            </div>
-          </CardComponent>
-        </div>
-      </div>
-      <>
-        <CardComponent>
-          <div>
-            {Object.keys(errors).length > 0 && <ReactJson src={errors} />}
-          </div>
-        </CardComponent>
-
-        <div className="autogenerated__text">
-          <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="copied">
-            {configState.editorValue}
-          </ClipboardCopy>
-        </div>
-      </>
-    </>
-  );
-};
-
-const mapStateToProps = ({ plugin }: ApplicationState) => ({
-  params: plugin.parameters,
-  computeEnvs: plugin.computeEnv,
-});
-
-export default connect(mapStateToProps, null)(GuidedConfig);
-
-const CardComponent = ({ children }: { children: React.ReactElement }) => {
-  return (
-    <Card>
-      <CardBody>{children}</CardBody>
-    </Card>
-  );
-};
-
-const ItalicsComponent = ({ length }: { length?: number }) => {
-  return (
-    <i
-      style={{
-        color: "#4f5255",
-        fontSize: "0.9rem",
-      }}
-    >
-      (
-      {`${length && length > 0 ? length : "No required"}${
-        length === 1 ? " parameter" : " parameters"
-      }`}
-      )
-    </i>
-  );
-};
-
-const DropdownBasic = ({
-  plugins,
-  handlePluginSelect,
-  selectedPluginFromMeta,
 }: {
-  plugins?: Plugin[];
-  selectedPluginFromMeta?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
+  params?: {
+    required: PluginParameter[];
+    dropdown: PluginParameter[];
+  };
 }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-
-  const onToggle = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const onFocus = () => {
-    const element = document.getElementById("toggle-child-node-version");
-    element && element.focus();
-  };
-
-  const onSelect = () => {
-    setIsOpen(false);
-    onFocus();
-  };
-
-  const dropdownItems =
-    plugins && plugins?.length > 0 && typeof handlePluginSelect === "function"
-      ? plugins.map((selectedPlugin: Plugin) => {
-          return (
-            <DropdownItem
-              style={{ padding: "0" }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  handlePluginSelect(selectedPlugin);
-                }
-              }}
-              icon={
-                selectedPlugin.data.version ===
-                selectedPluginFromMeta?.data.version ? (
-                  <FaCheck style={{ color: "green" }} />
-                ) : (
-                  <></>
-                )
-              }
-              onClick={() => {
-                handlePluginSelect(selectedPlugin);
-              }}
-              key={selectedPlugin.data.id}
-              name={selectedPlugin.data.version}
-              value={selectedPlugin.data.value}
-            >
-              {selectedPlugin.data.version}
-            </DropdownItem>
-          );
-        })
-      : [];
+  const { state, dispatch } = useContext(AddNodeContext);
+  const { editorValue } = state;
 
   return (
-    <Dropdown
-      onSelect={onSelect}
-      isOpen={isOpen}
-      toggle={
-        <span style={{ display: "inline-flex" }}>
-          <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
-            {selectedPluginFromMeta?.data.version}
-          </DropdownToggle>
-        </span>
-      }
-      dropdownItems={dropdownItems}
-    />
+    <div className="autogenerated__text">
+      <ClipboardCopy
+        onChange={(text?: string | number) => {
+          if (text) {
+            dispatch({
+              type: Types.SetEditorValue,
+              payload: {
+                value: text as string,
+              },
+            });
+          }
+        }}
+        hoverTip="Copy"
+        clickTip="copied"
+      >
+        {editorValue}
+      </ClipboardCopy>
+      <FaCheck
+        onClick={() => {
+          if (params) {
+            const { optional, nonOptional } = handleGetTokens(
+              editorValue,
+              params
+            );
+
+            if (Object.keys(optional).length > 0) {
+              dispatch({
+                type: Types.DropdownInput,
+                payload: {
+                  input: optional,
+                  editorValue: true,
+                },
+              });
+            }
+
+            if (Object.keys(nonOptional).length > 0) {
+              dispatch({
+                type: Types.RequiredInput,
+                payload: {
+                  input: nonOptional,
+                  editorValue: true,
+                },
+              });
+            }
+          }
+        }}
+      />
+    </div>
   );
 };
-*/

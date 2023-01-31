@@ -71,7 +71,7 @@ const PluginSelect: React.FC = () => {
         },
       });
     }
-  }, [isMounted]);
+  }, [isMounted, dispatch]);
 
   useEffect(() => {
     setMounted(true);
