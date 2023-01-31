@@ -11,16 +11,13 @@ import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedContext, PipelineContext } from "./context";
 import { Types, CreateFeedReduxProp, LocalFile } from "./types/feed";
 import BasicInformation from "./BasicInformation";
-import ChrisFileSelect from "./ChrisFileSelect";
 import ChooseConfig from "./ChooseConfig";
-import DataPacks from "./DataPacks";
-import GuidedConfig from "../AddNode/GuidedConfig";
 import Review from "./Review";
 import PipelineContainer from "./PipelineContainer";
 import FinishedStep from "./FinishedStep";
 import withSelectionAlert from "./SelectionAlert";
 import { addFeed } from "../../../store/feed/actions";
-import { createFeed, getName } from "./utils/createFeed";
+import { createFeed } from "./utils/createFeed";
 import { MainRouterContext } from "../../../routes";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { InputIndex } from "../AddNode/types";
@@ -47,14 +44,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     requiredInput,
     computeEnvironment,
   } = state;
-  const {parameters: params} = useSelector((state:ApplicationState) => state.plugin)
+  const { parameters: params } = useSelector((state: ApplicationState) => state.plugin)
   const { pipelineData, selectedPipeline } = pipelineState;
   const enableSave =
     data.chrisFiles.length > 0 ||
-    data.localFiles.length > 0 ||
-    Object.keys(requiredInput).length > 0 ||
-    Object.keys(dropdownInput).length > 0 ||
-    selectedPlugin !== undefined
+      data.localFiles.length > 0 ||
+      Object.keys(requiredInput).length > 0 ||
+      Object.keys(dropdownInput).length > 0 ||
+      selectedPlugin !== undefined
       ? true
       : false;
   const getStepName = (): string => {
@@ -71,14 +68,14 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   };
 
   const RequiredParamsNotEmpty = () => {
-    if(params && params.length > 0){
-      for(const param of params){
+    if (params && params.length > 0) {
+      for (const param of params) {
         const paramObject = requiredInput[param.data.id]
-        if(paramObject && param.data.optional == false ){
-          if(paramObject.value.length == 0) return false
-        }else if(!paramObject && param.data.optional == true ){
+        if (paramObject && param.data.optional == false) {
+          if (paramObject.value.length == 0) return false
+        } else if (!paramObject && param.data.optional == true) {
           return true
-        }else{
+        } else {
           return false
         }
       }
@@ -86,6 +83,17 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     return true;
   }
 
+  const allRequiredFieldsNotEmpty = () => {
+    if(selectedConfig == "local_select"){
+      return  data.localFiles.length > 0
+    }else if(selectedConfig == "swift_storage"){
+      return data.chrisFiles.length > 0
+    }else if(selectedConfig == "fs_plugin"){
+      return RequiredParamsNotEmpty()
+    }else{
+      return selectedConfig.length > 0
+    }
+  }
 
   const deleteInput = (index: string) => {
     dispatch({
@@ -236,156 +244,65 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   };
 
   const basicInformation = <BasicInformation />;
-  const chooseConfig = <ChooseConfig  handleFileUpload={handleChoseFilesClick}/>;
-  const chrisFileSelect = user && user.username && (
-    <ChrisFileSelect username={user.username} />
-  );
-  // const localFileUpload = <LocalFileUpload />;
-  const packs = <DataPacks />;
   let pluginName = selectedPlugin?.data.title
     ? selectedPlugin?.data.title
     : selectedPlugin?.data.name;
   const pluginVersion = (pluginName += `${selectedPlugin?.data.version}`);
-  const guidedConfig = (
-    <GuidedConfig
-      defaultValueDisplay={false}
-      renderComputeEnv={true}
-      inputChange={inputChange}
-      deleteInput={deleteInput}
-      pluginName={pluginVersion}
-      dropdownInput={dropdownInput}
-      requiredInput={requiredInput}
-      selectedComputeEnv={computeEnvironment}
-      setComputeEnviroment={setComputeEnvironment}
-    />
-  );
+  const chooseConfig = <ChooseConfig user={user} handleFileUpload={handleChoseFilesClick} defaultValueDisplay={false}
+    renderComputeEnv={true}
+    inputChange={inputChange}
+    deleteInput={deleteInput}
+    allRequiredFieldsNotEmpty={allRequiredFieldsNotEmpty}
+    pluginName={pluginVersion}
+    dropdownInput={dropdownInput}
+    requiredInput={requiredInput}
+    selectedComputeEnv={computeEnvironment}
+    setComputeEnviroment={setComputeEnvironment} />;
+
   const pipelines = <PipelineContainer />;
-  const review = <Review handleSave={handleSave}/>;
+  const review = <Review handleSave={handleSave} />;
 
   const finishedStep = <FinishedStep />;
 
-  const getFeedSynthesisStep = () => {
-    if (selectedConfig === "fs_plugin")
-      return [
-        {
-          id: 3,
-          name: "Select an FS Plugin",
-          component: withSelectionAlert(packs, false),
-          enableNext: selectedPlugin !== undefined,
-          canJumpTo: step > 3,
-        },
-        {
-          id: 4,
-          name: "Parameter Configuration",
-          component: withSelectionAlert(guidedConfig),
-          enableNext: RequiredParamsNotEmpty(),
-          canJumpTo: step > 4,
-        },
-      ];
-    else if (selectedConfig === "swift_storage") {
-      return [
-        {
-          id: 3,
-          name: "ChRIS File Select",
-          component: chrisFileSelect,
-          enableNext: data.chrisFiles.length > 0,
-          canJumpTo: step > 3,
-        },
-      ];
-    } else if (selectedConfig === "local_select") {
-      return [
-        {
-          id: 3,
-          name: "Local File Upload",
-          component: withSelectionAlert(chooseConfig),
-          enableNext: data.localFiles.length > 0,
-          canJumpTo: step > 3,
-        },
-      ];
-    }
-  };
-  const steps = data.isDataSelected || selectedConfig == "local_select"
-    ? [
-        {
-          id: 1,
-          name: "Basic Information",
-          component: withSelectionAlert(basicInformation),
-          enableNext: !!data.feedName,
-          canJumpTo: step > 1,
-        },
-        {
-          id: 2,
-          name: "Analysis Data Selection",
-          component: withSelectionAlert(chooseConfig),
-          enableNext: (selectedConfig == "local_select")?data.localFiles.length > 0: selectedConfig.length > 0,
-          canJumpTo: step > 2,
-        },
-        {
-          id: 5,
-          name: "Pipelines",
-          component: pipelines,
-          canJumpTo: step > 5,
-        },
-        {
-          id: 6,
-          name: "Review",
-          component: review,
-          enableNext: enableSave,
-          nextButtonText: "Create Analysis",
-          canJumpTo: step > 6,
-        },
-        {
-          id: 7,
-          name: "Finish",
-          component: finishedStep,
-          canJumpTo: step > 7,
-        },
-      ]
-    : [
-        {
-          id: 1,
-          name: "Basic Information",
-          component: withSelectionAlert(basicInformation),
-          enableNext: !!data.feedName,
-          canJumpTo: step > 1,
-        },
-        {
-          id: 2,
-          name: "Analysis Data Selection",
-          component: withSelectionAlert(chooseConfig),
-          enableNext: selectedConfig.length > 0,
-          canJumpTo: step > 2,
-        },
-        {
-          name: getName(selectedConfig),
-          steps: getFeedSynthesisStep(),
-          canJumpTo: step > 3,
-        },
-        {
-          id: 5,
-          name: "Pipelines",
-          component: pipelines,
-          nextButtonText: "Review",
-          canJumpTo: step > 5,
-        },
-        {
-          id: 6,
-          name: "Review",
-          component: withSelectionAlert(review, false),
-          enableNext: enableSave,
-          nextButtonText: "Create Analysis",
-          canJumpTo: step > 6,
-        },
-        {
-          id: 7,
-          name: "Finish",
-          component: withSelectionAlert(finishedStep, false),
-          canJumpTo: step > 7,
-        },
-      ];
+  const steps =  [
+      {
+        id: 1,
+        name: "Basic Information",
+        component: withSelectionAlert(basicInformation),
+        enableNext: !!data.feedName,
+        canJumpTo: step > 1,
+      },
+      {
+        id: 2,
+        name: "Analysis Data Selection",
+        component: withSelectionAlert(chooseConfig),
+        enableNext: allRequiredFieldsNotEmpty(),
+        canJumpTo: step > 2,
+      },
+      {
+        id: 3,
+        name: "Pipelines",
+        component: pipelines,
+        canJumpTo: step > 3,
+      },
+      {
+        id: 4,
+        name: "Review",
+        component: review,
+        enableNext: enableSave,
+        nextButtonText: "Create Analysis",
+        canJumpTo: step > 4,
+      },
+      {
+        id: 5,
+        name: "Finish",
+        component: finishedStep,
+        canJumpTo: step > 5,
+      },
+    ]
 
   const handleNext = (activeStep: any, cb: () => void) => {
-    if (activeStep.id === 6) {
+    if (activeStep.id === 5) {
       handleSave();
     }
     cb();

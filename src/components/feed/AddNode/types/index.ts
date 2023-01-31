@@ -1,4 +1,5 @@
 import { Plugin, PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
+import { IUserState } from "../../../../store/user/types";
 
 export interface InputIndex {
   [key: string]: string;
@@ -107,6 +108,12 @@ export interface GuidedConfigProps extends InputProps {
   selectedComputeEnv?: string;
   setComputeEnviroment?: (computeEnv: string) => void;
   pluginName: string;
+}
+
+export interface chooseConfigProps extends GuidedConfigProps{
+  user?: IUserState,
+  handleFileUpload: (files: any[]) => void,
+  allRequiredFieldsNotEmpty: () => boolean
 }
 
 export interface EditorState {
