@@ -24,10 +24,7 @@ export interface InputState {
 }
 
 export interface BasicConfigurationProps {
-  nodes: PluginInstance[];
-  parent: PluginInstance;
-  selectedPlugin?: PluginMeta;
-  handlePluginSelect: (plugin: PluginMeta) => void;
+  selectedPlugin: PluginInstance;
 }
 
 export interface BasicConfigurationState {
@@ -36,25 +33,12 @@ export interface BasicConfigurationState {
   nodes: PluginInstance[];
 }
 
-export interface PluginListProps {
-  handlePluginSelect: (plugin: PluginMeta) => void;
-  plugins?: Plugin[];
-  selected?: PluginMeta;
-}
-
 export interface PluginMetaListProps {
-  handlePluginSelect: (plugin: PluginMeta) => void;
   pluginMetas?: PluginMeta[];
-  selected?: PluginMeta;
 }
 
 export interface PluginListState {
   filter: string;
-}
-
-export interface PluginSelectProps {
-  selected?: PluginMeta;
-  handlePluginSelect: (plugin: PluginMeta) => void;
 }
 
 export interface PluginSelectState {
@@ -66,22 +50,6 @@ export interface PluginSelectState {
 export interface PluginMetaSelectState {
   expanded: string;
   allPlugins?: PluginMeta[];
-  recentPlugins?: PluginMeta[];
-}
-
-export interface AddNodeState extends InputState {
-  stepIdReached: number;
-  nodes?: PluginInstance[];
-  data: {
-    pluginMeta?: PluginMeta;
-    selectedPluginFromMeta?: Plugin;
-    parent?: PluginInstance;
-  };
-  selectedComputeEnv: string;
-  errors: {};
-  editorValue: string;
-  loading: boolean;
-  autoFill: boolean;
 }
 
 export interface AddNodeProps {
@@ -133,7 +101,7 @@ export interface GuidedConfigProps extends InputProps {
   handleCheckboxChange?: (checked: boolean) => void;
   checked?: boolean;
   pluginMeta?: PluginMeta;
-  errors: {};
+  errors: Record<string, unknown>;
 }
 
 export interface EditorState {
@@ -155,44 +123,15 @@ export interface SimpleDropdownState {
 }
 
 export interface SimpleDropdownProps {
-  defaultValueDisplay: boolean;
   params?: {
     dropdown: PluginParameter[];
     required: PluginParameter[];
   };
-  toggle?: React.ReactElement<any>;
-  onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
-  isOpen?: boolean;
-  dropdownItems?: any[];
   id: string;
-  handleChange(
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean,
-    paramName: string
-  ): void;
-  deleteComponent(id: string): void;
-  deleteInput(id: string): void;
-  dropdownInput: InputType;
-
-  addParam: () => void;
 }
 
 export interface RequiredParamProp {
   param: PluginParameter;
-  requiredInput: InputType;
-  inputChange(
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean,
-    paramName?: string
-  ): void;
   id: string;
 }
 
@@ -202,5 +141,77 @@ export interface ReviewProps extends InputState {
   computeEnvironment: string;
   errors: {
     [key: string]: string[];
+  };
+}
+
+export interface AddNodeState extends InputState {
+  stepIdReached: number;
+  nodes?: PluginInstance[];
+  pluginMeta?: PluginMeta;
+  selectedPluginFromMeta?: Plugin;
+  selectedComputeEnv: string;
+  errors: Record<string, unknown>;
+  editorValue: string;
+  loading: boolean;
+  autoFill: boolean;
+  isOpen: boolean;
+  pluginMetas: PluginMeta[];
+  componentList: string[];
+  showPreviousRun: boolean;
+}
+
+export enum Types {
+  RequiredInput = "REQUIRED_INPUT",
+  DropdownInput = "DROPDOWN_INPUT",
+  SetPluginMeta = "SET_PLUGIN_META",
+  SetPluginMetaList = "SET_PLUGIN_META_LIST",
+  SetStepIdReached = "SET_STEP_ID_REACHED",
+  SetSelectedPluginFromMeta = "SET_SELECTED_PLUGIN_FROM_META",
+  SetToggleWizard = "SET_TOGGLE_WIZARD",
+  SetComponentList = "SET_COMPONENT_LIST",
+  DeleteComponentList = "DELETE_COMPONENT_LIST",
+  SetEditorValue = "SET_EDITOR_VALUE",
+}
+
+export interface AddNodeStateActions {
+  [Types.RequiredInput]: {
+    input: {
+      [id: string]: InputIndex;
+    };
+  };
+
+  [Types.DropdownInput]: {
+    input: {
+      [id: string]: InputIndex;
+    };
+  };
+  [Types.SetPluginMeta]: {
+    pluginMeta: PluginMeta;
+  };
+
+  [Types.SetPluginMetaList]: {
+    pluginMetas: PluginMeta[];
+  };
+
+  [Types.SetStepIdReached]: {
+    id: number;
+  };
+
+  [Types.SetSelectedPluginFromMeta]: {
+    plugin: Plugin;
+  };
+  [Types.SetToggleWizard]: {
+    isOpen: boolean;
+  };
+
+  [Types.SetComponentList]: {
+    componentList: string[];
+  };
+
+  [Types.DeleteComponentList]: {
+    id: string;
+  };
+  [Types.SetEditorValue]: {
+    value: string;
   };
 }

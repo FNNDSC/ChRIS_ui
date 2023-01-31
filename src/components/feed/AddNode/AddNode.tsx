@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { Wizard, Spinner, Button } from "@patternfly/react-core";
@@ -21,21 +21,8 @@ import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import { fetchResource } from "../../../api/common";
 import { v4 } from "uuid";
-
-function getInitialState() {
-  return {
-    stepIdReached: 1,
-    nodes: [],
-    data: {},
-    requiredInput: {},
-    dropdownInput: {},
-    selectedComputeEnv: "",
-    editorValue: "",
-    loading: false,
-    errors: {},
-    autoFill: false,
-  };
-}
+import { AddNodeContext } from "./context";
+import { Types } from "./types";
 
 const AddNode: React.FC<AddNodeProps> = ({
   selectedPlugin,
@@ -44,6 +31,68 @@ const AddNode: React.FC<AddNodeProps> = ({
   addNode,
   params,
 }: AddNodeProps) => {
+  const dispatch = useDispatch();
+  const { childNode } = useTypedSelector(
+    (state) => state.plugin.nodeOperations
+  );
+  const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
+  const { stepIdReached, pluginMeta } = state;
+
+  const basicConfiguration = selectedPlugin && (
+    <BasicConfiguration selectedPlugin={selectedPlugin} />
+  );
+  const form = <GuidedConfig />;
+
+  const steps = [
+    {
+      id: 1,
+      name: "Plugin Selection",
+      component: basicConfiguration,
+      enableNext: !!pluginMeta,
+      canJumpTo: stepIdReached > 1,
+    },
+    {
+      id: 2,
+      name: "Plugin Configuration-Form",
+      component: form,
+      nextButtonText: "Add Node",
+    },
+  ];
+
+  const toggleOpen = React.useCallback(() => {
+    dispatch(getNodeOperations("childNode"));
+  }, [dispatch]);
+
+  const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
+    const { id } = newStep;
+
+    if (id) {
+      const newStepId = stepIdReached > id ? (id as number) : stepIdReached;
+      nodeDispatch({
+        type: Types.SetStepIdReached,
+        payload: {
+          id: newStepId,
+        },
+      });
+    }
+  };
+
+  const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
+    const { id } = newStep;
+
+    if (id) {
+      const newStepId = stepIdReached < id ? (id as number) : stepIdReached;
+
+      nodeDispatch({
+        type: Types.SetStepIdReached,
+        payload: {
+          id: newStepId,
+        },
+      });
+    }
+  };
+
+  /*
   const dispatch = useDispatch();
   const [addNodeState, setNodeState] =
     React.useState<AddNodeState>(getInitialState);
@@ -61,6 +110,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   );
 
   const handleFetchedData = React.useCallback(() => {
+    /*
     if (pluginInstances) {
       const { data: nodes } = pluginInstances;
       setNodeState((addNodeState) => {
@@ -74,6 +124,7 @@ const AddNode: React.FC<AddNodeProps> = ({
         };
       });
     }
+    *
   }, [pluginInstances, selectedPlugin]);
 
   React.useEffect(() => {
@@ -347,6 +398,33 @@ const AddNode: React.FC<AddNodeProps> = ({
     },
   ];
 
+  return (
+    <React.Fragment>
+      <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
+        Add a Child Node{" "}
+        <span style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}>
+          ( C )
+        </span>
+      </Button>
+      {childNode && (
+        <Wizard
+          isOpen={childNode}
+          onClose={toggleOpen}
+          title="Add a New Node"
+          description="This wizard allows you to add a node to a feed"
+          onSave={handleSave}
+          steps={steps}
+          onNext={onNext}
+          onBack={onBack}
+        />
+      )}
+    </React.Fragment>
+  );
+  */
+
+  const handleSave = () => {
+    console.log("TESTING");
+  };
   return (
     <React.Fragment>
       <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
