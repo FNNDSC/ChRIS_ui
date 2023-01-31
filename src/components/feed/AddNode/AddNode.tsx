@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React, { useContext, useCallback } from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { Wizard, Button } from "@patternfly/react-core";
+import { Wizard, Button, } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
 import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
@@ -27,6 +27,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     (state) => state.plugin.nodeOperations
   );
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
+
   const {
     stepIdReached,
     pluginMeta,
@@ -35,6 +36,36 @@ const AddNode: React.FC<AddNodeProps> = ({
     requiredInput,
     selectedComputeEnv,
   } = state;
+
+  const onBackStep = (newStep: { id?: string | number; name: React.ReactNode }) => {
+    const { id } = newStep;
+
+    if (id) {
+      const newStepId = stepIdReached > id ? (id as number) : stepIdReached;
+      nodeDispatch({
+        type: Types.SetStepIdReached,
+        payload: {
+          id: newStepId,
+        },
+      });
+    }
+  };
+
+  const onNextStep = useCallback((newStep: { id?: string | number; name: React.ReactNode }) => {
+    const { id } = newStep;
+
+    if (id) {
+      const newStepId = stepIdReached < id ? (id as number) : stepIdReached;
+      console.log("newStepId", newStepId)
+      nodeDispatch({
+        type: Types.SetStepIdReached,
+        payload: {
+          id: newStepId,
+        },
+      });
+    }
+  }, [nodeDispatch, stepIdReached]);
+
 
   const basicConfiguration = selectedPlugin && (
     <BasicConfiguration selectedPlugin={selectedPlugin} />
@@ -66,34 +97,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     dispatch(getNodeOperations("childNode"));
   }, [dispatch, nodeDispatch]);
 
-  const onBack = (newStep: { id?: string | number; name: React.ReactNode }) => {
-    const { id } = newStep;
 
-    if (id) {
-      const newStepId = stepIdReached > id ? (id as number) : stepIdReached;
-      nodeDispatch({
-        type: Types.SetStepIdReached,
-        payload: {
-          id: newStepId,
-        },
-      });
-    }
-  };
-
-  const onNext = (newStep: { id?: string | number; name: React.ReactNode }) => {
-    const { id } = newStep;
-
-    if (id) {
-      const newStepId = stepIdReached < id ? (id as number) : stepIdReached;
-
-      nodeDispatch({
-        type: Types.SetStepIdReached,
-        payload: {
-          id: newStepId,
-        },
-      });
-    }
-  };
 
   const handleSave = async () => {
     if (!plugin || !selectedPlugin || !pluginInstances) {
@@ -146,8 +150,8 @@ const AddNode: React.FC<AddNodeProps> = ({
           description="This wizard allows you to add a node to a feed"
           onSave={handleSave}
           steps={steps}
-          onNext={onNext}
-          onBack={onBack}
+          onNext={onNextStep}
+          onBack={onBackStep}
         />
       )}
     </React.Fragment>

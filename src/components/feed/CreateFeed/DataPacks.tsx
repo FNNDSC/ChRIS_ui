@@ -97,7 +97,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         },
       });
     },
-    [dispatch, props]
+    [dispatch]
   );
 
   const handleKeyDown = useCallback(

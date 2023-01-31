@@ -87,7 +87,7 @@ const PluginSelect: React.FC = () => {
   };
 
   return (
-    <Accordion className="plugin-select">
+    <Accordion tabIndex={0} className="plugin-select">
       <AccordionItem>
         <AccordionToggle
           onClick={() => handleAccordionToggle("all-toggle")}
@@ -134,7 +134,7 @@ const PluginList: React.FC = () => {
   };
 
   return (
-    <ul className="plugin-list">
+    <ul tabIndex={1} className="plugin-list">
       <TextInput
         className="plugin-list-filter"
         value={filter}
@@ -144,22 +144,28 @@ const PluginList: React.FC = () => {
       />
       {pluginMetas
         ? pluginMetas
-            .sort((a, b) => a.data.name.localeCompare(b.data.name))
-            .filter(matchesFilter)
-            .map((item) => {
-              const { id, name, title } = item.data;
-              const isSelected = pluginMeta && name === pluginMeta.data.name;
-              return (
-                <li
-                  key={id}
-                  className={isSelected ? "selected" : ""}
-                  onClick={() => getPluginFromMeta(item)}
-                >
-                  <span>{name}</span>
-                  <span className="description">Description: {title}</span>
-                </li>
-              );
-            })
+          .sort((a, b) => a.data.name.localeCompare(b.data.name))
+          .filter(matchesFilter)
+          .map((item) => {
+            const { id, name, title } = item.data;
+            const isSelected = pluginMeta && name === pluginMeta.data.name;
+            return (
+              <li
+                tabIndex={1}
+                key={id}
+                className={isSelected ? "selected" : ""}
+                onKeyDown={(event: any) => {
+                  if (event.key === 'Enter') {
+                    getPluginFromMeta(item)
+                  }
+                }}
+                onClick={() => getPluginFromMeta(item)}
+              >
+                <span>{name}</span>
+                <span className="description">Description: {title}</span>
+              </li>
+            );
+          })
         : loading}
     </ul>
   );
