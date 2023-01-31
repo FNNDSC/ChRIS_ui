@@ -238,6 +238,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
   const guidedConfig = (
     <GuidedConfig
+      /*
       selectedPluginFromMeta={selectedPluginFromMeta}
       pluginMeta={pluginMeta}
       defaultValueDisplay={false}
@@ -250,6 +251,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       setComputeEnviroment={setComputeEnvironment}
       errors={{}}
       handlePluginSelect={handlePluginSelect}
+      */
     />
   );
   const pipelines = <PipelineContainer />;

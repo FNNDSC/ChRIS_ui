@@ -1,15 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { Form } from "@patternfly/react-core";
 import { PluginParameter } from "@fnndsc/chrisapi";
 import { RequiredParamProp } from "./types";
 import styles from "@patternfly/react-styles/css/components/FormControl/form-control";
 import { css } from "@patternfly/react-styles";
+import { AddNodeContext } from "./context";
+import { Types } from "./types";
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
-  requiredInput,
-  inputChange,
 }: RequiredParamProp) => {
+  const { state, dispatch } = useContext(AddNodeContext);
+  const { requiredInput } = state;
   const value =
     requiredInput &&
     requiredInput[param.data.id] &&
@@ -23,8 +25,21 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const placeholder = param.data.help;
     const type = param.data.type;
     const value = event.target.value;
-    const paramName = param.data.name;
-    inputChange(id, flag, value, type, placeholder, true, paramName);
+
+    dispatch({
+      types: Types.RequiredInput,
+      payload: {
+        input: {
+          [id]: {
+            value,
+            flag,
+            placeholder,
+            type,
+          },
+        },
+        editorValue: false,
+      },
+    });
   };
 
   useEffect(() => {

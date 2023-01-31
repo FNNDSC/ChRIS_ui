@@ -12,7 +12,6 @@ import Link from "./Link";
 import NodeWrapper from "./Node";
 import { TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { FaTimes } from "react-icons/fa";
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
 import {
@@ -419,15 +418,6 @@ const FeedTree = (props: AllProps) => {
               value={searchFilter.value}
               onChange={(value: string) => {
                 dispatch(setSearchFilter(value.trim()));
-              }}
-            />
-          </div>
-
-          <div className="feed-tree__control">
-            <FaTimes
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                dispatch(setSearchFilter(""));
               }}
             />
           </div>
