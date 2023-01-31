@@ -17,6 +17,30 @@
   background: #000f0f;
 }
 
+.container_feedTree {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+.svgArea {
+	width: 100%;
+	height: 85%;
+	position: absolute;
+}
+.feedButton {
+	position: absolute;
+  padding-bottom: 0.5rem;
+	z-index: 10;
+	bottom: 0;
+	left: 0;
+}
+.nodeButton {
+  position: absolute;
+	z-index: 10;
+	top: 0;
+	right: 0;
+}
+
 .feed-tree {
   width: 100%;
   height: 100%;

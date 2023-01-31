@@ -440,80 +440,90 @@ const FeedTree = (props: AllProps) => {
               />
             </div>
           )}
-        </div>
 
-        {!props.isSidePanelExpanded && (
-          <div className="feed-tree__container--panelToggle">
-            <div className="feed-tree__orientation">
-              <Button
-                type="button"
-                onClick={() => props.onExpand("side_panel")}
-              >
-                Node Panel
-              </Button>
-            </div>
-          </div>
-        )}
+
+        </div>
       </div>
 
-      {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
-        <svg
-          focusable="true"
-          className={`${svgClassName}`}
-          width="100%"
-          height="85%"
-          tabIndex={0}
-        >
-          <TransitionGroupWrapper
-            component="g"
-            className={graphClassName}
-            transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
-          >
-            {links?.map((linkData, i) => {
-              return (
-                <Link
-                  orientation={orientation}
-                  key={"link" + i}
-                  linkData={linkData}
-                />
-              );
-            })}
-
-            {nodes?.map(({ data, x, y, parent }, i) => {
-              return (
-                <NodeWrapper
-                  key={`node + ${i}`}
-                  data={data}
-                  position={{ x, y }}
-                  parent={parent}
-                  onNodeClick={handleNodeClick}
-                  onNodeClickTs={handleNodeClickTs}
-                  orientation={orientation}
-                  toggleLabel={feedState.toggleLabel}
-                  overlayScale={
-                    feedState.overlayScale.enabled
-                      ? feedState.overlayScale.type
-                      : undefined
-                  }
-                />
-              );
-            })}
-          </TransitionGroupWrapper>
-        </svg>
-      )}
-
-      {!props.isBottomPanelExpanded && (
-        <div className="feed-tree__container--panelToggle">
-          <div className="feed-tree__orientation">
-            <Button
-              type="button"
-              onClick={() => props.onExpand("bottom_panel")}
+      <div className="container_feedTree">
+        <div className="svgArea">
+          {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
+            <svg
+              focusable="true"
+              className={`${svgClassName}`}
+              width="100%"
+              height="100%"
+              tabIndex={0}
             >
-              Feed Browser
-            </Button>
-          </div>
+              <TransitionGroupWrapper
+                component="g"
+                className={graphClassName}
+                transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
+              >
+                {links?.map((linkData, i) => {
+                  return (
+                    <Link
+                      orientation={orientation}
+                      key={"link" + i}
+                      linkData={linkData}
+                    />
+                  );
+                })}
+
+                {nodes?.map(({ data, x, y, parent }, i) => {
+                  return (
+                    <NodeWrapper
+                      key={`node + ${i}`}
+                      data={data}
+                      position={{ x, y }}
+                      parent={parent}
+                      onNodeClick={handleNodeClick}
+                      onNodeClickTs={handleNodeClickTs}
+                      orientation={orientation}
+                      toggleLabel={feedState.toggleLabel}
+                      overlayScale={
+                        feedState.overlayScale.enabled
+                          ? feedState.overlayScale.type
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </TransitionGroupWrapper>
+            </svg>
+          )}
         </div>
-      )}
+        <div className="nodeButton">
+          {!props.isSidePanelExpanded && (
+            <div className="feed-tree__container--panelToggle">
+              <div className="feed-tree__orientation">
+                <Button
+                  type="button"
+                  onClick={() => props.onExpand("side_panel")}
+                >
+                  Node Panel
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="feedButton">
+          {!props.isBottomPanelExpanded && (
+            <div className="feed-tree__container--panelToggle">
+              <div className="feed-tree__orientation">
+                <Button
+                  type="button"
+                  onClick={() => props.onExpand("bottom_panel")}
+                >
+                  Feed Browser
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+
     </div>
   );
 };
