@@ -66,6 +66,15 @@ export const FeedView: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        setBottomPanelExpanded(false);
+        setSidePanelExpanded(false);
+      }
+    }
+  }, [])
+  
+  React.useEffect(() => {
+    return () => {
       if (
         dataRef.current &&
         dataRef.current.selectedPlugin &&
