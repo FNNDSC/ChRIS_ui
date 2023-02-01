@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Card, CardActions, CardBody, CardHeader, Drawer, CardTitle, Chip, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelBody, DrawerPanelContent, Grid, GridItem, Tooltip } from "@patternfly/react-core";
+import { Card, CardActions, CardBody, CardHeader, Drawer, CardTitle, Chip, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelBody, DrawerPanelContent, Grid, GridItem, Tooltip, Button } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
 import { FaUpload } from "react-icons/fa";
@@ -12,31 +12,38 @@ import ChrisFileSelect from "./ChrisFileSelect";
 import DataPacks from "./DataPacks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { chooseConfigProps } from "../AddNode/types";
-const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, pluginName, dropdownInput, selectedComputeEnv, setComputeEnviroment, requiredInput, allRequiredFieldsNotEmpty}: chooseConfigProps) => {
+import { Steps } from "antd";
+const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, pluginName, dropdownInput, selectedComputeEnv, setComputeEnviroment, requiredInput, allRequiredFieldsNotEmpty }: chooseConfigProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedConfig } = state
-  const { isDataSelected, localFiles } = state.data;
+  const { selectedConfig, selectedPlugin } = state
+  const { isDataSelected, localFiles, checkedKeys } = state.data;
   const { onNext, onBack } = useContext(WizardContext)
   const [isbottomDrawerExpand, setBottomDrawerExpand] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState(0);
+
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
+    const selectedPlugin = selectedPluginId == "" ? event.currentTarget.id : selectedPluginId;
     dispatch({
       type: Types.SelectedConfig,
       payload: {
-        selectedConfig: selectedPluginId == "" ? event.currentTarget.id : selectedPluginId,
+        selectedConfig: selectedPlugin
       },
     })
+    if (selectedPlugin == "swift_storage" || selectedPlugin == "fs_plugin") {
+      setBottomDrawerExpand(true)
+    }
   }, [dispatch])
 
   const handleKeyDown = useCallback((e: any) => {
     switch (e.code) {
       case "KeyG":
-        if (selectedConfig != "fs_plugin") handleClick(e, "fs_plugin")
+        handleClick(e, "fs_plugin")
         break;
       case "KeyU":
-        if (selectedConfig != "local_select") handleClick(e, "local_select");
+        handleClick(e, "local_select")
         break;
       case "KeyF":
-        if (selectedConfig != "swift_storage") handleClick(e, "swift_storage")
+        handleClick(e, "swift_storage")
         break;
       case "ArrowRight":
         if (allRequiredFieldsNotEmpty()) return;
@@ -49,7 +56,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
         break;
     }
 
-  }, [selectedConfig, handleClick, allRequiredFieldsNotEmpty, onBack, onNext])
+  }, [allRequiredFieldsNotEmpty, handleClick, onBack, onNext])
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown)
@@ -66,7 +73,8 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
     flexDirection: "column",
     justifyContent: "center",
     textAlign: "center",
-    height: "100%"
+    height: "100%",
+    border: "0.2px solid #D3D3D3"
   }
 
   const cardHeaderStyle: any = {
@@ -75,9 +83,39 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
     justifyContent: 'flex-end'
   }
 
-  const panelContent = (selectedConfig == "swift_storage") ? (
+  const steps = [
+    {
+      title: 'Choose Plugin',
+      content: <DataPacks />,
+    },
+    {
+      title: 'Configure Plugin',
+      content: <GuidedConfig
+        defaultValueDisplay={false}
+        renderComputeEnv={true}
+        inputChange={inputChange}
+        deleteInput={deleteInput}
+        pluginName={pluginName}
+        dropdownInput={dropdownInput}
+        requiredInput={requiredInput}
+        selectedComputeEnv={selectedComputeEnv}
+        setComputeEnviroment={setComputeEnviroment}
+      />,
+    },
+  ];
 
-    <DrawerPanelContent>
+  const items = steps.map((item) => ({ key: item.title, title: item.title }));
+  console.log(checkedKeys)
+  const next = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
+  const prev = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  const panelContent = (selectedConfig == "swift_storage") ? (
+    <DrawerPanelContent defaultSize="65%" >
       <DrawerHead>
         <span tabIndex={isbottomDrawerExpand ? 0 : -1}  >
         </span>
@@ -85,12 +123,12 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
           <DrawerCloseButton onClick={onCloseClick} />
         </DrawerActions>
       </DrawerHead>
-      <DrawerPanelBody>
+      <DrawerPanelBody >
         {user && user.username && (<ChrisFileSelect username={user.username} />)}
       </DrawerPanelBody>
     </DrawerPanelContent>
-  ) :  (selectedConfig == "fs_plugin")? (
-    <DrawerPanelContent >
+  ) : (selectedConfig == "fs_plugin") ? (
+    <DrawerPanelContent defaultSize="65%">
       <DrawerHead>
         <span tabIndex={isbottomDrawerExpand ? 0 : -1}  >
         </span>
@@ -99,38 +137,30 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody>
-        <Grid>
-          <GridItem >
-            <DataPacks />
-          </GridItem>
-          <GridItem >
-            <GuidedConfig
-              defaultValueDisplay={false}
-              renderComputeEnv={true}
-              inputChange={inputChange}
-              deleteInput={deleteInput}
-              pluginName={pluginName}
-              dropdownInput={dropdownInput}
-              requiredInput={requiredInput}
-              selectedComputeEnv={selectedComputeEnv}
-              setComputeEnviroment={setComputeEnviroment}
-            />
-          </GridItem>
+        <Steps current={currentStep} items={items} />
+        <Grid style={{ marginTop: "1rem" }}>
+          {steps[currentStep].content}
         </Grid>
+
+        {currentStep == 0 && (
+          <Button onClick={() => next()} isDisabled={selectedPlugin == undefined}>
+            Next
+          </Button>
+        )}
+
+        {currentStep > 0 && (
+          <Button style={{ marginTop: '1rem' }} onClick={() => prev()}>
+            Previous
+          </Button>
+        )}
+
       </DrawerPanelBody>
     </DrawerPanelContent>
-  ): null
-
-  useEffect(() => {
-    if (selectedConfig == "swift_storage" || selectedConfig == "fs_plugin") {
-      setBottomDrawerExpand(true)
-    }
-  }, [selectedConfig])
-
+  ) : null
 
   return (
-    <Drawer isExpanded={isbottomDrawerExpand} position="right" >
-      <DrawerContent panelContent={panelContent}>
+    <Drawer isExpanded={isbottomDrawerExpand} position="right"  >
+      <DrawerContent panelContent={panelContent} >
         <DrawerContentBody>
           <div className="local-file-upload">
             <h1 className="pf-c-title pf-m-2xl">Analysis Type Selection</h1>
