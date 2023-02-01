@@ -68,9 +68,7 @@ const DragAndUpload = ({
   }, [open, state.data.localFiles.length])
 
   const handleKeyDown = useCallback((e: any) => {
-    console.log(e)
-    if (e.key == "u") {
-      console.log("called")
+    if (e.code == "KeyU") {
       open()
     }
   }, [open])
@@ -96,9 +94,9 @@ const DragAndUpload = ({
   return (
     <section className="container" style={{ height: "100%", position: "relative" }}>
       <Tooltip content="Press the U key to select a file">
-      <div className="pf-c-chip pf-m-read-only tag"  style={{ position: "absolute", top: "10%", right: "8%" }}>
-        <span className="pf-c-chip__text">U</span>
-      </div>
+        <div className="pf-c-chip pf-m-read-only tag" style={{ position: "absolute", top: "10%", right: "8%" }}>
+          <span className="pf-c-chip__text">U</span>
+        </div>
       </Tooltip>
       <div {...getRootProps({ style })} >
         <input {...getInputProps()} />
