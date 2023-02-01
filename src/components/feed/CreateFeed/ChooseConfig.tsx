@@ -16,7 +16,7 @@ import { Steps } from "antd";
 const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, pluginName, dropdownInput, selectedComputeEnv, setComputeEnviroment, requiredInput, allRequiredFieldsNotEmpty }: chooseConfigProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig, selectedPlugin } = state
-  const { isDataSelected, localFiles, checkedKeys } = state.data;
+  const { isDataSelected, localFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext)
   const [isbottomDrawerExpand, setBottomDrawerExpand] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -105,7 +105,6 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
   ];
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
-  console.log(checkedKeys)
   const next = () => {
     setCurrentStep(currentStep + 1);
   };
