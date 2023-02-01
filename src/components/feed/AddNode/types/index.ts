@@ -70,54 +70,6 @@ export interface AddNodeProps {
   getParams: (plugin: Plugin) => void;
 }
 
-export interface GuidedConfigState {
-  componentList: string[];
-  count: number;
-  alertVisible: boolean;
-  editorValue: string;
-}
-export interface GuidedConfigProps extends InputProps {
-  defaultValueDisplay: boolean;
-  renderComputeEnv?: boolean;
-  params?: {
-    dropdown: PluginParameter[];
-    required: PluginParameter[];
-  };
-  computeEnvs?: any[];
-  inputChange(
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean,
-    paramName?: string
-  ): void;
-  deleteInput(input: string): void;
-  selectedComputeEnv?: string;
-  setComputeEnviroment?: (computeEnv: string) => void;
-  selectedPluginFromMeta?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
-  handleCheckboxChange?: (checked: boolean) => void;
-  checked?: boolean;
-  pluginMeta?: PluginMeta;
-  errors: Record<string, unknown>;
-}
-
-export interface EditorState {
-  value: string;
-  docsExpanded: boolean;
-  errors: string[];
-  dictionary: InputIndex;
-  savingValues: boolean;
-}
-
-export interface EditorProps extends InputState {
-  plugin: Plugin;
-  params?: PluginParameter[];
-  setEditorValue: (value: string) => void;
-}
-
 export interface SimpleDropdownState {
   isOpen: boolean;
 }
@@ -157,7 +109,6 @@ export interface AddNodeState extends InputState {
   pluginMetas: PluginMeta[];
   componentList: string[];
   showPreviousRun: boolean;
-  currentMetaIndex: number;
 }
 
 export enum Types {
@@ -174,7 +125,6 @@ export enum Types {
   SetComputeEnv = "SET_COMPUTE_ENV",
   ResetState = "RESET_STATE",
   SetShowPreviousRun = "SET_SHOW_PREVIOUS_RUN",
-  SetCurrentMetaIndex = "SET_CURRENT_META_INDEX",
 }
 
 export interface AddNodeStateActions {
@@ -227,10 +177,6 @@ export interface AddNodeStateActions {
 
   [Types.SetShowPreviousRun]: {
     showPreviousRun: boolean;
-  };
-
-  [Types.SetCurrentMetaIndex]: {
-    currentIndex: number;
   };
 
   [Types.ResetState]: Record<string, unknown>;

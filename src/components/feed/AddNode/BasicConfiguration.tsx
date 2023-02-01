@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  MutableRefObject,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   FormGroup,
   TextInput,
@@ -24,7 +17,6 @@ import { fetchResource } from "../../../api/common";
 import { useContext } from "react";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
-import { debounce } from "lodash";
 
 const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
   selectedPlugin,
@@ -116,7 +108,7 @@ const PluginList: React.FC = () => {
   const listRef = useRef<any>();
   const [filter, setFilter] = useState("");
   const { state, dispatch } = useContext(AddNodeContext);
-  const { pluginMetas, pluginMeta, currentMetaIndex } = state;
+  const { pluginMetas, pluginMeta } = state;
 
   const handleFilterChange = (filter: string) => setFilter(filter);
   const matchesFilter = useCallback(
@@ -140,50 +132,7 @@ const PluginList: React.FC = () => {
         pluginMeta,
       },
     });
-
-    dispatch({
-      type: Types.SetCurrentMetaIndex,
-      payload: {
-        currentMetaIndex: index,
-      },
-    });
   };
-
-  useEffect(() => {
-    listRef && listRef.current.focus();
-    listRef &&
-      listRef.current.addEventListener(
-        "keydown",
-        debounce((event: any) => {
-          console.log("Index", currentMetaIndex);
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            if (!pluginMeta) {
-              getPluginFromMeta(
-                pluginMetas[currentMetaIndex],
-                currentMetaIndex
-              );
-            } else if (currentMetaIndex < pluginMetas.length) {
-              const newPluginMeta = pluginMetas[currentMetaIndex + 1];
-              getPluginFromMeta(newPluginMeta, currentMetaIndex + 1);
-            }
-          }
-
-          if (event.key === "ArrowUp") {
-            event.preventDefault();
-            if (!pluginMeta) {
-              getPluginFromMeta(
-                pluginMetas[currentMetaIndex],
-                currentMetaIndex
-              );
-            } else if (currentMetaIndex > 0) {
-              const newPluginMeta = pluginMetas[currentMetaIndex - 1];
-              getPluginFromMeta(newPluginMeta, currentMetaIndex - 1);
-            }
-          }
-        }, 500)
-      );
-  });
 
   return (
     <ul ref={listRef} tabIndex={0} className="plugin-list">
@@ -203,6 +152,7 @@ const PluginList: React.FC = () => {
               const isSelected = pluginMeta && name === pluginMeta.data.name;
               return (
                 <li
+                  tabIndex={1}
                   key={id}
                   className={isSelected ? "selected" : ""}
                   onKeyDown={(event: any) => {
