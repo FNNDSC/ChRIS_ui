@@ -157,6 +157,7 @@ export interface AddNodeState extends InputState {
   pluginMetas: PluginMeta[];
   componentList: string[];
   showPreviousRun: boolean;
+  currentMetaIndex: number;
 }
 
 export enum Types {
@@ -173,6 +174,7 @@ export enum Types {
   SetComputeEnv = "SET_COMPUTE_ENV",
   ResetState = "RESET_STATE",
   SetShowPreviousRun = "SET_SHOW_PREVIOUS_RUN",
+  SetCurrentMetaIndex = "SET_CURRENT_META_INDEX",
 }
 
 export interface AddNodeStateActions {
@@ -225,6 +227,10 @@ export interface AddNodeStateActions {
 
   [Types.SetShowPreviousRun]: {
     showPreviousRun: boolean;
+  };
+
+  [Types.SetCurrentMetaIndex]: {
+    currentIndex: number;
   };
 
   [Types.ResetState]: Record<string, unknown>;

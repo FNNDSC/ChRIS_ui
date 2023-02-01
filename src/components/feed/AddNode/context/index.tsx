@@ -18,6 +18,7 @@ export function getInitialNodeState(): AddNodeState {
     pluginMetas: [],
     componentList: [],
     showPreviousRun: false,
+    currentMetaIndex: 0,
   };
 }
 

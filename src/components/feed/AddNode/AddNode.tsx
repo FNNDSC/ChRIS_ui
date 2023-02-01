@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { Wizard, Button, } from "@patternfly/react-core";
+import { Wizard, Button } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
 import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
@@ -37,7 +37,10 @@ const AddNode: React.FC<AddNodeProps> = ({
     selectedComputeEnv,
   } = state;
 
-  const onBackStep = (newStep: { id?: string | number; name: React.ReactNode }) => {
+  const onBackStep = (newStep: {
+    id?: string | number;
+    name: React.ReactNode;
+  }) => {
     const { id } = newStep;
 
     if (id) {
@@ -51,21 +54,23 @@ const AddNode: React.FC<AddNodeProps> = ({
     }
   };
 
-  const onNextStep = useCallback((newStep: { id?: string | number; name: React.ReactNode }) => {
-    const { id } = newStep;
+  const onNextStep = useCallback(
+    (newStep: { id?: string | number; name: React.ReactNode }) => {
+      const { id } = newStep;
 
-    if (id) {
-      const newStepId = stepIdReached < id ? (id as number) : stepIdReached;
-      console.log("newStepId", newStepId)
-      nodeDispatch({
-        type: Types.SetStepIdReached,
-        payload: {
-          id: newStepId,
-        },
-      });
-    }
-  }, [nodeDispatch, stepIdReached]);
-
+      if (id) {
+        const newStepId = stepIdReached < id ? (id as number) : stepIdReached;
+        console.log("newStepId", newStepId);
+        nodeDispatch({
+          type: Types.SetStepIdReached,
+          payload: {
+            id: newStepId,
+          },
+        });
+      }
+    },
+    [nodeDispatch, stepIdReached]
+  );
 
   const basicConfiguration = selectedPlugin && (
     <BasicConfiguration selectedPlugin={selectedPlugin} />
@@ -96,8 +101,6 @@ const AddNode: React.FC<AddNodeProps> = ({
 
     dispatch(getNodeOperations("childNode"));
   }, [dispatch, nodeDispatch]);
-
-
 
   const handleSave = async () => {
     if (!plugin || !selectedPlugin || !pluginInstances) {
@@ -144,6 +147,9 @@ const AddNode: React.FC<AddNodeProps> = ({
       </Button>
       {childNode && (
         <Wizard
+          onKeyDown={(event) => {
+            event?.preventDefault();
+          }}
           isOpen={childNode}
           onClose={toggleOpen}
           title="Add a New Node"

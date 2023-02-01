@@ -28,6 +28,13 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
       };
     }
 
+    case Types.SetCurrentMetaIndex: {
+      return {
+        ...state,
+        currentMetaIndex: action.payload.currentMetaIndex,
+      };
+    }
+
     case Types.DeleteComponentList: {
       const id = action.payload.id;
       const filteredList = state.componentList.filter((key) => {
@@ -139,7 +146,6 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
     case Types.ResetState: {
       const newState = getInitialNodeState();
 
-      console.log("New State", newState);
       return {
         ...newState,
       };
