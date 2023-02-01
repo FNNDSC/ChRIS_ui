@@ -146,7 +146,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     return (
       <div className="node-details">
         <div className="node-details__title">
-          <PluginTitle />
+          <PluginTitle readOnly addNode={function (): void {
+            throw new Error("Function not implemented.");
+          } } getParams={function (): void {
+            throw new Error("Function not implemented.");
+          } }/>
           <FaWindowClose
             onClick={() => {
               expandDrawer("side_panel");
@@ -228,7 +232,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
         <div className="node-details__actions">
           <div className="node-details__actions_first">
-            {cancelled ? null : <AddNode />}
+            {cancelled ? null : <AddNode readOnly/>}
             <PipelineProvider>
               <AddPipeline />
             </PipelineProvider>

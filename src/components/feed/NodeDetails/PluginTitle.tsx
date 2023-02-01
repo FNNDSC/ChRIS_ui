@@ -5,12 +5,24 @@ import { useTypedSelector } from '../../../store/hooks'
 import { AiFillEdit } from 'react-icons/ai'
 import { setPluginTitle } from '../../../store/pluginInstance/actions'
 import { PluginInstance } from '@fnndsc/chrisapi'
+import { AddNodeProps} from "../AddNode/types";
+import "./NodeDetails.scss";
+import { Cookies } from 'react-cookie'
 
 function getDefaultTitle(selectedPlugin?: PluginInstance) {
   return selectedPlugin?.data.title || selectedPlugin?.data.plugin_name
 }
 
-const PluginTitle = () => {
+const PluginTitle: React.FC<AddNodeProps>  = ( {readOnly}) => {
+  const currentFeedPayload = useTypedSelector((state) => state.feed.currentFeed)
+  const cookie = new Cookies()
+  const user2 = cookie.get('username')
+  const { data: feed} = currentFeedPayload;
+  if(feed && feed.data.creator_username===user2){
+    readOnly = false
+  } else {
+    readOnly = true
+  }
   const dispatch = useDispatch()
   const [showInput, setShowInput] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
@@ -81,11 +93,18 @@ const PluginTitle = () => {
           <Title headingLevel="h3" size="xl">
             <span>{pluginName}</span>
           </Title>
-          <AiFillEdit
+          {readOnly ? (
+             <>
+             <AiFillEdit className="tooltip-hoverable"/>
+             <span className="tooltip">You are not the feed owner</span>
+             </>
+          ) : (
+            <AiFillEdit
             onClick={() => {
               setShowInput(!showInput)
             }}
           />
+          )}
           {error && <Alert variant="success" isInline title={error} />}
         </>
       )}

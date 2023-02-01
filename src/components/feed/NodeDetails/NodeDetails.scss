@@ -158,7 +158,7 @@
           margin-left: 15px !important;
         }
       }
-     
+
       .ant-steps-item {
         overflow: visible !important;
       }
@@ -263,4 +263,21 @@ Steps Design Icon
   font-family: monospace;
   height: 100%;
   width: 100%;
+}
+
+.tooltip{
+  opacity: 0;
+  visibility: hidden;
+  background: #333;
+  padding: 5px 10px;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all 0.3s;
+}
+
+.tooltip-hoverable:hover + .tooltip {
+  opacity: 1;
+  visibility: visible;
 }

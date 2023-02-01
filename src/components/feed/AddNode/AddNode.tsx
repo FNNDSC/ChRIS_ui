@@ -17,6 +17,8 @@ import { getRequiredObject } from "../CreateFeed/utils/createFeed";
 import "./styles/AddNode.scss";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
+import { Cookies } from 'react-cookie'
+
 
 function getInitialState() {
   return {
@@ -33,12 +35,24 @@ function getInitialState() {
 }
 
 const AddNode: React.FC<AddNodeProps> = ({
+  readOnly,
   selectedPlugin,
   pluginInstances,
   getParams,
   addNode,
   params,
 }: AddNodeProps) => {
+  const currentFeedPayload = useTypedSelector((state) => state.feed.currentFeed)
+  const cookie = new Cookies()
+  const user2 = cookie.get('username')
+  const { data: feed} = currentFeedPayload;
+  if(feed && feed.data.creator_username===user2){
+    readOnly = false
+  } else {
+    readOnly = true
+  }
+
+
   const dispatch = useDispatch();
   const [addNodeState, setNodeState] =
     React.useState<AddNodeState>(getInitialState);
@@ -340,12 +354,21 @@ const AddNode: React.FC<AddNodeProps> = ({
 
   return (
     <React.Fragment>
-      <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
+      {readOnly ? (
+        <div className="tooltip-container">
+        <button className="tooltip-hoverable" disabled={true} >
+        {<MdOutlineAddCircle />} Add a Child Node{" "}( C )
+        </button>
+        <span className="tooltip">You are not the feed owner</span>
+        </div>
+      ) : (
+        <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
         Add a Child Node{" "}
         <span style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}>
           ( C )
         </span>
       </Button>
+      )}
       {childNode && (
         <Wizard
           isOpen={childNode}

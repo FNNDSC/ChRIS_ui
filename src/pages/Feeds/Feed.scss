@@ -170,3 +170,10 @@
 .feed_modal {
   height: 30%;
 }
+
+button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  padding: "5px";
+  font-size: "11px";
+}

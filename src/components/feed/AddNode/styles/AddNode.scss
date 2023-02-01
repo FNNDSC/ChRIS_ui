@@ -328,3 +328,26 @@
     font-weight: 900;
   }
 }
+
+.tooltip-container {
+  padding: 2.5rem 0;
+  position: relative;
+  display: inline;
+}
+
+.tooltip{
+  opacity: 0;
+  visibility: hidden;
+  background: #333;
+  padding: 5px 10px;
+  color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: all 0.3s;
+}
+
+.tooltip-hoverable:hover + .tooltip {
+  opacity: 1;
+  visibility: visible;
+}

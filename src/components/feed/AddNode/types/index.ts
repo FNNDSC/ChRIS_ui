@@ -68,6 +68,7 @@ export interface AddNodeState extends InputState {
 }
 
 export interface AddNodeProps {
+  readOnly: boolean;
   selectedPlugin?: PluginInstance;
   pluginInstances?: {
     data?: PluginInstance[];
@@ -80,6 +81,10 @@ export interface AddNodeProps {
     nodes?: PluginInstance[];
   }) => void;
   getParams: (plugin: Plugin) => void;
+}
+
+export interface AddPluginProps {
+  readOnly: boolean;
 }
 
 export interface GuidedConfigState {
