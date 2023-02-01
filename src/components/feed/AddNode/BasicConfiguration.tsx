@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  MutableRefObject,
+  useMemo,
+} from "react";
 import {
   FormGroup,
   TextInput,
@@ -17,6 +24,7 @@ import { fetchResource } from "../../../api/common";
 import { useContext } from "react";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
+import { debounce } from "lodash";
 
 const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
   selectedPlugin,
@@ -87,7 +95,7 @@ const PluginSelect: React.FC = () => {
   };
 
   return (
-    <Accordion tabIndex={0} className="plugin-select">
+    <Accordion className="plugin-select">
       <AccordionItem>
         <AccordionToggle
           onClick={() => handleAccordionToggle("all-toggle")}
@@ -105,9 +113,10 @@ const PluginSelect: React.FC = () => {
 };
 
 const PluginList: React.FC = () => {
+  const listRef = useRef<any>();
   const [filter, setFilter] = useState("");
   const { state, dispatch } = useContext(AddNodeContext);
-  const { pluginMetas, pluginMeta } = state;
+  const { pluginMetas, pluginMeta, currentMetaIndex } = state;
 
   const handleFilterChange = (filter: string) => setFilter(filter);
   const matchesFilter = useCallback(
@@ -124,17 +133,60 @@ const PluginList: React.FC = () => {
       <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
     ));
 
-  const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
+  const getPluginFromMeta = async (pluginMeta: PluginMeta, index: number) => {
     dispatch({
       type: Types.SetPluginMeta,
       payload: {
         pluginMeta,
       },
     });
+
+    dispatch({
+      type: Types.SetCurrentMetaIndex,
+      payload: {
+        currentMetaIndex: index,
+      },
+    });
   };
 
+  useEffect(() => {
+    listRef && listRef.current.focus();
+    listRef &&
+      listRef.current.addEventListener(
+        "keydown",
+        debounce((event: any) => {
+          console.log("Index", currentMetaIndex);
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (!pluginMeta) {
+              getPluginFromMeta(
+                pluginMetas[currentMetaIndex],
+                currentMetaIndex
+              );
+            } else if (currentMetaIndex < pluginMetas.length) {
+              const newPluginMeta = pluginMetas[currentMetaIndex + 1];
+              getPluginFromMeta(newPluginMeta, currentMetaIndex + 1);
+            }
+          }
+
+          if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (!pluginMeta) {
+              getPluginFromMeta(
+                pluginMetas[currentMetaIndex],
+                currentMetaIndex
+              );
+            } else if (currentMetaIndex > 0) {
+              const newPluginMeta = pluginMetas[currentMetaIndex - 1];
+              getPluginFromMeta(newPluginMeta, currentMetaIndex - 1);
+            }
+          }
+        }, 500)
+      );
+  });
+
   return (
-    <ul tabIndex={1} className="plugin-list">
+    <ul ref={listRef} tabIndex={0} className="plugin-list">
       <TextInput
         className="plugin-list-filter"
         value={filter}
@@ -144,28 +196,27 @@ const PluginList: React.FC = () => {
       />
       {pluginMetas
         ? pluginMetas
-          .sort((a, b) => a.data.name.localeCompare(b.data.name))
-          .filter(matchesFilter)
-          .map((item) => {
-            const { id, name, title } = item.data;
-            const isSelected = pluginMeta && name === pluginMeta.data.name;
-            return (
-              <li
-                tabIndex={1}
-                key={id}
-                className={isSelected ? "selected" : ""}
-                onKeyDown={(event: any) => {
-                  if (event.key === 'Enter') {
-                    getPluginFromMeta(item)
-                  }
-                }}
-                onClick={() => getPluginFromMeta(item)}
-              >
-                <span>{name}</span>
-                <span className="description">Description: {title}</span>
-              </li>
-            );
-          })
+            .sort((a, b) => a.data.name.localeCompare(b.data.name))
+            .filter(matchesFilter)
+            .map((item, index) => {
+              const { id, name, title } = item.data;
+              const isSelected = pluginMeta && name === pluginMeta.data.name;
+              return (
+                <li
+                  key={id}
+                  className={isSelected ? "selected" : ""}
+                  onKeyDown={(event: any) => {
+                    if (event.key === "Enter") {
+                      getPluginFromMeta(item, index);
+                    }
+                  }}
+                  onClick={() => getPluginFromMeta(item, index)}
+                >
+                  <span>{name}</span>
+                  <span className="description">Description: {title}</span>
+                </li>
+              );
+            })
         : loading}
     </ul>
   );
