@@ -1,7 +1,7 @@
-import React, { useContext, useCallback } from "react";
+import React, { useContext, useCallback, useEffect } from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { Wizard, Button } from "@patternfly/react-core";
+import { Wizard, Button, WizardContext } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
 import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
@@ -57,10 +57,9 @@ const AddNode: React.FC<AddNodeProps> = ({
   const onNextStep = useCallback(
     (newStep: { id?: string | number; name: React.ReactNode }) => {
       const { id } = newStep;
-
+      console.log("New Step", newStep);
       if (id) {
         const newStepId = stepIdReached < id ? (id as number) : stepIdReached;
-        console.log("newStepId", newStepId);
         nodeDispatch({
           type: Types.SetStepIdReached,
           payload: {
@@ -87,11 +86,24 @@ const AddNode: React.FC<AddNodeProps> = ({
     },
     {
       id: 2,
-      name: "Plugin Configuration-Form",
+      name: "Plugin Form",
       component: form,
       nextButtonText: "Add Node",
     },
   ];
+
+  useEffect(() => {
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        if (pluginMeta) {
+          onNextStep({
+            id: 2,
+            name: "Plugin Form",
+          });
+        }
+      }
+    });
+  });
 
   const toggleOpen = React.useCallback(() => {
     nodeDispatch({
@@ -147,9 +159,6 @@ const AddNode: React.FC<AddNodeProps> = ({
       </Button>
       {childNode && (
         <Wizard
-          onKeyDown={(event) => {
-            event?.preventDefault();
-          }}
           isOpen={childNode}
           onClose={toggleOpen}
           title="Add a New Node"

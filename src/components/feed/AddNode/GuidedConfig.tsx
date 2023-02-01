@@ -9,7 +9,7 @@ import {
   Checkbox,
   Grid,
   GridItem,
-  Tooltip
+  Tooltip,
 } from "@patternfly/react-core";
 import { PluginInstance, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
@@ -26,7 +26,6 @@ import { useDispatch } from "react-redux";
 import { getParams } from "../../../store/plugin/actions";
 import { fetchResource } from "../../../api/common";
 import { Button } from "antd";
-import { SpinContainer } from "../../common/loading/LoadingContent";
 
 const GuidedConfig = () => {
   const dispatch = useDispatch();
@@ -136,52 +135,56 @@ const GuidedConfig = () => {
 
   return (
     <div className="configuration">
-      <div>
-        <CardComponent>
-          <>
-            <h4 style={{ display: "inline", marginRight: "1rem" }}>Version</h4>
+      <CardComponent>
+        <>
+          <h4 style={{ display: "inline", marginRight: "1rem" }}>Plugin Versions:</h4>
+          <div
+            style={{
+              display: "flex",
+              marginTop: "1rem",
+            }}
+          >
             <DropdownBasic plugins={plugins} />
             <div
-              style={{
-                marginTop: "1rem",
-              }}
+              style={{ marginLeft: "1rem" }}
+              className="configuration__renders"
             >
-              <CheckboxComponent />
+              {renderComputeEnvs()}
             </div>
-          </>
-        </CardComponent>
-      </div>
-      <div>
-        <CardComponent>
-          <>
-            <div>
-              <h4>
-                Required Parameters <ItalicsComponent length={requiredLength} />
-              </h4>
-              {params &&
-                params["required"].length > 0 &&
-                renderRequiredParams(params["required"])}
-            </div>
-            <div>
-              <h4>
-                Optional Parameters <ItalicsComponent length={dropdownLength} />
-              </h4>
+          </div>
+        </>
+      </CardComponent>
 
-              {renderDropdowns()}
-            </div>
-          </>
-        </CardComponent>
-        <div>
-          <CardComponent>
-            <div className="configuration__renders">{renderComputeEnvs()}</div>
-          </CardComponent>
-        </div>
-      </div>
-      <div>
-        <CardComponent>
+      <CardComponent>
+        <CheckboxComponent />
+      </CardComponent>
+
+      <CardComponent>
+        <>
+          <h4>Copy Paste your Parameters:</h4>
           <EditorValue params={params} />
-        </CardComponent>
-      </div>
+        </>
+      </CardComponent>
+
+      <CardComponent>
+        <>
+          <div>
+            <h4>
+              Required Parameters <ItalicsComponent length={requiredLength} />
+            </h4>
+            {params &&
+              params["required"].length > 0 &&
+              renderRequiredParams(params["required"])}
+          </div>
+          <div>
+            <h4>
+              Optional Parameters <ItalicsComponent length={dropdownLength} />
+            </h4>
+
+            {renderDropdowns()}
+          </div>
+        </>
+      </CardComponent>
     </div>
   );
 };
@@ -303,8 +306,9 @@ const ItalicsComponent = ({ length }: { length?: number }) => {
       }}
     >
       (
-      {`${length && length > 0 ? length : "No required"}${length === 1 ? " parameter" : " parameters"
-        }`}
+      {`${length && length > 0 ? length : "No required"}${
+        length === 1 ? " parameter" : " parameters"
+      }`}
       )
     </i>
   );
@@ -312,12 +316,12 @@ const ItalicsComponent = ({ length }: { length?: number }) => {
 
 const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
   const dispatch = useDispatch();
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isopen, setIsOpen] = React.useState(false);
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const { selectedPluginFromMeta } = state;
 
   const onToggle = () => {
-    setIsOpen(!isOpen);
+    setIsOpen(!isopen);
   };
 
   const onFocus = () => {
@@ -343,40 +347,40 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
   const dropdownItems =
     plugins && plugins?.length > 0
       ? plugins.map((selectedPlugin: Plugin) => {
-        return (
-          <DropdownItem
-            style={{ padding: "0" }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                handleSelect(selectedPlugin);
-              }
-            }}
-            icon={
-              selectedPlugin.data.version ===
+          return (
+            <DropdownItem
+              style={{ padding: "0" }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  handleSelect(selectedPlugin);
+                }
+              }}
+              icon={
+                selectedPlugin.data.version ===
                 selectedPluginFromMeta?.data.version ? (
-                <FaCheck style={{ color: "green" }} />
-              ) : (
-                <></>
-              )
-            }
-            onClick={() => {
-              handleSelect(selectedPlugin);
-            }}
-            key={selectedPlugin.data.id}
-            name={selectedPlugin.data.version}
-            value={selectedPlugin.data.value}
-          >
-            {selectedPlugin.data.version}
-          </DropdownItem>
-        );
-      })
+                  <FaCheck style={{ color: "green" }} />
+                ) : (
+                  <></>
+                )
+              }
+              onClick={() => {
+                handleSelect(selectedPlugin);
+              }}
+              key={selectedPlugin.data.id}
+              name={selectedPlugin.data.version}
+              value={selectedPlugin.data.value}
+            >
+              {selectedPlugin.data.version}
+            </DropdownItem>
+          );
+        })
       : [];
 
   return (
     <Dropdown
       onSelect={onSelect}
-      isOpen={isOpen}
+      isOpen={isopen}
       toggle={
         <span style={{ display: "inline-flex" }}>
           <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
@@ -422,17 +426,17 @@ const EditorValue = ({
             {editorValue}
           </ClipboardCopy>
         </GridItem>
-        <GridItem span={2} className='icon'>
-          <Tooltip content={
-            <div>
-              Please validate your parameters by clicking the button if you have copy/pasted
-            </div>
-          }>
+        <GridItem span={2} className="icon">
+          <Tooltip
+            content={
+              <div>
+                Please validate your parameters by clicking the button if you
+                have copy/pasted
+              </div>
+            }
+          >
             <Button
-              icon={
-                <FaCheck
-                />
-              }
+              icon={<FaCheck />}
               onClick={() => {
                 if (params) {
                   setValidating(true);
@@ -460,14 +464,17 @@ const EditorValue = ({
                       },
                     });
                   }
-                  setValidating(false)
+                  setValidating(false);
                 }
               }}
             >
-              {validating ? <span style={{ marginLeft: '0.25em' }}>Validating </span> : ""}
+              {validating ? (
+                <span style={{ marginLeft: "0.25em" }}>Validating </span>
+              ) : (
+                ""
+              )}
             </Button>
           </Tooltip>
-
         </GridItem>
       </Grid>
     </div>
