@@ -302,7 +302,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     ]
 
   const handleNext = (activeStep: any, cb: () => void) => {
-    if (activeStep.id === 5) {
+    if (activeStep.id === 4) {
       handleSave();
     }
     cb();
