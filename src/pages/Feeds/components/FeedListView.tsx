@@ -188,13 +188,11 @@ const FeedListView: React.FC = () => {
               }
             }}
           />
-          
-                    {generatePagination()}
+          {generatePagination()}
 
-         
         </div>
         <div className="feed-list__split">
-        <DataTableToolbar
+          <DataTableToolbar
             onSearch={handleFilterChange}
             label="filter by name"
           />
