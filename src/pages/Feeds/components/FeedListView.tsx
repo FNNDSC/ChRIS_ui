@@ -117,6 +117,18 @@ const FeedListView: React.FC = () => {
       return null;
     }
 
+    if (totalFeedsCount == -1) {
+      return (
+        <Pagination
+          itemCount={0}
+          perPage={perPage}
+          page={page}
+          onSetPage={handlePageSet}
+          onPerPageSelect={handlePerPageSet}
+        />
+      );
+    }
+
     return (
       <Pagination
         itemCount={totalFeedsCount}
@@ -188,10 +200,10 @@ const FeedListView: React.FC = () => {
               }
             }}
           />
-          
+
                     {generatePagination()}
 
-         
+
         </div>
         <div className="feed-list__split">
         <DataTableToolbar
