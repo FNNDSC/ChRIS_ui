@@ -62,13 +62,6 @@ describe("Testing CreateAnalysis", () => {
       .click();
   });
 
-  it("06 Goes to Analysis Creation", () => {
-    cy.get("button.pf-c-button.pf-m-primary")
-      .eq(1)
-      .should("have.text", "Next")
-      .click();
-  });
-
   it("07 Selects the Analysis Synthesis plugin", () => {
     cy.get("input#pl-dircopy").check();
     cy.get("button.pf-c-button.pf-m-primary")
@@ -81,7 +74,7 @@ describe("Testing CreateAnalysis", () => {
   it("08 Goes to Parameter Configuration", () => {
     cy.get("input#dir").type(`${users.username}/uploads`);
     cy.get("button.pf-c-button.pf-m-primary")
-      .eq(2)
+      .eq(3)
       .should("have.text", "Next")
       .click();
   });
