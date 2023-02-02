@@ -208,7 +208,7 @@ export const FeedView: React.FC = () => {
 
   return (
     <React.Fragment>
-      <PageSection variant="darker" className="section-one">
+      <PageSection variant="darker" className="section-one" style={{height: "auto"}}>
         <FeedDetails />
       </PageSection>
 
