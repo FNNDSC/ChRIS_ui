@@ -35,6 +35,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
   }, [dispatch])
 
   const handleKeyDown = useCallback((e: any) => {
+    if(e.target.closest('INPUT.required-params__textInput')) return;
     switch (e.code) {
       case "KeyG":
         handleClick(e, "fs_plugin")
