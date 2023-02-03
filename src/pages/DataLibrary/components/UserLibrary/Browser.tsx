@@ -11,6 +11,7 @@ import {
   SplitItem,
   Button,
   Modal,
+  ModalVariant,
 } from "@patternfly/react-core";
 import { Spin } from "antd";
 import { Link } from "react-router-dom";
@@ -21,7 +22,6 @@ import { LibraryContext } from "./context";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import useLongPress from "./useLongPress";
-
 
 export function Browser({
   folders,
@@ -142,7 +142,6 @@ function FolderCard({
   return (
     <Card
       isSelectableRaised
-      isHoverable
       isRounded
       isSelected={background}
       onMouseDown={handleOnMouseDown}
@@ -255,11 +254,10 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
         onMouseDown={handleOnMouseDown}
         key={file.data.fname}
         isRounded
-        isHoverable
         isSelectableRaised
       >
         <CardHeader>
-          <CardTitle style={{overflow: 'hidden'}}>
+          <CardTitle style={{ overflow: "hidden" }}>
             <Button icon={<FaFile />} variant="link" style={{ padding: "0" }}>
               <b>
                 {columnLayout === "single" ? fileName : elipses(fileName, 40)}
@@ -293,6 +291,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
         </CardBody>
         {largePreview && (
           <Modal
+            variant={ModalVariant.large}
             title="Preview"
             aria-label="viewer"
             width={"50%"}
