@@ -1,9 +1,15 @@
 
-# Moves the "past-chrisproject-org" tag to HEAD^ (the second latest commit).
-# This triggers a webhook which starts a build on MOC OpenShift, updating
-# the https://past.chrisproject.org website.
+# Tags the current ImageStream in OpenShift for https://nightly.chrisproject.org,
+# which triggers a deployment of https://past.chrisproject.org. This happens before
+# nightly-chrisproject-org is done rebuilding so in effect, the outdated image of
+# https://nightly.chrisproject.org is deployed to https://past.chrisproject.org
+#
+# Race condition: while it's technically possible for the OpenShift build
+# for the ImageStram nightly-chrisproject-org:latest to finish before
+# this Github Action, that's probably not going to happen.
+# If it did, then https://past.chrisproject.org would be the same as https://nightly.chrisproject.org
 
-name: Trigger rebuild past.chrisproject.org
+name: Tag imagestream for past.chrisproject.org
 
 on:
   push:
@@ -14,10 +20,11 @@ jobs:
   advance-past-tag:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: oc login
+      uses: redhat-actions/oc-login@v1
       with:
-        fetch-depth: 2
-    - name: Advance past-chrisproject-org tag
-      run: |
-        git tag --force past-chrisproject-org 'HEAD^'
-        git push --tags --force
+        openshift_server_url: "https://api.ocp-prod.massopen.cloud:6443"
+        openshift_token: "${{ secrets.MOC_SA_TOKEN }}"
+        namespace: chris-public
+    - name: Update ImageStream nightly-chrisproject-org:past
+      run: oc tag nightly-chrisproject-org:latest nightly-chrisproject-org:past
