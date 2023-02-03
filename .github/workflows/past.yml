@@ -1,0 +1,23 @@
+
+# Moves the "past-chrisproject-org" tag to HEAD^ (the second latest commit).
+# This triggers a webhook which starts a build on MOC OpenShift, updating
+# the https://past.chrisproject.org website.
+
+name: Trigger rebuild past.chrisproject.org
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  advance-past-tag:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
+    - name: Advance past-chrisproject-org tag
+      run: |
+        git tag --force past-chrisproject-org 'HEAD^'
+        git push --tags --force
