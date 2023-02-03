@@ -59,7 +59,7 @@
     "xtk": "^10.0.0"
   },
   "scripts": {
-    "start": "sirv build --quiet --host --port 8080 --single --etag",
+    "start": "sirv build --host --port ${PORT:=8080} --single --etag --quiet",
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
