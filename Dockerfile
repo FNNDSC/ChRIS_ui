@@ -32,7 +32,7 @@ WORKDIR /app
 COPY . .
 
 RUN npm run -s print-version
-RUN npm install --legacy-peer-deps
+RUN npm install
 RUN npm run build 
 
 
