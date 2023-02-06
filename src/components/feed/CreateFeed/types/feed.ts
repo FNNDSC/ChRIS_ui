@@ -1,5 +1,5 @@
-import { Tag, PluginMeta, PluginInstance, Plugin } from "@fnndsc/chrisapi";
-import { InputState, InputIndex } from "../../AddNode/types";
+import { Tag, PluginInstance } from "@fnndsc/chrisapi";
+
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
@@ -71,26 +71,6 @@ type CreateFeedPayload = {
   [Types.RemoveLocalFile]: {
     filename: string;
   };
-  [Types.SelectPluginMeta]: {
-    plugin: PluginMeta;
-    checked: boolean;
-  };
-
-  [Types.SelectPluginFromMeta]: {
-    plugin: Plugin;
-  };
-  [Types.DropdownInput]: {
-    id: string;
-    input: InputIndex;
-  };
-  [Types.RequiredInput]: {
-    id: string;
-    input: InputIndex;
-  };
-
-  [Types.DeleteInput]: {
-    input: string;
-  };
 
   [Types.ResetState]: boolean;
   [Types.SetProgress]: {
@@ -105,10 +85,6 @@ type CreateFeedPayload = {
   };
 
   [Types.ResetProgress]: boolean;
-
-  [Types.SetComputeEnvironment]: {
-    computeEnvironment: string;
-  };
 
   [Types.CancelFeed]: Record<string, unknown>;
 };
@@ -161,17 +137,14 @@ export interface CreateFeedData {
   isDataSelected: boolean;
 }
 
-export interface CreateFeedState extends InputState {
+export interface CreateFeedState {
   wizardOpen: boolean;
   step: number;
   data: CreateFeedData;
   selectedConfig: string;
-  pluginMeta?: PluginMeta;
-  selectedPluginFromMeta?: Plugin;
   feedProgress: string;
   feedError: any;
   value: number;
-  computeEnvironment: string;
   currentlyConfiguredNode: string;
 }
 

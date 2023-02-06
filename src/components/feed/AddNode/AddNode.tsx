@@ -1,7 +1,7 @@
 import React, { useContext, useCallback, useEffect } from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { Wizard, Button, WizardContext } from "@patternfly/react-core";
+import { Wizard, Button } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
 import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
@@ -57,7 +57,6 @@ const AddNode: React.FC<AddNodeProps> = ({
   const onNextStep = useCallback(
     (newStep: { id?: string | number; name: React.ReactNode }) => {
       const { id } = newStep;
-      console.log("New Step", newStep);
       if (id) {
         const newStepId = stepIdReached < id ? (id as number) : stepIdReached;
         nodeDispatch({

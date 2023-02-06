@@ -8,7 +8,6 @@ import { Key } from "rc-tree/lib/interface";
 import { clearCache } from "../ChrisFileSelect";
 import { State as MainRouterContextState } from "../../../../routes";
 import { Series } from "../../../../pages/DataLibrary/Library";
-import { InputType } from "../../AddNode/types";
 
 function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
   const initData = {
@@ -40,15 +39,10 @@ export function getInitialState(
     wizardOpen: isInitDataSelected,
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
-    pluginMeta: undefined,
-    selectedPluginFromMeta: undefined,
     selectedConfig: isInitDataSelected ? "swift_storage" : "",
-    requiredInput: {},
-    dropdownInput: {},
     feedProgress: "",
     feedError: "",
     value: 0,
-    computeEnvironment: "",
     currentlyConfiguredNode: "",
   };
 }
@@ -96,9 +90,6 @@ export const createFeedReducer = (
           localFiles: [],
           checkedKeys: {},
         },
-        requiredInput: {},
-        dropdownInput: {},
-        pluginMeta: undefined,
         selectedConfig: action.payload.selectedConfig,
       };
     case Types.AddChrisFile:
@@ -166,70 +157,14 @@ export const createFeedReducer = (
         },
       };
 
-    case Types.SelectPluginMeta: {
-      if (action.payload.checked === true) {
-        return {
-          ...state,
-          pluginMeta: action.payload.plugin,
-        };
-      } else {
-        return {
-          ...state,
-          pluginMeta: undefined,
-        };
-      }
-    }
-
-    case Types.SelectPluginFromMeta: {
-      return {
-        ...state,
-        selectedPluginFromMeta: action.payload.plugin,
-      };
-    }
-
-    case Types.DropdownInput: {
-      return {
-        ...state,
-        dropdownInput: {
-          ...state.dropdownInput,
-          [action.payload.id]: action.payload.input,
-        },
-      };
-    }
-
-    case Types.RequiredInput: {
-      return {
-        ...state,
-        requiredInput: {
-          ...state.requiredInput,
-          [action.payload.id]: action.payload.input,
-        },
-      };
-    }
-
-    case Types.DeleteInput: {
-      const { dropdownInput } = state;
-      const { input } = action.payload;
-      const newObject = deleteObjectHelper(dropdownInput, input);
-      return {
-        ...state,
-        dropdownInput: newObject,
-      };
-    }
-
     case Types.ResetState: {
       clearCache();
       return {
         ...state,
         data: getDefaultCreateFeedData(),
         step: 1,
-        pluginMeta: undefined,
         selectedConfig: "",
-        requiredInput: {},
-        dropdownInput: {},
-        computeEnvironment: "",
         value: 0,
-        currentlyConfiguredNode: "",
       };
     }
 
@@ -259,15 +194,3 @@ export const createFeedReducer = (
       return state;
   }
 };
-
-function deleteObjectHelper(dropdownInput: InputType, input: string) {
-  const newObject = Object.entries(dropdownInput)
-    .filter(([key]) => {
-      return key !== input;
-    })
-    .reduce((acc: InputType, [key, value]) => {
-      acc[key] = value;
-      return acc;
-    }, {});
-  return newObject;
-}
