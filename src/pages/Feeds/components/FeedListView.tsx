@@ -188,13 +188,13 @@ const FeedListView: React.FC = () => {
               }
             }}
           />
-          
-                    {generatePagination()}
 
-         
+          {generatePagination()}
+
+
         </div>
         <div className="feed-list__split">
-        <DataTableToolbar
+          <DataTableToolbar
             onSearch={handleFilterChange}
             label="filter by name"
           />
@@ -225,15 +225,10 @@ const FeedListView: React.FC = () => {
                   <Th>Created</Th>
                   <Th>Creator</Th>
                   <Th>Run Time</Th>
-                  <Th
-                    style={{
-                      textAlign: "center",
-                      margin: "0 auto",
-                    }}
-                  >
+                  <Th>
                     Size
                   </Th>
-                  <Th>Progress</Th>
+                  <Th>Status</Th>
                 </Tr>
               </Thead>
             }
