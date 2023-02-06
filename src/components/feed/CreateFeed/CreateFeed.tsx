@@ -26,7 +26,6 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import { InputIndex } from "../AddNode/types";
 import "./createfeed.scss";
 import { PipelineTypes } from "./types/pipeline";
-import { useSelector } from "react-redux";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
@@ -47,7 +46,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     requiredInput,
     computeEnvironment,
   } = state;
-  const {parameters: params} = useSelector((state:ApplicationState) => state.plugin)
+  /*
+  const { parameters: params } = useSelector(
+    (state: ApplicationState) => state.plugin
+  );
+  */
   const { pipelineData, selectedPipeline } = pipelineState;
   const enableSave =
     data.chrisFiles.length > 0 ||
@@ -71,6 +74,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   };
 
   const RequiredParamsNotEmpty = () => {
+    /*
     if(params && params.length > 0){
       for(const param of params){
         const paramObject = requiredInput[param.data.id]
@@ -83,9 +87,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         }
       }
     }
+    */
     return true;
-  }
-
+  };
 
   const deleteInput = (index: string) => {
     dispatch({
@@ -257,10 +261,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       requiredInput={requiredInput}
       selectedComputeEnv={computeEnvironment}
       setComputeEnviroment={setComputeEnvironment}
+      errors={{}}
     />
   );
   const pipelines = <PipelineContainer />;
-  const review = <Review handleSave={handleSave}/>;
+  const review = <Review handleSave={handleSave} />;
 
   const finishedStep = <FinishedStep />;
 
@@ -383,7 +388,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           canJumpTo: step > 7,
         },
       ];
-      
 
   const handleNext = (activeStep: any, cb: () => void) => {
     if (activeStep.id === 6) {

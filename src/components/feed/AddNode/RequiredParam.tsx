@@ -7,7 +7,6 @@ import { css } from "@patternfly/react-styles";
 
 const RequiredParam: React.FC<RequiredParamProp> = ({
   param,
-  addParam,
   requiredInput,
   inputChange,
 }: RequiredParamProp) => {
@@ -15,9 +14,10 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     requiredInput &&
     requiredInput[param.data.id] &&
     requiredInput[param.data.id]["value"];
-  const inputElement = useRef<any>()
+  const inputElement = useRef<any>();
 
   const handleInputChange = (param: PluginParameter, event: any) => {
+    event.preventDefault();
     const id = `${param.data.id}`;
     const flag = param.data.flag;
     const placeholder = param.data.help;
@@ -26,28 +26,21 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const paramName = param.data.name;
     inputChange(id, flag, value, type, placeholder, true, paramName);
   };
-  
-  const triggerChange = (eventType: string) => {
-    if (eventType === "keyDown") {
-      addParam();
-    }
-  };
-  
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      triggerChange("keyDown");
-    }
-  };
 
   useEffect(() => {
     if (inputElement.current) {
-      inputElement.current.focus()
+      inputElement.current.focus();
     }
-  }, [])
+  }, []);
 
   return (
-    <Form className="required-params" key={param.data.id}>
+    <Form
+      onSubmit={(event: any) => {
+        event.preventDefault();
+      }}
+      className="required-params"
+      key={param.data.id}
+    >
       <div className="required-params__layout">
         <div className="required-params__label">
           {`${param.data.flag}:`}
@@ -55,18 +48,17 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
         </div>
         <span className="required-params__infoLabel">(*Required)</span>
       </div>
-    
+
       <input
-         className={css(styles.formControl, `required-params__textInput`)}
-         type="text"
-         ref={inputElement}
-         aria-label="required-parameters"
-         onChange={(event: any) => handleInputChange(param, event)}
-         onKeyDown={handleKeyDown}
-         placeholder={param.data.help}
-         value={value}
-         id={param.data.name}
-      />     
+        className={css(styles.formControl, `required-params__textInput`)}
+        type="text"
+        ref={inputElement}
+        aria-label="required-parameters"
+        onChange={(event: any) => handleInputChange(param, event)}
+        placeholder={param.data.help}
+        value={value}
+        id={param.data.name}
+      />
     </Form>
   );
 };

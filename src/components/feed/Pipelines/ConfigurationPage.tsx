@@ -165,7 +165,13 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
               }
             }
           });
-          dispatchStore(getParamsSuccess(newParamDict));
+
+          dispatchStore(
+            getParamsSuccess({
+              required: [],
+              dropdown: newParamDict,
+            })
+          );
         }
       }
     }
@@ -247,6 +253,7 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
                   deleteInput={deleteInput}
                   dropdownInput={dropdownInput}
                   requiredInput={requiredInput}
+                  errors={{}}
                 />
               )}
             </GridItem>
