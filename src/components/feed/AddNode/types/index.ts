@@ -1,4 +1,9 @@
-import { Plugin, PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
+import {
+  Plugin,
+  PluginParameter,
+  PluginInstance,
+  PluginMeta,
+} from "@fnndsc/chrisapi";
 
 export interface InputIndex {
   [key: string]: string;
@@ -37,6 +42,12 @@ export interface PluginListProps {
   selected?: Plugin;
 }
 
+export interface PluginMetaListProps {
+  handlePluginSelect: (plugin: Plugin) => void;
+  pluginMetas?: PluginMeta[];
+  selected?: Plugin;
+}
+
 export interface PluginListState {
   filter: string;
 }
@@ -52,6 +63,12 @@ export interface PluginSelectState {
   recentPlugins?: Plugin[];
 }
 
+export interface PluginMetaSelectState {
+  expanded: string;
+  allPlugins?: PluginMeta[];
+  recentPlugins?: PluginMeta[];
+}
+
 export interface AddNodeState extends InputState {
   stepIdReached: number;
   nodes?: PluginInstance[];
@@ -60,9 +77,7 @@ export interface AddNodeState extends InputState {
     parent?: PluginInstance;
   };
   selectedComputeEnv: string;
-  errors: {
-    [key: string]: string[];
-  };
+  errors: {};
   editorValue: string;
   loading: boolean;
 }
@@ -74,7 +89,10 @@ export interface AddNodeProps {
     error: any;
     loading: boolean;
   };
-  params?: PluginParameter[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   addNode: (item: {
     pluginItem: PluginInstance;
     nodes?: PluginInstance[];
@@ -85,14 +103,16 @@ export interface AddNodeProps {
 export interface GuidedConfigState {
   componentList: string[];
   count: number;
-  errors: string[];
   alertVisible: boolean;
-  docsExpanded: boolean;
+  editorValue: string;
 }
 export interface GuidedConfigProps extends InputProps {
   defaultValueDisplay: boolean;
   renderComputeEnv?: boolean;
-  params?: PluginParameter[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   computeEnvs?: any[];
   inputChange(
     id: string,
@@ -107,13 +127,15 @@ export interface GuidedConfigProps extends InputProps {
   selectedComputeEnv?: string;
   setComputeEnviroment?: (computeEnv: string) => void;
   pluginName: string;
+  handlePluginSelect?: (plugin: Plugin) => void;
+  plugin?: Plugin;
+  errors: {};
 }
 
 export interface EditorState {
   value: string;
   docsExpanded: boolean;
   errors: string[];
-  readOnly: boolean;
   dictionary: InputIndex;
   savingValues: boolean;
 }
@@ -130,7 +152,10 @@ export interface SimpleDropdownState {
 
 export interface SimpleDropdownProps {
   defaultValueDisplay: boolean;
-  params?: PluginParameter[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   toggle?: React.ReactElement<any>;
   onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
   isOpen?: boolean;
@@ -154,7 +179,6 @@ export interface SimpleDropdownProps {
 
 export interface RequiredParamProp {
   param: PluginParameter;
-  addParam: () => void;
   requiredInput: InputType;
   inputChange(
     id: string,
