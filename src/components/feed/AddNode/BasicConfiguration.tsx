@@ -125,7 +125,7 @@ const PluginList: React.FC = () => {
       <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
     ));
 
-  const getPluginFromMeta = async (pluginMeta: PluginMeta, index: number) => {
+  const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
     dispatch({
       type: Types.SetPluginMeta,
       payload: {
@@ -147,7 +147,7 @@ const PluginList: React.FC = () => {
         ? pluginMetas
             .sort((a, b) => a.data.name.localeCompare(b.data.name))
             .filter(matchesFilter)
-            .map((item, index) => {
+            .map((item) => {
               const { id, name, title } = item.data;
               const isSelected = pluginMeta && name === pluginMeta.data.name;
               return (
@@ -157,10 +157,10 @@ const PluginList: React.FC = () => {
                   className={isSelected ? "selected" : ""}
                   onKeyDown={(event: any) => {
                     if (event.key === "Enter") {
-                      getPluginFromMeta(item, index);
+                      getPluginFromMeta(item);
                     }
                   }}
-                  onClick={() => getPluginFromMeta(item, index)}
+                  onClick={() => getPluginFromMeta(item)}
                 >
                   <span>{name}</span>
                   <span className="description">Description: {title}</span>

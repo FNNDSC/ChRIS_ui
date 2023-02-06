@@ -5,11 +5,9 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { PluginMeta, Plugin } from "@fnndsc/chrisapi";
-import { Types } from "./types/feed";
-import { CreateFeedContext } from "./context";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
+import { PluginMeta } from "@fnndsc/chrisapi";
+import { Types as AddNodeTypes } from "../AddNode/types";
+
 import { Pagination, ToolbarItem, Radio } from "@patternfly/react-core";
 import {
   Button,
@@ -20,9 +18,9 @@ import {
 import { FaSearch } from "react-icons/fa";
 import debounce from "lodash/debounce";
 
-import { getParams } from "../../../store/plugin/actions";
 import { getPlugins } from "./utils/dataPacks";
 import { WizardContext } from "@patternfly/react-core/";
+import { AddNodeContext } from "../AddNode/context";
 
 interface FilterProps {
   perPage: number;
@@ -40,13 +38,10 @@ const getFilterState = () => {
   };
 };
 
-interface DataPacksReduxProp {
-  getParams: (plugin: Plugin) => void;
-}
-
-const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { pluginMeta } = state;
+const DataPacks: React.FC = () => {
+  const { state: addNodeState } = useContext(AddNodeContext);
+  const { dispatch: nodeDispatch } = useContext(AddNodeContext);
+  const { pluginMeta } = addNodeState;
   const [fsPlugins, setfsPlugins] = useState<PluginMeta[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;
@@ -89,15 +84,14 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
 
   const handleOnChange = useCallback(
     (checked: any, plugin: PluginMeta) => {
-      dispatch({
-        type: Types.SelectPluginMeta,
+      nodeDispatch({
+        type: AddNodeTypes.SetPluginMeta,
         payload: {
-          plugin,
-          checked,
+          pluginMeta: plugin,
         },
       });
     },
-    [dispatch]
+    [nodeDispatch]
   );
 
   const handleKeyDown = useCallback(
@@ -189,8 +183,4 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
   );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
-});
-
-export default connect(null, mapDispatchToProps)(DataPacks);
+export default DataPacks;

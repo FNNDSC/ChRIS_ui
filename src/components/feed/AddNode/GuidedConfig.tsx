@@ -137,7 +137,6 @@ const GuidedConfig = () => {
     <div className="configuration">
       <CardComponent>
         <>
-          <h4 style={{ display: "inline", marginRight: "1rem" }}>Plugin Versions:</h4>
           <div
             style={{
               display: "flex",
@@ -378,18 +377,21 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
       : [];
 
   return (
-    <Dropdown
-      onSelect={onSelect}
-      isOpen={isopen}
-      toggle={
-        <span style={{ display: "inline-flex" }}>
-          <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
-            {selectedPluginFromMeta?.data.version}
-          </DropdownToggle>
-        </span>
-      }
-      dropdownItems={dropdownItems}
-    />
+    <>
+      <span className="configure-compute__label">Select a Plugin Version:</span>
+      <Dropdown
+        onSelect={onSelect}
+        isOpen={isopen}
+        toggle={
+          <span style={{ display: "inline-flex" }}>
+            <DropdownToggle id="toggle-child-node-version" onToggle={onToggle}>
+              {selectedPluginFromMeta?.data.version}
+            </DropdownToggle>
+          </span>
+        }
+        dropdownItems={dropdownItems}
+      />
+    </>
   );
 };
 

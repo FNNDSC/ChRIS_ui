@@ -27,7 +27,7 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
     const value = event.target.value;
 
     dispatch({
-      types: Types.RequiredInput,
+      type: Types.RequiredInput,
       payload: {
         input: {
           [id]: {

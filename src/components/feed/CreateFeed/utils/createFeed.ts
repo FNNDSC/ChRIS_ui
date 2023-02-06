@@ -183,18 +183,15 @@ export const createFeedInstanceWithFS = async (
 
   let feed;
   if (selectedPlugin) {
-    const pluginName = selectedPlugin.data.name;
     try {
-      const fsPlugin = await getPlugin(pluginName);
-
-      if (fsPlugin instanceof Plugin) {
+      if (selectedPlugin instanceof Plugin) {
         const data = await getRequiredObject(
           dropdownInput,
           requiredInput,
-          fsPlugin
+          selectedPlugin
         );
 
-        const pluginId = fsPlugin.data.id;
+        const pluginId = selectedPlugin.data.id;
         statusCallback("Creating Plugin Instance", 20);
         const client = ChrisAPIClient.getClient();
         try {

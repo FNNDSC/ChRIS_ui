@@ -12,6 +12,7 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
           dropdownInput: {},
           requiredInput: {},
           stepIdReached: id,
+          showPreviousRun: false,
         };
       } else {
         return {
@@ -27,8 +28,6 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
         pluginMeta: action.payload.pluginMeta,
       };
     }
-
-   
 
     case Types.DeleteComponentList: {
       const id = action.payload.id;

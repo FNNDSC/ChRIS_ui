@@ -5,18 +5,20 @@ import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
+import { AddNodeContext } from "../AddNode/context";
 
 const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state } = useContext(CreateFeedContext);
+  const { state: addNodeState } = useContext(AddNodeContext);
   const { feedName, feedDescription, tags, chrisFiles, localFiles } =
     state.data;
+  const { selectedConfig } = state;
   const {
     dropdownInput,
     requiredInput,
-    selectedConfig,
     selectedPluginFromMeta,
-    computeEnvironment,
-  } = state;
+    selectedComputeEnv,
+  } = addNodeState;
 
   const pipelineName = "";
 
@@ -65,7 +67,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
           <PluginDetails
             generatedCommand={generatedCommand}
             selectedPlugin={selectedPluginFromMeta}
-            computeEnvironment={computeEnvironment}
+            computeEnvironment={selectedComputeEnv}
           />
         </Grid>
       );
