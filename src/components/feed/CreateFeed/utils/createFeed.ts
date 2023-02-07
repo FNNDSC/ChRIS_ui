@@ -109,14 +109,18 @@ export const createFeedInstanceWithDircopy = async (
             pipeline.pipelinePlugins &&
             pipeline.pluginPipings.length > 0
           ) {
-            const { pluginParameters, input, computeEnvs, parameterList} = pipeline;
+            const { pluginParameters, input, computeEnvs, parameterList } =
+              pipeline;
 
             const nodes_info = client.computeWorkflowNodesInfo(
               //@ts-ignore
               pluginParameters.data
             );
 
+            console.log("ComputeEnvs", computeEnvs, parameterList);
+
             nodes_info.forEach((node) => {
+              console.log("Node", node);
               if (computeEnvs && computeEnvs[node["piping_id"]]) {
                 const compute_node =
                   computeEnvs[node["piping_id"]]["currentlySelected"];
@@ -130,7 +134,13 @@ export const createFeedInstanceWithDircopy = async (
                   node.compute_resource_name = compute_node;
                 }
               }
-              const pluginParameterDefaults = [];
+
+              if (parameterList && parameterList[node["piping_id"]]) {
+                const params = parameterList[node["piping_id"]];
+                node["plugin_parameter_defaults"] = params;
+              }
+
+              /*
               if (input && input[node["piping_id"]]) {
                 const { dropdownInput, requiredInput } =
                   input[node["piping_id"]];
@@ -153,6 +163,7 @@ export const createFeedInstanceWithDircopy = async (
                 }
                 node["plugin_parameter_defaults"] = pluginParameterDefaults;
               }
+              */
             });
 
             await client.createWorkflow(selectedPipeline, {
@@ -179,7 +190,6 @@ export const createFeedInstanceWithFS = async (
   statusCallback: (status: string, value: number) => void,
   errorCallback: (error: string) => void
 ) => {
- 
   let feed;
   if (selectedPlugin) {
     try {
