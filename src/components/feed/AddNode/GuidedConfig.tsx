@@ -160,7 +160,7 @@ const GuidedConfig = () => {
 
       <CardComponent>
         <>
-          <h4>Copy Paste your Parameters:</h4>
+          <h4>Command Line Parameters:</h4>
           <EditorValue params={params} />
         </>
       </CardComponent>

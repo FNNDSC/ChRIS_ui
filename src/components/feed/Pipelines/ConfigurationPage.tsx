@@ -3,13 +3,12 @@ import { useDispatch } from "react-redux";
 import TitleChange from "./TitleChange";
 import ClipboardCopyCommand from "./ClipboardCopyCommand";
 import { ConfiguartionPageProps } from "../CreateFeed/types/pipeline";
-import { InputIndex } from "../AddNode/types";
 import { Grid, GridItem, ExpandableSection } from "@patternfly/react-core";
 import { PluginPiping } from "@fnndsc/chrisapi";
-import GuidedConfig from "../AddNode/GuidedConfig";
-import { getParamsSuccess } from "../../../store/plugin/actions";
 import CreatingPipeline from "./CreatePipeline";
 import ListCompute from "./ListCompute";
+import { PipelineContext } from "../CreateFeed/context";
+import { Button, Form, Input } from "antd";
 
 const ConfigurationPage = (props: ConfiguartionPageProps) => {
   const dispatchStore = useDispatch();
@@ -19,10 +18,9 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
     pipeline,
     state,
     pipelines,
-    handleTypedInput,
     handleSetCurrentNodeTitle,
     handleDispatchPipelines,
-    handleDeleteInput,
+    handleFormParameters,
     handleSetCurrentComputeEnv,
     justDisplay,
   } = props;
@@ -35,53 +33,9 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
       : [];
   const [selectedPlugin, setSelectedPlugin] = React.useState<PluginPiping>();
 
-  let dropdownInput = {};
-  let requiredInput = {};
-
-  if (currentNode && input && input[currentNode]) {
-    dropdownInput = input[currentNode].dropdownInput;
-    requiredInput = input[currentNode].requiredInput;
-  }
-
   const onToggle = (isExpanded: boolean) => {
     setIsExpanded(isExpanded);
   };
-
-  const handleTypedInputWrap = React.useCallback(
-    (required: boolean, id: string, input: InputIndex) => {
-      if (currentNode)
-        handleTypedInput(currentPipelineId, currentNode, id, input, required);
-    },
-    [currentNode, currentPipelineId, handleTypedInput]
-  );
-
-  const inputChange = React.useCallback(
-    (
-      id: string,
-      flag: string,
-      value: string,
-      type: string,
-      placeholder: string,
-      required: boolean,
-      paramName?: string
-    ) => {
-      const input: InputIndex = {};
-      input["id"] = id;
-      input["flag"] = flag;
-      input["value"] = value;
-      input["type"] = type;
-      input["placeholder"] = placeholder;
-      if (paramName) {
-        input["paramName"] = paramName;
-      }
-      if (required === true && currentNode) {
-        handleTypedInputWrap(true, id, input);
-      } else if (currentNode) {
-        handleTypedInputWrap(false, id, input);
-      }
-    },
-    [currentNode, handleTypedInputWrap]
-  );
 
   React.useEffect(() => {
     async function fetchResources() {
@@ -122,79 +76,17 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
               //@ts-ignore
               newParam.data["default"] = defaultParam.value;
               newParamDict.push(newParam);
-
-              if (
-                param.data.optional === false &&
-                !(
-                  input &&
-                  input[currentNode] &&
-                  input[currentNode].requiredInput
-                )
-              ) {
-                inputChange(
-                  param.data.id,
-                  param.data.flag,
-                  //@ts-ignore
-                  defaultParam.value,
-                  param.data.type,
-                  param.data.help,
-                  true,
-                  param.data.name
-                );
-              } else {
-                if (
-                  //@ts-ignore
-                  defaultParam.value &&
-                  !(
-                    input &&
-                    input[currentNode] &&
-                    input[currentNode].dropdownInput
-                  )
-                ) {
-                  inputChange(
-                    param.data.id,
-                    param.data.flag,
-                    //@ts-ignore
-                    defaultParam.value,
-                    param.data.type,
-                    param.data.help,
-                    false,
-                    param.data.name
-                  );
-                }
-              }
             }
           });
 
-          dispatchStore(
-            getParamsSuccess({
-              required: [],
-              dropdown: newParamDict,
-            })
-          );
+          handleFormParameters(currentNode, currentPipelineId, newParamDict);
         }
       }
     }
 
     fetchResources();
-  }, [
-    currentNode,
-    pluginPipings,
-    dispatchStore,
-    inputChange,
-    pluginParameters,
-    input,
-  ]);
+  }, [currentNode, pluginPipings, dispatchStore, pluginParameters, input]);
 
-  const deleteInput = (index: string) => {
-    if (currentNode) handleDeleteInput(currentPipelineId, currentNode, index);
-  };
-
-  let pluginName = selectedPlugin?.data.title
-    ? selectedPlugin?.data.title
-    : selectedPlugin?.data.name;
-
-  const pluginVersion = (pluginName += `${selectedPlugin?.data.version}`);
   const generalCompute =
     computeEnvs &&
     currentNode &&
@@ -244,18 +136,10 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
         >
           <Grid hasGutter={true}>
             <GridItem span={6}>
-              {/*
-                selectedPlugin && (
-                <GuidedConfig
-                  defaultValueDisplay={true}
-                  renderComputeEnv={false}
-                  inputChange={inputChange}
-                  deleteInput={deleteInput}
-                  dropdownInput={dropdownInput}
-                  requiredInput={requiredInput}
-                  errors={{}}
-                />
-                )*/}
+              <ConfigurePipelineParameters
+                currentPipelineId={currentPipelineId}
+                handleFormParameters={handleFormParameters}
+              />
             </GridItem>
             <GridItem span={6}>
               <h4>Configure Compute Environment</h4>
@@ -273,3 +157,53 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
 };
 
 export default ConfigurationPage;
+
+export const ConfigurePipelineParameters = ({
+  currentPipelineId,
+  handleFormParameters,
+}: {
+  handleFormParameters: (
+    currentNode: number,
+    currentPipelineId: number,
+    paramDict: any[]
+  ) => void;
+  currentPipelineId: number;
+}) => {
+  const { state } = React.useContext(PipelineContext);
+  const { pipelineData } = state;
+  const { parameterList, currentNode } = pipelineData[currentPipelineId];
+  const params = parameterList && currentNode && parameterList[currentNode];
+
+  const onFinish = (values: any) => {
+    const newParams = params.map((param: any) => {
+      if (values[param.data.name]) {
+        param.data.default = values[param.data.name];
+      }
+      return param;
+    });
+    handleFormParameters(currentNode, currentPipelineId, newParams);
+  };
+
+  return (
+    <Form name="basic" style={{ maxWidth: 600 }} onFinish={onFinish}>
+      {params &&
+        params.length > 0 &&
+        params.map((param: any) => {
+          return (
+            <Form.Item
+              name={param.data.name}
+              label={param.data.name}
+              key={param.data.id}
+            >
+              <Input defaultValue={param.data.default} />
+            </Form.Item>
+          );
+        })}
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Save
+        </Button>
+      </Form.Item>
+    </Form>
+  );
+};

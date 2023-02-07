@@ -26,11 +26,9 @@ export enum PipelineTypes {
   SetPipelineName = "SET_PIPELINE_NAME",
   SetPipelineEnvironments = "SET_PIPELINE_ENVIRONMENTS",
   SetCurrentNodeTitle = "SET_CURRENT_NODE_TITLE",
-  DeletePipelineInput = "DELETE_PIPELINE_INPUT",
-  SetPipelineDropdownInput = "SET_PIPELINE_DROPDOWN_INPUT",
-  SetPipelineRequiredInput = "SET_PIPELINE_REQUIRED_INPUT",
   SetDefaultParameters = "SET_DEFAULT_PARAMETERS",
   SetGeneralCompute = "SET_GENERAL_COMPUTE",
+  SetFormParameters = "SET_FORM_PARAMETERS",
   DeselectPipeline = "DESELECT_PIPELINE",
   ResetState = "RESET_STATE",
 }
@@ -42,6 +40,12 @@ export interface ComputeEnvData {
 type PipelinePayload = {
   [PipelineTypes.SetPipelines]: {
     pipelines: any[];
+  };
+
+  [PipelineTypes.SetFormParameters]: {
+    currentNode: number;
+    currentPipelineId: string;
+    params: any[];
   };
 
   [PipelineTypes.SetPipelineResources]: {
@@ -93,24 +97,6 @@ type PipelinePayload = {
     title: string;
   };
 
-  [PipelineTypes.DeletePipelineInput]: {
-    input: string;
-    currentPipelineId: number;
-    currentNodeId: number;
-  };
-  [PipelineTypes.SetPipelineDropdownInput]: {
-    currentNodeId: string;
-    currentPipelineId: string;
-    id: string;
-    input: InputIndex;
-  };
-  [PipelineTypes.SetPipelineRequiredInput]: {
-    currentNodeId: string;
-    currentPipelineId: string;
-    id: string;
-    input: InputIndex;
-  };
-
   [PipelineTypes.SetDefaultParameters]: {
     pipelineId: string;
     defaultParameters: [];
@@ -146,6 +132,9 @@ export interface SinglePipeline {
   generalCompute?: string;
   title: {
     [id: number]: string;
+  };
+  parameterList: {
+    [id: number]: any[];
   };
   input: {
     [id: string]: {
@@ -219,6 +208,12 @@ export interface PipelinesProps {
     currentPipelineId: number,
     computeEnvList: any[]
   ) => void;
+
+  handleFormParameters: (
+    currentNode: number,
+    currentPipelineId: number,
+    newParamDict: any[]
+  ) => void;
   state: any;
 }
 
@@ -253,6 +248,11 @@ export interface ConfiguartionPageProps {
     currentNode: number,
     currentPipelineId: number,
     computeEnvList: any[]
+  ) => void;
+  handleFormParameters: (
+    currentNode: number,
+    currentPipelineId: number,
+    newParamDict: any[]
   ) => void;
   justDisplay?: boolean;
 }
