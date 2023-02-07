@@ -170,6 +170,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
       input: InputIndex,
       required: boolean
     ) => {
+      /*
       if (required === true) {
         dispatch({
           type: PipelineTypes.SetPipelineRequiredInput,
@@ -191,12 +192,29 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
           },
         });
       }
+      */
     },
     [dispatch]
   );
 
+  const handleFormParameters = (
+    currentNode: number,
+    currentPipelineId: number,
+    params: any[]
+  ) => {
+    dispatch({
+      type: PipelineTypes.SetFormParameters,
+      payload: {
+        currentNode,
+        currentPipelineId,
+        params,
+      },
+    });
+  };
+
   const handleDeleteInput = React.useCallback(
     (currentPipelineId: number, currentNode: number, index: string) => {
+      /*
       dispatch({
         type: PipelineTypes.DeletePipelineInput,
         payload: {
@@ -205,6 +223,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
           input: index,
         },
       });
+      */
     },
     [dispatch]
   );
@@ -232,6 +251,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
           handleTypedInput={handleTypedInput}
           handleDeleteInput={handleDeleteInput}
           handleSetCurrentComputeEnv={handleSetCurrentComputeEnv}
+          handleFormParameters={handleFormParameters}
         />
       </div>
     </div>
