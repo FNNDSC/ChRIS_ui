@@ -190,7 +190,6 @@ export const pipelineReducer = (
 
     case PipelineTypes.SetFormParameters: {
       const { currentPipelineId, currentNode, params } = action.payload;
-      console.log("Action.payload", action.payload, state);
       return {
         ...state,
         pipelineData: {

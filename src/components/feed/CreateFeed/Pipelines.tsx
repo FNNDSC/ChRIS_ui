@@ -41,8 +41,7 @@ const Pipelines = ({
   handleSetPipelineEnvironments,
   handleSetCurrentNodeTitle,
   handleSetGeneralCompute,
-  handleTypedInput,
-  handleDeleteInput,
+
   handleSetCurrentComputeEnv,
   handleFormParameters,
 }: PipelinesProps) => {
@@ -355,10 +354,8 @@ const Pipelines = ({
                         pipeline={pipeline}
                         currentPipelineId={pipeline.data.id}
                         state={state.pipelineData[pipeline.data.id]}
-                        handleTypedInput={handleTypedInput}
                         handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
                         handleDispatchPipelines={handleDispatchPipelines}
-                        handleDeleteInput={handleDeleteInput}
                         handleSetCurrentComputeEnv={handleSetCurrentComputeEnv}
                         handleFormParameters={handleFormParameters}
                       />

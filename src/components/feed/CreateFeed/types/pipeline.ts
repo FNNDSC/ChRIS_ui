@@ -136,12 +136,6 @@ export interface SinglePipeline {
   parameterList: {
     [id: number]: any[];
   };
-  input: {
-    [id: string]: {
-      dropdownInput: InputType;
-      requiredInput: InputType;
-    };
-  };
 }
 
 export type UploadJsonProps = Resources & PipelineInstanceResource;
@@ -187,18 +181,7 @@ export interface PipelinesProps {
     currentPipelineId: number,
     computeEnv: string
   ) => void;
-  handleTypedInput: (
-    currentPipelineId: number,
-    currentNodeId: number,
-    id: string,
-    input: InputIndex,
-    required: boolean
-  ) => void;
-  handleDeleteInput: (
-    currentPipelineId: number,
-    currentNode: number,
-    index: string
-  ) => void;
+  
   handleSetCurrentComputeEnv: (
     item: {
       name: string;
@@ -222,18 +205,6 @@ export interface ConfiguartionPageProps {
   currentPipelineId: number;
   pipeline: Pipeline;
   state: SinglePipeline;
-  handleTypedInput: (
-    currentPipelineId: number,
-    currentNodeId: number,
-    id: string,
-    input: InputIndex,
-    required: boolean
-  ) => void;
-  handleDeleteInput: (
-    currentPipelineId: number,
-    currentNode: number,
-    index: string
-  ) => void;
   handleSetCurrentNodeTitle: (
     currentPipelineId: number,
     currentNode: number,
