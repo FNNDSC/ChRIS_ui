@@ -109,8 +109,7 @@ export const createFeedInstanceWithDircopy = async (
             pipeline.pipelinePlugins &&
             pipeline.pluginPipings.length > 0
           ) {
-            const { pluginParameters, input, computeEnvs, parameterList } =
-              pipeline;
+            const { pluginParameters, computeEnvs, parameterList } = pipeline;
 
             const nodes_info = client.computeWorkflowNodesInfo(
               //@ts-ignore
@@ -120,7 +119,6 @@ export const createFeedInstanceWithDircopy = async (
             console.log("ComputeEnvs", computeEnvs, parameterList);
 
             nodes_info.forEach((node) => {
-              console.log("Node", node);
               if (computeEnvs && computeEnvs[node["piping_id"]]) {
                 const compute_node =
                   computeEnvs[node["piping_id"]]["currentlySelected"];
@@ -139,31 +137,6 @@ export const createFeedInstanceWithDircopy = async (
                 const params = parameterList[node["piping_id"]];
                 node["plugin_parameter_defaults"] = params;
               }
-
-              /*
-              if (input && input[node["piping_id"]]) {
-                const { dropdownInput, requiredInput } =
-                  input[node["piping_id"]];
-                let totalInput = {};
-                if (dropdownInput) {
-                  totalInput = { ...totalInput, ...dropdownInput };
-                }
-                if (requiredInput) {
-                  totalInput = { ...totalInput, ...requiredInput };
-                }
-
-                for (const i in totalInput) {
-                  const parameter = dropdownInput[i];
-                  const replaceValue = parameter["flag"].replace(/-/g, "");
-
-                  pluginParameterDefaults.push({
-                    name: replaceValue,
-                    default: parameter["value"],
-                  });
-                }
-                node["plugin_parameter_defaults"] = pluginParameterDefaults;
-              }
-              */
             });
 
             await client.createWorkflow(selectedPipeline, {

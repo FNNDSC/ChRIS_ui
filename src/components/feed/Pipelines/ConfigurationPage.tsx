@@ -25,8 +25,7 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
     justDisplay,
   } = props;
 
-  const { currentNode, computeEnvs, pluginPipings, input, pluginParameters } =
-    state;
+  const { currentNode, computeEnvs, pluginPipings, pluginParameters } = state;
   const computeEnvList =
     computeEnvs && currentNode && computeEnvs[currentNode]
       ? computeEnvs[currentNode].computeEnvs
@@ -72,9 +71,12 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
             if (paramDict[param.data.name]) {
               const defaultParam = paramDict[param.data.name];
               //@ts-ignore
-              const newParam = { data: { ...param.data } };
+              const newParam = {
+                name: param.data.name,
+                default: param.data.default,
+              };
               //@ts-ignore
-              newParam.data["default"] = defaultParam.value;
+              newParam["default"] = defaultParam.value;
               newParamDict.push(newParam);
             }
           });
@@ -85,7 +87,7 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
     }
 
     fetchResources();
-  }, [currentNode, pluginPipings, dispatchStore, pluginParameters, input]);
+  }, [currentNode, pluginPipings, dispatchStore, pluginParameters]);
 
   const generalCompute =
     computeEnvs &&
@@ -176,8 +178,12 @@ export const ConfigurePipelineParameters = ({
 
   const onFinish = (values: any) => {
     const newParams = params.map((param: any) => {
-      if (values[param.data.name]) {
-        param.data.default = values[param.data.name];
+      const newValue = values[param.name];
+      if (newValue) {
+        param.default =
+          newValue === "true" || newValue === "false"
+            ? Boolean(newValue)
+            : values[param.name];
       }
       return param;
     });
@@ -190,12 +196,8 @@ export const ConfigurePipelineParameters = ({
         params.length > 0 &&
         params.map((param: any) => {
           return (
-            <Form.Item
-              name={param.data.name}
-              label={param.data.name}
-              key={param.data.id}
-            >
-              <Input defaultValue={param.data.default} />
+            <Form.Item name={param.name} label={param.name} key={param.name}>
+              <Input defaultValue={param.default} />
             </Form.Item>
           );
         })}

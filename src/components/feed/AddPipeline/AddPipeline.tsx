@@ -1,5 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
+import ReactJson from "react-json-view";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
 import PipelineContainer from "../CreateFeed/PipelineContainer";
@@ -11,7 +12,6 @@ import {
   getPluginInstancesSuccess,
 } from "../../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../../store/resources/actions";
-import ReactJson from "react-json-view";
 import { PipelineTypes } from "../CreateFeed/types/pipeline";
 import { getNodeOperations } from "../../../store/plugin/actions";
 
@@ -39,7 +39,7 @@ const AddPipeline = () => {
         pipelinePlugins,
         pluginParameters,
         computeEnvs,
-        input,
+        parameterList,
         title,
       } = pipelineData[selectedPipeline];
 
@@ -63,29 +63,10 @@ const AddPipeline = () => {
                 node.compute_resource_name = compute_node;
               }
             }
-            const pluginParameterDefaults = [];
-            if (input && input[node["piping_id"]]) {
-              const { dropdownInput, requiredInput } = input[node["piping_id"]];
-              let totalInput = {};
-              if (dropdownInput) {
-                totalInput = { ...totalInput, ...dropdownInput };
-              }
-              if (requiredInput) {
-                totalInput = { ...totalInput, ...requiredInput };
-              }
 
-              for (const i in totalInput) {
-                const parameter = dropdownInput[i];
-                if (parameter) {
-                  const replaceValue = parameter["flag"].replace(/-/g, "");
-
-                  pluginParameterDefaults.push({
-                    name: replaceValue,
-                    default: parameter["value"],
-                  });
-                }
-              }
-              node["plugin_parameter_defaults"] = pluginParameterDefaults;
+            if (parameterList && parameterList[node["piping_id"]]) {
+              const params = parameterList[node["piping_id"]];
+              node["plugin_parameter_defaults"] = params;
             }
           });
           await client.createWorkflow(selectedPipeline, {

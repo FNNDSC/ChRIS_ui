@@ -3,7 +3,6 @@ import { Pipeline } from "@fnndsc/chrisapi";
 import Pipelines from "./Pipelines";
 import { PipelineContext } from "./context";
 import { PipelineTypes, Resources, UploadJsonProps } from "./types/pipeline";
-import { InputIndex } from "../AddNode/types";
 
 const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
   const { state, dispatch } = useContext(PipelineContext);
@@ -162,41 +161,6 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
     [dispatch]
   );
 
-  const handleTypedInput = React.useCallback(
-    (
-      currentPipelineId: number,
-      currentNodeId: number,
-      id: string,
-      input: InputIndex,
-      required: boolean
-    ) => {
-      /*
-      if (required === true) {
-        dispatch({
-          type: PipelineTypes.SetPipelineRequiredInput,
-          payload: {
-            currentPipelineId,
-            currentNodeId,
-            id,
-            input,
-          },
-        });
-      } else {
-        dispatch({
-          type: PipelineTypes.SetPipelineDropdownInput,
-          payload: {
-            currentPipelineId,
-            currentNodeId,
-            id,
-            input,
-          },
-        });
-      }
-      */
-    },
-    [dispatch]
-  );
-
   const handleFormParameters = (
     currentNode: number,
     currentPipelineId: number,
@@ -211,22 +175,6 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
       },
     });
   };
-
-  const handleDeleteInput = React.useCallback(
-    (currentPipelineId: number, currentNode: number, index: string) => {
-      /*
-      dispatch({
-        type: PipelineTypes.DeletePipelineInput,
-        payload: {
-          currentPipelineId,
-          currentNodeId: currentNode,
-          input: index,
-        },
-      });
-      */
-    },
-    [dispatch]
-  );
 
   return (
     <div className="pacs-alert-wrap">
@@ -248,8 +196,6 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
           handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
           handleSetPipelineEnvironments={handleSetPipelineEnvironments}
           handleSetGeneralCompute={handleSetGenerateCompute}
-          handleTypedInput={handleTypedInput}
-          handleDeleteInput={handleDeleteInput}
           handleSetCurrentComputeEnv={handleSetCurrentComputeEnv}
           handleFormParameters={handleFormParameters}
         />
