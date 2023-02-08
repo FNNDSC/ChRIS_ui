@@ -136,8 +136,35 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     }
   };
 
+  const handleDispatch = React.useCallback(
+    (files: LocalFile[]) => {
+      dispatch({
+        type: Types.AddLocalFile,
+        payload: {
+          files,
+        },
+      });
+    },
+    [dispatch]
+  );
+
+  const handleChoseFilesClick = React.useCallback(
+    (files: any[]) => {
+      const filesConvert = Array.from(files).map((file) => {
+        return {
+          name: file.name,
+          blob: file,
+        };
+      });
+      handleDispatch(filesConvert);
+    },
+    [handleDispatch]
+  );
+
   const basicInformation = <BasicInformation />;
-  const chooseConfig = <ChooseConfig  handleFileUpload={handleChoseFilesClick}/>;
+  const chooseConfig = (
+    <ChooseConfig handleFileUpload={handleChoseFilesClick} />
+  );
   const chrisFileSelect = user && user.username && (
     <ChrisFileSelect username={user.username} />
   );
@@ -190,85 +217,89 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       ];
     }
   };
-  const steps = data.isDataSelected || selectedConfig == "local_select"
-    ? [
-        {
-          id: 1,
-          name: "Basic Information",
-          component: withSelectionAlert(basicInformation),
-          enableNext: !!data.feedName,
-          canJumpTo: step > 1,
-        },
-        {
-          id: 2,
-          name: "Analysis Data Selection",
-          component: withSelectionAlert(chooseConfig),
-          enableNext: (selectedConfig == "local_select")?data.localFiles.length > 0: selectedConfig.length > 0,
-          canJumpTo: step > 2,
-        },
-        {
-          id: 5,
-          name: "Pipelines",
-          component: pipelines,
-          canJumpTo: step > 5,
-        },
-        {
-          id: 6,
-          name: "Review",
-          component: review,
-          enableNext: enableSave,
-          nextButtonText: "Create Analysis",
-          canJumpTo: step > 6,
-        },
-        {
-          id: 7,
-          name: "Finish",
-          component: finishedStep,
-          canJumpTo: step > 7,
-        },
-      ]
-    : [
-        {
-          id: 1,
-          name: "Basic Information",
-          component: withSelectionAlert(basicInformation),
-          enableNext: !!data.feedName,
-          canJumpTo: step > 1,
-        },
-        {
-          id: 2,
-          name: "Analysis Data Selection",
-          component: withSelectionAlert(chooseConfig),
-          enableNext: selectedConfig.length > 0,
-          canJumpTo: step > 2,
-        },
-        {
-          name: getName(selectedConfig),
-          steps: getFeedSynthesisStep(),
-          canJumpTo: step > 3,
-        },
-        {
-          id: 5,
-          name: "Pipelines",
-          component: pipelines,
-          nextButtonText: "Review",
-          canJumpTo: step > 5,
-        },
-        {
-          id: 6,
-          name: "Review",
-          component: withSelectionAlert(review, false),
-          enableNext: enableSave,
-          nextButtonText: "Create Analysis",
-          canJumpTo: step > 6,
-        },
-        {
-          id: 7,
-          name: "Finish",
-          component: withSelectionAlert(finishedStep, false),
-          canJumpTo: step > 7,
-        },
-      ];
+  const steps =
+    data.isDataSelected || selectedConfig == "local_select"
+      ? [
+          {
+            id: 1,
+            name: "Basic Information",
+            component: withSelectionAlert(basicInformation),
+            enableNext: !!data.feedName,
+            canJumpTo: step > 1,
+          },
+          {
+            id: 2,
+            name: "Analysis Data Selection",
+            component: withSelectionAlert(chooseConfig),
+            enableNext:
+              selectedConfig == "local_select"
+                ? data.localFiles.length > 0
+                : selectedConfig.length > 0,
+            canJumpTo: step > 2,
+          },
+          {
+            id: 5,
+            name: "Pipelines",
+            component: pipelines,
+            canJumpTo: step > 5,
+          },
+          {
+            id: 6,
+            name: "Review",
+            component: review,
+            enableNext: enableSave,
+            nextButtonText: "Create Analysis",
+            canJumpTo: step > 6,
+          },
+          {
+            id: 7,
+            name: "Finish",
+            component: finishedStep,
+            canJumpTo: step > 7,
+          },
+        ]
+      : [
+          {
+            id: 1,
+            name: "Basic Information",
+            component: withSelectionAlert(basicInformation),
+            enableNext: !!data.feedName,
+            canJumpTo: step > 1,
+          },
+          {
+            id: 2,
+            name: "Analysis Data Selection",
+            component: withSelectionAlert(chooseConfig),
+            enableNext: selectedConfig.length > 0,
+            canJumpTo: step > 2,
+          },
+          {
+            name: getName(selectedConfig),
+            steps: getFeedSynthesisStep(),
+            canJumpTo: step > 3,
+          },
+          {
+            id: 5,
+            name: "Pipelines",
+            component: pipelines,
+            nextButtonText: "Review",
+            canJumpTo: step > 5,
+          },
+          {
+            id: 6,
+            name: "Review",
+            component: withSelectionAlert(review, false),
+            enableNext: enableSave,
+            nextButtonText: "Create Analysis",
+            canJumpTo: step > 6,
+          },
+          {
+            id: 7,
+            name: "Finish",
+            component: withSelectionAlert(finishedStep, false),
+            canJumpTo: step > 7,
+          },
+        ];
 
   const handleNext = (activeStep: any, cb: () => void) => {
     if (activeStep.id === 6) {
