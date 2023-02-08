@@ -194,7 +194,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   }
 
   const previewPanel = (
-    <DrawerPanelContent defaultSize={"500px"}>
+    <DrawerPanelContent defaultSize={"70%"}>
       <DrawerHead>
         <span tabIndex={isExpanded ? 0 : -1} >
         </span>
