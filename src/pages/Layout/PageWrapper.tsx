@@ -21,9 +21,9 @@ interface IPropsFromDispatch {
 type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 const Wrapper: React.FC<AllProps> = (props: AllProps) => {
-  const {children, user}: IOtherProps = props
+  const { children, user }: IOtherProps = props
   const onNavToggle = () => {
-    props.setIsNavOpen(!props.isNavOpen);
+    props.setIsNavOpen(!props.isNavOpen)
   };
 
   const onPageResize = (data: { mobileView: boolean; windowSize: number }) => {
@@ -35,16 +35,16 @@ const Wrapper: React.FC<AllProps> = (props: AllProps) => {
     }
   };
 
-    return (
-      <Page
-        onPageResize={onPageResize}
-        header={<Header onNavToggle={onNavToggle} user={user} />}
-        sidebar={<Sidebar isNavOpen={props.isNavOpen} />}
-      >
-        {children}
-      </Page>
-    );
-  }
+  return (
+    <Page
+      onPageResize={onPageResize}
+      header={<Header onNavToggle={onNavToggle} user={user} />}
+      sidebar={<Sidebar isNavOpen={props.isNavOpen} />}
+    >
+      {children}
+    </Page>
+  );
+}
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onSidebarToggle: (isOpened: boolean) => dispatch(onSidebarToggle(isOpened)),
