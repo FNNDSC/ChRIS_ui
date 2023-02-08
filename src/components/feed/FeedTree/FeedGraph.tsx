@@ -95,7 +95,7 @@ const FeedGraph = (props: IFeedProps) => {
             <div className="feed-tree__container--panelToggle node-graph-panel">
               <div className="feed-tree__orientation">
                 <Button type="button" onClick={() => onExpand("side_panel")}>
-                  Node Panel
+                  Toggle Node Panel
                 </Button>
               </div>
             </div>

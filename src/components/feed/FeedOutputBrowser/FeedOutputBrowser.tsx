@@ -1,7 +1,7 @@
 import React from "react";
 
 import {
-  Grid,
+  Button,
   EmptyState,
   Title,
   EmptyStateBody,
@@ -52,63 +52,68 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   } = useFeedBrowser();
 
   const panelContent = (
-  <DrawerPanelContent isResizable  defaultSize="70%">
+    <DrawerPanelContent isResizable defaultSize="70%">
       <DrawerHead>
-        <span tabIndex={0} >
-        </span>
+        <span tabIndex={0}></span>
       </DrawerHead>
-     <DrawerPanelBody>
-    <React.Suspense
-      fallback={<SpinContainer title="Loading the File Browser" />}
-    >
-      {pluginFilesPayload && selected ? (
-        <FileBrowser
-          explore={explore}
-          selected={selected}
-          handleFileClick={handleFileClick}
-          pluginFilesPayload={pluginFilesPayload}
-          handleFileBrowserToggle={handleFileBrowserOpen}
-          handleDicomViewerOpen={handleDicomViewerOpen}
-          handleXtkViewerOpen={handleXtkViewerOpen}
-          expandDrawer={expandDrawer}
-          pluginModalOpen={pluginModalOpen}
-          filesLoading={filesLoading}
-        />
-      ) : statusTitle && statusTitle.title ? (
-        <FetchFilesLoader title={statusTitle.title} />
-      ) : (
-        <EmptyStateLoader
-          title="Files are not available yet and are being fetched. Please give it a
+      <DrawerPanelBody>
+        <React.Suspense
+          fallback={<SpinContainer title="Loading the File Browser" />}
+        >
+          {pluginFilesPayload && selected ? (
+            <FileBrowser
+              explore={explore}
+              selected={selected}
+              handleFileClick={handleFileClick}
+              pluginFilesPayload={pluginFilesPayload}
+              handleFileBrowserToggle={handleFileBrowserOpen}
+              handleDicomViewerOpen={handleDicomViewerOpen}
+              handleXtkViewerOpen={handleXtkViewerOpen}
+              expandDrawer={expandDrawer}
+              pluginModalOpen={pluginModalOpen}
+              filesLoading={filesLoading}
+            />
+          ) : statusTitle && statusTitle.title ? (
+            <FetchFilesLoader title={statusTitle.title} />
+          ) : (
+            <EmptyStateLoader
+              title="Files are not available yet and are being fetched. Please give it a
         moment..."
-        />
-      )}
-    </React.Suspense>
-     </DrawerPanelBody>
-    </DrawerPanelContent>)
-
+            />
+          )}
+        </React.Suspense>
+      </DrawerPanelBody>
+    </DrawerPanelContent>
+  );
 
   return (
     <>
-      <Grid  className="feed-output-browser__title">
-       {explore && (
-          <FaWindowClose
-          onClick={() => {
-            expandDrawer("bottom_panel");
-          }}
-          className="feed-output-browser__button"
-        />
+      <div className="feed-output-browser__title">
+        {explore && (
+          <Button
+            onClick={() => {
+              expandDrawer("bottom_panel");
+            }}
+            variant="link"
+          >
+            Toggle Browser Panel
+          </Button>
         )}
-      </Grid>
-      <Drawer isExpanded={true} position="right" className="feed-output-browser">
+      </div>
+      <Drawer
+        isExpanded={true}
+        position="right"
+        className="feed-output-browser"
+      >
         <DrawerContent panelContent={panelContent}>
           <DrawerContentBody>
-          {plugins && selected && (
-            <SidebarTree
-              plugins={plugins}
-              selected={selected}
-              handlePluginSelect={handlePluginSelect}
-            />
-          )}
+            {plugins && selected && (
+              <SidebarTree
+                plugins={plugins}
+                selected={selected}
+                handlePluginSelect={handlePluginSelect}
+              />
+            )}
           </DrawerContentBody>
         </DrawerContent>
       </Drawer>
