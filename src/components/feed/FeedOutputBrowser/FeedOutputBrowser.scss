@@ -13,12 +13,17 @@
     @include media-query($pf-global--breakpoint--sm) {
       display: block;
     }
-
     overflow-y: auto;
     border-right: 0.5px solid #f5f5f5;
   }
 
-  .pf-c-drawer__content{
+  .pf-c-drawer__body {
+    margin: 0 0.25rem 0 0.25rem;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .pf-c-drawer__content {
     background-color: initial !important;
   }
   .pf-c-skeleton,
@@ -30,19 +35,30 @@
     background-color: inherit !important;
   }
 
-  &__title{
-    display: flex;
-    justify-content: flex-end;
-    margin: 0.5em;
+  &__title {
+    position: absolute;
+    top: 0.75rem;
+    padding: 0 0.5em 0.5em 0;
+    right: 0.5rem;
+    z-index: 999;
+    font-size: 0.85rem;
   }
 
-  &__button{
+  &__button {
     cursor: pointer;
   }
-
 }
 
 .file-browser {
+  .carousel {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    z-index: 999;
+    display: flex;
+    justify-content: space-between;
+  }
+
   height: 100%;
   &__downloadButton {
     max-width: 50% !important;
@@ -55,7 +71,7 @@
     }
   }
 
-  .pf-c-drawer__panel{
+  .pf-c-drawer__panel {
     background: #d2d2d2 !important;
   }
   &__table {
@@ -113,7 +129,7 @@
     border-right: 0.2px solid #f5f5f5;
     max-width: 100%;
     background: #d2d2d2 !important;
-
+    margin: 0;
     tbody tr {
       cursor: pointer;
     }
@@ -136,23 +152,22 @@
     }
   }
 
-.preview-panel{
+  .preview-panel {
     display: flex;
     justify-content: space-between;
-    & > div{
-      width:100%;
+    & > div {
+      width: 100%;
     }
     & > div > div:first-child {
-      display:flex;
-      flex-direction:row;
-      justify-content:space-between;
-      margin:10px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
     }
   }
 
   svg {
-    color:#1890ff;
-     cursor:pointer;
+    color: #1890ff;
+    cursor: pointer;
   }
 
   .small-preview {
