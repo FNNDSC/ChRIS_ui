@@ -24,6 +24,7 @@
 # Tips:
 # - for access logging, remove "--quiet" from CMD
 # - docker-entrypoint.sh must start as root
+# I am doing it right now 
 
 
 FROM node:19 as builder
