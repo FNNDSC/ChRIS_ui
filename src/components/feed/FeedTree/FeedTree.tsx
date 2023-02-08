@@ -507,7 +507,7 @@ const FeedTree = (props: AllProps) => {
                   type="button"
                   onClick={() => props.onExpand("side_panel")}
                 >
-                  Node Panel
+                  Toggle Node Panel
                 </Button>
               </div>
             </div>
@@ -521,7 +521,7 @@ const FeedTree = (props: AllProps) => {
                   type="button"
                   onClick={() => props.onExpand("bottom_panel")}
                 >
-                  Feed Browser
+                  Toggle Browser Panel
                 </Button>
               </div>
             </div>
