@@ -294,6 +294,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
             return (
               <>
                 <Button
+                  data-test-id="create-analysis"
                   style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="primary"
                   type="submit"
