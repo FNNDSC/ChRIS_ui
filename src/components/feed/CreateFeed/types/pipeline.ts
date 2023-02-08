@@ -3,7 +3,6 @@ import {
   Pipeline,
   PipelinePipingDefaultParameterList,
 } from "@fnndsc/chrisapi";
-import { InputIndex, InputType } from "../../AddNode/types";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -181,7 +180,7 @@ export interface PipelinesProps {
     currentPipelineId: number,
     computeEnv: string
   ) => void;
-  
+
   handleSetCurrentComputeEnv: (
     item: {
       name: string;
