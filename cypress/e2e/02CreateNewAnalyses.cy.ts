@@ -80,14 +80,11 @@ describe("Testing CreateAnalysis", () => {
 
   it("08 Goes to Parameter Configuration", () => {
     cy.get("input#dir").type(`${users.username}/uploads`);
-    cy.get("button.pf-c-button.pf-m-primary")
-      .eq(2)
-      .should("have.text", "Next")
-      .click();
+    cy.get('[data-test-id="create-analysis"]').click();
   });
 
   it("09 Goes to Registered Pipelines", () => {
-    cy.get("button.pf-c-button.pf-m-primary").eq(2).click();
+    cy.get('[data-test-id="create-analysis"]').click();
   });
 
   it("11 Goes to Review", () => {
