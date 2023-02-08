@@ -10,10 +10,13 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 
 ## Try it now!
 
-| URL                           | Description     |
-|-------------------------------|-----------------|
-| https://app.chrisproject.org  | Stable          |
-| https://next.chrisproject.org | Latest (master) |
+| URL                               | Description                                     |
+|-----------------------------------|-------------------------------------------------|
+| https://nightly.chrisproject.org  | latest commit to master (automatically updated) |
+| https://past.chrisproject.org     | second-to-last commit (automatically updated)   |
+| https://freeze.chrisproject.org   | tagged `freeze-chrisproject-org`, i.e. "last known working" (manually updated) |
+
+Note: https://app.chrisproject.org and https://next.chrisproject.org both redirect to https://nightly.chrisproject.org
 
 ## Quickstart
 

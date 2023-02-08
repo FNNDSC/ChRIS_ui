@@ -26,8 +26,22 @@ function* handleGetParams(action: IActionTypeParam) {
       boundComputeFn
     );
 
+    const required = params.filter(
+      (param: PluginParameter) => param.data.optional === false
+    );
+    const dropdown = params.filter(
+      (param: PluginParameter) => param.data.optional === true
+    );
+
+    console.log("Plugin", plugin, computeEnvs);
+
     yield all([
-      put(getParamsSuccess(params)),
+      put(
+        getParamsSuccess({
+          required,
+          dropdown,
+        })
+      ),
       put(getComputeEnvSuccess(computeEnvs)),
     ]);
   } catch (error) {

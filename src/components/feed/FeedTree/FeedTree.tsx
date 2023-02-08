@@ -7,12 +7,12 @@ import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { FaTimes } from "react-icons/fa";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
 import { TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { FaTimes } from "react-icons/fa";
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
 import {
@@ -349,7 +349,7 @@ const FeedTree = (props: AllProps) => {
 
   return (
     <div
-      className={`feed-tree grabbable mode_${
+      className={`feed-tree setFlex grabbable mode_${
         mode === false ? "graph" : "tree"
       }`}
       ref={divRef}
@@ -440,80 +440,94 @@ const FeedTree = (props: AllProps) => {
               />
             </div>
           )}
-        </div>
 
-        {!props.isSidePanelExpanded && (
-          <div className="feed-tree__container--panelToggle">
+          {mode === false && (
             <div className="feed-tree__orientation">
-              <Button
-                type="button"
-                onClick={() => props.onExpand("side_panel")}
-              >
-                Node Panel
-              </Button>
+              <Alert
+                variant="info"
+                title="You are now in a ts node selection mode"
+              />
             </div>
-          </div>
-        )}
-      </div>
-
-      {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
-        <svg
-          focusable="true"
-          className={`${svgClassName}`}
-          width="100%"
-          height="85%"
-          tabIndex={0}
-        >
-          <TransitionGroupWrapper
-            component="g"
-            className={graphClassName}
-            transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
-          >
-            {links?.map((linkData, i) => {
-              return (
-                <Link
-                  orientation={orientation}
-                  key={"link" + i}
-                  linkData={linkData}
-                />
-              );
-            })}
-
-            {nodes?.map(({ data, x, y, parent }, i) => {
-              return (
-                <NodeWrapper
-                  key={`node + ${i}`}
-                  data={data}
-                  position={{ x, y }}
-                  parent={parent}
-                  onNodeClick={handleNodeClick}
-                  onNodeClickTs={handleNodeClickTs}
-                  orientation={orientation}
-                  toggleLabel={feedState.toggleLabel}
-                  overlayScale={
-                    feedState.overlayScale.enabled
-                      ? feedState.overlayScale.type
-                      : undefined
-                  }
-                />
-              );
-            })}
-          </TransitionGroupWrapper>
-        </svg>
-      )}
-
-      {!props.isBottomPanelExpanded && (
-        <div className="feed-tree__container--panelToggle">
-          <div className="feed-tree__orientation">
-            <Button
-              type="button"
-              onClick={() => props.onExpand("bottom_panel")}
-            >
-              Feed Browser
-            </Button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
+      <div className="container_feedTree">
+        <div className="svgArea">
+          {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
+            <svg
+              focusable="true"
+              className={`${svgClassName}`}
+              width="100%"
+              height="100%"
+              tabIndex={0}
+            >
+              <TransitionGroupWrapper
+                component="g"
+                className={graphClassName}
+                transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
+              >
+                {links?.map((linkData, i) => {
+                  return (
+                    <Link
+                      orientation={orientation}
+                      key={"link" + i}
+                      linkData={linkData}
+                    />
+                  );
+                })}
+
+                {nodes?.map(({ data, x, y, parent }, i) => {
+                  return (
+                    <NodeWrapper
+                      key={`node + ${i}`}
+                      data={data}
+                      position={{ x, y }}
+                      parent={parent}
+                      onNodeClick={handleNodeClick}
+                      onNodeClickTs={handleNodeClickTs}
+                      orientation={orientation}
+                      toggleLabel={feedState.toggleLabel}
+                      overlayScale={
+                        feedState.overlayScale.enabled
+                          ? feedState.overlayScale.type
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </TransitionGroupWrapper>
+            </svg>
+          )}
+        </div>
+        <div className="nodeButton">
+          {!props.isSidePanelExpanded && (
+            <div className="feed-tree__container--panelToggle">
+              <div className="feed-tree__orientation">
+                <Button
+                  type="button"
+                  onClick={() => props.onExpand("side_panel")}
+                >
+                  Node Panel
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="feedButton">
+          {!props.isBottomPanelExpanded && (
+            <div className="feed-tree__container--panelToggle">
+              <div className="feed-tree__orientation">
+                <Button
+                  type="button"
+                  onClick={() => props.onExpand("bottom_panel")}
+                >
+                  Feed Browser
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

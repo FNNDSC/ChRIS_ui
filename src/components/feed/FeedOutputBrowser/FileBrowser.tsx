@@ -236,7 +236,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       </div>
 
       {selectedFile && (
-        <FileDetailView selectedFile={selectedFile} preview="small" />
+        <FileDetailView selectedFile={selectedFile} preview="large" />
       )}
 
       </DrawerPanelBody>

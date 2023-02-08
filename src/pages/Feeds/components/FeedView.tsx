@@ -67,6 +67,15 @@ export const FeedView: React.FC = () => {
 
   React.useEffect(() => {
     return () => {
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        setBottomPanelExpanded(false);
+        setSidePanelExpanded(false);
+      }
+    }
+  }, [])
+  
+  React.useEffect(() => {
+    return () => {
       if (
         dataRef.current &&
         dataRef.current.selectedPlugin &&
@@ -136,7 +145,7 @@ export const FeedView: React.FC = () => {
         {" "}
         <React.Suspense
           fallback={
-            <SpinContainer title="Fetching the Resources in a moment" />
+            <SpinContainer title="Fetching Resources to construct the graph" />
           }
         >
           {!currentLayout ? (
@@ -204,7 +213,7 @@ export const FeedView: React.FC = () => {
 
   return (
     <React.Fragment>
-      <PageSection variant="darker" className="section-one">
+      <PageSection variant="darker" className="section-one" style={{height: "auto"}}>
         <FeedDetails />
       </PageSection>
 
