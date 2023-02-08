@@ -140,7 +140,7 @@ export const FeedView: React.FC = () => {
         {" "}
         <React.Suspense
           fallback={
-            <SpinContainer title="Fetching the Resources in a moment" />
+            <SpinContainer title="Fetching Resources to construct the graph" />
           }
         >
           {!currentLayout ? (

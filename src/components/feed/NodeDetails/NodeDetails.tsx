@@ -37,6 +37,7 @@ import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import { PipelineProvider } from "../CreateFeed/context";
 import { useDispatch } from "react-redux";
 import { getNodeOperations } from "../../../store/plugin/actions";
+import { AddNodeProvider } from "../AddNode/context";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -228,7 +229,11 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
         <div className="node-details__actions">
           <div className="node-details__actions_first">
-            {cancelled ? null : <AddNode />}
+            {cancelled ? null : (
+              <AddNodeProvider>
+                <AddNode />
+              </AddNodeProvider>
+            )}
             <PipelineProvider>
               <AddPipeline />
             </PipelineProvider>
@@ -344,9 +349,10 @@ function getCommand(
       if (
         instanceParameters[i].data.param_name === pluginParameters[j].data.name
       ) {
+        const boolean = instanceParameters[i].data.type === 'boolean'
         modifiedParams.push({
           name: pluginParameters[j].data.flag,
-          value: instanceParameters[i].data.value,
+          value: boolean ? '' : instanceParameters[i].data.value,
         });
       }
     }

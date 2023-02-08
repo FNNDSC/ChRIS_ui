@@ -7,12 +7,12 @@ import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { FaTimes } from "react-icons/fa";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
 import { TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { FaTimes } from "react-icons/fa";
 import { TSID } from "./ParentComponent";
 import { useTypedSelector } from "../../../store/hooks";
 import {
@@ -349,100 +349,107 @@ const FeedTree = (props: AllProps) => {
 
   return (
     <div
-    className={`feed-tree setFlex grabbable mode_${
-      mode === false ? "graph" : "tree"
-    }`}
-    ref={divRef}
+      className={`feed-tree setFlex grabbable mode_${
+        mode === false ? "graph" : "tree"
+      }`}
+      ref={divRef}
     >
       <div className="feed-tree__container">
-          <div className="feed-tree__container--labels">
-            <div
-              onClick={() => {
-                changeOrientation(orientation);
+        <div className="feed-tree__container--labels">
+          <div
+            onClick={() => {
+              changeOrientation(orientation);
+            }}
+            className="feed-tree__orientation"
+          >
+            {orientation === "vertical" ? (
+              <AiOutlineRotateLeft className="feed-tree__orientation--icon" />
+            ) : (
+              <AiOutlineRotateRight className="feed-tree__orientation--icon" />
+            )}
+          </div>
+
+          <div className="feed-tree__control">
+            <Switch
+              id="labels"
+              label="Hide Labels"
+              labelOff="Show Labels"
+              isChecked={feedState.toggleLabel}
+              onChange={() => {
+                handleChange("label");
               }}
-              className="feed-tree__orientation"
-            >
-              {orientation === "vertical" ? (
-                <AiOutlineRotateLeft className="feed-tree__orientation--icon" />
-              ) : (
-                <AiOutlineRotateRight className="feed-tree__orientation--icon" />
-              )}
-            </div>
+            />
+          </div>
+          <div className="feed-tree__control">
+            <Switch
+              id="layout"
+              label="Switch Layout"
+              labelOff="3D"
+              isChecked={currentLayout}
+              onChange={() => {
+                dispatch(setFeedLayout());
+              }}
+            />
+          </div>
 
-            <div className="feed-tree__control">
-              <Switch
-                id="labels"
-                label="Hide Labels"
-                labelOff="Show Labels"
-                isChecked={feedState.toggleLabel}
-                onChange={() => {
-                  handleChange("label");
-                }}
-              />
-            </div>
-            <div className="feed-tree__control">
-              <Switch
-                id="layout"
-                label="Switch Layout"
-                labelOff="3D"
-                isChecked={currentLayout}
-                onChange={() => {
-                  dispatch(setFeedLayout());
-                }}
-              />
-            </div>
+          <div className="feed-tree__control feed-tree__individual-scale">
+            <Switch
+              id="individual-scale"
+              label="Scale Nodes On"
+              labelOff="Scale Nodes Off "
+              isChecked={feedState.overlayScale.enabled}
+              onChange={() => {
+                handleChange("scale_enabled");
+              }}
+            />
 
-            <div className="feed-tree__control feed-tree__individual-scale">
-              <Switch
-                id="individual-scale"
-                label="Scale Nodes On"
-                labelOff="Scale Nodes Off "
-                isChecked={feedState.overlayScale.enabled}
-                onChange={() => {
-                  handleChange("scale_enabled");
-                }}
-              />
-
-              {feedState.overlayScale.enabled && (
-                <div className="dropdown-wrap">
-                  <NodeScaleDropdown
-                    selected={feedState.overlayScale.type}
-                    onChange={(type) => {
-                      handleChange("scale_type", type);
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="feed-tree__control">
-              <TextInput
-                value={searchFilter.value}
-                onChange={(value: string) => {
-                  dispatch(setSearchFilter(value.trim()));
-                }}
-              />
-            </div>
-
-            <div className="feed-tree__control">
-              <FaTimes
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  dispatch(setSearchFilter(""));
-                }}
-              />
-            </div>
-
-            {mode === false && (
-              <div className="feed-tree__orientation">
-                <Alert
-                  variant="info"
-                  title="You are now in a ts node selection mode"
+            {feedState.overlayScale.enabled && (
+              <div className="dropdown-wrap">
+                <NodeScaleDropdown
+                  selected={feedState.overlayScale.type}
+                  onChange={(type) => {
+                    handleChange("scale_type", type);
+                  }}
                 />
               </div>
             )}
-
-
           </div>
+          <div className="feed-tree__control">
+            <TextInput
+              value={searchFilter.value}
+              onChange={(value: string) => {
+                dispatch(setSearchFilter(value.trim()));
+              }}
+            />
+          </div>
+
+          <div className="feed-tree__control">
+            <FaTimes
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                dispatch(setSearchFilter(""));
+              }}
+            />
+          </div>
+
+          {mode === false && (
+            <div className="feed-tree__orientation">
+              <Alert
+                variant="info"
+                title="You are now in a ts node selection mode"
+              />
+            </div>
+          )}
+
+          {mode === false && (
+            <div className="feed-tree__orientation">
+              <Alert
+                variant="info"
+                title="You are now in a ts node selection mode"
+              />
+            </div>
+          )}
+        </div>
       </div>
       <div className="container_feedTree">
         <div className="svgArea">

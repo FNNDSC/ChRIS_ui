@@ -1,5 +1,6 @@
 import ChrisAPIClient from "../../../../api/chrisapiclient";
-import { Plugin } from "@fnndsc/chrisapi";
+import { PluginMeta } from "@fnndsc/chrisapi";
+import { fetchResource } from "../../../../api/common";
 
 export const getPlugins = async (
   name: string,
@@ -9,12 +10,12 @@ export const getPlugins = async (
 ) => {
   const client = ChrisAPIClient.getClient();
   const params = { name, limit, offset, type };
-  const pluginList = await client.getPlugins(params);
-  let plugins;
-  if (pluginList.getItems()) {
-    plugins = pluginList.getItems() as Plugin[];
-  }
-  const totalCount = pluginList.totalCount;
+  const fn = client.getPluginMetas;
+  const boundFn = fn.bind(client);
+  const { resource: plugins, totalCount } = await fetchResource<PluginMeta>(
+    params,
+    boundFn
+  );
 
   return {
     plugins,

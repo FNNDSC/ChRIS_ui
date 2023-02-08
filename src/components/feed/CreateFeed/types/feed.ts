@@ -1,5 +1,5 @@
-import { Tag, Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import { InputState, InputIndex } from "../../AddNode/types";
+import { Tag, PluginInstance } from "@fnndsc/chrisapi";
+
 import { IUserState } from "../../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
@@ -26,7 +26,8 @@ export enum Types {
   RemoveChrisFile = "REMOVE_ChRIS_FILE",
   AddLocalFile = "ADD_LOCAL_FILE",
   RemoveLocalFile = "REMOVE_LOCAL_FILE",
-  SelectPlugin = "SELECT_PLUGIN",
+  SelectPluginMeta = "SELECT_PLUGIN_META",
+  SelectPluginFromMeta = "SELECT_PLUGIN_FROM_META",
   RequiredInput = "REQUIRED_INPUT",
   DropdownInput = "DROPDOWN_INPUT",
   DeleteInput = "DELETE_INPUT",
@@ -70,22 +71,6 @@ type CreateFeedPayload = {
   [Types.RemoveLocalFile]: {
     filename: string;
   };
-  [Types.SelectPlugin]: {
-    plugin: Plugin;
-    checked: boolean;
-  };
-  [Types.DropdownInput]: {
-    id: string;
-    input: InputIndex;
-  };
-  [Types.RequiredInput]: {
-    id: string;
-    input: InputIndex;
-  };
-
-  [Types.DeleteInput]: {
-    input: string;
-  };
 
   [Types.ResetState]: boolean;
   [Types.SetProgress]: {
@@ -100,10 +85,6 @@ type CreateFeedPayload = {
   };
 
   [Types.ResetProgress]: boolean;
-
-  [Types.SetComputeEnvironment]: {
-    computeEnvironment: string;
-  };
 
   [Types.CancelFeed]: Record<string, unknown>;
 };
@@ -156,16 +137,14 @@ export interface CreateFeedData {
   isDataSelected: boolean;
 }
 
-export interface CreateFeedState extends InputState {
+export interface CreateFeedState {
   wizardOpen: boolean;
   step: number;
   data: CreateFeedData;
   selectedConfig: string;
-  selectedPlugin?: Plugin;
   feedProgress: string;
   feedError: any;
   value: number;
-  computeEnvironment: string;
   currentlyConfiguredNode: string;
 }
 

@@ -109,12 +109,14 @@ export const createFeedInstanceWithDircopy = async (
             pipeline.pipelinePlugins &&
             pipeline.pluginPipings.length > 0
           ) {
-            const { pluginParameters, input, computeEnvs } = pipeline;
+            const { pluginParameters, computeEnvs, parameterList } = pipeline;
 
             const nodes_info = client.computeWorkflowNodesInfo(
               //@ts-ignore
               pluginParameters.data
             );
+
+            console.log("ComputeEnvs", computeEnvs, parameterList);
 
             nodes_info.forEach((node) => {
               if (computeEnvs && computeEnvs[node["piping_id"]]) {
@@ -130,28 +132,10 @@ export const createFeedInstanceWithDircopy = async (
                   node.compute_resource_name = compute_node;
                 }
               }
-              const pluginParameterDefaults = [];
-              if (input && input[node["piping_id"]]) {
-                const { dropdownInput, requiredInput } =
-                  input[node["piping_id"]];
-                let totalInput = {};
-                if (dropdownInput) {
-                  totalInput = { ...totalInput, ...dropdownInput };
-                }
-                if (requiredInput) {
-                  totalInput = { ...totalInput, ...requiredInput };
-                }
 
-                for (const i in totalInput) {
-                  const parameter = dropdownInput[i];
-                  const replaceValue = parameter["flag"].replace(/-/g, "");
-
-                  pluginParameterDefaults.push({
-                    name: replaceValue,
-                    default: parameter["value"],
-                  });
-                }
-                node["plugin_parameter_defaults"] = pluginParameterDefaults;
+              if (parameterList && parameterList[node["piping_id"]]) {
+                const params = parameterList[node["piping_id"]];
+                node["plugin_parameter_defaults"] = params;
               }
             });
 
@@ -179,23 +163,18 @@ export const createFeedInstanceWithFS = async (
   statusCallback: (status: string, value: number) => void,
   errorCallback: (error: string) => void
 ) => {
-  statusCallback("Unpacking parameters", 20);
-
   let feed;
   if (selectedPlugin) {
-    const pluginName = selectedPlugin.data.name;
     try {
-      const fsPlugin = await getPlugin(pluginName);
-
-      if (fsPlugin instanceof Plugin) {
+      if (selectedPlugin instanceof Plugin) {
+        statusCallback("Unpacking parameters", 40);
         const data = await getRequiredObject(
           dropdownInput,
           requiredInput,
-          fsPlugin
+          selectedPlugin
         );
-
-        const pluginId = fsPlugin.data.id;
-        statusCallback("Creating Plugin Instance", 20);
+        const pluginId = selectedPlugin.data.id;
+        statusCallback("Creating Plugin Instance", 60);
         const client = ChrisAPIClient.getClient();
         try {
           const fsPluginInstance = await client.createPluginInstance(
@@ -204,7 +183,7 @@ export const createFeedInstanceWithFS = async (
             data
           );
           feed = await fsPluginInstance.getFeed();
-          statusCallback("Analysis Created", 20);
+          statusCallback("Analysis Created", 100);
         } catch (error) {
           errorCallback(error as string);
         }
