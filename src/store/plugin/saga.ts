@@ -33,6 +33,8 @@ function* handleGetParams(action: IActionTypeParam) {
       (param: PluginParameter) => param.data.optional === true
     );
 
+    console.log("Plugin", plugin, computeEnvs);
+
     yield all([
       put(
         getParamsSuccess({

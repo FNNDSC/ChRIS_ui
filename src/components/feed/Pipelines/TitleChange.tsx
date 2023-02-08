@@ -46,7 +46,6 @@ const TitleChange = ({
         }}
         type="text"
         placeholder={edit ? "Add a title to the node" : ""}
-        isReadOnly={!edit}
         value={
           edit
             ? value

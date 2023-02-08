@@ -101,10 +101,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             ) : statusTitle && statusTitle.title ? (
               <FetchFilesLoader title={statusTitle.title} />
             ) : (
-              <EmptyStateLoader
-                title="Files are not available yet and are being fetched. Please give it a
-              moment..."
-              />
+              <EmptyStateLoader title="Files are not available yet" />
             )}
           </React.Suspense>
         </GridItem>
