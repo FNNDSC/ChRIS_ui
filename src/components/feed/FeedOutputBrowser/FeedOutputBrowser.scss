@@ -18,6 +18,9 @@
     border-right: 0.5px solid #f5f5f5;
   }
 
+  .pf-c-drawer__content{
+    background-color: initial !important;
+  }
   .pf-c-skeleton,
   .pf-m-square {
     background-color: var(--pf-global--palette--black-300) !important;
@@ -26,6 +29,17 @@
   .ant-tree {
     background-color: inherit !important;
   }
+
+  &__title{
+    display: flex;
+    justify-content: flex-end;
+    margin: 0.5em;
+  }
+
+  &__button{
+    cursor: pointer;
+  }
+
 }
 
 .file-browser {
@@ -41,6 +55,9 @@
     }
   }
 
+  .pf-c-drawer__panel{
+    background: #d2d2d2 !important;
+  }
   &__table {
     padding-right: 0 !important;
     &--fileName {
@@ -95,6 +112,8 @@
     height: 100% !important;
     border-right: 0.2px solid #f5f5f5;
     max-width: 100%;
+    background: #d2d2d2 !important;
+
     tbody tr {
       cursor: pointer;
     }
@@ -117,6 +136,56 @@
     }
   }
 
+.preview-panel{
+    display: flex;
+    justify-content: space-between;
+    & > div{
+      width:100%;
+    }
+    & > div > div:first-child {
+      display:flex;
+      flex-direction:row;
+      justify-content:space-between;
+      margin:10px;
+    }
+  }
+
+  svg {
+    color:#1890ff;
+     cursor:pointer;
+  }
+
+  .small-preview {
+    height: 90%;
+    .viewport-wrapper {
+      height: 100% !important;
+    }
+    img {
+      max-width: 400px;
+      height: 100%;
+    }
+    .react-json-view {
+      height: 100%;
+      max-width: 400px;
+      overflow: scroll;
+    }
+  }
+
+  .dcm-preview {
+    position: relative;
+    height: 100%;
+
+    #container {
+      bottom: 0;
+      height: 100%;
+      left: 0;
+      overflow: scroll;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+    }
+  }
   .open-with-dropdown {
     background: #ffffff63;
   }
