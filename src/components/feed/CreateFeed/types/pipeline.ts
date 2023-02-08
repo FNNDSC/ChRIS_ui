@@ -180,7 +180,7 @@ export interface PipelinesProps {
     currentPipelineId: number,
     computeEnv: string
   ) => void;
-  
+
   handleSetCurrentComputeEnv: (
     item: {
       name: string;

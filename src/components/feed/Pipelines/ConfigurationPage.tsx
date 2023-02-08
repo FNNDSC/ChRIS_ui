@@ -87,7 +87,14 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
     }
 
     fetchResources();
-  }, [currentNode, pluginPipings, dispatchStore, pluginParameters]);
+  }, [
+    currentNode,
+    pluginPipings,
+    dispatchStore,
+    pluginParameters,
+    handleFormParameters,
+    currentPipelineId,
+  ]);
 
   const generalCompute =
     computeEnvs &&
