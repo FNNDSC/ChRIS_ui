@@ -117,38 +117,6 @@
     }
   }
 
-  .small-preview {
-    height: 90%;
-
-    .viewport-wrapper {
-      height: 100% !important;
-    }
-    img {
-      height: 100%;
-    }
-
-    .react-json-view {
-      height: 100%;
-      overflow: scroll;
-    }
-  }
-
-  .dcm-preview {
-    position: relative;
-    height: 100%;
-
-    #container {
-      bottom: 0;
-      height: 100%;
-      left: 0;
-      overflow: hidden;
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 100%;
-    }
-  }
-
   .open-with-dropdown {
     background: #ffffff63;
   }

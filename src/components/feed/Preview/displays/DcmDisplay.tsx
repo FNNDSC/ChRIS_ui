@@ -11,11 +11,12 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
+  preview?: string;
 };
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const { fileItem } = props;
+  const { fileItem, preview } = props;
 
   const onWindowResize = () => {
     const element = containerRef.current;
@@ -44,7 +45,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [fileItem, initAmi]);
 
   return (
-    <div className="dcm-preview">
+    <div className={preview === "large" ? "dcm-preview" : ""}>
       <div ref={containerRef} id="container">
         <div id="dicomImageWebGL"></div>
       </div>
