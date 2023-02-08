@@ -7,9 +7,17 @@
 @import "../../assets/scss/helpers/variables";
 
 .dicom-modal {
+  color: rgb(115, 188, 247);
+  background: #121212;
   padding: 1.5rem 0 1rem !important;
   height: 100vh;
   min-width: 98vw;
+
+  h1,
+  button {
+    color: rgb(115, 188, 247) !important;
+  }
+
   h3.pf-c-title {
     margin-left: 2rem;
   }
@@ -20,6 +28,7 @@
       display: flex;
       justify-content: center;
     }
+
     .pf-c-tab-content {
       outline: none;
       height: 95%;

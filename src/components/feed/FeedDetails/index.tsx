@@ -1,64 +1,66 @@
-import React from 'react'
-import Moment from 'react-moment'
+import React, { ReactElement } from "react";
+import Moment from "react-moment";
 import {
   Button,
   Toolbar,
   ToolbarItem,
   ToolbarContent,
-} from '@patternfly/react-core'
-import ShareFeed from '../ShareFeed/ShareFeed'
-import { Popover } from 'antd'
-import { FaEdit } from 'react-icons/fa'
+} from "@patternfly/react-core";
+import ShareFeed from "../ShareFeed/ShareFeed";
+import { Popover } from "antd";
+import { FaEdit } from "react-icons/fa";
 
-import { useTypedSelector } from '../../../store/hooks'
-import './FeedDetails.scss'
-import FeedNote from './FeedNote'
-import { SpinContainer } from '../../common/loading/LoadingContent'
+import { useTypedSelector } from "../../../store/hooks";
+import "./FeedDetails.scss";
+import FeedNote from "./FeedNote";
+import { LoadingContent } from "../../common/loading/LoadingContent";
 
 const FeedDetails = () => {
-  const [note, setNote] = React.useState('')
-  const [isNoteVisible, setIsNoteVisible] = React.useState(false)
-  const [savingNote, setSavingNote] = React.useState(false)
-  const currentFeedPayload = useTypedSelector((state) => state.feed.currentFeed)
+  const [note, setNote] = React.useState("");
+  const [isNoteVisible, setIsNoteVisible] = React.useState(false);
+  const [savingNote, setSavingNote] = React.useState(false);
+  const currentFeedPayload = useTypedSelector(
+    (state) => state.feed.currentFeed
+  );
 
-  const { data: feed, error, loading } = currentFeedPayload
+  const { error, data: feed, loading } = currentFeedPayload;
 
   React.useEffect(() => {
     async function fetchNode() {
       if (feed) {
-        const note = await feed.getNote()
-        const { data: noteData } = note
-        setNote(noteData.content)
+        const note = await feed.getNote();
+        const { data: noteData } = note;
+        setNote(noteData.content);
       }
     }
-    fetchNode()
-  }, [feed])
+    fetchNode();
+  }, [feed]);
 
   const handleEditNote = async (editedNote: string) => {
-    setSavingNote(true)
-    const note = await feed?.getNote()
+    setSavingNote(true);
+    const note = await feed?.getNote();
     await note?.put({
-      title: '',
+      title: "",
       content: editedNote,
-    })
-    setSavingNote(false)
-  }
+    });
+    setSavingNote(false);
+  };
 
   const handleClose = () => {
-    setIsNoteVisible(!isNoteVisible)
-  }
+    setIsNoteVisible(!isNoteVisible);
+  };
 
   const spacer: {
-    xl?: 'spacerLg'
-    lg?: 'spacerLg'
-    md?: 'spacerMd'
-    sm?: 'spacerSm'
+    xl?: "spacerLg";
+    lg?: "spacerLg";
+    md?: "spacerMd";
+    sm?: "spacerSm";
   } = {
-    xl: 'spacerLg',
-    lg: 'spacerLg',
-    md: 'spacerMd',
-    sm: 'spacerSm',
-  }
+    xl: "spacerLg",
+    lg: "spacerLg",
+    md: "spacerMd",
+    sm: "spacerSm",
+  };
 
   const items = (
     <React.Fragment>
@@ -73,7 +75,7 @@ const FeedDetails = () => {
       </ToolbarItem>
       <ToolbarItem spacer={spacer}>
         <span>
-          Created:{' '}
+          Created:{" "}
           {
             <Moment format="DD MMM YYYY @ HH:mm">
               {feed && feed.data.creation_date}
@@ -83,8 +85,8 @@ const FeedDetails = () => {
       </ToolbarItem>
       <div
         style={{
-          display: 'flex',
-          marginLeft: '0 auto',
+          display: "flex",
+          marginLeft: "0 auto",
         }}
       >
         <ToolbarItem spacer={spacer}>
@@ -101,7 +103,7 @@ const FeedDetails = () => {
             visible={isNoteVisible}
             trigger="click"
             onVisibleChange={(visible: boolean) => {
-              setIsNoteVisible(visible)
+              setIsNoteVisible(visible);
             }}
           >
             <Button type="button" variant="tertiary" icon={<FaEdit />}>
@@ -114,19 +116,39 @@ const FeedDetails = () => {
         </ToolbarItem>
       </div>
     </React.Fragment>
-  )
+  );
 
   if (feed) {
     return (
-      <Toolbar isFullHeight className="feed-details">
+      <ToolbarComponent>
         <ToolbarContent>{items}</ToolbarContent>
-      </Toolbar>
-    )
+      </ToolbarComponent>
+    );
   } else if (loading) {
-    return <SpinContainer title="Fetching Details" />
+    return (
+      <ToolbarComponent>
+        <ToolbarContent>
+          <ToolbarItem>
+            <LoadingContent />
+          </ToolbarItem>
+        </ToolbarContent>
+      </ToolbarComponent>
+    );
   } else if (error) {
-    return <div>Error Found</div>
-  } else return null
-}
+    return (
+      <ToolbarComponent>
+        <div>Error Found</div>
+      </ToolbarComponent>
+    );
+  } else return null;
+};
 
-export default FeedDetails
+export default FeedDetails;
+
+export const ToolbarComponent = ({ children }: { children: ReactElement }) => {
+  return (
+    <Toolbar isFullHeight className="feed-details">
+      {children}
+    </Toolbar>
+  );
+};
