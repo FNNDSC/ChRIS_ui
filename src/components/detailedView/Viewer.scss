@@ -7,11 +7,19 @@
 @import "../../assets/scss/helpers/variables";
 
 .dicom-modal {
-  color: rgb(115, 188, 247);
-  background: #121212;
+  color: rgb(115, 188, 247) !important;
+  background: var(--pf-global--BackgroundColor--dark-300) !important;
   padding: 1.5rem 0 1rem !important;
   height: 100vh;
   min-width: 98vw;
+
+  .pf-c-drawer__panel-main {
+    background: var(--pf-global--BackgroundColor--dark-300) !important;
+
+    .pf-c-table tr > * {
+      color: rgb(115, 188, 247) !important;
+    }
+  }
 
   h1,
   button {
