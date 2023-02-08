@@ -41,7 +41,6 @@ const Pipelines = ({
   handleSetPipelineEnvironments,
   handleSetCurrentNodeTitle,
   handleSetGeneralCompute,
-
   handleSetCurrentComputeEnv,
   handleFormParameters,
 }: PipelinesProps) => {

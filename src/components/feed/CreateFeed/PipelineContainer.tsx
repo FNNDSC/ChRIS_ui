@@ -161,20 +161,19 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
     [dispatch]
   );
 
-  const handleFormParameters = (
-    currentNode: number,
-    currentPipelineId: number,
-    params: any[]
-  ) => {
-    dispatch({
-      type: PipelineTypes.SetFormParameters,
-      payload: {
-        currentNode,
-        currentPipelineId,
-        params,
-      },
-    });
-  };
+  const handleFormParameters = React.useCallback(
+    (currentNode: number, currentPipelineId: number, params: any[]) => {
+      dispatch({
+        type: PipelineTypes.SetFormParameters,
+        payload: {
+          currentNode,
+          currentPipelineId,
+          params,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   return (
     <div className="pacs-alert-wrap">
