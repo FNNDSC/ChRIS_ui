@@ -1,15 +1,12 @@
-import React from "react";
+import React, { useContext, useCallback } from "react";
 import {
   OptionsMenu,
   OptionsMenuItem,
   OptionsMenuToggle,
 } from "@patternfly/react-core";
-
-type ComputeProp = {
-  computeEnvs: any[];
-  selectedOption?: string;
-  setComputeEnvironment?: (computeEnv: string) => void;
-};
+import { AddNodeContext } from "./context";
+import { useTypedSelector } from "../../../store/hooks";
+import { Types } from "./types";
 
 function getInititalState() {
   return {
@@ -18,23 +15,37 @@ function getInititalState() {
   };
 }
 
-const ComputeEnvironment: React.FC<ComputeProp> = ({
-  computeEnvs,
-  selectedOption,
-  setComputeEnvironment,
-}: ComputeProp) => {
+const ComputeEnvironment: React.FC = () => {
+  const { computeEnv: computeEnvs } = useTypedSelector((state) => state.plugin);
+  const { state, dispatch } = useContext(AddNodeContext);
+  const { selectedComputeEnv } = state;
   const [menuState, setMenuState] = React.useState(getInititalState);
   const { isOpen, toggleTemplateText } = menuState;
 
+  const setStates = useCallback(
+    (currentComputeEnv: string) => {
+      setMenuState((menuState) => {
+        return {
+          ...menuState,
+          toggleTemplateText: currentComputeEnv,
+        };
+      });
+      dispatch({
+        type: Types.SetComputeEnv,
+        payload: {
+          computeEnv: currentComputeEnv,
+        },
+      });
+    },
+    [dispatch]
+  );
+
   React.useEffect(() => {
-    setMenuState((menuState) => {
-      return {
-        ...menuState,
-        toggleTemplateText: computeEnvs[0].data.name,
-      };
-    });
-   setComputeEnvironment && setComputeEnvironment(computeEnvs[0].data.name);
-  }, [computeEnvs, setComputeEnvironment]);
+    if (computeEnvs) {
+      const currentComputeEnv = computeEnvs[0].data.name;
+      setStates(currentComputeEnv);
+    }
+  }, [computeEnvs, setStates]);
 
   const onToggle = (isOpen: boolean) => {
     setMenuState({
@@ -48,27 +59,25 @@ const ComputeEnvironment: React.FC<ComputeProp> = ({
   ) => {
     const id = event?.currentTarget.id;
     if (id) {
-      setMenuState({
-        ...menuState,
-        toggleTemplateText: id,
-      });
-      setComputeEnvironment && setComputeEnvironment(id);
+      setStates(id);
     }
   };
 
-  const menuItems = computeEnvs.map((computeEnv) => {
-    return (
-      <OptionsMenuItem
-        className="configure-compute__optionsmenuitem"
-        onSelect={onSelect}
-        isSelected={selectedOption === computeEnv.data.name}
-        id={computeEnv.data.name}
-        key={computeEnv.data.id}
-      >
-        {computeEnv.data.name}
-      </OptionsMenuItem>
-    );
-  });
+  const menuItems = computeEnvs
+    ? computeEnvs.map((computeEnv) => {
+        return (
+          <OptionsMenuItem
+            className="configure-compute__optionsmenuitem"
+            onSelect={onSelect}
+            isSelected={selectedComputeEnv === computeEnv.data.name}
+            id={computeEnv.data.name}
+            key={computeEnv.data.id}
+          >
+            {computeEnv.data.name}
+          </OptionsMenuItem>
+        );
+      })
+    : [];
   const toggle = (
     <OptionsMenuToggle
       onToggle={onToggle}

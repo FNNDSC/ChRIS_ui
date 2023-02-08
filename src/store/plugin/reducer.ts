@@ -4,7 +4,10 @@ import { PluginActionTypes, IPluginState } from "./types";
 
 // Type-safe initialState
 const initialState: IPluginState = {
-  parameters: [],
+  parameters: {
+    dropdown: [],
+    required: [],
+  },
   computeEnv: undefined,
   nodeOperations: {
     terminal: false,
@@ -28,10 +31,12 @@ const reducer: Reducer<IPluginState> = (state = initialState, action) => {
     }
 
     case PluginActionTypes.GET_PARAMS_SUCCESS: {
-      const params = action.payload;
       return {
         ...state,
-        parameters: params,
+        parameters: {
+          required: action.payload.required,
+          dropdown: action.payload.dropdown,
+        },
       };
     }
 

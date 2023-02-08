@@ -25,6 +25,7 @@ const components = {
 interface ViewerDisplayProps {
   viewerName: string;
   fileItem: IFileBlob;
+  preview?: string;
 }
 
 const ViewerDisplay: React.FC<ViewerDisplayProps> = (

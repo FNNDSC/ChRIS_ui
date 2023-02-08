@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useContext, useRef, useCallback } from "react";
-import { Plugin } from "@fnndsc/chrisapi";
-import { Types } from "./types/feed";
-import { CreateFeedContext } from "./context";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
-import {
-  Pagination,
-  ToolbarItem,
-  Radio,
-} from "@patternfly/react-core";
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
+import { PluginMeta } from "@fnndsc/chrisapi";
+import { Types as AddNodeTypes } from "../AddNode/types";
+
+import { Pagination, ToolbarItem, Radio } from "@patternfly/react-core";
 import {
   Button,
   ButtonVariant,
@@ -18,10 +18,9 @@ import {
 import { FaSearch } from "react-icons/fa";
 import debounce from "lodash/debounce";
 
-import { getParams } from "../../../store/plugin/actions";
 import { getPlugins } from "./utils/dataPacks";
 import { WizardContext } from "@patternfly/react-core/";
-
+import { AddNodeContext } from "../AddNode/context";
 
 interface FilterProps {
   perPage: number;
@@ -39,18 +38,15 @@ const getFilterState = () => {
   };
 };
 
-interface DataPacksReduxProp {
-  getParams: (plugin: Plugin) => void;
-}
-
-const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedPlugin } = state
-  const [fsPlugins, setfsPlugins] = useState<Plugin[]>([]);
+const DataPacks: React.FC = () => {
+  const { state: addNodeState } = useContext(AddNodeContext);
+  const { dispatch: nodeDispatch } = useContext(AddNodeContext);
+  const { pluginMeta } = addNodeState;
+  const [fsPlugins, setfsPlugins] = useState<PluginMeta[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;
-  const { onNext, onBack } = useContext(WizardContext)
-  const radioInput = useRef<any>()
+  const { onNext, onBack } = useContext(WizardContext);
+  const radioInput = useRef<any>();
   useEffect(() => {
     getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
       (pluginDetails) => {
@@ -63,7 +59,7 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         }
       }
     );
-  }, [filter, perPage, currentPage, selectedPlugin]);
+  }, [filter, perPage, currentPage, pluginMeta]);
 
   // only update filter every half-second, to avoid too many requests
   const handleFilterChange = debounce((value: string) => {
@@ -86,39 +82,47 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
     });
   };
 
-  const handleOnChange = useCallback((checked: any, plugin: Plugin) => {
-    checked === true && props.getParams(plugin);
-    dispatch({
-      type: Types.SelectPlugin,
-      payload: {
-        plugin,
-        checked,
-      },
-    });
-  }, [dispatch, props])
+  const handleOnChange = useCallback(
+    (checked: any, plugin: PluginMeta) => {
+      nodeDispatch({
+        type: AddNodeTypes.SetPluginMeta,
+        payload: {
+          pluginMeta: plugin,
+        },
+      });
+    },
+    [nodeDispatch]
+  );
 
-  const handleKeyDown = useCallback((e: any, plugin: any = null) => {
-    if (e.target.closest('INPUT#filter_plugin')) { return }
-    else if (e.target.closest('BUTTON') && !e.target.closest('BUTTON.pf-c-button.pf-m-secondary') && !e.target.closest('BUTTON.pf-c-button.pf-m-primary')) {
-      return;
-    } else if (e.code == "Enter" && e.target.closest('DIV.pf-c-radio')) {
-      e.preventDefault()
-      if (selectedPlugin == undefined) handleOnChange(true, plugin)
-      onNext()
-    } else if (selectedPlugin && e.code == "ArrowRight") {
-      onNext()
-    } else if (e.code == "ArrowLeft") {
-      onBack()
-    }
-  }, [onNext, onBack, selectedPlugin, handleOnChange])
-
+  const handleKeyDown = useCallback(
+    (e: any, plugin: any = null) => {
+      if (e.target.closest("INPUT#filter_plugin")) {
+        return;
+      } else if (
+        e.target.closest("BUTTON") &&
+        !e.target.closest("BUTTON.pf-c-button.pf-m-secondary") &&
+        !e.target.closest("BUTTON.pf-c-button.pf-m-primary")
+      ) {
+        return;
+      } else if (e.code == "Enter" && e.target.closest("DIV.pf-c-radio")) {
+        e.preventDefault();
+        if (pluginMeta == undefined) handleOnChange(true, plugin);
+        onNext();
+      } else if (pluginMeta && e.code == "ArrowRight") {
+        onNext();
+      } else if (e.code == "ArrowLeft") {
+        onBack();
+      }
+    },
+    [onNext, onBack, pluginMeta, handleOnChange]
+  );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [handleKeyDown])
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <div className="local-file-upload">
@@ -158,34 +162,25 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
 
       <div>
         {fsPlugins.map((plugin) => {
-          const { title, name } = plugin.data;
-          const pluginName = `${title ? title : `${name} v.${plugin.data.version}`
-            }`
+          const { name, title, id } = plugin.data;
           return (
-            <>
-              <Radio
-                key={pluginName}
-                aria-labelledby="plugin-radioButton"
-                id={name}
-                ref={radioInput}
-                label={pluginName}
-                name="plugin-radioGroup"
-                onKeyDown={e => handleKeyDown(e, plugin)}
-                description={plugin.data.description}
-                onChange={(checked: any) => handleOnChange(checked, plugin)}
-                checked={selectedPlugin?.data.id === plugin.data.id}
-              />
-            </>
-          )
+            <Radio
+              key={id}
+              aria-labelledby="plugin-radioButton"
+              id={name}
+              ref={radioInput}
+              label={name}
+              name="plugin-radioGroup"
+              onKeyDown={(e) => handleKeyDown(e, plugin)}
+              description={title}
+              onChange={(checked: any) => handleOnChange(checked, plugin)}
+              checked={pluginMeta?.data.id === plugin.data.id}
+            />
+          );
         })}
       </div>
     </div>
-
   );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
-});
-
-export default connect(null, mapDispatchToProps)(DataPacks);
+export default DataPacks;
