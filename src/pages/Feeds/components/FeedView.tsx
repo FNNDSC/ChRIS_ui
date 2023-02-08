@@ -24,6 +24,7 @@ import { setSidebarActive } from "../../../store/ui/actions";
 import { addTSNodes, resetTsNodes } from "../../../store/tsplugins/actions";
 import { destroyExplorer } from "../../../store/explorer/actions";
 import { resetActiveResources } from "../../../store/resources/actions";
+import { setIsNavOpen } from "../../../store/ui/actions";
 
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { DestroyActiveResources } from "../../../store/resources/types";
@@ -89,6 +90,10 @@ export const FeedView: React.FC = () => {
       dispatch(resetFeed());
     };
   }, [dispatch]);
+
+  React.useEffect(() => {
+    dispatch(setIsNavOpen(false))
+  }, [dispatch])
 
   React.useEffect(() => {
     document.title = "My Analyses - ChRIS UI site";
@@ -253,3 +258,4 @@ export const FeedView: React.FC = () => {
 };
 
 export default FeedView;
+

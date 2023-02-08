@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../../store/hooks";
@@ -6,22 +6,20 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Grid,
-  GridItem,
   Button,
   HelperTextItem,
   HelperText,
-  ClipboardCopyButton, clipboardCopyFunc
+  ClipboardCopyButton, clipboardCopyFunc, DrawerHead, Drawer, DrawerContent, DrawerContentBody, DrawerPanelContent, DrawerActions, DrawerCloseButton, DrawerPanelBody
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
-import { MdFileDownload } from "react-icons/md";
+import { MdFileDownload, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import {
   AiFillFileImage,
   AiFillFileText,
   AiFillFile,
   AiFillFolder,
   AiOutlineExpandAlt,
-  AiFillCloseCircle,
 } from "react-icons/ai";
 import { FaFileCode, FaFilm } from "react-icons/fa";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
@@ -52,17 +50,20 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleDicomViewerOpen,
     handleXtkViewerOpen,
     explore,
-    expandDrawer,
     filesLoading,
   } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const dispatch = useDispatch();
 
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [currentRowIndex, setCurrentRowIndex] = useState<number>(0)
+  const [copied, setCopied] = React.useState(false);
   const { files, folders, path } = pluginFilesPayload;
   const cols = [{ title: "Name" }, { title: "Size" }, { title: "" }];
-
   const items = files && folders ? [...files, ...folders] : [];
-
+  const { id, plugin_name } = selected.data;
+  const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
+  const breadcrumb = path ? pathSplit[1].split("/") : [];
   const handleDownloadClick = async (e: React.MouseEvent, item: FeedFile) => {
     e.stopPropagation();
     if (item) {
@@ -124,11 +125,15 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
   };
   const rows = items.length > 0 ? items.map(generateTableRow) : [];
+  const  previewAnimation = [
+    { opacity: '0.0' },
+    { opacity: '1.0' }
+  ];
 
-  const { id, plugin_name } = selected.data;
-  const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
-  const breadcrumb = path ? pathSplit[1].split("/") : [];
-
+  const previewAnimationTiming = {
+    duration: 1000,
+    iterations: 1,
+  }
   const generateBreadcrumb = (value: string, index: number) => {
     const onClick = () => {
       dispatch(clearSelectedFile());
@@ -161,16 +166,53 @@ const FileBrowser = (props: FileBrowserProps) => {
     );
   };
 
+  const toggleAnimation = () => {
+    document.querySelector('.preview-panel')?.animate(previewAnimation, previewAnimationTiming)
+    document.querySelector('.small-preview')?.animate(previewAnimation, previewAnimationTiming)
+  }
+
+  const handlePrevClick = () => {
+    if(currentRowIndex >= 1){
+      const prevItem = items[currentRowIndex -1];
+      setCurrentRowIndex(currentRowIndex - 1)
+      if(typeof prevItem !== "string"){
+        dispatch(setSelectedFile(prevItem));
+      }
+      toggleAnimation()
+    }
+
+  }
+  const handleNextClick = () => {
+    if(currentRowIndex < items.length -1){
+      const nextItem = items[currentRowIndex + 1];
+      setCurrentRowIndex(currentRowIndex + 1)
+      if(typeof nextItem !== "string"){
+      dispatch(setSelectedFile(nextItem));
+      }
+      toggleAnimation()
+    }
+  }
+
   const previewPanel = (
-    <>
+    <DrawerPanelContent defaultSize={"70%"}>
+      <DrawerHead>
+        <span tabIndex={isExpanded ? 0 : -1} >
+        </span>
+        <DrawerActions>
+          <DrawerCloseButton onClick={() => setIsExpanded(false)} />
+        </DrawerActions>
+      </DrawerHead>
+
+      <DrawerPanelBody>
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-        }}
+      className="preview-panel"
       >
         {selectedFile ? (
           <div>
+            <Grid>
+            <MdNavigateBefore size={30}  onClick={handlePrevClick} />
+            <MdNavigateNext size={30}  onClick={handleNextClick}/>
+            </Grid>
             <HelperText>
               <HelperTextItem>
                 {getFileName(selectedFile.data.fname)}
@@ -191,40 +233,25 @@ const FileBrowser = (props: FileBrowserProps) => {
         ) : (
           <span>Click on a file to preview:</span>
         )}
-        {explore && (
-          <Button
-            onClick={() => expandDrawer("bottom_panel")}
-            variant="tertiary"
-            type="button"
-            icon={<AiFillCloseCircle />}
-          />
-        )}
       </div>
 
       {selectedFile && (
         <FileDetailView selectedFile={selectedFile} preview="large" />
       )}
-    </>
+
+      </DrawerPanelBody>
+
+    </DrawerPanelContent>
   );
 
-  const [copied, setCopied] = React.useState(false);
 
   return (
     <Grid hasGutter className="file-browser">
-      <GridItem
-        xl2={5}
-        xl2RowSpan={12}
-        xl={6}
-        xlRowSpan={12}
-        lg={4}
-        lgRowSpan={12}
-        md={4}
-        mdRowSpan={12}
-        sm={12}
-        smRowSpan={12}
-        className="file-browser__firstGrid"
-      >
-        <div className="file-browser__header">
+      <Drawer isExpanded={isExpanded} >
+      <DrawerContent panelContent={previewPanel} className="file-browser__firstGrid"
+>
+          <DrawerContentBody >
+          <div className="file-browser__header">
           <div className="file-browser__header--breadcrumbContainer">
             <ClipboardCopyButton
               onClick={(event: any) => {
@@ -267,31 +294,21 @@ const FileBrowser = (props: FileBrowserProps) => {
                 dispatch(clearSelectedFile());
                 const rowIndex = rowData.rowIndex;
                 const item = items[rowIndex];
+                setCurrentRowIndex(rowIndex);
                 if (typeof item === "string") {
                   handleFileClick(`${path}/${item}`);
-                } else {
+                 } else {
+                  toggleAnimation()
                   dispatch(setSelectedFile(item));
+                  setIsExpanded(true);
                 }
               }}
             />
           )}
         </Table>
-      </GridItem>
-      <GridItem
-        xl2={7}
-        xl2RowSpan={12}
-        xl={6}
-        xlRowSpan={12}
-        lg={8}
-        lgRowSpan={12}
-        md={8}
-        mdRowSpan={12}
-        sm={12}
-        smRowSpan={12}
-        className="file-browser__grid2"
-      >
-        {previewPanel}
-      </GridItem>
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
     </Grid>
   );
 };

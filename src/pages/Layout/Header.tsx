@@ -4,7 +4,6 @@ import ToolbarComponent from './Toolbar'
 import brandImg from '../../assets/images/logo_chris_dashboard.png'
 import { IUserState } from '../../store/user/types'
 import { PageHeader, PageHeaderTools, Brand } from '@patternfly/react-core'
-
 interface IHeaderProps {
   user: IUserState
   onNavToggle: () => void
