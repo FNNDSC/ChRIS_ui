@@ -13,7 +13,12 @@ import {
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
-import { MdFileDownload, MdNavigateBefore, MdNavigateNext } from "react-icons/md";
+import {
+  MdClose,
+  MdFileDownload,
+  MdNavigateBefore,
+  MdNavigateNext,
+} from "react-icons/md";
 import {
   AiFillFileImage,
   AiFillFileText,
@@ -56,7 +61,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const dispatch = useDispatch();
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const [currentRowIndex, setCurrentRowIndex] = useState<number>(0)
+  const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
   const [copied, setCopied] = React.useState(false);
   const { files, folders, path } = pluginFilesPayload;
   const cols = [{ title: "Name" }, { title: "Size" }, { title: "" }];
@@ -125,15 +130,12 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
   };
   const rows = items.length > 0 ? items.map(generateTableRow) : [];
-  const  previewAnimation = [
-    { opacity: '0.0' },
-    { opacity: '1.0' }
-  ];
+  const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
   const previewAnimationTiming = {
     duration: 1000,
     iterations: 1,
-  }
+  };
   const generateBreadcrumb = (value: string, index: number) => {
     const onClick = () => {
       dispatch(clearSelectedFile());
@@ -167,31 +169,34 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const toggleAnimation = () => {
-    document.querySelector('.preview-panel')?.animate(previewAnimation, previewAnimationTiming)
-    document.querySelector('.small-preview')?.animate(previewAnimation, previewAnimationTiming)
-  }
+    document
+      .querySelector(".preview-panel")
+      ?.animate(previewAnimation, previewAnimationTiming);
+    document
+      .querySelector(".small-preview")
+      ?.animate(previewAnimation, previewAnimationTiming);
+  };
 
   const handlePrevClick = () => {
-    if(currentRowIndex >= 1){
-      const prevItem = items[currentRowIndex -1];
-      setCurrentRowIndex(currentRowIndex - 1)
-      if(typeof prevItem !== "string"){
+    if (currentRowIndex >= 1) {
+      const prevItem = items[currentRowIndex - 1];
+      setCurrentRowIndex(currentRowIndex - 1);
+      if (typeof prevItem !== "string") {
         dispatch(setSelectedFile(prevItem));
       }
-      toggleAnimation()
+      toggleAnimation();
     }
-
-  }
+  };
   const handleNextClick = () => {
-    if(currentRowIndex < items.length -1){
+    if (currentRowIndex < items.length - 1) {
       const nextItem = items[currentRowIndex + 1];
-      setCurrentRowIndex(currentRowIndex + 1)
-      if(typeof nextItem !== "string"){
-      dispatch(setSelectedFile(nextItem));
+      setCurrentRowIndex(currentRowIndex + 1);
+      if (typeof nextItem !== "string") {
+        dispatch(setSelectedFile(nextItem));
       }
-      toggleAnimation()
+      toggleAnimation();
     }
-  }
+  };
 
   const clipboardCopyFunc2 = (_event: React.ClipboardEvent<HTMLDivElement>, text: string) => {
     if (typeof (navigator.clipboard) == 'undefined') {
@@ -213,29 +218,23 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const previewPanel = (
     <DrawerPanelContent defaultSize={"70%"}>
-      <DrawerHead>
-        <span tabIndex={isExpanded ? 0 : -1} >
-        </span>
-        <DrawerActions>
-          <DrawerCloseButton onClick={() => setIsExpanded(false)} />
-        </DrawerActions>
-      </DrawerHead>
-
+      <div className="carousel">
+        <Button
+          variant="link"
+          icon={<MdNavigateBefore size={30} />}
+          className="carousel__first"
+          onClick={handlePrevClick}
+        />
+        <Button
+          variant="link"
+          className="carousel__second"
+          icon={<MdNavigateNext size={30} />}
+          onClick={handleNextClick}
+        />
+      </div>
       <DrawerPanelBody>
-      <div
-      className="preview-panel"
-      >
-        {selectedFile ? (
-          <div>
-            <Grid>
-            <MdNavigateBefore size={30}  onClick={handlePrevClick} />
-            <MdNavigateNext size={30}  onClick={handleNextClick}/>
-            </Grid>
-            <HelperText>
-              <HelperTextItem>
-                {getFileName(selectedFile.data.fname)}
-              </HelperTextItem>
-            </HelperText>
+        <div className="preview-panel">
+          {selectedFile ? (
             <div className="header-panel__buttons">
               {selectedFile && (
                 <HeaderPanel
@@ -244,24 +243,23 @@ const FileBrowser = (props: FileBrowserProps) => {
                   handleDicomViewerOpen={handleDicomViewerOpen}
                   handleXtkViewerOpen={handleXtkViewerOpen}
                   selectedFile={selectedFile}
+                  handleToggleViewer={() => {
+                    setIsExpanded(!isExpanded);
+                  }}
                 />
               )}
             </div>
-          </div>
-        ) : (
-          <span>Click on a file to preview:</span>
+          ) : (
+            <span>Click on a file to preview:</span>
+          )}
+        </div>
+
+        {selectedFile && (
+          <FileDetailView selectedFile={selectedFile} preview="large" />
         )}
-      </div>
-
-      {selectedFile && (
-        <FileDetailView selectedFile={selectedFile} preview="large" />
-      )}
-
       </DrawerPanelBody>
-
     </DrawerPanelContent>
   );
-
 
   return (
     <Grid hasGutter className="file-browser">
@@ -301,29 +299,63 @@ const FileBrowser = (props: FileBrowserProps) => {
           cells={cols}
           rows={rows}
         >
-          <TableHeader />
-          {filesLoading ? (
-            <SpinContainer title="Fetching Files" />
-          ) : !filesLoading && items.length === 0 ? (
-            <EmptyStateLoader title="Empty Data set" />
-          ) : (
-            <TableBody
-              onRowClick={(event: any, rows: any, rowData: any) => {
-                dispatch(clearSelectedFile());
-                const rowIndex = rowData.rowIndex;
-                const item = items[rowIndex];
-                setCurrentRowIndex(rowIndex);
-                if (typeof item === "string") {
-                  handleFileClick(`${path}/${item}`);
-                 } else {
-                  toggleAnimation()
-                  dispatch(setSelectedFile(item));
-                  setIsExpanded(true);
-                }
-              }}
-            />
-          )}
-        </Table>
+          <DrawerContentBody>
+            <div className="file-browser__header">
+              <div className="file-browser__header--breadcrumbContainer">
+                <ClipboardCopyButton
+                  onClick={(event: any) => {
+                    setCopied(true);
+                    clipboardCopyFunc(event, path);
+                  }}
+                  onTooltipHidden={() => setCopied(false)}
+                  id="clipboard-plugininstance-files"
+                  textId="clipboard-plugininstance-files"
+                  variant="plain"
+                >
+                  {copied ? "Copied!" : "Copy path to clipboard"}
+                </ClipboardCopyButton>
+                <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
+              </div>
+
+              <div className="file-browser__header__info">
+                <span className="files-browser__header--fileCount">
+                  {items.length > 1
+                    ? `(${items.length} items)`
+                    : items.length === 1
+                    ? `(${items.length} item)`
+                    : "Empty Directory"}
+                </span>
+              </div>
+            </div>
+            <Table
+              aria-label="file-browser-table"
+              variant="compact"
+              cells={cols}
+              rows={rows}
+            >
+              <TableHeader />
+              {filesLoading ? (
+                <SpinContainer title="Fetching Files" />
+              ) : !filesLoading && items.length === 0 ? (
+                <EmptyStateLoader title="Empty Data set" />
+              ) : (
+                <TableBody
+                  onRowClick={(event: any, rows: any, rowData: any) => {
+                    dispatch(clearSelectedFile());
+                    const rowIndex = rowData.rowIndex;
+                    const item = items[rowIndex];
+                    setCurrentRowIndex(rowIndex);
+                    if (typeof item === "string") {
+                      handleFileClick(`${path}/${item}`);
+                    } else {
+                      toggleAnimation();
+                      dispatch(setSelectedFile(item));
+                      setIsExpanded(true);
+                    }
+                  }}
+                />
+              )}
+            </Table>
           </DrawerContentBody>
         </DrawerContent>
       </Drawer>
@@ -355,12 +387,14 @@ interface HeaderPanelProps {
   handleDicomViewerOpen: () => void;
   handleXtkViewerOpen: () => void;
   handleFileBrowserOpen: () => void;
+  handleToggleViewer: () => void;
   selectedFile: FeedFile;
   explore: boolean;
 }
 
 const HeaderPanel = (props: HeaderPanelProps) => {
   const {
+    handleToggleViewer,
     handleDicomViewerOpen,
     handleXtkViewerOpen,
     handleFileBrowserOpen,
@@ -372,41 +406,47 @@ const HeaderPanel = (props: HeaderPanelProps) => {
   const fileType = getFileExtension(selectedFile.data.fname);
 
   return (
-    <div className="header-panel__buttons--toggleViewer">
-      {explore && (
-        <Button
-          variant="link"
-          onClick={handleFileBrowserOpen}
-          icon={<AiOutlineExpandAlt />}
-        >
-          Explore
-        </Button>
-      )}
+    <>
+      <div className="header-panel__buttons--toggleViewer">
+        {explore && (
+          <Button
+            variant="link"
+            onClick={handleFileBrowserOpen}
+            icon={<AiOutlineExpandAlt />}
+          >
+            Explore
+          </Button>
+        )}
 
-      {!fileType && (
-        <Alert
-          type="info"
-          message="Please select a file to see the list of available viewers"
-        />
-      )}
-      {fileType && imageFileTypes.includes(fileType) && (
-        <Button
-          variant="link"
-          onClick={handleDicomViewerOpen}
-          icon={<FaFilm />}
-        >
-          Open Image Viewer
+        {!fileType && (
+          <Alert
+            type="info"
+            message="Please select a file to see the list of available viewers"
+          />
+        )}
+        {fileType && imageFileTypes.includes(fileType) && (
+          <Button
+            variant="link"
+            onClick={handleDicomViewerOpen}
+            icon={<FaFilm />}
+          >
+            Open Image Viewer
+          </Button>
+        )}
+        {fileType && getXtkFileMode(fileType) && (
+          <Button
+            variant="link"
+            onClick={handleXtkViewerOpen}
+            icon={<BiHorizontalCenter />}
+          >
+            Open XTK Viewer
+          </Button>
+        )}
+
+        <Button variant="link" onClick={handleToggleViewer}>
+          Toggle File Viewer
         </Button>
-      )}
-      {fileType && getXtkFileMode(fileType) && (
-        <Button
-          variant="link"
-          onClick={handleXtkViewerOpen}
-          icon={<BiHorizontalCenter />}
-        >
-          Open XTK Viewer
-        </Button>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
