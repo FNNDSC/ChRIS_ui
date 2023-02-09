@@ -345,7 +345,7 @@ export const QueryBuilder: React.FC<QueryBuilderProps> = ({
                   <DatePicker
                     placeholder="Birth Date (yyyy-MM-dd)"
                     dateFormat={(date: Date) => date.toDateString()}
-                    onChange={(_: any, date?: Date) =>
+                    onChange={(_: any, _value, date?: Date) =>
                       handleFilter(
                         date && {
                           PatientBirthDate: toPACSDate(date),
