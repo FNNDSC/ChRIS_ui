@@ -20,7 +20,6 @@
   .pf-c-drawer__body {
     margin: 0 0.25rem 0 0.25rem;
     padding: 0;
-    overflow: hidden;
   }
 
   .pf-c-drawer__content {
@@ -56,7 +55,7 @@
     width: 100%;
     z-index: 999;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
   }
 
   height: 100%;
