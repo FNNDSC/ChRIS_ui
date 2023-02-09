@@ -352,7 +352,7 @@ function getCommand(
     }
   }
 
-  let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
+  let command = `$> docker run -d -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing ${dock_image} \\\n$ container_id=$(docker ps -q --filter "ancestor=${dock_image}") \\\n$ docker exec $container_id ${selfexec}\\\n $docker stop $container_id \\\n`;
   let parameterCommand = [];
 
   if (modifiedParams.length) {
