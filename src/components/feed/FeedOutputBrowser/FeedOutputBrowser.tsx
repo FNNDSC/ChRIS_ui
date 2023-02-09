@@ -21,7 +21,6 @@ import { DataNode } from "../../../store/explorer/types";
 import "./FeedOutputBrowser.scss";
 import { useFeedBrowser } from "./useFeedBrowser";
 import { SpinContainer } from "../../common/loading/LoadingContent";
-import { FaWindowClose } from "react-icons/fa";
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
 const { DirectoryTree } = Tree;
