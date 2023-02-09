@@ -8,7 +8,6 @@ import {
   Grid,
   Button,
   ClipboardCopyButton,
-  clipboardCopyFunc,
   Drawer,
   DrawerContent,
   DrawerContentBody,
@@ -202,6 +201,24 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
   };
 
+  const clipboardCopyFunc2 = (_event: React.ClipboardEvent<HTMLDivElement>, text: string) => {
+    if (typeof (navigator.clipboard) == 'undefined') {
+      console.log('navigator.clipboard');
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      new Promise((res, rej) => {
+        document.execCommand('copy') ? res('successful') : rej();
+      });
+      document.body.removeChild(textArea)
+    }
+    navigator.clipboard.writeText(text)
+  }
+
   const previewPanel = (
     <DrawerPanelContent defaultSize={"70%"}>
       <div className="carousel">
@@ -260,7 +277,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                 <ClipboardCopyButton
                   onClick={(event: any) => {
                     setCopied(true);
-                    clipboardCopyFunc(event, path);
+                    clipboardCopyFunc2(event, path);
                   }}
                   onTooltipHidden={() => setCopied(false)}
                   id="clipboard-plugininstance-files"
