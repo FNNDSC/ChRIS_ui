@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { TextInput, Button, Title, Alert } from '@patternfly/react-core'
+import { TextInput, Button, Title, Alert, Tooltip } from '@patternfly/react-core'
 import { useTypedSelector } from '../../../store/hooks'
 import { AiFillEdit } from 'react-icons/ai'
 import { setPluginTitle } from '../../../store/pluginInstance/actions'
@@ -94,10 +94,15 @@ const PluginTitle: React.FC<AddNodeProps>  = ( {readOnly}) => {
             <span>{pluginName}</span>
           </Title>
           {readOnly ? (
-             <>
-             <AiFillEdit className="tooltip-hoverable"/>
-             <span className="tooltip">You are not the feed owner</span>
-             </>
+            <div>
+            <Tooltip content={
+            <div>
+              You are not the feed owner
+            </div>
+          }>
+          <AiFillEdit/>
+          </Tooltip>
+          </div>
           ) : (
             <AiFillEdit
             onClick={() => {

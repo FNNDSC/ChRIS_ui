@@ -1,7 +1,7 @@
 import React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { Wizard, Spinner, Button } from "@patternfly/react-core";
+import { Wizard, Spinner, Button, Tooltip } from "@patternfly/react-core";
 import { MdOutlineAddCircle } from "react-icons/md";
 import GuidedConfig from "./GuidedConfig";
 import Editor from "./Editor";
@@ -356,10 +356,16 @@ const AddNode: React.FC<AddNodeProps> = ({
     <React.Fragment>
       {readOnly ? (
         <div className="tooltip-container">
-        <button className="tooltip-hoverable" disabled={true} >
+          <Tooltip content={
+          <div>
+            You are not the feed owner
+          </div>
+        }
+          >
+        <Button isAriaDisabled variant="secondary">
         {<MdOutlineAddCircle />} Add a Child Node{" "}( C )
-        </button>
-        <span className="tooltip">You are not the feed owner</span>
+        </Button>
+        </Tooltip>
         </div>
       ) : (
         <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
