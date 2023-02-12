@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"  # necessary for `npm run print-version`
 
       - name: Spin up CUBE
         id: cube
@@ -34,5 +36,4 @@ jobs:
           build: npm run build
           start: env PORT=8088 npm start
           wait-on: "http://localhost:8088"
-
           wait-on-timeout: 60
