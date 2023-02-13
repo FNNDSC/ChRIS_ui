@@ -97,7 +97,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
   const handleDispatch = React.useCallback(
     (files: LocalFile[]) => {
-     const nonDuplicateArray = new Set([selectedConfig, "local_select"])
+     const nonDuplicateArray = new Set([...selectedConfig, "local_select"])
     //  const allFiles  = [...data.localFiles, ...files]
       dispatch({
         type: Types.AddLocalFile,
