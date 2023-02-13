@@ -19,7 +19,7 @@ import {
   CheckedKeys,
 } from './types/feed'
 import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
-import { FileList, ErrorMessage } from './helperComponents'
+import {  ErrorMessage } from './helperComponents'
 import { isEmpty } from 'lodash'
 
 const { DirectoryTree } = Tree
@@ -78,7 +78,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
     if (info.node.breadcrumb) {
       const path = `${info.node.breadcrumb}`
-      if (info.checked === true)
+      if (info.checked === true){
         dispatch({
           type: Types.AddChrisFile,
           payload: {
@@ -86,7 +86,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             checkedKeys,
           },
         })
-      else {
+      }else {
         dispatch({
           type: Types.RemoveChrisFile,
           payload: {
@@ -95,11 +95,27 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           },
         })
       }
+    if(info.checkedNodes.length !== 0){
+      const nonDuplicateArray = new Set([...state.selectedConfig, "swift_storage"])
+      dispatch({
+        type: Types.SelectedConfig,
+        payload:{
+         selectedConfig: Array.from(nonDuplicateArray)
+        }
+       })
+      }else{
+      dispatch({
+        type: Types.SelectedConfig,
+        payload:{
+         selectedConfig: state.selectedConfig.filter((value) => value !== "swift_storage")
+        }
+       })
+      }
     }
   }
 
   const handleKeyDown = useCallback((e:any) =>{
-    if(e.target.closest("INPUT")) return; 
+    if(e.target.closest("INPUT")) return;
     if(chrisFiles.length > 0 && e.code == "ArrowRight"){
       onNext()
     }else if(e.code == "ArrowLeft"){
@@ -108,7 +124,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   }, [chrisFiles.length, onBack, onNext])
 
   useEffect(() => {
-    
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
@@ -116,13 +131,13 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   }, [ handleKeyDown])
 
   useEffect(() => {
-    
+
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [ handleKeyDown])
- 
+
 
   const onLoad = (treeNode: EventDataNode): Promise<void> => {
     const { children } = treeNode;
@@ -147,14 +162,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
     });
   }
 
-  const fileList =
-    chrisFiles.length > 0
-      ? chrisFiles.map((file: string, index: number) => (
-          <React.Fragment key={index}>
-            <FileList file={file} index={index} />
-          </React.Fragment>
-        ))
-      : null
 
   return (
     <div className="chris-file-select pacs-alert-wrap">
@@ -168,7 +175,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         </p>
         <br />
         <Grid hasGutter={true}>
-          <GridItem span={6} rowSpan={12}>
+          <GridItem >
             <ErrorBoundary FallbackComponent={ErrorFallback}>
               <DirectoryTree
                 //@ts-ignore
@@ -181,10 +188,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
                 treeData={tree}
               />
             </ErrorBoundary>
-          </GridItem>
-          <GridItem span={6} rowSpan={12}>
-            <p className="section-header">Files to add to new analysis:</p>
-            <div className="file-list">{fileList}</div>
           </GridItem>
         </Grid>
         {loadingError && (

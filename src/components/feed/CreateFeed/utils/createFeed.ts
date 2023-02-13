@@ -23,7 +23,7 @@ export const createFeed = async (
   pipelineData: PipelineData,
   setProgressCallback: (status: string, value: number) => void,
   setErrorCallback: (error: any) => void,
-  selectedConfig: string,
+  selectedConfig: string[],
   selectedPipeline?: number
 ) => {
   /**
@@ -33,7 +33,7 @@ export const createFeed = async (
   let feed;
   setProgressCallback("Started", 20);
 
-  if (selectedConfig === "local_select" || selectedConfig === "swift_storage") {
+  if (selectedConfig.includes("local_select") || selectedConfig.includes("swift_storage")) {
     feed = await createFeedInstanceWithDircopy(
       data,
       username,
@@ -43,7 +43,9 @@ export const createFeed = async (
       selectedConfig,
       selectedPipeline
     );
-  } else if (selectedConfig === "fs_plugin") {
+  }
+
+  if (selectedConfig.includes("fs_plugin")) {
     feed = await createFeedInstanceWithFS(
       dropdownInput,
       requiredInput,
@@ -61,7 +63,7 @@ export const createFeedInstanceWithDircopy = async (
   pipelineData: PipelineData,
   statusCallback: (status: string, value: number) => void,
   errorCallback: (error: any) => void,
-  selectedConfig: string,
+  selectedConfig: string[],
   selectedPipeline?: number
 ) => {
   const { chrisFiles, localFiles } = data;
@@ -69,10 +71,12 @@ export const createFeedInstanceWithDircopy = async (
   let dirpath: string[] = [];
   let feed;
 
-  if (selectedConfig === "swift_storage") {
+  if (selectedConfig.includes( "swift_storage")) {
     statusCallback("Compute Paths from swift storage", 40);
     dirpath = chrisFiles.map((path: string) => path);
-  } else if (selectedConfig === "local_select") {
+  }
+
+  if (selectedConfig.includes("local_select")) {
     statusCallback("Compute Paths from local file upload", 40);
     const generateUnique = generatePathForLocalFile(data);
     const path = `${username}/uploads/${generateUnique}`;

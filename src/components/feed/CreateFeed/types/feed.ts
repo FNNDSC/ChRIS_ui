@@ -54,7 +54,7 @@ type CreateFeedPayload = {
     tags: Tag[];
   };
   [Types.SelectedConfig]: {
-    selectedConfig: string;
+    selectedConfig: string[];
   };
   [Types.AddChrisFile]: {
     file: string;
@@ -160,7 +160,7 @@ export interface CreateFeedState extends InputState {
   wizardOpen: boolean;
   step: number;
   data: CreateFeedData;
-  selectedConfig: string;
+  selectedConfig: string[];
   selectedPlugin?: Plugin;
   feedProgress: string;
   feedError: any;

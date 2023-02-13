@@ -75,7 +75,7 @@ describe("Testing CreateAnalysis", () => {
     cy.get("input#dir").type(`${users.username}/uploads`);
     cy.get("button.pf-c-button.pf-m-primary")
       .eq(3)
-      .should("have.text", "Next")
+      .should("have.text", "Done")
       .click();
   });
 

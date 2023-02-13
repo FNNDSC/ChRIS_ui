@@ -49,7 +49,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   }, [handleKeyDown])
 
   const getReviewDetails = () => {
-    if (selectedConfig === "fs_plugin") {
+    if (selectedConfig.includes("fs_plugin")) {
       let generatedCommand = "";
       if (requiredInput) {
         generatedCommand += unpackParametersIntoString(requiredInput);
@@ -68,16 +68,19 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
           />
         </Grid>
       );
-    } else if (selectedConfig === "multiple_select") {
+    }
+    if (selectedConfig.includes("multiple_select")) {
       return (
         <>
           <ChrisFileDetails chrisFiles={chrisFiles} />
           <LocalFileDetails localFiles={localFiles} />
         </>
       );
-    } else if (selectedConfig === "swift_storage") {
+    }
+    if (selectedConfig.includes("swift_storage")) {
       return <ChrisFileDetails chrisFiles={chrisFiles} />;
-    } else if (selectedConfig === "local_select") {
+    }
+   if (selectedConfig.includes( "local_select")) {
       return <LocalFileDetails localFiles={localFiles} />;
     }
   };
