@@ -49,7 +49,6 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   }, [handleKeyDown])
 
   const getReviewDetails = () => {
-    if (selectedConfig.includes("fs_plugin")) {
       let generatedCommand = "";
       if (requiredInput) {
         generatedCommand += unpackParametersIntoString(requiredInput);
@@ -58,32 +57,21 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
       if (dropdownInput) {
         generatedCommand += unpackParametersIntoString(dropdownInput);
       }
-
-      return (
-        <Grid hasGutter={true}>
+        return (
+          <>
+        {selectedConfig.includes("fs_plugin") && <Grid hasGutter={true}>
           <PluginDetails
             generatedCommand={generatedCommand}
             selectedPlugin={selectedPlugin}
             computeEnvironment={computeEnvironment}
           />
-        </Grid>
-      );
-    }
-    if (selectedConfig.includes("multiple_select")) {
-      return (
-        <>
-          <ChrisFileDetails chrisFiles={chrisFiles} />
-          <LocalFileDetails localFiles={localFiles} />
+        </Grid>}
+        {(selectedConfig.includes("swift_storage")) &&  <ChrisFileDetails chrisFiles={chrisFiles} />}
+        {(selectedConfig.includes( "local_select")) && <LocalFileDetails localFiles={localFiles}/>}
         </>
-      );
-    }
-    if (selectedConfig.includes("swift_storage")) {
-      return <ChrisFileDetails chrisFiles={chrisFiles} />;
-    }
-   if (selectedConfig.includes( "local_select")) {
-      return <LocalFileDetails localFiles={localFiles} />;
-    }
-  };
+      )
+
+};
 
   return (
     <div className="review">
