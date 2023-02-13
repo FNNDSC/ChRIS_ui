@@ -19,6 +19,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   } = state;
 
   const pipelineName = "";
+  console.log(state)
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
   const tagList = tags.map((tag: any) => (

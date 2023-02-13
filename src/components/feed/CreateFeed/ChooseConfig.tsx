@@ -23,14 +23,14 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
   const [isRightDrawerExpand, setRightDrawerExpand] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedCard, setSelectedCard] = useState("");
-  const [openFileUploader, setOpenFileUploader] = useState(false)
+  const [showDragAndDrop, setShowDragAndDrop] = useState(false)
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
     const selectedCard = selectedPluginId == "" ? event.currentTarget.id : selectedPluginId;
     setSelectedCard(selectedCard)
     if (selectedCard == "swift_storage" || selectedCard == "fs_plugin") {
       setRightDrawerExpand(true)
     }else if(selectedCard == "local_select"){
-      setOpenFileUploader(true)
+      setShowDragAndDrop(true)
     }
   }, [])
 
@@ -272,7 +272,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
                 </Card>
               </GridItem>
               <GridItem rowSpan={1}>
-                {!openFileUploader ? <Card
+                {!showDragAndDrop ? <Card
                   id="local_select"
                   isSelectableRaised
                   hasSelectableInput
@@ -312,7 +312,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
                 }
               </GridItem>
               <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {localFiles.length > 0 ? <LocalFileUpload /> : null}
+                {localFiles.length > 0 ? <LocalFileUpload setShowDragAndDrop={setShowDragAndDrop} /> : null}
               </GridItem>
             </Grid>
           </div>

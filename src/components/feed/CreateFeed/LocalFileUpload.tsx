@@ -5,12 +5,11 @@ import { LocalFile, Types } from "./types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 
 
-const LocalFileUpload: React.FC = () => {
+const LocalFileUpload = ({setShowDragAndDrop}: {setShowDragAndDrop: (show:boolean) => void}) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { localFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext);
 
-  console.log(localFiles)
 
   const handleDeleteDispatch = (file: string) => {
     dispatch({
@@ -26,7 +25,7 @@ const LocalFileUpload: React.FC = () => {
           selectedConfig: state.selectedConfig.filter((value) => value != 'local_select')
         }
       })
-      // setOpenFileUploader(false)
+      setShowDragAndDrop(false)
     }
   };
 
@@ -64,7 +63,7 @@ const FileUploadComponent = ({
   handleDeleteDispatch,
   className,
 }: FileUploadProps) => {
- 
+
   const handleKeyDown = useCallback(
     (e: any) => {
       if (e.code == "ArrowLeft") {
