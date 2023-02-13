@@ -83,17 +83,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     return true;
   }
 
-  const allRequiredFieldsNotEmpty = () => {
-    if(selectedConfig == "local_select"){
-      return  data.localFiles.length > 0
-    }else if(selectedConfig == "swift_storage"){
-      return data.chrisFiles.length > 0
-    }else if(selectedConfig == "fs_plugin"){
-      return RequiredParamsNotEmpty()
-    }else{
-      return selectedConfig.length > 0
-    }
-  }
+  const allRequiredFieldsNotEmpty:boolean = selectedConfig.includes("fs_plugin")? selectedPlugin !== undefined && RequiredParamsNotEmpty():  true;
+
 
   const deleteInput = (index: string) => {
     dispatch({
@@ -106,14 +97,24 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
   const handleDispatch = React.useCallback(
     (files: LocalFile[]) => {
+     const nonDuplicateArray = new Set([selectedConfig, "local_select"])
+    //  const allFiles  = [...data.localFiles, ...files]
       dispatch({
         type: Types.AddLocalFile,
         payload: {
           files,
         },
       });
+      if(!selectedConfig.includes("local_select")){
+        dispatch({
+       type: Types.SelectedConfig,
+        payload:{
+        selectedConfig: nonDuplicateArray
+       }
+       })
+      }
     },
-    [dispatch]
+    [dispatch, selectedConfig]
   );
   const handleChoseFilesClick = React.useCallback(
     (files: any[]) => {
@@ -276,7 +277,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         id: 2,
         name: "Analysis Data Selection",
         component: withSelectionAlert(chooseConfig),
-        enableNext: allRequiredFieldsNotEmpty(),
+        enableNext: allRequiredFieldsNotEmpty,
         canJumpTo: step > 2,
       },
       {

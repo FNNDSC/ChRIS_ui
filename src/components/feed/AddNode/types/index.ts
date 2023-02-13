@@ -113,7 +113,7 @@ export interface GuidedConfigProps extends InputProps {
 export interface chooseConfigProps extends GuidedConfigProps{
   user?: IUserState,
   handleFileUpload: (files: any[]) => void,
-  allRequiredFieldsNotEmpty: () => boolean
+  allRequiredFieldsNotEmpty: boolean
 }
 
 export interface EditorState {

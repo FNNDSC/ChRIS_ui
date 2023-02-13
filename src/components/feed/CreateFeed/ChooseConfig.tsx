@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Card, CardActions, CardBody, CardHeader, Drawer, CardTitle, Chip, DrawerActions, DrawerCloseButton, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelBody, DrawerPanelContent, Grid, GridItem, Tooltip, Button } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
-import { Types } from "./types/feed";
 import { FaUpload } from "react-icons/fa";
 import { BiCloudUpload } from "react-icons/bi";
 import { MdSettings } from "react-icons/md";
@@ -13,29 +12,30 @@ import DataPacks from "./DataPacks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { chooseConfigProps } from "../AddNode/types";
 import { Steps } from "antd";
+import { FileList } from "./helperComponents";
+import { Types } from "./types/feed";
+
 const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, pluginName, dropdownInput, selectedComputeEnv, setComputeEnviroment, requiredInput, allRequiredFieldsNotEmpty }: chooseConfigProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { selectedConfig, selectedPlugin } = state
-  const { isDataSelected, localFiles } = state.data;
+  const { isDataSelected, localFiles, chrisFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext)
-  const [isbottomDrawerExpand, setBottomDrawerExpand] = useState<boolean>(false);
+  const [isRightDrawerExpand, setRightDrawerExpand] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(0);
-
+  const [selectedCard, setSelectedCard] = useState("");
+  const [openFileUploader, setOpenFileUploader] = useState(false)
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
-    const selectedPlugin = selectedPluginId == "" ? event.currentTarget.id : selectedPluginId;
-    dispatch({
-      type: Types.SelectedConfig,
-      payload: {
-        selectedConfig: selectedPlugin
-      },
-    })
-    if (selectedPlugin == "swift_storage" || selectedPlugin == "fs_plugin") {
-      setBottomDrawerExpand(true)
+    const selectedCard = selectedPluginId == "" ? event.currentTarget.id : selectedPluginId;
+    setSelectedCard(selectedCard)
+    if (selectedCard == "swift_storage" || selectedCard == "fs_plugin") {
+      setRightDrawerExpand(true)
+    }else if(selectedCard == "local_select"){
+      setOpenFileUploader(true)
     }
-  }, [dispatch])
+  }, [])
 
   const handleKeyDown = useCallback((e: any) => {
-    if(e.target.closest('INPUT.required-params__textInput')) return;
+    if (e.target.closest('INPUT.required-params__textInput')) return;
     switch (e.code) {
       case "KeyG":
         handleClick(e, "fs_plugin")
@@ -47,7 +47,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
         handleClick(e, "swift_storage")
         break;
       case "ArrowRight":
-        if (allRequiredFieldsNotEmpty()) return;
+        if (allRequiredFieldsNotEmpty) return;
         else { onNext() }
         break;
       case "ArrowLeft":
@@ -59,14 +59,8 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
 
   }, [allRequiredFieldsNotEmpty, handleClick, onBack, onNext])
 
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [handleKeyDown])
   const onCloseClick = () => {
-    setBottomDrawerExpand(false);
+    setRightDrawerExpand(false);
   };
   const cardContainerStyle: any = {
     display: "flex",
@@ -114,10 +108,29 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
     setCurrentStep(currentStep - 1);
   };
 
-  const panelContent = (selectedConfig == "swift_storage") ? (
+  const reset = () => {
+    dispatch({
+      type: Types.SelectPlugin,
+      payload: {
+        undefined
+      },
+    });
+    dispatch({
+      type: Types.SelectedConfig,
+      payload:{
+       selectedConfig: state.selectedConfig.filter((value) => value !== "fs_plugin")
+      }
+     })
+  }
+
+  const navigationButtonStyle = {
+    display: "flex", width:"100%", justifyContent:"flex-end", gap:"2px", marginTop:"10px"
+  }
+
+  const panelContent = (selectedCard == "swift_storage") ? (
     <DrawerPanelContent defaultSize="65%" >
       <DrawerHead>
-        <span tabIndex={isbottomDrawerExpand ? 0 : -1}  >
+        <span tabIndex={isRightDrawerExpand ? 0 : -1}  >
         </span>
         <DrawerActions>
           <DrawerCloseButton onClick={onCloseClick} />
@@ -125,41 +138,85 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
       </DrawerHead>
       <DrawerPanelBody >
         {user && user.username && (<ChrisFileSelect username={user.username} />)}
+        <Grid style={navigationButtonStyle}>
+        <Button onClick={() => onCloseClick()} isDisabled={chrisFiles.length <= 0}>
+            Done
+        </Button>
+        </Grid>
       </DrawerPanelBody>
     </DrawerPanelContent>
-  ) : (selectedConfig == "fs_plugin") ? (
+  ) : (selectedCard == "fs_plugin") ? (
     <DrawerPanelContent defaultSize="65%">
       <DrawerHead>
-        <span tabIndex={isbottomDrawerExpand ? 0 : -1}  >
+        <span tabIndex={isRightDrawerExpand ? 0 : -1}  >
         </span>
         <DrawerActions>
           <DrawerCloseButton onClick={onCloseClick} />
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody>
+
         <Steps current={currentStep} items={items} />
-        <Grid style={{ marginTop: "1rem" }}>
+        <Grid style={{ marginTop: "1rem" }} >
           {steps[currentStep].content}
         </Grid>
-
-        {currentStep == 0 && (
+        <Grid  style={navigationButtonStyle}>
+          {currentStep == 0 && (
+          <Button onClick={() => reset()} isDisabled={selectedPlugin == undefined}>
+            Reset
+          </Button>
+          )}
+          {currentStep == 0 && (
           <Button onClick={() => next()} isDisabled={selectedPlugin == undefined}>
             Next
           </Button>
-        )}
-
-        {currentStep > 0 && (
-          <Button style={{ marginTop: '1rem' }} onClick={() => prev()}>
+          )}
+          {currentStep > 0 && (
+          <Button onClick={() => prev()}>
             Previous
           </Button>
-        )}
-
+         )}
+          {currentStep > 0 && (
+          <Button onClick={() => onCloseClick()} isDisabled={!allRequiredFieldsNotEmpty}>
+            Done
+          </Button>
+         )}
+         </Grid>
       </DrawerPanelBody>
     </DrawerPanelContent>
   ) : null
 
-  return (
-    <Drawer isExpanded={isbottomDrawerExpand} position="right"  >
+  const fileList =
+    chrisFiles.length > 0
+      ? chrisFiles.map((file: string, index: number) => (
+        <React.Fragment key={index}>
+          <FileList file={file} index={index} />
+        </React.Fragment>
+      ))
+      : null
+
+   useEffect(() => {
+    const drawerPanel = document.querySelectorAll<HTMLElement>('.pf-c-drawer__panel')[0];
+    const footer = document.querySelectorAll<HTMLElement>('.pf-c-wizard__footer')[0]
+        if(isRightDrawerExpand && drawerPanel && footer){
+          drawerPanel.style.zIndex = "1000";
+          footer.style.zIndex = "-1"
+        }else if(drawerPanel && footer){
+          drawerPanel.style.zIndex = "";
+          footer.style.zIndex = ""
+        }
+   }, [isRightDrawerExpand])
+
+   useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleKeyDown])
+
+
+   return (
+    <Drawer isExpanded={isRightDrawerExpand} position="right"  >
       <DrawerContent panelContent={panelContent} >
         <DrawerContentBody>
           <div className="local-file-upload">
@@ -180,7 +237,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
                   hasSelectableInput
                   style={cardContainerStyle}
                   onClick={handleClick}
-                  isSelected={selectedConfig === 'fs_plugin'}
+                  isSelected={selectedConfig.includes('fs_plugin')}
                 >
                   <CardHeader style={cardHeaderStyle}>
                     <CardActions >
@@ -201,7 +258,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
                   isDisabledRaised={isDataSelected}
                   style={cardContainerStyle}
                   onClick={handleClick}
-                  isSelected={selectedConfig === 'swift_storage'}
+                  isSelected={selectedConfig.includes('swift_storage')}
                 >
 
                   <CardHeader style={cardHeaderStyle}>
@@ -215,14 +272,14 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
                 </Card>
               </GridItem>
               <GridItem rowSpan={1}>
-                {selectedConfig != "local_select" ? <Card
+                {!openFileUploader ? <Card
                   id="local_select"
                   isSelectableRaised
                   hasSelectableInput
                   isDisabledRaised={isDataSelected}
                   style={cardContainerStyle}
                   onClick={handleClick}
-                  isSelected={selectedConfig === 'local_select'}
+                  isSelected={selectedConfig.includes('local_select')}
                 >
                   <CardHeader style={cardHeaderStyle}>
                     <Tooltip content="Press the U key to select">
@@ -236,7 +293,25 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
               </GridItem>
             </Grid>
             <Grid hasGutter span={12}>
-              <GridItem>
+              <GridItem xl2={4} md={4} xl={4} sm={12}>
+                {selectedPlugin &&
+                <>
+                <h1>Selected Plugin:</h1>
+                 <p>{selectedPlugin.data.title}</p>
+                </>
+                }
+              </GridItem>
+              <GridItem xl2={4} md={4} xl={4} sm={12}>
+                {chrisFiles.length > 0 &&
+                  <>
+                    <h1>Files to add to new analysis:</h1>
+                    <div className="file-list">
+                      {fileList}
+                    </div>
+                  </>
+                }
+              </GridItem>
+              <GridItem xl2={4} md={4} xl={4} sm={12}>
                 {localFiles.length > 0 ? <LocalFileUpload /> : null}
               </GridItem>
             </Grid>

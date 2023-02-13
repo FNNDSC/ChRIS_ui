@@ -10,6 +10,8 @@ const LocalFileUpload: React.FC = () => {
   const { localFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext);
 
+  console.log(localFiles)
+
   const handleDeleteDispatch = (file: string) => {
     dispatch({
       type: Types.RemoveLocalFile,
@@ -17,6 +19,15 @@ const LocalFileUpload: React.FC = () => {
         filename: file,
       },
     });
+    if(localFiles.length == 0){
+      dispatch({
+        type: Types.SelectedConfig,
+        payload:{
+          selectedConfig: state.selectedConfig.filter((value) => value != 'local_select')
+        }
+      })
+      // setOpenFileUploader(false)
+    }
   };
 
   return (

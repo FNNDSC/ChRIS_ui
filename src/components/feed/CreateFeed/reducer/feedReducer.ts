@@ -41,7 +41,7 @@ export function getInitialState(
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
     selectedPlugin: undefined,
-    selectedConfig: isInitDataSelected ? "swift_storage" : "",
+    selectedConfig: isInitDataSelected ? ["swift_storage"] : [],
     requiredInput: {},
     dropdownInput: {},
     feedProgress: "",
@@ -89,16 +89,7 @@ export const createFeedReducer = (
       clearCache();
       return {
         ...state,
-        data: {
-          ...state.data,
-          chrisFiles: [],
-          localFiles: [],
-          checkedKeys: {},
-        },
-        requiredInput: {},
-        dropdownInput: {},
-        selectedPlugin: undefined,
-        selectedConfig: action.payload.selectedConfig,
+        selectedConfig: [...action.payload.selectedConfig]
       };
     case Types.AddChrisFile:
       const file = action.payload.file;
@@ -216,7 +207,7 @@ export const createFeedReducer = (
         data: getDefaultCreateFeedData(),
         step: 1,
         selectedPlugin: undefined,
-        selectedConfig: "",
+        selectedConfig: [],
         requiredInput: {},
         dropdownInput: {},
         computeEnvironment: "",

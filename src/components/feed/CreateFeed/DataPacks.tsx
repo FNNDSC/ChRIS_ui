@@ -95,7 +95,16 @@ const DataPacks: React.FC<DataPacksReduxProp> = (props: DataPacksReduxProp) => {
         checked,
       },
     });
-  }, [dispatch, props])
+    if(checked){
+      const nonDuplicateArray = new Set([...state.selectedConfig, "fs_plugin"])
+       dispatch({
+        type: Types.SelectedConfig,
+        payload:{
+         selectedConfig: Array.from(nonDuplicateArray)
+        }
+       })
+    }
+  }, [dispatch, props, state.selectedConfig])
 
   const handleKeyDown = useCallback((e: any, plugin: any = null) => {
     if (e.target.closest('INPUT#filter_plugin')) { return }
