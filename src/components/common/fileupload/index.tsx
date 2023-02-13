@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { MdOutlineUploadFile } from "react-icons/md";
 import { CreateFeedContext } from "../../feed/CreateFeed/context";
+import { Types } from "../../feed/CreateFeed/types/feed";
 
 const baseStyle: React.CSSProperties = {
   flex: 1,
@@ -41,31 +42,39 @@ const rejectStyle = {
 const DragAndUpload = ({
   handleLocalUploadFiles,
 }: {
-  handleLocalUploadFiles: (files: any[]) => void;
+  handleLocalUploadFiles: (files: any[]) => void,
 }) => {
+
+  const onDrop = useCallback((acceptedFiles:any) => {
+    handleLocalUploadFiles(acceptedFiles)
+  },[handleLocalUploadFiles])
+
   const {
     getRootProps,
     isFocused,
     isDragReject,
-    acceptedFiles,
     isDragActive,
     isDragAccept,
     getInputProps,
     open,
-  } = useDropzone();
-  const { state } = useContext(CreateFeedContext);
-
-  React.useEffect(() => {
-    if (acceptedFiles.length > 0) {
-      handleLocalUploadFiles(acceptedFiles);
-    }
-  }, [acceptedFiles, handleLocalUploadFiles, state.data.localFiles.length]);
+  } = useDropzone({onDrop});
+  const { state, dispatch } = useContext(CreateFeedContext);
 
   React.useEffect(() => {
     if (state.data.localFiles.length == 0) {
-      open()
+      if(state.selectedConfig.includes('local_select')){
+        dispatch({
+          type: Types.SelectedConfig,
+          payload:{
+            selectedConfig: state.selectedConfig.filter((value) => value != 'local_select')
+          }
+        })
+      }else{
+        open()
+
+      }
     }
-  }, [open, state.data.localFiles.length])
+  }, [dispatch, open, state.data.localFiles.length, state.selectedConfig])
 
   const handleKeyDown = useCallback((e: any) => {
     if (e.code == "KeyU") {
