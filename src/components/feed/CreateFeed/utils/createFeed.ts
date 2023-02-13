@@ -43,9 +43,7 @@ export const createFeed = async (
       selectedConfig,
       selectedPipeline
     );
-  }
-
-  if (selectedConfig.includes("fs_plugin")) {
+  }else if (selectedConfig.includes("fs_plugin")) {
     feed = await createFeedInstanceWithFS(
       dropdownInput,
       requiredInput,
@@ -74,9 +72,7 @@ export const createFeedInstanceWithDircopy = async (
   if (selectedConfig.includes( "swift_storage")) {
     statusCallback("Compute Paths from swift storage", 40);
     dirpath = chrisFiles.map((path: string) => path);
-  }
-
-  if (selectedConfig.includes("local_select")) {
+  }else if (selectedConfig.includes("local_select")) {
     statusCallback("Compute Paths from local file upload", 40);
     const generateUnique = generatePathForLocalFile(data);
     const path = `${username}/uploads/${generateUnique}`;
