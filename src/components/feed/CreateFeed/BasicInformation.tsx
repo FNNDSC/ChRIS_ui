@@ -119,7 +119,7 @@ const BasicInformation: React.FC = () => {
               emptyLabel={availableTagsLoaded ? "No tags found" : "Loading tags..."}
             />
           </FormGroup>
-        </Form> 
+        </Form>
   );
 };
 
