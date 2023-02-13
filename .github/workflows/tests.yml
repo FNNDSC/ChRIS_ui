@@ -1,6 +1,3 @@
-# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
 name: Tests
 
 on:
@@ -12,33 +9,31 @@ on:
       - master
 
 jobs:
-  cypress-run:
-    runs-on: ubuntu-20.04
+  test:
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: "0"  # necessary for `npm run print-version`
 
-      - name: setup CUBE
+      - name: Spin up CUBE
         id: cube
         uses: FNNDSC/miniChRIS-docker@master
         with:
           plugins: |
-            https://chrisstore.co/api/v1/plugins/2/
-            https://chrisstore.co/api/v1/plugins/152/
+            pl-mri10yr06mo01da_normal
+            pl-bulk-rename
 
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
-      
-      - run: npm ci --legacy-peer-deps
-      - run: npm install --legacy-peer-deps
- 
-      - name: Cypress run
+          node-version: "18.x"
+
+      - name: Cypress Tests
         uses: cypress-io/github-action@v4
         with:
-          start: npm run dev
-          install-command: npm install --legacy-peer-deps
-          wait-on: "http://localhost:3000"
-          # wait for 5 min for the server to respond
-          wait-on-timeout: 600
+          build: npm run build
+          start: env PORT=8088 npm start
+          wait-on: "http://localhost:8088"
+          wait-on-timeout: 60
