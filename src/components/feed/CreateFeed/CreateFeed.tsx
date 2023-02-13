@@ -97,24 +97,31 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
 
   const handleDispatch = React.useCallback(
     (files: LocalFile[]) => {
-     const nonDuplicateArray = new Set([...selectedConfig, "local_select"])
-    //  const allFiles  = [...data.localFiles, ...files]
-      dispatch({
-        type: Types.AddLocalFile,
-        payload: {
-          files,
-        },
-      });
+        const seen = new Set()
+        const withDuplicateFiles =  [...state.data.localFiles, ...files ]
+        const result =  withDuplicateFiles.filter(el => {
+         const duplicate = seen.has(el.name);
+         seen.add(el.name);
+         return !duplicate;
+       });
+       dispatch({
+         type: Types.AddLocalFile,
+         payload: {
+           files:result,
+         },
+       });
+
       if(!selectedConfig.includes("local_select")){
+        const nonDuplicateConfig = new Set([...selectedConfig, "local_select"])
         dispatch({
        type: Types.SelectedConfig,
         payload:{
-        selectedConfig: nonDuplicateArray
+        selectedConfig: nonDuplicateConfig
        }
        })
       }
     },
-    [dispatch, selectedConfig]
+    [dispatch, selectedConfig, state.data.localFiles]
   );
   const handleChoseFilesClick = React.useCallback(
     (files: any[]) => {

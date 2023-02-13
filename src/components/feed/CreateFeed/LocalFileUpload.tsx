@@ -5,7 +5,7 @@ import { LocalFile, Types } from "./types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 
 
-const LocalFileUpload = ({setShowDragAndDrop}: {setShowDragAndDrop: (show:boolean) => void}) => {
+const LocalFileUpload = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { localFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext);
@@ -18,15 +18,6 @@ const LocalFileUpload = ({setShowDragAndDrop}: {setShowDragAndDrop: (show:boolea
         filename: file,
       },
     });
-    if(localFiles.length == 0){
-      dispatch({
-        type: Types.SelectedConfig,
-        payload:{
-          selectedConfig: state.selectedConfig.filter((value) => value != 'local_select')
-        }
-      })
-      setShowDragAndDrop(false)
-    }
   };
 
   return (

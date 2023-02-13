@@ -214,6 +214,11 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
     }
   }, [handleKeyDown])
 
+   useEffect(() => {
+     if(localFiles.length == 0){
+      setShowDragAndDrop(false);
+     }
+   }, [localFiles.length])
 
    return (
     <Drawer isExpanded={isRightDrawerExpand} position="right"  >
@@ -289,7 +294,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
                   <CardTitle><FaUpload size="40" /><br />Upload New Data</CardTitle>
                   <CardBody>Upload new files from your local computer</CardBody>
                 </Card> :
-                  <DragAndUpload handleLocalUploadFiles={handleFileUpload} />}
+                  <DragAndUpload handleLocalUploadFiles={handleFileUpload}  />}
               </GridItem>
             </Grid>
             <Grid hasGutter span={12}>
@@ -312,7 +317,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
                 }
               </GridItem>
               <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {localFiles.length > 0 ? <LocalFileUpload setShowDragAndDrop={setShowDragAndDrop} /> : null}
+                {localFiles.length > 0 ? <LocalFileUpload /> : null}
               </GridItem>
             </Grid>
           </div>
