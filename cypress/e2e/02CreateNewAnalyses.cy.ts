@@ -65,7 +65,7 @@ describe("Testing CreateAnalysis", () => {
   it("07 Selects the Analysis Synthesis plugin", () => {
     cy.get("input#pl-dircopy").check();
     cy.get("button.pf-c-button.pf-m-primary")
-      .eq(1)
+      .eq(2)
       .should("have.text", "Next")
       .click();
     cy.wait(2000);
