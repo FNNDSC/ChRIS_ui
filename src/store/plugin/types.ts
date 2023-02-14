@@ -8,7 +8,10 @@ import keyMirror from "keymirror";
 import { PluginParameter } from "@fnndsc/chrisapi";
 
 export interface IPluginState {
-  parameters?: PluginParameter[];
+  parameters?: {
+    required: PluginParameter[];
+    dropdown: PluginParameter[];
+  };
   computeEnv?: any[];
   nodeOperations: {
     [key: string]: boolean;

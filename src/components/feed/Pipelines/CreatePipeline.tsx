@@ -11,7 +11,7 @@ const CreatingPipeline = ({
   state,
   handleDispatchPipelines,
 }: CreatePipelineProps) => {
-  const { pluginParameters, pluginPipings, title, input } = state;
+  const { pluginParameters, pluginPipings, title, parameterList } = state;
   const [creatingPipeline, setCreatingPipeline] = React.useState({
     loading: false,
     error: {},
@@ -29,7 +29,7 @@ const CreatingPipeline = ({
           //@ts-ignore
           pluginParameters.data,
           piping.data.id,
-          input
+          parameterList
         );
 
         const id = pluginPipings.findIndex(
@@ -121,24 +121,8 @@ const pluginParameterDefaults = (parameters: any[], id: number, input: any) => {
 
   const defaults = [];
 
-  if (currentInput) {
-    let totalInput = {};
-
-    if (currentInput.dropdownInput) {
-      totalInput = { ...totalInput, ...currentInput.dropdownInput };
-    }
-    if (currentInput.requiredInput) {
-      totalInput = { ...totalInput, ...currentInput.requiredInput };
-    }
-
-    for (const input in totalInput) {
-      //@ts-ignore
-      const parameter = totalInput[input];
-      defaults.push({
-        name: parameter.paramName,
-        default: parameter.value,
-      });
-    }
+  if (currentInput && currentInput.length > 0) {
+    defaults.push(...currentInput);
   } else {
     for (let i = 0; i < parameters.length; i++) {
       const parameter = parameters[i];

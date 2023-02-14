@@ -20,10 +20,12 @@ import { addFeed } from "../../../store/feed/actions";
 import { createFeed } from "./utils/createFeed";
 import { MainRouterContext } from "../../../routes";
 import { ApplicationState } from "../../../store/root/applicationState";
-import { InputIndex } from "../AddNode/types";
+
 import "./createfeed.scss";
 import { PipelineTypes } from "./types/pipeline";
-import { useSelector } from "react-redux";
+
+import { AddNodeContext } from "../AddNode/context";
+import { useTypedSelector } from "../../../store/hooks";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
@@ -32,26 +34,19 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const { state, dispatch } = useContext(CreateFeedContext);
   const { state: pipelineState, dispatch: pipelineDispatch } =
     useContext(PipelineContext);
+  const { state: addNodeState } = useContext(AddNodeContext);
+  const { pluginMeta, selectedPluginFromMeta } = addNodeState;
   const routerContext = useContext(MainRouterContext);
-
-  const {
-    wizardOpen,
-    step,
-    data,
-    selectedConfig,
-    selectedPlugin,
-    dropdownInput,
-    requiredInput,
-    computeEnvironment,
-  } = state;
-  const { parameters: params } = useSelector((state: ApplicationState) => state.plugin)
+  const params = useTypedSelector((state) => state.plugin.parameters)
+  const { wizardOpen, step, data, selectedConfig } = state;
+  const { dropdownInput, requiredInput } = addNodeState;
   const { pipelineData, selectedPipeline } = pipelineState;
   const enableSave =
     data.chrisFiles.length > 0 ||
-      data.localFiles.length > 0 ||
-      Object.keys(requiredInput).length > 0 ||
-      Object.keys(dropdownInput).length > 0 ||
-      selectedPlugin !== undefined
+    data.localFiles.length > 0 ||
+    Object.keys(requiredInput).length > 0 ||
+    Object.keys(dropdownInput).length > 0 ||
+    pluginMeta !== undefined
       ? true
       : false;
   const getStepName = (): string => {
@@ -67,33 +62,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     return stepNames[step - 1];
   };
 
-  const RequiredParamsNotEmpty = () => {
-    if (params && params.length > 0) {
-      for (const param of params) {
-        const paramObject = requiredInput[param.data.id]
-        if (paramObject && param.data.optional == false) {
-          if (paramObject.value.length == 0) return false
-        } else if (!paramObject && param.data.optional == true) {
-          return true
-        } else {
-          return false
-        }
-      }
-    }
-    return true;
-  }
 
-  const allRequiredFieldsNotEmpty:boolean = selectedConfig.includes("fs_plugin")? selectedPlugin !== undefined && RequiredParamsNotEmpty():  true;
+  const allRequiredFieldsNotEmpty:boolean = selectedConfig.includes("fs_plugin")? params?.required.length == Object.keys(requiredInput).length:  true;
 
-
-  const deleteInput = (index: string) => {
-    dispatch({
-      type: Types.DeleteInput,
-      payload: {
-        input: index,
-      },
-    });
-  };
 
   const handleDispatch = React.useCallback(
     (files: LocalFile[]) => {
@@ -136,50 +107,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     [handleDispatch]
   );
 
-  const setComputeEnvironment = React.useCallback(
-    (computeEnvironment: string) => {
-      dispatch({
-        type: Types.SetComputeEnvironment,
-        payload: {
-          computeEnvironment,
-        },
-      });
-    },
-    [dispatch]
-  );
-
-  const inputChange = (
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean
-  ) => {
-    const input: InputIndex = {};
-    input["id"] = id;
-    input["flag"] = flag;
-    input["value"] = value;
-    input["type"] = type;
-    input["placeholder"] = placeholder;
-    if (required === true) {
-      dispatch({
-        type: Types.RequiredInput,
-        payload: {
-          id,
-          input,
-        },
-      });
-    } else {
-      dispatch({
-        type: Types.DropdownInput,
-        payload: {
-          id,
-          input,
-        },
-      });
-    }
-  };
 
   const getCreationStatus = (status: string, value: number) => {
     dispatch({
@@ -198,6 +125,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
+
   const handleSave = async () => {
     // Set the progress to 'Started'
     const username = user && user.username;
@@ -206,7 +134,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         state.data,
         dropdownInput,
         requiredInput,
-        selectedPlugin,
+        selectedPluginFromMeta,
         username,
         pipelineData,
         getCreationStatus,
@@ -252,20 +180,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   };
 
   const basicInformation = <BasicInformation />;
-  let pluginName = selectedPlugin?.data.title
-    ? selectedPlugin?.data.title
-    : selectedPlugin?.data.name;
-  const pluginVersion = (pluginName += `${selectedPlugin?.data.version}`);
-  const chooseConfig = <ChooseConfig user={user} handleFileUpload={handleChoseFilesClick} defaultValueDisplay={false}
-    renderComputeEnv={true}
-    inputChange={inputChange}
-    deleteInput={deleteInput}
-    allRequiredFieldsNotEmpty={allRequiredFieldsNotEmpty}
-    pluginName={pluginVersion}
-    dropdownInput={dropdownInput}
-    requiredInput={requiredInput}
-    selectedComputeEnv={computeEnvironment}
-    setComputeEnviroment={setComputeEnvironment} />;
+  const chooseConfig = <ChooseConfig user={user} handleFileUpload={handleChoseFilesClick} />;
 
   const pipelines = <PipelineContainer />;
   const review = <Review handleSave={handleSave} />;
@@ -332,6 +247,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
             return (
               <>
                 <Button
+                  data-test-id="create-analysis"
                   style={{ margin: "0.5em", padding: "0.5em 2em" }}
                   variant="primary"
                   type="submit"
