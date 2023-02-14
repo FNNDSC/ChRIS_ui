@@ -118,6 +118,21 @@ const ChooseConfig = ({ handleFileUpload, user}: chooseConfigProps) => {
        selectedConfig: state.selectedConfig.filter((value) => value !== "fs_plugin")
       }
      })
+     nodeDispatch({
+      type: AddNodeTypes.DropdownInput,
+      payload: {
+        input: {},
+        editorValue: true,
+      },
+    });
+
+    nodeDispatch({
+      type: AddNodeTypes.RequiredInput,
+      payload: {
+        input: {},
+        editorValue: true,
+      },
+    });
   }
 
   const navigationButtonStyle = {

@@ -177,7 +177,7 @@ const DataPacks: React.FC = () => {
               onKeyDown={(e) => handleKeyDown(e, plugin)}
               description={title}
               onChange={(checked: any) => handleOnChange(checked, plugin)}
-              checked={pluginMeta?.data.id === plugin.data.id}
+              checked={pluginMeta && pluginMeta.data.id === plugin.data.id}
             />
           );
         })}
