@@ -69,7 +69,7 @@ export const createFeedInstanceWithDircopy = async (
   let dirpath: string[] = [];
   let feed;
 
-  if (selectedConfig.includes( "swift_storage")) {
+  if (selectedConfig.includes("swift_storage")) {
     statusCallback("Compute Paths from swift storage", 40);
     dirpath = chrisFiles.map((path: string) => path);
   }else if (selectedConfig.includes("local_select")) {
