@@ -74,20 +74,25 @@ describe("Testing CreateAnalysis", () => {
   it("08 Goes to Parameter Configuration", () => {
     cy.get("input#dir").type(`${users.username}/uploads`);
     cy.get("button.pf-c-button.pf-m-primary")
-      .eq(3)
+      .eq(2)
       .should("have.text", "Done")
-      .click();
+      .click()
   });
 
   it("09 Goes to Registered Pipelines", () => {
     cy.get('[data-test-id="create-analysis"]').click();
+
   });
 
   it("11 Goes to Review", () => {
+    cy.get("button.pf-c-button.pf-m-primary").eq(2).click().wait(2000);
+  });
+
+  it("12 Create analysis", () => {
     cy.get("button.pf-c-button.pf-m-primary").eq(1).click().wait(2000);
   });
 
-  it("12 Asserts new analysis has been created", () => {
+  it("13 Asserts new analysis has been created", () => {
     cy.get("span.feed-list__name").contains("a", `${users.testname}`);
   });
 });
