@@ -41,16 +41,16 @@ const Pipelines = ({
   handleSetPipelineEnvironments,
   handleSetCurrentNodeTitle,
   handleSetGeneralCompute,
-  handleTypedInput,
-  handleDeleteInput,
+
   handleSetCurrentComputeEnv,
+  handleFormParameters,
 }: PipelinesProps) => {
   const { pipelineData, selectedPipeline, pipelines } = state;
   const [fetchState, setFetchState] = React.useState({
     loading: false,
     error: {},
   });
-  const { onNext, onBack } = useContext(WizardContext)
+  const { onNext, onBack } = useContext(WizardContext);
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -124,98 +124,116 @@ const Pipelines = ({
     });
   };
 
-  const handleOnButtonClick = useCallback(async (pipeline: Pipeline) => {
-    if (!(selectedPipeline === pipeline.data.id)) {
-      handlePipelineSecondaryResource(pipeline);
-      if (!pipelineData[pipeline.data.id]) {
-        const { resources } =
-          await generatePipelineWithName(
+  const handleOnButtonClick = useCallback(
+    async (pipeline: Pipeline) => {
+      if (!(selectedPipeline === pipeline.data.id)) {
+        handlePipelineSecondaryResource(pipeline);
+        if (!pipelineData[pipeline.data.id]) {
+          const { resources } = await generatePipelineWithName(
             pipeline.data.name
           );
+          handleSetPipelineResources({
+            ...resources,
+            pipelineId: pipeline.data.id,
+          });
+          const { pluginPipings } = resources;
+
+          for (let i = 0; i < pluginPipings.length; i++) {
+            const piping = pluginPipings[i];
+            const computeEnvData = await fetchComputeInfo(
+              piping.data.plugin_id,
+              piping.data.id
+            );
+
+            if (computeEnvData) {
+              handleSetPipelineEnvironments(pipeline.data.id, computeEnvData);
+            }
+          }
+        }
+      } else {
+        handleCleanResources();
+      }
+    },
+    [
+      handleCleanResources,
+      handlePipelineSecondaryResource,
+      handleSetPipelineEnvironments,
+      handleSetPipelineResources,
+      pipelineData,
+      selectedPipeline,
+    ]
+  );
+
+  const handleOnExpand = useCallback(
+    async (pipeline: Pipeline) => {
+      if (!(selectedPipeline === pipeline.data.id)) {
+        handlePipelineSecondaryResource(pipeline);
+      } else {
+        handleCleanResources();
+      }
+      if (
+        !(expanded && expanded[pipeline.data.id]) ||
+        !state.pipelineData[pipeline.data.id]
+      ) {
+        const { resources } = await generatePipelineWithName(
+          pipeline.data.name
+        );
+
         handleSetPipelineResources({
           ...resources,
           pipelineId: pipeline.data.id,
         });
-        const { pluginPipings } = resources;
 
-        for (let i = 0; i < pluginPipings.length; i++) {
-          const piping = pluginPipings[i];
-          const computeEnvData = await fetchComputeInfo(
-            piping.data.plugin_id,
-            piping.data.id
-          );
-
-          if (computeEnvData) {
-            handleSetPipelineEnvironments(
-              pipeline.data.id,
-              computeEnvData
-            );
-          }
-        }
+        setExpanded({
+          ...expanded,
+          [pipeline.data.id]: true,
+        });
+      } else {
+        setExpanded({
+          ...expanded,
+          [pipeline.data.id]: false,
+        });
       }
-    } else {
-      handleCleanResources();
-    }
-  }, [handleCleanResources, handlePipelineSecondaryResource, handleSetPipelineEnvironments, handleSetPipelineResources, pipelineData, selectedPipeline])
+    },
+    [
+      expanded,
+      handleCleanResources,
+      handlePipelineSecondaryResource,
+      handleSetPipelineResources,
+      selectedPipeline,
+      state.pipelineData,
+    ]
+  );
 
-  const handleOnExpand = useCallback(async ( pipeline:Pipeline) => {
-    
-    if (!(selectedPipeline === pipeline.data.id)) {
-      handlePipelineSecondaryResource(pipeline);
-    } else {
-      handleCleanResources();
-    }
-    if (
-      !(expanded && expanded[pipeline.data.id]) ||
-      !state.pipelineData[pipeline.data.id]
-    ) {
-      const { resources } = await generatePipelineWithName(
-        pipeline.data.name
-      );
+  const handleKeyDown = useCallback(
+    (e: any, pipeline: Pipeline) => {
+      if (e.code == "Enter" && e.target.closest("DIV.pf-c-data-list__toggle")) {
+        e.preventDefaut();
+        handleOnExpand(pipeline);
+      }
+    },
+    [handleOnExpand]
+  );
 
-      handleSetPipelineResources({
-        ...resources,
-        pipelineId: pipeline.data.id,
-      });
-
-      setExpanded({
-        ...expanded,
-        [pipeline.data.id]: true,
-      });
-    } else {
-      setExpanded({
-        ...expanded,
-        [pipeline.data.id]: false,
-      });
-    }
-  }, [expanded, handleCleanResources, handlePipelineSecondaryResource, handleSetPipelineResources, selectedPipeline, state.pipelineData])
-
-  const handleKeyDown = useCallback((e: any, pipeline: Pipeline) => {
-    
-     if(e.code == "Enter" && e.target.closest('DIV.pf-c-data-list__toggle')){
-      e.preventDefaut()
-      handleOnExpand(pipeline)
-    }
-  }, [handleOnExpand])
-
-  const handleBrowserKeyDown = useCallback((e: any) => {
-     if (e.code == "ArrowLeft") {
-      onBack()
-    } else if (e.code == "ArrowRight") {
-      onNext()
-    }
-  }, [onBack, onNext])
-
+  const handleBrowserKeyDown = useCallback(
+    (e: any) => {
+      if (e.code == "ArrowLeft") {
+        onBack();
+      } else if (e.code == "ArrowRight") {
+        onNext();
+      }
+    },
+    [onBack, onNext]
+  );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleBrowserKeyDown)
+    window.addEventListener("keydown", handleBrowserKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleBrowserKeyDown)
-    }
-  }, [handleBrowserKeyDown])
+      window.removeEventListener("keydown", handleBrowserKeyDown);
+    };
+  }, [handleBrowserKeyDown]);
 
   return (
-
     <>
       <UploadJson handleDispatch={handleUploadDispatch} />
       <Pagination
@@ -311,7 +329,7 @@ const Pipelines = ({
                   isHidden={!(expanded && expanded[pipeline.data.id])}
                 >
                   {(expanded && expanded[pipeline.data.id]) ||
-                    state.pipelineData[pipeline.data.id] ? (
+                  state.pipelineData[pipeline.data.id] ? (
                     <>
                       <div style={{ display: "flex", background: "black" }}>
                         <Tree
@@ -336,11 +354,10 @@ const Pipelines = ({
                         pipeline={pipeline}
                         currentPipelineId={pipeline.data.id}
                         state={state.pipelineData[pipeline.data.id]}
-                        handleTypedInput={handleTypedInput}
                         handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
                         handleDispatchPipelines={handleDispatchPipelines}
-                        handleDeleteInput={handleDeleteInput}
                         handleSetCurrentComputeEnv={handleSetCurrentComputeEnv}
+                        handleFormParameters={handleFormParameters}
                       />
                     </>
                   ) : (
@@ -353,7 +370,6 @@ const Pipelines = ({
         )}
       </DataList>
     </>
-
   );
 };
 

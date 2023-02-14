@@ -1,11 +1,11 @@
-import React from 'react'
-import { GridItem } from '@patternfly/react-core'
-import { Plugin } from '@fnndsc/chrisapi'
+import React from "react";
+import { GridItem } from "@patternfly/react-core";
+import { Plugin} from "@fnndsc/chrisapi";
 
 interface PluginDetailsProps {
-  generatedCommand: string
-  selectedPlugin?: Plugin
-  computeEnvironment: string
+  generatedCommand: string;
+  selectedPlugin?: Plugin;
+  computeEnvironment: string;
 }
 
 export const PluginDetails: React.FC<PluginDetailsProps> = ({
@@ -13,8 +13,8 @@ export const PluginDetails: React.FC<PluginDetailsProps> = ({
   selectedPlugin,
   computeEnvironment,
 }: PluginDetailsProps) => {
-  const { version, title, name } = selectedPlugin?.data
-  const pluginName = `${title ? title : `${name} v.${version}`}`
+  const { version, title, name } = selectedPlugin?.data;
+  const pluginName = `${title ? title : `${name} v.${version}`}`;
   return (
     <>
       <GridItem sm={4} md={2}>
@@ -45,4 +45,4 @@ export const PluginDetails: React.FC<PluginDetailsProps> = ({
       </GridItem>
     </>
   );
-}
+};

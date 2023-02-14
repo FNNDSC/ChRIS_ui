@@ -1,5 +1,6 @@
-import { Plugin, PluginParameter, PluginInstance } from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter, PluginInstance,PluginMeta} from "@fnndsc/chrisapi";
 import { IUserState } from "../../../../store/user/types";
+
 
 export interface InputIndex {
   [key: string]: string;
@@ -20,10 +21,7 @@ export interface InputState {
 }
 
 export interface BasicConfigurationProps {
-  nodes: PluginInstance[];
-  parent: PluginInstance;
-  selectedPlugin?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
+  selectedPlugin: PluginInstance;
 }
 
 export interface BasicConfigurationState {
@@ -32,19 +30,12 @@ export interface BasicConfigurationState {
   nodes: PluginInstance[];
 }
 
-export interface PluginListProps {
-  handlePluginSelect: (plugin: Plugin) => void;
-  plugins?: Plugin[];
-  selected?: Plugin;
+export interface PluginMetaListProps {
+  pluginMetas?: PluginMeta[];
 }
 
 export interface PluginListState {
   filter: string;
-}
-
-export interface PluginSelectProps {
-  selected?: Plugin;
-  handlePluginSelect: (plugin: Plugin) => void;
 }
 
 export interface PluginSelectState {
@@ -53,19 +44,9 @@ export interface PluginSelectState {
   recentPlugins?: Plugin[];
 }
 
-export interface AddNodeState extends InputState {
-  stepIdReached: number;
-  nodes?: PluginInstance[];
-  data: {
-    plugin?: Plugin;
-    parent?: PluginInstance;
-  };
-  selectedComputeEnv: string;
-  errors: {
-    [key: string]: string[];
-  };
-  editorValue: string;
-  loading: boolean;
+export interface PluginMetaSelectState {
+  expanded: string;
+  allPlugins?: PluginMeta[];
 }
 
 export interface AddNodeProps {
@@ -75,7 +56,10 @@ export interface AddNodeProps {
     error: any;
     loading: boolean;
   };
-  params?: PluginParameter[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   addNode: (item: {
     pluginItem: PluginInstance;
     nodes?: PluginInstance[];
@@ -90,30 +74,10 @@ export interface GuidedConfigState {
   alertVisible: boolean;
   docsExpanded: boolean;
 }
-export interface GuidedConfigProps extends InputProps {
-  defaultValueDisplay: boolean;
-  renderComputeEnv?: boolean;
-  params?: PluginParameter[];
-  computeEnvs?: any[];
-  inputChange(
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean,
-    paramName?: string
-  ): void;
-  deleteInput(input: string): void;
-  selectedComputeEnv?: string;
-  setComputeEnviroment?: (computeEnv: string) => void;
-  pluginName: string;
-}
 
-export interface chooseConfigProps extends GuidedConfigProps{
+export interface chooseConfigProps {
   user?: IUserState,
   handleFileUpload: (files: any[]) => void,
-  allRequiredFieldsNotEmpty: boolean
 }
 
 export interface EditorState {
@@ -136,42 +100,15 @@ export interface SimpleDropdownState {
 }
 
 export interface SimpleDropdownProps {
-  defaultValueDisplay: boolean;
-  params?: PluginParameter[];
-  toggle?: React.ReactElement<any>;
-  onSelect?: (event: React.SyntheticEvent<HTMLDivElement>) => void;
-  isOpen?: boolean;
-  dropdownItems?: any[];
+  params?: {
+    dropdown: PluginParameter[];
+    required: PluginParameter[];
+  };
   id: string;
-  handleChange(
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean,
-    paramName: string
-  ): void;
-  deleteComponent(id: string): void;
-  deleteInput(id: string): void;
-  dropdownInput: InputType;
-
-  addParam: () => void;
 }
 
 export interface RequiredParamProp {
   param: PluginParameter;
-  addParam: () => void;
-  requiredInput: InputType;
-  inputChange(
-    id: string,
-    flag: string,
-    value: string,
-    type: string,
-    placeholder: string,
-    required: boolean,
-    paramName?: string
-  ): void;
   id: string;
 }
 
@@ -182,4 +119,90 @@ export interface ReviewProps extends InputState {
   errors: {
     [key: string]: string[];
   };
+}
+
+export interface AddNodeState extends InputState {
+  stepIdReached: number;
+  nodes?: PluginInstance[];
+  pluginMeta?: PluginMeta;
+  selectedPluginFromMeta?: Plugin;
+  selectedComputeEnv: string;
+  errors: Record<string, unknown>;
+  editorValue: string;
+  loading: boolean;
+  isOpen: boolean;
+  pluginMetas: PluginMeta[];
+  componentList: string[];
+  showPreviousRun: boolean;
+}
+
+export enum Types {
+  RequiredInput = "REQUIRED_INPUT",
+  DropdownInput = "DROPDOWN_INPUT",
+  SetPluginMeta = "SET_PLUGIN_META",
+  SetPluginMetaList = "SET_PLUGIN_META_LIST",
+  SetStepIdReached = "SET_STEP_ID_REACHED",
+  SetSelectedPluginFromMeta = "SET_SELECTED_PLUGIN_FROM_META",
+  SetToggleWizard = "SET_TOGGLE_WIZARD",
+  SetComponentList = "SET_COMPONENT_LIST",
+  DeleteComponentList = "DELETE_COMPONENT_LIST",
+  SetEditorValue = "SET_EDITOR_VALUE",
+  SetComputeEnv = "SET_COMPUTE_ENV",
+  ResetState = "RESET_STATE",
+  SetShowPreviousRun = "SET_SHOW_PREVIOUS_RUN",
+}
+
+export interface AddNodeStateActions {
+  [Types.RequiredInput]: {
+    input: {
+      [id: string]: InputIndex;
+    };
+    editorValue: boolean;
+  };
+
+  [Types.DropdownInput]: {
+    input: {
+      [id: string]: InputIndex;
+    };
+    editorValue: boolean;
+  };
+  [Types.SetPluginMeta]: {
+    pluginMeta: PluginMeta;
+  };
+
+  [Types.SetPluginMetaList]: {
+    pluginMetas: PluginMeta[];
+  };
+
+  [Types.SetStepIdReached]: {
+    id: number;
+  };
+
+  [Types.SetSelectedPluginFromMeta]: {
+    plugin: Plugin;
+  };
+  [Types.SetToggleWizard]: {
+    isOpen: boolean;
+  };
+
+  [Types.SetComponentList]: {
+    componentList: string[];
+  };
+
+  [Types.DeleteComponentList]: {
+    id: string;
+  };
+  [Types.SetEditorValue]: {
+    value: string;
+  };
+
+  [Types.SetComputeEnv]: {
+    computeEnv: string;
+  };
+
+  [Types.SetShowPreviousRun]: {
+    showPreviousRun: boolean;
+  };
+
+  [Types.ResetState]: Record<string, unknown>;
 }

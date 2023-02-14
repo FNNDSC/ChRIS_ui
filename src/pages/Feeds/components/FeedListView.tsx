@@ -48,6 +48,7 @@ import IconContainer from "./IconContainer";
 import { useTypedSelector } from "../../../store/hooks";
 import { FeedResource } from "../../../store/feed/types";
 import InfoIcon from "../../../components/common/info/InfoIcon";
+import { AddNodeProvider } from "../../../components/feed/AddNode/context";
 const { Paragraph } = Typography;
 
 const FeedListView: React.FC = () => {
@@ -161,7 +162,9 @@ const FeedListView: React.FC = () => {
 
         <CreateFeedProvider>
           <PipelineProvider>
-            <CreateFeed />
+            <AddNodeProvider>
+              <CreateFeed />
+            </AddNodeProvider>
           </PipelineProvider>
         </CreateFeedProvider>
       </PageSection>
@@ -223,15 +226,10 @@ const FeedListView: React.FC = () => {
                   <Th>Created</Th>
                   <Th>Creator</Th>
                   <Th>Run Time</Th>
-                  <Th
-                    style={{
-                      textAlign: "center",
-                      margin: "0 auto",
-                    }}
-                  >
+                  <Th>
                     Size
                   </Th>
-                  <Th>Progress</Th>
+                  <Th>Status</Th>
                 </Tr>
               </Thead>
             }

@@ -3,7 +3,6 @@ import {
   PipelineState,
   PipelineTypes,
 } from "../types/pipeline";
-import { InputType } from "../../AddNode/types";
 import { merge } from "lodash";
 
 export function getInitialPipelineState() {
@@ -172,114 +171,6 @@ export const pipelineReducer = (
       };
     }
 
-    case PipelineTypes.SetPipelineDropdownInput: {
-      const { currentPipelineId, currentNodeId, id, input } = action.payload;
-
-      if (
-        state.pipelineData[currentPipelineId] &&
-        state.pipelineData[currentPipelineId].input &&
-        state.pipelineData[currentPipelineId].input[currentNodeId]
-      ) {
-        return {
-          ...state,
-          pipelineData: {
-            ...state.pipelineData,
-            [currentPipelineId]: {
-              ...state.pipelineData[currentPipelineId],
-              input: {
-                ...state.pipelineData[currentPipelineId].input,
-                [currentNodeId]: {
-                  ...state.pipelineData[currentPipelineId].input[currentNodeId],
-                  dropdownInput: {
-                    ...state.pipelineData[currentPipelineId].input[
-                      currentNodeId
-                    ].dropdownInput,
-                    [id]: input,
-                  },
-                },
-              },
-            },
-          },
-        };
-      } else if (state.pipelineData[currentPipelineId]) {
-        return {
-          ...state,
-          pipelineData: {
-            ...state.pipelineData,
-            [currentPipelineId]: {
-              ...state.pipelineData[currentPipelineId],
-              input: {
-                ...state.pipelineData[currentPipelineId].input,
-                [currentNodeId]: {
-                  requiredInput: {},
-                  dropdownInput: {
-                    [id]: input,
-                  },
-                },
-              },
-            },
-          },
-        };
-      } else
-        return {
-          ...state,
-        };
-    }
-
-    case PipelineTypes.SetPipelineRequiredInput: {
-      const { currentPipelineId, currentNodeId, id, input } = action.payload;
-
-      if (
-        state.pipelineData[currentPipelineId] &&
-        state.pipelineData[currentPipelineId].input &&
-        state.pipelineData[currentPipelineId].input[currentNodeId]
-      ) {
-        return {
-          ...state,
-          pipelineData: {
-            ...state.pipelineData,
-            [currentPipelineId]: {
-              ...state.pipelineData[currentPipelineId],
-              input: {
-                ...state.pipelineData[currentPipelineId].input,
-                [currentNodeId]: {
-                  ...state.pipelineData[currentPipelineId].input[currentNodeId],
-                  requiredInput: {
-                    ...state.pipelineData[currentPipelineId].input[
-                      currentNodeId
-                    ].requiredInput,
-                    [id]: input,
-                  },
-                },
-              },
-            },
-          },
-        };
-      } else if (state.pipelineData[currentPipelineId]) {
-        return {
-          ...state,
-          pipelineData: {
-            ...state.pipelineData,
-            [currentPipelineId]: {
-              ...state.pipelineData[currentPipelineId],
-              input: {
-                ...state.pipelineData[currentPipelineId].input,
-                [currentNodeId]: {
-                  dropdownInput: {},
-                  requiredInput: {
-                    [id]: input,
-                  },
-                },
-              },
-            },
-          },
-        };
-      } else
-        return {
-          ...state,
-        };
-    }
-
     case PipelineTypes.SetCurrentNodeTitle: {
       const { currentPipelineId, currentNode, title } = action.payload;
       return {
@@ -297,38 +188,20 @@ export const pipelineReducer = (
       };
     }
 
-    case PipelineTypes.DeletePipelineInput: {
-      const { input, currentPipelineId, currentNodeId } = action.payload;
-      if (
-        state.pipelineData[currentPipelineId] &&
-        state.pipelineData[currentPipelineId].input[currentNodeId].dropdownInput
-      ) {
-        const dropdownInput =
-          state.pipelineData[currentPipelineId] &&
-          state.pipelineData[currentPipelineId].input[currentNodeId]
-            .dropdownInput;
-        const newObject = deleteObjectHelper(dropdownInput, input);
-
-        return {
-          ...state,
-          pipelineData: {
-            ...state.pipelineData,
-            [currentPipelineId]: {
-              ...state.pipelineData[currentPipelineId],
-              input: {
-                ...state.pipelineData[currentPipelineId].input,
-                [currentNodeId]: {
-                  ...state.pipelineData[currentPipelineId].input[currentNodeId],
-                  dropdownInput: newObject,
-                },
-              },
-            },
-          },
-        };
-      }
-
+    case PipelineTypes.SetFormParameters: {
+      const { currentPipelineId, currentNode, params } = action.payload;
       return {
         ...state,
+        pipelineData: {
+          ...state.pipelineData,
+          [currentPipelineId]: {
+            ...state.pipelineData[currentPipelineId],
+            parameterList: {
+              ...state.pipelineData[currentPipelineId].parameterList,
+              [currentNode]: params,
+            },
+          },
+        },
       };
     }
 
@@ -344,15 +217,3 @@ export const pipelineReducer = (
       return state;
   }
 };
-
-function deleteObjectHelper(dropdownInput: InputType, input: string) {
-  const newObject = Object.entries(dropdownInput)
-    .filter(([key]) => {
-      return key !== input;
-    })
-    .reduce((acc: InputType, [key, value]) => {
-      acc[key] = value;
-      return acc;
-    }, {});
-  return newObject;
-}

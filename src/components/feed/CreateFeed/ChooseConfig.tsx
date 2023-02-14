@@ -14,14 +14,21 @@ import { chooseConfigProps } from "../AddNode/types";
 import { Steps } from "antd";
 import { FileList } from "./helperComponents";
 import { Types } from "./types/feed";
+import { AddNodeContext } from "../AddNode/context";
+import { Types as AddNodeTypes } from "../AddNode/types";
+import { useTypedSelector } from "../../../store/hooks";
 
-const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, pluginName, dropdownInput, selectedComputeEnv, setComputeEnviroment, requiredInput, allRequiredFieldsNotEmpty }: chooseConfigProps) => {
+const ChooseConfig = ({ handleFileUpload, user}: chooseConfigProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
-  const { selectedConfig, selectedPlugin } = state
+  const {dispatch:nodeDispatch} = useContext(AddNodeContext)
+  const { state: addNodeState } = useContext(AddNodeContext);
+  const { selectedConfig } = state
+  const { pluginMeta, requiredInput } = addNodeState;
   const { isDataSelected, localFiles, chrisFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext)
   const [isRightDrawerExpand, setRightDrawerExpand] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const params = useTypedSelector((state) => state.plugin.parameters);
   const [selectedCard, setSelectedCard] = useState("");
   const [showDragAndDrop, setShowDragAndDrop] = useState(false)
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
@@ -47,7 +54,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
         handleClick(e, "swift_storage")
         break;
       case "ArrowRight":
-        if (allRequiredFieldsNotEmpty) return;
+        if(selectedConfig.includes("fs_plugin") && params?.required.length != Object.keys(requiredInput).length) return;
         else { onNext() }
         break;
       case "ArrowLeft":
@@ -57,7 +64,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
         break;
     }
 
-  }, [allRequiredFieldsNotEmpty, handleClick, onBack, onNext])
+  }, [handleClick, onBack, onNext, params?.required.length, requiredInput, selectedConfig])
 
   const onCloseClick = () => {
     setRightDrawerExpand(false);
@@ -85,18 +92,8 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
     },
     {
       title: 'Configure Plugin',
-      content: <GuidedConfig
-        defaultValueDisplay={false}
-        renderComputeEnv={true}
-        inputChange={inputChange}
-        deleteInput={deleteInput}
-        pluginName={pluginName}
-        dropdownInput={dropdownInput}
-        requiredInput={requiredInput}
-        selectedComputeEnv={selectedComputeEnv}
-        setComputeEnviroment={setComputeEnviroment}
-      />,
-    },
+      content: <GuidedConfig/>,
+    }
   ];
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
@@ -109,10 +106,10 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
   };
 
   const reset = () => {
-    dispatch({
-      type: Types.SelectPlugin,
+    nodeDispatch({
+      type: AddNodeTypes.SetPluginMeta,
       payload: {
-        undefined
+        pluginMeta:undefined
       },
     });
     dispatch({
@@ -162,12 +159,12 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
         </Grid>
         <Grid  style={navigationButtonStyle}>
           {currentStep == 0 && (
-          <Button onClick={() => reset()} isDisabled={selectedPlugin == undefined}>
+          <Button onClick={() => reset()} isDisabled={pluginMeta == undefined}>
             Reset
           </Button>
           )}
           {currentStep == 0 && (
-          <Button onClick={() => next()} isDisabled={selectedPlugin == undefined}>
+          <Button onClick={() => next()} isDisabled={pluginMeta == undefined}>
             Next
           </Button>
           )}
@@ -177,7 +174,7 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
           </Button>
          )}
           {currentStep > 0 && (
-          <Button onClick={() => onCloseClick()} isDisabled={!allRequiredFieldsNotEmpty}>
+          <Button onClick={() => onCloseClick()} isDisabled={params?.required.length != Object.keys(requiredInput).length}>
             Done
           </Button>
          )}
@@ -299,10 +296,10 @@ const ChooseConfig = ({ handleFileUpload, user, inputChange, deleteInput, plugin
             </Grid>
             <Grid hasGutter span={12}>
               <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {selectedPlugin &&
+                {pluginMeta &&
                 <>
                 <h1>Selected Plugin:</h1>
-                 <p>{selectedPlugin.data.title}</p>
+                 <p>{pluginMeta.data.title}</p>
                 </>
                 }
               </GridItem>
