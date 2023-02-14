@@ -72,8 +72,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               pluginModalOpen={pluginModalOpen}
               filesLoading={filesLoading}
             />
-          ) : statusTitle && statusTitle.title ? (
-            <FetchFilesLoader title={statusTitle.title} />
+          ) : statusTitle && statusTitle? (
+            <FetchFilesLoader title="Fetching Files" />
           ) : (
             <EmptyStateLoader
               title="Files are not available yet and are being fetched. Please give it a

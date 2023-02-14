@@ -14,12 +14,7 @@ import {
   PluginInstanceDescendantList,
   PluginParameterList,
 } from "@fnndsc/chrisapi";
-import {
-  FaDownload,
-  FaTerminal,
-  FaCalendarAlt,
-  FaWindowClose,
-} from "react-icons/fa";
+import { FaDownload, FaTerminal, FaCalendarAlt } from "react-icons/fa";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
 import PluginLog from "./PluginLog";
@@ -153,7 +148,9 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
               expandDrawer("side_panel");
             }}
             className="node-details__title--button"
-          >Toggle Node Panel</Button>
+          >
+            Toggle Node Panel
+          </Button>
         </div>
 
         <Grid className="node-details__grid">
@@ -349,10 +346,10 @@ function getCommand(
       if (
         instanceParameters[i].data.param_name === pluginParameters[j].data.name
       ) {
-        const boolean = instanceParameters[i].data.type === 'boolean'
+        const boolean = instanceParameters[i].data.type === "boolean";
         modifiedParams.push({
           name: pluginParameters[j].data.flag,
-          value: boolean ? '' : instanceParameters[i].data.value,
+          value: boolean ? "" : instanceParameters[i].data.value,
         });
       }
     }
