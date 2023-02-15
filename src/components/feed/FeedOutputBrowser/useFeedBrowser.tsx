@@ -9,11 +9,6 @@ import JSZip from "jszip";
 import { getPluginFilesRequest } from "../../../store/resources/actions";
 import { ExplorerMode } from "../../../store/explorer/types";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import usePluginInstanceResource from "../NodeDetails/usePluginInstanceResource";
-import {
-  getCurrentTitleFromStatus,
-  getFinishedTitle,
-} from "../NodeDetails/StatusTitle";
 import { getPluginName } from "./utils";
 import { fetchResource } from "../../../api/common";
 import { removeTool } from "../../detailedView/displays/DicomViewer/utils";
@@ -31,12 +26,10 @@ const getInitialDownloadState = () => {
 };
 
 export const useFeedBrowser = () => {
+  const dispatch = useDispatch();
   const [download, setDownload] = React.useState(getInitialDownloadState);
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
-  const pluginInstanceResource = usePluginInstanceResource();
-  const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
-  const dispatch = useDispatch();
+
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
@@ -48,17 +41,14 @@ export const useFeedBrowser = () => {
 
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
 
-  let statusTitle:
-    | {
-        title: string;
-        icon: any;
-      }
-    | undefined = undefined;
-  if (pluginStatus && selected) {
-    statusTitle = status.includes(selected.data.status)
-      ? getFinishedTitle(selected.data.status)
-      : getCurrentTitleFromStatus(pluginStatus);
-  }
+  const statusTitle = useTypedSelector((state) => {
+    if (selected) {
+      const id = selected.data.id;
+      if (selected.data.id && state.resource.pluginInstanceStatus[id]) {
+        return state.resource.pluginInstanceStatus[id].status;
+      } else return;
+    }
+  });
 
   const downloadAllClick = async () => {
     const zip = new JSZip();
@@ -117,31 +107,39 @@ export const useFeedBrowser = () => {
   const finished = selected && status.includes(selected.data.status);
 
   React.useEffect(() => {
-    if (!(pluginFilesPayload && pluginFilesPayload.files)) {
-      if (selected && status.includes(selected.data.status)) {
-        if (download.error) {
-          setDownload((state) => {
-            return {
-              ...state,
-              error: "Files are ready for download now...",
-            };
-          });
-        }
+    if ((statusTitle && status.includes(statusTitle)) || finished) {
+      if (download.error) {
+        setDownload((state) => {
+          return {
+            ...state,
+            error: "Files are ready for download now...",
+          };
+        });
+      }
 
+      if (selected && !pluginFilesPayload) {
         dispatch(
           getPluginFilesRequest({
             id: selected.data.id,
             path: selected.data.output_path,
           })
         );
-        if (download.error) {
-          setTimeout(() => {
-            setDownload(getInitialDownloadState);
-          }, 3000);
-        }
+      }
+
+      if (download.error) {
+        setTimeout(() => {
+          setDownload(getInitialDownloadState);
+        }, 3000);
       }
     }
-  }, [selected, finished, dispatch, pluginFilesPayload, download.error]);
+  }, [
+    selected,
+    finished,
+    dispatch,
+    pluginFilesPayload,
+    statusTitle,
+    download.error,
+  ]);
 
   const handleFileClick = (path: string) => {
     if (selected) {

@@ -17,7 +17,6 @@ import {
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
 import {
-  MdClose,
   MdFileDownload,
   MdNavigateBefore,
   MdNavigateNext,
@@ -201,9 +200,11 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
   };
 
-  const clipboardCopyFunc2 = (_event: React.ClipboardEvent<HTMLDivElement>, text: string) => {
-    if (typeof (navigator.clipboard) == 'undefined') {
-      console.log('navigator.clipboard');
+  const clipboardCopyFunc2 = (
+    _event: React.ClipboardEvent<HTMLDivElement>,
+    text: string
+  ) => {
+    if (typeof navigator.clipboard == "undefined") {
       const textArea = document.createElement("textarea");
       textArea.value = text;
       textArea.style.position = "fixed";
@@ -212,12 +213,12 @@ const FileBrowser = (props: FileBrowserProps) => {
       textArea.select();
 
       new Promise((res, rej) => {
-        document.execCommand('copy') ? res('successful') : rej();
+        document.execCommand("copy") ? res("successful") : rej();
       });
-      document.body.removeChild(textArea)
+      document.body.removeChild(textArea);
     }
-    navigator.clipboard.writeText(text)
-  }
+    navigator.clipboard.writeText(text);
+  };
 
   const previewPanel = (
     <DrawerPanelContent defaultSize={"70%"}>
