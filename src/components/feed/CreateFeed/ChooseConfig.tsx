@@ -125,7 +125,6 @@ const ChooseConfig = ({ handleFileUpload, user}: chooseConfigProps) => {
         editorValue: true,
       },
     });
-
     nodeDispatch({
       type: AddNodeTypes.RequiredInput,
       payload: {
@@ -133,6 +132,7 @@ const ChooseConfig = ({ handleFileUpload, user}: chooseConfigProps) => {
         editorValue: true,
       },
     });
+    setSelectedCard("");
   }
 
   const navigationButtonStyle = {
