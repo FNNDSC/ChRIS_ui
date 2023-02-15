@@ -48,6 +48,7 @@ const DataPacks: React.FC = () => {
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;
   const { onNext, onBack } = useContext(WizardContext);
+  const [currentPluginId, setCurrentPluginId] = useState(-1);
   const radioInput = useRef<any>();
   useEffect(() => {
     getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
@@ -62,6 +63,15 @@ const DataPacks: React.FC = () => {
       }
     );
   }, [filter, perPage, currentPage, pluginMeta]);
+
+  useEffect(() => {
+     if(pluginMeta){
+      setCurrentPluginId(pluginMeta.data.id)
+     }else{
+      setCurrentPluginId(-1);
+
+     }
+  }, [pluginMeta])
 
   // only update filter every half-second, to avoid too many requests
   const handleFilterChange = debounce((value: string) => {
@@ -177,7 +187,7 @@ const DataPacks: React.FC = () => {
               onKeyDown={(e) => handleKeyDown(e, plugin)}
               description={title}
               onChange={(checked: any) => handleOnChange(checked, plugin)}
-              checked={pluginMeta && pluginMeta.data.id === plugin.data.id}
+              checked={currentPluginId === plugin.data.id}
             />
           );
         })}
