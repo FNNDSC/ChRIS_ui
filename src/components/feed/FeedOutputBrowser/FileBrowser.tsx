@@ -17,7 +17,6 @@ import {
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
 import {
-  MdClose,
   MdFileDownload,
   MdNavigateBefore,
   MdNavigateNext,

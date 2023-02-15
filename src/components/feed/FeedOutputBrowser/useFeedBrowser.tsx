@@ -9,11 +9,6 @@ import JSZip from "jszip";
 import { getPluginFilesRequest } from "../../../store/resources/actions";
 import { ExplorerMode } from "../../../store/explorer/types";
 import FileViewerModel from "../../../api/models/file-viewer.model";
-import usePluginInstanceResource from "../NodeDetails/usePluginInstanceResource";
-import {
-  getCurrentTitleFromStatus,
-  getFinishedTitle,
-} from "../NodeDetails/StatusTitle";
 import { getPluginName } from "./utils";
 import { fetchResource } from "../../../api/common";
 import { removeTool } from "../../detailedView/displays/DicomViewer/utils";
