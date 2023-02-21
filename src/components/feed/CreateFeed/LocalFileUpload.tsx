@@ -90,7 +90,6 @@ const FileUploadComponent = ({
   return (
     <div className={className} >
       <Grid hasGutter={true}>
-
         <GridItem
           className={`${className}-grid`}
           span={12}

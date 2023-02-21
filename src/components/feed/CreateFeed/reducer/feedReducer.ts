@@ -131,6 +131,17 @@ export const createFeedReducer = (
       };
     }
 
+    case Types.ResetChrisFile:{
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          chrisFiles: [],
+          checkedKeys: {}
+        }
+      }
+    }
+
     case Types.AddLocalFile:
       return {
         ...state,
