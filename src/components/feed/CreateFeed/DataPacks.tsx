@@ -22,6 +22,7 @@ import { getPlugins } from "./utils/dataPacks";
 import { WizardContext } from "@patternfly/react-core/";
 import { AddNodeContext } from "../AddNode/context";
 import { CreateFeedContext } from "./context";
+import { toast, ToastContainer } from "react-toastify";
 
 interface FilterProps {
   perPage: number;
@@ -102,6 +103,16 @@ const DataPacks: React.FC = () => {
 
       },
     });
+    toast.success(` ${plugin.data.name} Selected`, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
     if(checked){
       const nonDuplicateArray = new Set([...state.selectedConfig, "fs_plugin"])
        dispatch({
@@ -177,6 +188,7 @@ const DataPacks: React.FC = () => {
         {fsPlugins.map((plugin) => {
           const { name, title, id } = plugin.data;
           return (
+            <>
             <Radio
               key={id}
               aria-labelledby="plugin-radioButton"
@@ -189,6 +201,8 @@ const DataPacks: React.FC = () => {
               onChange={(checked: any) => handleOnChange(checked, plugin)}
               checked={currentPluginId === plugin.data.id}
             />
+            <ToastContainer/>
+            </>
           );
         })}
       </div>

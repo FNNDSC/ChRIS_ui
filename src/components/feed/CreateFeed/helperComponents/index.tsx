@@ -57,7 +57,7 @@ export const LocalFileList = ({
           <FaTrash
             onClick={() => {
               handleDeleteDispatch && handleDeleteDispatch(file.name);
-            }}
+             }}
           />
         </span>
       )}

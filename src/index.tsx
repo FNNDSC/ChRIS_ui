@@ -7,13 +7,13 @@ import Main from "./main";
 import "./assets/scss/main.scss";
 
 import * as ServiceWorker from "./serviceWorker";
-const container = document.getElementById("root");
+ const container = document.getElementById("root");
 //@ts-ignore
 const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <Main store={store} />
-  </React.StrictMode>
+   </React.StrictMode>
 );
 
 

@@ -24,6 +24,7 @@ export enum Types {
   SelectedConfig = "SELECTED_CONFIG",
   AddChrisFile = "ADD_ChRIS_FILE",
   RemoveChrisFile = "REMOVE_ChRIS_FILE",
+  ResetChrisFile = "Reset_ChRIS_FILE",
   AddLocalFile = "ADD_LOCAL_FILE",
   RemoveLocalFile = "REMOVE_LOCAL_FILE",
   SelectPluginMeta = "SELECT_PLUGIN_META",
@@ -65,6 +66,7 @@ type CreateFeedPayload = {
     file: string;
     checkedKeys: Key[];
   };
+  [Types.ResetChrisFile]: boolean
   [Types.AddLocalFile]: {
     files: LocalFile[];
   };
