@@ -172,7 +172,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
         <span tabIndex={isRightDrawerExpand ? 0 : -1}  >
         </span>
         <DrawerActions style={{ display: 'flex', gap: "5px" }}>
-          <Button onClick={resetChRisFiles} isDisabled={chrisFiles.length === 0}>
+          <Button onClick={resetChRisFiles} variant="secondary" isDisabled={chrisFiles.length === 0}>
             Clear
           </Button>
           <Button onClick={onCloseClick} >
@@ -192,7 +192,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
         <span tabIndex={isRightDrawerExpand ? 0 : -1}  >
         </span>
         <DrawerActions style={{ display: 'flex', gap: "5px" }}>
-          <Button onClick={resetPlugin} isDisabled={pluginMeta === undefined}>
+          <Button onClick={resetPlugin} variant="secondary" isDisabled={pluginMeta === undefined}>
             Clear
           </Button>
           <Button onClick={onCloseClick} >
