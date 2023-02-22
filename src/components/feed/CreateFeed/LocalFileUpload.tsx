@@ -3,6 +3,7 @@ import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { LocalFile, Types } from "./types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
+import { toast } from "react-toastify";
 
 
 const LocalFileUpload = () => {
@@ -18,6 +19,7 @@ const LocalFileUpload = () => {
         filename: file,
       },
     });
+    toast.success(`${file} file removed`)
   };
 
   return (

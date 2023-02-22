@@ -17,6 +17,7 @@ import { Types } from "./types/feed";
 import { AddNodeContext } from "../AddNode/context";
 import { Types as AddNodeTypes } from "../AddNode/types";
 import { useTypedSelector } from "../../../store/hooks";
+import { toast } from "react-toastify";
 
 const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -126,6 +127,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }, [dispatch, pluginMeta, selectedConfig, state.selectedConfig])
 
   const resetPlugin = () => {
+    toast.success(`${pluginMeta?.data.name} unselected`);
     nodeDispatch({
       type: AddNodeTypes.SetPluginMeta,
       payload: {
