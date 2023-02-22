@@ -355,7 +355,7 @@ function getCommand(
     }
   }
 
-  let command = `$> docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing \\\n${dock_image} ${selfexec} `;
+  let command = `$> apptainer exec --bind $PWD/in:/incoming,$PWD/out:/outgoing docker://${dock_image} ${selfexec}`;
   let parameterCommand = [];
 
   if (modifiedParams.length) {
