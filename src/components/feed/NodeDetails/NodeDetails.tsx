@@ -352,7 +352,7 @@ function getCommand(
     }
   }
 
-  let command = `$> apptainer oci delete ${dock_image} & apptainer exec --bind $(pwd)/in:/incoming,$(pwd)/out:/outgoing ${dock_image} ${selfexec}`;
+  let command = `$> apptainer exec --bind $PWD/in:/incoming,$PWD/out:/outgoing docker://${dock_image} ${selfexec}`;
   let parameterCommand = [];
 
   if (modifiedParams.length) {
