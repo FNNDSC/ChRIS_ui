@@ -26,6 +26,7 @@ import { PipelineTypes } from "./types/pipeline";
 
 import { AddNodeContext } from "../AddNode/context";
 import { useTypedSelector } from "../../../store/hooks";
+import { toast } from "react-toastify";
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
@@ -81,7 +82,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
            files:result,
          },
        });
-
+      toast.success(`New File(s) added`);
       if(!selectedConfig.includes("local_select")){
         const nonDuplicateConfig = new Set([...selectedConfig, "local_select"])
         dispatch({

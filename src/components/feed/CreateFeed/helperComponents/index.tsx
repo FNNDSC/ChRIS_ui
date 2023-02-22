@@ -8,6 +8,7 @@ import {
 import { FaTrash, FaFile } from "react-icons/fa";
 import { CreateFeedContext } from "../context";
 import { Types, LocalFile } from "../types/feed";
+import { toast } from "react-toastify";
 
 export const FileList = ({ file, index }: { file: string; index: number }) => {
   const { dispatch } = useContext(CreateFeedContext);
@@ -22,6 +23,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
       <span className="trash-icon">
         <FaTrash
           onClick={() => {
+            toast.success(`${file} file(s) removed`);
             dispatch({
               type: Types.RemoveChrisFile,
               payload: {

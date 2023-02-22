@@ -22,7 +22,7 @@ import { getPlugins } from "./utils/dataPacks";
 import { WizardContext } from "@patternfly/react-core/";
 import { AddNodeContext } from "../AddNode/context";
 import { CreateFeedContext } from "./context";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 interface FilterProps {
   perPage: number;
@@ -201,7 +201,6 @@ const DataPacks: React.FC = () => {
               onChange={(checked: any) => handleOnChange(checked, plugin)}
               checked={currentPluginId === plugin.data.id}
             />
-            <ToastContainer/>
             </>
           );
         })}

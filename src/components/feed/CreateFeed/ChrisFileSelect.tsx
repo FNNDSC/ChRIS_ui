@@ -21,7 +21,7 @@ import {
 import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
 import {  ErrorMessage } from './helperComponents'
 import { isEmpty } from 'lodash'
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const { DirectoryTree } = Tree
@@ -88,16 +88,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             checkedKeys,
           },
         })
-        toast.success(`New file/directory added`, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          });
+        toast.success(`New ${path} file(s) added`);
       }else {
         dispatch({
           type: Types.RemoveChrisFile,
@@ -106,16 +97,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             checkedKeys,
           },
         });
-        toast.success(`File/directory removed`, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          });
+        toast.success(`${path} file(s) removed`);
       }
     if(info.checkedNodes.length !== 0){
       const nonDuplicateArray = new Set([...state.selectedConfig, "swift_storage"])
@@ -211,7 +193,6 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             handleClose={() => setLoadingError(undefined)}
           />
         )}
-        <ToastContainer/>
       </div>
     </div>
   );
