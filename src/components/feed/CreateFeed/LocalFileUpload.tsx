@@ -3,14 +3,13 @@ import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { LocalFile, Types } from "./types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
-import { toast } from "react-toastify";
+import { notification } from "antd";
 
 
 const LocalFileUpload = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { localFiles } = state.data;
   const { onNext, onBack } = useContext(WizardContext);
-
 
   const handleDeleteDispatch = (file: string) => {
     dispatch({
@@ -19,11 +18,16 @@ const LocalFileUpload = () => {
         filename: file,
       },
     });
-    toast.success(`${file} file removed`)
+    notification.open({
+      message: "File removed",
+      description: `${file} file removed`,
+      duration: 1,
+    })
   };
 
   return (
-    <div className="pacs-alert-wrap">
+      <>
+      <div className="pacs-alert-wrap">
       <div className="pacs-alert-step-wrap">
         <h1>Selected Files:</h1>
         <FileUploadComponent
@@ -35,6 +39,7 @@ const LocalFileUpload = () => {
         />
       </div>
     </div>
+    </>
   );
 };
 

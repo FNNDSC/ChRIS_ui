@@ -69,12 +69,10 @@ const DragAndUpload = ({
             selectedConfig: state.selectedConfig.filter((value) => value != 'local_select')
           }
         })
-      }else{
-        open()
-
       }
     }
-  }, [dispatch, open, state.data.localFiles.length, state.selectedConfig])
+  }, [dispatch, state.data.localFiles.length, state.selectedConfig])
+
 
   const handleKeyDown = useCallback((e: any) => {
     if (e.code == "KeyU") {

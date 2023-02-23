@@ -22,7 +22,7 @@ import { getPlugins } from "./utils/dataPacks";
 import { WizardContext } from "@patternfly/react-core/";
 import { AddNodeContext } from "../AddNode/context";
 import { CreateFeedContext } from "./context";
-import { toast } from "react-toastify";
+import { notification } from "antd";
 
 interface FilterProps {
   perPage: number;
@@ -51,6 +51,7 @@ const DataPacks: React.FC = () => {
   const { onNext, onBack } = useContext(WizardContext);
   const [currentPluginId, setCurrentPluginId] = useState(-1);
   const radioInput = useRef<any>();
+
   useEffect(() => {
     getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
       (pluginDetails) => {
@@ -103,16 +104,11 @@ const DataPacks: React.FC = () => {
 
       },
     });
-    toast.success(` ${plugin.data.name} Selected`, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-    });
+    notification.open({
+      message: `Plugin Selected`,
+      description: `${plugin.data.name} plugin unselected`,
+      duration: 1,
+    })
     if(checked){
       const nonDuplicateArray = new Set([...state.selectedConfig, "fs_plugin"])
        dispatch({
@@ -122,7 +118,7 @@ const DataPacks: React.FC = () => {
         }
        })
     }
-  }, [dispatch, nodeDispatch, state.selectedConfig])
+  }, [ dispatch, nodeDispatch, state.selectedConfig])
 
   const handleKeyDown = useCallback((e: any, plugin: any = null) => {
     if (e.target.closest('INPUT#filter_plugin')) { return }
@@ -149,6 +145,7 @@ const DataPacks: React.FC = () => {
   }, [handleKeyDown]);
 
   return (
+
     <div className="local-file-upload">
       <h1 className="pf-c-title pf-m-2xl">Analysis Synthesis Plugin</h1>
       <p>Please choose the Analysis Synthesis Plugin you&lsquo;d like to run</p>

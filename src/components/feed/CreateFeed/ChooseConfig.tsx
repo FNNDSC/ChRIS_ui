@@ -17,7 +17,7 @@ import { Types } from "./types/feed";
 import { AddNodeContext } from "../AddNode/context";
 import { Types as AddNodeTypes } from "../AddNode/types";
 import { useTypedSelector } from "../../../store/hooks";
-import { toast } from "react-toastify";
+import { notification } from "antd";
 
 const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -32,6 +32,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   const params = useTypedSelector((state) => state.plugin.parameters);
   const [selectedCard, setSelectedCard] = useState("");
   const [showDragAndDrop, setShowDragAndDrop] = useState(false)
+
   const handleClick = useCallback((event: React.MouseEvent, selectedPluginId = "") => {
     const selectedCard = selectedPluginId == "" ? event.currentTarget.id : selectedPluginId;
     setSelectedCard(selectedCard)
@@ -41,6 +42,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
       setShowDragAndDrop(true)
     }
   }, [])
+
   const handleKeyDown = useCallback((e: any) => {
     if (e.target.closest('INPUT.required-params__textInput')) return;
     switch (e.code) {
@@ -127,7 +129,11 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }, [dispatch, pluginMeta, selectedConfig, state.selectedConfig])
 
   const resetPlugin = () => {
-    toast.success(`${pluginMeta?.data.name} unselected`);
+    notification.open({
+      message: `Plugin unselected`,
+      description: `${pluginMeta?.data.name} unselected`,
+      duration: 1,
+    })
     nodeDispatch({
       type: AddNodeTypes.SetPluginMeta,
       payload: {
@@ -169,7 +175,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }
 
   const panelContent = (selectedCard == "swift_storage") ? (
-    <DrawerPanelContent defaultSize="65%" >
+    <DrawerPanelContent defaultSize="65%">
       <DrawerHead>
         <span tabIndex={isRightDrawerExpand ? 0 : -1}  >
         </span>
@@ -259,116 +265,116 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }, [localFiles.length])
 
   return (
-    <Drawer isExpanded={isRightDrawerExpand} position="right">
-      <DrawerContent panelContent={panelContent} >
-        <DrawerContentBody>
-          <div className="local-file-upload">
-            <h1 className="pf-c-title pf-m-2xl">Analysis Type Selection</h1>
-            <br />
-            <p>
-              {isDataSelected
-                ? "Creating analysis from selected files."
-                : "You may create the analysis in one of the following ways:"}
-            </p>
-            <br />
-            <Grid hasGutter md={4}>
-              <GridItem rowSpan={1}>
-                <Card
-                  id="fs_plugin"
-                  isSelectableRaised
-                  isDisabledRaised={isDataSelected}
-                  hasSelectableInput
-                  style={cardContainerStyle}
-                  onClick={handleClick}
-                  isSelected={selectedConfig.includes('fs_plugin')}
-                >
-                  <CardHeader style={cardHeaderStyle}>
-                    <CardActions >
-                      <Tooltip content="Press the G key to select">
-                        <Chip key="KeyboardShortcut" isReadOnly>G</Chip>
-                      </Tooltip>
-                    </CardActions>
-                  </CardHeader>
-                  <CardTitle><MdSettings size="40" /><br />Generate Data</CardTitle>
-                  <CardBody>Generate files from running an FS plugin from this ChRIS server</CardBody>
-                </Card>
-              </GridItem>
-              <GridItem rowSpan={1}>
-                <Card
-                  id="swift_storage"
-                  isSelectableRaised
-                  hasSelectableInput
-                  isDisabledRaised={isDataSelected}
-                  style={cardContainerStyle}
-                  onClick={handleClick}
-                  isSelected={selectedConfig.includes('swift_storage')}
-                >
+      <Drawer isExpanded={isRightDrawerExpand} position="right">
+        <DrawerContent panelContent={panelContent} >
+          <DrawerContentBody>
+            <div className="local-file-upload">
+              <h1 className="pf-c-title pf-m-2xl">Analysis Type Selection</h1>
+              <br />
+              <p>
+                {isDataSelected
+                  ? "Creating analysis from selected files."
+                  : "You may create the analysis in one of the following ways:"}
+              </p>
+              <br />
+              <Grid hasGutter md={4}>
+                <GridItem rowSpan={1}>
+                  <Card
+                    id="fs_plugin"
+                    isSelectableRaised
+                    isDisabledRaised={isDataSelected}
+                    hasSelectableInput
+                    style={cardContainerStyle}
+                    onClick={handleClick}
+                    isSelected={selectedConfig.includes('fs_plugin')}
+                  >
+                    <CardHeader style={cardHeaderStyle}>
+                      <CardActions >
+                        <Tooltip content="Press the G key to select">
+                          <Chip key="KeyboardShortcut" isReadOnly>G</Chip>
+                        </Tooltip>
+                      </CardActions>
+                    </CardHeader>
+                    <CardTitle><MdSettings size="40" /><br />Generate Data</CardTitle>
+                    <CardBody>Generate files from running an FS plugin from this ChRIS server</CardBody>
+                  </Card>
+                </GridItem>
+                <GridItem rowSpan={1}>
+                  <Card
+                    id="swift_storage"
+                    isSelectableRaised
+                    hasSelectableInput
+                    isDisabledRaised={isDataSelected}
+                    style={cardContainerStyle}
+                    onClick={handleClick}
+                    isSelected={selectedConfig.includes('swift_storage')}
+                  >
 
-                  <CardHeader style={cardHeaderStyle}>
-                    <Tooltip content="Press the F key to select">
-                      <Chip key="KeyboardShortcut" isReadOnly>F</Chip>
-                    </Tooltip>
-                  </CardHeader>
-                  <CardTitle>
-                    <BiCloudUpload size="40" /><br />Fetch Data from ChRIS</CardTitle>
-                  <CardBody>Choose existing files already registered to ChRIS</CardBody>
-                </Card>
-              </GridItem>
-              <GridItem rowSpan={1}>
-                {!showDragAndDrop ? <Card
-                  id="local_select"
-                  isSelectableRaised
-                  hasSelectableInput
-                  isDisabledRaised={isDataSelected}
-                  style={cardContainerStyle}
-                  onClick={handleClick}
-                  isSelected={selectedConfig.includes('local_select')}
-                >
-                  <CardHeader style={cardHeaderStyle}>
-                    <Tooltip content="Press the U key to select">
-                      <Chip key="KeyboardShortcut" isReadOnly>U</Chip>
-                    </Tooltip>
-                  </CardHeader>
-                  <CardTitle><FaUpload size="40" /><br />Upload New Data</CardTitle>
-                  <CardBody>Upload new files from your local computer</CardBody>
-                </Card> :
-                  <DragAndUpload handleLocalUploadFiles={handleFileUpload} />}
-              </GridItem>
-            </Grid>
-            <Grid hasGutter span={12}>
-              <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {pluginMeta &&
-                  <>
-                    <h1>Selected Plugin:</h1>
-                    <div style={{ display: 'flex', alignItems: 'baseline' }}>
-                      <p>{pluginMeta.data.title}</p>
-                      <span className="trash-icon">
-                        <FaTrash
-                          onClick={resetPlugin}
-                        />
-                      </span>
-                    </div>
-                  </>
-                }
-              </GridItem>
-              <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {chrisFiles.length > 0 &&
-                  <>
-                    <h1>Files to add to new analysis:</h1>
-                    <div className="file-list">
-                      {fileList}
-                    </div>
-                  </>
-                }
-              </GridItem>
-              <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {localFiles.length > 0 ? <LocalFileUpload /> : null}
-              </GridItem>
-            </Grid>
-          </div>
-        </DrawerContentBody>
-      </DrawerContent>
-    </Drawer>
+                    <CardHeader style={cardHeaderStyle}>
+                      <Tooltip content="Press the F key to select">
+                        <Chip key="KeyboardShortcut" isReadOnly>F</Chip>
+                      </Tooltip>
+                    </CardHeader>
+                    <CardTitle>
+                      <BiCloudUpload size="40" /><br />Fetch Data from ChRIS</CardTitle>
+                    <CardBody>Choose existing files already registered to ChRIS</CardBody>
+                  </Card>
+                </GridItem>
+                <GridItem rowSpan={1}>
+                  {!showDragAndDrop ? <Card
+                    id="local_select"
+                    isSelectableRaised
+                    hasSelectableInput
+                    isDisabledRaised={isDataSelected}
+                    style={cardContainerStyle}
+                    onClick={handleClick}
+                    isSelected={selectedConfig.includes('local_select')}
+                  >
+                    <CardHeader style={cardHeaderStyle}>
+                      <Tooltip content="Press the U key to select">
+                        <Chip key="KeyboardShortcut" isReadOnly>U</Chip>
+                      </Tooltip>
+                    </CardHeader>
+                    <CardTitle><FaUpload size="40" /><br />Upload New Data</CardTitle>
+                    <CardBody>Upload new files from your local computer</CardBody>
+                  </Card> :
+                    <DragAndUpload handleLocalUploadFiles={handleFileUpload}/>}
+                </GridItem>
+              </Grid>
+              <Grid hasGutter span={12}>
+                <GridItem xl2={4} md={4} xl={4} sm={12}>
+                  {pluginMeta &&
+                    <>
+                      <h1>Selected Plugin:</h1>
+                      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+                        <p>{pluginMeta.data.title}</p>
+                        <span className="trash-icon">
+                          <FaTrash
+                            onClick={resetPlugin}
+                          />
+                        </span>
+                      </div>
+                    </>
+                  }
+                </GridItem>
+                <GridItem xl2={4} md={4} xl={4} sm={12}>
+                  {chrisFiles.length > 0 &&
+                    <>
+                      <h1>Files to add to new analysis:</h1>
+                      <div className="file-list">
+                        {fileList}
+                      </div>
+                    </>
+                  }
+                </GridItem>
+                <GridItem xl2={4} md={4} xl={4} sm={12}>
+                  {localFiles.length > 0 ? <LocalFileUpload /> : null}
+                </GridItem>
+              </Grid>
+            </div>
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
   )
 }
 
