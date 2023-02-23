@@ -33,7 +33,9 @@ jobs:
       - name: Cypress Tests
         uses: cypress-io/github-action@v4
         with:
-          build: npm run build
-          start: env PORT=8088 npm start
-          wait-on: "http://localhost:8088"
+          #build: npm run build
+          #start: env PORT=8088 npm start
+          # MUST use dev mode because tests rely on (unmangled) element IDs
+          start: npm run dev
+          wait-on: "http://localhost:3000"
           wait-on-timeout: 60
