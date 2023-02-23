@@ -38,4 +38,4 @@ jobs:
           # MUST use dev mode because tests rely on (unmangled) element IDs
           start: npm run dev
           wait-on: "http://localhost:3000"
-          wait-on-timeout: 60
+          wait-on-timeout: 600
