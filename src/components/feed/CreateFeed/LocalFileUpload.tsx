@@ -18,7 +18,7 @@ const LocalFileUpload = () => {
         filename: file,
       },
     });
-    notification.open({
+    notification.success({
       message: "File removed",
       description: `${file} file removed`,
       duration: 1,
