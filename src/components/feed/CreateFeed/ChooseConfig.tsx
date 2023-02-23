@@ -175,7 +175,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }
 
   const panelContent = (selectedCard == "swift_storage") ? (
-    <DrawerPanelContent defaultSize="65%">
+    <DrawerPanelContent defaultSize="65%" className="drawer_panelContent">
       <DrawerHead>
         <span tabIndex={isRightDrawerExpand ? 0 : -1}  >
         </span>
