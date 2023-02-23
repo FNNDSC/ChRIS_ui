@@ -21,8 +21,7 @@ import {
 import { generateTreeNodes, getNewTreeData } from './utils/fileSelect'
 import {  ErrorMessage } from './helperComponents'
 import { isEmpty } from 'lodash'
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { notification } from 'antd'
 
 const { DirectoryTree } = Tree
 
@@ -88,7 +87,11 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             checkedKeys,
           },
         })
-        toast.success(`New ${path} file(s) added`);
+        notification.open({
+          message: `New File(s) added`,
+          description: `New ${path} file(s) added`,
+          duration: 1
+        })
       }else {
         dispatch({
           type: Types.RemoveChrisFile,
@@ -97,7 +100,11 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             checkedKeys,
           },
         });
-        toast.success(`${path} file(s) removed`);
+        notification.open({
+          message: `File(s) removed`,
+          description: `${path} file(s) removed`,
+          duration: 1
+        })
       }
     if(info.checkedNodes.length !== 0){
       const nonDuplicateArray = new Set([...state.selectedConfig, "swift_storage"])

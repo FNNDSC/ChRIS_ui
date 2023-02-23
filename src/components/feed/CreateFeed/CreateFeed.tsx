@@ -20,13 +20,12 @@ import { addFeed } from "../../../store/feed/actions";
 import { createFeed } from "./utils/createFeed";
 import { MainRouterContext } from "../../../routes";
 import { ApplicationState } from "../../../store/root/applicationState";
-
 import "./createfeed.scss";
 import { PipelineTypes } from "./types/pipeline";
-
 import { AddNodeContext } from "../AddNode/context";
 import { useTypedSelector } from "../../../store/hooks";
-import { toast } from "react-toastify";
+import {notification} from "antd";
+
 
 export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   user,
@@ -42,6 +41,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   const { wizardOpen, step, data, selectedConfig } = state;
   const { dropdownInput, requiredInput } = addNodeState;
   const { pipelineData, selectedPipeline } = pipelineState;
+
   const enableSave =
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
@@ -82,7 +82,11 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
            files:result,
          },
        });
-      toast.success(`New File(s) added`);
+        notification.open({
+        message: `${files.length > 1? "New Files added": "New File added"} `,
+        description: `${files.length} ${files.length > 1? "Files added": "File added"}`,
+        duration: 1,
+      })
       if(!selectedConfig.includes("local_select")){
         const nonDuplicateConfig = new Set([...selectedConfig, "local_select"])
         dispatch({

@@ -23,7 +23,6 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
     }
 
     case Types.SetPluginMeta: {
-      console.log(action.payload.pluginMeta)
       return {
         ...state,
         pluginMeta: action.payload.pluginMeta,

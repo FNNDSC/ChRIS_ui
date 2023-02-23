@@ -8,13 +8,14 @@ import {
 import { FaTrash, FaFile } from "react-icons/fa";
 import { CreateFeedContext } from "../context";
 import { Types, LocalFile } from "../types/feed";
-import { toast } from "react-toastify";
+import { notification } from "antd";
 
 export const FileList = ({ file, index }: { file: string; index: number }) => {
   const { dispatch } = useContext(CreateFeedContext);
 
   return (
-    <div className="file-preview" key={index}>
+    <>
+     <div className="file-preview" key={index}>
       <Breadcrumb>
         {file.split("/").map((path: string, index: number) => {
           return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
@@ -23,18 +24,23 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
       <span className="trash-icon">
         <FaTrash
           onClick={() => {
-            toast.success(`${file} file(s) removed`);
-            dispatch({
+          dispatch({
               type: Types.RemoveChrisFile,
               payload: {
                 file: file,
                 checkedKeys: [],
               },
             });
+            notification.open({
+              message: `File(s) removed`,
+              description: `${file} file(s) removed`,
+              duration: 1,
+           })
           }}
         />
       </span>
     </div>
+    </>
   );
 };
 
@@ -48,7 +54,9 @@ export const LocalFileList = ({
   showIcon: boolean;
   handleDeleteDispatch?: (file: string) => void;
 }) => {
+
   return (
+    <>
     <div className="file-preview" key={file.name}>
       <span className="file-icon">
         <FaFile />
@@ -64,6 +72,7 @@ export const LocalFileList = ({
         </span>
       )}
     </div>
+    </>
   );
 };
 
