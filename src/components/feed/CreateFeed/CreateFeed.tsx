@@ -82,7 +82,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
            files:result,
          },
        });
-        notification.open({
+        notification.success({
         message: `${files.length > 1? "New Files added": "New File added"} `,
         description: `${files.length} ${files.length > 1? "Files added": "File added"}`,
         duration: 1,

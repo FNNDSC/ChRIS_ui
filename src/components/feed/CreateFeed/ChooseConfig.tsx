@@ -129,7 +129,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }, [dispatch, pluginMeta, selectedConfig, state.selectedConfig])
 
   const resetPlugin = () => {
-    notification.open({
+    notification.success({
       message: `Plugin unselected`,
       description: `${pluginMeta?.data.name} unselected`,
       duration: 1,

@@ -31,7 +31,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
                 checkedKeys: [],
               },
             });
-            notification.open({
+            notification.success({
               message: `File(s) removed`,
               description: `${file} file(s) removed`,
               duration: 1,
