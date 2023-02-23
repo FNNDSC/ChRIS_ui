@@ -195,7 +195,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
       </DrawerPanelBody>
     </DrawerPanelContent>
   ) : (selectedCard == "fs_plugin") ? (
-    <DrawerPanelContent defaultSize="65%">
+    <DrawerPanelContent defaultSize="65%" className="drawer_panelContent">
       <DrawerHead>
         <span tabIndex={isRightDrawerExpand ? 0 : -1}  >
         </span>

@@ -63,7 +63,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     return stepNames[step - 1];
   };
 
-
   const allRequiredFieldsNotEmpty:boolean = selectedConfig.includes("fs_plugin")? params?.required.length == Object.keys(requiredInput).length:  true;
 
 
