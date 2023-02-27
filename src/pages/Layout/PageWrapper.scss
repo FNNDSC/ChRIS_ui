@@ -17,12 +17,12 @@
 
 .pf-c-page__sidebar[aria-hidden=false]{
   width: 15rem !important;
-  transition: all 2s ease-out;
+  transition: all 0.5s ease-out;
 }
 
 .pf-c-page__sidebar[aria-hidden=true]{
   width: 0rem !important;
-  transition: all 2s ease-in;
+  transition: all 0.5s ease-in;
 }
 
 .pf-c-page__sidebar.pf-m-collapsed{
