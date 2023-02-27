@@ -70,9 +70,14 @@
     }
   }
 
+  &__drawerbody {
+    overflow-x: hidden !important;
+  }
+
   .pf-c-drawer__panel {
     background: #d2d2d2 !important;
   }
+  
   &__table {
     padding-right: 0 !important;
     &--fileName {
@@ -175,12 +180,10 @@
       height: 100% !important;
     }
     img {
-      max-width: 400px;
       height: 100%;
     }
     .react-json-view {
       height: 100%;
-      max-width: 400px;
       overflow: scroll;
     }
   }

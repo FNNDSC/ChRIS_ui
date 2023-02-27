@@ -13,6 +13,10 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
   DrawerPanelBody,
+  DrawerHead,
+  DrawerActions,
+  DrawerCloseButton,
+  Tooltip,
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
@@ -28,6 +32,7 @@ import {
   AiFillFolder,
   AiOutlineExpandAlt,
 } from "react-icons/ai";
+import { FiSidebar } from "react-icons/fi";
 import { FaFileCode, FaFilm } from "react-icons/fa";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import FileDetailView from "../Preview/FileDetailView";
@@ -58,6 +63,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleXtkViewerOpen,
     explore,
     filesLoading,
+    expandSidebar,
+    handleSidebarDrawer,
   } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const dispatch = useDispatch();
@@ -221,7 +228,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const previewPanel = (
-    <DrawerPanelContent defaultSize={"70%"}>
+    <DrawerPanelContent isResizable defaultSize={"52%"}>
       <div className="carousel">
         <Button
           variant="link"
@@ -236,7 +243,16 @@ const FileBrowser = (props: FileBrowserProps) => {
           onClick={handleNextClick}
         />
       </div>
-      <DrawerPanelBody>
+      <DrawerHead>
+        <DrawerActions>
+          <DrawerCloseButton
+            onClick={() => {
+              setIsExpanded(!isExpanded);
+            }}
+          />
+        </DrawerActions>
+      </DrawerHead>
+      <DrawerPanelBody className="file-browser__drawerbody">
         <div className="preview-panel">
           {selectedFile ? (
             <div className="header-panel__buttons">
@@ -267,7 +283,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   return (
     <Grid hasGutter className="file-browser">
-      <Drawer isExpanded={isExpanded}>
+      <Drawer isInline isExpanded={isExpanded}>
         <DrawerContent
           panelContent={previewPanel}
           className="file-browser__firstGrid"
@@ -275,6 +291,16 @@ const FileBrowser = (props: FileBrowserProps) => {
           <DrawerContentBody>
             <div className="file-browser__header">
               <div className="file-browser__header--breadcrumbContainer">
+                {!expandSidebar && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      handleSidebarDrawer();
+                    }}
+                    icon={<FiSidebar />}
+                  ></Button>
+                )}
+
                 <ClipboardCopyButton
                   onClick={(event: any) => {
                     setCopied(true);
@@ -367,10 +393,10 @@ interface HeaderPanelProps {
 
 const HeaderPanel = (props: HeaderPanelProps) => {
   const {
-    handleToggleViewer,
     handleDicomViewerOpen,
     handleXtkViewerOpen,
     handleFileBrowserOpen,
+
     explore,
     selectedFile,
   } = props;
@@ -415,10 +441,6 @@ const HeaderPanel = (props: HeaderPanelProps) => {
             Open XTK Viewer
           </Button>
         )}
-
-        <Button variant="link" onClick={handleToggleViewer}>
-          Toggle File Viewer
-        </Button>
       </div>
     </>
   );

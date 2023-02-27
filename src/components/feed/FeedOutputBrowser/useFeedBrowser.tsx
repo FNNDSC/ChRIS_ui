@@ -27,6 +27,7 @@ const getInitialDownloadState = () => {
 
 export const useFeedBrowser = () => {
   const dispatch = useDispatch();
+  const [expandSidebar, setIsExpandedSidebar] = React.useState(true);
   const [download, setDownload] = React.useState(getInitialDownloadState);
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
 
@@ -184,6 +185,10 @@ export const useFeedBrowser = () => {
     dispatch(setExplorerMode(ExplorerMode.XtkViewer));
   };
 
+  const handleSidebarDrawer = () => {
+    setIsExpandedSidebar(!expandSidebar);
+  };
+
   return {
     handleDicomViewerOpen,
     handleXtkViewerOpen,
@@ -198,5 +203,7 @@ export const useFeedBrowser = () => {
     selected,
     pluginFilesPayload,
     pluginModalOpen,
+    handleSidebarDrawer,
+    expandSidebar
   };
 };
