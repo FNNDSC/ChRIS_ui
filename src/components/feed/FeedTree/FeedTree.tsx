@@ -7,7 +7,6 @@ import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { FaTimes } from "react-icons/fa";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
@@ -69,6 +68,7 @@ type FeedTreeState = {
   };
   collapsible: boolean;
   toggleLabel: boolean;
+  search: boolean;
 };
 
 function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
@@ -98,6 +98,7 @@ function getInitialState(
     },
     collapsible: false,
     toggleLabel: false,
+    search: false,
   };
 }
 
@@ -302,20 +303,6 @@ const FeedTree = (props: AllProps) => {
   }, [props.data, props.tsIds, generateTree]);
 
   const handleChange = (feature: string, data?: any) => {
-    if (feature === "collapsible") {
-      setFeedState({
-        ...feedState,
-        collapsible: !feedState.collapsible,
-      });
-    }
-
-    if (feature === "label") {
-      setFeedState({
-        ...feedState,
-        toggleLabel: !feedState.toggleLabel,
-      });
-    }
-
     if (feature === "scale_enabled") {
       setFeedState({
         ...feedState,
@@ -324,15 +311,19 @@ const FeedTree = (props: AllProps) => {
           enabled: !feedState.overlayScale.enabled,
         },
       });
-    }
-
-    if (feature === "scale_type") {
+    } else if (feature === "scale_type") {
       setFeedState({
         ...feedState,
         overlayScale: {
           ...feedState.overlayScale,
           type: data,
         },
+      });
+    } else {
+      setFeedState({
+        ...feedState,
+        //@ts-ignore
+        [feature]: !feedState[feature],
       });
     }
   };
@@ -354,6 +345,20 @@ const FeedTree = (props: AllProps) => {
       }`}
       ref={divRef}
     >
+      <div className="nodeButton">
+        {!props.isSidePanelExpanded && (
+          <div className="feed-tree__container--panelToggle">
+            <div className="feed-tree__orientation">
+              <Button
+                type="button"
+                onClick={() => props.onExpand("side_panel")}
+              >
+                Toggle Node Panel
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
           <div
@@ -376,7 +381,7 @@ const FeedTree = (props: AllProps) => {
               labelOff="Show Labels"
               isChecked={feedState.toggleLabel}
               onChange={() => {
-                handleChange("label");
+                handleChange("toggleLabel");
               }}
             />
           </div>
@@ -415,21 +420,26 @@ const FeedTree = (props: AllProps) => {
             )}
           </div>
           <div className="feed-tree__control">
-            <TextInput
-              value={searchFilter.value}
-              onChange={(value: string) => {
-                dispatch(setSearchFilter(value.trim()));
+            <Switch
+              id="search"
+              label="Search On"
+              labelOff="Search Off "
+              isChecked={feedState.search}
+              onChange={() => {
+                handleChange("search");
               }}
             />
           </div>
 
           <div className="feed-tree__control">
-            <FaTimes
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                dispatch(setSearchFilter(""));
-              }}
-            />
+            {feedState.search && (
+              <TextInput
+                value={searchFilter.value}
+                onChange={(value: string) => {
+                  dispatch(setSearchFilter(value.trim()));
+                }}
+              />
+            )}
           </div>
 
           {mode === false && (
@@ -499,20 +509,7 @@ const FeedTree = (props: AllProps) => {
             </svg>
           )}
         </div>
-        <div className="nodeButton">
-          {!props.isSidePanelExpanded && (
-            <div className="feed-tree__container--panelToggle">
-              <div className="feed-tree__orientation">
-                <Button
-                  type="button"
-                  onClick={() => props.onExpand("side_panel")}
-                >
-                  Toggle Node Panel
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+
         <div className="feedButton">
           {!props.isBottomPanelExpanded && (
             <div className="feed-tree__container--panelToggle">
