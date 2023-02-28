@@ -34,15 +34,6 @@
     background-color: inherit !important;
   }
 
-  &__title {
-    position: absolute;
-    top: 0.75rem;
-    padding: 0 0.5em 0.5em 0;
-    right: 0.5rem;
-    z-index: 999;
-    font-size: 0.85rem;
-  }
-
   &__button {
     cursor: pointer;
   }
@@ -70,9 +61,18 @@
     }
   }
 
+  &__previewPanel {
+    .pf-c-drawer__content,
+    .pf-c-drawer__panel,
+    .pf-c-drawer__panel-main {
+      overflow: hidden !important;
+    }
+  }
+
   .pf-c-drawer__panel {
     background: #d2d2d2 !important;
   }
+
   &__table {
     padding-right: 0 !important;
     &--fileName {
@@ -175,12 +175,10 @@
       height: 100% !important;
     }
     img {
-      max-width: 400px;
       height: 100%;
     }
     .react-json-view {
       height: 100%;
-      max-width: 400px;
       overflow: scroll;
     }
   }

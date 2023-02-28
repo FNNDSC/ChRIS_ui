@@ -7,8 +7,13 @@
 }
 
 @media screen and (min-width: 768px) {
-  .pf-c-drawer > .pf-c-drawer__main > .pf-c-drawer__panel.pf-m-resizable > .pf-c-drawer__panel-main {
-    flex-shrink: 0;
+  .section-two {
+    .pf-c-drawer
+      > .pf-c-drawer__main
+      > .pf-c-drawer__panel.pf-m-resizable
+      > .pf-c-drawer__panel-main {
+      flex-shrink: 0;
+    }
   }
 }
 
@@ -52,9 +57,15 @@
       display: flex;
       margin: 0.5em auto;
       .pf-c-button {
-        --pf-c-button--m-tertiary--BackgroundColor: var(--pf-global--palette--white) !important;
-        -pf-c-button--m-tertiary--hover--backgroundcolor: var(--pf-global--palette--black-300) !important;
-        --pf-c-button--m-tertiary--focus--BackgroundColor: var(--pf-global--palette--black-300) !important;
+        --pf-c-button--m-tertiary--BackgroundColor: var(
+          --pf-global--palette--white
+        ) !important;
+        -pf-c-button--m-tertiary--hover--backgroundcolor: var(
+          --pf-global--palette--black-300
+        ) !important;
+        --pf-c-button--m-tertiary--focus--BackgroundColor: var(
+          --pf-global--palette--black-300
+        ) !important;
       }
       &--button {
         // Tells the element to create as much space as possible to it's left
@@ -144,7 +155,8 @@
         padding-right: 0.25px;
       }
 
-      .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
+      .ant-steps-horizontal:not(.ant-steps-label-vertical)
+        .ant-steps-item-tail {
         display: none !important;
       }
 
@@ -152,12 +164,12 @@
         display: none;
       }
 
-       @media(min-width:1024px){
-        .ant-steps-item-tail{
+      @media (min-width: 1024px) {
+        .ant-steps-item-tail {
           margin-left: 15px !important;
         }
       }
-     
+
       .ant-steps-item {
         overflow: visible !important;
       }
@@ -173,12 +185,15 @@
         padding-left: 0;
       }
 
-      .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item-tail {
+      .ant-steps-horizontal:not(.ant-steps-label-vertical)
+        .ant-steps-item-tail {
         display: outline !important;
       }
 
       .ant-steps-item-finish,
-      > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description {
+      > .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-description {
         color: white !important;
       }
 
@@ -195,7 +210,9 @@
       }
 
       .ant-steps-item-wait,
-      > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-description {
+      > .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-description {
         color: white !important;
       }
 
@@ -220,7 +237,9 @@
         padding-right: 0;
       }
 
-      .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
+      .ant-steps-item-container
+        > .ant-steps-item-content
+        > .ant-steps-item-title {
         color: white !important;
       }
     }
