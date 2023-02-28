@@ -34,22 +34,6 @@
     background-color: inherit !important;
   }
 
-  &__title {
-    display: inline;
-    position: absolute;
-    bottom: 1rem;
-    left: 0.5rem;
-    z-index: 999;
-    /*
-    position: absolute;
-    top: 0.75rem;
-    padding: 0 0.5em 0.5em 0;
-    right: 0.5rem;
-    z-index: 999;
-    font-size: 0.85rem;
-    */
-  }
-
   &__button {
     cursor: pointer;
   }
@@ -77,8 +61,12 @@
     }
   }
 
-  &__drawerbody {
-    overflow-x: hidden !important;
+  &__previewPanel {
+    .pf-c-drawer__content,
+    .pf-c-drawer__panel,
+    .pf-c-drawer__panel-main {
+      overflow: hidden !important;
+    }
   }
 
   .pf-c-drawer__panel {

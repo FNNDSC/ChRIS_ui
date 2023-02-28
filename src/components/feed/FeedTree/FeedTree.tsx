@@ -7,7 +7,6 @@ import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { FaTimes } from "react-icons/fa";
 import { AiOutlineRotateLeft, AiOutlineRotateRight } from "react-icons/ai";
 import Link from "./Link";
 import NodeWrapper from "./Node";
@@ -346,6 +345,20 @@ const FeedTree = (props: AllProps) => {
       }`}
       ref={divRef}
     >
+      <div className="nodeButton">
+        {!props.isSidePanelExpanded && (
+          <div className="feed-tree__container--panelToggle">
+            <div className="feed-tree__orientation">
+              <Button
+                type="button"
+                onClick={() => props.onExpand("side_panel")}
+              >
+                Toggle Node Panel
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
           <div
@@ -496,20 +509,7 @@ const FeedTree = (props: AllProps) => {
             </svg>
           )}
         </div>
-        <div className="nodeButton">
-          {!props.isSidePanelExpanded && (
-            <div className="feed-tree__container--panelToggle">
-              <div className="feed-tree__orientation">
-                <Button
-                  type="button"
-                  onClick={() => props.onExpand("side_panel")}
-                >
-                  Toggle Node Panel
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+
         <div className="feedButton">
           {!props.isBottomPanelExpanded && (
             <div className="feed-tree__container--panelToggle">
