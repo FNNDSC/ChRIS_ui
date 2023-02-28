@@ -24,7 +24,6 @@
     "d3-zoom": "^1.8.3",
     "dicom-parser": "^1.8.13",
     "dompurify": "^2.4.1",
-    "dwv": "^0.30.8",
     "email-validator": "^2.0.4",
     "hammerjs": "^2.0.8",
     "jszip": "^3.10.1",
