@@ -16,7 +16,6 @@ import {
   DrawerHead,
   DrawerActions,
   DrawerCloseButton,
-  Tooltip,
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
@@ -228,7 +227,11 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const previewPanel = (
-    <DrawerPanelContent isResizable defaultSize={"52%"}>
+    <DrawerPanelContent
+      className="file-browser__previewPanel"
+      isResizable
+      defaultSize={"52%"}
+    >
       <div className="carousel">
         <Button
           variant="link"

@@ -156,6 +156,7 @@ const DicomViewerContainer = (props: {
       }
 
       if (event === "Reset View") {
+        cornerstoneTools.clearToolState(dicomImageRef.current, "Length");
         cornerstone.reset(dicomImageRef.current);
         setDicomState((dicomState) => {
           return {
