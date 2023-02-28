@@ -69,6 +69,7 @@ type FeedTreeState = {
   };
   collapsible: boolean;
   toggleLabel: boolean;
+  search: boolean;
 };
 
 function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
@@ -98,6 +99,7 @@ function getInitialState(
     },
     collapsible: false,
     toggleLabel: false,
+    search: false,
   };
 }
 
@@ -302,20 +304,6 @@ const FeedTree = (props: AllProps) => {
   }, [props.data, props.tsIds, generateTree]);
 
   const handleChange = (feature: string, data?: any) => {
-    if (feature === "collapsible") {
-      setFeedState({
-        ...feedState,
-        collapsible: !feedState.collapsible,
-      });
-    }
-
-    if (feature === "label") {
-      setFeedState({
-        ...feedState,
-        toggleLabel: !feedState.toggleLabel,
-      });
-    }
-
     if (feature === "scale_enabled") {
       setFeedState({
         ...feedState,
@@ -324,15 +312,19 @@ const FeedTree = (props: AllProps) => {
           enabled: !feedState.overlayScale.enabled,
         },
       });
-    }
-
-    if (feature === "scale_type") {
+    } else if (feature === "scale_type") {
       setFeedState({
         ...feedState,
         overlayScale: {
           ...feedState.overlayScale,
           type: data,
         },
+      });
+    } else {
+      setFeedState({
+        ...feedState,
+        //@ts-ignore
+        [feature]: !feedState[feature],
       });
     }
   };
@@ -376,7 +368,7 @@ const FeedTree = (props: AllProps) => {
               labelOff="Show Labels"
               isChecked={feedState.toggleLabel}
               onChange={() => {
-                handleChange("label");
+                handleChange("toggleLabel");
               }}
             />
           </div>
@@ -415,21 +407,26 @@ const FeedTree = (props: AllProps) => {
             )}
           </div>
           <div className="feed-tree__control">
-            <TextInput
-              value={searchFilter.value}
-              onChange={(value: string) => {
-                dispatch(setSearchFilter(value.trim()));
+            <Switch
+              id="search"
+              label="Search On"
+              labelOff="Search Off "
+              isChecked={feedState.search}
+              onChange={() => {
+                handleChange("search");
               }}
             />
           </div>
 
           <div className="feed-tree__control">
-            <FaTimes
-              style={{ cursor: "pointer" }}
-              onClick={() => {
-                dispatch(setSearchFilter(""));
-              }}
-            />
+            {feedState.search && (
+              <TextInput
+                value={searchFilter.value}
+                onChange={(value: string) => {
+                  dispatch(setSearchFilter(value.trim()));
+                }}
+              />
+            )}
           </div>
 
           {mode === false && (

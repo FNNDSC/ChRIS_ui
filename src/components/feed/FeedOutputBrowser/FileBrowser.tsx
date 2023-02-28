@@ -245,6 +245,20 @@ const FileBrowser = (props: FileBrowserProps) => {
       </div>
       <DrawerHead>
         <DrawerActions>
+          <div className="header-panel__buttons">
+            {selectedFile && (
+              <HeaderPanel
+                explore={explore}
+                handleFileBrowserOpen={handleFileBrowserToggle}
+                handleDicomViewerOpen={handleDicomViewerOpen}
+                handleXtkViewerOpen={handleXtkViewerOpen}
+                selectedFile={selectedFile}
+                handleToggleViewer={() => {
+                  setIsExpanded(!isExpanded);
+                }}
+              />
+            )}
+          </div>
           <DrawerCloseButton
             onClick={() => {
               setIsExpanded(!isExpanded);
@@ -253,27 +267,6 @@ const FileBrowser = (props: FileBrowserProps) => {
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody className="file-browser__drawerbody">
-        <div className="preview-panel">
-          {selectedFile ? (
-            <div className="header-panel__buttons">
-              {selectedFile && (
-                <HeaderPanel
-                  explore={explore}
-                  handleFileBrowserOpen={handleFileBrowserToggle}
-                  handleDicomViewerOpen={handleDicomViewerOpen}
-                  handleXtkViewerOpen={handleXtkViewerOpen}
-                  selectedFile={selectedFile}
-                  handleToggleViewer={() => {
-                    setIsExpanded(!isExpanded);
-                  }}
-                />
-              )}
-            </div>
-          ) : (
-            <span>Click on a file to preview:</span>
-          )}
-        </div>
-
         {selectedFile && (
           <FileDetailView selectedFile={selectedFile} preview="large" />
         )}
