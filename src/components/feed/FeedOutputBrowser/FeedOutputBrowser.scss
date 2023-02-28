@@ -35,12 +35,19 @@
   }
 
   &__title {
+    display: inline;
+    position: absolute;
+    bottom: 1rem;
+    left: 0.5rem;
+    z-index: 999;
+    /*
     position: absolute;
     top: 0.75rem;
     padding: 0 0.5em 0.5em 0;
     right: 0.5rem;
     z-index: 999;
     font-size: 0.85rem;
+    */
   }
 
   &__button {
@@ -77,7 +84,7 @@
   .pf-c-drawer__panel {
     background: #d2d2d2 !important;
   }
-  
+
   &__table {
     padding-right: 0 !important;
     &--fileName {

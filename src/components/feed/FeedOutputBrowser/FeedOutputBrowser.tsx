@@ -54,7 +54,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     filesLoading,
   } = useFeedBrowser();
 
-
   const panelContent = (
     <DrawerPanelContent isResizable defaultSize="20%">
       <DrawerHead>
@@ -80,6 +79,19 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
 
   return (
     <>
+      {explore && (
+        <div className="feed-output-browser__title">
+          <Button
+            onClick={() => {
+              expandDrawer("bottom_panel");
+            }}
+            variant="primary"
+          >
+            Toggle Browser Panel
+          </Button>
+        </div>
+      )}
+
       <Drawer
         isExpanded={expandSidebar}
         position="left"
