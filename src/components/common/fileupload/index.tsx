@@ -22,7 +22,6 @@ const baseStyle: React.CSSProperties = {
   transition: "border .24s ease-in-out",
 };
 
-
 const activeStyle = {
   borderColor: "#2196f3",
 };
@@ -56,6 +55,7 @@ const DragAndUpload = ({
     isDragActive,
     isDragAccept,
     getInputProps,
+<<<<<<< HEAD
     open,
   } = useDropzone({onDrop});
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -87,6 +87,16 @@ const DragAndUpload = ({
     }
   }, [handleKeyDown])
 
+=======
+  } = useDropzone();
+
+  React.useEffect(() => {
+    if (acceptedFiles.length > 0) {
+      handleLocalUploadFiles(acceptedFiles);
+    }
+  }, [acceptedFiles]);
+
+>>>>>>> 09a6afb4 (Improve Create Feed Wizard)
   const style = React.useMemo(
     () => ({
       ...baseStyle,
@@ -99,6 +109,7 @@ const DragAndUpload = ({
     [isDragActive, isDragReject, isDragAccept, isFocused]
   );
   return (
+<<<<<<< HEAD
     <section className="container" style={{ height: "100%", position: "relative" }}>
       <Tooltip content="Press the U key to select a file">
         <div className="pf-c-chip pf-m-read-only tag" style={{ position: "absolute", top: "10%", right: "8%" }}>
@@ -106,6 +117,10 @@ const DragAndUpload = ({
         </div>
       </Tooltip>
       <div {...getRootProps({ style })} >
+=======
+    <section className="container" style={{ height: "100%" }}>
+      <div {...getRootProps({ style })}>
+>>>>>>> 09a6afb4 (Improve Create Feed Wizard)
         <input {...getInputProps()} />
         <MdOutlineUploadFile size="40" />
         <p>Drag &apos;n&apos; drop some files here or click to select files</p>
