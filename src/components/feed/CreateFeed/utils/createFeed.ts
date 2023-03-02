@@ -91,8 +91,6 @@ export const createFeedInstanceWithDircopy = async (
     }
   }
 
-  console.log("Dirpath", dirpath);
-
   try {
     const client = ChrisAPIClient.getClient();
     const dircopy = await getPlugin("pl-dircopy");
