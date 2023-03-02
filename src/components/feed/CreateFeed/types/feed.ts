@@ -16,7 +16,7 @@ type ActionMap<M extends { [index: string]: any }> = {
 };
 
 export enum Types {
-  ToggleWizzard = "TOGGLE_WIZZARD",
+  ToggleWizard = "TOGGLE_WIZZARD",
   SetStep = "SET_STEP",
   FeedNameChange = "FEED_NAME_CHANGE",
   FeedDescriptionChange = "FEED_DESCRIPTION_CHANGE",
@@ -42,7 +42,7 @@ export enum Types {
 }
 
 type CreateFeedPayload = {
-  [Types.ToggleWizzard]: boolean;
+  [Types.ToggleWizard]: boolean;
   [Types.SetStep]: {
     id: number;
   };
@@ -66,7 +66,7 @@ type CreateFeedPayload = {
     file: string;
     checkedKeys: Key[];
   };
-  [Types.ResetChrisFile]: boolean
+  [Types.ResetChrisFile]: boolean;
   [Types.AddLocalFile]: {
     files: LocalFile[];
   };
@@ -76,14 +76,10 @@ type CreateFeedPayload = {
 
   [Types.ResetState]: boolean;
   [Types.SetProgress]: {
-    feedProgress: string;
     value: number;
   };
   [Types.SetError]: {
     feedError: any;
-  };
-  [Types.SetProgressPercent]: {
-    percent: number;
   };
 
   [Types.ResetProgress]: boolean;
@@ -144,9 +140,8 @@ export interface CreateFeedState {
   step: number;
   data: CreateFeedData;
   selectedConfig: string[];
-  feedProgress: string;
+  uploadProgress: number;
   feedError: any;
-  value: number;
   currentlyConfiguredNode: string;
 }
 

@@ -1,20 +1,5 @@
-<<<<<<< HEAD
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Card, CardActions, CardBody, CardHeader, Drawer, CardTitle, Chip, DrawerActions, DrawerContent, DrawerContentBody, DrawerHead, DrawerPanelBody, DrawerPanelContent, Grid, GridItem, Tooltip, Button } from "@patternfly/react-core";
-=======
-import React, { useCallback, useContext, useEffect } from "react";
-import {
-  Card,
-  CardActions,
-  CardBody,
-  CardHeader,
-  CardTitle,
-  Chip,
-  Grid,
-  GridItem,
-  Tooltip,
-} from "@patternfly/react-core";
->>>>>>> 09a6afb4 (Improve Create Feed Wizard)
 import { CreateFeedContext } from "./context";
 import { FaTrash, FaUpload } from "react-icons/fa";
 import { BiCloudUpload } from "react-icons/bi";
@@ -144,7 +129,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }, [dispatch, pluginMeta, selectedConfig, state.selectedConfig])
 
   const resetPlugin = () => {
-    notification.success({
+    notification.info({
       message: `Plugin unselected`,
       description: `${pluginMeta?.data.name} unselected`,
       duration: 1,

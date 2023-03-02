@@ -87,7 +87,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             checkedKeys,
           },
         })
-        notification.success({
+        notification.info({
           message: `New File(s) added`,
           description: `New ${path} file(s) added`,
           duration: 1
@@ -100,7 +100,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
             checkedKeys,
           },
         });
-        notification.success({
+        notification.info({
           message: `File(s) removed`,
           description: `${path} file(s) removed`,
           duration: 1

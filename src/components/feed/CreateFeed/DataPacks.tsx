@@ -104,7 +104,7 @@ const DataPacks: React.FC = () => {
 
       },
     });
-    notification.success({
+    notification.info({
       message: `Plugin Selected`,
       description: `${plugin.data.name} plugin unselected`,
       duration: 1,

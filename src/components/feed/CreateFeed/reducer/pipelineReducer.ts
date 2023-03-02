@@ -171,6 +171,15 @@ export const pipelineReducer = (
       };
     }
 
+    case PipelineTypes.SetPipelineName: {
+      const { pipelineName } = action.payload;
+
+      return {
+        ...state,
+        pipelineName,
+      };
+    }
+
     case PipelineTypes.SetCurrentNodeTitle: {
       const { currentPipelineId, currentNode, title } = action.payload;
       return {

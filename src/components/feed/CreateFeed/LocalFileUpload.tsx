@@ -5,7 +5,6 @@ import { LocalFile, Types } from "./types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 import { notification } from "antd";
 
-
 const LocalFileUpload = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { localFiles } = state.data;
@@ -18,27 +17,27 @@ const LocalFileUpload = () => {
         filename: file,
       },
     });
-    notification.success({
+    notification.info({
       message: "File removed",
       description: `${file} file removed`,
       duration: 1,
-    })
+    });
   };
 
   return (
-      <>
+    <>
       <div className="pacs-alert-wrap">
-      <div className="pacs-alert-step-wrap">
-        <h1>Selected Files:</h1>
-        <FileUploadComponent
-          className="local-file-upload"
-          handleDeleteDispatch={handleDeleteDispatch}
-          localFiles={localFiles}
-          onNext={onNext}
-          onBack={onBack}
-        />
+        <div className="pacs-alert-step-wrap">
+          <h1>Selected Files:</h1>
+          <FileUploadComponent
+            className="local-file-upload"
+            handleDeleteDispatch={handleDeleteDispatch}
+            localFiles={localFiles}
+            onNext={onNext}
+            onBack={onBack}
+          />
+        </div>
       </div>
-    </div>
     </>
   );
 };
@@ -56,12 +55,11 @@ type FileUploadProps = {
 
 const FileUploadComponent = ({
   localFiles,
-   onBack,
+  onBack,
   onNext,
   handleDeleteDispatch,
   className,
 }: FileUploadProps) => {
-
   const handleKeyDown = useCallback(
     (e: any) => {
       if (e.code == "ArrowLeft") {
@@ -95,14 +93,10 @@ const FileUploadComponent = ({
       : null;
 
   return (
-    <div className={className} >
+    <div className={className}>
       <Grid hasGutter={true}>
-        <GridItem
-          className={`${className}-grid`}
-          span={12}
-          rowSpan={12}
-        >
-          <div className="file-list" >{fileList}</div>
+        <GridItem className={`${className}-grid`} span={12} rowSpan={12}>
+          <div className="file-list">{fileList}</div>
         </GridItem>
       </Grid>
     </div>
