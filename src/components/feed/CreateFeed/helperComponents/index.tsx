@@ -15,31 +15,31 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
 
   return (
     <>
-     <div className="file-preview" key={index}>
-      <Breadcrumb>
-        {file.split("/").map((path: string, index: number) => {
-          return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
-        })}
-      </Breadcrumb>
-      <span className="trash-icon">
-        <FaTrash
-          onClick={() => {
-          dispatch({
-              type: Types.RemoveChrisFile,
-              payload: {
-                file: file,
-                checkedKeys: [],
-              },
-            });
-            notification.success({
-              message: `File(s) removed`,
-              description: `${file} file(s) removed`,
-              duration: 1,
-           })
-          }}
-        />
-      </span>
-    </div>
+      <div className="file-preview" key={index}>
+        <Breadcrumb>
+          {file.split("/").map((path: string, index: number) => {
+            return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
+          })}
+        </Breadcrumb>
+        <span className="trash-icon">
+          <FaTrash
+            onClick={() => {
+              dispatch({
+                type: Types.RemoveChrisFile,
+                payload: {
+                  file: file,
+                  checkedKeys: [],
+                },
+              });
+              notification.info({
+                message: `File(s) removed`,
+                description: `${file} file(s) removed`,
+                duration: 1,
+              });
+            }}
+          />
+        </span>
+      </div>
     </>
   );
 };
@@ -54,24 +54,23 @@ export const LocalFileList = ({
   showIcon: boolean;
   handleDeleteDispatch?: (file: string) => void;
 }) => {
-
   return (
     <>
-    <div className="file-preview" key={file.name}>
-      <span className="file-icon">
-        <FaFile />
-      </span>
-      <span className="file-name">{file.name}</span>
-      {showIcon && (
-        <span className="trash-icon">
-          <FaTrash
-            onClick={() => {
-              handleDeleteDispatch && handleDeleteDispatch(file.name);
-             }}
-          />
+      <div className="file-preview" key={file.name}>
+        <span className="file-icon">
+          <FaFile />
         </span>
-      )}
-    </div>
+        <span className="file-name">{file.name}</span>
+        {showIcon && (
+          <span className="trash-icon">
+            <FaTrash
+              onClick={() => {
+                handleDeleteDispatch && handleDeleteDispatch(file.name);
+              }}
+            />
+          </span>
+        )}
+      </div>
     </>
   );
 };
@@ -143,4 +142,3 @@ export function ErrorMessage({ error }: any) {
     </div>
   );
 }
-

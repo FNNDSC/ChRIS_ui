@@ -1,8 +1,15 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import { CreateFeedContext } from "./context";
-import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
+import {
+  Grid,
+  GridItem,
+  WizardContext,
+  Split,
+  SplitItem,
+} from "@patternfly/react-core";
+import { ChartDonutUtilization } from "@patternfly/react-charts";
+import { CreateFeedContext, PipelineContext } from "./context";
+
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
-import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 import { AddNodeContext } from "../AddNode/context";
@@ -10,9 +17,13 @@ import { AddNodeContext } from "../AddNode/context";
 const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state } = useContext(CreateFeedContext);
   const { state: addNodeState } = useContext(AddNodeContext);
+  const { state: pipelineState } = useContext(PipelineContext);
   const { feedName, feedDescription, tags, chrisFiles, localFiles } =
     state.data;
-  const { selectedConfig } = state;
+  const { selectedConfig, uploadProgress } = state;
+
+  const uploadPercent = Math.floor((uploadProgress / localFiles.length) * 100);
+
   const {
     dropdownInput,
     requiredInput,
@@ -20,7 +31,6 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     selectedComputeEnv,
   } = addNodeState;
 
-  const pipelineName = "";
   // the installed version of @patternfly/react-core doesn't support read-only chips
   const tagList = tags.map((tag: any) => (
     <div className="pf-c-chip pf-m-read-only tag" key={tag.data.id}>
@@ -51,29 +61,64 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   }, [handleKeyDown]);
 
   const getReviewDetails = () => {
-      let generatedCommand = "";
-      if (requiredInput) {
-        generatedCommand += unpackParametersIntoString(requiredInput);
-      }
+    let generatedCommand = "";
+    if (requiredInput) {
+      generatedCommand += unpackParametersIntoString(requiredInput);
+    }
 
-      if (dropdownInput) {
-        generatedCommand += unpackParametersIntoString(dropdownInput);
-      }
-        return (
-          <>
-        {selectedConfig.includes("fs_plugin") && <Grid hasGutter={true}>
-          <PluginDetails
-            generatedCommand={generatedCommand}
-            selectedPlugin={selectedPluginFromMeta}
-            computeEnvironment={selectedComputeEnv}
-          />
-        </Grid>}
-        {(selectedConfig.includes("swift_storage")) &&  <ChrisFileDetails chrisFiles={chrisFiles} />}
-        {(selectedConfig.includes( "local_select")) && <LocalFileDetails localFiles={localFiles}/>}
-        </>
-      )
-
-};
+    if (dropdownInput) {
+      generatedCommand += unpackParametersIntoString(dropdownInput);
+    }
+    return (
+      <>
+        {selectedConfig.includes("fs_plugin") && (
+          <Grid hasGutter={true}>
+            <PluginDetails
+              generatedCommand={generatedCommand}
+              selectedPlugin={selectedPluginFromMeta}
+              computeEnvironment={selectedComputeEnv}
+            />
+          </Grid>
+        )}
+        {selectedConfig.includes("swift_storage") && (
+          <ChrisFileDetails chrisFiles={chrisFiles} />
+        )}
+        {selectedConfig.includes("local_select") && (
+          <div
+            style={{
+              display: "flex",
+            }}
+          >
+            <LocalFileDetails localFiles={localFiles} />
+            {uploadProgress && (
+              <Split>
+                <SplitItem>
+                  <div style={{ height: "230px", width: "230px" }}>
+                    <p>Upload to Swift Tracker</p>
+                    <ChartDonutUtilization
+                      ariaDesc="Storage capacity"
+                      ariaTitle="Donut utilization chart example"
+                      constrainToVisibleArea
+                      data={{ x: "GBps capacity", y: uploadPercent }}
+                      labels={({ datum }) =>
+                        datum.x ? `${datum.x}: ${datum.y}%` : null
+                      }
+                      themeColor={
+                        uploadProgress === localFiles.length ? "green" : ""
+                      }
+                      name="chart1"
+                      subTitle={`${localFiles.length}`}
+                      title={`${uploadProgress}`}
+                    />
+                  </div>
+                </SplitItem>
+              </Split>
+            )}
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <div className="review">
@@ -109,7 +154,9 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         </GridItem>
         <GridItem sm={8} md={10}>
           <span className="review__value">
-            {pipelineName ? pipelineName : "None Selected"}
+            {pipelineState.pipelineName
+              ? pipelineState.pipelineName
+              : "None Selected"}
           </span>
         </GridItem>
       </Grid>

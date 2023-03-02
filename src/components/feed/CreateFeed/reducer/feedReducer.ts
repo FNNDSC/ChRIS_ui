@@ -40,9 +40,9 @@ export function getInitialState(
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
     selectedConfig: isInitDataSelected ? ["swift_storage"] : [],
-    feedProgress: "",
+    uploadProgress: 0,
     feedError: "",
-    value: 0,
+
     currentlyConfiguredNode: "",
   };
 }
@@ -52,7 +52,7 @@ export const createFeedReducer = (
   action: CreateFeedActions
 ): CreateFeedState => {
   switch (action.type) {
-    case Types.ToggleWizzard:
+    case Types.ToggleWizard:
       return {
         ...state,
         wizardOpen: !state.wizardOpen,
@@ -84,7 +84,7 @@ export const createFeedReducer = (
       clearCache();
       return {
         ...state,
-        selectedConfig: [...action.payload.selectedConfig]
+        selectedConfig: [...action.payload.selectedConfig],
       };
     case Types.AddChrisFile:
       const file = action.payload.file;
@@ -131,15 +131,15 @@ export const createFeedReducer = (
       };
     }
 
-    case Types.ResetChrisFile:{
+    case Types.ResetChrisFile: {
       return {
         ...state,
         data: {
           ...state.data,
           chrisFiles: [],
-          checkedKeys: {}
-        }
-      }
+          checkedKeys: {},
+        },
+      };
     }
 
     case Types.AddLocalFile:
@@ -168,15 +168,14 @@ export const createFeedReducer = (
         ...state,
         data: getDefaultCreateFeedData(),
         step: 1,
-        value: 0,
       };
     }
 
     case Types.SetProgress: {
+      console.log("Value", action.payload.value);
       return {
         ...state,
-        feedProgress: action.payload.feedProgress,
-        value: action.payload.value,
+        uploadProgress: action.payload.value,
       };
     }
 
@@ -189,8 +188,7 @@ export const createFeedReducer = (
     case Types.ResetProgress: {
       return {
         ...state,
-        feedProgress: "",
-        value: 0,
+        uploadProgress: 0,
         feedError: "",
       };
     }
