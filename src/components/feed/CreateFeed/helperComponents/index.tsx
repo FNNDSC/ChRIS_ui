@@ -2,37 +2,49 @@ import React, { useContext } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  Split,
-  SplitItem,
+  Grid,
+  GridItem,
 } from "@patternfly/react-core";
 import { FaTrash, FaFile } from "react-icons/fa";
 import { CreateFeedContext } from "../context";
 import { Types, LocalFile } from "../types/feed";
+import { notification } from "antd";
 
 export const FileList = ({ file, index }: { file: string; index: number }) => {
   const { dispatch } = useContext(CreateFeedContext);
 
   return (
-    <div className="file-preview" key={index}>
-      <Breadcrumb>
-        {file.split("/").map((path: string, index: number) => {
-          return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
-        })}
-      </Breadcrumb>
-      <span className="trash-icon">
-        <FaTrash
-          onClick={() => {
-            dispatch({
-              type: Types.RemoveChrisFile,
-              payload: {
-                file: file,
-                checkedKeys: [],
-              },
-            });
-          }}
-        />
-      </span>
-    </div>
+    <>
+      <Grid className="file-preview" key={index}>
+        <GridItem span={10}>
+          <Breadcrumb>
+            {file.split("/").map((path: string, index: number) => {
+              return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
+            })}
+          </Breadcrumb>
+        </GridItem>
+        <GridItem span={2}>
+          <span className="trash-icon">
+            <FaTrash
+              onClick={() => {
+                dispatch({
+                  type: Types.RemoveChrisFile,
+                  payload: {
+                    file: file,
+                    checkedKeys: [],
+                  },
+                });
+                notification.info({
+                  message: `File(s) removed`,
+                  description: `${file} file(s) removed`,
+                  duration: 1,
+                });
+              }}
+            />
+          </span>
+        </GridItem>
+      </Grid>
+    </>
   );
 };
 
@@ -47,29 +59,41 @@ export const LocalFileList = ({
   handleDeleteDispatch?: (file: string) => void;
 }) => {
   return (
-    <div className="file-preview" key={file.name}>
-      <span className="file-icon">
-        <FaFile />
-      </span>
-      <span className="file-name">{file.name}</span>
-      {showIcon && (
-        <span className="trash-icon">
-          <FaTrash
-            onClick={() => {
-              handleDeleteDispatch && handleDeleteDispatch(file.name);
-            }}
-          />
-        </span>
-      )}
-    </div>
+    <>
+      <Grid className="file-preview" key={file.name}>
+        <GridItem span={10} className="file-name">
+          <span className="file-icon">
+            <FaFile />
+          </span>
+          {file.name}
+        </GridItem>
+        {showIcon && (
+          <GridItem span={2} className="trash-icon">
+            <FaTrash
+              onClick={() => {
+                handleDeleteDispatch && handleDeleteDispatch(file.name);
+              }}
+            />
+          </GridItem>
+        )}
+      </Grid>
+    </>
   );
 };
 
-function generateLocalFileList(localFiles: LocalFile[]) {
+function generateLocalFileList(
+  localFiles: LocalFile[],
+  handleDeleteDispatch: (file: string) => void
+) {
   return localFiles.map((file: LocalFile, index: number) => {
     return (
       <React.Fragment key={index}>
-        <LocalFileList showIcon={false} file={file} index={index} />
+        <LocalFileList
+          handleDeleteDispatch={handleDeleteDispatch}
+          showIcon={true}
+          file={file}
+          index={index}
+        />
       </React.Fragment>
     );
   });
@@ -87,12 +111,10 @@ function generateChrisFileList(chrisFiles: string[]) {
 
 export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
   return (
-    <Split>
-      <SplitItem isFilled className="file-list">
-        <p>Existing Files to add to new feed:</p>
-        {generateChrisFileList(chrisFiles)}
-      </SplitItem>
-    </Split>
+    <>
+      <p>Existing Files to add to new feed:</p>
+      {generateChrisFileList(chrisFiles)}
+    </>
   );
 };
 
@@ -101,13 +123,25 @@ export const LocalFileDetails = ({
 }: {
   localFiles: LocalFile[];
 }) => {
+  const { dispatch } = useContext(CreateFeedContext);
+  const handleDeleteDispatch = (file: string) => {
+    dispatch({
+      type: Types.RemoveLocalFile,
+      payload: {
+        filename: file,
+      },
+    });
+    notification.info({
+      message: "File removed",
+      description: `${file} file removed`,
+      duration: 1,
+    });
+  };
   return (
-    <Split>
-      <SplitItem isFilled className="file-list">
-        <p>Local Files to add to new feed:</p>
-        {generateLocalFileList(localFiles)}
-      </SplitItem>
-    </Split>
+    <>
+      <p>Local Files to add to new feed:</p>
+      {generateLocalFileList(localFiles, handleDeleteDispatch)}
+    </>
   );
 };
 
@@ -132,4 +166,3 @@ export function ErrorMessage({ error }: any) {
     </div>
   );
 }
-

@@ -62,17 +62,10 @@ describe("Testing CreateAnalysis", () => {
       .click();
   });
 
-  it("06 Goes to Analysis Creation", () => {
-    cy.get("button.pf-c-button.pf-m-primary")
-      .eq(1)
-      .should("have.text", "Next")
-      .click();
-  });
-
   it("07 Selects the Analysis Synthesis plugin", () => {
     cy.get("input#pl-dircopy").check();
     cy.get("button.pf-c-button.pf-m-primary")
-      .eq(1)
+      .eq(2)
       .should("have.text", "Next")
       .click();
     cy.wait(2000);
@@ -80,18 +73,26 @@ describe("Testing CreateAnalysis", () => {
 
   it("08 Goes to Parameter Configuration", () => {
     cy.get("input#dir").type(`${users.username}/uploads`);
-    cy.get('[data-test-id="create-analysis"]').click();
+    cy.get("button.pf-c-button.pf-m-primary")
+      .eq(1)
+      .should("have.text", "Done")
+      .click()
   });
 
   it("09 Goes to Registered Pipelines", () => {
     cy.get('[data-test-id="create-analysis"]').click();
+
   });
 
   it("11 Goes to Review", () => {
+    cy.get("button.pf-c-button.pf-m-primary").eq(2).click().wait(2000);
+  });
+
+  it("12 Create analysis", () => {
     cy.get("button.pf-c-button.pf-m-primary").eq(1).click().wait(2000);
   });
 
-  it("12 Asserts new analysis has been created", () => {
+  it("13 Asserts new analysis has been created", () => {
     cy.get("span.feed-list__name").contains("a", `${users.testname}`);
   });
 });

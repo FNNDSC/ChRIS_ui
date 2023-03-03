@@ -1,9 +1,6 @@
-import {
-  Plugin,
-  PluginParameter,
-  PluginInstance,
-  PluginMeta,
-} from "@fnndsc/chrisapi";
+import { Plugin, PluginParameter, PluginInstance,PluginMeta} from "@fnndsc/chrisapi";
+import { IUserState } from "../../../../store/user/types";
+
 
 export interface InputIndex {
   [key: string]: string;
@@ -68,6 +65,34 @@ export interface AddNodeProps {
     nodes?: PluginInstance[];
   }) => void;
   getParams: (plugin: Plugin) => void;
+}
+
+export interface GuidedConfigState {
+  componentList: string[];
+  count: number;
+  errors: string[];
+  alertVisible: boolean;
+  docsExpanded: boolean;
+}
+
+export interface chooseConfigProps {
+  user?: IUserState,
+  handleFileUpload: (files: any[]) => void,
+}
+
+export interface EditorState {
+  value: string;
+  docsExpanded: boolean;
+  errors: string[];
+  readOnly: boolean;
+  dictionary: InputIndex;
+  savingValues: boolean;
+}
+
+export interface EditorProps extends InputState {
+  plugin: Plugin;
+  params?: PluginParameter[];
+  setEditorValue: (value: string) => void;
 }
 
 export interface SimpleDropdownState {
