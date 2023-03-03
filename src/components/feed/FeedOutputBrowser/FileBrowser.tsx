@@ -230,22 +230,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     <DrawerPanelContent
       className="file-browser__previewPanel"
       isResizable
-      defaultSize={"52%"}
+      defaultSize={"50%"}
     >
-      <div className="carousel">
-        <Button
-          variant="link"
-          icon={<MdNavigateBefore size={30} />}
-          className="carousel__first"
-          onClick={handlePrevClick}
-        />
-        <Button
-          variant="link"
-          className="carousel__second"
-          icon={<MdNavigateNext size={30} />}
-          onClick={handleNextClick}
-        />
-      </div>
       <DrawerHead>
         <DrawerActions>
           <div className="header-panel__buttons">
@@ -273,6 +259,20 @@ const FileBrowser = (props: FileBrowserProps) => {
         {selectedFile && (
           <FileDetailView selectedFile={selectedFile} preview="large" />
         )}
+        <div className="carousel">
+          <Button
+            variant="link"
+            icon={<MdNavigateBefore size={30} />}
+            className="carousel__first"
+            onClick={handlePrevClick}
+          />
+          <Button
+            variant="link"
+            className="carousel__second"
+            icon={<MdNavigateNext size={30} />}
+            onClick={handleNextClick}
+          />
+        </div>
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
@@ -408,9 +408,7 @@ const HeaderPanel = (props: HeaderPanelProps) => {
             variant="link"
             onClick={handleFileBrowserOpen}
             icon={<AiOutlineExpandAlt />}
-          >
-            Explore
-          </Button>
+          ></Button>
         )}
 
         {!fileType && (
@@ -424,18 +422,14 @@ const HeaderPanel = (props: HeaderPanelProps) => {
             variant="link"
             onClick={handleDicomViewerOpen}
             icon={<FaFilm />}
-          >
-            Open Image Viewer
-          </Button>
+          ></Button>
         )}
         {fileType && getXtkFileMode(fileType) && (
           <Button
             variant="link"
             onClick={handleXtkViewerOpen}
             icon={<BiHorizontalCenter />}
-          >
-            Open XTK Viewer
-          </Button>
+          ></Button>
         )}
       </div>
     </>
