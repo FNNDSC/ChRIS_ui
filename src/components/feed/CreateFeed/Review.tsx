@@ -5,10 +5,11 @@ import {
   WizardContext,
   Split,
   SplitItem,
+  Alert,
 } from "@patternfly/react-core";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
+import ReactJson from "react-json-view";
 import { CreateFeedContext, PipelineContext } from "./context";
-
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
@@ -20,7 +21,8 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state: pipelineState } = useContext(PipelineContext);
   const { feedName, feedDescription, tags, chrisFiles, localFiles } =
     state.data;
-  const { selectedConfig, uploadProgress } = state;
+  const { selectedConfig, uploadProgress, feedError, creatingFeedStatus } =
+    state;
 
   const uploadPercent = Math.floor((uploadProgress / localFiles.length) * 100);
 
@@ -84,22 +86,26 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
           <ChrisFileDetails chrisFiles={chrisFiles} />
         )}
         {selectedConfig.includes("local_select") && (
-          <div
-            style={{
-              display: "flex",
-            }}
-          >
-            <LocalFileDetails localFiles={localFiles} />
-            {uploadProgress && (
+          <>
+            <div
+              style={{
+                height: "400px",
+                zIndex: "99999",
+                overflowY: "scroll",
+              }}
+            >
+              <LocalFileDetails localFiles={localFiles} />
+            </div>
+            {uploadProgress > 0 && (
               <Split>
                 <SplitItem>
                   <div style={{ height: "230px", width: "230px" }}>
-                    <p>Upload to Swift Tracker</p>
+                    <p>Tracker for Pushing Files to Storage</p>
                     <ChartDonutUtilization
                       ariaDesc="Storage capacity"
                       ariaTitle="Donut utilization chart example"
                       constrainToVisibleArea
-                      data={{ x: "GBps capacity", y: uploadPercent }}
+                      data={{ x: "Files Uploaded", y: uploadPercent }}
                       labels={({ datum }) =>
                         datum.x ? `${datum.x}: ${datum.y}%` : null
                       }
@@ -114,7 +120,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
                 </SplitItem>
               </Split>
             )}
-          </div>
+          </>
         )}
       </>
     );
@@ -163,6 +169,32 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
       <br />
       {getReviewDetails()}
       <br />
+      {creatingFeedStatus && !feedError && (
+        <Alert
+          variant="info"
+          style={{
+            marginTop: "1rem",
+          }}
+          title={creatingFeedStatus}
+        />
+      )}
+      {feedError && (
+        <Alert
+          style={{
+            marginTop: "1rem",
+          }}
+          variant="danger"
+          title={
+            <ReactJson
+              displayDataTypes={false}
+              displayObjectSize={false}
+              src={
+                feedError.response ? feedError.response.data : feedError.message
+              }
+            />
+          }
+        />
+      )}
     </div>
   );
 };

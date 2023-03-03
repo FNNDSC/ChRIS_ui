@@ -42,8 +42,7 @@ export function getInitialState(
     selectedConfig: isInitDataSelected ? ["swift_storage"] : [],
     uploadProgress: 0,
     feedError: "",
-
-    currentlyConfiguredNode: "",
+    creatingFeedStatus: "",
   };
 }
 
@@ -168,11 +167,15 @@ export const createFeedReducer = (
         ...state,
         data: getDefaultCreateFeedData(),
         step: 1,
+        uploadProgress: 0,
+        feedError: "",
+        creatingFeedStatus: "",
+        wizardOpen: !state.wizardOpen,
+        selectedConfig: [],
       };
     }
 
     case Types.SetProgress: {
-      console.log("Value", action.payload.value);
       return {
         ...state,
         uploadProgress: action.payload.value,
@@ -185,13 +188,14 @@ export const createFeedReducer = (
         feedError: action.payload.feedError,
       };
     }
-    case Types.ResetProgress: {
+
+    case Types.SetFeedCreationState: {
       return {
         ...state,
-        uploadProgress: 0,
-        feedError: "",
+        creatingFeedStatus: action.payload.status,
       };
     }
+
     default:
       return state;
   }

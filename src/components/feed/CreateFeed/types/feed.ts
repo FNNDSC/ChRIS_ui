@@ -35,10 +35,9 @@ export enum Types {
   ResetState = "RESET_STATE",
   SetProgress = "SET_PROGRESS",
   SetError = "SET_ERROR",
-  ResetProgress = "RESET_PROGRESS",
   SetProgressPercent = "SET_PROGRESS_PERCENT",
   SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
-  CancelFeed = "CANCEL_FEED",
+  SetFeedCreationState = "SET_FEED_CREATION_STATE",
 }
 
 type CreateFeedPayload = {
@@ -81,10 +80,9 @@ type CreateFeedPayload = {
   [Types.SetError]: {
     feedError: any;
   };
-
-  [Types.ResetProgress]: boolean;
-
-  [Types.CancelFeed]: Record<string, unknown>;
+  [Types.SetFeedCreationState]: {
+    status: string;
+  };
 };
 
 export type CreateFeedActions =
@@ -142,7 +140,7 @@ export interface CreateFeedState {
   selectedConfig: string[];
   uploadProgress: number;
   feedError: any;
-  currentlyConfiguredNode: string;
+  creatingFeedStatus: string;
 }
 
 export interface CreateFeedReduxProp {

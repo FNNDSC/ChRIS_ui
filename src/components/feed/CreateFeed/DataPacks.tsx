@@ -6,23 +6,24 @@ import React, {
   useCallback,
 } from "react";
 import { PluginMeta } from "@fnndsc/chrisapi";
-import { Types as AddNodeTypes } from "../AddNode/types";
-import { Types} from "./types/feed"
-import { Pagination, ToolbarItem, Radio } from "@patternfly/react-core";
 import {
+  Pagination,
+  ToolbarItem,
+  Radio,
+  WizardContext,
   Button,
   ButtonVariant,
   InputGroup,
   TextInput,
 } from "@patternfly/react-core";
+import { Types as AddNodeTypes } from "../AddNode/types";
+import { Types } from "./types/feed";
+import { notification } from "antd";
 import { FaSearch } from "react-icons/fa";
 import debounce from "lodash/debounce";
-
 import { getPlugins } from "./utils/dataPacks";
-import { WizardContext } from "@patternfly/react-core/";
 import { AddNodeContext } from "../AddNode/context";
 import { CreateFeedContext } from "./context";
-import { notification } from "antd";
 
 interface FilterProps {
   perPage: number;
@@ -43,7 +44,7 @@ const getFilterState = () => {
 const DataPacks: React.FC = () => {
   const { state: addNodeState } = useContext(AddNodeContext);
   const { dispatch: nodeDispatch } = useContext(AddNodeContext);
-  const {state, dispatch} = useContext(CreateFeedContext)
+  const { state, dispatch } = useContext(CreateFeedContext);
   const { pluginMeta } = addNodeState;
   const [fsPlugins, setfsPlugins] = useState<PluginMeta[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
@@ -67,13 +68,12 @@ const DataPacks: React.FC = () => {
   }, [filter, perPage, currentPage, pluginMeta]);
 
   useEffect(() => {
-     if(pluginMeta){
-      setCurrentPluginId(pluginMeta.data.id)
-     }else{
+    if (pluginMeta) {
+      setCurrentPluginId(pluginMeta.data.id);
+    } else {
       setCurrentPluginId(-1);
-
-     }
-  }, [pluginMeta])
+    }
+  }, [pluginMeta]);
 
   // only update filter every half-second, to avoid too many requests
   const handleFilterChange = debounce((value: string) => {
@@ -96,46 +96,57 @@ const DataPacks: React.FC = () => {
     });
   };
 
-  const handleOnChange = useCallback((checked: any, plugin: PluginMeta) => {
-    nodeDispatch({
-      type: AddNodeTypes.SetPluginMeta,
-      payload: {
-        pluginMeta: plugin,
+  const handleOnChange = useCallback(
+    (checked: any, plugin: PluginMeta) => {
+      nodeDispatch({
+        type: AddNodeTypes.SetPluginMeta,
+        payload: {
+          pluginMeta: plugin,
+        },
+      });
+      notification.info({
+        message: `Plugin Selected`,
+        description: `${plugin.data.name} plugin unselected`,
+        duration: 1,
+      });
+      if (checked) {
+        const nonDuplicateArray = new Set([
+          ...state.selectedConfig,
+          "fs_plugin",
+        ]);
+        dispatch({
+          type: Types.SelectedConfig,
+          payload: {
+            selectedConfig: Array.from(nonDuplicateArray),
+          },
+        });
+      }
+    },
+    [dispatch, nodeDispatch, state.selectedConfig]
+  );
 
-      },
-    });
-    notification.info({
-      message: `Plugin Selected`,
-      description: `${plugin.data.name} plugin unselected`,
-      duration: 1,
-    })
-    if(checked){
-      const nonDuplicateArray = new Set([...state.selectedConfig, "fs_plugin"])
-       dispatch({
-        type: Types.SelectedConfig,
-        payload:{
-         selectedConfig: Array.from(nonDuplicateArray)
-        }
-       })
-    }
-  }, [ dispatch, nodeDispatch, state.selectedConfig])
-
-  const handleKeyDown = useCallback((e: any, plugin: any = null) => {
-    if (e.target.closest('INPUT#filter_plugin')) { return }
-    else if (e.target.closest('BUTTON') && !e.target.closest('BUTTON.pf-c-button.pf-m-secondary') && !e.target.closest('BUTTON.pf-c-button.pf-m-primary')) {
-      return;
-    } else if (e.code == "Enter" && e.target.closest('DIV.pf-c-radio')) {
-      e.preventDefault()
-      if (pluginMeta == undefined) handleOnChange(true, plugin)
-      onNext()
-    } else if (pluginMeta && e.code == "ArrowRight") {
-      onNext()
-    } else if (e.code == "ArrowLeft") {
-      onBack()
-    }
-  }, [pluginMeta, handleOnChange, onNext, onBack])
-
-
+  const handleKeyDown = useCallback(
+    (e: any, plugin: any = null) => {
+      if (e.target.closest("INPUT#filter_plugin")) {
+        return;
+      } else if (
+        e.target.closest("BUTTON") &&
+        !e.target.closest("BUTTON.pf-c-button.pf-m-secondary") &&
+        !e.target.closest("BUTTON.pf-c-button.pf-m-primary")
+      ) {
+        return;
+      } else if (e.code == "Enter" && e.target.closest("DIV.pf-c-radio")) {
+        e.preventDefault();
+        if (pluginMeta == undefined) handleOnChange(true, plugin);
+        onNext();
+      } else if (pluginMeta && e.code == "ArrowRight") {
+        onNext();
+      } else if (e.code == "ArrowLeft") {
+        onBack();
+      }
+    },
+    [pluginMeta, handleOnChange, onNext, onBack]
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -145,7 +156,6 @@ const DataPacks: React.FC = () => {
   }, [handleKeyDown]);
 
   return (
-
     <div className="local-file-upload">
       <h1 className="pf-c-title pf-m-2xl">Analysis Synthesis Plugin</h1>
       <p>Please choose the Analysis Synthesis Plugin you&lsquo;d like to run</p>
@@ -186,18 +196,18 @@ const DataPacks: React.FC = () => {
           const { name, title, id } = plugin.data;
           return (
             <>
-            <Radio
-              key={id}
-              aria-labelledby="plugin-radioButton"
-              id={name}
-              ref={radioInput}
-              label={name}
-              name="plugin-radioGroup"
-              onKeyDown={(e) => handleKeyDown(e, plugin)}
-              description={title}
-              onChange={(checked: any) => handleOnChange(checked, plugin)}
-              checked={currentPluginId === plugin.data.id}
-            />
+              <Radio
+                key={id}
+                aria-labelledby="plugin-radioButton"
+                id={name}
+                ref={radioInput}
+                label={name}
+                name="plugin-radioGroup"
+                onKeyDown={(e) => handleKeyDown(e, plugin)}
+                description={title}
+                onChange={(checked: any) => handleOnChange(checked, plugin)}
+                checked={currentPluginId === plugin.data.id}
+              />
             </>
           );
         })}
