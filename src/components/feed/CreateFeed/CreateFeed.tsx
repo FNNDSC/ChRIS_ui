@@ -19,7 +19,6 @@ import { addFeed } from "../../../store/feed/actions";
 import { createFeed } from "./utils/createFeed";
 import { MainRouterContext } from "../../../routes";
 import { ApplicationState } from "../../../store/root/applicationState";
-
 import { PipelineTypes } from "./types/pipeline";
 import { AddNodeContext } from "../AddNode/context";
 import { useTypedSelector } from "../../../store/hooks";
@@ -123,29 +122,39 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
-  const getFeedError = (error: string) => {};
+  const getFeedError = (error: string) => {
+    dispatch({
+      type: Types.SetError,
+      payload: {
+        feedError: error,
+      },
+    });
+  };
 
   const handleSave = async () => {
     // Set the progress to 'Started'
+
+    dispatch({
+      type: Types.SetFeedCreationState,
+      payload: {
+        status: "Creating Feed",
+      },
+    });
     const username = user && user.username;
-    try {
-      const feed = await createFeed(
-        state.data,
-        dropdownInput,
-        requiredInput,
-        selectedPluginFromMeta,
-        username,
-        pipelineData,
-        getUploadFileCount,
-        getFeedError,
-        selectedConfig,
-        selectedPipeline
-      );
+    const feed = await createFeed(
+      state.data,
+      dropdownInput,
+      requiredInput,
+      selectedPluginFromMeta,
+      username,
+      pipelineData,
+      getUploadFileCount,
+      getFeedError,
+      selectedConfig,
+      selectedPipeline
+    );
 
-      if (!feed) {
-        throw new Error("New analysis is undefined. Giving up.");
-      }
-
+    if (feed) {
       // Set analysis name
       await feed.put({
         name: state.data.feedName,
@@ -162,17 +171,19 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         title: "Description",
         content: state.data.feedDescription,
       });
-
       addFeed && addFeed(feed);
-    } catch (error) {
       dispatch({
-        type: Types.SetError,
+        type: Types.SetFeedCreationState,
         payload: {
-          feedError: error,
+          status: "Feed Created Successfully",
         },
       });
-    } finally {
-      routerContext.actions.clearFeedData();
+
+      setTimeout(() => {
+        dispatch({
+          type: Types.ResetState,
+        });
+      }, 2000);
     }
   };
 

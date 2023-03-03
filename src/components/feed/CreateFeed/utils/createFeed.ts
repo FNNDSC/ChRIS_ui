@@ -305,6 +305,7 @@ function generatePathForLocalFile(data: CreateFeedData) {
   const randomCode = Math.floor(Math.random() * 100);
   const normalizedFeedName = data.feedName
     .toLowerCase()
+    .replace(/,/g, "")
     .replace(/ /g, "-")
     .replace(/\//g, "");
   return `${normalizedFeedName}-upload-${randomCode}`;

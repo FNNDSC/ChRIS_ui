@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
+import { WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { LocalFile, Types } from "./types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
@@ -94,11 +94,7 @@ const FileUploadComponent = ({
 
   return (
     <div className={className}>
-      <Grid hasGutter={true}>
-        <GridItem className={`${className}-grid`} span={12} rowSpan={12}>
-          <div className="file-list">{fileList}</div>
-        </GridItem>
-      </Grid>
+      <div className="file-list">{fileList}</div>
     </div>
   );
 };

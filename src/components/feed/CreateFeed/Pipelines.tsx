@@ -12,7 +12,6 @@ import {
   DataListContent,
   WizardContext,
 } from "@patternfly/react-core";
-
 import {
   Tree,
   ConfigurationPage,
