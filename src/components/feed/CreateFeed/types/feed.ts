@@ -16,7 +16,7 @@ type ActionMap<M extends { [index: string]: any }> = {
 };
 
 export enum Types {
-  ToggleWizzard = "TOGGLE_WIZZARD",
+  ToggleWizard = "TOGGLE_WIZZARD",
   SetStep = "SET_STEP",
   FeedNameChange = "FEED_NAME_CHANGE",
   FeedDescriptionChange = "FEED_DESCRIPTION_CHANGE",
@@ -24,6 +24,7 @@ export enum Types {
   SelectedConfig = "SELECTED_CONFIG",
   AddChrisFile = "ADD_ChRIS_FILE",
   RemoveChrisFile = "REMOVE_ChRIS_FILE",
+  ResetChrisFile = "Reset_ChRIS_FILE",
   AddLocalFile = "ADD_LOCAL_FILE",
   RemoveLocalFile = "REMOVE_LOCAL_FILE",
   SelectPluginMeta = "SELECT_PLUGIN_META",
@@ -34,14 +35,13 @@ export enum Types {
   ResetState = "RESET_STATE",
   SetProgress = "SET_PROGRESS",
   SetError = "SET_ERROR",
-  ResetProgress = "RESET_PROGRESS",
   SetProgressPercent = "SET_PROGRESS_PERCENT",
   SetComputeEnvironment = "SET_COMPUTE_ENVIRONMENT",
-  CancelFeed = "CANCEL_FEED",
+  SetFeedCreationState = "SET_FEED_CREATION_STATE",
 }
 
 type CreateFeedPayload = {
-  [Types.ToggleWizzard]: boolean;
+  [Types.ToggleWizard]: boolean;
   [Types.SetStep]: {
     id: number;
   };
@@ -55,7 +55,7 @@ type CreateFeedPayload = {
     tags: Tag[];
   };
   [Types.SelectedConfig]: {
-    selectedConfig: string;
+    selectedConfig: string[];
   };
   [Types.AddChrisFile]: {
     file: string;
@@ -65,6 +65,7 @@ type CreateFeedPayload = {
     file: string;
     checkedKeys: Key[];
   };
+  [Types.ResetChrisFile]: boolean;
   [Types.AddLocalFile]: {
     files: LocalFile[];
   };
@@ -74,19 +75,14 @@ type CreateFeedPayload = {
 
   [Types.ResetState]: boolean;
   [Types.SetProgress]: {
-    feedProgress: string;
     value: number;
   };
   [Types.SetError]: {
     feedError: any;
   };
-  [Types.SetProgressPercent]: {
-    percent: number;
+  [Types.SetFeedCreationState]: {
+    status: string;
   };
-
-  [Types.ResetProgress]: boolean;
-
-  [Types.CancelFeed]: Record<string, unknown>;
 };
 
 export type CreateFeedActions =
@@ -141,11 +137,10 @@ export interface CreateFeedState {
   wizardOpen: boolean;
   step: number;
   data: CreateFeedData;
-  selectedConfig: string;
-  feedProgress: string;
+  selectedConfig: string[];
+  uploadProgress: number;
   feedError: any;
-  value: number;
-  currentlyConfiguredNode: string;
+  creatingFeedStatus: string;
 }
 
 export interface CreateFeedReduxProp {

@@ -191,9 +191,7 @@ const FeedListView: React.FC = () => {
               }
             }}
           />
-
           {generatePagination()}
-
 
         </div>
         <div className="feed-list__split">

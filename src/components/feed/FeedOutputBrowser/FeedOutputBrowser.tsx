@@ -20,9 +20,10 @@ import PluginViewerModal from "../../detailedView/PluginViewerModal";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
-import "./FeedOutputBrowser.scss";
 import { useFeedBrowser } from "./useFeedBrowser";
 import { SpinContainer } from "../../common/loading/LoadingContent";
+import "./FeedOutputBrowser.scss";
+
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
 const { DirectoryTree } = Tree;
@@ -127,7 +128,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           </DrawerContentBody>
         </DrawerContent>
       </Drawer>
-
       <PluginViewerModal
         isModalOpen={pluginModalOpen}
         handleModalToggle={handlePluginModalClose}

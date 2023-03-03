@@ -1,8 +1,16 @@
 import React, { useCallback, useContext, useEffect } from "react";
-import { CreateFeedContext } from "./context";
-import { Grid, GridItem, WizardContext } from "@patternfly/react-core";
+import {
+  Grid,
+  GridItem,
+  WizardContext,
+  Split,
+  SplitItem,
+  Alert,
+} from "@patternfly/react-core";
+import { ChartDonutUtilization } from "@patternfly/react-charts";
+import ReactJson from "react-json-view";
+import { CreateFeedContext, PipelineContext } from "./context";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
-import "./createfeed.scss";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 import { AddNodeContext } from "../AddNode/context";
@@ -10,17 +18,20 @@ import { AddNodeContext } from "../AddNode/context";
 const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state } = useContext(CreateFeedContext);
   const { state: addNodeState } = useContext(AddNodeContext);
+  const { state: pipelineState } = useContext(PipelineContext);
   const { feedName, feedDescription, tags, chrisFiles, localFiles } =
     state.data;
-  const { selectedConfig } = state;
+  const { selectedConfig, uploadProgress, feedError, creatingFeedStatus } =
+    state;
+
+  const uploadPercent = Math.floor((uploadProgress / localFiles.length) * 100);
+
   const {
     dropdownInput,
     requiredInput,
     selectedPluginFromMeta,
     selectedComputeEnv,
   } = addNodeState;
-
-  const pipelineName = "";
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
   const tagList = tags.map((tag: any) => (
@@ -52,37 +63,67 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   }, [handleKeyDown]);
 
   const getReviewDetails = () => {
-    if (selectedConfig === "fs_plugin") {
-      let generatedCommand = "";
-      if (requiredInput) {
-        generatedCommand += unpackParametersIntoString(requiredInput);
-      }
-
-      if (dropdownInput) {
-        generatedCommand += unpackParametersIntoString(dropdownInput);
-      }
-
-      return (
-        <Grid hasGutter={true}>
-          <PluginDetails
-            generatedCommand={generatedCommand}
-            selectedPlugin={selectedPluginFromMeta}
-            computeEnvironment={selectedComputeEnv}
-          />
-        </Grid>
-      );
-    } else if (selectedConfig === "multiple_select") {
-      return (
-        <>
-          <ChrisFileDetails chrisFiles={chrisFiles} />
-          <LocalFileDetails localFiles={localFiles} />
-        </>
-      );
-    } else if (selectedConfig === "swift_storage") {
-      return <ChrisFileDetails chrisFiles={chrisFiles} />;
-    } else if (selectedConfig === "local_select") {
-      return <LocalFileDetails localFiles={localFiles} />;
+    let generatedCommand = "";
+    if (requiredInput) {
+      generatedCommand += unpackParametersIntoString(requiredInput);
     }
+
+    if (dropdownInput) {
+      generatedCommand += unpackParametersIntoString(dropdownInput);
+    }
+    return (
+      <>
+        {selectedConfig.includes("fs_plugin") && (
+          <Grid hasGutter={true}>
+            <PluginDetails
+              generatedCommand={generatedCommand}
+              selectedPlugin={selectedPluginFromMeta}
+              computeEnvironment={selectedComputeEnv}
+            />
+          </Grid>
+        )}
+        {selectedConfig.includes("swift_storage") && (
+          <ChrisFileDetails chrisFiles={chrisFiles} />
+        )}
+        {selectedConfig.includes("local_select") && (
+          <>
+            <div
+              style={{
+                height: "400px",
+                zIndex: "99999",
+                overflowY: "scroll",
+              }}
+            >
+              <LocalFileDetails localFiles={localFiles} />
+            </div>
+            {uploadProgress > 0 && (
+              <Split>
+                <SplitItem>
+                  <div style={{ height: "230px", width: "230px" }}>
+                    <p>Tracker for Pushing Files to Storage</p>
+                    <ChartDonutUtilization
+                      ariaDesc="Storage capacity"
+                      ariaTitle="Donut utilization chart example"
+                      constrainToVisibleArea
+                      data={{ x: "Files Uploaded", y: uploadPercent }}
+                      labels={({ datum }) =>
+                        datum.x ? `${datum.x}: ${datum.y}%` : null
+                      }
+                      themeColor={
+                        uploadProgress === localFiles.length ? "green" : ""
+                      }
+                      name="chart1"
+                      subTitle={`${localFiles.length}`}
+                      title={`${uploadProgress}`}
+                    />
+                  </div>
+                </SplitItem>
+              </Split>
+            )}
+          </>
+        )}
+      </>
+    );
   };
 
   return (
@@ -119,13 +160,41 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         </GridItem>
         <GridItem sm={8} md={10}>
           <span className="review__value">
-            {pipelineName ? pipelineName : "None Selected"}
+            {pipelineState.pipelineName
+              ? pipelineState.pipelineName
+              : "None Selected"}
           </span>
         </GridItem>
       </Grid>
       <br />
       {getReviewDetails()}
       <br />
+      {creatingFeedStatus && !feedError && (
+        <Alert
+          variant="info"
+          style={{
+            marginTop: "1rem",
+          }}
+          title={creatingFeedStatus}
+        />
+      )}
+      {feedError && (
+        <Alert
+          style={{
+            marginTop: "1rem",
+          }}
+          variant="danger"
+          title={
+            <ReactJson
+              displayDataTypes={false}
+              displayObjectSize={false}
+              src={
+                feedError.response ? feedError.response.data : feedError.message
+              }
+            />
+          }
+        />
+      )}
     </div>
   );
 };

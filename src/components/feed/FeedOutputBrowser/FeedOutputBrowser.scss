@@ -42,11 +42,9 @@
 .file-browser {
   .carousel {
     position: absolute;
-    top: 50%;
-    width: 100%;
+    bottom: 0;
+    right: 0;
     z-index: 999;
-    display: flex;
-    justify-content: space-around;
   }
 
   height: 100%;
@@ -176,6 +174,7 @@
     }
     img {
       height: 100%;
+      max-width: 100%;
     }
     .react-json-view {
       height: 100%;

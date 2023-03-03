@@ -39,11 +39,10 @@ export function getInitialState(
     wizardOpen: isInitDataSelected,
     step: 1,
     data: getDefaultCreateFeedData(selectedData),
-    selectedConfig: isInitDataSelected ? "swift_storage" : "",
-    feedProgress: "",
+    selectedConfig: isInitDataSelected ? ["swift_storage"] : [],
+    uploadProgress: 0,
     feedError: "",
-    value: 0,
-    currentlyConfiguredNode: "",
+    creatingFeedStatus: "",
   };
 }
 
@@ -52,7 +51,7 @@ export const createFeedReducer = (
   action: CreateFeedActions
 ): CreateFeedState => {
   switch (action.type) {
-    case Types.ToggleWizzard:
+    case Types.ToggleWizard:
       return {
         ...state,
         wizardOpen: !state.wizardOpen,
@@ -84,13 +83,7 @@ export const createFeedReducer = (
       clearCache();
       return {
         ...state,
-        data: {
-          ...state.data,
-          chrisFiles: [],
-          localFiles: [],
-          checkedKeys: {},
-        },
-        selectedConfig: action.payload.selectedConfig,
+        selectedConfig: [...action.payload.selectedConfig],
       };
     case Types.AddChrisFile:
       const file = action.payload.file;
@@ -137,6 +130,17 @@ export const createFeedReducer = (
       };
     }
 
+    case Types.ResetChrisFile: {
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          chrisFiles: [],
+          checkedKeys: {},
+        },
+      };
+    }
+
     case Types.AddLocalFile:
       return {
         ...state,
@@ -163,16 +167,18 @@ export const createFeedReducer = (
         ...state,
         data: getDefaultCreateFeedData(),
         step: 1,
-        selectedConfig: "",
-        value: 0,
+        uploadProgress: 0,
+        feedError: "",
+        creatingFeedStatus: "",
+        wizardOpen: !state.wizardOpen,
+        selectedConfig: [],
       };
     }
 
     case Types.SetProgress: {
       return {
         ...state,
-        feedProgress: action.payload.feedProgress,
-        value: action.payload.value,
+        uploadProgress: action.payload.value,
       };
     }
 
@@ -182,14 +188,14 @@ export const createFeedReducer = (
         feedError: action.payload.feedError,
       };
     }
-    case Types.ResetProgress: {
+
+    case Types.SetFeedCreationState: {
       return {
         ...state,
-        feedProgress: "",
-        value: 0,
-        feedError: "",
+        creatingFeedStatus: action.payload.status,
       };
     }
+
     default:
       return state;
   }

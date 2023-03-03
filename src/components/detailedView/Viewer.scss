@@ -50,8 +50,8 @@
   position: relative;
   img {
     display: block;
-    max-height: calc(100vh - 220px);
-    width: auto;
+    max-height: 100%;
+    max-width: 100%;
   }
   .image-frame {
     display: inline-block;

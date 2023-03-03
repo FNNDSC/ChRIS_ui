@@ -6,21 +6,24 @@ import React, {
   useCallback,
 } from "react";
 import { PluginMeta } from "@fnndsc/chrisapi";
-import { Types as AddNodeTypes } from "../AddNode/types";
-
-import { Pagination, ToolbarItem, Radio } from "@patternfly/react-core";
 import {
+  Pagination,
+  ToolbarItem,
+  Radio,
+  WizardContext,
   Button,
   ButtonVariant,
   InputGroup,
   TextInput,
 } from "@patternfly/react-core";
+import { Types as AddNodeTypes } from "../AddNode/types";
+import { Types } from "./types/feed";
+import { notification } from "antd";
 import { FaSearch } from "react-icons/fa";
 import debounce from "lodash/debounce";
-
 import { getPlugins } from "./utils/dataPacks";
-import { WizardContext } from "@patternfly/react-core/";
 import { AddNodeContext } from "../AddNode/context";
+import { CreateFeedContext } from "./context";
 
 interface FilterProps {
   perPage: number;
@@ -41,12 +44,15 @@ const getFilterState = () => {
 const DataPacks: React.FC = () => {
   const { state: addNodeState } = useContext(AddNodeContext);
   const { dispatch: nodeDispatch } = useContext(AddNodeContext);
+  const { state, dispatch } = useContext(CreateFeedContext);
   const { pluginMeta } = addNodeState;
   const [fsPlugins, setfsPlugins] = useState<PluginMeta[]>([]);
   const [filterState, setFilterState] = useState<FilterProps>(getFilterState());
   const { perPage, currentPage, filter, itemCount } = filterState;
   const { onNext, onBack } = useContext(WizardContext);
+  const [currentPluginId, setCurrentPluginId] = useState(-1);
   const radioInput = useRef<any>();
+
   useEffect(() => {
     getPlugins(filter, perPage, perPage * (currentPage - 1), "fs").then(
       (pluginDetails) => {
@@ -60,6 +66,14 @@ const DataPacks: React.FC = () => {
       }
     );
   }, [filter, perPage, currentPage, pluginMeta]);
+
+  useEffect(() => {
+    if (pluginMeta) {
+      setCurrentPluginId(pluginMeta.data.id);
+    } else {
+      setCurrentPluginId(-1);
+    }
+  }, [pluginMeta]);
 
   // only update filter every half-second, to avoid too many requests
   const handleFilterChange = debounce((value: string) => {
@@ -90,8 +104,25 @@ const DataPacks: React.FC = () => {
           pluginMeta: plugin,
         },
       });
+      notification.info({
+        message: `Plugin Selected`,
+        description: `${plugin.data.name} plugin unselected`,
+        duration: 1,
+      });
+      if (checked) {
+        const nonDuplicateArray = new Set([
+          ...state.selectedConfig,
+          "fs_plugin",
+        ]);
+        dispatch({
+          type: Types.SelectedConfig,
+          payload: {
+            selectedConfig: Array.from(nonDuplicateArray),
+          },
+        });
+      }
     },
-    [nodeDispatch]
+    [dispatch, nodeDispatch, state.selectedConfig]
   );
 
   const handleKeyDown = useCallback(
@@ -114,7 +145,7 @@ const DataPacks: React.FC = () => {
         onBack();
       }
     },
-    [onNext, onBack, pluginMeta, handleOnChange]
+    [pluginMeta, handleOnChange, onNext, onBack]
   );
 
   useEffect(() => {
@@ -164,18 +195,20 @@ const DataPacks: React.FC = () => {
         {fsPlugins.map((plugin) => {
           const { name, title, id } = plugin.data;
           return (
-            <Radio
-              key={id}
-              aria-labelledby="plugin-radioButton"
-              id={name}
-              ref={radioInput}
-              label={name}
-              name="plugin-radioGroup"
-              onKeyDown={(e) => handleKeyDown(e, plugin)}
-              description={title}
-              onChange={(checked: any) => handleOnChange(checked, plugin)}
-              checked={pluginMeta?.data.id === plugin.data.id}
-            />
+            <>
+              <Radio
+                key={id}
+                aria-labelledby="plugin-radioButton"
+                id={name}
+                ref={radioInput}
+                label={name}
+                name="plugin-radioGroup"
+                onKeyDown={(e) => handleKeyDown(e, plugin)}
+                description={title}
+                onChange={(checked: any) => handleOnChange(checked, plugin)}
+                checked={currentPluginId === plugin.data.id}
+              />
+            </>
           );
         })}
       </div>

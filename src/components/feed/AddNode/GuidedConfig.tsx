@@ -33,7 +33,6 @@ const GuidedConfig = () => {
   const params = useTypedSelector((state) => state.plugin.parameters);
   const { pluginMeta, dropdownInput, requiredInput, componentList } = state;
   const [plugins, setPlugins] = React.useState<Plugin[]>();
-
   useEffect(() => {
     const fetchPluginVersions = async () => {
       const pluginList = await pluginMeta?.getPlugins({
