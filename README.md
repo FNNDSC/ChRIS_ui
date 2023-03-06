@@ -6,7 +6,8 @@
 
 This repository contains the reference UI for ChRIS, allowing users to create and interact with dynamic containerized workflows. The ChRIS UI is written primarily in [TypeScript](https://www.typescriptlang.org/) and [React](https://reactjs.org/), and uses the [PatternFly](https://github.com/patternfly/patternfly) React pattern library.
 
-![Screenshot](screenshot.png)
+![Screenshot](https://user-images.githubusercontent.com/15992276/223170267-2fcf5d9c-a5f4-4a31-a9c3-ee33d481a7a1.png)
+
 
 ## Try it now!
 
