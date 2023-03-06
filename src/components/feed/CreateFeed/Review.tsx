@@ -136,6 +136,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
       <p>Use the &apos;Back&apos; button to make changes.</p>
       <br />
       <br />
+
       <Grid hasGutter={true}>
         <GridItem sm={4} md={2}>
           <span className="review__title">Feed Name</span>
@@ -165,36 +166,18 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
               : "None Selected"}
           </span>
         </GridItem>
+        <GridItem sm={4} md={2}>
+          <span className="review__title">Feed Status</span>
+        </GridItem>
+        <GridItem sm={8} md={10}>
+          <span className="review__value">
+            {creatingFeedStatus && !feedError ? creatingFeedStatus : "N/A"}
+          </span>
+        </GridItem>
       </Grid>
       <br />
       {getReviewDetails()}
       <br />
-      {creatingFeedStatus && !feedError && (
-        <Alert
-          variant="info"
-          style={{
-            marginTop: "1rem",
-          }}
-          title={creatingFeedStatus}
-        />
-      )}
-      {feedError && (
-        <Alert
-          style={{
-            marginTop: "1rem",
-          }}
-          variant="danger"
-          title={
-            <ReactJson
-              displayDataTypes={false}
-              displayObjectSize={false}
-              src={
-                feedError.response ? feedError.response.data : feedError.message
-              }
-            />
-          }
-        />
-      )}
     </div>
   );
 };
