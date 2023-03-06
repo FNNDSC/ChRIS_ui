@@ -6,14 +6,15 @@ import {
   ToolbarItem,
   ToolbarContent,
 } from "@patternfly/react-core";
-import ShareFeed from "../ShareFeed/ShareFeed";
+
 import { Popover } from "antd";
 import { FaEdit } from "react-icons/fa";
-
 import { useTypedSelector } from "../../../store/hooks";
-import "./FeedDetails.scss";
+import ShareFeed from "../ShareFeed/ShareFeed";
 import FeedNote from "./FeedNote";
 import { LoadingContent } from "../../common/loading/LoadingContent";
+import "./FeedDetails.scss";
+
 
 const FeedDetails = () => {
   const [note, setNote] = React.useState("");
