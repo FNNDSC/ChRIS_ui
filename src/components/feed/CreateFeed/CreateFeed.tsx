@@ -301,10 +301,6 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               pipelineDispatch({
                 type: PipelineTypes.ResetState,
               });
-
-              dispatch({
-                type: Types.ToggleWizard,
-              });
             }
           }}
           title="Create a New Analysis"
