@@ -173,6 +173,7 @@
       height: 100% !important;
     }
     img {
+      object-fit: contain;
       height: 100%;
       max-width: 100%;
     }
@@ -211,7 +212,7 @@
 }
 
 .overlay {
-  /* prevent text selection on overlay */
+  /* prevent text selection on overlay
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
