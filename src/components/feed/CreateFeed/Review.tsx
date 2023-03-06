@@ -5,10 +5,8 @@ import {
   WizardContext,
   Split,
   SplitItem,
-  Alert,
 } from "@patternfly/react-core";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
-import ReactJson from "react-json-view";
 import { CreateFeedContext, PipelineContext } from "./context";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
