@@ -7,7 +7,6 @@ import {
   BreadcrumbItem,
   Grid,
   Button,
-  ClipboardCopyButton,
   Drawer,
   DrawerContent,
   DrawerContentBody,
@@ -47,6 +46,7 @@ import { getXtkFileMode } from "../../detailedView/displays/XtkViewer/XtkViewer"
 import { Alert } from "antd";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
+import { ClipboardCopyContainer } from "../../common/textcopypopover/TextCopyPopover";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -70,7 +70,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
-  const [copied, setCopied] = React.useState(false);
+
   const { files, folders, path } = pluginFilesPayload;
   const cols = [{ title: "Name" }, { title: "Size" }, { title: "" }];
   const items = files && folders ? [...files, ...folders] : [];
@@ -206,26 +206,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
   };
 
-  const clipboardCopyFunc2 = (
-    _event: React.ClipboardEvent<HTMLDivElement>,
-    text: string
-  ) => {
-    if (typeof navigator.clipboard == "undefined") {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.position = "fixed";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      new Promise((res, rej) => {
-        document.execCommand("copy") ? res("successful") : rej();
-      });
-      document.body.removeChild(textArea);
-    }
-    navigator.clipboard.writeText(text);
-  };
-
   const previewPanel = (
     <DrawerPanelContent
       className="file-browser__previewPanel"
@@ -297,18 +277,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                   ></Button>
                 )}
 
-                <ClipboardCopyButton
-                  onClick={(event: any) => {
-                    setCopied(true);
-                    clipboardCopyFunc2(event, path);
-                  }}
-                  onTooltipHidden={() => setCopied(false)}
-                  id="clipboard-plugininstance-files"
-                  textId="clipboard-plugininstance-files"
-                  variant="plain"
-                >
-                  {copied ? "Copied!" : "Copy path to clipboard"}
-                </ClipboardCopyButton>
+                <ClipboardCopyContainer path={path} />
                 <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
               </div>
 
