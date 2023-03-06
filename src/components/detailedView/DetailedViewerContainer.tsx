@@ -2,11 +2,11 @@ import React from "react";
 import { useTypedSelector } from "../../store/hooks";
 import { Tabs, Tab, Alert } from "@patternfly/react-core";
 import { FileBrowserViewer } from "./displays";
-import "./Viewer.scss";
 import { ExplorerMode } from "../../store/explorer/types";
 import DicomViewerContainer from "./displays/DicomViewer";
 import XtkViewer from "./displays/XtkViewer/XtkViewer";
 import { ButtonContainer } from "./displays/DicomViewer/utils/helpers";
+import "./Viewer.scss";
 
 const OutputViewerContainer = () => {
   const pluginFiles = useTypedSelector((state) => state.resource.pluginFiles);

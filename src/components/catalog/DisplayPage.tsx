@@ -10,9 +10,9 @@ import {
 } from "@patternfly/react-core";
 import { Link } from "react-router-dom";
 import { EmptyStateTable } from "../common/emptyTable";
-import moment from "moment";
-import "./DisplayPage.scss";
+import Moment from "react-moment";
 import { SpinContainer } from "../common/loading/LoadingContent";
+import "./DisplayPage.scss";
 
 interface PageState {
   perPage: number;
@@ -55,9 +55,6 @@ const DisplayPage = ({
   const isCompute = title === "Compute" ? true : false;
   const isValid = (date: any) => {
     return new Date(date).toDateString() !== "Invalid Date";
-  };
-  const format = (date: Date) => {
-    return moment(date).fromNow();
   };
 
   const loadingPluginMeta =
@@ -108,7 +105,7 @@ const DisplayPage = ({
                     <p
                       style={{
                         color: "gray",
-                        fontSize:'1rem'
+                        fontSize: "1rem",
                       }}
                     >
                       Version: {resource.data.version}
@@ -121,9 +118,14 @@ const DisplayPage = ({
                         fontSize: "small",
                       }}
                     >
-                      {isValid(resource.data.modification_date)
-                        ? `Updated ${format(resource.data.modification_date)}`
-                        : `Created ${format(resource.data.creation_date)}`}
+                      {isValid(resource.data.modification_date) ? (
+                        <Moment
+                          fromNow
+                          date={resource.data.modification_date}
+                        />
+                      ) : (
+                        <Moment fromNow date={resource.data.creation_date} />
+                      )}
                     </p>
                   </div>
                 </div>
