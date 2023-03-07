@@ -12,7 +12,6 @@ import {
   DrawerHead,
   Drawer,
   DrawerActions,
-  DrawerCloseButton,
 } from "@patternfly/react-core";
 import { Tree } from "antd";
 import PluginViewerModal from "../../detailedView/PluginViewerModal";
@@ -62,7 +61,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButtonWithTooltip
-            content={<span>Close the Tree View</span>}
+            content={<span>Close The Tree View</span>}
             onClick={() => {
               handleSidebarDrawer();
             }}
@@ -93,7 +92,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             onClick={() => {
               expandDrawer("bottom_panel");
             }}
-            content={<span>Collapse the File Browser Panel</span>}
+            content={<span>Collapse The File Browser Panel</span>}
             position="top"
             variant="link"
           />
