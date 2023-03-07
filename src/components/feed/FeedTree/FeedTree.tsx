@@ -21,7 +21,7 @@ import {
 } from "../../../store/feed/actions";
 import { FeedTreeProp } from "../../../store/feed/types";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
-import "./FeedTree.scss";
+
 import { getNodeOperations } from "../../../store/plugin/actions";
 import { switchTreeMode } from "../../../store/tsplugins/actions";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
