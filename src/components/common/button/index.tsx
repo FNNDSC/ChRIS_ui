@@ -1,11 +1,5 @@
 import React, { ReactNode } from "react";
-import {
-  Button,
-  Tooltip,
-  TooltipPosition,
-  ButtonVariant,
-  DrawerCloseButton,
-} from "@patternfly/react-core";
+import { Button, Tooltip, DrawerCloseButton } from "@patternfly/react-core";
 
 interface ButtonProps {
   variant: any;
@@ -54,7 +48,7 @@ export const DrawerCloseButtonWithTooltip = ({
 }: DrawerCloseButtonProps) => {
   return (
     <Tooltip position="bottom" content={content}>
-      <DrawerCloseButton onClick={onClick}/>
+      <DrawerCloseButton onClick={onClick} />
     </Tooltip>
   );
 };

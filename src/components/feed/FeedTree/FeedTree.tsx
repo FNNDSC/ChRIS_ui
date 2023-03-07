@@ -514,7 +514,7 @@ const FeedTree = (props: AllProps) => {
                 <ButtonWithTooltip
                   variant="link"
                   position="top"
-                  content={<span>Expand File Browser Panel</span>}
+                  content={<span>Expand The File Browser Panel</span>}
                   style={{
                     background: "none",
                   }}

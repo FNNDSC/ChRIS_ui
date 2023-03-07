@@ -278,7 +278,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                 {!expandSidebar && (
                   <ButtonWithTooltip
                     position="bottom"
-                    content={<span>Open the Tree View</span>}
+                    content={<span>Open The Tree View</span>}
                     variant="secondary"
                     onClick={() => {
                       handleSidebarDrawer();
