@@ -201,8 +201,11 @@ export async function fetchResources(pipelineInstance: Pipeline) {
   const pipelineFn = pipelineInstance.getPluginPipings;
   const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
   const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const { resource: pluginPipings }= await fetchResource<PluginPiping>(params, boundPipelineFn);
-  const { resource: pipelinePlugins }= await fetchResource(
+  const { resource: pluginPipings } = await fetchResource<PluginPiping>(
+    params,
+    boundPipelineFn
+  );
+  const { resource: pipelinePlugins } = await fetchResource(
     params,
     boundPipelinePluginFn
   );
@@ -262,4 +265,14 @@ export async function fetchComputeInfo(
     return computeEnvData;
   }
   return undefined;
+}
+
+export function catchError(errorRequest: any) {
+  if (errorRequest.response) {
+    return errorRequest.response.data;
+  } else if (errorRequest.message) {
+    return { "error_message": errorRequest.message };
+  } else {
+    return { "error_message": errorRequest };
+  }
 }

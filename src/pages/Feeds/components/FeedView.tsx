@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useParams } from "react-router-dom";
 import { ErrorBoundary } from "react-error-boundary";
-import { useTypedSelector } from "../../../store/hooks";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import { useDispatch } from "react-redux";
 import {
   PageSection,
@@ -12,8 +12,9 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
 } from "@patternfly/react-core";
-
+import { useTypedSelector } from "../../../store/hooks";
 import { FeedDetails } from "../../../components";
+import { SpinContainer } from "../../../components/common/loading/LoadingContent";
 import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
 import {
   getSelectedD3Node,
@@ -25,10 +26,7 @@ import { addTSNodes, resetTsNodes } from "../../../store/tsplugins/actions";
 import { destroyExplorer } from "../../../store/explorer/actions";
 import { resetActiveResources } from "../../../store/resources/actions";
 import { setIsNavOpen } from "../../../store/ui/actions";
-
-import { PluginInstance } from "@fnndsc/chrisapi";
 import { DestroyActiveResources } from "../../../store/resources/types";
-import { SpinContainer } from "../../../components/common/loading/LoadingContent";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -56,7 +54,6 @@ export const FeedView: React.FC = () => {
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
-
   const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
 
@@ -71,9 +68,9 @@ export const FeedView: React.FC = () => {
         setBottomPanelExpanded(false);
         setSidePanelExpanded(false);
       }
-    }
-  }, [])
-  
+    };
+  }, []);
+
   React.useEffect(() => {
     return () => {
       if (
@@ -92,8 +89,8 @@ export const FeedView: React.FC = () => {
   }, [dispatch]);
 
   React.useEffect(() => {
-    dispatch(setIsNavOpen(false))
-  }, [dispatch])
+    dispatch(setIsNavOpen(false));
+  }, [dispatch]);
 
   React.useEffect(() => {
     document.title = "My Analyses - ChRIS UI site";
@@ -155,7 +152,6 @@ export const FeedView: React.FC = () => {
               onExpand={onClick}
               onNodeClick={onNodeClick}
               onNodeClickTs={onNodeClickTS}
-              instances={pluginInstances.data}
             />
           ) : (
             <FeedGraph
@@ -213,7 +209,11 @@ export const FeedView: React.FC = () => {
 
   return (
     <React.Fragment>
-      <PageSection variant="darker" className="section-one" style={{height: "auto"}}>
+      <PageSection
+        variant="darker"
+        className="section-one"
+        style={{ height: "auto" }}
+      >
         <FeedDetails />
       </PageSection>
 
@@ -258,4 +258,3 @@ export const FeedView: React.FC = () => {
 };
 
 export default FeedView;
-

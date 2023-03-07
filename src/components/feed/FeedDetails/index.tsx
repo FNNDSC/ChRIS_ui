@@ -14,7 +14,7 @@ import ShareFeed from "../ShareFeed/ShareFeed";
 import FeedNote from "./FeedNote";
 import { LoadingContent } from "../../common/loading/LoadingContent";
 import "./FeedDetails.scss";
-
+import { LoadingErrorAlert } from "../../common/errorHandling";
 
 const FeedDetails = () => {
   const [note, setNote] = React.useState("");
@@ -138,7 +138,7 @@ const FeedDetails = () => {
   } else if (error) {
     return (
       <ToolbarComponent>
-        <div>Error Found</div>
+        <LoadingErrorAlert error={error} />
       </ToolbarComponent>
     );
   } else return null;

@@ -5,6 +5,9 @@ import { setFeedTreeProp } from "../../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import FeedTree from "./FeedTree";
 import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
+import { useTypedSelector } from "../../../store/hooks";
+import { LoadingErrorAlert } from "../../common/errorHandling";
+import "./FeedTree.scss";
 
 interface ParentComponentProps {
   onNodeClickTs: (node: PluginInstance) => void;
@@ -12,7 +15,6 @@ interface ParentComponentProps {
   isSidePanelExpanded: boolean;
   isBottomPanelExpanded: boolean;
   onExpand: (panel: string) => void;
-  instances?: PluginInstance[];
 }
 
 export type TSID = {
@@ -26,9 +28,11 @@ const ParentComponent = (props: ParentComponentProps) => {
     isSidePanelExpanded,
     isBottomPanelExpanded,
     onExpand,
-    instances,
   } = props;
-
+  const pluginInstances = useTypedSelector(
+    (state) => state.instance.pluginInstances
+  );
+  const { data: instances, error, loading } = pluginInstances;
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);
   const [tsIds, setTsIds] = React.useState<TSID>();
   const dispatch = useDispatch();
@@ -69,12 +73,16 @@ const ParentComponent = (props: ParentComponentProps) => {
       isBottomPanelExpanded={isBottomPanelExpanded}
       onExpand={onExpand}
     />
-  ) : (
+  ) : loading ? (
     <SpinContainer
       background="rgb(40, 45, 51)"
       title="Constructing the Feed Tree"
     />
-  );
+  ) : error ? (
+    <div className="feed-tree">
+      <LoadingErrorAlert error={error} />
+    </div>
+  ) : null;
 };
 
 export default React.memo(
@@ -82,8 +90,7 @@ export default React.memo(
   (prevProps: ParentComponentProps, nextProps: ParentComponentProps) => {
     if (
       prevProps.isBottomPanelExpanded !== nextProps.isBottomPanelExpanded ||
-      prevProps.isSidePanelExpanded !== nextProps.isSidePanelExpanded ||
-      prevProps.instances !== nextProps.instances
+      prevProps.isSidePanelExpanded !== nextProps.isSidePanelExpanded
     ) {
       return false;
     }
