@@ -39,6 +39,7 @@ export const generateTreeNodes = async (
     if (typeof items[i] === "object") {
       const filePath = items[i].data.fname.split("/");
       const fileName = filePath[filePath.length - 1];
+      console.log(`${treeNode.key}-${i}`)
       arr.push({
         //@ts-ignore
         breadcrumb: `${treeNode.breadcrumb}/${fileName}`,
