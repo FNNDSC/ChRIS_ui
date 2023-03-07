@@ -26,12 +26,14 @@ import { useDispatch } from "react-redux";
 import { getParams } from "../../../store/plugin/actions";
 import { fetchResource } from "../../../api/common";
 import { Button } from "antd";
+import { LoadingErrorAlert } from "../../common/errorHandling";
 
 const GuidedConfig = () => {
   const dispatch = useDispatch();
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const params = useTypedSelector((state) => state.plugin.parameters);
-  const { pluginMeta, dropdownInput, requiredInput, componentList } = state;
+  const { pluginMeta, dropdownInput, requiredInput, componentList, errors } =
+    state;
   const [plugins, setPlugins] = React.useState<Plugin[]>();
   useEffect(() => {
     const fetchPluginVersions = async () => {
@@ -183,6 +185,8 @@ const GuidedConfig = () => {
           </div>
         </>
       </CardComponent>
+
+      {errors && <LoadingErrorAlert error={errors} />}
     </div>
   );
 };
