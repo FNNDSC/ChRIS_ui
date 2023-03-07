@@ -62,7 +62,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       <DrawerHead>
         <DrawerActions>
           <DrawerCloseButtonWithTooltip
-            content={<span>Close Tree View</span>}
+            content={<span>Close the Tree View</span>}
             onClick={() => {
               handleSidebarDrawer();
             }}
