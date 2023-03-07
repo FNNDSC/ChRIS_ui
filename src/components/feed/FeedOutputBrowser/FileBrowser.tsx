@@ -6,7 +6,6 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Grid,
-  Button,
   Drawer,
   DrawerContent,
   DrawerContentBody,
@@ -14,7 +13,6 @@ import {
   DrawerPanelBody,
   DrawerHead,
   DrawerActions,
-  DrawerCloseButton,
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
@@ -43,10 +41,14 @@ import {
 } from "../../../store/explorer/actions";
 import { BiHorizontalCenter } from "react-icons/bi";
 import { getXtkFileMode } from "../../detailedView/displays/XtkViewer/XtkViewer";
-import { Alert } from "antd";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
 import { ClipboardCopyContainer } from "../../common/textcopypopover/TextCopyPopover";
+import {
+  ButtonWithTooltip,
+  DrawerCloseButtonWithTooltip,
+} from "../../common/button";
+import { LoadingErrorAlert } from "../../common/errorHandling";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -228,7 +230,9 @@ const FileBrowser = (props: FileBrowserProps) => {
               />
             )}
           </div>
-          <DrawerCloseButton
+
+          <DrawerCloseButtonWithTooltip
+            content={<span>Close File Preview Panel</span>}
             onClick={() => {
               setIsExpanded(!isExpanded);
             }}
@@ -240,13 +244,17 @@ const FileBrowser = (props: FileBrowserProps) => {
           <FileDetailView selectedFile={selectedFile} preview="large" />
         )}
         <div className="carousel">
-          <Button
+          <ButtonWithTooltip
+            position="bottom"
+            content={<span>Previous</span>}
             variant="link"
             icon={<MdNavigateBefore size={30} />}
             className="carousel__first"
             onClick={handlePrevClick}
           />
-          <Button
+          <ButtonWithTooltip
+            position="bottom"
+            content={<span>Next</span>}
             variant="link"
             className="carousel__second"
             icon={<MdNavigateNext size={30} />}
@@ -268,13 +276,15 @@ const FileBrowser = (props: FileBrowserProps) => {
             <div className="file-browser__header">
               <div className="file-browser__header--breadcrumbContainer">
                 {!expandSidebar && (
-                  <Button
+                  <ButtonWithTooltip
+                    position="bottom"
+                    content={<span>Open The Tree View</span>}
                     variant="secondary"
                     onClick={() => {
                       handleSidebarDrawer();
                     }}
                     icon={<FiSidebar />}
-                  ></Button>
+                  />
                 )}
 
                 <ClipboardCopyContainer path={path} />
@@ -373,32 +383,39 @@ const HeaderPanel = (props: HeaderPanelProps) => {
     <>
       <div className="header-panel__buttons--toggleViewer">
         {explore && (
-          <Button
+          <ButtonWithTooltip
+            position="bottom"
+            content={<span>Open in Full Screen</span>}
             variant="link"
             onClick={handleFileBrowserOpen}
             icon={<AiOutlineExpandAlt />}
-          ></Button>
+          />
         )}
 
         {!fileType && (
-          <Alert
-            type="info"
-            message="Please select a file to see the list of available viewers"
+          <LoadingErrorAlert
+            error={{
+              message:
+                "Please select a file to see the list of available viewers",
+            }}
           />
         )}
         {fileType && imageFileTypes.includes(fileType) && (
-          <Button
+          <ButtonWithTooltip
+            content={<span>Open the Dicom Viewer</span>}
             variant="link"
             onClick={handleDicomViewerOpen}
             icon={<FaFilm />}
-          ></Button>
+          />
         )}
         {fileType && getXtkFileMode(fileType) && (
-          <Button
+          <ButtonWithTooltip
+            content={<span>Open the XTK Viewer</span>}
+            position="bottom"
             variant="link"
             onClick={handleXtkViewerOpen}
             icon={<BiHorizontalCenter />}
-          ></Button>
+          />
         )}
       </div>
     </>

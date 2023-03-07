@@ -2,7 +2,6 @@ import * as React from "react";
 import { Typography } from "antd";
 import { Link } from "react-router-dom";
 import Moment from "react-moment";
-
 import {
   PageSection,
   Pagination,
@@ -10,6 +9,8 @@ import {
   EmptyStateBody,
   Checkbox,
   Tooltip,
+  EmptyStateIcon,
+  Title,
 } from "@patternfly/react-core";
 import {
   TableComposable,
@@ -49,6 +50,8 @@ import { useTypedSelector } from "../../../store/hooks";
 import { FeedResource } from "../../../store/feed/types";
 import InfoIcon from "../../../components/common/info/InfoIcon";
 import { AddNodeProvider } from "../../../components/feed/AddNode/context";
+import { LoadingErrorAlert } from "../../../components/common/errorHandling";
+import { FaSearch } from "react-icons/fa";
 const { Paragraph } = Typography;
 
 const FeedListView: React.FC = () => {
@@ -131,15 +134,15 @@ const FeedListView: React.FC = () => {
 
   if (error) {
     return (
-      <React.Fragment>
-        <EmptyState>
-          <EmptyStateBody>
-            Unable to fetch feeds at the moment. Please refresh the browser. If
-            the issue persists, Contact the dev team at FNNDSC to report your
-            error.
-          </EmptyStateBody>
-        </EmptyState>
-      </React.Fragment>
+      <EmptyState>
+        <EmptyStateIcon icon={FaSearch} />
+        <Title size="lg" headingLevel="h4">
+          No Results Found
+        </Title>
+        <EmptyStateBody>
+          <LoadingErrorAlert error={error} />
+        </EmptyStateBody>
+      </EmptyState>
     );
   }
 
@@ -149,8 +152,9 @@ const FeedListView: React.FC = () => {
     <React.Fragment>
       <PageSection className="feed-header" variant="light">
         <InfoIcon
-          title={`New and Existing Analyses (${totalFeedsCount > 0 ? totalFeedsCount : 0
-            })`}
+          title={`New and Existing Analyses (${
+            totalFeedsCount > 0 ? totalFeedsCount : 0
+          })`}
           p1={
             <Paragraph style={style}>
               Analyses (aka ChRIS feeds) are computational experiments where
@@ -170,7 +174,6 @@ const FeedListView: React.FC = () => {
       </PageSection>
 
       <PageSection className="feed-list">
-
         <div className="feed-list__split">
           <Checkbox
             id="test"
@@ -192,7 +195,6 @@ const FeedListView: React.FC = () => {
             }}
           />
           {generatePagination()}
-
         </div>
         <div className="feed-list__split">
           <DataTableToolbar
@@ -226,9 +228,7 @@ const FeedListView: React.FC = () => {
                   <Th>Created</Th>
                   <Th>Creator</Th>
                   <Th>Run Time</Th>
-                  <Th>
-                    Size
-                  </Th>
+                  <Th>Size</Th>
                   <Th>Status</Th>
                 </Tr>
               </Thead>
@@ -411,9 +411,9 @@ const TableRow = ({
         backgroundColor: selectedBgRow,
       }}
     >
-      <Td >{bulkChecbox}</Td>
-      <Td dataLabel="Id" >{feedId}</Td>
-      <Td dataLabel="Analysis" >{name}</Td>
+      <Td>{bulkChecbox}</Td>
+      <Td dataLabel="Id">{feedId}</Td>
+      <Td dataLabel="Analysis">{name}</Td>
       <Td dataLabel="Created">{created}</Td>
       <Td dataLabel="Creator">{creator}</Td>
       <Td dataLabel="Run Time">{runTime}</Td>

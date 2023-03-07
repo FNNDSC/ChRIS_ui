@@ -46,7 +46,7 @@ export const deleteFeed = (feed: Feed[]) =>
 // Feed download
 export const downloadFeedRequest = (feed: Feed[], name: any) =>
   action(FeedActionTypes.DOWNLOAD_FEED_REQUEST, feed, name);
-export const downloadFeedError = (error: string) =>
+export const downloadFeedError = (error: any) =>
   action(FeedActionTypes.DOWNLOAD_FEED_ERROR, error);
 export const downloadFeedSuccess = (feed: Feed[]) =>
   action(FeedActionTypes.DOWNLOAD_FEED_SUCCESS, feed);
@@ -54,15 +54,18 @@ export const downloadFeedSuccess = (feed: Feed[]) =>
 // Feed Merge
 export const mergeFeedRequest = (feed: Feed[], name: any) =>
   action(FeedActionTypes.MERGE_FEED_REQUEST, feed, name);
-export const mergeFeedError = (error: string) =>
-  action(FeedActionTypes.MERGE_FEED_ERROR, error);
+export const mergeFeedError = (error: any) => {
+  console.log("Error", error);
+  return action(FeedActionTypes.MERGE_FEED_ERROR, error);
+};
+
 export const mergeFeedSuccess = (feed: Feed[]) =>
   action(FeedActionTypes.MERGE_FEED_SUCCESS, feed);
 
 // Feed Duplicate
 export const duplicateFeedRequest = (feed: Feed[], name: any) =>
   action(FeedActionTypes.DUPLICATE_FEED_REQUEST, feed, name);
-export const duplicateFeedError = (error: string) =>
+export const duplicateFeedError = (error: any) =>
   action(FeedActionTypes.DUPLICATE_FEED_ERROR, error);
 export const duplicateFeedSuccess = (feed: Feed[]) =>
   action(FeedActionTypes.DUPLICATE_FEED_SUCCESS, feed);
