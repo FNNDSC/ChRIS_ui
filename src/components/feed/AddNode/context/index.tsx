@@ -13,7 +13,7 @@ export function getInitialNodeState(): AddNodeState {
     selectedComputeEnv: "",
     editorValue: "",
     loading: false,
-    errors: {},
+    errors: undefined,
     isOpen: false,
     pluginMetas: [],
     componentList: [],

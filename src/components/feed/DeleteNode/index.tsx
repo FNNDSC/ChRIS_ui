@@ -2,7 +2,7 @@ import React from "react";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
 import { ErrorBoundary } from "react-error-boundary";
-import { Button, Modal, ModalVariant, Alert } from "@patternfly/react-core";
+import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { connect } from "react-redux";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
@@ -14,6 +14,7 @@ import {
 import { FaTrash } from "react-icons/fa";
 import { useTypedSelector } from "../../../store/hooks";
 import { getNodeOperations } from "../../../store/plugin/actions";
+import { LoadingErrorAlert } from "../../common/errorHandling";
 
 interface DeleteNodeProps {
   selectedPlugin?: PluginInstance;
@@ -88,7 +89,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
           Deleting a node will delete all it&apos;s descendants as well. Please
           confirm if you are sure
           {deleteNodeState.error && (
-            <Alert variant="danger" title={deleteNodeState.error} />
+            <LoadingErrorAlert error={deleteNodeState.error} />
           )}
         </Modal>
       </ErrorBoundary>
@@ -110,9 +111,11 @@ export default connect(mapStateToProps, mapDispatchToProps)(DeleteNode);
 
 const FallBackComponent = () => {
   return (
-    <span>
-      Deleting a plugin instance can have some side effects. Could you please
-      try again?
-    </span>
+    <LoadingErrorAlert
+      error={{
+        value:
+          "Delete a node can have some side effects that haven't been explored yet. Please try again",
+      }}
+    />
   );
 };

@@ -18,28 +18,28 @@
 }
 
 .container_feedTree {
-	width: 100%;
+  width: 100%;
   flex-grow: 1;
-	position: relative;
+  position: relative;
   background: black;
 }
 .svgArea {
-	width: 100%;
-	height: 100%;
-	position: absolute;
+  width: 100%;
+  height: 100%;
+  position: absolute;
 }
 .feedButton {
-	position: absolute;
+  position: absolute;
   padding-bottom: 0.5rem;
-	z-index: 999;
-	bottom: 0;
-	left: 0;
+  z-index: 999;
+  bottom: 1rem;
+  left: 0;
 }
 .nodeButton {
   position: absolute;
-	z-index: 10;
-	top: 0;
-	right: 0;
+  z-index: 10;
+  top: 0;
+  right: 0;
 }
 
 .setFlex {
