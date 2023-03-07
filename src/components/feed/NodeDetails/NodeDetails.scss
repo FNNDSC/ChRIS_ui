@@ -52,27 +52,21 @@
 
   .node-details {
     height: 100%;
-    margin: 0 1em 0 0;
+    margin: 0 0.5em 0 0;
     &__title {
       display: flex;
       margin: 0.5em auto;
-      .pf-c-button {
-        --pf-c-button--m-tertiary--BackgroundColor: var(
-          --pf-global--palette--white
-        ) !important;
-        -pf-c-button--m-tertiary--hover--backgroundcolor: var(
-          --pf-global--palette--black-300
-        ) !important;
-        --pf-c-button--m-tertiary--focus--BackgroundColor: var(
-          --pf-global--palette--black-300
-        ) !important;
-      }
+
       &--button {
         // Tells the element to create as much space as possible to it's left
         margin-left: auto;
 
         .pf-m-start {
           margin-right: 0px;
+          svg {
+            height: 16px;
+            width: 16px;
+          }
         }
       }
 

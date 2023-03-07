@@ -1,7 +1,6 @@
 import React from "react";
 
 import {
-  Button,
   EmptyState,
   Title,
   EmptyStateBody,
@@ -22,6 +21,10 @@ import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
 import { useFeedBrowser } from "./useFeedBrowser";
 import { SpinContainer } from "../../common/loading/LoadingContent";
+import {
+  ButtonWithTooltip,
+  DrawerCloseButtonWithTooltip,
+} from "../../common/button";
 import "./FeedOutputBrowser.scss";
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
@@ -58,7 +61,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     <DrawerPanelContent isResizable defaultSize="15%">
       <DrawerHead>
         <DrawerActions>
-          <DrawerCloseButton
+          <DrawerCloseButtonWithTooltip
+            content={<span>Close Tree View</span>}
             onClick={() => {
               handleSidebarDrawer();
             }}
@@ -81,7 +85,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     <>
       {explore && (
         <div className="feedButton">
-          <Button
+          <ButtonWithTooltip
             style={{
               background: "none",
             }}
@@ -89,6 +93,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             onClick={() => {
               expandDrawer("bottom_panel");
             }}
+            content={<span>Collapse the File Browser Panel</span>}
+            position="top"
+            variant="link"
           />
         </div>
       )}

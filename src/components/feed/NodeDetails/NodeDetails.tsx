@@ -33,6 +33,8 @@ import { PipelineProvider } from "../CreateFeed/context";
 import { useDispatch } from "react-redux";
 import { getNodeOperations } from "../../../store/plugin/actions";
 import { AddNodeProvider } from "../AddNode/context";
+import { ButtonWithTooltip } from "../../common/button";
+import { MdClose } from "react-icons/md";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -143,14 +145,16 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       <div className="node-details">
         <div className="node-details__title">
           <PluginTitle />
-          <Button
+          <ButtonWithTooltip
+            className="node-details__title--button"
+            variant="link"
+            icon={<MdClose style={{ color: "white"}} />}
             onClick={() => {
               expandDrawer("side_panel");
             }}
-            className="node-details__title--button"
-          >
-            Toggle Node Panel
-          </Button>
+            position="left"
+            content={<span>Close Details Panel</span>}
+          />
         </div>
 
         <Grid className="node-details__grid">
