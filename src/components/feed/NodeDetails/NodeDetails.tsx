@@ -24,7 +24,7 @@ import PluginTitle from "./PluginTitle";
 import GraphNodeContainer from "../AddTsNode";
 
 import { useTypedSelector } from "../../../store/hooks";
-import "./NodeDetails.scss";
+
 import { getErrorCodeMessage } from "./utils";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
@@ -35,6 +35,7 @@ import { getNodeOperations } from "../../../store/plugin/actions";
 import { AddNodeProvider } from "../AddNode/context";
 import { ButtonWithTooltip } from "../../common/button";
 import { MdClose } from "react-icons/md";
+import "./NodeDetails.scss";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -148,7 +149,7 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           <ButtonWithTooltip
             className="node-details__title--button"
             variant="link"
-            icon={<MdClose style={{ color: "white"}} />}
+            icon={<MdClose style={{ color: "white" }} />}
             onClick={() => {
               expandDrawer("side_panel");
             }}
