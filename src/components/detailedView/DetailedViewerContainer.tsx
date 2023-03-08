@@ -29,6 +29,8 @@ const OutputViewerContainer = () => {
     setActionState({});
   };
 
+  console.log("Mode", mode);
+
   const [activeTabKey, setActiveTabKey] = React.useState(0);
   if (!selectedPlugin || !pluginFiles) {
     return <Alert variant="info" title="Empty Result Set" className="empty" />;
@@ -55,6 +57,11 @@ const OutputViewerContainer = () => {
         [ExplorerMode.XtkViewer]: (
           <Tab title="XTK Viewer" eventKey={0} key={2}>
             <XtkViewer />
+          </Tab>
+        ),
+        [ExplorerMode.TerminalViewer]: (
+          <Tab title="Terminal Viewer" eventKey={0} key={3}>
+            <span>Test</span>
           </Tab>
         ),
       };

@@ -212,7 +212,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     <DrawerPanelContent
       className="file-browser__previewPanel"
       isResizable
-      defaultSize={"50%"}
+      defaultSize="53.5%"
+      minSize={"25%"}
     >
       <DrawerHead>
         <DrawerActions>
@@ -245,17 +246,17 @@ const FileBrowser = (props: FileBrowserProps) => {
         )}
         <div className="carousel">
           <ButtonWithTooltip
-            position="bottom"
+            position="top"
             content={<span>Previous</span>}
-            variant="link"
+            variant="tertiary"
             icon={<MdNavigateBefore size={30} />}
             className="carousel__first"
             onClick={handlePrevClick}
           />
           <ButtonWithTooltip
-            position="bottom"
+            position="top"
             content={<span>Next</span>}
-            variant="link"
+            variant="tertiary"
             className="carousel__second"
             icon={<MdNavigateNext size={30} />}
             onClick={handleNextClick}
@@ -307,7 +308,7 @@ const FileBrowser = (props: FileBrowserProps) => {
               cells={cols}
               rows={rows}
             >
-              <TableHeader />
+              <TableHeader className="file-browser-table--head" />
               {filesLoading ? (
                 <SpinContainer title="Fetching Files" />
               ) : !filesLoading && items.length === 0 ? (

@@ -107,7 +107,7 @@ const FeedDetails = () => {
               setIsNoteVisible(visible);
             }}
           >
-            <Button type="button" variant="tertiary" icon={<FaEdit />}>
+            <Button variant="secondary" icon={<FaEdit />}>
               View Feed Note
             </Button>
           </Popover>

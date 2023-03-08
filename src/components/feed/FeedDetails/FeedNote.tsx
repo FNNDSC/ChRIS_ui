@@ -1,5 +1,5 @@
 import React from "react";
-import { TextArea, Button } from "@patternfly/react-core";
+import { TextArea, FormGroup, Form } from "@patternfly/react-core";
 
 type FeedNoteProps = {
   note: string;
@@ -15,6 +15,36 @@ const FeedNote = ({
   handleClose,
 }: FeedNoteProps) => {
   const [value, setValue] = React.useState(note ? note : "");
+  const handleChange = (value: string) => {
+    setValue(value);
+  };
+  return (
+    <div
+      style={{
+        padding: "0.25em",
+      }}
+    >
+      <Form>
+        <FormGroup
+          label="Feed Note:"
+          type="string"
+          helperText="Hit enter to save"   
+          fieldId="selection"
+        
+        >
+          <TextArea
+            value={value}
+            onChange={handleChange}
+            isRequired
+           
+            aria-label="invalid text area example"
+          />
+        </FormGroup>
+      </Form>
+    </div>
+  );
+
+  /*
 
   const handleChange = (value: string) => {
     setValue(value);
@@ -39,6 +69,7 @@ const FeedNote = ({
       </div>
     </div>
   );
+  */
 };
 
 export default FeedNote;

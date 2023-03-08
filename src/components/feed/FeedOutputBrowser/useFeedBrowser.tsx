@@ -163,7 +163,6 @@ export const useFeedBrowser = () => {
     if (pluginModalOpen) {
       removeTool();
     }
-
     setPluginModalOpen(!pluginModalOpen);
   };
 
@@ -185,6 +184,11 @@ export const useFeedBrowser = () => {
     dispatch(setExplorerMode(ExplorerMode.XtkViewer));
   };
 
+  const handleTerminalViewerOpen = () => {
+    setPluginModalOpen(!pluginModalOpen);
+    dispatch(setExplorerMode(ExplorerMode.TerminalViewer));
+  };
+
   const handleSidebarDrawer = () => {
     setIsExpandedSidebar(!expandSidebar);
   };
@@ -194,6 +198,7 @@ export const useFeedBrowser = () => {
     handleXtkViewerOpen,
     handlePluginModalClose,
     handleFileBrowserOpen,
+    handleTerminalViewerOpen,
     handleFileClick,
     downloadAllClick,
     filesLoading,
@@ -204,6 +209,6 @@ export const useFeedBrowser = () => {
     pluginFilesPayload,
     pluginModalOpen,
     handleSidebarDrawer,
-    expandSidebar
+    expandSidebar,
   };
 };
