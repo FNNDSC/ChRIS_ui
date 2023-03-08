@@ -37,7 +37,6 @@
     "react-bootstrap-typeahead": "^6.0.0",
     "react-cookie": "^4.1.1",
     "react-dom": "^18.2.0",
-    "react-draggable": "^4.4.5",
     "react-dropzone": "^11.5.1",
     "react-error-boundary": "^3.1.4",
     "react-force-graph-3d": "^1.21.10",
