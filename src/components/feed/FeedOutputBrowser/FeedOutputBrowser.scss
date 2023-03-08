@@ -2,61 +2,34 @@
 @import "../../../assets/scss/helpers/variables";
 @import "../../../assets/scss/helpers/mixins";
 
+.pf-c-drawer {
+  --pf-c-drawer__section--BackgroundColor: inherit !important;
+  --pf-c-drawer__content--BackgroundColor: inherit !important;
+  --pf-c-drawer__panel--BackgroundColor: inherit !important;
+}
+
+.pf-c-drawer__body {
+  padding: 0 !important;
+}
+
 .feed-output-browser {
-  height: 100%;
-
-  &__sidebar {
-    @include media-query($pf-global--breakpoint--xs) {
-      display: none;
-    }
-
-    @include media-query($pf-global--breakpoint--sm) {
-      display: block;
-    }
-    overflow-y: auto;
-    border-right: 0.5px solid #f5f5f5;
-  }
-
-  .pf-c-drawer__body {
-    margin: 0 0.25rem 0 0.25rem;
-    padding: 0;
-  }
-
-  .pf-c-drawer__content {
-    background-color: initial !important;
-  }
-  .pf-c-skeleton,
-  .pf-m-square {
-    background-color: var(--pf-global--palette--black-300) !important;
-  }
-
+  color: #f5f5f5 !important;
   .ant-tree {
     background-color: inherit !important;
+    color: white;
   }
-
   &__button {
     cursor: pointer;
   }
 }
 
 .file-browser {
+  height: 100%;
   .carousel {
     position: absolute;
     bottom: 0;
     right: 0;
     z-index: 999;
-  }
-
-  height: 100%;
-  &__downloadButton {
-    max-width: 50% !important;
-    @include media-query(768px) {
-      max-width: 80 !important;
-    }
-
-    svg {
-      fill: white;
-    }
   }
 
   &__previewPanel {
@@ -67,18 +40,15 @@
     }
   }
 
-  .pf-c-drawer__panel {
-    background: #d2d2d2 !important;
+  .pf-c-table tr > * {
+    color: white;
   }
 
   &__table {
-    padding-right: 0 !important;
     &--fileName {
+      color: white;
       display: flex;
       flex-direction: row;
-      border: 1px solid transparent;
-      border-radius: 5px;
-      outline: none;
       font-size: 1em !important;
       font-family: var(
         --pf-global--FontFamily--redhatfont--sans-serif
@@ -100,10 +70,6 @@
     gap: 0.25em;
     margin-right: 0.25em;
 
-    &--crumb {
-      color: var(--pf-global--primary-color--100);
-    }
-
     &__info {
       gap: 2rem;
       display: flex;
@@ -123,16 +89,14 @@
   &__firstGrid {
     overflow-y: scroll !important;
     height: 100% !important;
-    border-right: 0.2px solid #f5f5f5;
     max-width: 100%;
-    background: #d2d2d2 !important;
+
     margin: 0;
     tbody tr {
       cursor: pointer;
     }
 
     svg {
-      color: var(--pf-global--primary-color--100);
       margin-right: 0.25em;
     }
 
@@ -144,9 +108,6 @@
   .header-panel__buttons {
     display: flex;
     justify-content: space-between;
-    button {
-      padding-left: 0;
-    }
   }
 
   .preview-panel {
@@ -160,11 +121,6 @@
       flex-direction: row;
       justify-content: space-between;
     }
-  }
-
-  svg {
-    color: #1890ff;
-    cursor: pointer;
   }
 
   .small-preview {

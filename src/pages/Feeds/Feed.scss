@@ -12,6 +12,16 @@
 @import "../../assets/scss/helpers/variables";
 @import "antd/dist/antd.css";
 
+.pf-c-drawer__splitter {
+  background-color: var(
+    --pf-c-page__main-section--m-dark-100--BackgroundColor
+  ) !important;
+
+  &-handle::after {
+    border-color: white !important;
+  }
+}
+
 .feed-header {
   display: flex;
   flex-wrap: wrap;
@@ -77,7 +87,6 @@
 
 .section-two {
   padding: 0 !important;
-  background: "red";
   @include media-query($pf-global--breakpoint--sm) {
     height: auto;
   }
@@ -114,19 +123,8 @@
     height: 45vh;
   }
 
-  background: #d2d2d2 !important;
   padding-right: 0 !important;
   padding-top: 0 !important;
-}
-
-.pf-c-drawer__splitter {
-  background-color: var(
-    --pf-c-page__main-section--m-dark-100--BackgroundColor
-  ) !important;
-
-  &-handle::after {
-    border-color: white !important;
-  }
 }
 
 .feed-block {

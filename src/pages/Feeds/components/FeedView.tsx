@@ -221,13 +221,13 @@ export const FeedView: React.FC = () => {
         <DrawerContent
           panelContent={
             <DrawerPanelContent defaultSize="46vh" isResizable>
-              <PageSection variant="default" className="section-three">
+              <PageSection variant="darker" className="section-three">
                 {feedOutputBrowserPanel}
               </PageSection>
             </DrawerPanelContent>
           }
         >
-          <PageSection className="section-two">
+          <PageSection variant="darker" className="section-two">
             <Grid
               style={{
                 height: "100%",
@@ -238,7 +238,7 @@ export const FeedView: React.FC = () => {
                   panelContent={
                     <DrawerPanelContent
                       className="drawer-panel"
-                      defaultSize="48.7%"
+                      defaultSize="45%"
                       minSize={"25%"}
                       isResizable
                     >
