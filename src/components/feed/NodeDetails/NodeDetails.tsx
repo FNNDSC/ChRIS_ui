@@ -287,6 +287,8 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
 
             <RenderButtonGridItem>
               <GraphNodeContainer />
+            </RenderButtonGridItem>
+            <RenderButtonGridItem>
               {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
             </RenderButtonGridItem>
           </Grid>

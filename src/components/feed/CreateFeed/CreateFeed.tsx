@@ -124,7 +124,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
-  const getFeedError = (error: string) => {
+  const getFeedError = (error: any) => {
     dispatch({
       type: Types.SetError,
       payload: {
