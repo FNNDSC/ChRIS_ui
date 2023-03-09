@@ -24,7 +24,7 @@ import PluginTitle from "./PluginTitle";
 import GraphNodeContainer from "../AddTsNode";
 
 import { useTypedSelector } from "../../../store/hooks";
-import "./NodeDetails.scss";
+
 import { getErrorCodeMessage } from "./utils";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
@@ -33,6 +33,9 @@ import { PipelineProvider } from "../CreateFeed/context";
 import { useDispatch } from "react-redux";
 import { getNodeOperations } from "../../../store/plugin/actions";
 import { AddNodeProvider } from "../AddNode/context";
+import { ButtonWithTooltip } from "../../common/button";
+import { MdClose } from "react-icons/md";
+import "./NodeDetails.scss";
 
 interface INodeProps {
   expandDrawer: (panel: string) => void;
@@ -143,14 +146,16 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       <div className="node-details">
         <div className="node-details__title">
           <PluginTitle />
-          <Button
+          <ButtonWithTooltip
+            className="node-details__title--button"
+            variant="link"
+            icon={<MdClose style={{ color: "white" }} />}
             onClick={() => {
               expandDrawer("side_panel");
             }}
-            className="node-details__title--button"
-          >
-            Toggle Node Panel
-          </Button>
+            position="left"
+            content={<span>Close Details Panel</span>}
+          />
         </div>
 
         <Grid className="node-details__grid">
@@ -355,7 +360,7 @@ function getCommand(
     }
   }
 
-  let command = `$> apptainer exec --bind $PWD/in:/incoming,$PWD/out:/outgoing docker://${dock_image} ${selfexec}`;
+  let command = `$> apptainer exec --bind $PWD/in:/incoming,$PWD/out:/outgoing docker://${dock_image} ${selfexec} `;
   let parameterCommand = [];
 
   if (modifiedParams.length) {
