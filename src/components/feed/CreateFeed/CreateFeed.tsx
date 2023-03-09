@@ -30,6 +30,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
   addFeed,
 }: CreateFeedReduxProp) => {
   const { state, dispatch } = useContext(CreateFeedContext);
+  const { dispatch: nodeDispatch } = useContext(AddNodeContext);
+
   const { state: pipelineState, dispatch: pipelineDispatch } =
     useContext(PipelineContext);
   const { state: addNodeState } = useContext(AddNodeContext);
@@ -281,6 +283,9 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
         onClick={() => {
           dispatch({
             type: Types.ToggleWizard,
+          });
+          nodeDispatch({
+            type: Types.ResetState ,
           });
         }}
       >
