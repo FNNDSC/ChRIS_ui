@@ -123,10 +123,17 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
     justifyContent: "flex-end",
   };
 
+  const nextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
+
+  const prevStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
   const steps = [
     {
       title: "Choose Plugin",
-      content: <DataPacks />,
+      content: <DataPacks next={nextStep}/>,
     },
     {
       title: "Configure Plugin",
@@ -135,13 +142,6 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   ];
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
-  const next = () => {
-    setCurrentStep(currentStep + 1);
-  };
-
-  const prev = () => {
-    setCurrentStep(currentStep - 1);
-  };
   useEffect(() => {
     if (chrisFiles.length === 0 && selectedConfig.includes("swift_storage")) {
       dispatch({
@@ -266,14 +266,14 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
           <Grid style={navigationButtonStyle}>
             {currentStep == 0 && (
               <Button
-                onClick={() => next()}
+                onClick={() => nextStep()}
                 isDisabled={pluginMeta == undefined}
               >
                 Next
               </Button>
             )}
             {currentStep > 0 && (
-              <Button onClick={() => prev()}>Previous</Button>
+              <Button onClick={() => prevStep()}>Previous</Button>
             )}
           </Grid>
         </DrawerPanelBody>
@@ -283,25 +283,20 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   const fileList =
     chrisFiles.length > 0
       ? chrisFiles.map((file: string, index: number) => (
-          <React.Fragment key={index}>
-            <FileList file={file} index={index} />
-          </React.Fragment>
-        ))
+        <React.Fragment key={index}>
+          <FileList file={file} index={index} />
+        </React.Fragment>
+      ))
       : null;
 
   useEffect(() => {
-    const drawerPanel = document.querySelectorAll<HTMLElement>(
-      ".pf-c-drawer__panel"
-    )[0];
     const footer = document.querySelectorAll<HTMLElement>(
       ".pf-c-wizard__footer"
     )[0];
-    if (isRightDrawerExpand && drawerPanel && footer) {
-      drawerPanel.style.zIndex = "1000";
-      footer.style.zIndex = "-1";
-    } else if (drawerPanel && footer) {
-      drawerPanel.style.zIndex = "";
-      footer.style.zIndex = "";
+    if (isRightDrawerExpand  && footer) {
+      footer.style.display = "none";
+    } else if ( footer) {
+      footer.style.display = "flex";
     }
   }, [isRightDrawerExpand]);
 
@@ -332,119 +327,129 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             </p>
             <br />
             <Grid hasGutter md={4}>
-              <GridItem rowSpan={1}>
-                <Card
-                  id="fs_plugin"
-                  isSelectableRaised
-                  isDisabledRaised={isDataSelected}
-                  hasSelectableInput
-                  style={cardContainerStyle}
-                  onClick={handleClick}
-                  isSelected={selectedConfig.includes("fs_plugin")}
-                >
-                  <CardHeader style={cardHeaderStyle}>
-                    <CardActions>
-                      <Tooltip content="Press the G key to select">
-                        <Chip key="KeyboardShortcut" isReadOnly>
-                          G
-                        </Chip>
-                      </Tooltip>
-                    </CardActions>
-                  </CardHeader>
-                  <CardTitle>
-                    <MdSettings size="40" />
-                    <br />
-                    Generate Data
-                  </CardTitle>
-                  <CardBody>
-                    Generate files from running an FS plugin from this ChRIS
-                    server
-                  </CardBody>
-                </Card>
+              <GridItem>
+                <Grid>
+                  <GridItem  style={{height:"230px"}}>
+                    <Card
+                      id="fs_plugin"
+                      isSelectableRaised
+                      isDisabledRaised={isDataSelected}
+                      hasSelectableInput
+                      style={cardContainerStyle}
+                      onClick={handleClick}
+                      isSelected={selectedConfig.includes("fs_plugin")}
+                    >
+                      <CardHeader style={cardHeaderStyle}>
+                        <CardActions>
+                          <Tooltip content="Press the G key to select">
+                            <Chip key="KeyboardShortcut" isReadOnly>
+                              G
+                            </Chip>
+                          </Tooltip>
+                        </CardActions>
+                      </CardHeader>
+                      <CardTitle>
+                        <MdSettings size="40" />
+                        <br />
+                        Generate Data
+                      </CardTitle>
+                      <CardBody>
+                        Generate files from running an FS plugin from this ChRIS
+                        server
+                      </CardBody>
+                    </Card>
+                  </GridItem>
+                  <GridItem >
+                    {pluginMeta && (
+                      <>
+                        <h1>Selected Plugin:</h1>
+                        <div style={{ display: "flex", alignItems: "baseline" }}>
+                          <p>{pluginMeta.data.title}</p>
+                          <span className="trash-icon">
+                            <FaTrash onClick={resetPlugin} />
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </GridItem>
+                </Grid>
               </GridItem>
-              <GridItem rowSpan={1}>
-                <Card
-                  id="swift_storage"
-                  isSelectableRaised
-                  hasSelectableInput
-                  isDisabledRaised={isDataSelected}
-                  style={cardContainerStyle}
-                  onClick={handleClick}
-                  isSelected={selectedConfig.includes("swift_storage")}
-                >
-                  <CardHeader style={cardHeaderStyle}>
-                    <Tooltip content="Press the F key to select">
-                      <Chip key="KeyboardShortcut" isReadOnly>
-                        F
-                      </Chip>
-                    </Tooltip>
-                  </CardHeader>
-                  <CardTitle>
-                    <BiCloudUpload size="40" />
-                    <br />
-                    Fetch Data from ChRIS
-                  </CardTitle>
-                  <CardBody>
-                    Choose existing files already registered to ChRIS
-                  </CardBody>
-                </Card>
+              <GridItem>
+                <Grid >
+                  <GridItem  style={{height:"230px"}}>
+                    <Card
+                      id="swift_storage"
+                      isSelectableRaised
+                      hasSelectableInput
+                      isDisabledRaised={isDataSelected}
+                      style={cardContainerStyle}
+                      onClick={handleClick}
+                      isSelected={selectedConfig.includes("swift_storage")}
+                    >
+                      <CardHeader style={cardHeaderStyle}>
+                        <Tooltip content="Press the F key to select">
+                          <Chip key="KeyboardShortcut" isReadOnly>
+                            F
+                          </Chip>
+                        </Tooltip>
+                      </CardHeader>
+                      <CardTitle>
+                        <BiCloudUpload size="40" />
+                        <br />
+                        Fetch Data from ChRIS
+                      </CardTitle>
+                      <CardBody>
+                        Choose existing files already registered to ChRIS
+                      </CardBody>
+                    </Card>
+                  </GridItem>
+                  <GridItem rowSpan={6}>
+                    {chrisFiles.length > 0 && (
+                      <>
+                        <h1>Files to add to new analysis:</h1>
+                        <div className="file-list">{fileList}</div>
+                      </>
+                    )}
+                  </GridItem>
+                </Grid>
               </GridItem>
-              <GridItem rowSpan={1}>
-                {!showDragAndDrop ? (
-                  <Card
-                    id="local_select"
-                    isSelectableRaised
-                    hasSelectableInput
-                    isDisabledRaised={isDataSelected}
-                    style={cardContainerStyle}
-                    onClick={handleClick}
-                    isSelected={selectedConfig.includes("local_select")}
-                  >
-                    <CardHeader style={cardHeaderStyle}>
-                      <Tooltip content="Press the U key to select">
-                        <Chip key="KeyboardShortcut" isReadOnly>
-                          U
-                        </Chip>
-                      </Tooltip>
-                    </CardHeader>
-                    <CardTitle>
-                      <FaUpload size="40" />
-                      <br />
-                      Upload New Data
-                    </CardTitle>
-                    <CardBody>
-                      Upload new files from your local computer
-                    </CardBody>
-                  </Card>
-                ) : (
-                  <DragAndUpload handleLocalUploadFiles={handleFileUpload} />
-                )}
-              </GridItem>
-            </Grid>
-            <Grid hasGutter span={12}>
-              <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {pluginMeta && (
-                  <>
-                    <h1>Selected Plugin:</h1>
-                    <div style={{ display: "flex", alignItems: "baseline" }}>
-                      <p>{pluginMeta.data.title}</p>
-                      <span className="trash-icon">
-                        <FaTrash onClick={resetPlugin} />
-                      </span>
-                    </div>
-                  </>
-                )}
-              </GridItem>
-              <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {chrisFiles.length > 0 && (
-                  <>
-                    <h1>Files to add to new analysis:</h1>
-                    <div className="file-list">{fileList}</div>
-                  </>
-                )}
-              </GridItem>
-              <GridItem xl2={4} md={4} xl={4} sm={12}>
-                {localFiles.length > 0 ? <LocalFileUpload /> : null}
+              <GridItem>
+                <Grid>
+                  <GridItem style={{height:"230px"}}>
+                    {!showDragAndDrop ? (
+                      <Card
+                        id="local_select"
+                        isSelectableRaised
+                        hasSelectableInput
+                        isDisabledRaised={isDataSelected}
+                        style={cardContainerStyle}
+                        onClick={handleClick}
+                        isSelected={selectedConfig.includes("local_select")}
+                      >
+                        <CardHeader style={cardHeaderStyle}>
+                          <Tooltip content="Press the U key to select">
+                            <Chip key="KeyboardShortcut" isReadOnly>
+                              U
+                            </Chip>
+                          </Tooltip>
+                        </CardHeader>
+                        <CardTitle>
+                          <FaUpload size="40" />
+                          <br />
+                          Upload New Data
+                        </CardTitle>
+                        <CardBody>
+                          Upload new files from your local computer
+                        </CardBody>
+                      </Card>
+                    ) : (
+                      <DragAndUpload handleLocalUploadFiles={handleFileUpload} />
+                    )}
+                  </GridItem>
+                  <GridItem rowSpan={6}>
+                    {localFiles.length > 0 ? <LocalFileUpload /> : null}
+                  </GridItem>
+                </Grid>
               </GridItem>
             </Grid>
           </div>
