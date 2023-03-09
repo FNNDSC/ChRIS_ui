@@ -12,7 +12,7 @@ import {
   getSelectedPlugin,
 } from "./actions";
 import { getPluginInstanceStatusRequest } from "../resources/actions";
-import { fetchResource } from "../../api/common";
+import { catchError, fetchResource } from "../../api/common";
 
 function* setPluginInstances(feed: Feed) {
   try {
@@ -34,8 +34,9 @@ function* setPluginInstances(feed: Feed) {
       put(getPluginInstancesSuccess(pluginInstanceObj)),
       put(getPluginInstanceStatusRequest(pluginInstanceObj)),
     ]);
-  } catch (error) {
-    yield put(getPluginInstancesError(error));
+  } catch (error: any) {
+    const errObj = catchError(error);
+    yield put(getPluginInstancesError(errObj));
   }
 }
 
@@ -84,7 +85,6 @@ function* handleDeleteNode(action: IActionTypeParam) {
   const instance = action.payload.instance;
   const feed = action.payload.feed;
 
-  let errorString = "";
   try {
     if (
       !["finishedSuccessfully", "finishedWithError", "cancelled"].includes(
@@ -96,16 +96,12 @@ function* handleDeleteNode(action: IActionTypeParam) {
       });
     }
     yield instance.delete();
-  } catch (error) {
-    //@ts-ignore
-    errorString = error.response.data;
-  }
-
-  if (!errorString) {
     yield setPluginInstances(feed);
     yield put(deleteNodeSuccess());
-  } else {
-    yield put(deleteNodeError(errorString));
+  } catch (error) {
+    //@ts-ignore
+    const errObj = catchError(error);
+    yield put(deleteNodeError(errObj));
   }
 }
 

@@ -137,6 +137,16 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
       };
     }
 
+    case Types.SetError: {
+      return {
+        ...state,
+        errors: {
+          ...state.errors,
+          ...action.payload.error,
+        },
+      };
+    }
+
     case Types.ResetState: {
       const newState = getInitialNodeState();
 

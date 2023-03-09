@@ -16,6 +16,7 @@ import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
+import { catchError } from "../../../api/common";
 
 const AddNode: React.FC<AddNodeProps> = ({
   selectedPlugin,
@@ -145,9 +146,16 @@ const AddNode: React.FC<AddNodeProps> = ({
         toggleOpen();
       }
     } catch (error: any) {
-      toggleOpen();
+      const errObj = catchError(error);
+      nodeDispatch({
+        type: Types.SetError,
+        payload: {
+          error: errObj,
+        },
+      });
     }
   };
+
   return (
     <React.Fragment>
       <Button icon={<MdOutlineAddCircle />} type="button" onClick={toggleOpen}>
