@@ -50,6 +50,7 @@ export const FeedView: React.FC = () => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
+  const explorer = useTypedSelector((state) => state.explorer);
   const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
@@ -220,7 +221,10 @@ export const FeedView: React.FC = () => {
       <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
         <DrawerContent
           panelContent={
-            <DrawerPanelContent defaultSize="46vh" isResizable>
+            <DrawerPanelContent
+              defaultSize={explorer.explorer ? "100vh" : "46vh"}
+              isResizable
+            >
               <PageSection variant="darker" className="section-three">
                 {feedOutputBrowserPanel}
               </PageSection>

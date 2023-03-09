@@ -134,10 +134,13 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           </DrawerContentBody>
         </DrawerContent>
       </Drawer>
-      <PluginViewerModal
+      {/*
+      
+        <PluginViewerModal
         isModalOpen={pluginModalOpen}
         handleModalToggle={handlePluginModalClose}
       />
+       */}
     </>
   );
 };

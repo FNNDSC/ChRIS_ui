@@ -1,6 +1,7 @@
 import React from "react";
 import {
   setExplorerMode,
+  setExplorerRequest,
   setSelectedFolder,
 } from "../../../store/explorer/actions";
 import { useTypedSelector } from "../../../store/hooks";
@@ -156,7 +157,7 @@ export const useFeedBrowser = () => {
   const handleFileBrowserOpen = () => {
     setFolder();
     setPluginModalOpen(!pluginModalOpen);
-    dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser));
+    dispatch(setExplorerRequest());
   };
 
   const handlePluginModalClose = () => {

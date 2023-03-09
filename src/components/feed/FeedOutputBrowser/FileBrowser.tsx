@@ -13,6 +13,9 @@ import {
   DrawerPanelBody,
   DrawerHead,
   DrawerActions,
+  ApplicationLauncher,
+  ApplicationLauncherItem,
+  DropdownPosition,
 } from "@patternfly/react-core";
 import { bytesToSize } from "./utils";
 import { FeedFile } from "@fnndsc/chrisapi";
@@ -71,6 +74,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const dispatch = useDispatch();
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [appLauncher, setAppLauncher] = useState(false);
   const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
 
   const { files, folders, path } = pluginFilesPayload;
@@ -208,6 +212,78 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
   };
 
+  const handleToggleAppLauncher = () => {
+    setAppLauncher(!appLauncher);
+  };
+
+  const imageFileTypes = ["dcm", "png", "jpg", "nii", "jpeg"];
+  const fileType = selectedFile && getFileExtension(selectedFile.data.fname);
+
+  const appLauncherItems: React.ReactElement[] = [
+    <ApplicationLauncherItem
+      component={
+        <ButtonWithTooltip
+          position="bottom"
+          content={<span>Open in Full Screen</span>}
+          variant="link"
+          onClick={handleFileBrowserToggle}
+          icon={<AiOutlineExpandAlt />}
+        />
+      }
+      key="application_1a"
+    />,
+    <ApplicationLauncherItem
+      component={
+        <ButtonWithTooltip
+          content={<span>Open the Dicom Viewer</span>}
+          variant="link"
+          onClick={handleDicomViewerOpen}
+          icon={<FaFilm />}
+        />
+      }
+      key="application_2a"
+    />,
+    <ApplicationLauncherItem
+      component={
+        <ButtonWithTooltip
+          content={<span>Open the XTK Viewer</span>}
+          position="bottom"
+          variant="link"
+          onClick={handleXtkViewerOpen}
+          icon={<BiHorizontalCenter />}
+        />
+      }
+      key="test"
+    />,
+    <ApplicationLauncherItem
+      component={
+        <ButtonWithTooltip
+          position="left"
+          content={<span>Previous</span>}
+          variant="link"
+          icon={<MdNavigateBefore />}
+          className="carousel__first"
+          onClick={handlePrevClick}
+        />
+      }
+      key="test1"
+    />,
+
+    <ApplicationLauncherItem
+      component={
+        <ButtonWithTooltip
+          position="left"
+          content={<span>Next</span>}
+          variant="link"
+          className="carousel__second"
+          icon={<MdNavigateNext />}
+          onClick={handleNextClick}
+        />
+      }
+      key="test2"
+    />,
+  ];
+
   const previewPanel = (
     <DrawerPanelContent
       className="file-browser__previewPanel"
@@ -217,21 +293,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     >
       <DrawerHead>
         <DrawerActions>
-          <div className="header-panel__buttons">
-            {selectedFile && (
-              <HeaderPanel
-                explore={explore}
-                handleFileBrowserOpen={handleFileBrowserToggle}
-                handleDicomViewerOpen={handleDicomViewerOpen}
-                handleXtkViewerOpen={handleXtkViewerOpen}
-                selectedFile={selectedFile}
-                handleToggleViewer={() => {
-                  setIsExpanded(!isExpanded);
-                }}
-              />
-            )}
-          </div>
-
           <DrawerCloseButtonWithTooltip
             content={<span>Close File Preview Panel</span>}
             onClick={() => {
@@ -242,26 +303,22 @@ const FileBrowser = (props: FileBrowserProps) => {
       </DrawerHead>
       <DrawerPanelBody className="file-browser__drawerbody">
         {selectedFile && (
-          <FileDetailView selectedFile={selectedFile} preview="large" />
+          <>
+            <ApplicationLauncher
+              style={{
+                position: "absolute",
+                top: "1.5rem",
+                zIndex: "99999",
+                marginLeft: "calc(100% - 50px)",
+              }}
+              onToggle={handleToggleAppLauncher}
+              isOpen={appLauncher}
+              items={appLauncherItems}
+              position={DropdownPosition.left}
+            />
+            <FileDetailView selectedFile={selectedFile} preview="large" />
+          </>
         )}
-        <div className="carousel">
-          <ButtonWithTooltip
-            position="top"
-            content={<span>Previous</span>}
-            variant="tertiary"
-            icon={<MdNavigateBefore size={30} />}
-            className="carousel__first"
-            onClick={handlePrevClick}
-          />
-          <ButtonWithTooltip
-            position="top"
-            content={<span>Next</span>}
-            variant="tertiary"
-            className="carousel__second"
-            icon={<MdNavigateNext size={30} />}
-            onClick={handleNextClick}
-          />
-        </div>
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
