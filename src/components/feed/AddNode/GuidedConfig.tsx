@@ -141,12 +141,13 @@ const GuidedConfig = () => {
           <div
             style={{
               display: "flex",
+              flexDirection: "column",
               marginTop: "1rem",
+              gap: "20px"
             }}
           >
             <DropdownBasic plugins={plugins} />
             <div
-              style={{ marginLeft: "1rem" }}
               className="configuration__renders"
             >
               {renderComputeEnvs()}
@@ -380,7 +381,7 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
       : [];
 
   return (
-    <>
+    <div style={{display:'flex', flexDirection:'row'}}>
       <span className="configure-compute__label">Select a Plugin Version:</span>
       <Dropdown
         onSelect={onSelect}
@@ -394,7 +395,7 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
         }
         dropdownItems={dropdownItems}
       />
-    </>
+    </div>
   );
 };
 

@@ -24,14 +24,16 @@ function getEmptyTree(username: string) {
   node.push({
     breadcrumb: username,
     title: username,
-    key: "0-0",
-  });
+    checkable: false,
+    key: '0-0',
+  })
   node.push({
-    breadcrumb: "SERVICES",
-    title: "SERVICES",
-    key: "0-1",
-  });
-  return node;
+    breadcrumb: 'SERVICES',
+    title: 'SERVICES',
+    checkable: false,
+    key: '0-1',
+  })
+  return node
 }
 
 // Needs to be replaced with a better caching solution
