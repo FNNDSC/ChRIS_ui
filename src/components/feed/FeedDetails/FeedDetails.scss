@@ -11,13 +11,16 @@
 .feed-details {
   height: 100%;
   width: 100%;
-  --pf-c-toolbar--BackgroundColor: "inherit" !important;
-  &__textarea {
-    --pf-c-form-control--BackgroundColor: var(
-      --pf-global--palette--black-1000
-    ) !important;
+  --pf-c-toolbar--BackgroundColor: inherit !important;
+  &__note {
+    background-color: rgba(3, 3, 3, 0.62) !important;
     color: white !important;
-    font-family: "monospace";
-    height: 10em !important;
+  }
+  &__textarea {
+    background-color: inherit;
+    color: inherit;
+    font-family: var(
+      --pf-global--FontFamily--redhatfont--sans-serif
+    ) !important;
   }
 }

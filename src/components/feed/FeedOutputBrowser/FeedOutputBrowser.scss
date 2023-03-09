@@ -12,6 +12,10 @@
   padding: 0 !important;
 }
 
+.pf-c-app-launcher__menu {
+  background-color: none !important;
+}
+
 .feed-output-browser {
   color: #f5f5f5 !important;
   .ant-tree {
@@ -124,7 +128,6 @@
   }
 
   .small-preview {
-    height: 90%;
     .viewport-wrapper {
       height: 100% !important;
     }

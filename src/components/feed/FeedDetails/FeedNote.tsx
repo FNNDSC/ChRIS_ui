@@ -10,66 +10,50 @@ type FeedNoteProps = {
 
 const FeedNote = ({
   note,
-  status,
+
   handleEditNote,
   handleClose,
 }: FeedNoteProps) => {
   const [value, setValue] = React.useState(note ? note : "");
+  const [typing, setTyping] = React.useState(false);
   const handleChange = (value: string) => {
     setValue(value);
   };
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setTyping(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [typing]);
+
   return (
-    <div
-      style={{
-        padding: "0.25em",
-      }}
-    >
+    <div className="feed-details__note">
       <Form>
         <FormGroup
-          label="Feed Note:"
           type="string"
-          helperText="Hit enter to save"   
+          helperText={typing ? <i>Typing...</i> : <span>Hit Enter to Save</span>}
           fieldId="selection"
-        
         >
           <TextArea
+            className="feed-details__textarea"
             value={value}
             onChange={handleChange}
+            onKeyDown={(event: any) => {
+              if (event.key === "Enter") {
+                handleEditNote(value);
+              } else {
+                setTyping(true);
+              }
+            }}
             isRequired
-           
             aria-label="invalid text area example"
           />
         </FormGroup>
       </Form>
     </div>
   );
-
-  /*
-
-  const handleChange = (value: string) => {
-    setValue(value);
-  };
-
-  return (
-    <div>
-      <TextArea
-        spellCheck={false}
-        aria-label="Edit or View the Feed Notes"
-        value={value}
-        onChange={handleChange}
-        className="feed-details__textarea"
-      />
-      <div className="feed-details__actions">
-        <Button onClick={() => handleEditNote(value)} type="button">
-          {status ? "Saving" : "Save"}
-        </Button>
-        <Button onClick={handleClose} type="button">
-          Cancel
-        </Button>
-      </div>
-    </div>
-  );
-  */
 };
 
 export default FeedNote;
