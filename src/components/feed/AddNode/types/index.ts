@@ -1,6 +1,10 @@
-import { Plugin, PluginParameter, PluginInstance,PluginMeta} from "@fnndsc/chrisapi";
+import {
+  Plugin,
+  PluginParameter,
+  PluginInstance,
+  PluginMeta,
+} from "@fnndsc/chrisapi";
 import { IUserState } from "../../../../store/user/types";
-
 
 export interface InputIndex {
   [key: string]: string;
@@ -76,8 +80,8 @@ export interface GuidedConfigState {
 }
 
 export interface chooseConfigProps {
-  user?: IUserState,
-  handleFileUpload: (files: any[]) => void,
+  user?: IUserState;
+  handleFileUpload: (files: any[]) => void;
 }
 
 export interface EditorState {
@@ -127,7 +131,7 @@ export interface AddNodeState extends InputState {
   pluginMeta?: PluginMeta;
   selectedPluginFromMeta?: Plugin;
   selectedComputeEnv: string;
-  errors: Record<string, unknown>;
+  errors?: Record<string, unknown>;
   editorValue: string;
   loading: boolean;
   isOpen: boolean;
@@ -150,9 +154,14 @@ export enum Types {
   SetComputeEnv = "SET_COMPUTE_ENV",
   ResetState = "RESET_STATE",
   SetShowPreviousRun = "SET_SHOW_PREVIOUS_RUN",
+  SetError = "SET_ERROR",
 }
 
 export interface AddNodeStateActions {
+  [Types.SetError]: {
+    error: any;
+  };
+
   [Types.RequiredInput]: {
     input: {
       [id: string]: InputIndex;

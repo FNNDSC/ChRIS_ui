@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { isEqual } from "lodash";
-import { Switch, Button, Alert, TextInput } from "@patternfly/react-core";
+import { Switch, Alert, TextInput } from "@patternfly/react-core";
 import useSize from "./useSize";
 import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
 import { select, event } from "d3-selection";
@@ -21,10 +21,11 @@ import {
 } from "../../../store/feed/actions";
 import { FeedTreeProp } from "../../../store/feed/types";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
-import "./FeedTree.scss";
 import { getNodeOperations } from "../../../store/plugin/actions";
 import { switchTreeMode } from "../../../store/tsplugins/actions";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
+import { ButtonWithTooltip } from "../../common/button";
+import { BsReverseLayoutSidebarReverse } from "react-icons/bs";
 
 interface Separation {
   siblings: number;
@@ -349,12 +350,17 @@ const FeedTree = (props: AllProps) => {
         {!props.isSidePanelExpanded && (
           <div className="feed-tree__container--panelToggle">
             <div className="feed-tree__orientation">
-              <Button
-                type="button"
+              <ButtonWithTooltip
+                icon={
+                  <BsReverseLayoutSidebarReverse
+                    style={{ width: "32", height: "32" }}
+                  />
+                }
+                position="left"
+                variant="link"
+                content={<span>Open Details Panel</span>}
                 onClick={() => props.onExpand("side_panel")}
-              >
-                Toggle Node Panel
-              </Button>
+              />
             </div>
           </div>
         )}
@@ -450,15 +456,6 @@ const FeedTree = (props: AllProps) => {
               />
             </div>
           )}
-
-          {mode === false && (
-            <div className="feed-tree__orientation">
-              <Alert
-                variant="info"
-                title="You are now in a ts node selection mode"
-              />
-            </div>
-          )}
         </div>
       </div>
       <div className="container_feedTree">
@@ -514,12 +511,16 @@ const FeedTree = (props: AllProps) => {
           {!props.isBottomPanelExpanded && (
             <div className="feed-tree__container--panelToggle">
               <div className="feed-tree__orientation">
-                <Button
-                  type="button"
+                <ButtonWithTooltip
+                  variant="link"
+                  position="top"
+                  content={<span>Expand The File Browser Panel</span>}
+                  style={{
+                    background: "none",
+                  }}
+                  icon={<BrowserOpenIcon />}
                   onClick={() => props.onExpand("bottom_panel")}
-                >
-                  Toggle Browser Panel
-                </Button>
+                />
               </div>
             </div>
           )}
@@ -550,4 +551,15 @@ FeedTree.defaultProps = {
   scaleExtent: { min: 0.1, max: 1 },
   zoom: 1,
   nodeSize: { x: 120, y: 80 },
+};
+
+const BrowserOpenIcon = () => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+      <g fill="#fafafa">
+        <path d="M30 0H2a2 2 0 0 0-2 2v28a2 2 0 0 0 2 2h15v-1H3a2 2 0 0 1-2-2V9h30v8h1V2a2 2 0 0 0-2-2zm1 8H1V3a2 2 0 0 1 2-2h26a2 2 0 0 1 2 2v5z" />
+        <path d="M31.5 24H25v-6.5a.5.5 0 0 0-1 0V24h-6.5a.5.5 0 0 0 0 1H24v6.5a.5.5 0 0 0 1 0V25h6.5a.5.5 0 0 0 0-1zM28.5 3h-15a1.5 1.5 0 0 0 0 3h15a1.5 1.5 0 0 0 0-3zm.5 1.534a.465.465 0 0 1-.466.466H13.466A.465.465 0 0 1 13 4.534v-.068c0-.258.208-.466.466-.466h15.069c.257 0 .465.208.465.466v.068zM9.5 3h-6a1.5 1.5 0 0 0 0 3h6a1.5 1.5 0 0 0 0-3zM6 5H3.466A.465.465 0 0 1 3 4.534v-.068C3 4.208 3.208 4 3.466 4H6v1zm4-.466A.465.465 0 0 1 9.534 5H7V4h2.534c.258 0 .466.208.466.466v.068z" />
+      </g>
+    </svg>
+  );
 };

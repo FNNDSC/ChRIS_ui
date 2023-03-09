@@ -8,7 +8,6 @@ import {
   Form,
   FormGroup,
   TextInput,
-  Alert,
   Button,
 } from "@patternfly/react-core";
 import { FaTrash, FaDownload } from "react-icons/fa";
@@ -24,6 +23,8 @@ import {
 } from "../../../store/feed/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import { Feed } from "@fnndsc/chrisapi";
+import { LoadingErrorAlert } from "../../../components/common/errorHandling";
+import { catchError } from "../../../api/common";
 
 function capitalizeFirstLetter(stringLetter: string) {
   return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1);
@@ -40,7 +41,7 @@ const IconContainer = () => {
   const [dialogDescriptionValue, setDescriptionValue] = React.useState("");
   const [labelValue, setLabelValue] = React.useState("");
   const [defaultName, setDefaultName] = React.useState("");
-  const [deleteError, setDeleteError] = React.useState("");
+  const [deleteError, setDeleteError] = React.useState();
   const [actionValue, setActionValue] = React.useState("");
   const nameInputRef = React.useRef(null);
 
@@ -108,9 +109,9 @@ const IconContainer = () => {
       bulkSelect.forEach(async (feed: Feed) => {
         try {
           await feed.delete();
-        } catch (error) {
-          //@ts-ignore
-          setDeleteError(error.response);
+        } catch (error: any) {
+          const errorObject = catchError(error);
+          setDeleteError(errorObject);
         }
       });
       dispatch(deleteFeed(feedData));
@@ -131,8 +132,8 @@ const IconContainer = () => {
     dispatch(toggleSelectAll(false));
   };
 
-  const alert = (error: string, addition: string) => {
-    return <Alert isInline variant="danger" title={error + addition} />;
+  const alert = (error: any, addition?: string) => {
+    return <LoadingErrorAlert error={{ ...error, value: addition }} />;
   };
   return (
     <ToggleGroup aria-label="Feed Action Bar">
@@ -231,7 +232,7 @@ const IconContainer = () => {
               {downloadError &&
                 alert(
                   downloadError,
-                  " Feeds from other creators need to be shared with you first."
+                  "Feeds from other creators need to be shared with you first."
                 )}
               {deleteError && alert(deleteError, "")}
             </FormGroup>
