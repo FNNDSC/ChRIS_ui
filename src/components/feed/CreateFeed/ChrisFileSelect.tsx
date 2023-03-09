@@ -30,11 +30,13 @@ function getEmptyTree(username: string) {
   node.push({
     breadcrumb: username,
     title: username,
+    checkable: false,
     key: '0-0',
   })
   node.push({
     breadcrumb: 'SERVICES',
     title: 'SERVICES',
+    checkable: false,
     key: '0-1',
   })
   return node
