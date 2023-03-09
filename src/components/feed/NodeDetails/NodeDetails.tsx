@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, ReactNode } from "react";
 import Moment from "react-moment";
 import {
   Button,
@@ -229,58 +229,68 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
           </Grid>
         </ExpandableSection>
 
-        <div className="node-details__actions">
-          <div className="node-details__actions_first">
-            {cancelled ? null : (
-              <AddNodeProvider>
-                <AddNode />
-              </AddNodeProvider>
-            )}
-            <PipelineProvider>
-              <AddPipeline />
-            </PipelineProvider>
+        <Grid className="node-details__grid" hasGutter={true}>
+          <Grid className="node-details__grid" hasGutter={true}>
+            <RenderButtonGridItem>
+              {cancelled ? null : (
+                <AddNodeProvider>
+                  <AddNode />
+                </AddNodeProvider>
+              )}
+            </RenderButtonGridItem>
+            <RenderButtonGridItem>
+              <PipelineProvider>
+                <AddPipeline />
+              </PipelineProvider>
+            </RenderButtonGridItem>
 
-            <Button onClick={downloadAllClick} icon={<FaDownload />}>
-              Download Files{" "}
-              <span
-                style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}
-              >
-                ( F )
-              </span>
-            </Button>
-          </div>
+            <RenderButtonGridItem>
+              <Button onClick={downloadAllClick} icon={<FaDownload />}>
+                Download Files{" "}
+                <span
+                  style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}
+                >
+                  ( F )
+                </span>
+              </Button>
+            </RenderButtonGridItem>
+          </Grid>
 
-          <div className="node-details__actions_second">
-            {
-              <Popover
-                className="node-details__popover"
-                content={<PluginLog text={text} />}
-                placement="bottom"
-                open={terminal}
-                trigger="click"
-                onOpenChange={() => {
-                  dispatch(getNodeOperations("terminal"));
-                }}
-              >
-                <Button icon={<FaTerminal />} type="button">
-                  View Terminal{" "}
-                  <span
-                    style={{
-                      padding: "2px",
-                      color: "#F5F5DC",
-                      fontSize: "11px",
-                    }}
-                  >
-                    ( T )
-                  </span>
-                </Button>
-              </Popover>
-            }
+          <Grid hasGutter={true}>
+            <RenderButtonGridItem>
+              {
+                <Popover
+                  className="node-details__popover"
+                  content={<PluginLog text={text} />}
+                  placement="bottom"
+                  open={terminal}
+                  trigger="click"
+                  onOpenChange={() => {
+                    dispatch(getNodeOperations("terminal"));
+                  }}
+                >
+                  <Button icon={<FaTerminal />} type="button">
+                    View Terminal{" "}
+                    <span
+                      style={{
+                        padding: "2px",
+                        color: "#F5F5DC",
+                        fontSize: "11px",
+                      }}
+                    >
+                      ( T )
+                    </span>
+                  </Button>
+                </Popover>
+              }
+            </RenderButtonGridItem>
 
-            <GraphNodeContainer />
-            {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
-          </div>
-        </div>
+            <RenderButtonGridItem>
+              <GraphNodeContainer />
+              {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
+            </RenderButtonGridItem>
+          </Grid>
+        </Grid>
         {download.status && (
           <>
             <div style={{ width: 170, marginTop: "1.25em" }}>
@@ -375,3 +385,12 @@ function getCommand(
 
   return command;
 }
+
+const RenderButtonGridItem = ({ children }: { children: ReactNode }) => {
+  return (
+    <GridItem sm={12} lg={4} xl={2} xl2={2} span={2}>
+      {children}
+    </GridItem>
+  );
+  4;
+};

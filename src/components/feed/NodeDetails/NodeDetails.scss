@@ -23,7 +23,7 @@
   width: 100%;
   height: 100%;
   color: white;
-  font-size: 1rem;
+  font-size: 0.75rem;
   button {
     font-size: inherit;
   }
@@ -78,11 +78,9 @@
 
     &__grid {
       margin-bottom: 0.5em;
-      .value {
-        margin-left: 0.5em;
-        svg {
-          margin-right: 0.4em;
-        }
+
+      button {
+        width: 100%;
       }
     }
 
@@ -99,27 +97,6 @@
       &-icon {
         color: var(--pf-global--palette--white);
         margin-right: 0.25em;
-      }
-    }
-
-    &__actions {
-      margin-top: 1em;
-      display: flex;
-      flex-direction: column;
-
-      button {
-        margin-top: 1em;
-      }
-
-      &_second {
-        margin-top: 1rem;
-      }
-
-      &_first,
-      &_second {
-        button {
-          margin-right: 1rem !important;
-        }
       }
     }
 
