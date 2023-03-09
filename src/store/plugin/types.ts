@@ -23,5 +23,6 @@ export const PluginActionTypes = keyMirror({
   GET_PARAMS_SUCCESS: null,
   GET_COMPUTE_ENV: null,
   GET_COMPUTE_ENV_SUCCESS: null,
+  GET_COMPUTE_ENV_ERROR: null,
   GET_NODE_OPERATIONS: null,
 });
