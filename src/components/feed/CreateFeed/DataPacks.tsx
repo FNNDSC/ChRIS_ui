@@ -41,7 +41,7 @@ const getFilterState = () => {
   };
 };
 
-const DataPacks: React.FC = () => {
+const DataPacks = ({next}:{next:() => any}) => {
   const { state: addNodeState } = useContext(AddNodeContext);
   const { dispatch: nodeDispatch } = useContext(AddNodeContext);
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -104,6 +104,7 @@ const DataPacks: React.FC = () => {
           pluginMeta: plugin,
         },
       });
+
       notification.info({
         message: `Plugin Selected`,
         description: `${plugin.data.name} plugin unselected`,
@@ -121,8 +122,9 @@ const DataPacks: React.FC = () => {
           },
         });
       }
+      next()
     },
-    [dispatch, nodeDispatch, state.selectedConfig]
+    [dispatch, next, nodeDispatch, state.selectedConfig]
   );
 
   const handleKeyDown = useCallback(

@@ -52,6 +52,7 @@ export const generateTreeNodes = async (
         breadcrumb: `${treeNode.breadcrumb}/${items[i]}`,
         title: items[i],
         key: `${treeNode.key}-${i}`,
+        checkable: false,
       });
     }
   }
