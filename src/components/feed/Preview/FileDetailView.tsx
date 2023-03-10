@@ -33,7 +33,7 @@ const FileDetailView = (props: AllProps) => {
 
   const fetchData = React.useCallback(async () => {
     const fileName = selectedFile.data.fname,
-      fileType = getFileExtension(fileName);
+    fileType = getFileExtension(fileName);
     const blob = await selectedFile.getFileBlob();
     setFileState((fileState) => {
       return {

@@ -30,7 +30,6 @@ const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
 const StackScrollMouseWheelTool = cornerstoneTools.StackScrollMouseWheelTool;
 cornerstoneTools.addTool(StackScrollMouseWheelTool);
-
 cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
 
 type AllProps = {
