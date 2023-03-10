@@ -5,7 +5,7 @@ import { FileBrowserViewer } from "./displays";
 import { ExplorerMode } from "../../store/explorer/types";
 import DicomViewerContainer from "./displays/DicomViewer";
 import XtkViewer from "./displays/XtkViewer/XtkViewer";
-import { ButtonContainer } from "./displays/DicomViewer/utils/helpers";
+
 import "./Viewer.scss";
 
 const OutputViewerContainer = () => {
@@ -14,22 +14,6 @@ const OutputViewerContainer = () => {
     (state) => state.instance.selectedPlugin
   );
   const { mode } = useTypedSelector((state) => state.explorer);
-  const [actionState, setActionState] = React.useState<{
-    [key: string]: boolean;
-  }>({});
-
-  const handleEvents = (action: string) => {
-    const currentAction = actionState[action];
-    setActionState({
-      [action]: !currentAction,
-    });
-  };
-
-  const handleCloseTagInfoModalState = () => {
-    setActionState({});
-  };
-
-  console.log("Mode", mode);
 
   const [activeTabKey, setActiveTabKey] = React.useState(0);
   if (!selectedPlugin || !pluginFiles) {
@@ -43,16 +27,7 @@ const OutputViewerContainer = () => {
           </Tab>
         ),
         [ExplorerMode.DicomViewer]: (
-          <Tab
-            title={<DicomHeader handleEvents={handleEvents} />}
-            eventKey={0}
-            key={1}
-          >
-            <DicomViewerContainer
-              handleTagInfoState={handleCloseTagInfoModalState}
-              action={actionState}
-            />
-          </Tab>
+          <Tab title="Dicom Viewer" eventKey={0} key={1}></Tab>
         ),
         [ExplorerMode.XtkViewer]: (
           <Tab title="XTK Viewer" eventKey={0} key={2}>
@@ -91,27 +66,3 @@ const OutputViewerContainer = () => {
 };
 
 export default OutputViewerContainer;
-
-const DicomHeader = ({
-  handleEvents,
-}: {
-  handleEvents: (action: string) => void;
-}) => {
-  return (
-    <div
-      style={{
-        marginTop: "1rem",
-      }}
-    >
-      <ButtonContainer action="Zoom" handleEvents={handleEvents} />
-      <ButtonContainer action="Pan" handleEvents={handleEvents} />
-      <ButtonContainer action="Magnify" handleEvents={handleEvents} />
-      <ButtonContainer action="Rotate" handleEvents={handleEvents} />
-      <ButtonContainer action="Wwwc" handleEvents={handleEvents} />
-      <ButtonContainer action="Reset View" handleEvents={handleEvents} />
-      <ButtonContainer action="Length" handleEvents={handleEvents} />
-      <ButtonContainer action="Gallery" handleEvents={handleEvents} />
-      <ButtonContainer action="TagInfo" handleEvents={handleEvents} />
-    </div>
-  );
-};

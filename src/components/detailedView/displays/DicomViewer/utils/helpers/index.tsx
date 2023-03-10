@@ -1,8 +1,9 @@
-import React from "react";
-import { Button, Modal, ModalVariant } from "@patternfly/react-core";
+import React, { ReactNode } from "react";
+import { Button, Modal, ModalVariant, Tooltip } from "@patternfly/react-core";
 import { FeedFile } from "@fnndsc/chrisapi";
 import ReactJson from "react-json-view";
 import { SpinContainer } from "../../../../../common/loading/LoadingContent";
+import { IconType } from "react-icons/lib";
 
 export const GalleryButtonContainer = ({
   handleClick,
@@ -25,18 +26,21 @@ export const GalleryButtonContainer = ({
 export const ButtonContainer = ({
   action,
   handleEvents,
+  icon,
 }: {
   action: string;
   handleEvents: (action: string) => void;
+  icon: ReactNode;
 }) => {
   return (
-    <Button
-      style={{ marginRight: "1rem" }}
-      variant="secondary"
-      onClick={() => handleEvents(action)}
-    >
-      {action === "Wwwc" ? "Brightness / Contrast" : action}
-    </Button>
+    <Tooltip position="right" content={action}>
+      <Button
+        style={{ marginRight: "1rem" }}
+        variant="link"
+        onClick={() => handleEvents(action)}
+        icon={icon}
+      />
+    </Tooltip>
   );
 };
 
