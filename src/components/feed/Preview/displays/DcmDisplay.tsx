@@ -33,7 +33,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       cornerstone.loadImage(imageId).then((image: any) => {
         cornerstone.displayImage(element, image);
       });
-
       window.addEventListener("resize", onWindowResize);
     }
   }, []);

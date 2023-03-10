@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-
 import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../../store/hooks";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,8 +15,9 @@ import {
   ApplicationLauncherItem,
   DropdownPosition,
 } from "@patternfly/react-core";
-import { bytesToSize } from "./utils";
-import { FeedFile } from "@fnndsc/chrisapi";
+import { Table, TableHeader, TableBody } from "@patternfly/react-table";
+import { FiSidebar } from "react-icons/fi";
+import { FaFileCode, FaFilm } from "react-icons/fa";
 import {
   MdFileDownload,
   MdNavigateBefore,
@@ -31,12 +30,11 @@ import {
   AiFillFolder,
   AiOutlineExpandAlt,
 } from "react-icons/ai";
-import { FiSidebar } from "react-icons/fi";
-import { FaFileCode, FaFilm } from "react-icons/fa";
-import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import FileDetailView from "../Preview/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
+import { bytesToSize } from "./utils";
 import { getFileExtension } from "../../../api/models/file-explorer.model";
+import { FeedFile } from "@fnndsc/chrisapi";
 import { FileBrowserProps } from "./types";
 import {
   clearSelectedFile,
@@ -46,6 +44,7 @@ import { BiHorizontalCenter } from "react-icons/bi";
 import { getXtkFileMode } from "../../detailedView/displays/XtkViewer/XtkViewer";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
+import { useTypedSelector } from "../../../store/hooks";
 import { ClipboardCopyContainer } from "../../common/textcopypopover/TextCopyPopover";
 import {
   ButtonWithTooltip,
