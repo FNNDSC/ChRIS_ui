@@ -1,4 +1,5 @@
 import { TAG_DICT, uids } from "./dataDictionary";
+import Hammer from "hammerjs";
 import * as dicomParser from "dicom-parser";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneMath from "cornerstone-math";
@@ -27,46 +28,69 @@ const toolList = [
   LengthTool,
 ];
 
-export function initDicom() {
-  cornerstoneTools.external.cornerstone = cornerstone;
-  cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
-  cornerstoneTools.external.Hammer = Hammer;
-  cornerstoneTools.init({
-    globalToolSyncEnabled: true,
-    showSVGCursors: true,
-  });
+cornerstoneTools.external.cornerstone = cornerstone;
+cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
+cornerstoneTools.external.Hammer = Hammer;
+cornerstoneTools.init({
+  globalToolSyncEnabled: true,
+  showSVGCursors: true,
+});
 
-  cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
-  cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-  cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
+cornerstoneFileImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
-  const client = ChrisAPIClient.getClient();
-  const token = client.auth.token;
-  cornerstoneNIFTIImageLoader.nifti.configure({
-    headers: {
-      "Content-Type": "application/vnd.collection+json",
-      Authorization: "Token " + token,
-    },
-    method: "get",
-    responseType: "arrayBuffer",
-  });
+const client = ChrisAPIClient.getClient();
+const token = client.auth.token;
+cornerstoneNIFTIImageLoader.nifti.configure({
+  headers: {
+    "Content-Type": "application/vnd.collection+json",
+    Authorization: "Token " + token,
+  },
+  method: "get",
+  responseType: "arrayBuffer",
+});
 
-  const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
+const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
 
-  toolList.forEach((tool) => {
-    if (tool.name === "StackScrollMouseWheelTool") {
-      cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
-    }
-    cornerstoneTools.addTool(tool);
-  });
+toolList.forEach((tool) => {
+  if (tool.name === "StackScrollMouseWheelTool") {
+    cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
+  }
+  cornerstoneTools.addTool(tool);
+});
 
-  return { ImageId };
-}
+export const handleEventState = (event: string, value: boolean) => {
+  if (value === true) {
+    cornerstoneTools.setToolActive(event, { mouseButtonMask: 1 });
+  } else {
+    cornerstoneTools.setToolPassive(event);
+  }
+};
 
 export const removeTool = () => {
   toolList.forEach((tool) => {
     cornerstoneTools.removeTool(tool.name);
   });
+};
+
+export const enableDOMElement = (element: HTMLDivElement) => {
+  cornerstone.enable(element);
+};
+
+export const loadDicomImage = (blob: any) => {
+  return cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
+};
+
+export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
+  cornerstone.loadImage(imageId).then((image: any) => {
+    cornerstone.displayImage(element, image);
+  });
+};
+
+export const windowResize = (element: HTMLDivElement) => {
+  cornerstone.resize(element);
 };
 
 export function isDicom(fileName: string) {
