@@ -37,10 +37,11 @@
     --pf-c-table-tbody-cell--PaddingTop: 1rem;
     --pf-c-table-tbody-cell--PaddingBottom: 1rem;
     margin-bottom: 1rem;
+    background-color: inherit !important;
   }
 
   thead {
-    background-color: var(--pf-global--palette--black-100);
+    // /  background-color: var(--pf-global--palette--black-100);
   }
 
   &__count {

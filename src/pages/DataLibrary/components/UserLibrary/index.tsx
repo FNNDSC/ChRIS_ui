@@ -519,13 +519,17 @@ const DataLibrary = () => {
           style={{
             marginLeft: "auto",
           }}
-          variant="link"
+          variant="primary"
           icon={<FaUpload />}
           onClick={handleFileModal}
         >
           Upload Files
         </Button>
         <Button
+          style={{
+            marginLeft: "0.5em",
+          }}
+          variant="primary"
           onClick={() => {
             if (state.columnLayout === "multi") {
               dispatchLibrary(setMultiColumnLayout("single"));
@@ -533,7 +537,6 @@ const DataLibrary = () => {
               dispatchLibrary(setMultiColumnLayout("multi"));
             }
           }}
-          variant="link"
         >
           Switch Column Layout
         </Button>
