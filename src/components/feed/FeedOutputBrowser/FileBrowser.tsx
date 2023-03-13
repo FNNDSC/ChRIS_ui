@@ -14,6 +14,7 @@ import {
   ApplicationLauncher,
   ApplicationLauncherItem,
   DropdownPosition,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { FiSidebar } from "react-icons/fi";
@@ -29,6 +30,7 @@ import {
   AiFillFile,
   AiFillFolder,
   AiOutlineExpandAlt,
+  AiOutlineMenuFold,
 } from "react-icons/ai";
 import FileDetailView from "../Preview/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
@@ -287,7 +289,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     <DrawerPanelContent
       className="file-browser__previewPanel"
       isResizable
-      defaultSize="53.5%"
+      defaultSize="52.9%"
       minSize={"25%"}
     >
       <DrawerHead>
@@ -301,23 +303,36 @@ const FileBrowser = (props: FileBrowserProps) => {
         </DrawerActions>
       </DrawerHead>
       <DrawerPanelBody className="file-browser__drawerbody">
-        {selectedFile && (
-          <>
-            <ApplicationLauncher
-              style={{
-                position: "absolute",
-                top: "1.5rem",
-                zIndex: "99999",
-                marginLeft: "calc(100% - 50px)",
-              }}
-              onToggle={handleToggleAppLauncher}
-              isOpen={appLauncher}
-              items={appLauncherItems}
-              position={DropdownPosition.left}
-            />
+        <>
+          <ApplicationLauncher
+            toggleIcon={
+              <Tooltip
+                position="left"
+                content={<span>Open toolbar for maximizing</span>}
+              >
+                <AiOutlineMenuFold
+                  style={{
+                    width: "24px",
+                    height: "24px",
+                  }}
+                />
+              </Tooltip>
+            }
+            style={{
+              position: "absolute",
+              top: "1.5rem",
+              zIndex: "99999",
+              marginLeft: "calc(100% - 55px)",
+            }}
+            onToggle={handleToggleAppLauncher}
+            isOpen={appLauncher}
+            items={appLauncherItems}
+            position={DropdownPosition.left}
+          />
+          {selectedFile && (
             <FileDetailView selectedFile={selectedFile} preview="large" />
-          </>
-        )}
+          )}
+        </>
       </DrawerPanelBody>
     </DrawerPanelContent>
   );

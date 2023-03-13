@@ -2,16 +2,6 @@
 @import "../../../assets/scss/helpers/variables";
 @import "../../../assets/scss/helpers/mixins";
 
-.pf-c-drawer {
-  --pf-c-drawer__section--BackgroundColor: inherit !important;
-  --pf-c-drawer__content--BackgroundColor: inherit !important;
-  --pf-c-drawer__panel--BackgroundColor: inherit !important;
-
-  &__splitter {
-    background-color: inherit !important;
-  }
-}
-
 .pf-c-drawer__body {
   padding: 0 !important;
 }

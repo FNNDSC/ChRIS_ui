@@ -96,3 +96,5 @@ export const cleanupFeedResources = (feed: Feed) =>
 
 export const setSearchFilter = (value: string) =>
   action(FeedActionTypes.SET_SEARCH_FILTER, value);
+
+export const setShowToolbar = () => action(FeedActionTypes.SHOW_TOOLBAR);

@@ -4,16 +4,9 @@ import { TextArea, FormGroup, Form } from "@patternfly/react-core";
 type FeedNoteProps = {
   note: string;
   handleEditNote: (note: string) => void;
-  handleClose: () => void;
-  status: boolean;
 };
 
-const FeedNote = ({
-  note,
-
-  handleEditNote,
-  handleClose,
-}: FeedNoteProps) => {
+const FeedNote = ({ note, handleEditNote }: FeedNoteProps) => {
   const [value, setValue] = React.useState(note ? note : "");
   const [typing, setTyping] = React.useState(false);
   const handleChange = (value: string) => {
@@ -33,7 +26,9 @@ const FeedNote = ({
       <Form>
         <FormGroup
           type="string"
-          helperText={typing ? <i>Typing...</i> : <span>Hit Enter to Save</span>}
+          helperText={
+            typing ? <i>Typing...</i> : <span>Hit Enter to Save</span>
+          }
           fieldId="selection"
         >
           <TextArea

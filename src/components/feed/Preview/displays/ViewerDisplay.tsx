@@ -17,6 +17,7 @@ import {
   MdInfo,
   MdDraw,
 } from "react-icons/md";
+import { AiOutlineMenuUnfold } from "react-icons/ai";
 import {
   CatchallDisplay,
   JsonDisplay,
@@ -133,6 +134,19 @@ export const DicomHeader = ({
   return (
     <div>
       <ApplicationLauncher
+        toggleIcon={
+          <Tooltip
+            position="right"
+            content={<span>Open Tooling For Dicoms</span>}
+          >
+            <AiOutlineMenuUnfold
+              style={{
+                width: "24px",
+                height: "24px",
+              }}
+            />
+          </Tooltip>
+        }
         style={{
           position: "absolute",
           top: "1.5em",
