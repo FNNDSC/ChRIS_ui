@@ -6,6 +6,7 @@ import {
   loadDicomImage,
   displayDicomImage,
   windowResize,
+  resetDicomSettings,
 } from "../../../detailedView/displays/DicomViewer/utils";
 
 export type DcmImageProps = {
@@ -46,6 +47,10 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
 
     if (event === "Reset View") {
+      if (dicomImageRef.current) {
+        resetDicomSettings(dicomImageRef.current);
+      }
+
       /*
       cornerstoneTools.clearToolState(dicomImageRef.current, "Length");
       cornerstone.reset(dicomImageRef.current);

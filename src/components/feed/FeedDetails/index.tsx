@@ -6,22 +6,26 @@ import {
   ToolbarItem,
   ToolbarContent,
 } from "@patternfly/react-core";
-
 import { Popover } from "antd";
 import { FaEdit } from "react-icons/fa";
 import { useTypedSelector } from "../../../store/hooks";
 import ShareFeed from "../ShareFeed/ShareFeed";
 import FeedNote from "./FeedNote";
+import { ButtonWithTooltip } from "../../common/button";
 import { LoadingContent } from "../../common/loading/LoadingContent";
-import "./FeedDetails.scss";
 import { LoadingErrorAlert } from "../../common/errorHandling";
+import { MdLibraryAdd } from "react-icons/md";
+import "./FeedDetails.scss";
+import { useDispatch } from "react-redux";
+import { setShowToolbar } from "../../../store/feed/actions";
 
 const FeedDetails = () => {
+  const dispatch = useDispatch();
   const [note, setNote] = React.useState("");
   const [isNoteVisible, setIsNoteVisible] = React.useState(false);
-  const [savingNote, setSavingNote] = React.useState(false);
-  const currentFeedPayload = useTypedSelector(
-    (state) => state.feed.currentFeed
+
+  const { currentFeed: currentFeedPayload, showToolbar } = useTypedSelector(
+    (state) => state.feed
   );
 
   const { error, data: feed, loading } = currentFeedPayload;
@@ -38,17 +42,11 @@ const FeedDetails = () => {
   }, [feed]);
 
   const handleEditNote = async (editedNote: string) => {
-    setSavingNote(true);
     const note = await feed?.getNote();
     await note?.put({
       title: "",
       content: editedNote,
     });
-    setSavingNote(false);
-  };
-
-  const handleClose = () => {
-    setIsNoteVisible(!isNoteVisible);
   };
 
   const spacer: {
@@ -92,14 +90,7 @@ const FeedDetails = () => {
       >
         <ToolbarItem spacer={spacer}>
           <Popover
-            content={
-              <FeedNote
-                handleClose={handleClose}
-                handleEditNote={handleEditNote}
-                note={note}
-                status={savingNote}
-              />
-            }
+            content={<FeedNote handleEditNote={handleEditNote} note={note} />}
             placement="bottom"
             visible={isNoteVisible}
             trigger="click"
@@ -116,15 +107,55 @@ const FeedDetails = () => {
           <ShareFeed feed={feed} />
         </ToolbarItem>
       </div>
+
+      <ToolbarItem spacer={spacer}>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            dispatch(setShowToolbar());
+          }}
+        >
+          Close Toolbar
+        </Button>
+      </ToolbarItem>
     </React.Fragment>
   );
 
   if (feed) {
-    return (
+    return !showToolbar ? (
+      <ButtonWithTooltip
+        onClick={() => {
+          dispatch(setShowToolbar());
+        }}
+        content={<span>Click to open the toolbar</span>}
+        position="top"
+        style={{
+          position: "absolute",
+          zIndex: "999",
+          right: "0",
+          left: "0",
+          margin: "0 auto",
+          width: "fit-content",
+        }}
+        variant="link"
+        icon={
+          <MdLibraryAdd
+            style={{
+              width: "24px",
+              height: "24px",
+              color: "white",
+            }}
+          />
+        }
+      />
+    ) : (
       <ToolbarComponent>
         <ToolbarContent>{items}</ToolbarContent>
       </ToolbarComponent>
     );
+    /*
+ 
+    */
   } else if (loading) {
     return (
       <ToolbarComponent>

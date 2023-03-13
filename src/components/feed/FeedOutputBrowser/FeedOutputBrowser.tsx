@@ -14,7 +14,7 @@ import {
   DrawerActions,
 } from "@patternfly/react-core";
 import { Tree } from "antd";
-import PluginViewerModal from "../../detailedView/PluginViewerModal";
+
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
@@ -51,7 +51,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     handleDicomViewerOpen,
     handleSidebarDrawer,
     handleXtkViewerOpen,
-    handlePluginModalClose,
     pluginModalOpen,
     filesLoading,
   } = useFeedBrowser();

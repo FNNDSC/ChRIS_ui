@@ -83,6 +83,10 @@ export const loadDicomImage = (blob: any) => {
   return cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
 };
 
+export const loadJpgImage = (blob: any) => {
+  return cornerstoneFileImageLoader.fileManager.add(blob);
+};
+
 export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
   cornerstone.loadImage(imageId).then((image: any) => {
     cornerstone.displayImage(element, image);
@@ -91,6 +95,11 @@ export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
 
 export const windowResize = (element: HTMLDivElement) => {
   cornerstone.resize(element);
+};
+
+export const resetDicomSettings = (element: HTMLDivElement) => {
+  cornerstone.reset(element);
+  cornerstoneTools.clearToolState(element, "Length");
 };
 
 export function isDicom(fileName: string) {

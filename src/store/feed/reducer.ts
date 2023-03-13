@@ -30,6 +30,7 @@ export const initialState: IFeedState = {
     value: "",
     status: false,
   },
+  showToolbar: false,
 };
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
@@ -330,6 +331,13 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
       return {
         ...state,
         bulkSelect: [],
+      };
+    }
+
+    case FeedActionTypes.SHOW_TOOLBAR: {
+      return {
+        ...state,
+        showToolbar: !state.showToolbar,
       };
     }
 

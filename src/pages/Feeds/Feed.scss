@@ -13,10 +13,7 @@
 @import "antd/dist/antd.css";
 
 .pf-c-drawer__splitter {
-  background-color: var(
-    --pf-c-page__main-section--m-dark-100--BackgroundColor
-  ) !important;
-
+  background-color: #151515;
   &-handle::after {
     border-color: white !important;
   }
@@ -81,8 +78,9 @@
 }
 
 .section-one {
-  padding: 0 1em !important;
+  padding: 0 !important;
   height: 5vh;
+  position: relative;
 }
 
 .section-two {
@@ -123,8 +121,7 @@
     height: 45vh;
   }
 
-  padding-right: 0 !important;
-  padding-top: 0 !important;
+  padding: 0 !important;
 }
 
 .feed-block {
