@@ -24,7 +24,7 @@ const CatalogPage = () => {
   });
   return (
     <Wrapper>
-      <PageSection variant="light">
+      <PageSection variant="darker">
         <InfoIcon
           title="Plugins"
           p1={
@@ -47,7 +47,7 @@ const CatalogPage = () => {
           }
         />
       </PageSection>
-      <PageSection>
+      <PageSection variant="darker">
         <PluginCatalog />
       </PageSection>
     </Wrapper>

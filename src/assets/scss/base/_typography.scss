@@ -5,20 +5,24 @@
 *  Author:          ChRIS UI
 */
 
-
 $fw-light: 300;
 $fw-normal: 400;
 $fw-bold: 900;
 
-
 // Typography
 // ----------------------------------------------
 
+p {
+  color: white !important;
+}
+
 h1,
 h2,
-h3 {
+h3,
+h4 {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
+  color: white !important;
 }
 h1.ant-typography {
   @media (max-width: 560px) {
@@ -27,10 +31,6 @@ h1.ant-typography {
   @media (max-width: 420px) {
     font-size: 1.5em;
   }
-}
-h1 + h2 {
-  margin-top: 0;
-  margin-bottom: 0.5em;
 }
 
 h2 {
@@ -63,4 +63,8 @@ a {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+h1.ant-typography {
+  color: white;
 }

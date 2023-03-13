@@ -1,4 +1,5 @@
 import React from "react";
+import { PageSection } from "@patternfly/react-core";
 import { useDispatch } from "react-redux";
 import { PipelineProvider } from "../../components/feed/CreateFeed/context";
 import PipelineContainer from "../../components/feed/CreateFeed/PipelineContainer";
@@ -17,9 +18,11 @@ const PipelinePage = () => {
   });
   return (
     <Wrapper>
-      <PipelineProvider>
-        <PipelineContainer justDisplay={true} />
-      </PipelineProvider>
+      <PageSection variant="darker">
+        <PipelineProvider>
+          <PipelineContainer justDisplay={true} />
+        </PipelineProvider>
+      </PageSection>
     </Wrapper>
   );
 };

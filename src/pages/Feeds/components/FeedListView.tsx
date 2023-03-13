@@ -150,7 +150,7 @@ const FeedListView: React.FC = () => {
 
   return (
     <React.Fragment>
-      <PageSection className="feed-header" variant="light">
+      <PageSection className="feed-header" variant="darker">
         <InfoIcon
           title={`New and Existing Analyses (${
             totalFeedsCount > 0 ? totalFeedsCount : 0
@@ -173,7 +173,7 @@ const FeedListView: React.FC = () => {
         </CreateFeedProvider>
       </PageSection>
 
-      <PageSection className="feed-list">
+      <PageSection variant="darker" className="feed-list">
         <div className="feed-list__split">
           <Checkbox
             id="test"

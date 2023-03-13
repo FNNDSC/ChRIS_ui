@@ -72,7 +72,7 @@ export const HeaderSinglePlugin = ({
   currentPluginMeta: PluginMeta;
 }) => {
   return (
-    <Card style={{ background: "inherit" }}>
+    <Card style={{ width: "100%" }}>
       <Grid>
         <GridItem lg={2} sm={12}>
           <img className="plugin-icon" src={PluginImg} alt="Plugin icon" />
@@ -236,7 +236,7 @@ export const HeaderCardPlugin = ({
     if (parameterPayload) {
       fetchFeeds(parameterPayload);
     }
-  }, [parameterPayload,fetchFeeds]);
+  }, [parameterPayload, fetchFeeds]);
 
   const [feedLoad, setFeedLoad] = React.useState(false);
   const handleTabClick = async (_event: any, tabIndex: string | number) => {
