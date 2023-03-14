@@ -1,16 +1,16 @@
-import React from 'react'
-import { Spin } from 'antd'
-import './loadingcontent.scss'
+import React from "react";
+import { Spin } from "antd";
+import "./loadingcontent.scss";
 
 interface LoadingContentProps {
-  width?: string
-  height?: string
-  top?: string
-  left?: string
-  bottom?: string
-  right?: string
-  className?: string
-  type?: string
+  width?: string;
+  height?: string;
+  top?: string;
+  left?: string;
+  bottom?: string;
+  right?: string;
+  className?: string;
+  type?: string;
 }
 
 export const LoadingContent = ({
@@ -28,26 +28,27 @@ export const LoadingContent = ({
     marginLeft: left,
     marginBottom: bottom,
     marginRight: right,
-  }
+    backgroundColor: "inherit",
+  };
 
-  return <div className={`loading-content `} style={computedStyle} />
-}
+  return <div className={`loading-content `} style={computedStyle} />;
+};
 
 LoadingContent.defaultProps = {
-  top: '0',
-  left: '0',
-  bottom: '0',
-  right: '0',
-  className: '',
-  type: '',
-}
+  top: "0",
+  left: "0",
+  bottom: "0",
+  right: "0",
+  className: "",
+  type: "",
+};
 
 export const SpinContainer = ({
   title,
-  background = 'rgba(0, 0, 0, 0.05)',
+  background = "rgba(0, 0, 0, 0.05)",
 }: {
-  title: string
-  background?: string
+  title: string;
+  background?: string;
 }) => {
   return (
     <div
@@ -58,5 +59,5 @@ export const SpinContainer = ({
     >
       <Spin tip={title} />
     </div>
-  )
-}
+  );
+};

@@ -8,6 +8,14 @@
   border-radius: 4px !important;
 }
 
+.pf-c-table.pf-m-sticky-header
+  > thead:not(.pf-m-nested-column-header)
+  > tr
+  > * {
+  color: white;
+  background: inherit;
+}
+
 .pf-c-wizard {
   width: 100% !important;
   height: 100% !important;
@@ -86,8 +94,8 @@
   }
 }
 /* drawer style */
-.drawer_panelContent{
-  height:100vh;
+.drawer_panelContent {
+  height: 100vh;
 }
 
 /* Data Configuration */
