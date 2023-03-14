@@ -199,7 +199,7 @@ const FeedListView: React.FC = () => {
         <div className="feed-list__split">
           <DataTableToolbar
             onSearch={handleFilterChange}
-            label="filter by name"
+            label="Filter by name"
           />
           {bulkSelect.length > 0 && <IconContainer />}
         </div>
