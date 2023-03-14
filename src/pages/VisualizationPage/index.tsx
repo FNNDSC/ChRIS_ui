@@ -10,6 +10,7 @@ import { setExternalFiles } from "../../store/explorer/actions";
 import { PageSection } from "@patternfly/react-core";
 import InfoIcon from "../../components/common/info/InfoIcon";
 import { Typography } from "antd";
+import DarkTheme from "../../components/common/darkTheme";
 const { Paragraph } = Typography;
 
 const infoStyle = { fontSize: "1.15em" };
@@ -107,7 +108,7 @@ const VisualizationPage = () => {
 
   return (
     <Wrapper>
-      <PageSection variant="light">
+      <DarkTheme>
         <InfoIcon
           title="DICOM Viewer"
           p1={
@@ -118,13 +119,14 @@ const VisualizationPage = () => {
             </Paragraph>
           }
         />
-      </PageSection>
+      </DarkTheme>
 
-      <PageSection>
+      <DarkTheme>
         <Button
           onClick={showOpenFolder}
           icon={<AiOutlineUpload />}
-          style={btnStyle}>
+          style={btnStyle}
+        >
           Upload a Directory
         </Button>
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
@@ -160,7 +162,7 @@ const VisualizationPage = () => {
             </div>
           </section>
         </div>
-      </PageSection>
+      </DarkTheme>
     </Wrapper>
   );
 };

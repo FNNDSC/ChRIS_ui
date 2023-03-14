@@ -300,7 +300,7 @@ const ItalicsComponent = ({ length }: { length?: number }) => {
   return (
     <i
       style={{
-        color: "#4f5255",
+        color: "#8a8d90",
         fontSize: "0.9rem",
       }}
     >
@@ -348,7 +348,7 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
       ? plugins.map((selectedPlugin: Plugin) => {
           return (
             <DropdownItem
-              style={{ padding: "0" }}
+              style={{ padding: "0",  }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();

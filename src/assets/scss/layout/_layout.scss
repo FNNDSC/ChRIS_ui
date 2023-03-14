@@ -27,3 +27,96 @@ article {
   margin-right: 1rem !important;
   top: -0.5 !important;
 }
+
+.pf-c-wizard {
+  color: white;
+
+  &__nav {
+    display: none;
+  }
+
+  &__footer {
+    background-color: var(--pf-global--BackgroundColor--dark-400);
+  }
+
+  &__outer-wrap {
+    padding-left: 0;
+  }
+
+  --pf-c-wizard__outer-wrap--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+  --pf-c-wizard__nav--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+  --pf-c-wizard__nav-link--Color: white;
+  --pf-c-wizard__nav-link--TextDecoration: var(
+    --pf-global--link--TextDecoration
+  );
+  --pf-c-wizard__nav-link--hover--Color: white;
+  --pf-c-wizard__nav-link--focus--Color: white;
+  --pf-c-wizard__nav-link--m-current--Color: white;
+
+  .pf-c-card {
+    --pf-c-card--BackgroundColor: var(
+      --pf-global--BackgroundColor--dark-200
+    ) !important;
+  }
+
+  .pf-c-drawer {
+    --pf-c-drawer__panel--BackgroundColor: var(
+      --pf-global--BackgroundColor--dark-200
+    ) !important;
+    --pf-c-drawer__content--BackgroundColor: inherit !important;
+  }
+
+  .pf-c-form-control {
+    color: white;
+    --pf-c-form-control--BackgroundColor: var(
+      --pf-global--BackgroundColor--dark-200
+    ) !important;
+    --pf-c-form-control--placeholder--Color: var(
+      --pf-global--Color--400
+    ) !important;
+  }
+
+  .ant-tree {
+    color: inherit !important;
+    background-color: inherit !important;
+    font-size: 16px;
+    font-family: var(
+      --pf-global--FontFamily--redhatfont--sans-serif
+    ) !important;
+  }
+
+  .pf-c-radio > label,
+  .ant-steps-item-process
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title,
+  .ant-steps-item-wait
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title,
+  .ant-steps-item-finish
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title {
+    color: white;
+  }
+
+  .ant-tree.ant-tree-directory .ant-tree-treenode::before {
+    background-color: inherit;
+    position: relative;
+  }
+
+  .pf-c-chart {
+    svg {
+      text {
+        tspan {
+          fill: white !important;
+        }
+      }
+    }
+  }
+}

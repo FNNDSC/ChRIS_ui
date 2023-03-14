@@ -7,6 +7,7 @@ import PluginCatalog from "../../components/catalog/PluginCatalog";
 import InfoIcon from "../../components/common/info/InfoIcon";
 import "./CatalogPage.scss";
 import { setSidebarActive } from "../../store/ui/actions";
+import DarkTheme from "../../components/common/darkTheme";
 
 const { Paragraph } = Typography;
 
@@ -24,7 +25,7 @@ const CatalogPage = () => {
   });
   return (
     <Wrapper>
-      <PageSection variant="darker">
+      <DarkTheme>
         <InfoIcon
           title="Plugins"
           p1={
@@ -46,10 +47,10 @@ const CatalogPage = () => {
             </Paragraph>
           }
         />
-      </PageSection>
-      <PageSection variant="darker">
+      </DarkTheme>
+      <DarkTheme>
         <PluginCatalog />
-      </PageSection>
+      </DarkTheme>
     </Wrapper>
   );
 };

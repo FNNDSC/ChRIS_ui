@@ -1,4 +1,3 @@
-import { PageSection } from "@patternfly/react-core";
 import React from "react";
 import { Typography } from "antd";
 import ComputeCatalog from "../../components/catalog/ComputeCatalog";
@@ -6,6 +5,7 @@ import Wrapper from "../Layout/PageWrapper";
 import InfoIcon from "../../components/common/info/InfoIcon";
 import { setSidebarActive } from "../../store/ui/actions";
 import { useDispatch } from "react-redux";
+import DarkTheme from "../../components/common/darkTheme";
 
 const { Paragraph } = Typography;
 
@@ -23,7 +23,7 @@ const ComputePage = () => {
   });
   return (
     <Wrapper>
-      <PageSection variant="darker">
+      <DarkTheme>
         <InfoIcon
           title="Compute"
           p1={
@@ -42,10 +42,10 @@ const ComputePage = () => {
             </Paragraph>
           }
         />
-      </PageSection>
-      <PageSection variant="darker">
+      </DarkTheme>
+      <DarkTheme>
         <ComputeCatalog />
-      </PageSection>
+      </DarkTheme>
     </Wrapper>
   );
 };
