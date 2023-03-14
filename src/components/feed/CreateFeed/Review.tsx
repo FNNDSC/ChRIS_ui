@@ -98,7 +98,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
             {uploadProgress > 0 && (
               <Split>
                 <SplitItem>
-                  <div style={{ height: "200px", width: "200px" }}>
+                  <div style={{ height: "230px", width: "230px" }}>
                     <p>Tracker for Pushing Files to Storage</p>
                     <ChartDonutUtilization
                       ariaDesc="Storage capacity"
