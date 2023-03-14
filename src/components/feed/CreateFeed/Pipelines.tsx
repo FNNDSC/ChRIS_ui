@@ -297,7 +297,7 @@ const Pipelines = ({
                   >
                     {!justDisplay && (
                       <Button
-                        variant="tertiary"
+                        variant="primary"
                         key="select-action"
                         onClick={() => handleOnButtonClick(pipeline)}
                       >

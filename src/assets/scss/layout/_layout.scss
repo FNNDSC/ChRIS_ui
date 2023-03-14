@@ -28,6 +28,25 @@ article {
   top: -0.5 !important;
 }
 
+.pf-c-data-list {
+  --pf-c-data-list__item--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+  color: white !important;
+}
+
+.pf-c-code-block {
+  --pf-c-code-block--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+}
+
+.pf-c-modal-box {
+  --pf-c-modal-box--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+}
+
 .pf-c-wizard {
   color: white;
 
