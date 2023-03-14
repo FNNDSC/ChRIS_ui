@@ -133,7 +133,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   const steps = [
     {
       title: "Choose Plugin",
-      content: <DataPacks next={nextStep}/>,
+      content: <DataPacks next={nextStep} />,
     },
     {
       title: "Configure Plugin",
@@ -220,12 +220,18 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
     marginTop: "10px",
   };
 
+  const drawerStyle = {
+    display: "flex",
+    gap: "5px",
+    padding: "1rem",
+  };
+
   const panelContent =
     selectedCard == "swift_storage" ? (
       <DrawerPanelContent defaultSize="65%" className="drawer_panelContent">
         <DrawerHead>
           <span tabIndex={isRightDrawerExpand ? 0 : -1}></span>
-          <DrawerActions style={{ display: "flex", gap: "5px" }}>
+          <DrawerActions style={drawerStyle}>
             <Button
               onClick={resetChRisFiles}
               variant="secondary"
@@ -247,7 +253,9 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
       <DrawerPanelContent defaultSize="65%" className="drawer_panelContent">
         <DrawerHead>
           <span tabIndex={isRightDrawerExpand ? 0 : -1}></span>
-          <DrawerActions style={{ display: "flex", gap: "5px" }}>
+          <DrawerActions
+            style={drawerStyle}
+          >
             <Button
               onClick={resetPlugin}
               variant="secondary"
@@ -283,19 +291,19 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   const fileList =
     chrisFiles.length > 0
       ? chrisFiles.map((file: string, index: number) => (
-        <React.Fragment key={index}>
-          <FileList file={file} index={index} />
-        </React.Fragment>
-      ))
+          <React.Fragment key={index}>
+            <FileList file={file} index={index} />
+          </React.Fragment>
+        ))
       : null;
 
   useEffect(() => {
     const footer = document.querySelectorAll<HTMLElement>(
       ".pf-c-wizard__footer"
     )[0];
-    if (isRightDrawerExpand  && footer) {
+    if (isRightDrawerExpand && footer) {
       footer.style.display = "none";
-    } else if ( footer) {
+    } else if (footer) {
       footer.style.display = "flex";
     }
   }, [isRightDrawerExpand]);
@@ -329,7 +337,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             <Grid hasGutter md={4}>
               <GridItem>
                 <Grid>
-                  <GridItem  style={{height:"230px"}}>
+                  <GridItem style={{ height: "230px" }}>
                     <Card
                       id="fs_plugin"
                       isSelectableRaised
@@ -359,11 +367,13 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
                       </CardBody>
                     </Card>
                   </GridItem>
-                  <GridItem >
+                  <GridItem>
                     {pluginMeta && (
                       <>
                         <h1>Selected Plugin:</h1>
-                        <div style={{ display: "flex", alignItems: "baseline" }}>
+                        <div
+                          style={{ display: "flex", alignItems: "baseline" }}
+                        >
                           <p>{pluginMeta.data.title}</p>
                           <span className="trash-icon">
                             <FaTrash onClick={resetPlugin} />
@@ -375,8 +385,8 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
                 </Grid>
               </GridItem>
               <GridItem>
-                <Grid >
-                  <GridItem  style={{height:"230px"}}>
+                <Grid>
+                  <GridItem style={{ height: "230px" }}>
                     <Card
                       id="swift_storage"
                       isSelectableRaised
@@ -415,7 +425,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
               </GridItem>
               <GridItem>
                 <Grid>
-                  <GridItem style={{height:"230px"}}>
+                  <GridItem style={{ height: "230px" }}>
                     {!showDragAndDrop ? (
                       <Card
                         id="local_select"
@@ -443,7 +453,9 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
                         </CardBody>
                       </Card>
                     ) : (
-                      <DragAndUpload handleLocalUploadFiles={handleFileUpload} />
+                      <DragAndUpload
+                        handleLocalUploadFiles={handleFileUpload}
+                      />
                     )}
                   </GridItem>
                   <GridItem rowSpan={6}>

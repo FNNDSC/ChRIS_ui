@@ -5,6 +5,7 @@ import { PipelineProvider } from "../../components/feed/CreateFeed/context";
 import PipelineContainer from "../../components/feed/CreateFeed/PipelineContainer";
 import Wrapper from "../Layout/PageWrapper";
 import { setSidebarActive } from "../../store/ui/actions";
+import DarkTheme from "../../components/common/darkTheme";
 
 const PipelinePage = () => {
   const dispatch = useDispatch();
@@ -18,11 +19,11 @@ const PipelinePage = () => {
   });
   return (
     <Wrapper>
-      <PageSection variant="darker">
+      <DarkTheme>
         <PipelineProvider>
           <PipelineContainer justDisplay={true} />
         </PipelineProvider>
-      </PageSection>
+      </DarkTheme>
     </Wrapper>
   );
 };

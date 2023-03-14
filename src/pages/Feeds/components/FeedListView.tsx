@@ -331,7 +331,7 @@ const TableRow = ({
   const creator = <p>{creator_username}</p>;
 
   let threshold = Infinity;
-  let color = "#0000ff";
+  let color = "white";
 
   // If error in a feed => reflect in progress
   if (feedError) {

@@ -3,6 +3,10 @@
 
 /* General */
 
+.svg {
+  color: white;
+}
+
 .create-analysis-button {
   float: right;
   border-radius: 4px !important;
@@ -136,7 +140,6 @@
     font-weight: bold;
     svg {
       font-size: 1.5em;
-      color: var(--pf-global--warning-color--100);
       margin-right: 10px;
       margin-top: 15px;
       vertical-align: -0.225em;
@@ -162,12 +165,6 @@
     font-size: 18px;
     color: #737679;
   }
-}
-
-.ant-tree {
-  font-size: 16px;
-  color: black;
-  font-family: var(--pf-global--FontFamily--redhatfont--sans-serif) !important;
 }
 
 .fsplugin {

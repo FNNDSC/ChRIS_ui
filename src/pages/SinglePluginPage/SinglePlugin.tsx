@@ -8,7 +8,8 @@ import {
   PluginInstance,
 } from "@fnndsc/chrisapi";
 import Wrapper from "../Layout/PageWrapper";
-import { PageSection, Spinner } from "@patternfly/react-core";
+import { Spinner } from "@patternfly/react-core";
+import DarkTheme from "../../components/common/darkTheme";
 import { marked } from "marked";
 import { sanitize } from "dompurify";
 import "./SinglePlugin.scss";
@@ -152,7 +153,7 @@ const SinglePlugin = () => {
         </div>
       ) : (
         <>
-          <PageSection variant="darker">
+          <DarkTheme>
             <HeaderSinglePlugin currentPluginMeta={currentPluginMeta} />
             <HeaderCardPlugin
               setPluginParameters={setPluginParameters}
@@ -162,7 +163,7 @@ const SinglePlugin = () => {
               parameterPayload={parameterPayload}
               removeEmail={removeEmail}
             />
-          </PageSection>
+          </DarkTheme>
         </>
       )}
     </Wrapper>

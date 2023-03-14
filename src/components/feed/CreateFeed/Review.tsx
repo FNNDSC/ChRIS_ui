@@ -88,7 +88,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
           <>
             <div
               style={{
-                height: "400px",
+                height: "300px",
                 zIndex: "99999",
                 overflowY: "scroll",
               }}
@@ -98,7 +98,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
             {uploadProgress > 0 && (
               <Split>
                 <SplitItem>
-                  <div style={{ height: "230px", width: "230px" }}>
+                  <div style={{ height: "200px", width: "200px" }}>
                     <p>Tracker for Pushing Files to Storage</p>
                     <ChartDonutUtilization
                       ariaDesc="Storage capacity"
