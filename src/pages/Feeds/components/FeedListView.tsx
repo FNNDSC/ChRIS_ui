@@ -235,7 +235,7 @@ const FeedListView: React.FC = () => {
             }
 
             {loading ? (
-              generateTableLoading("white")
+              generateTableLoading("")
             ) : (
               <Tbody>
                 {data &&
@@ -284,6 +284,7 @@ const TableRow = ({
 
   const fontFamily = {
     fontFamily: "monospace",
+    color: "white",
   };
 
   const size =
@@ -397,9 +398,9 @@ const TableRow = ({
     />
   );
   const backgroundRow =
-    progress && progress < 100 && !feedError ? "#F9E0A2" : "#FFFFFF";
+    progress && progress < 100 && !feedError ? "#c58c00" : "inherit";
   const selectedBgRow = isSelected(bulkSelect, feed)
-    ? "rgb(231, 241, 250)"
+    ? "#001223"
     : backgroundRow;
   return (
     <Tr

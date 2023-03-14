@@ -346,7 +346,7 @@ export const TabResources = ({
     <>
       <div style={{ marginTop: "1.5em" }}>
         <h3>Parameters: </h3>
-        <CodeBlock actions={actions}>
+        <CodeBlock style={{ backgroundColor: "inherit" }} actions={actions}>
           <CodeBlockCode id="code-content">
             {parameterPayload.generatedCommand}
           </CodeBlockCode>

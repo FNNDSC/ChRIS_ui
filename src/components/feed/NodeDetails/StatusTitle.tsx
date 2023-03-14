@@ -1,5 +1,5 @@
 import React from "react";
-import { Tag } from "antd";
+
 import usePluginInstanceResource from "./usePluginInstanceResource";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useTypedSelector } from "../../../store/hooks";
@@ -13,7 +13,6 @@ const StatusTitle = () => {
     | {
         title: string;
         icon: any;
-        color: string;
       }
     | undefined = undefined;
   const pluginStatus =
@@ -34,15 +33,10 @@ const StatusTitle = () => {
 
   if (statusTitle) {
     return (
-      <Tag
-        style={{
-          fontSize: "0.95rem",
-        }}
-        icon={<statusTitle.icon spin />}
-        color={statusTitle.color}
-      >
-        {statusTitle.title}
-      </Tag>
+      <>
+        <span style={{ marginRight: "0.25em" }}>{<statusTitle.icon />}</span>
+        <span>{statusTitle.title} </span>{" "}
+      </>
     );
   } else return <SpinContainer title="Fetching plugin's execution status" />;
 };
@@ -53,7 +47,6 @@ export function getCurrentTitleFromStatus(statusLabels: any[]) {
   const length = statusLabels.length;
   let title = statusLabels[length - 1].description;
   let icon = statusLabels[length - 1].icon;
-
   statusLabels.forEach((label) => {
     if (label.process === true) {
       title = label.description;
@@ -61,21 +54,18 @@ export function getCurrentTitleFromStatus(statusLabels: any[]) {
     }
   });
 
-  return { title, icon, color: "processing" };
+  return { title, icon };
 }
 
 export function getFinishedTitle(pluginStatus: string) {
-  const success = pluginStatus === "finishedSuccessfully" ? true : false;
-  const cancelled = pluginStatus === "cancelled" ? true : false;
-  const errored = pluginStatus === "finishedWithError" ? true : false;
-
-  const title = success
-    ? "Finished Successfully"
-    : cancelled
-    ? "Cancelled"
-    : errored
-    ? "Finished With Error"
-    : "";
+  const title =
+    pluginStatus === "finishedSuccessfully"
+      ? "Finished Successfully"
+      : pluginStatus === "cancelled"
+      ? "Cancelled"
+      : pluginStatus === "finishedWithError"
+      ? "FinishedWithError"
+      : "";
   const icon =
     pluginStatus === "finishedSuccessfully"
       ? AiFillCheckCircle
@@ -83,7 +73,8 @@ export function getFinishedTitle(pluginStatus: string) {
       ? AiFillExclamationCircle
       : null;
 
-  const color = success ? "success" : errored || cancelled ? "error" : "";
-
-  return { title, icon, color };
+  return {
+    title,
+    icon,
+  };
 }
