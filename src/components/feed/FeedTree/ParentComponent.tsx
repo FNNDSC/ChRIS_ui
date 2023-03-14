@@ -75,7 +75,7 @@ const ParentComponent = (props: ParentComponentProps) => {
     />
   ) : loading ? (
     <SpinContainer
-      background="rgb(40, 45, 51)"
+      background="#151515"
       title="Constructing the Feed Tree"
     />
   ) : error ? (

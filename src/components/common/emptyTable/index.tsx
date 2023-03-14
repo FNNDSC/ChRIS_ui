@@ -47,7 +47,7 @@ export const generateTableLoading = ( type: string ) => {
     <tbody className="feed-list__loading">
       <tr>
         <td colSpan={6}>
-          {new Array(10).fill(null).map((_, i) => (
+          {new Array(12).fill(null).map((_, i) => (
             <LoadingContent type={type} height="45px" width="100%" key={i} />
           ))}
         </td>
