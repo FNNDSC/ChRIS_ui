@@ -27,6 +27,7 @@ import { destroyExplorer } from "../../../store/explorer/actions";
 import { resetActiveResources } from "../../../store/resources/actions";
 import { setIsNavOpen } from "../../../store/ui/actions";
 import { DestroyActiveResources } from "../../../store/resources/types";
+import { LoadingErrorAlert } from "../../../components/common/errorHandling";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -126,7 +127,17 @@ export const FeedView: React.FC = () => {
   };
 
   const feedTree = (
-    <ErrorBoundary fallback={<div></div>}>
+    <ErrorBoundary
+      fallback={
+        <div>
+          <LoadingErrorAlert
+            error={{
+              message: "Error found in constructing a tree",
+            }}
+          />
+        </div>
+      }
+    >
       <GridItem
         className="feed-block"
         sm={12}
@@ -198,7 +209,17 @@ export const FeedView: React.FC = () => {
     <React.Suspense
       fallback={<SpinContainer title="Fetching feed Resources" />}
     >
-      <ErrorBoundary fallback={<div></div>}>
+      <ErrorBoundary
+        fallback={
+          <div>
+            <LoadingErrorAlert
+              error={{
+                message: "There was an error while fetching the file",
+              }}
+            />
+          </div>
+        }
+      >
         <FeedOutputBrowser
           explore={true}
           expandDrawer={onClick}

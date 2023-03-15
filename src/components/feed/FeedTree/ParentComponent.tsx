@@ -74,10 +74,7 @@ const ParentComponent = (props: ParentComponentProps) => {
       onExpand={onExpand}
     />
   ) : loading ? (
-    <SpinContainer
-      background="#151515"
-      title="Constructing the Feed Tree"
-    />
+    <SpinContainer background="#151515" title="Constructing the Feed Tree" />
   ) : error ? (
     <div className="feed-tree">
       <LoadingErrorAlert error={error} />
