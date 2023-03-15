@@ -54,19 +54,25 @@ article {
 .pf-c-form-control {
   color: white !important;
   --pf-c-form-control--Color: white;
-  --pf-c-form-control--BackgroundColor: inherit;
-  --pf-c-form-control--disabled--BackgroundColor: inherit;
+  --pf-c-form-control--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-transparent-200
+  ) !important;
+  --pf-c-form-control--disabled--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-transparent-200
+  ) !important;
 }
 
 .pf-c-data-list {
   --pf-c-data-list__item--BackgroundColor: var(
-    --pf-global--BackgroundColor--dark-200
+    --pf-global--BackgroundColor--dark-transparent-200
   ) !important;
   color: white !important;
 }
 
 .pf-c-input-group {
-  --pf-c-input-group--BackgroundColor: inherit;
+  --pf-c-input-group--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-transparent-200
+  ) !important;
   color: white !important;
 }
 
