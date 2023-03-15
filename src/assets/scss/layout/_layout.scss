@@ -23,6 +23,12 @@ article {
 // Page Header
 // ---------------------------------------------------------
 
+.pf-c-table,
+thead,
+tr {
+  border: solid 0.25px var(--pf-global--BackgroundColor--dark-400) !important;
+}
+
 .pf-c-button {
   --pf-c-button--m-primary--Color: var(
     --pf-global--primary-color--dark-00
