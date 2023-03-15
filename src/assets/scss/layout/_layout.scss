@@ -23,21 +23,56 @@ article {
 // Page Header
 // ---------------------------------------------------------
 
+.pf-c-button {
+  --pf-c-button--m-primary--Color: var(
+    --pf-global--primary-color--dark-00
+  ) !important;
+  --pf-c-button--m-primary--BackgroundColor: var(
+    --pf-global--palette--blue-500
+  ) !important;
+  --pf-c-button--m-primary--hover--Color: var(
+    --pf-global--primary-color--dark-400
+  );
+  --pf-c-button--m-primary--focus--Color: var(
+    --pf-global--primary-color--dark-400
+  );
+  --pf-c-button--m-primary--active--Color: var(
+    --pf-global--primary-color--dark-400
+  );
+}
+
 .pf-c-page__header-brand-toggle {
   margin-right: 1rem !important;
   top: -0.5 !important;
 }
 
+.pf-c-input-group__text {
+  background-color: var(--pf-global--BackgroundColor--dark-400) !important;
+  color: white;
+}
+
+.pf-c-form-control {
+  color: white !important;
+  --pf-c-form-control--Color: white;
+  --pf-c-form-control--BackgroundColor: inherit;
+  --pf-c-form-control--disabled--BackgroundColor: inherit;
+}
+
 .pf-c-data-list {
   --pf-c-data-list__item--BackgroundColor: var(
-    --pf-global--BackgroundColor--dark-400
-  );
+    --pf-global--BackgroundColor--dark-200
+  ) !important;
+  color: white !important;
+}
+
+.pf-c-input-group {
+  --pf-c-input-group--BackgroundColor: inherit;
   color: white !important;
 }
 
 .pf-c-code-block {
   --pf-c-code-block--BackgroundColor: var(
-    --pf-global--BackgroundColor--dark-400
+    --pf-global--BackgroundColor--dark-100
   );
   border: 1px solid white !important;
 }
@@ -46,6 +81,15 @@ article {
   --pf-c-modal-box--BackgroundColor: var(
     --pf-global--BackgroundColor--dark-400
   );
+}
+
+.pf-c-drawer {
+  --pf-c-drawer__panel--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-200
+  ) !important;
+  --pf-c-drawer__content--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-200
+  ) !important;
 }
 
 .pf-c-wizard {
@@ -81,13 +125,6 @@ article {
     --pf-c-card--BackgroundColor: var(
       --pf-global--BackgroundColor--dark-200
     ) !important;
-  }
-
-  .pf-c-drawer {
-    --pf-c-drawer__panel--BackgroundColor: var(
-      --pf-global--BackgroundColor--dark-200
-    ) !important;
-    --pf-c-drawer__content--BackgroundColor: inherit !important;
   }
 
   .pf-c-form-control {
