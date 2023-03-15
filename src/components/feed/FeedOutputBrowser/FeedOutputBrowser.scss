@@ -21,6 +21,16 @@
   }
 }
 
+.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected,
+.ant-tree.ant-tree-directory .ant-tree-treenode-selected .ant-tree-switcher,
+.ant-tree-directory .ant-tree-treenode-selected::before {
+  background: #002952 !important;
+}
+
+.ant-tree.ant-tree-directory .ant-tree-treenode:hover::before {
+  background: #004080 !important;
+}
+
 .file-browser {
   height: 100%;
   .carousel {
@@ -54,7 +64,7 @@
     }
 
     &--isPreviewing {
-      background: var(--pf-global--palette--blue-300);
+      background: #002952;
       color: white;
       svg {
         color: white !important;
