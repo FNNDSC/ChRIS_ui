@@ -109,7 +109,9 @@
     }
 
     .pf-c-table {
-      background-color: inherit;
+      background-color: var(
+        --pf-global--BackgroundColor--dark-transparent-400
+      ) !important;
     }
   }
 
