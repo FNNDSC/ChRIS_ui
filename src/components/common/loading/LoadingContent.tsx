@@ -45,7 +45,7 @@ LoadingContent.defaultProps = {
 
 export const SpinContainer = ({
   title,
-  background = "#151515",
+  background = "inherit",
 }: {
   title: string;
   background?: string;
