@@ -28,10 +28,10 @@ export const LoadingContent = ({
     marginLeft: left,
     marginBottom: bottom,
     marginRight: right,
-    backgroundColor: "inherit",
+    backgroundColor: "rgba(3, 3, 3, 0.62)",
   };
 
-  return <div className={`loading-content `} style={computedStyle} />;
+  return <div className={`loading-content`} style={computedStyle} />;
 };
 
 LoadingContent.defaultProps = {
@@ -45,7 +45,7 @@ LoadingContent.defaultProps = {
 
 export const SpinContainer = ({
   title,
-  background = "",
+  background = "#151515",
 }: {
   title: string;
   background?: string;

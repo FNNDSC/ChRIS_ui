@@ -188,7 +188,7 @@ export const EmptyStateLoader = ({ title }: { title: string }) => {
   );
 };
 const FetchFilesLoader = ({ title }: { title: string }) => {
-  return <SpinContainer title={title} />;
+  return <SpinContainer background="inherit" title={title} />;
 };
 
 const BrowserCloseIcon = () => {

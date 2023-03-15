@@ -119,7 +119,7 @@ const PluginList: React.FC = () => {
         .includes(filter.toLowerCase().trim()),
     [filter]
   );
-  const loading = new Array(3)
+  const loading = new Array(20)
     .fill(null)
     .map((_, i) => (
       <LoadingContent width="100%" height="35px" bottom="4px" key={i} />
@@ -143,6 +143,7 @@ const PluginList: React.FC = () => {
         aria-label="Filter plugins by name"
         placeholder="Filter by Name"
       />
+
       {pluginMetas
         ? pluginMetas
             .sort((a, b) => a.data.name.localeCompare(b.data.name))
