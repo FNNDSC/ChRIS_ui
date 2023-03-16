@@ -10,7 +10,6 @@ export interface FileBrowserProps {
   };
   handleFileClick: (path: string) => void;
   selected: PluginInstance;
-  handleSidebarDrawer: () => void;
   handleFileBrowserToggle: () => void;
   handleDicomViewerOpen: () => void;
   handleXtkViewerOpen: () => void;
@@ -18,7 +17,6 @@ export interface FileBrowserProps {
   pluginModalOpen: boolean;
   filesLoading: boolean;
   explore: boolean;
-  expandSidebar: boolean;
 }
 
 export interface FileBrowserState {

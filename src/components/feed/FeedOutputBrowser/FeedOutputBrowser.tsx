@@ -9,9 +9,7 @@ import {
   DrawerContent,
   DrawerPanelContent,
   DrawerPanelBody,
-  DrawerHead,
   Drawer,
-  DrawerActions,
 } from "@patternfly/react-core";
 import { Tree } from "antd";
 
@@ -20,10 +18,7 @@ import { getFeedTree } from "./data";
 import { DataNode } from "../../../store/explorer/types";
 import { useFeedBrowser } from "./useFeedBrowser";
 import { SpinContainer } from "../../common/loading/LoadingContent";
-import {
-  ButtonWithTooltip,
-  DrawerCloseButtonWithTooltip,
-} from "../../common/button";
+import { ButtonWithTooltip, DrawerActionButton } from "../../common/button";
 import "./FeedOutputBrowser.scss";
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
@@ -41,7 +36,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   explore,
 }) => {
   const {
-    expandSidebar,
     plugins,
     selected,
     pluginFilesPayload,
@@ -53,20 +47,27 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     handleXtkViewerOpen,
     pluginModalOpen,
     filesLoading,
+    sidebarStatus,
   } = useFeedBrowser();
 
   const panelContent = (
-    <DrawerPanelContent isResizable defaultSize="15%">
-      <DrawerHead>
-        <DrawerActions>
-          <DrawerCloseButtonWithTooltip
-            content={<span>Close The Tree View</span>}
-            onClick={() => {
-              handleSidebarDrawer();
-            }}
-          />
-        </DrawerActions>
-      </DrawerHead>
+    <DrawerPanelContent
+      isResizable
+      defaultSize={sidebarStatus.maximized ? "100%" : "15%"}
+    >
+      <DrawerActionButton
+        background="inherit"
+        content="Directory"
+        handleClose={() => {
+          handleSidebarDrawer("close");
+        }}
+        handleMaximize={() => {
+          handleSidebarDrawer("maximized");
+        }}
+        handleMinimize={() => {
+          handleSidebarDrawer("minimized");
+        }}
+      />
       <DrawerPanelBody>
         {plugins && selected && (
           <SidebarTree
@@ -99,12 +100,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
       )}
 
       <Drawer
-        isExpanded={expandSidebar}
         position="left"
+        isExpanded={true}
         isInline
         className="feed-output-browser"
       >
-        <DrawerContent panelContent={panelContent}>
+        <DrawerContent panelContent={sidebarStatus.open && panelContent}>
           <DrawerContentBody>
             <React.Suspense
               fallback={<SpinContainer title="Loading the File Browser" />}
@@ -112,14 +113,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
               {pluginFilesPayload && selected ? (
                 <FileBrowser
                   explore={explore}
-                  expandSidebar={expandSidebar}
                   selected={selected}
                   handleFileClick={handleFileClick}
                   pluginFilesPayload={pluginFilesPayload}
                   handleFileBrowserToggle={handleFileBrowserOpen}
                   handleDicomViewerOpen={handleDicomViewerOpen}
                   handleXtkViewerOpen={handleXtkViewerOpen}
-                  handleSidebarDrawer={handleSidebarDrawer}
                   expandDrawer={expandDrawer}
                   pluginModalOpen={pluginModalOpen}
                   filesLoading={filesLoading}
@@ -133,13 +132,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           </DrawerContentBody>
         </DrawerContent>
       </Drawer>
-      {/*
-      
-        <PluginViewerModal
-        isModalOpen={pluginModalOpen}
-        handleModalToggle={handlePluginModalClose}
-      />
-       */}
     </>
   );
 };

@@ -23,7 +23,7 @@
   width: 100%;
   height: 100%;
   color: white;
-  font-size: 0.75rem;
+  font-size: 0.5rem;
   button {
     font-size: inherit;
   }
@@ -111,9 +111,9 @@
 
     &__status {
       .ant-steps-item-icon {
-        width: 28px !important;
-        height: 28px !important;
-        font-size: 12px !important;
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 10px !important;
         border-radius: 30px !important;
         line-height: 20px !important;
         cursor: pointer;

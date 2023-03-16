@@ -1,7 +1,6 @@
 import { action } from "typesafe-actions";
 import { ExplorerActionTypes, ExplorerMode } from "./types";
 import { FeedFile } from "@fnndsc/chrisapi";
-import { DataNode } from "./types";
 
 export const setExplorerRequest = () =>
   action(ExplorerActionTypes.SET_EXPLORER_REQUEST);

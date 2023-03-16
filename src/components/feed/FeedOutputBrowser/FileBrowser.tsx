@@ -50,9 +50,14 @@ import { useTypedSelector } from "../../../store/hooks";
 import { ClipboardCopyContainer } from "../../common/textcopypopover/TextCopyPopover";
 import {
   ButtonWithTooltip,
-  DrawerCloseButtonWithTooltip,
+  DrawerActionButton,
+  handleClose,
+  handleDrawerActions,
+  handleMaximize,
+  handleMinimize,
 } from "../../common/button";
-import { LoadingErrorAlert } from "../../common/errorHandling";
+
+import { setDrawerState } from "../../../store/drawer/actions";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -68,10 +73,10 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleXtkViewerOpen,
     explore,
     filesLoading,
-    expandSidebar,
-    handleSidebarDrawer,
   } = props;
+
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+  const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -217,9 +222,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     setAppLauncher(!appLauncher);
   };
 
-  const imageFileTypes = ["dcm", "png", "jpg", "nii", "jpeg"];
-  const fileType = selectedFile && getFileExtension(selectedFile.data.fname);
-
   const appLauncherItems: React.ReactElement[] = [
     <ApplicationLauncherItem
       component={
@@ -289,19 +291,23 @@ const FileBrowser = (props: FileBrowserProps) => {
     <DrawerPanelContent
       className="file-browser__previewPanel"
       isResizable
-      defaultSize="52.9%"
+      defaultSize={drawerState.preview.maximized ? "100%" : "60%"}
       minSize={"25%"}
     >
-      <DrawerHead>
-        <DrawerActions>
-          <DrawerCloseButtonWithTooltip
-            content={<span>Close File Preview Panel</span>}
-            onClick={() => {
-              setIsExpanded(!isExpanded);
-            }}
-          />
-        </DrawerActions>
-      </DrawerHead>
+      <DrawerActionButton
+        background="inherit"
+        content="Preview"
+        handleClose={() => {
+          setIsExpanded(!isExpanded);
+          handleClose("preview", drawerState, dispatch);
+        }}
+        handleMaximize={() => {
+          handleMaximize("preview", drawerState, dispatch);
+        }}
+        handleMinimize={() => {
+          handleMinimize("preview", drawerState, dispatch);
+        }}
+      />
       <DrawerPanelBody className="file-browser__drawerbody">
         <>
           <ApplicationLauncher
@@ -339,70 +345,75 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   return (
     <Grid hasGutter className="file-browser">
-      <Drawer isInline isExpanded={isExpanded}>
+      <Drawer position="right" isInline isExpanded={true}>
         <DrawerContent
-          panelContent={previewPanel}
+          panelContent={
+            isExpanded || drawerState.preview.open ? previewPanel : null
+          }
           className="file-browser__firstGrid"
         >
-          <DrawerContentBody>
-            <div className="file-browser__header">
-              <div className="file-browser__header--breadcrumbContainer">
-                {!expandSidebar && (
-                  <ButtonWithTooltip
-                    position="bottom"
-                    content={<span>Open The Tree View</span>}
-                    variant="secondary"
-                    onClick={() => {
-                      handleSidebarDrawer();
+          <DrawerActionButton
+            background="inherit"
+            content="Files"
+            handleClose={() => {
+              handleClose("files", drawerState, dispatch);
+            }}
+            handleMaximize={() => {
+              handleMaximize("files", drawerState, dispatch);
+            }}
+            handleMinimize={() => {
+              handleMinimize("files", drawerState, dispatch);
+            }}
+          />
+          {drawerState.files.open && (
+            <DrawerContentBody>
+              <div className="file-browser__header">
+                <div className="file-browser__header--breadcrumbContainer">
+                  <ClipboardCopyContainer path={path} />
+                  <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
+                </div>
+
+                <div className="file-browser__header__info">
+                  <span className="files-browser__header--fileCount">
+                    {items.length > 1
+                      ? `(${items.length} items)`
+                      : items.length === 1
+                      ? `(${items.length} item)`
+                      : "Empty Directory"}
+                  </span>
+                </div>
+              </div>
+              <Table
+                aria-label="file-browser-table"
+                variant="compact"
+                cells={cols}
+                rows={rows}
+              >
+                <TableHeader className="file-browser-table--head" />
+                {filesLoading ? (
+                  <SpinContainer title="Fetching Files" />
+                ) : !filesLoading && items.length === 0 ? (
+                  <EmptyStateLoader title="Empty Data set" />
+                ) : (
+                  <TableBody
+                    onRowClick={(event: any, rows: any, rowData: any) => {
+                      dispatch(clearSelectedFile());
+                      const rowIndex = rowData.rowIndex;
+                      const item = items[rowIndex];
+                      setCurrentRowIndex(rowIndex);
+                      if (typeof item === "string") {
+                        handleFileClick(`${path}/${item}`);
+                      } else {
+                        toggleAnimation();
+                        dispatch(setSelectedFile(item));
+                        setIsExpanded(true);
+                      }
                     }}
-                    icon={<FiSidebar />}
                   />
                 )}
-
-                <ClipboardCopyContainer path={path} />
-                <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
-              </div>
-
-              <div className="file-browser__header__info">
-                <span className="files-browser__header--fileCount">
-                  {items.length > 1
-                    ? `(${items.length} items)`
-                    : items.length === 1
-                    ? `(${items.length} item)`
-                    : "Empty Directory"}
-                </span>
-              </div>
-            </div>
-            <Table
-              aria-label="file-browser-table"
-              variant="compact"
-              cells={cols}
-              rows={rows}
-            >
-              <TableHeader className="file-browser-table--head" />
-              {filesLoading ? (
-                <SpinContainer title="Fetching Files" />
-              ) : !filesLoading && items.length === 0 ? (
-                <EmptyStateLoader title="Empty Data set" />
-              ) : (
-                <TableBody
-                  onRowClick={(event: any, rows: any, rowData: any) => {
-                    dispatch(clearSelectedFile());
-                    const rowIndex = rowData.rowIndex;
-                    const item = items[rowIndex];
-                    setCurrentRowIndex(rowIndex);
-                    if (typeof item === "string") {
-                      handleFileClick(`${path}/${item}`);
-                    } else {
-                      toggleAnimation();
-                      dispatch(setSelectedFile(item));
-                      setIsExpanded(true);
-                    }
-                  }}
-                />
-              )}
-            </Table>
-          </DrawerContentBody>
+              </Table>
+            </DrawerContentBody>
+          )}
         </DrawerContent>
       </Drawer>
     </Grid>
@@ -427,69 +438,4 @@ const getIcon = (type: string) => {
     default:
       return <AiFillFile />;
   }
-};
-
-interface HeaderPanelProps {
-  handleDicomViewerOpen: () => void;
-  handleXtkViewerOpen: () => void;
-  handleFileBrowserOpen: () => void;
-  handleToggleViewer: () => void;
-  selectedFile: FeedFile;
-  explore: boolean;
-}
-
-const HeaderPanel = (props: HeaderPanelProps) => {
-  const {
-    handleDicomViewerOpen,
-    handleXtkViewerOpen,
-    handleFileBrowserOpen,
-
-    explore,
-    selectedFile,
-  } = props;
-
-  const imageFileTypes = ["dcm", "png", "jpg", "nii", "jpeg"];
-  const fileType = getFileExtension(selectedFile.data.fname);
-
-  return (
-    <>
-      <div className="header-panel__buttons--toggleViewer">
-        {explore && (
-          <ButtonWithTooltip
-            position="bottom"
-            content={<span>Open in Full Screen</span>}
-            variant="link"
-            onClick={handleFileBrowserOpen}
-            icon={<AiOutlineExpandAlt />}
-          />
-        )}
-
-        {!fileType && (
-          <LoadingErrorAlert
-            error={{
-              message:
-                "Please select a file to see the list of available viewers",
-            }}
-          />
-        )}
-        {fileType && imageFileTypes.includes(fileType) && (
-          <ButtonWithTooltip
-            content={<span>Open the Dicom Viewer</span>}
-            variant="link"
-            onClick={handleDicomViewerOpen}
-            icon={<FaFilm />}
-          />
-        )}
-        {fileType && getXtkFileMode(fileType) && (
-          <ButtonWithTooltip
-            content={<span>Open the XTK Viewer</span>}
-            position="bottom"
-            variant="link"
-            onClick={handleXtkViewerOpen}
-            icon={<BiHorizontalCenter />}
-          />
-        )}
-      </div>
-    </>
-  );
 };

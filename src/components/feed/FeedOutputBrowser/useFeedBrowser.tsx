@@ -13,6 +13,11 @@ import FileViewerModel from "../../../api/models/file-viewer.model";
 import { getPluginName } from "./utils";
 import { fetchResource } from "../../../api/common";
 import { removeTool } from "../../detailedView/displays/DicomViewer/utils";
+import {
+  handleClose,
+  handleMaximize,
+  handleMinimize,
+} from "../../common/button";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
@@ -28,7 +33,7 @@ const getInitialDownloadState = () => {
 
 export const useFeedBrowser = () => {
   const dispatch = useDispatch();
-  const [expandSidebar, setIsExpandedSidebar] = React.useState(true);
+  const drawerState = useTypedSelector((state) => state.drawers);
   const [download, setDownload] = React.useState(getInitialDownloadState);
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
 
@@ -190,9 +195,17 @@ export const useFeedBrowser = () => {
     dispatch(setExplorerMode(ExplorerMode.TerminalViewer));
   };
 
-  const handleSidebarDrawer = () => {
-    setIsExpandedSidebar(!expandSidebar);
+  const handleSidebarDrawer = (action: string) => {
+    if (action === "close") {
+      handleClose("directory", drawerState, dispatch);
+    } else if (action === "maximized") {
+      handleMaximize("directory", drawerState, dispatch);
+    } else {
+      handleMinimize("directory", drawerState, dispatch);
+    }
   };
+
+  console.log("DrawerState", drawerState);
 
   return {
     handleDicomViewerOpen,
@@ -210,6 +223,6 @@ export const useFeedBrowser = () => {
     pluginFilesPayload,
     pluginModalOpen,
     handleSidebarDrawer,
-    expandSidebar,
+    sidebarStatus: drawerState.directory,
   };
 };

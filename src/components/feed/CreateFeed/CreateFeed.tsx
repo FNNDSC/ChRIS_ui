@@ -261,7 +261,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               </Button>
               <Button
                 style={{ margin: "0.5em", padding: "0.5em 2em" }}
-                variant="secondary"
+                variant="primary"
                 isDisabled={activeStep.id === 1}
                 onClick={onBack}
               >
