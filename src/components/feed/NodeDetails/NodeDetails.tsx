@@ -22,9 +22,7 @@ import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import PluginTitle from "./PluginTitle";
 import GraphNodeContainer from "../AddTsNode";
-
 import { useTypedSelector } from "../../../store/hooks";
-
 import { getErrorCodeMessage } from "./utils";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
@@ -33,8 +31,6 @@ import { PipelineProvider } from "../CreateFeed/context";
 import { useDispatch } from "react-redux";
 import { getNodeOperations } from "../../../store/plugin/actions";
 import { AddNodeProvider } from "../AddNode/context";
-import { ButtonWithTooltip } from "../../common/button";
-import { MdClose } from "react-icons/md";
 import "./NodeDetails.scss";
 
 interface INodeProps {
@@ -146,16 +142,6 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
       <div className="node-details">
         <div className="node-details__title">
           <PluginTitle />
-          <ButtonWithTooltip
-            className="node-details__title--button"
-            variant="link"
-            icon={<MdClose style={{ color: "white" }} />}
-            onClick={() => {
-              expandDrawer("side_panel");
-            }}
-            position="left"
-            content={<span>Close Details Panel</span>}
-          />
         </div>
 
         <Grid className="node-details__grid">

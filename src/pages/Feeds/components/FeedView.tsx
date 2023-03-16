@@ -28,6 +28,12 @@ import { resetActiveResources } from "../../../store/resources/actions";
 import { setIsNavOpen } from "../../../store/ui/actions";
 import { DestroyActiveResources } from "../../../store/resources/types";
 import { LoadingErrorAlert } from "../../../components/common/errorHandling";
+import {
+  DrawerActionButton,
+  handleClose,
+  handleMaximize,
+  handleMinimize,
+} from "../../../components/common/button";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -51,13 +57,16 @@ export const FeedView: React.FC = () => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-  const explorer = useTypedSelector((state) => state.explorer);
   const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
   const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
+
+  const drawerState = useTypedSelector((state) => state.drawers);
+
+  console.log("DrawerState", drawerState);
 
   dataRef.current = {
     data,
@@ -239,11 +248,23 @@ export const FeedView: React.FC = () => {
         <FeedDetails />
       </PageSection>
 
-      <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
+      <Drawer
+        isExpanded={
+          drawerState.preview.open ||
+          drawerState.directory.open ||
+          drawerState.files.open
+        }
+        isInline
+        position="bottom"
+      >
         <DrawerContent
           panelContent={
             <DrawerPanelContent
-              defaultSize={explorer.explorer ? "100vh" : "46vh"}
+              defaultSize={
+                !drawerState.graph.open && !drawerState.node.open
+                  ? "100vh"
+                  : "46vh"
+              }
               isResizable
             >
               <PageSection variant="darker" className="section-three">
@@ -258,20 +279,50 @@ export const FeedView: React.FC = () => {
                 height: "100%",
               }}
             >
-              <Drawer isExpanded={isSidePanelExpanded} isInline>
+              <Drawer isExpanded={drawerState.node.open} isInline>
                 <DrawerContent
                   panelContent={
                     <DrawerPanelContent
                       className="drawer-panel"
-                      defaultSize="45%"
+                      defaultSize={
+                        drawerState.graph.open === false ? "100%" : "51%"
+                      }
                       minSize={"25%"}
                       isResizable
                     >
+                      <DrawerActionButton
+                        background="#001223"
+                        content="Node"
+                        handleClose={() => {
+                          handleClose("node", drawerState, dispatch);
+                        }}
+                        handleMaximize={() => {
+                          handleMaximize("node", drawerState, dispatch);
+                        }}
+                        handleMinimize={() => {
+                          handleMinimize("node", drawerState, dispatch);
+                        }}
+                      />
                       {nodePanel}
                     </DrawerPanelContent>
                   }
                 >
-                  <DrawerContentBody> {feedTree}</DrawerContentBody>
+                  <DrawerContentBody>
+                    <DrawerActionButton
+                      background="#151515"
+                      content="Graph"
+                      handleClose={() => {
+                        handleClose("graph", drawerState, dispatch);
+                      }}
+                      handleMaximize={() => {
+                        handleMaximize("graph", drawerState, dispatch);
+                      }}
+                      handleMinimize={() => {
+                        handleMinimize("graph", drawerState, dispatch);
+                      }}
+                    />
+                    {drawerState.graph.open && feedTree}
+                  </DrawerContentBody>
                 </DrawerContent>
               </Drawer>
             </Grid>

@@ -28,6 +28,8 @@ const FeedDetails = () => {
     (state) => state.feed
   );
 
+  const drawerState = useTypedSelector((state) => state.drawers);
+
   const { error, data: feed, loading } = currentFeedPayload;
 
   React.useEffect(() => {
@@ -98,7 +100,7 @@ const FeedDetails = () => {
               setIsNoteVisible(visible);
             }}
           >
-            <Button variant="secondary" icon={<FaEdit />}>
+            <Button variant="tertiary" icon={<FaEdit />}>
               View Feed Note
             </Button>
           </Popover>
@@ -110,7 +112,7 @@ const FeedDetails = () => {
 
       <ToolbarItem spacer={spacer}>
         <Button
-          variant="secondary"
+          variant="tertiary"
           onClick={() => {
             dispatch(setShowToolbar());
           }}
@@ -132,9 +134,7 @@ const FeedDetails = () => {
         style={{
           position: "absolute",
           zIndex: "999",
-          right: "0",
           left: "0",
-          margin: "0 auto",
           width: "fit-content",
         }}
         variant="link"
@@ -153,9 +153,6 @@ const FeedDetails = () => {
         <ToolbarContent>{items}</ToolbarContent>
       </ToolbarComponent>
     );
-    /*
- 
-    */
   } else if (loading) {
     return (
       <ToolbarComponent>

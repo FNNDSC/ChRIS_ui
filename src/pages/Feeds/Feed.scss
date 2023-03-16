@@ -41,7 +41,9 @@
   }
 
   .pf-c-table thead {
-    background-color: var(--pf-global--BackgroundColor--dark-transparent-200) !important;
+    background-color: var(
+      --pf-global--BackgroundColor--dark-transparent-200
+    ) !important;
   }
 
   &__count {
@@ -126,7 +128,7 @@
 }
 
 .feed-block {
-  background: $tree-node-backgound;
+  background: "inherit";
   height: 100%;
 }
 
