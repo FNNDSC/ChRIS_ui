@@ -255,7 +255,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             >
               Clear
             </Button>
-            <Button onClick={onCloseClick}>Done</Button>
+            <Button onClick={onCloseClick} isDisabled={params?.required.length !== Object.keys(requiredInput).length}>Done</Button>
           </DrawerActions>
         </DrawerHead>
         <DrawerPanelBody>
@@ -267,7 +267,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             {currentStep == 0 && (
               <Button
                 onClick={() => nextStep()}
-                isDisabled={pluginMeta == undefined}
+                isDisabled={pluginMeta == undefined }
               >
                 Next
               </Button>
