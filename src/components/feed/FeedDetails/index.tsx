@@ -19,6 +19,7 @@ import { useDispatch } from "react-redux";
 import { setShowToolbar } from "../../../store/feed/actions";
 import "./FeedDetails.scss";
 import { IDrawerState } from "../../../store/drawer/types";
+import { iconMap } from "../../../api/models/file-viewer.model";
 
 const FeedDetails = () => {
   const dispatch = useDispatch();
@@ -103,43 +104,6 @@ const FeedDetails = () => {
           }
         />
         <ToolbarContainer childComponent={<ShareFeed feed={feed} />} />
-
-        {drawerState.files.open === false && (
-          <DrawerActionsToolbar
-            action="files"
-            title="Files"
-            dispatch={dispatch}
-          />
-        )}
-        {drawerState.graph.open === false && (
-          <DrawerActionsToolbar
-            action="graph"
-            title="Graph"
-            dispatch={dispatch}
-          />
-        )}
-        {drawerState.node.open === false && (
-          <DrawerActionsToolbar
-            action="node"
-            title="Node"
-            dispatch={dispatch}
-          />
-        )}
-        {drawerState.directory.open === false && (
-          <DrawerActionsToolbar
-            action="directory"
-            title="Directory"
-            dispatch={dispatch}
-          />
-        )}
-
-        {drawerState.preview.open === false && (
-          <DrawerActionsToolbar
-            action="preview"
-            title="Preview"
-            dispatch={dispatch}
-          />
-        )}
         <ToolbarContainer
           childComponent={
             <Button
@@ -152,6 +116,48 @@ const FeedDetails = () => {
             </Button>
           }
         />
+
+        {drawerState.files.open === false && (
+          <DrawerActionsToolbar
+            title="Files"
+            Icon={iconMap["files"]}
+            action="files"
+            dispatch={dispatch}
+          />
+        )}
+        {drawerState.graph.open === false && (
+          <DrawerActionsToolbar
+            title="Graph"
+            Icon={iconMap["graph"]}
+            action="graph"
+            dispatch={dispatch}
+          />
+        )}
+        {drawerState.node.open === false && (
+          <DrawerActionsToolbar
+            title="Node"
+            Icon={iconMap["node"]}
+            action="node"
+            dispatch={dispatch}
+          />
+        )}
+        {drawerState.directory.open === false && (
+          <DrawerActionsToolbar
+            title="Directory"
+            Icon={iconMap["directory"]}
+            action="directory"
+            dispatch={dispatch}
+          />
+        )}
+
+        {drawerState.preview.open === false && (
+          <DrawerActionsToolbar
+            title="Preview"
+            Icon={iconMap["preview"]}
+            action="preview"
+            dispatch={dispatch}
+          />
+        )}
       </div>
     </React.Fragment>
   );
@@ -245,19 +251,37 @@ const getCurrentCount = (drawerState: IDrawerState) => {
 
 const DrawerActionsToolbar = ({
   action,
-  title,
   dispatch,
+  Icon,
+  title,
 }: {
   action: string;
-  title: string;
   dispatch: any;
+  Icon: any;
+  title: string;
 }) => {
   return (
     <ToolbarContainer
       childComponent={
-        <Button variant="tertiary" onClick={() => handleOpen(action, dispatch)}>
-          Open {title}
-        </Button>
+        <Badge dot={true}>
+          <ButtonWithTooltip
+            style={{
+              padding: "0",
+            }}
+            content={<span>{title}</span>}
+            icon={
+              <Icon
+                style={{
+                  color: "white",
+                  width: "24px",
+                  height: "24px",
+                }}
+              />
+            }
+            variant="link"
+            onClick={() => handleOpen(action, dispatch)}
+          />
+        </Badge>
       }
     />
   );
