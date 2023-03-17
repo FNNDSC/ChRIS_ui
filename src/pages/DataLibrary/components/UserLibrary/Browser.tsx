@@ -208,15 +208,11 @@ function FolderCard({
 function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const { handlers } = useLongPress();
   const { state } = useContext(LibraryContext);
-  const { selectedFolder, previewAll, columnLayout } = state;
+  const { previewAll, columnLayout } = state;
   const { handleOnClick, handleOnMouseDown } = handlers;
   const fileNameArray = file.data.fname.split("/");
   const fileName = fileNameArray[fileNameArray.length - 1];
   const [largePreview, setLargePreview] = React.useState(false);
-
-  const background = selectedFolder.some((fileSelect) => {
-    return fileSelect.folder.path === file.data.fname;
-  });
 
   const handlePreview = () => {
     setLargePreview(!largePreview);

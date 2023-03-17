@@ -32,7 +32,6 @@ import {
 import FileDetailView from "../Preview/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { bytesToSize } from "./utils";
-import { getFileExtension } from "../../../api/models/file-explorer.model";
 import { FeedFile } from "@fnndsc/chrisapi";
 import { FileBrowserProps } from "./types";
 import {

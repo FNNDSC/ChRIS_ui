@@ -1,48 +1,4 @@
-import React, { useState } from "react";
-import { FeedFile } from "@fnndsc/chrisapi";
-import * as dicomParser from "dicom-parser";
-import * as cornerstone from "cornerstone-core";
-import * as cornerstoneTools from "cornerstone-tools";
-import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import { useTypedSelector } from "../../../../store/hooks";
-import { isDicom, isNifti, dumpDataSet, removeTool } from "./utils";
-import { SpinContainer } from "../../../common/loading/LoadingContent";
-import { getFileExtension } from "../../../../api/models/file-explorer.model";
-import GalleryModel from "../../../../api/models/gallery.model";
-import { GalleryButtonContainer, TagInfoModal } from "./utils/helpers";
-
-const { Image } = cornerstone;
-
-type ImageType = typeof Image;
-
-type DicomState = {
-  filteredFiles: FeedFile[];
-  images: ImageType[];
-  frames: number;
-  output: any[];
-  showTagInfo: boolean;
-  gallery: boolean;
-  currentImage: number;
-  loader: boolean;
-  imageDictionary: {
-    [key: string]: number;
-  };
-};
-
-const getInitialState = () => {
-  return {
-    filteredFiles: [] as FeedFile[],
-    images: [] as ImageType[],
-    frames: 0,
-    output: [],
-    showTagInfo: false,
-    gallery: false,
-    currentImage: 1,
-    loader: false,
-    imageDictionary: {},
-  };
-};
+import React from "react";
 
 const DicomViewerContainer = (props: {
   action: {
