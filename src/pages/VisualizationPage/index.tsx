@@ -7,7 +7,6 @@ import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
 import { useDropzone } from "react-dropzone";
 import { setExternalFiles } from "../../store/explorer/actions";
-import { PageSection } from "@patternfly/react-core";
 import InfoIcon from "../../components/common/info/InfoIcon";
 import { Typography } from "antd";
 import DarkTheme from "../../components/common/darkTheme";
