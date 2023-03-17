@@ -16,4 +16,5 @@ export interface DrawerPayloadType {
 
 export const DrawerActionTypes = keyMirror({
   SET_DRAWER_STATE: null,
+  SET_PREVIEW_PANEL: null,
 });
