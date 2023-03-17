@@ -7,7 +7,7 @@ import {
   ExpandableSection,
 } from "@patternfly/react-core";
 
-import { Popover, Progress } from "antd";
+import { Progress } from "antd";
 import {
   Plugin,
   PluginInstance,
@@ -33,10 +33,6 @@ import { getNodeOperations } from "../../../store/plugin/actions";
 import { AddNodeProvider } from "../AddNode/context";
 import "./NodeDetails.scss";
 
-interface INodeProps {
-  expandDrawer: (panel: string) => void;
-}
-
 interface INodeState {
   plugin?: Plugin;
   instanceParameters?: PluginInstanceDescendantList;
@@ -51,7 +47,7 @@ function getInitialState() {
   };
 }
 
-const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
+const NodeDetails: React.FC = () => {
   const dispatch = useDispatch();
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useTypedSelector(
@@ -140,122 +136,129 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
     );
     return (
       <div className="node-details">
-        <div className="node-details__title">
-          <PluginTitle />
-        </div>
+        {terminal ? (
+          <PluginLog text={text} />
+        ) : (
+          <>
+            <div className="node-details__title">
+              <PluginTitle />
+            </div>
 
-        <Grid className="node-details__grid">
-          {renderGridItem("Status", <StatusTitle />)}
-        </Grid>
+            <Grid className="node-details__grid">
+              {renderGridItem("Status", <StatusTitle />)}
+            </Grid>
 
-        <Status />
-        <ExpandableSection
-          toggleText={isExpanded ? "Show Less Details" : "Show More Details"}
-          onToggle={() => setIsExpanded(!isExpanded)}
-          isExpanded={isExpanded}
-          className="node-details__expandable"
-        >
-          <Grid className="node-details__grid">
-            {selectedPlugin.data.previous_id &&
-              renderGridItem(
-                "Parent Node ID",
-                <span>{selectedPlugin.data.previous_id}</span>
-              )}
-            {renderGridItem(
-              "Selected Node ID",
-              <span>{selectedPlugin.data.id}</span>
-            )}
-            {renderGridItem(
-              "Plugin",
-              <span style={{ fontFamily: "monospace" }}>
-                {selectedPlugin.data.plugin_name}, ver{" "}
-                {selectedPlugin.data.plugin_version}
-              </span>
-            )}
-            {renderGridItem("Created", Time)}
-            {renderGridItem("Compute Environment", <span>{compute_env}</span>)}
-            {runTime && (
-              <Fragment>
+            <Status />
+            <ExpandableSection
+              toggleText={
+                isExpanded ? "Show Less Details" : "Show More Details"
+              }
+              onToggle={() => setIsExpanded(!isExpanded)}
+              isExpanded={isExpanded}
+              className="node-details__expandable"
+            >
+              <Grid className="node-details__grid">
+                {selectedPlugin.data.previous_id &&
+                  renderGridItem(
+                    "Parent Node ID",
+                    <span>{selectedPlugin.data.previous_id}</span>
+                  )}
                 {renderGridItem(
-                  "Total Runtime",
-                  <span>
-                    {selectedPlugin &&
-                      selectedPlugin.data &&
-                      runTime(selectedPlugin)}
+                  "Selected Node ID",
+                  <span>{selectedPlugin.data.id}</span>
+                )}
+                {renderGridItem(
+                  "Plugin",
+                  <span style={{ fontFamily: "monospace" }}>
+                    {selectedPlugin.data.plugin_name}, ver{" "}
+                    {selectedPlugin.data.plugin_version}
                   </span>
                 )}
-              </Fragment>
-            )}
-            {cancelled &&
-              renderGridItem(
-                "Error Code",
-                <span>
-                  {error_code ? (
+                {renderGridItem("Created", Time)}
+                {renderGridItem(
+                  "Compute Environment",
+                  <span>{compute_env}</span>
+                )}
+                {runTime && (
+                  <Fragment>
+                    {renderGridItem(
+                      "Total Runtime",
+                      <span>
+                        {selectedPlugin &&
+                          selectedPlugin.data &&
+                          runTime(selectedPlugin)}
+                      </span>
+                    )}
+                  </Fragment>
+                )}
+                {cancelled &&
+                  renderGridItem(
+                    "Error Code",
                     <span>
-                      {error_code}&nbsp;
-                      {isErrorExpanded && (
-                        <span className="node-details__error-message">
-                          {getErrorCodeMessage(error_code)}&nbsp;
+                      {error_code ? (
+                        <span>
+                          {error_code}&nbsp;
+                          {isErrorExpanded && (
+                            <span className="node-details__error-message">
+                              {getErrorCodeMessage(error_code)}&nbsp;
+                            </span>
+                          )}
+                          <Button
+                            variant="link"
+                            isInline
+                            className="node-details__error-show-more"
+                            onClick={() => setisErrorExpanded(!isErrorExpanded)}
+                          >
+                            (show {isErrorExpanded ? "less" : "more"})
+                          </Button>
                         </span>
+                      ) : (
+                        "None"
                       )}
-                      <Button
-                        variant="link"
-                        isInline
-                        className="node-details__error-show-more"
-                        onClick={() => setisErrorExpanded(!isErrorExpanded)}
-                      >
-                        (show {isErrorExpanded ? "less" : "more"})
-                      </Button>
                     </span>
-                  ) : (
-                    "None"
                   )}
-                </span>
-              )}
-          </Grid>
-        </ExpandableSection>
+              </Grid>
+            </ExpandableSection>
 
-        <Grid className="node-details__grid" hasGutter={true}>
-          <Grid className="node-details__grid" hasGutter={true}>
-            <RenderButtonGridItem>
-              {cancelled ? null : (
-                <AddNodeProvider>
-                  <AddNode />
-                </AddNodeProvider>
-              )}
-            </RenderButtonGridItem>
-            <RenderButtonGridItem>
-              <PipelineProvider>
-                <AddPipeline />
-              </PipelineProvider>
-            </RenderButtonGridItem>
+            <Grid className="node-details__grid" hasGutter={true}>
+              <Grid className="node-details__grid" hasGutter={true}>
+                <RenderButtonGridItem>
+                  {cancelled ? null : (
+                    <AddNodeProvider>
+                      <AddNode />
+                    </AddNodeProvider>
+                  )}
+                </RenderButtonGridItem>
+                <RenderButtonGridItem>
+                  <PipelineProvider>
+                    <AddPipeline />
+                  </PipelineProvider>
+                </RenderButtonGridItem>
 
-            <RenderButtonGridItem>
-              <Button onClick={downloadAllClick} icon={<FaDownload />}>
-                Download Files{" "}
-                <span
-                  style={{ padding: "2px", color: "#F5F5DC", fontSize: "11px" }}
-                >
-                  ( F )
-                </span>
-              </Button>
-            </RenderButtonGridItem>
-          </Grid>
+                <RenderButtonGridItem>
+                  <Button onClick={downloadAllClick} icon={<FaDownload />}>
+                    Download Files{" "}
+                    <span
+                      style={{
+                        padding: "2px",
+                        color: "#F5F5DC",
+                        fontSize: "11px",
+                      }}
+                    >
+                      ( F )
+                    </span>
+                  </Button>
+                </RenderButtonGridItem>
+              </Grid>
 
-          <Grid hasGutter={true}>
-            <RenderButtonGridItem>
-              {
-                <Popover
-                  className="node-details__popover"
-                  content={<PluginLog text={text} />}
-                  placement="bottom"
-                  open={terminal}
-                  trigger="click"
-                  onOpenChange={() => {
-                    dispatch(getNodeOperations("terminal"));
-                  }}
-                >
-                  <Button icon={<FaTerminal />} type="button">
+              <Grid hasGutter={true}>
+                <RenderButtonGridItem>
+                  <Button
+                    onClick={() => {
+                      dispatch(getNodeOperations("terminal"));
+                    }}
+                    icon={<FaTerminal />}
+                  >
                     View Terminal{" "}
                     <span
                       style={{
@@ -267,32 +270,38 @@ const NodeDetails: React.FC<INodeProps> = ({ expandDrawer }) => {
                       ( T )
                     </span>
                   </Button>
-                </Popover>
-              }
-            </RenderButtonGridItem>
+                </RenderButtonGridItem>
 
-            <RenderButtonGridItem>
-              <GraphNodeContainer />
-            </RenderButtonGridItem>
-            <RenderButtonGridItem>
-              {selectedPlugin.data.previous_id !== undefined && <DeleteNode />}
-            </RenderButtonGridItem>
-          </Grid>
-        </Grid>
-        {download.status && (
-          <>
-            <div style={{ width: 170, marginTop: "1.25em" }}>
-              <Progress percent={download.count} size="small" />
+                <RenderButtonGridItem>
+                  <GraphNodeContainer />
+                </RenderButtonGridItem>
+                <RenderButtonGridItem>
+                  {selectedPlugin.data.previous_id !== undefined && (
+                    <DeleteNode />
+                  )}
+                </RenderButtonGridItem>
+              </Grid>
+            </Grid>
+            {download.status && (
+              <>
+                <div style={{ width: 170, marginTop: "1.25em" }}>
+                  <Progress percent={download.count} size="small" />
+                </div>
+                <span>
+                  Fetching and Zipping files for {download.plugin_name}{" "}
+                </span>
+              </>
+            )}
+            <div style={{ marginTop: "1.25em" }}>
+              {download.fetchingFiles && (
+                <span>Fetching file list meta data</span>
+              )}
             </div>
-            <span>Fetching and Zipping files for {download.plugin_name} </span>
+            <div style={{ marginTop: "1.25em" }}>
+              {download.error && download.error}
+            </div>
           </>
         )}
-        <div style={{ marginTop: "1.25em" }}>
-          {download.fetchingFiles && <span>Fetching file list meta data</span>}
-        </div>
-        <div style={{ marginTop: "1.25em" }}>
-          {download.error && download.error}
-        </div>
       </div>
     );
   }

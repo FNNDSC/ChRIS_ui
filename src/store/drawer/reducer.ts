@@ -5,55 +5,46 @@ const initialState: IDrawerState = {
   graph: {
     open: true,
     maximized: false,
-    minimized: false,
   },
   node: {
     open: true,
     maximized: false,
-    minimized: false,
   },
   directory: {
     open: true,
     maximized: false,
-    minimized: false,
   },
   files: {
     open: true,
     maximized: false,
-    minimized: false,
   },
   preview: {
     open: false,
     maximized: false,
-    minimized: false,
   },
 };
 
 const reducer: Reducer<IDrawerState> = (state = initialState, action) => {
   switch (action.type) {
     case DrawerActionTypes.SET_DRAWER_STATE: {
-      if (action.payload.maximized) {
-        const newState = getNewObjectMaximized(action.payload);
-        console.log("NEW STATE AFTER MAXIMIZED", newState);
-        return {
-          ...newState,
-        };
-      } else if (action.payload.minimized) {
-        const newState = getNewObjectMinimized(action.payload);
-        console.log("NEWSTATE AFTER MINIMIZED", newState);
-        return {
-          ...newState,
-        };
+      let newState;
+      if (action.payload.maximized === true) {
+        newState = getMaximizedObject(state, action.payload);
+      } else if (action.payload.minimized === true) {
+        newState = getMinimizedObject(state, action.payload);
       } else {
-        return {
+        newState = {
           ...state,
           [action.payload.actionType]: {
-            minimized: action.payload.minimized,
-            maximized: action.payload.maximized,
             open: action.payload.open,
+            maximized: action.payload.maximized,
           },
         };
       }
+
+      return {
+        ...newState,
+      };
     }
     default: {
       return state;
@@ -63,36 +54,39 @@ const reducer: Reducer<IDrawerState> = (state = initialState, action) => {
 
 export { reducer as drawerReducer };
 
-const getNewObjectMaximized = (actionPayload: DrawerPayloadType) => {
-  const newState = initialState;
-  console.log("ActionPayload", actionPayload);
+export const getMaximizedObject = (
+  state: IDrawerState,
+  payload: DrawerPayloadType
+) => {
+  const newState = state;
 
-  for (const action in newState) {
-    if (actionPayload.actionType === action) {
-      newState[action].maximized = true;
+  for (const property in newState) {
+    if (property !== payload.actionType) {
+      newState[property].open = false;
+      newState[property].maximized = false;
     } else {
-      newState[action].open = false;
-      newState[action].maximized = false;
-      newState[action].minimized = true;
+      newState[property].open = payload.open;
+      newState[property].maximized = payload.maximized;
     }
   }
 
   return newState;
 };
 
-const getNewObjectMinimized = (actionPayload: DrawerPayloadType) => {
-  const newState = initialState;
-  console.log("ActionPayload", actionPayload);
+export const getMinimizedObject = (
+  state: IDrawerState,
+  payload: DrawerPayloadType
+) => {
+  const newState = state;
 
-  for (const action in newState) {
-    if (actionPayload.actionType === action) {
-      newState[action].maximized=false
+  for (const property in newState) {
+    if (property !== payload.actionType) {
+      newState[property].open = true;
+      newState[property].maximized = false;
     } else {
-      newState[action].minimized = false;
-      newState[action].maximized = false;
-      newState[action].open = true;
+      newState[property].open = payload.open;
+      newState[property].maximized = payload.maximized;
     }
   }
-
   return newState;
 };

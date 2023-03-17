@@ -13,7 +13,6 @@ export interface FileBrowserProps {
   handleFileBrowserToggle: () => void;
   handleDicomViewerOpen: () => void;
   handleXtkViewerOpen: () => void;
-  expandDrawer: (panel: string) => void;
   pluginModalOpen: boolean;
   filesLoading: boolean;
   explore: boolean;

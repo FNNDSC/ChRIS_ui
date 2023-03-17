@@ -9,15 +9,12 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
   DrawerPanelBody,
-  DrawerHead,
-  DrawerActions,
   ApplicationLauncher,
   ApplicationLauncherItem,
   DropdownPosition,
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { FiSidebar } from "react-icons/fi";
 import { FaFileCode, FaFilm } from "react-icons/fa";
 import {
   MdFileDownload,
@@ -43,7 +40,6 @@ import {
   setSelectedFile,
 } from "../../../store/explorer/actions";
 import { BiHorizontalCenter } from "react-icons/bi";
-import { getXtkFileMode } from "../../detailedView/displays/XtkViewer/XtkViewer";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
 import { useTypedSelector } from "../../../store/hooks";
@@ -52,12 +48,9 @@ import {
   ButtonWithTooltip,
   DrawerActionButton,
   handleClose,
-  handleDrawerActions,
   handleMaximize,
   handleMinimize,
 } from "../../common/button";
-
-import { setDrawerState } from "../../../store/drawer/actions";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -71,7 +64,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileBrowserToggle,
     handleDicomViewerOpen,
     handleXtkViewerOpen,
-    explore,
     filesLoading,
   } = props;
 
@@ -291,21 +283,26 @@ const FileBrowser = (props: FileBrowserProps) => {
     <DrawerPanelContent
       className="file-browser__previewPanel"
       isResizable
-      defaultSize={drawerState.preview.maximized ? "100%" : "60%"}
+      defaultSize={
+        drawerState.preview.maximized ||
+        (!drawerState.directory.open && !drawerState.files.open)
+          ? "100%"
+          : "60%"
+      }
       minSize={"25%"}
     >
       <DrawerActionButton
         background="inherit"
         content="Preview"
         handleClose={() => {
-          setIsExpanded(!isExpanded);
-          handleClose("preview", drawerState, dispatch);
+          setIsExpanded(false);
+          handleClose("preview", dispatch);
         }}
         handleMaximize={() => {
-          handleMaximize("preview", drawerState, dispatch);
+          handleMaximize("preview", dispatch);
         }}
         handleMinimize={() => {
-          handleMinimize("preview", drawerState, dispatch);
+          handleMinimize("preview", dispatch);
         }}
       />
       <DrawerPanelBody className="file-browser__drawerbody">
@@ -356,13 +353,13 @@ const FileBrowser = (props: FileBrowserProps) => {
             background="inherit"
             content="Files"
             handleClose={() => {
-              handleClose("files", drawerState, dispatch);
+              handleClose("files", dispatch);
             }}
             handleMaximize={() => {
-              handleMaximize("files", drawerState, dispatch);
+              handleMaximize("files", dispatch);
             }}
             handleMinimize={() => {
-              handleMinimize("files", drawerState, dispatch);
+              handleMinimize("files", dispatch);
             }}
           />
           {drawerState.files.open && (

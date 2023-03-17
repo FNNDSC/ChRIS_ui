@@ -257,6 +257,14 @@ Styles for pipelines
 // Styles for configuration Page under Pipelines
 .pf-c-expandable-section {
   margin-top: 1rem;
+
+  &__toggle {
+    color: white;
+
+    &-icon {
+      color: inherit;
+    }
+  }
 }
 
 .pf-c-input-group input:not([type="checkbox"]):not([type="radio"]),

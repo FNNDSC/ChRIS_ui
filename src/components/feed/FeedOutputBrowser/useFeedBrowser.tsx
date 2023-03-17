@@ -197,15 +197,11 @@ export const useFeedBrowser = () => {
 
   const handleSidebarDrawer = (action: string) => {
     if (action === "close") {
-      handleClose("directory", drawerState, dispatch);
+      handleClose("directory", dispatch);
     } else if (action === "maximized") {
-      handleMaximize("directory", drawerState, dispatch);
-    } else {
-      handleMinimize("directory", drawerState, dispatch);
-    }
+      handleMaximize("directory", dispatch);
+    } else handleMinimize("directory", dispatch);
   };
-
-  console.log("DrawerState", drawerState);
 
   return {
     handleDicomViewerOpen,
@@ -224,5 +220,6 @@ export const useFeedBrowser = () => {
     pluginModalOpen,
     handleSidebarDrawer,
     sidebarStatus: drawerState.directory,
+    filesStatus: drawerState.files,
   };
 };
