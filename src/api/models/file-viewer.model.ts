@@ -1,4 +1,11 @@
 import { FeedFile } from "@fnndsc/chrisapi";
+import {
+  FcTreeStructure,
+  FcGallery,
+  FcFolder,
+  FcList,
+  FcCommandLine,
+} from "react-icons/fc";
 
 export interface IFileBlob {
   blob?: Blob;
@@ -42,4 +49,12 @@ export const fileViewerMap: any = {
   crv: "XtkDisplay",
   smoothwm: "XtkDisplay",
   pial: "XtkDisplay",
+};
+
+export const iconMap: any = {
+  graph: FcTreeStructure,
+  preview: FcGallery,
+  directory: FcFolder,
+  files: FcList,
+  node: FcCommandLine,
 };
