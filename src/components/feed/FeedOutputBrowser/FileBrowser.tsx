@@ -51,6 +51,7 @@ import {
   handleMaximize,
   handleMinimize,
 } from "../../common/button";
+import { setFilePreviewPanel } from "../../../store/drawer/actions";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -403,6 +404,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                       } else {
                         toggleAnimation();
                         dispatch(setSelectedFile(item));
+                        dispatch(setFilePreviewPanel());
                         setIsExpanded(true);
                       }
                     }}

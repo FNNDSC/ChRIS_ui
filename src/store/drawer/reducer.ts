@@ -46,6 +46,16 @@ const reducer: Reducer<IDrawerState> = (state = initialState, action) => {
         ...newState,
       };
     }
+
+    case DrawerActionTypes.SET_PREVIEW_PANEL: {
+      return {
+        ...state,
+        ["preview"]: {
+          open: true,
+          maximized: false,
+        },
+      };
+    }
     default: {
       return state;
     }

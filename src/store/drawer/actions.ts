@@ -9,3 +9,7 @@ export const setDrawerState = (drawerState: {
 }) => {
   return action(DrawerActionTypes.SET_DRAWER_STATE, drawerState);
 };
+
+export const setFilePreviewPanel = () => {
+  return action(DrawerActionTypes.SET_PREVIEW_PANEL);
+};
