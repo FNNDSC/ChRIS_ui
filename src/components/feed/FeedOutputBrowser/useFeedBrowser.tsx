@@ -1,6 +1,7 @@
 import React from "react";
 import {
   setExplorerMode,
+  setExplorerRequest,
   setSelectedFolder,
 } from "../../../store/explorer/actions";
 import { useTypedSelector } from "../../../store/hooks";
@@ -12,6 +13,11 @@ import FileViewerModel from "../../../api/models/file-viewer.model";
 import { getPluginName } from "./utils";
 import { fetchResource } from "../../../api/common";
 import { removeTool } from "../../detailedView/displays/DicomViewer/utils";
+import {
+  handleClose,
+  handleMaximize,
+  handleMinimize,
+} from "../../common/button";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
@@ -27,7 +33,7 @@ const getInitialDownloadState = () => {
 
 export const useFeedBrowser = () => {
   const dispatch = useDispatch();
-  const [expandSidebar, setIsExpandedSidebar] = React.useState(true);
+  const drawerState = useTypedSelector((state) => state.drawers);
   const [download, setDownload] = React.useState(getInitialDownloadState);
   const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
 
@@ -156,14 +162,13 @@ export const useFeedBrowser = () => {
   const handleFileBrowserOpen = () => {
     setFolder();
     setPluginModalOpen(!pluginModalOpen);
-    dispatch(setExplorerMode(ExplorerMode.SwiftFileBrowser));
+    dispatch(setExplorerRequest());
   };
 
   const handlePluginModalClose = () => {
     if (pluginModalOpen) {
       removeTool();
     }
-
     setPluginModalOpen(!pluginModalOpen);
   };
 
@@ -185,8 +190,17 @@ export const useFeedBrowser = () => {
     dispatch(setExplorerMode(ExplorerMode.XtkViewer));
   };
 
-  const handleSidebarDrawer = () => {
-    setIsExpandedSidebar(!expandSidebar);
+  const handleTerminalViewerOpen = () => {
+    setPluginModalOpen(!pluginModalOpen);
+    dispatch(setExplorerMode(ExplorerMode.TerminalViewer));
+  };
+
+  const handleSidebarDrawer = (action: string) => {
+    if (action === "close") {
+      handleClose("directory", dispatch);
+    } else if (action === "maximized") {
+      handleMaximize("directory", dispatch);
+    } else handleMinimize("directory", dispatch);
   };
 
   return {
@@ -194,6 +208,7 @@ export const useFeedBrowser = () => {
     handleXtkViewerOpen,
     handlePluginModalClose,
     handleFileBrowserOpen,
+    handleTerminalViewerOpen,
     handleFileClick,
     downloadAllClick,
     filesLoading,
@@ -204,6 +219,7 @@ export const useFeedBrowser = () => {
     pluginFilesPayload,
     pluginModalOpen,
     handleSidebarDrawer,
-    expandSidebar
+    sidebarStatus: drawerState.directory,
+    filesStatus: drawerState.files,
   };
 };

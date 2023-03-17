@@ -6,25 +6,29 @@
 
 .ant-popover-inner-content {
   padding: 0 !important;
+
+  background: #151515;
+}
+
+.pf-c-radio {
+  label {
+    color: white;
+  }
 }
 
 .feed-details {
   height: 100%;
   width: 100%;
-  --pf-c-toolbar--BackgroundColor: "inherit" !important;
-  &__textarea {
-    --pf-c-form-control--BackgroundColor: var(
-      --pf-global--palette--black-1000
-    ) !important;
-    color: white !important;
-    font-family: "monospace";
-    height: 20em !important;
-  }
 
-  &__actions {
-    background: var(--pf-global--palette--black-1000);
-    button {
-      margin-right: 0.5em;
-    }
+  &__note {
+    background-color: rgba(3, 3, 3, 0.62) !important;
+    color: white !important;
+  }
+  &__textarea {
+    background-color: inherit;
+    color: inherit;
+    font-family: var(
+      --pf-global--FontFamily--redhatfont--sans-serif
+    ) !important;
   }
 }

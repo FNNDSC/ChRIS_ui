@@ -13,7 +13,6 @@
   float: right;
 }
 
-
 // Accessibility additions
 // Hidden on md and below (768px;)
 // ----------------------------------------------
@@ -23,7 +22,6 @@
     display: none !important;
   }
 }
-
 
 // Full screen view
 // While in fullscreen, hide any children with class 'tohide'
@@ -54,47 +52,46 @@ div:fullscreen {
   }
 }
 
-
 // Inputs onfocus
 // ----------------------------------------------
 
-input[type=text]:focus, textarea:focus, select:focus{
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
   outline: none !important;
 }
-
 
 // Custom Scrollbar
 // ----------------------------------------------
 
 ::-webkit-scrollbar {
-  width: 0.3rem;
-  height: 0.3em;
+  width: 0.4rem;
+  height: 0.4rem;
 }
 
 ::-webkit-scrollbar-track {
-  background: #d2d2d2;
+  background: inherit;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #73bcf7;
+  background-color: #8a8d90;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #2b9af3;
+  background-color: #8a8d90;
 }
-
-
 
 // Styles for the dicom viewer display
 
 .small-preview {
-  height: 90%;
+  height: 100%;
 
   .viewport-wrapper {
     height: 100% !important;
   }
   img {
-    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
   }
 
   .react-json-view {

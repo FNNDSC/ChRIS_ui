@@ -1,5 +1,15 @@
 import React, { ReactNode } from "react";
-import { Button, Tooltip, DrawerCloseButton } from "@patternfly/react-core";
+import {
+  Button,
+  Tooltip,
+  DrawerCloseButton,
+  DrawerHead,
+  DrawerActions,
+} from "@patternfly/react-core";
+import { CgMaximizeAlt } from "react-icons/cg";
+import { DrawerPayloadType } from "../../../store/drawer/types";
+import { MdMinimize } from "react-icons/md";
+import { setDrawerState } from "../../../store/drawer/actions";
 
 interface ButtonProps {
   variant: any;
@@ -51,4 +61,88 @@ export const DrawerCloseButtonWithTooltip = ({
       <DrawerCloseButton onClick={onClick} />
     </Tooltip>
   );
+};
+
+interface DrawerActionTypes {
+  handleClose: () => void;
+  handleMaximize: () => void;
+  handleMinimize: () => void;
+  content: string;
+  background: string;
+}
+
+export const DrawerActionButton = ({
+  handleClose,
+  handleMaximize,
+  handleMinimize,
+  content,
+  background,
+}: DrawerActionTypes) => {
+  return (
+    <DrawerHead
+      style={{
+        background,
+      }}
+    >
+      <DrawerActions>
+        <Button
+          style={{ paddingRight: "0px" }}
+          variant="link"
+          icon={<MdMinimize style={{ color: "white" }} />}
+          onClick={handleMinimize}
+        />
+        <Button
+          style={{ paddingRight: "0px" }}
+          onClick={handleMaximize}
+          variant="link"
+          icon={<CgMaximizeAlt style={{ color: "white" }} />}
+        />
+        <DrawerCloseButtonWithTooltip
+          content={<span>{content}</span>}
+          onClick={handleClose}
+        />
+      </DrawerActions>
+    </DrawerHead>
+  );
+};
+
+export const handleDrawerActions = (
+  actionType: string,
+  open: boolean,
+  maximized: boolean,
+  minimized: boolean,
+  dispatch: any,
+  action: (action: DrawerPayloadType) => void
+) => {
+  dispatch(
+    action({
+      actionType,
+      open,
+      maximized,
+      minimized,
+    })
+  );
+};
+
+export const handleClose = (actionType: string, dispatch: any) => {
+  handleDrawerActions(
+    actionType,
+    false,
+    false,
+    false,
+    dispatch,
+    setDrawerState
+  );
+};
+
+export const handleMaximize = (actionType: string, dispatch: any) => {
+  handleDrawerActions(actionType, true, true, false, dispatch, setDrawerState);
+};
+
+export const handleMinimize = (actionType: string, dispatch: any) => {
+  handleDrawerActions(actionType, true, false, true, dispatch, setDrawerState);
+};
+
+export const handleOpen = (actionType: string, dispatch: any) => {
+  handleDrawerActions(actionType, true, false, false, dispatch, setDrawerState);
 };

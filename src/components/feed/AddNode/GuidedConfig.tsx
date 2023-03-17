@@ -143,15 +143,11 @@ const GuidedConfig = () => {
               display: "flex",
               flexDirection: "column",
               marginTop: "1rem",
-              gap: "20px"
+              gap: "20px",
             }}
           >
             <DropdownBasic plugins={plugins} />
-            <div
-              className="configuration__renders"
-            >
-              {renderComputeEnvs()}
-            </div>
+            <div className="configuration__renders">{renderComputeEnvs()}</div>
           </div>
         </>
       </CardComponent>
@@ -170,17 +166,17 @@ const GuidedConfig = () => {
       <CardComponent>
         <>
           <div>
-            <h4>
+            <span>
               Required Parameters <ItalicsComponent length={requiredLength} />
-            </h4>
+            </span>
             {params &&
               params["required"].length > 0 &&
               renderRequiredParams(params["required"])}
           </div>
           <div>
-            <h4>
+            <span>
               Optional Parameters <ItalicsComponent length={dropdownLength} />
-            </h4>
+            </span>
 
             {renderDropdowns()}
           </div>
@@ -304,7 +300,7 @@ const ItalicsComponent = ({ length }: { length?: number }) => {
   return (
     <i
       style={{
-        color: "#4f5255",
+        color: "#8a8d90",
         fontSize: "0.9rem",
       }}
     >
@@ -352,7 +348,7 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
       ? plugins.map((selectedPlugin: Plugin) => {
           return (
             <DropdownItem
-              style={{ padding: "0" }}
+              style={{ padding: "0",  }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -381,7 +377,7 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
       : [];
 
   return (
-    <div style={{display:'flex', flexDirection:'row'}}>
+    <div style={{ display: "flex", flexDirection: "row" }}>
       <span className="configure-compute__label">Select a Plugin Version:</span>
       <Dropdown
         onSelect={onSelect}

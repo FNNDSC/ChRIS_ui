@@ -63,8 +63,10 @@ const DashboardPage = (props: DashboardProps) => {
 
   return (
     <Wrapper>
-      <PageSection hasShadowBottom variant="light">
-        <Title headingLevel="h1">Welcome to ChRIS</Title>
+      <PageSection hasShadowBottom variant="darker">
+        <Title style={{ color: "white" }} headingLevel="h1">
+          Welcome to ChRIS
+        </Title>
         <p>
           Retrieve, analyze, and visualize <i>any data </i> using a powerful
           cloud computing platform: ChRIS.
@@ -75,7 +77,7 @@ const DashboardPage = (props: DashboardProps) => {
         </p>
         {children}
       </PageSection>
-      <PageSection>
+      <PageSection variant="darker">
         <Grid hasGutter>
           <GridItem style={{ marginBottom: "1rem" }} lg={6}>
             <CardDisplay
@@ -157,7 +159,8 @@ const CardDisplay = ({
     <Card style={{ overflow: "hidden" }}>
       <CardHeader
         style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
-        className={className}>
+        className={className}
+      >
         <CardHeaderMain>{component}</CardHeaderMain>
       </CardHeader>
       <div style={{ margin: "0 auto", textAlign: "center" }}>
@@ -169,7 +172,8 @@ const CardDisplay = ({
           <Button
             onClick={() => {
               navigate(buttonLink);
-            }}>
+            }}
+          >
             {buttonText}
           </Button>
         </CardFooter>

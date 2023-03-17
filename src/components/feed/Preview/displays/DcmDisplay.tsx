@@ -1,39 +1,103 @@
 import * as React from "react";
-import * as cornerstone from "cornerstone-core";
-import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import * as dicomParser from "dicom-parser";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
-
-cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+import {
+  handleEventState,
+  enableDOMElement,
+  loadDicomImage,
+  displayDicomImage,
+  windowResize,
+  resetDicomSettings,
+} from "../../../detailedView/displays/DicomViewer/utils";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
   preview?: string;
+  actionState: any;
 };
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem, preview } = props;
 
   const onWindowResize = () => {
-    const element = containerRef.current;
-    if (element) cornerstone.resize(element);
+    const element = dicomImageRef.current;
+    if (element) {
+      windowResize(element);
+    }
   };
+
+  const handleEvents = React.useCallback((event: string, value: boolean) => {
+    if (event === "Zoom") {
+      handleEventState(event, value);
+    }
+
+    if (event === "Pan") {
+      handleEventState(event, value);
+    }
+    if (event === "Magnify") {
+      handleEventState(event, value);
+    }
+
+    if (event === "Rotate") {
+      handleEventState(event, value);
+    }
+
+    if (event === "Wwwc") {
+      handleEventState(event, value);
+    }
+
+    if (event === "Reset View") {
+      if (dicomImageRef.current) {
+        resetDicomSettings(dicomImageRef.current);
+      }
+
+      /*
+      cornerstoneTools.clearToolState(dicomImageRef.current, "Length");
+      cornerstone.reset(dicomImageRef.current);
+      setDicomState((dicomState) => {
+        return {
+          ...dicomState,
+          gallery: false,
+        };
+      });
+      */
+    }
+
+    if (event === "Length") {
+      handleEventState(event, value);
+    }
+
+    if (event === "Gallery") {
+      /*
+      cornerstone.reset(dicomImageRef.current);
+      setDicomState((dicomState) => {
+        return {
+          ...dicomState,
+          gallery: value,
+        };
+      });
+      */
+    }
+
+    if (event === "TagInfo") {
+      //  handleModalToggle(value);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (props.actionState) {
+      const event = Object.keys(props.actionState)[0];
+      handleEvents(event, props.actionState[event]);
+    }
+  }, [props.actionState, handleEvents]);
 
   const initAmi = React.useCallback((fileItem: IFileBlob) => {
     const { blob } = fileItem;
-    const element = containerRef.current;
-    let imageId = "";
+    const element = dicomImageRef.current;
     if (!!element) {
-      cornerstone.enable(element);
-      imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
-      cornerstone.loadImage(imageId).then((image: any) => {
-        cornerstone.displayImage(element, image);
-      });
-
+      enableDOMElement(element);
+      const imageId = loadDicomImage(blob);
+      displayDicomImage(imageId, element);
       window.addEventListener("resize", onWindowResize);
     }
   }, []);
@@ -46,7 +110,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   return (
     <div className={preview === "large" ? "dcm-preview" : ""}>
-      <div ref={containerRef} id="container">
+      <div ref={dicomImageRef} id="container">
         <div id="dicomImageWebGL"></div>
       </div>
     </div>

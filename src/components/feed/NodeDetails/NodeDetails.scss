@@ -17,17 +17,13 @@
   }
 }
 
-.pf-c-drawer__panel-main {
-  background: #d2d2d2;
-}
-
 .node-block {
   background: $node-block-background;
   padding-top: 2rem;
   width: 100%;
   height: 100%;
   color: white;
-  font-size: 1rem;
+  font-size: 0.5rem;
   button {
     font-size: inherit;
   }
@@ -82,11 +78,9 @@
 
     &__grid {
       margin-bottom: 0.5em;
-      .value {
-        margin-left: 0.5em;
-        svg {
-          margin-right: 0.4em;
-        }
+
+      button {
+        width: 100%;
       }
     }
 
@@ -106,27 +100,6 @@
       }
     }
 
-    &__actions {
-      margin-top: 1em;
-      display: flex;
-      flex-direction: column;
-
-      button {
-        margin-top: 1em;
-      }
-
-      &_second {
-        margin-top: 1rem;
-      }
-
-      &_first,
-      &_second {
-        button {
-          margin-right: 1rem !important;
-        }
-      }
-    }
-
     .pf-c-form-control {
       font-family: monospace;
       font-weight: 700;
@@ -138,9 +111,9 @@
 
     &__status {
       .ant-steps-item-icon {
-        width: 28px !important;
-        height: 28px !important;
-        font-size: 12px !important;
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 10px !important;
         border-radius: 30px !important;
         line-height: 20px !important;
         cursor: pointer;

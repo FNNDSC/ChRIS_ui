@@ -49,6 +49,7 @@ export interface IFeedState {
     status: boolean;
     value: string;
   };
+  showToolbar: boolean;
 }
 
 export const FeedActionTypes = keyMirror({
@@ -86,4 +87,5 @@ export const FeedActionTypes = keyMirror({
   TOGGLE_SELECT_ALL: null,
   TRANSLATE_PROP: null,
   SET_SEARCH_FILTER: null,
+  SHOW_TOOLBAR: null,
 });

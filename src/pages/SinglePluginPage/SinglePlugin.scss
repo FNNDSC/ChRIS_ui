@@ -1,6 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Overpass&display=swap");
-$color_1: #0088ce;
-$color_2: #bbb;
 
 .pf-c-form-control[readonly] {
   font-size: 1em;
@@ -34,14 +32,11 @@ $color_2: #bbb;
   padding: 0;
 }
 .plugin-name {
-  color: $color_1;
   margin-bottom: 0 !important;
   &:focus {
-    color: $color_1;
     text-decoration: none;
   }
   &:hover {
-    color: $color_1;
     text-decoration: none;
   }
 }
@@ -49,7 +44,6 @@ $color_2: #bbb;
   margin-top: 0 !important;
 }
 .plugin-stats {
-  color: $color_2;
   text-align: right;
 }
 @media screen and (max-width: 590px) {

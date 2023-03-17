@@ -3,9 +3,21 @@
 
 /* General */
 
+.svg {
+  color: white;
+}
+
 .create-analysis-button {
   float: right;
   border-radius: 4px !important;
+}
+
+.pf-c-table.pf-m-sticky-header
+  > thead:not(.pf-m-nested-column-header)
+  > tr
+  > * {
+  color: white;
+  background: inherit;
 }
 
 .pf-c-wizard {
@@ -86,8 +98,8 @@
   }
 }
 /* drawer style */
-.drawer_panelContent{
-  height:100vh;
+.drawer_panelContent {
+  height: 100vh;
 }
 
 /* Data Configuration */
@@ -128,7 +140,6 @@
     font-weight: bold;
     svg {
       font-size: 1.5em;
-      color: var(--pf-global--warning-color--100);
       margin-right: 10px;
       margin-top: 15px;
       vertical-align: -0.225em;
@@ -154,12 +165,6 @@
     font-size: 18px;
     color: #737679;
   }
-}
-
-.ant-tree {
-  font-size: 16px;
-  color: black;
-  font-family: var(--pf-global--FontFamily--redhatfont--sans-serif) !important;
 }
 
 .fsplugin {
@@ -252,6 +257,14 @@ Styles for pipelines
 // Styles for configuration Page under Pipelines
 .pf-c-expandable-section {
   margin-top: 1rem;
+
+  &__toggle {
+    color: white;
+
+    &-icon {
+      color: inherit;
+    }
+  }
 }
 
 .pf-c-input-group input:not([type="checkbox"]):not([type="radio"]),

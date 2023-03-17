@@ -9,6 +9,7 @@ import {
 } from "@fnndsc/chrisapi";
 import Wrapper from "../Layout/PageWrapper";
 import { Spinner } from "@patternfly/react-core";
+import DarkTheme from "../../components/common/darkTheme";
 import { marked } from "marked";
 import { sanitize } from "dompurify";
 import "./SinglePlugin.scss";
@@ -151,23 +152,19 @@ const SinglePlugin = () => {
           <Spinner isSVG diameter="80px" />
         </div>
       ) : (
-        <article>
-          <div className="plugin">
-            <section className="plugin-head">
-              <HeaderSinglePlugin currentPluginMeta={currentPluginMeta} />
-            </section>
-            <section>
-              <HeaderCardPlugin
-                setPluginParameters={setPluginParameters}
-                plugins={plugins}
-                currentPluginMeta={currentPluginMeta}
-                readme={readme}
-                parameterPayload={parameterPayload}
-                removeEmail={removeEmail}
-              />
-            </section>
-          </div>
-        </article>
+        <>
+          <DarkTheme>
+            <HeaderSinglePlugin currentPluginMeta={currentPluginMeta} />
+            <HeaderCardPlugin
+              setPluginParameters={setPluginParameters}
+              plugins={plugins}
+              currentPluginMeta={currentPluginMeta}
+              readme={readme}
+              parameterPayload={parameterPayload}
+              removeEmail={removeEmail}
+            />
+          </DarkTheme>
+        </>
       )}
     </Wrapper>
   );

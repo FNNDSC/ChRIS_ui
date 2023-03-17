@@ -150,9 +150,6 @@ function FolderCard({
           handlePath(e);
         }
       }}
-      style={{
-        background: `${background ? "#e7f1fa" : "white"}`,
-      }}
     >
       <CardHeader>
         {feedDetails.id && (
@@ -228,9 +225,6 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
   return (
     <>
       <Card
-        style={{
-          background: `${background ? "#e7f1fa" : "white"}`,
-        }}
         onClick={(e) => {
           const path = file.data.fname;
           const folder = {

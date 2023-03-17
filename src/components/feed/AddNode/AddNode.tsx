@@ -114,6 +114,15 @@ const AddNode: React.FC<AddNodeProps> = ({
     dispatch(getNodeOperations("childNode"));
   }, [dispatch, nodeDispatch]);
 
+  const errorCallback = (error: any) => {
+    nodeDispatch({
+      type: Types.SetError,
+      payload: {
+        error,
+      },
+    });
+  };
+
   const handleSave = async () => {
     if (!plugin || !selectedPlugin || !pluginInstances) {
       return;
@@ -125,6 +134,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       dropdownInput,
       requiredInput,
       plugin,
+      errorCallback,
       selectedPlugin
     );
 

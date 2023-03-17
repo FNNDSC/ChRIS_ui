@@ -27,6 +27,13 @@ import { destroyExplorer } from "../../../store/explorer/actions";
 import { resetActiveResources } from "../../../store/resources/actions";
 import { setIsNavOpen } from "../../../store/ui/actions";
 import { DestroyActiveResources } from "../../../store/resources/types";
+import { LoadingErrorAlert } from "../../../components/common/errorHandling";
+import {
+  DrawerActionButton,
+  handleClose,
+  handleMaximize,
+  handleMinimize,
+} from "../../../components/common/button";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -45,8 +52,6 @@ export const FeedView: React.FC = () => {
   const params = useParams();
   const dispatch = useDispatch();
   const { id } = params;
-  const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
-  const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
@@ -56,6 +61,7 @@ export const FeedView: React.FC = () => {
   );
   const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
+  const drawerState = useTypedSelector((state) => state.drawers);
 
   dataRef.current = {
     data,
@@ -65,8 +71,10 @@ export const FeedView: React.FC = () => {
   React.useEffect(() => {
     return () => {
       if (window.matchMedia("(max-width: 767px)").matches) {
+        /*
         setBottomPanelExpanded(false);
         setSidePanelExpanded(false);
+        */
       }
     };
   }, []);
@@ -116,16 +124,18 @@ export const FeedView: React.FC = () => {
     dispatch(addTSNodes(node));
   };
 
-  const onClick = (panel: string) => {
-    if (panel === "side_panel") {
-      setSidePanelExpanded(!isSidePanelExpanded);
-    } else if (panel === "bottom_panel") {
-      setBottomPanelExpanded(!isBottomPanelExpanded);
-    }
-  };
-
   const feedTree = (
-    <ErrorBoundary fallback={<div></div>}>
+    <ErrorBoundary
+      fallback={
+        <div>
+          <LoadingErrorAlert
+            error={{
+              message: "Error found in constructing a tree",
+            }}
+          />
+        </div>
+      }
+    >
       <GridItem
         className="feed-block"
         sm={12}
@@ -147,19 +157,11 @@ export const FeedView: React.FC = () => {
         >
           {!currentLayout ? (
             <ParentComponent
-              isSidePanelExpanded={isSidePanelExpanded}
-              isBottomPanelExpanded={isBottomPanelExpanded}
-              onExpand={onClick}
               onNodeClick={onNodeClick}
               onNodeClickTs={onNodeClickTS}
             />
           ) : (
-            <FeedGraph
-              onNodeClick={onNodeClick}
-              isSidePanelExpanded={isSidePanelExpanded}
-              isBottomPanelExpanded={isBottomPanelExpanded}
-              onExpand={onClick}
-            />
+            <FeedGraph onNodeClick={onNodeClick} />
           )}
         </React.Suspense>
       </GridItem>
@@ -187,7 +189,7 @@ export const FeedView: React.FC = () => {
             <SpinContainer title="Fetching Selected Plugin Instance's details" />
           }
         >
-          <NodeDetails expandDrawer={onClick} />
+          <NodeDetails />
         </React.Suspense>
       </GridItem>
     </ErrorBoundary>
@@ -197,10 +199,19 @@ export const FeedView: React.FC = () => {
     <React.Suspense
       fallback={<SpinContainer title="Fetching feed Resources" />}
     >
-      <ErrorBoundary fallback={<div></div>}>
+      <ErrorBoundary
+        fallback={
+          <div>
+            <LoadingErrorAlert
+              error={{
+                message: "There was an error while fetching the file",
+              }}
+            />
+          </div>
+        }
+      >
         <FeedOutputBrowser
           explore={true}
-          expandDrawer={onClick}
           handlePluginSelect={onNodeBrowserClick}
         />
       </ErrorBoundary>
@@ -217,36 +228,81 @@ export const FeedView: React.FC = () => {
         <FeedDetails />
       </PageSection>
 
-      <Drawer isExpanded={isBottomPanelExpanded} isInline position="bottom">
+      <Drawer
+        isExpanded={
+          drawerState.preview.open ||
+          drawerState.directory.open ||
+          drawerState.files.open
+        }
+        isInline
+        position="bottom"
+      >
         <DrawerContent
           panelContent={
-            <DrawerPanelContent defaultSize="46vh" isResizable>
-              <PageSection variant="default" className="section-three">
+            <DrawerPanelContent
+              defaultSize={
+                !drawerState.graph.open && !drawerState.node.open
+                  ? "100vh"
+                  : "46vh"
+              }
+              isResizable
+            >
+              <PageSection variant="darker" className="section-three">
                 {feedOutputBrowserPanel}
               </PageSection>
             </DrawerPanelContent>
           }
         >
-          <PageSection className="section-two">
+          <PageSection variant="darker" className="section-two">
             <Grid
               style={{
                 height: "100%",
               }}
             >
-              <Drawer isExpanded={isSidePanelExpanded} isInline>
+              <Drawer isExpanded={drawerState.node.open} isInline>
                 <DrawerContent
                   panelContent={
                     <DrawerPanelContent
                       className="drawer-panel"
-                      defaultSize="48.7%"
+                      defaultSize={
+                        drawerState.graph.open === false ? "100%" : "51%"
+                      }
                       minSize={"25%"}
                       isResizable
                     >
+                      <DrawerActionButton
+                        background="#001223"
+                        content="Node"
+                        handleClose={() => {
+                          handleClose("node", dispatch);
+                        }}
+                        handleMaximize={() => {
+                          handleMaximize("node", dispatch);
+                        }}
+                        handleMinimize={() => {
+                          handleMinimize("node", dispatch);
+                        }}
+                      />
                       {nodePanel}
                     </DrawerPanelContent>
                   }
                 >
-                  <DrawerContentBody> {feedTree}</DrawerContentBody>
+                  <DrawerContentBody>
+                    <DrawerActionButton
+                      background="#151515"
+                      content="Graph"
+                      handleClose={() => {
+                        handleClose("graph", dispatch);
+                      }}
+                      handleMaximize={() => {
+                        handleMaximize("graph", dispatch);
+                      }}
+                      handleMinimize={() => {
+                        handleMinimize("graph", dispatch);
+                      }}
+                    />
+                    {drawerState.graph.open && feedTree}
+                  </DrawerContentBody>
                 </DrawerContent>
               </Drawer>
             </Grid>

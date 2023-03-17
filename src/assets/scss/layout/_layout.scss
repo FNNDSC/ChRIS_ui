@@ -23,7 +23,194 @@ article {
 // Page Header
 // ---------------------------------------------------------
 
+.ant-alert-info {
+  background: var(
+    --pf-global--BackgroundColor--dark-transparent-100
+  ) !important;
+}
+
+.pf-c-table,
+thead,
+tr {
+  border: solid 0.25px var(--pf-global--BackgroundColor--dark-400) !important;
+}
+
+label {
+  color: white !important;
+}
+
+.pf-c-button {
+  --pf-c-button--m-primary--Color: white !important;
+  --pf-c-button--m-primary--BackgroundColor: var(
+    --pf-global--palette--blue-500
+  ) !important;
+  --pf-c-button--m-primary--hover--Color: var(
+    --pf-global--primary-color--dark-400
+  );
+  --pf-c-button--m-primary--focus--Color: var(
+    --pf-global--primary-color--dark-400
+  );
+  --pf-c-button--m-primary--active--Color: var(
+    --pf-global--primary-color--dark-400
+  );
+}
+
+.pf-c-app-launcher__menu {
+  background-color: inherit !important;
+}
+
+.pf-c-button.pf-m-secondary,
+.pf-c-button.pf-m-plain,
+.pf-c-button.pf-m-link,
+.pf-c-button.pf-m-tertiary {
+  color: white !important;
+}
+
+.pf-c-button.pf-m-tertiary,
+.pf-c-button.pf-m-secondary {
+  border: 1px solid white;
+}
+
 .pf-c-page__header-brand-toggle {
   margin-right: 1rem !important;
   top: -0.5 !important;
+}
+
+.pf-c-input-group__text {
+  background-color: var(--pf-global--BackgroundColor--dark-400) !important;
+  color: white;
+}
+
+.pf-c-form-control {
+  color: white !important;
+  --pf-c-form-control--Color: white;
+  --pf-c-form-control--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-transparent-200
+  ) !important;
+  --pf-c-form-control--disabled--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-transparent-200
+  ) !important;
+}
+
+.pf-c-data-list {
+  --pf-c-data-list__item--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-transparent-200
+  ) !important;
+  color: white !important;
+}
+
+.pf-c-input-group {
+  --pf-c-input-group--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-transparent-200
+  ) !important;
+  color: white !important;
+}
+
+.pf-c-code-block {
+  --pf-c-code-block--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-100
+  );
+  border: 1px solid white !important;
+}
+
+.pf-c-modal-box {
+  --pf-c-modal-box--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+}
+
+.pf-c-drawer {
+  --pf-c-drawer__panel--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-200
+  ) !important;
+  --pf-c-drawer__content--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-200
+  ) !important;
+}
+
+.pf-c-wizard {
+  color: white;
+
+  &__nav,
+  &__toggle {
+    display: none;
+  }
+
+  &__footer {
+    background-color: var(--pf-global--BackgroundColor--dark-400);
+  }
+
+  &__outer-wrap {
+    padding-left: 0;
+  }
+
+  --pf-c-wizard__outer-wrap--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+  --pf-c-wizard__nav--BackgroundColor: var(
+    --pf-global--BackgroundColor--dark-400
+  );
+  --pf-c-wizard__nav-link--Color: white;
+  --pf-c-wizard__nav-link--TextDecoration: var(
+    --pf-global--link--TextDecoration
+  );
+  --pf-c-wizard__nav-link--hover--Color: white;
+  --pf-c-wizard__nav-link--focus--Color: white;
+  --pf-c-wizard__nav-link--m-current--Color: white;
+
+  .pf-c-card {
+    --pf-c-card--BackgroundColor: var(
+      --pf-global--BackgroundColor--dark-200
+    ) !important;
+  }
+
+  .pf-c-form-control {
+    color: white;
+    --pf-c-form-control--BackgroundColor: var(
+      --pf-global--BackgroundColor--dark-200
+    ) !important;
+    --pf-c-form-control--placeholder--Color: var(
+      --pf-global--Color--400
+    ) !important;
+  }
+
+  .ant-tree {
+    color: inherit !important;
+    background-color: inherit !important;
+    font-size: 16px;
+    font-family: var(
+      --pf-global--FontFamily--redhatfont--sans-serif
+    ) !important;
+  }
+
+  .pf-c-radio > label,
+  .ant-steps-item-process
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title,
+  .ant-steps-item-wait
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title,
+  .ant-steps-item-finish
+    > .ant-steps-item-container
+    > .ant-steps-item-content
+    > .ant-steps-item-title {
+    color: white;
+  }
+
+  .ant-tree.ant-tree-directory .ant-tree-treenode::before {
+    background-color: inherit;
+    position: relative;
+  }
+
+  .pf-c-chart {
+    svg {
+      text {
+        tspan {
+          fill: white !important;
+        }
+      }
+    }
+  }
 }
