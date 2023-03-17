@@ -3,7 +3,7 @@ import { Button, Modal, ModalVariant, Tooltip } from "@patternfly/react-core";
 import { FeedFile } from "@fnndsc/chrisapi";
 import ReactJson from "react-json-view";
 import { SpinContainer } from "../../../../../common/loading/LoadingContent";
-import { IconType } from "react-icons/lib";
+
 
 export const GalleryButtonContainer = ({
   handleClick,
