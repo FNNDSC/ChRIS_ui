@@ -124,7 +124,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
       },
     });
   };
-  const getFeedError = (error: string) => {
+  const getFeedError = (error: any) => {
     dispatch({
       type: Types.SetError,
       payload: {
@@ -261,7 +261,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
               </Button>
               <Button
                 style={{ margin: "0.5em", padding: "0.5em 2em" }}
-                variant="secondary"
+                variant="primary"
                 isDisabled={activeStep.id === 1}
                 onClick={onBack}
               >
@@ -285,7 +285,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
             type: Types.ToggleWizard,
           });
           nodeDispatch({
-            type: Types.ResetState ,
+            type: Types.ResetState,
           });
         }}
       >
@@ -310,7 +310,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
           }}
           title="Create a New Analysis"
           description="This wizard allows you to create a new Analysis and choose some data to process"
-          className={`analysis-create-wizard ${getStepName()}-wrap`}
+          className={`analysis-create-wizard ${getStepName()}-wrap 
+          `}
           steps={steps}
           startAtStep={step}
           footer={CustomFooter}

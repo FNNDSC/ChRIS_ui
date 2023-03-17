@@ -4,7 +4,7 @@ import { PipelineData } from "../types/pipeline";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-import { fetchResource } from "../../../../api/common";
+import { catchError, fetchResource } from "../../../../api/common";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -87,7 +87,8 @@ export const createFeedInstanceWithDircopy = async (
         setUploadFileCallback
       );
     } catch (error) {
-      errorCallback(error as string);
+      const errObj = catchError(error);
+      errorCallback(errObj);
     }
   }
 
@@ -153,7 +154,8 @@ export const createFeedInstanceWithDircopy = async (
       }
     }
   } catch (error) {
-    errorCallback(error);
+    const errorObj = catchError(error);
+    errorCallback(errorObj);
   }
 
   return feed;
@@ -163,33 +165,30 @@ export const createFeedInstanceWithFS = async (
   dropdownInput: InputType,
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
-  errorCallback: (error: string) => void
+  errorCallback: (error: any) => void
 ) => {
   let feed;
   if (selectedPlugin) {
-    try {
-      if (selectedPlugin instanceof Plugin) {
-        const data = await getRequiredObject(
-          dropdownInput,
-          requiredInput,
-          selectedPlugin
+    if (selectedPlugin instanceof Plugin) {
+      const data = await getRequiredObject(
+        dropdownInput,
+        requiredInput,
+        selectedPlugin,
+        errorCallback
+      );
+      const pluginId = selectedPlugin.data.id;
+      const client = ChrisAPIClient.getClient();
+      try {
+        const fsPluginInstance = await client.createPluginInstance(
+          pluginId,
+          //@ts-ignore
+          data
         );
-        const pluginId = selectedPlugin.data.id;
-
-        const client = ChrisAPIClient.getClient();
-        try {
-          const fsPluginInstance = await client.createPluginInstance(
-            pluginId,
-            //@ts-ignore
-            data
-          );
-          feed = await fsPluginInstance.getFeed();
-        } catch (error) {
-          errorCallback(error as string);
-        }
+        feed = await fsPluginInstance.getFeed();
+      } catch (error) {
+        const errorObj = catchError(error);
+        errorCallback(errorObj);
       }
-    } catch (error) {
-      errorCallback(error as string);
     }
   }
   return feed;
@@ -234,6 +233,7 @@ export const getRequiredObject = async (
   dropdownInput: InputType,
   requiredInput: InputType,
   plugin: Plugin,
+  errorCallback: (error: any) => void,
   selected?: PluginInstance
 ) => {
   let dropdownUnpacked;
@@ -258,47 +258,52 @@ export const getRequiredObject = async (
     ...dropdownUnpacked,
     ...requiredUnpacked,
   };
-  const paginate = { limit: 30, offset: 0 };
-  const fn = plugin.getPluginParameters;
-  const boundFn = fn.bind(plugin);
-  const { resource: params } = await fetchResource<PluginParameter>(
-    paginate,
-    boundFn
-  );
+  try {
+    const paginate = { limit: 30, offset: 0 };
+    const fn = plugin.getPluginParameters;
+    const boundFn = fn.bind(plugin);
+    const { resource: params } = await fetchResource<PluginParameter>(
+      paginate,
+      boundFn
+    );
 
-  for (let i = 0; i < params.length; i++) {
-    const flag = params[i].data.flag;
-    const defaultValue = params[i].data.default;
-    if (Object.keys(nodeParameter).includes(flag)) {
-      let value: string | boolean = nodeParameter[flag].value;
-      const type = nodeParameter[flag].type;
+    for (let i = 0; i < params.length; i++) {
+      const flag = params[i].data.flag;
+      const defaultValue = params[i].data.default;
+      if (Object.keys(nodeParameter).includes(flag)) {
+        let value: string | boolean = nodeParameter[flag].value;
+        const type = nodeParameter[flag].type;
 
-      if (value === "" && type === "boolean") {
-        if (defaultValue === false) {
-          value = true;
-        } else {
-          value = false;
+        if (value === "" && type === "boolean") {
+          if (defaultValue === false) {
+            value = true;
+          } else {
+            value = false;
+          }
+        } else if (value === "" || value === "undefined") {
+          value = defaultValue;
         }
-      } else if (value === "" || value === "undefined") {
-        value = defaultValue;
+        mappedParameter[params[i].data.name] = value;
       }
-      mappedParameter[params[i].data.name] = value;
     }
-  }
 
-  let parameterInput;
-  if (selected) {
-    parameterInput = {
-      ...mappedParameter,
-      previous_id: selected.data.id as number,
-    };
-  } else {
-    parameterInput = {
-      ...mappedParameter,
-    };
-  }
+    let parameterInput;
+    if (selected) {
+      parameterInput = {
+        ...mappedParameter,
+        previous_id: selected.data.id as number,
+      };
+    } else {
+      parameterInput = {
+        ...mappedParameter,
+      };
+    }
 
-  return parameterInput;
+    return parameterInput;
+  } catch (error) {
+    const errorObj = catchError(error);
+    errorCallback(errorObj);
+  }
 };
 
 function generatePathForLocalFile(data: CreateFeedData) {

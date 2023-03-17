@@ -150,7 +150,7 @@ const FeedListView: React.FC = () => {
 
   return (
     <React.Fragment>
-      <PageSection className="feed-header" variant="light">
+      <PageSection className="feed-header" variant="darker">
         <InfoIcon
           title={`New and Existing Analyses (${
             totalFeedsCount > 0 ? totalFeedsCount : 0
@@ -173,7 +173,7 @@ const FeedListView: React.FC = () => {
         </CreateFeedProvider>
       </PageSection>
 
-      <PageSection className="feed-list">
+      <PageSection variant="darker" className="feed-list">
         <div className="feed-list__split">
           <Checkbox
             id="test"
@@ -199,7 +199,7 @@ const FeedListView: React.FC = () => {
         <div className="feed-list__split">
           <DataTableToolbar
             onSearch={handleFilterChange}
-            label="filter by name"
+            label="Filter by name"
           />
           {bulkSelect.length > 0 && <IconContainer />}
         </div>
@@ -235,7 +235,7 @@ const FeedListView: React.FC = () => {
             }
 
             {loading ? (
-              generateTableLoading("white")
+              generateTableLoading("")
             ) : (
               <Tbody>
                 {data &&
@@ -284,6 +284,7 @@ const TableRow = ({
 
   const fontFamily = {
     fontFamily: "monospace",
+    color: "white",
   };
 
   const size =
@@ -330,7 +331,7 @@ const TableRow = ({
   const creator = <p>{creator_username}</p>;
 
   let threshold = Infinity;
-  let color = "#0000ff";
+  let color = "white";
 
   // If error in a feed => reflect in progress
   if (feedError) {
@@ -397,9 +398,9 @@ const TableRow = ({
     />
   );
   const backgroundRow =
-    progress && progress < 100 && !feedError ? "#F9E0A2" : "#FFFFFF";
+    progress && progress < 100 && !feedError ? "#c58c00" : "inherit";
   const selectedBgRow = isSelected(bulkSelect, feed)
-    ? "rgb(231, 241, 250)"
+    ? "#001223"
     : backgroundRow;
   return (
     <Tr

@@ -13,6 +13,7 @@ import { userReducer } from "../user/reducer";
 import { pluginReducer } from "../plugin/reducer";
 import { explorerReducer } from "../explorer/reducer";
 import { tsPluginsReducer } from "../tsplugins/reducer";
+import { drawerReducer } from "../drawer/reducer";
 
 const rootReducer = combineReducers({
   ui: uiReducer,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   instance: pluginInstanceReducer,
   resource: resourceReducer,
   tsPlugins: tsPluginsReducer,
+  drawers: drawerReducer,
 });
 
 export default rootReducer;

@@ -242,7 +242,10 @@ const Pipelines = ({
         onPerPageSelect={onPerPageSelect}
       />
 
-      <DataList aria-label="pipeline list">
+      <DataList
+        style={{ backgroundColor: "inherit" }}
+        aria-label="pipeline list"
+      >
         {Object.keys(fetchState.error).length > 0 && (
           <ReactJson src={fetchState.error} />
         )}
@@ -294,7 +297,7 @@ const Pipelines = ({
                   >
                     {!justDisplay && (
                       <Button
-                        variant="tertiary"
+                        variant="primary"
                         key="select-action"
                         onClick={() => handleOnButtonClick(pipeline)}
                       >

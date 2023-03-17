@@ -12,6 +12,7 @@ import { unpackParametersIntoString } from "../AddNode/lib/utils";
 import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 import { AddNodeContext } from "../AddNode/context";
+import { LoadingErrorAlert } from "../../common/errorHandling";
 
 const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state } = useContext(CreateFeedContext);
@@ -87,7 +88,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
           <>
             <div
               style={{
-                height: "400px",
+                height: "300px",
                 zIndex: "99999",
                 overflowY: "scroll",
               }}
@@ -170,6 +171,14 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         <GridItem sm={8} md={10}>
           <span className="review__value">
             {creatingFeedStatus && !feedError ? creatingFeedStatus : "N/A"}
+          </span>
+        </GridItem>
+        <GridItem sm={4} md={2}>
+          <span className="review__title">Feed Error Status</span>
+        </GridItem>
+        <GridItem sm={8} md={10}>
+          <span className="review__value">
+            {feedError ? <LoadingErrorAlert error={feedError} /> : "N/A"}
           </span>
         </GridItem>
       </Grid>

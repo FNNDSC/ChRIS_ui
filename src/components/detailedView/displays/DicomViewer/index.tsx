@@ -1,19 +1,17 @@
 import React, { useState } from "react";
 import { FeedFile } from "@fnndsc/chrisapi";
-
 import * as dicomParser from "dicom-parser";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneTools from "cornerstone-tools";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import { useTypedSelector } from "../../../../store/hooks";
-import { isDicom, isNifti, dumpDataSet, initDicom, removeTool } from "./utils";
+import { isDicom, isNifti, dumpDataSet, removeTool } from "./utils";
 import { SpinContainer } from "../../../common/loading/LoadingContent";
 import { getFileExtension } from "../../../../api/models/file-explorer.model";
 import GalleryModel from "../../../../api/models/gallery.model";
 import { GalleryButtonContainer, TagInfoModal } from "./utils/helpers";
 
-const { ImageId } = initDicom();
 const { Image } = cornerstone;
 
 type ImageType = typeof Image;
@@ -52,6 +50,7 @@ const DicomViewerContainer = (props: {
   };
   handleTagInfoState: () => void;
 }) => {
+  /*
   const { selectedFolder, selectedFile } = useTypedSelector(
     (state) => state.explorer
   );
@@ -563,6 +562,9 @@ const DicomViewerContainer = (props: {
       />
     </>
   );
+  */
+
+  return <div>DicomViewer Container</div>;
 };
 
 export default DicomViewerContainer;
