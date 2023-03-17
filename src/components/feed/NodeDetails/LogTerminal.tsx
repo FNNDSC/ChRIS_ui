@@ -1,32 +1,37 @@
 import React from "react";
-import { Button } from "@patternfly/react-core";
 import { LazyLog } from "react-lazylog";
-import { AiOutlineExpandAlt } from "react-icons/ai";
-import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
+import { MdClose } from "react-icons/md";
+import { ButtonWithTooltip } from "../../common/button";
+import { useDispatch } from "react-redux";
+import { getNodeOperations } from "../../../store/plugin/actions";
 
 type LogTerminalProps = {
   text: string;
 };
 
 const LogTerminal = ({ text }: LogTerminalProps) => {
-  const { handleTerminalViewerOpen } = useFeedBrowser();
+  const dispatch = useDispatch();
   return (
     <>
       <div
         style={{
-          height: "40vh",
+          height: "100%",
         }}
       >
-        <Button
+        <ButtonWithTooltip
+          content={<span>Close the Terminal</span>}
+          position="bottom"
           style={{
             position: "absolute",
             top: "0",
             right: "0",
           }}
-          onClick={handleTerminalViewerOpen}
+          onClick={() => {
+            dispatch(getNodeOperations("terminal"));
+          }}
           variant="link"
           icon={
-            <AiOutlineExpandAlt
+            <MdClose
               style={{
                 color: "white",
                 height: "18px",

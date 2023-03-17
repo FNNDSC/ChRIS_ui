@@ -9,7 +9,7 @@ import { ApplicationState } from "../../../store/root/applicationState";
 import TreeModel from "../../../api/models/tree.model";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { ErrorBoundary } from "react-error-boundary";
-import { Text, Button, Switch } from "@patternfly/react-core";
+import { Text, Switch } from "@patternfly/react-core";
 import useSize from "./useSize";
 import { setFeedLayout } from "../../../store/feed/actions";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
@@ -20,22 +20,12 @@ interface IFeedProps {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
   onNodeClick: (node: PluginInstance) => void;
-  isSidePanelExpanded: boolean;
-  isBottomPanelExpanded: boolean;
-  onExpand: (panel: string) => void;
 }
 
 const FeedGraph = (props: IFeedProps) => {
   const dispatch = useDispatch();
   const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
-  const {
-    pluginInstances,
-    selectedPlugin,
-    onNodeClick,
-    isSidePanelExpanded,
-    isBottomPanelExpanded,
-    onExpand,
-  } = props;
+  const { pluginInstances, selectedPlugin, onNodeClick } = props;
   const { data: instances } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef<ForceGraphMethods | undefined>();
@@ -90,15 +80,6 @@ const FeedGraph = (props: IFeedProps) => {
             </Text>
           }
         >
-          {!isSidePanelExpanded && (
-            <div className="feed-tree__container--panelToggle node-graph-panel">
-              <div className="feed-tree__orientation">
-                <Button type="button" onClick={() => onExpand("side_panel")}>
-                  Toggle Node Panel
-                </Button>
-              </div>
-            </div>
-          )}
           <div className="feed-tree__container--labels feed-graph__container--labels">
             <div className="feed-tree__control feed-tree__individual-scale">
               <Switch
@@ -164,15 +145,6 @@ const FeedGraph = (props: IFeedProps) => {
             }}
             linkWidth={2}
           />
-          {!isBottomPanelExpanded && (
-            <div className="feed-tree__container--panelToggle graph">
-              <div className="feed-tree__orientation">
-                <Button type="button" onClick={() => onExpand("bottom_panel")}>
-                  Feed Browser
-                </Button>
-              </div>
-            </div>
-          )}
         </ErrorBoundary>
       ) : (
         <Text>Fetching the Graph....</Text>

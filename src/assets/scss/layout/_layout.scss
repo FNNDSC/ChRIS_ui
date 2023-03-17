@@ -23,16 +23,24 @@ article {
 // Page Header
 // ---------------------------------------------------------
 
+.ant-alert-info {
+  background: var(
+    --pf-global--BackgroundColor--dark-transparent-100
+  ) !important;
+}
+
 .pf-c-table,
 thead,
 tr {
   border: solid 0.25px var(--pf-global--BackgroundColor--dark-400) !important;
 }
 
+label {
+  color: white !important;
+}
+
 .pf-c-button {
-  --pf-c-button--m-primary--Color: var(
-    --pf-global--primary-color--dark-00
-  ) !important;
+  --pf-c-button--m-primary--Color: white !important;
   --pf-c-button--m-primary--BackgroundColor: var(
     --pf-global--palette--blue-500
   ) !important;
@@ -45,6 +53,18 @@ tr {
   --pf-c-button--m-primary--active--Color: var(
     --pf-global--primary-color--dark-400
   );
+}
+
+.pf-c-button.pf-m-secondary,
+.pf-c-button.pf-m-plain,
+.pf-c-button.pf-m-link,
+.pf-c-button.pf-m-tertiary {
+  color: white !important;
+}
+
+.pf-c-button.pf-m-tertiary,
+.pf-c-button.pf-m-secondary {
+  border: 1px solid white;
 }
 
 .pf-c-page__header-brand-toggle {
@@ -107,7 +127,8 @@ tr {
 .pf-c-wizard {
   color: white;
 
-  &__nav {
+  &__nav,
+  &__toggle {
     display: none;
   }
 

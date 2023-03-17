@@ -1,4 +1,4 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import Moment from "react-moment";
 import {
   Button,
@@ -6,18 +6,19 @@ import {
   ToolbarItem,
   ToolbarContent,
 } from "@patternfly/react-core";
-import { Popover } from "antd";
+import { Popover, Badge } from "antd";
 import { FaEdit } from "react-icons/fa";
 import { useTypedSelector } from "../../../store/hooks";
 import ShareFeed from "../ShareFeed/ShareFeed";
 import FeedNote from "./FeedNote";
-import { ButtonWithTooltip } from "../../common/button";
+import { ButtonWithTooltip, handleOpen } from "../../common/button";
 import { LoadingContent } from "../../common/loading/LoadingContent";
 import { LoadingErrorAlert } from "../../common/errorHandling";
 import { MdLibraryAdd } from "react-icons/md";
-import "./FeedDetails.scss";
 import { useDispatch } from "react-redux";
 import { setShowToolbar } from "../../../store/feed/actions";
+import "./FeedDetails.scss";
+import { IDrawerState } from "../../../store/drawer/types";
 
 const FeedDetails = () => {
   const dispatch = useDispatch();
@@ -51,101 +52,137 @@ const FeedDetails = () => {
     });
   };
 
-  const spacer: {
-    xl?: "spacerLg";
-    lg?: "spacerLg";
-    md?: "spacerMd";
-    sm?: "spacerSm";
-  } = {
-    xl: "spacerLg",
-    lg: "spacerLg",
-    md: "spacerMd",
-    sm: "spacerSm",
-  };
-
   const items = (
     <React.Fragment>
-      <ToolbarItem spacer={spacer}>
-        <span>{feed && feed.data.name}</span>
-      </ToolbarItem>
-      <ToolbarItem spacer={spacer}>
-        <span>Feed ID: {feed && feed.data.id}</span>
-      </ToolbarItem>
-      <ToolbarItem spacer={spacer}>
-        <span>Creator: {feed && feed.data.creator_username}</span>
-      </ToolbarItem>
-      <ToolbarItem spacer={spacer}>
-        <span>
-          Created:{" "}
-          {
-            <Moment format="DD MMM YYYY @ HH:mm">
-              {feed && feed.data.creation_date}
-            </Moment>
-          }
-        </span>
-      </ToolbarItem>
+      <ToolbarContainer
+        childComponent={<span>{feed && feed.data.name}</span>}
+      />
+      <ToolbarContainer
+        childComponent={<span>Feed ID: {feed && feed.data.id}</span>}
+      />
+      <ToolbarContainer
+        childComponent={
+          <span>Creator: {feed && feed.data.creator_username}</span>
+        }
+      />
+
+      <ToolbarContainer
+        childComponent={
+          <span>
+            Created:{" "}
+            {
+              <Moment format="DD MMM YYYY @ HH:mm">
+                {feed && feed.data.creation_date}
+              </Moment>
+            }
+          </span>
+        }
+      />
+
       <div
         style={{
           display: "flex",
           marginLeft: "0 auto",
         }}
       >
-        <ToolbarItem spacer={spacer}>
-          <Popover
-            content={<FeedNote handleEditNote={handleEditNote} note={note} />}
-            placement="bottom"
-            visible={isNoteVisible}
-            trigger="click"
-            onVisibleChange={(visible: boolean) => {
-              setIsNoteVisible(visible);
-            }}
-          >
-            <Button variant="tertiary" icon={<FaEdit />}>
-              View Feed Note
-            </Button>
-          </Popover>
-        </ToolbarItem>
-        <ToolbarItem spacer={spacer}>
-          <ShareFeed feed={feed} />
-        </ToolbarItem>
-      </div>
+        <ToolbarContainer
+          childComponent={
+            <Popover
+              content={<FeedNote handleEditNote={handleEditNote} note={note} />}
+              placement="bottom"
+              visible={isNoteVisible}
+              trigger="click"
+              onVisibleChange={(visible: boolean) => {
+                setIsNoteVisible(visible);
+              }}
+            >
+              <Button variant="tertiary" icon={<FaEdit />}>
+                View Feed Note
+              </Button>
+            </Popover>
+          }
+        />
+        <ToolbarContainer childComponent={<ShareFeed feed={feed} />} />
 
-      <ToolbarItem spacer={spacer}>
-        <Button
-          variant="tertiary"
-          onClick={() => {
-            dispatch(setShowToolbar());
-          }}
-        >
-          Close Toolbar
-        </Button>
-      </ToolbarItem>
+        {drawerState.files.open === false && (
+          <DrawerActionsToolbar
+            action="files"
+            title="Files"
+            dispatch={dispatch}
+          />
+        )}
+        {drawerState.graph.open === false && (
+          <DrawerActionsToolbar
+            action="graph"
+            title="Graph"
+            dispatch={dispatch}
+          />
+        )}
+        {drawerState.node.open === false && (
+          <DrawerActionsToolbar
+            action="node"
+            title="Node"
+            dispatch={dispatch}
+          />
+        )}
+        {drawerState.directory.open === false && (
+          <DrawerActionsToolbar
+            action="directory"
+            title="Directory"
+            dispatch={dispatch}
+          />
+        )}
+
+        {drawerState.preview.open === false && (
+          <DrawerActionsToolbar
+            action="preview"
+            title="Preview"
+            dispatch={dispatch}
+          />
+        )}
+        <ToolbarContainer
+          childComponent={
+            <Button
+              variant="tertiary"
+              onClick={() => {
+                dispatch(setShowToolbar());
+              }}
+            >
+              Close Toolbar
+            </Button>
+          }
+        />
+      </div>
     </React.Fragment>
   );
 
   if (feed) {
+    const count = getCurrentCount(drawerState);
     return !showToolbar ? (
       <ButtonWithTooltip
         onClick={() => {
           dispatch(setShowToolbar());
         }}
         content={<span>Click to open the toolbar</span>}
-        position="top"
+        position="bottom"
         style={{
           position: "absolute",
+          top: "0.5rem",
           zIndex: "999",
           left: "0",
           width: "fit-content",
         }}
         variant="link"
         icon={
-          <MdLibraryAdd
-            style={{
-              width: "24px",
-              height: "24px",
-              color: "white",
-            }}
-          />
+          <Badge count={count}>
+            <MdLibraryAdd
+              style={{
+                width: "24px",
+                height: "24px",
+                color: "white",
+              }}
+            />
+          </Badge>
         }
       />
     ) : (
@@ -157,9 +194,7 @@ const FeedDetails = () => {
     return (
       <ToolbarComponent>
         <ToolbarContent>
-          <ToolbarItem>
-            <LoadingContent />
-          </ToolbarItem>
+          <ToolbarContainer childComponent={<LoadingContent />} />
         </ToolbarContent>
       </ToolbarComponent>
     );
@@ -179,5 +214,51 @@ export const ToolbarComponent = ({ children }: { children: ReactElement }) => {
     <Toolbar isFullHeight className="feed-details">
       {children}
     </Toolbar>
+  );
+};
+
+const ToolbarContainer = ({
+  childComponent,
+}: {
+  childComponent: ReactNode;
+}) => {
+  const spacer: {
+    xl?: "spacerLg";
+    lg?: "spacerLg";
+    md?: "spacerMd";
+    sm?: "spacerSm";
+  } = {
+    xl: "spacerLg",
+    lg: "spacerLg",
+    md: "spacerMd",
+    sm: "spacerSm",
+  };
+  return <ToolbarItem spacer={spacer}>{childComponent}</ToolbarItem>;
+};
+
+const getCurrentCount = (drawerState: IDrawerState) => {
+  const count = Object.values(drawerState).reduce((count: any, value: any) => {
+    return value.open === false ? count + 1 : count;
+  }, 0);
+  return count;
+};
+
+const DrawerActionsToolbar = ({
+  action,
+  title,
+  dispatch,
+}: {
+  action: string;
+  title: string;
+  dispatch: any;
+}) => {
+  return (
+    <ToolbarContainer
+      childComponent={
+        <Button variant="tertiary" onClick={() => handleOpen(action, dispatch)}>
+          Open {title}
+        </Button>
+      }
+    />
   );
 };

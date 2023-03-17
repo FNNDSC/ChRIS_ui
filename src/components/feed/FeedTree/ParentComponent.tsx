@@ -12,9 +12,6 @@ import "./FeedTree.scss";
 interface ParentComponentProps {
   onNodeClickTs: (node: PluginInstance) => void;
   onNodeClick: (node: any) => void;
-  isSidePanelExpanded: boolean;
-  isBottomPanelExpanded: boolean;
-  onExpand: (panel: string) => void;
 }
 
 export type TSID = {
@@ -22,13 +19,7 @@ export type TSID = {
 };
 
 const ParentComponent = (props: ParentComponentProps) => {
-  const {
-    onNodeClick,
-    onNodeClickTs,
-    isSidePanelExpanded,
-    isBottomPanelExpanded,
-    onExpand,
-  } = props;
+  const { onNodeClick, onNodeClickTs } = props;
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
@@ -69,9 +60,6 @@ const ParentComponent = (props: ParentComponentProps) => {
             }
       }
       changeOrientation={changeOrientation}
-      isSidePanelExpanded={isSidePanelExpanded}
-      isBottomPanelExpanded={isBottomPanelExpanded}
-      onExpand={onExpand}
     />
   ) : loading ? (
     <SpinContainer background="#151515" title="Constructing the Feed Tree" />
@@ -82,15 +70,4 @@ const ParentComponent = (props: ParentComponentProps) => {
   ) : null;
 };
 
-export default React.memo(
-  ParentComponent,
-  (prevProps: ParentComponentProps, nextProps: ParentComponentProps) => {
-    if (
-      prevProps.isBottomPanelExpanded !== nextProps.isBottomPanelExpanded ||
-      prevProps.isSidePanelExpanded !== nextProps.isSidePanelExpanded
-    ) {
-      return false;
-    }
-    return true;
-  }
-);
+export default ParentComponent;

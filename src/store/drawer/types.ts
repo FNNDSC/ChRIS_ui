@@ -4,7 +4,6 @@ export interface IDrawerState {
   [key: string]: {
     open: boolean;
     maximized: boolean;
-    minimized: boolean;
   };
 }
 

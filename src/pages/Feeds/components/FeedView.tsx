@@ -52,8 +52,6 @@ export const FeedView: React.FC = () => {
   const params = useParams();
   const dispatch = useDispatch();
   const { id } = params;
-  const [isSidePanelExpanded, setSidePanelExpanded] = React.useState(true);
-  const [isBottomPanelExpanded, setBottomPanelExpanded] = React.useState(true);
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
@@ -63,10 +61,7 @@ export const FeedView: React.FC = () => {
   );
   const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
-
   const drawerState = useTypedSelector((state) => state.drawers);
-
-  console.log("DrawerState", drawerState);
 
   dataRef.current = {
     data,
@@ -76,8 +71,10 @@ export const FeedView: React.FC = () => {
   React.useEffect(() => {
     return () => {
       if (window.matchMedia("(max-width: 767px)").matches) {
+        /*
         setBottomPanelExpanded(false);
         setSidePanelExpanded(false);
+        */
       }
     };
   }, []);
@@ -127,14 +124,6 @@ export const FeedView: React.FC = () => {
     dispatch(addTSNodes(node));
   };
 
-  const onClick = (panel: string) => {
-    if (panel === "side_panel") {
-      setSidePanelExpanded(!isSidePanelExpanded);
-    } else if (panel === "bottom_panel") {
-      setBottomPanelExpanded(!isBottomPanelExpanded);
-    }
-  };
-
   const feedTree = (
     <ErrorBoundary
       fallback={
@@ -168,19 +157,11 @@ export const FeedView: React.FC = () => {
         >
           {!currentLayout ? (
             <ParentComponent
-              isSidePanelExpanded={isSidePanelExpanded}
-              isBottomPanelExpanded={isBottomPanelExpanded}
-              onExpand={onClick}
               onNodeClick={onNodeClick}
               onNodeClickTs={onNodeClickTS}
             />
           ) : (
-            <FeedGraph
-              onNodeClick={onNodeClick}
-              isSidePanelExpanded={isSidePanelExpanded}
-              isBottomPanelExpanded={isBottomPanelExpanded}
-              onExpand={onClick}
-            />
+            <FeedGraph onNodeClick={onNodeClick} />
           )}
         </React.Suspense>
       </GridItem>
@@ -208,7 +189,7 @@ export const FeedView: React.FC = () => {
             <SpinContainer title="Fetching Selected Plugin Instance's details" />
           }
         >
-          <NodeDetails expandDrawer={onClick} />
+          <NodeDetails />
         </React.Suspense>
       </GridItem>
     </ErrorBoundary>
@@ -231,7 +212,6 @@ export const FeedView: React.FC = () => {
       >
         <FeedOutputBrowser
           explore={true}
-          expandDrawer={onClick}
           handlePluginSelect={onNodeBrowserClick}
         />
       </ErrorBoundary>
@@ -294,13 +274,13 @@ export const FeedView: React.FC = () => {
                         background="#001223"
                         content="Node"
                         handleClose={() => {
-                          handleClose("node", drawerState, dispatch);
+                          handleClose("node", dispatch);
                         }}
                         handleMaximize={() => {
-                          handleMaximize("node", drawerState, dispatch);
+                          handleMaximize("node", dispatch);
                         }}
                         handleMinimize={() => {
-                          handleMinimize("node", drawerState, dispatch);
+                          handleMinimize("node", dispatch);
                         }}
                       />
                       {nodePanel}
@@ -312,13 +292,13 @@ export const FeedView: React.FC = () => {
                       background="#151515"
                       content="Graph"
                       handleClose={() => {
-                        handleClose("graph", drawerState, dispatch);
+                        handleClose("graph", dispatch);
                       }}
                       handleMaximize={() => {
-                        handleMaximize("graph", drawerState, dispatch);
+                        handleMaximize("graph", dispatch);
                       }}
                       handleMinimize={() => {
-                        handleMinimize("graph", drawerState, dispatch);
+                        handleMinimize("graph", dispatch);
                       }}
                     />
                     {drawerState.graph.open && feedTree}

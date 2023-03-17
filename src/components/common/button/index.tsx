@@ -124,11 +124,7 @@ export const handleDrawerActions = (
   );
 };
 
-export const handleClose = (
-  actionType: string,
-  drawerState: IDrawerState,
-  dispatch: any
-) => {
+export const handleClose = (actionType: string, dispatch: any) => {
   handleDrawerActions(
     actionType,
     false,
@@ -139,18 +135,16 @@ export const handleClose = (
   );
 };
 
-export const handleMaximize = (
-  actionType: string,
-  drawerState: IDrawerState,
-  dispatch: any
-) => {
+export const handleMaximize = (actionType: string, dispatch: any) => {
   handleDrawerActions(actionType, true, true, false, dispatch, setDrawerState);
 };
 
-export const handleMinimize = (
-  actionType: string,
-  drawerState: IDrawerState,
-  dispatch: any
-) => {
-  handleDrawerActions(actionType, false, false, true, dispatch, setDrawerState);
+export const handleMinimize = (actionType: string, dispatch: any) => {
+  handleDrawerActions(actionType, true, false, true, dispatch, setDrawerState);
 };
+
+export const handleOpen = (actionType: string, dispatch: any) => {
+  handleDrawerActions(actionType, true, false, false, dispatch, setDrawerState);
+};
+
+
