@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Typography } from "antd";
-import { PageSection, PageSectionVariants } from "@patternfly/react-core";
+import { PageSection } from "@patternfly/react-core";
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
 import Wrapper from "../Layout/PageWrapper";

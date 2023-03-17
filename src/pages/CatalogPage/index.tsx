@@ -2,7 +2,6 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { Typography } from "antd";
 import Wrapper from "../Layout/PageWrapper";
-import { PageSection } from "@patternfly/react-core";
 import PluginCatalog from "../../components/catalog/PluginCatalog";
 import InfoIcon from "../../components/common/info/InfoIcon";
 import "./CatalogPage.scss";

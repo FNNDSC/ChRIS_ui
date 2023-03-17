@@ -52,7 +52,7 @@ cornerstoneNIFTIImageLoader.nifti.configure({
   responseType: "arrayBuffer",
 });
 
-const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
+
 
 toolList.forEach((tool) => {
   if (tool.name === "StackScrollMouseWheelTool") {
