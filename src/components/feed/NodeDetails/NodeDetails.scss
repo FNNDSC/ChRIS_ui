@@ -245,7 +245,9 @@ Steps Design Icon
 .ReactVirtualized__Grid__innerScrollContainer {
   color: #fff;
   font-size: 0.75rem;
-  font-family: monospace;
+  font-family: var(
+    --pf-global--FontFamily--redhatfont--sans-serif
+  ) !important;
   height: 100%;
   width: 100%;
 }
