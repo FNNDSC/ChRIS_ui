@@ -9,25 +9,15 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
   DrawerPanelBody,
-  ApplicationLauncher,
-  ApplicationLauncherItem,
-  DropdownPosition,
-  Tooltip,
 } from "@patternfly/react-core";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
-import { FaFileCode, FaFilm } from "react-icons/fa";
-import {
-  MdFileDownload,
-  MdNavigateBefore,
-  MdNavigateNext,
-} from "react-icons/md";
+import { FaFileCode } from "react-icons/fa";
+import { MdFileDownload } from "react-icons/md";
 import {
   AiFillFileImage,
   AiFillFileText,
   AiFillFile,
   AiFillFolder,
-  AiOutlineExpandAlt,
-  AiOutlineMenuFold,
 } from "react-icons/ai";
 import FileDetailView from "../Preview/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
@@ -38,13 +28,11 @@ import {
   clearSelectedFile,
   setSelectedFile,
 } from "../../../store/explorer/actions";
-import { BiHorizontalCenter } from "react-icons/bi";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
 import { useTypedSelector } from "../../../store/hooks";
 import { ClipboardCopyContainer } from "../../common/textcopypopover/TextCopyPopover";
 import {
-  ButtonWithTooltip,
   DrawerActionButton,
   handleClose,
   handleMaximize,
@@ -57,22 +45,13 @@ const getFileName = (name: any) => {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
-  const {
-    pluginFilesPayload,
-    handleFileClick,
-    selected,
-    handleFileBrowserToggle,
-    handleDicomViewerOpen,
-    handleXtkViewerOpen,
-    filesLoading,
-  } = props;
+  const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
 
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const [appLauncher, setAppLauncher] = useState(false);
   const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
 
   const { files, folders, path } = pluginFilesPayload;
@@ -210,75 +189,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
   };
 
-  const handleToggleAppLauncher = () => {
-    setAppLauncher(!appLauncher);
-  };
-
-  const appLauncherItems: React.ReactElement[] = [
-    <ApplicationLauncherItem
-      component={
-        <ButtonWithTooltip
-          position="bottom"
-          content={<span>Open in Full Screen</span>}
-          variant="link"
-          onClick={handleFileBrowserToggle}
-          icon={<AiOutlineExpandAlt />}
-        />
-      }
-      key="application_1a"
-    />,
-    <ApplicationLauncherItem
-      component={
-        <ButtonWithTooltip
-          content={<span>Open the Dicom Viewer</span>}
-          variant="link"
-          onClick={handleDicomViewerOpen}
-          icon={<FaFilm />}
-        />
-      }
-      key="application_2a"
-    />,
-    <ApplicationLauncherItem
-      component={
-        <ButtonWithTooltip
-          content={<span>Open the XTK Viewer</span>}
-          position="bottom"
-          variant="link"
-          onClick={handleXtkViewerOpen}
-          icon={<BiHorizontalCenter />}
-        />
-      }
-      key="test"
-    />,
-    <ApplicationLauncherItem
-      component={
-        <ButtonWithTooltip
-          position="left"
-          content={<span>Previous</span>}
-          variant="link"
-          icon={<MdNavigateBefore />}
-          className="carousel__first"
-          onClick={handlePrevClick}
-        />
-      }
-      key="test1"
-    />,
-
-    <ApplicationLauncherItem
-      component={
-        <ButtonWithTooltip
-          position="left"
-          content={<span>Next</span>}
-          variant="link"
-          className="carousel__second"
-          icon={<MdNavigateNext />}
-          onClick={handleNextClick}
-        />
-      }
-      key="test2"
-    />,
-  ];
-
   const previewPanel = (
     <DrawerPanelContent
       className="file-browser__previewPanel"
@@ -287,7 +197,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         drawerState.preview.maximized ||
         (!drawerState.directory.open && !drawerState.files.open)
           ? "100%"
-          : "60%"
+          : "60.5%"
       }
       minSize={"25%"}
     >
@@ -306,36 +216,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         }}
       />
       <DrawerPanelBody className="file-browser__drawerbody">
-        <>
-          <ApplicationLauncher
-            toggleIcon={
-              <Tooltip
-                position="left"
-                content={<span>Open toolbar for maximizing</span>}
-              >
-                <AiOutlineMenuFold
-                  style={{
-                    width: "24px",
-                    height: "24px",
-                  }}
-                />
-              </Tooltip>
-            }
-            style={{
-              position: "absolute",
-              top: "1.5rem",
-              zIndex: "99999",
-              marginLeft: "calc(100% - 55px)",
-            }}
-            onToggle={handleToggleAppLauncher}
-            isOpen={appLauncher}
-            items={appLauncherItems}
-            position={DropdownPosition.left}
-          />
-          {selectedFile && (
-            <FileDetailView selectedFile={selectedFile} preview="large" />
-          )}
-        </>
+        <FileDetailView selectedFile={selectedFile} preview="large" />
       </DrawerPanelBody>
     </DrawerPanelContent>
   );

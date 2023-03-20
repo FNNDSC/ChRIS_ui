@@ -29,7 +29,6 @@ export interface FeedOutputBrowserProps {
 
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
-  explore,
 }) => {
   const {
     plugins,
@@ -37,11 +36,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     pluginFilesPayload,
     statusTitle,
     handleFileClick,
-    handleFileBrowserOpen,
-    handleDicomViewerOpen,
     handleSidebarDrawer,
-    handleXtkViewerOpen,
-    pluginModalOpen,
     filesLoading,
     sidebarStatus,
     filesStatus,
@@ -94,14 +89,9 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
             >
               {pluginFilesPayload && selected ? (
                 <FileBrowser
-                  explore={explore}
                   selected={selected}
                   handleFileClick={handleFileClick}
                   pluginFilesPayload={pluginFilesPayload}
-                  handleFileBrowserToggle={handleFileBrowserOpen}
-                  handleDicomViewerOpen={handleDicomViewerOpen}
-                  handleXtkViewerOpen={handleXtkViewerOpen}
-                  pluginModalOpen={pluginModalOpen}
                   filesLoading={filesLoading}
                 />
               ) : statusTitle && statusTitle ? (
