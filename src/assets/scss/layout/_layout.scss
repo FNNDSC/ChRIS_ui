@@ -23,10 +23,22 @@ article {
 // Page Header
 // ---------------------------------------------------------
 
+.pf-c-login {
+  --pf-c-login__main--BackgroundColor: inherit;
+  --pf-c-login__main-footer-band--BackgroundColor: inherit;
+}
+
 .ant-alert-info {
   background: var(
     --pf-global--BackgroundColor--dark-transparent-100
   ) !important;
+}
+
+.pf-c-table.pf-m-sticky-header
+  > thead:not(.pf-m-nested-column-header)
+  > tr
+  > * {
+  background: inherit !important;
 }
 
 .pf-c-table,
