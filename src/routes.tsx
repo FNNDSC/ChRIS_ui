@@ -7,7 +7,6 @@ import { NotFoundPage as NotFound } from "./pages/NotFound/NotFound";
 import Wrapper from "./pages/Layout/PageWrapper";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import FeedsPage from "./pages/Feeds/Feeds";
-import GalleryPage from "./pages/ViewImage/ViewImage";
 import VisualizationPage from "./pages/VisualizationPage";
 import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
@@ -86,7 +85,7 @@ export const MainRouter: React.FC = () => {
         <PrivateRoute>
           <SinglePlugin />
         </PrivateRoute>
-      )
+      ),
     },
     {
       path: "library",
@@ -119,14 +118,10 @@ export const MainRouter: React.FC = () => {
       element: <PipelinePage />,
     },
     {
-       path: "compute", 
-       element: <ComputePage />
+      path: "compute",
+      element: <ComputePage />,
     },
 
-    {
-      path: "gallery",
-      element: <GalleryPage />,
-    },
     {
       path: "login",
       element: <LogIn />,
