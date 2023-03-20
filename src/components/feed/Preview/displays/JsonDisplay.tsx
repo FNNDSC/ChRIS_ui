@@ -38,7 +38,7 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     <>
       {blobText ? (
         <ReactJSON
-          theme="grayscale"
+          style={{ background: "inherit" }}
           name={false}
           displayDataTypes={false}
           src={blobText}

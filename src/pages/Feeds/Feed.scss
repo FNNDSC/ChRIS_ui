@@ -113,15 +113,15 @@
   }
 
   @include media-query($pf-global--breakpoint--md) {
-    height: 45vh;
+    height: 46vh;
   }
 
   @include media-query($pf-global--breakpoint--lg) {
-    height: 45vh;
+    height: 46vh;
   }
 
   @include media-query($pf-global--breakpoint--xl2) {
-    height: 45vh;
+    height: 46vh;
   }
 
   padding: 0 !important;

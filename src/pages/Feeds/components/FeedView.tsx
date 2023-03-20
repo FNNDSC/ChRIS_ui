@@ -23,7 +23,7 @@ import {
 } from "../../../store/pluginInstance/actions";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { addTSNodes, resetTsNodes } from "../../../store/tsplugins/actions";
-import { destroyExplorer } from "../../../store/explorer/actions";
+
 import { resetActiveResources } from "../../../store/resources/actions";
 import { setIsNavOpen } from "../../../store/ui/actions";
 import { DestroyActiveResources } from "../../../store/resources/types";
@@ -71,10 +71,9 @@ export const FeedView: React.FC = () => {
   React.useEffect(() => {
     return () => {
       if (window.matchMedia("(max-width: 767px)").matches) {
-        /*
-        setBottomPanelExpanded(false);
-        setSidePanelExpanded(false);
-        */
+        handleClose("node", dispatch);
+        handleClose("directory", dispatch);
+        handleClose("files", dispatch);
       }
     };
   }, []);
@@ -89,7 +88,6 @@ export const FeedView: React.FC = () => {
         dispatch(resetActiveResources(dataRef.current));
       }
 
-      dispatch(destroyExplorer());
       dispatch(resetPluginInstances());
       dispatch(resetTsNodes());
       dispatch(resetFeed());
@@ -117,7 +115,6 @@ export const FeedView: React.FC = () => {
 
   const onNodeBrowserClick = (node: PluginInstance) => {
     dispatch(getSelectedPlugin(node));
-    dispatch(destroyExplorer());
   };
 
   const onNodeClickTS = (node: PluginInstance) => {
@@ -257,6 +254,7 @@ export const FeedView: React.FC = () => {
             <Grid
               style={{
                 height: "100%",
+                width: "100%",
               }}
             >
               <Drawer isExpanded={drawerState.node.open} isInline>
@@ -265,7 +263,7 @@ export const FeedView: React.FC = () => {
                     <DrawerPanelContent
                       className="drawer-panel"
                       defaultSize={
-                        drawerState.graph.open === false ? "100%" : "51%"
+                        drawerState.graph.open === false ? "100%" : "51.5%"
                       }
                       minSize={"25%"}
                       isResizable

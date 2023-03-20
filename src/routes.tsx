@@ -7,7 +7,7 @@ import { NotFoundPage as NotFound } from "./pages/NotFound/NotFound";
 import Wrapper from "./pages/Layout/PageWrapper";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import FeedsPage from "./pages/Feeds/Feeds";
-import VisualizationPage from "./pages/VisualizationPage";
+
 import Library, { Series } from "./pages/DataLibrary/Library";
 import SignUp from "./pages/SignUp/SignUp";
 import CatalogPage from "./pages/CatalogPage";
@@ -107,10 +107,6 @@ export const MainRouter: React.FC = () => {
           <PACSLookup />
         </PrivateRoute>
       ),
-    },
-    {
-      path: "visualization",
-      element: <VisualizationPage />,
     },
 
     {
