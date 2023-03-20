@@ -222,13 +222,14 @@ const NodeDetails: React.FC = () => {
 
             <Grid className="node-details__grid" hasGutter={true}>
               <Grid className="node-details__grid" hasGutter={true}>
-                <RenderButtonGridItem>
-                  {cancelled ? null : (
-                    <AddNodeProvider>
+                {cancelled ? null : (
+                  <AddNodeProvider>
+                    <RenderButtonGridItem>
+                      {" "}
                       <AddNode />
-                    </AddNodeProvider>
-                  )}
-                </RenderButtonGridItem>
+                    </RenderButtonGridItem>
+                  </AddNodeProvider>
+                )}
                 <RenderButtonGridItem>
                   <PipelineProvider>
                     <AddPipeline />
@@ -275,11 +276,12 @@ const NodeDetails: React.FC = () => {
                 <RenderButtonGridItem>
                   <GraphNodeContainer />
                 </RenderButtonGridItem>
-                <RenderButtonGridItem>
-                  {selectedPlugin.data.previous_id !== undefined && (
+
+                {selectedPlugin.data.previous_id !== undefined && (
+                  <RenderButtonGridItem>
                     <DeleteNode />
-                  )}
-                </RenderButtonGridItem>
+                  </RenderButtonGridItem>
+                )}
               </Grid>
             </Grid>
             {download.status && (

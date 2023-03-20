@@ -17,16 +17,7 @@ import {
 } from "@patternfly/react-core";
 import { MdOutlineImageSearch } from "react-icons/md";
 import { FaMagic } from "react-icons/fa";
-
 import { setSidebarActive } from "../../store/ui/actions";
-import FirstPng from "../../assets/images/img_1.png";
-import SecondPng from "../../assets/images/img_2.png";
-import ThirdPng from "../../assets/images/img_3.png";
-import FourthPng from "../../assets/images/img_4.png";
-import TreeOne from "../../assets/images/tree_1.png";
-import TreeTwo from "../../assets/images/tree_2.png";
-import TreeThree from "../../assets/images/tree_3.png";
-import TreeFour from "../../assets/images/tree_4.png";
 import "./Dashboard.scss";
 import preval from "preval.macro";
 
@@ -81,14 +72,7 @@ const DashboardPage = (props: DashboardProps) => {
         <Grid hasGutter>
           <GridItem style={{ marginBottom: "1rem" }} lg={6}>
             <CardDisplay
-              component={
-                <div style={{ display: "flex" }}>
-                  <ImageComponent img={FirstPng} />
-                  <ImageComponent img={SecondPng} />
-                  <ImageComponent img={ThirdPng} />
-                  <ImageComponent img={FourthPng} />
-                </div>
-              }
+             
               title="You've got data!"
               body='Visit the "Library" in the main navigation to review your data collection'
               buttonText="Go to the Library"
@@ -98,14 +82,6 @@ const DashboardPage = (props: DashboardProps) => {
           </GridItem>
           <GridItem lg={6}>
             <CardDisplay
-              component={
-                <div style={{ display: "flex" }}>
-                  <ImageComponent img={TreeOne} />
-                  <ImageComponent img={TreeTwo} />
-                  <ImageComponent img={TreeThree} />
-                  <ImageComponent img={TreeFour} />
-                </div>
-              }
               title="You've got analyses!"
               body='Visit "New and Existing Analyses" in the main navigation to review your data analyses'
               buttonText="Go to New and Existing Analyses"
@@ -147,12 +123,12 @@ const CardDisplay = ({
   buttonLink,
   className,
 }: {
-  component: React.ReactElement;
   title: string;
   body: string;
   buttonText: string;
   buttonLink: string;
   className?: string;
+  component?: React.ReactElement;
 }) => {
   const navigate = useNavigate();
   return (
@@ -161,7 +137,7 @@ const CardDisplay = ({
         style={{ margin: "0 2rem", display: "flex", justifyContent: "center" }}
         className={className}
       >
-        <CardHeaderMain>{component}</CardHeaderMain>
+        {component && <CardHeaderMain>{component}</CardHeaderMain>}
       </CardHeader>
       <div style={{ margin: "0 auto", textAlign: "center" }}>
         <CardTitle>
@@ -180,12 +156,6 @@ const CardDisplay = ({
       </div>
     </Card>
   );
-};
-
-const styleImg = { marginRight: "1em" };
-
-const ImageComponent = ({ img }: { img: string }) => {
-  return <img style={styleImg} src={img} alt="Image for analyses and Data" />;
 };
 
 const LogoComponent = ({ logo }: { logo: JSX.Element }) => {
