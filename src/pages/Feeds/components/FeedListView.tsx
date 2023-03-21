@@ -48,6 +48,7 @@ import { usePaginate } from "../../../components/common/pagination";
 import IconContainer from "./IconContainer";
 import { useTypedSelector } from "../../../store/hooks";
 import { FeedResource } from "../../../store/feed/types";
+
 import InfoIcon from "../../../components/common/info/InfoIcon";
 import { AddNodeProvider } from "../../../components/feed/AddNode/context";
 import { LoadingErrorAlert } from "../../../components/common/errorHandling";
@@ -201,7 +202,7 @@ const FeedListView: React.FC = () => {
             onSearch={handleFilterChange}
             label="Filter by name"
           />
-          {bulkSelect.length > 0 && <IconContainer />}
+          {<IconContainer />}
         </div>
         {(!data && !loading) || (data && data.length === 0) ? (
           <EmptyStateTable
@@ -402,6 +403,8 @@ const TableRow = ({
   const selectedBgRow = isSelected(bulkSelect, feed)
     ? "#001223"
     : backgroundRow;
+  
+  
   return (
     <Tr
       key={feed.data.id}
