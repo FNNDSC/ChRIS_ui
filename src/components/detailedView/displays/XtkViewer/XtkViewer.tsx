@@ -40,6 +40,7 @@ function getPrimaryFileMode(file: FeedFile): ViewerMode | undefined {
 }
 
 const XtkViewer = () => {
+  /*
   const directoryFiles =
     useTypedSelector((state) => state.explorer.selectedFolder) || [];
 
@@ -305,6 +306,8 @@ const XtkViewer = () => {
       )}
     </div>
   );
+  */
+  return <div>XTK Viewer </div>;
 };
 
 export default XtkViewer;
