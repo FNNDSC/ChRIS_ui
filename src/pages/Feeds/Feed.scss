@@ -64,7 +64,9 @@
   &__name {
     a {
       margin-left: 0.25em;
+      color: var(--pf-global--link--Color--light);
     }
+
     cursor: pointer;
     outline: none;
   }
