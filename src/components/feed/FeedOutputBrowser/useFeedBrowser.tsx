@@ -1,18 +1,11 @@
 import React from "react";
-import {
-  setExplorerMode,
-  setExplorerRequest,
-  setSelectedFolder,
-} from "../../../store/explorer/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import JSZip from "jszip";
 import { getPluginFilesRequest } from "../../../store/resources/actions";
-import { ExplorerMode } from "../../../store/explorer/types";
 import FileViewerModel from "../../../api/models/file-viewer.model";
 import { getPluginName } from "./utils";
 import { fetchResource } from "../../../api/common";
-import { removeTool } from "../../detailedView/displays/DicomViewer/utils";
 import {
   handleClose,
   handleMaximize,
@@ -35,7 +28,6 @@ export const useFeedBrowser = () => {
   const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
   const [download, setDownload] = React.useState(getInitialDownloadState);
-  const [pluginModalOpen, setPluginModalOpen] = React.useState(false);
 
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
@@ -159,42 +151,6 @@ export const useFeedBrowser = () => {
     }
   };
 
-  const handleFileBrowserOpen = () => {
-    setFolder();
-    setPluginModalOpen(!pluginModalOpen);
-    dispatch(setExplorerRequest());
-  };
-
-  const handlePluginModalClose = () => {
-    if (pluginModalOpen) {
-      removeTool();
-    }
-    setPluginModalOpen(!pluginModalOpen);
-  };
-
-  const setFolder = () => {
-    if (pluginFilesPayload && pluginFilesPayload.files) {
-      dispatch(setSelectedFolder(pluginFilesPayload.files));
-    }
-  };
-
-  const handleDicomViewerOpen = () => {
-    setFolder();
-    setPluginModalOpen(!pluginModalOpen);
-    dispatch(setExplorerMode(ExplorerMode.DicomViewer));
-  };
-
-  const handleXtkViewerOpen = () => {
-    setFolder();
-    setPluginModalOpen(!pluginModalOpen);
-    dispatch(setExplorerMode(ExplorerMode.XtkViewer));
-  };
-
-  const handleTerminalViewerOpen = () => {
-    setPluginModalOpen(!pluginModalOpen);
-    dispatch(setExplorerMode(ExplorerMode.TerminalViewer));
-  };
-
   const handleSidebarDrawer = (action: string) => {
     if (action === "close") {
       handleClose("directory", dispatch);
@@ -204,11 +160,6 @@ export const useFeedBrowser = () => {
   };
 
   return {
-    handleDicomViewerOpen,
-    handleXtkViewerOpen,
-    handlePluginModalClose,
-    handleFileBrowserOpen,
-    handleTerminalViewerOpen,
     handleFileClick,
     downloadAllClick,
     filesLoading,
@@ -217,7 +168,6 @@ export const useFeedBrowser = () => {
     download,
     selected,
     pluginFilesPayload,
-    pluginModalOpen,
     handleSidebarDrawer,
     sidebarStatus: drawerState.directory,
     filesStatus: drawerState.files,

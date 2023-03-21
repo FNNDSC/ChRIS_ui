@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import {
   ToggleGroup,
   ToggleGroupItem,
@@ -12,7 +12,7 @@ import {
 } from "@patternfly/react-core";
 import { FaTrash, FaDownload } from "react-icons/fa";
 import { VscMerge } from "react-icons/vsc";
-import { MdCallSplit } from "react-icons/md";
+import { MdCallSplit, MdIosShare } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import {
   downloadFeedRequest,
@@ -30,73 +30,98 @@ function capitalizeFirstLetter(stringLetter: string) {
   return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1);
 }
 
+interface ModalState {
+  isOpen: boolean;
+  feedName: string;
+  currentAction: string;
+  modalDescription: string;
+  errorHandling: Record<string, unknown>;
+}
+
+const getInitialState = () => {
+  return {
+    isOpen: false,
+    feedName: "",
+    currentAction: "",
+    modalDescription: "",
+    errorHandling: {},
+  };
+};
+
 const IconContainer = () => {
   const { bulkSelect, downloadError, allFeeds } = useTypedSelector((state) => {
     return state.feed;
   });
   const dispatch = useDispatch();
-  const [isModalOpen, setModalOpen] = React.useState(false);
-  const [nameValue, setNameValue] = React.useState("");
-  const [dialogTitleValue, setTitleValue] = React.useState("");
-  const [dialogDescriptionValue, setDescriptionValue] = React.useState("");
-  const [labelValue, setLabelValue] = React.useState("");
-  const [defaultName, setDefaultName] = React.useState("");
-  const [deleteError, setDeleteError] = React.useState();
-  const [actionValue, setActionValue] = React.useState("");
-  const nameInputRef = React.useRef(null);
+  const [modalState, setModalState] =
+    React.useState<ModalState>(getInitialState);
 
-  const getDefaultName = (bulkSelect: any, action: string) => {
-    setLabelValue("Feed Name");
-    const value =
-      action === "delete"
-        ? "Deleting a feed is a permanent action. Click on confirm if you're sure"
-        : "Enter a name for your new feed (optional)";
-    setDescriptionValue(value);
+  const { currentAction, isOpen, errorHandling, feedName } = modalState;
 
-    let prefix = "";
-    if (action == "merge") {
-      prefix = "Merge of ";
-    } else if (action == "download") {
-      prefix = "archive-";
-    } else {
-      prefix = "";
-    }
-    const feedNames = [];
-    for (let i = 0; i < bulkSelect.length; i++) {
-      feedNames.push(bulkSelect[i].data.name);
-    }
-    // truncate name of the merged feed(limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
-    newFeedName = prefix + newFeedName;
-    newFeedName = newFeedName.substring(0, 100);
-    if (action == "duplicate") {
-      if (bulkSelect.length > 1) {
-        newFeedName = "duplicate-";
-        setLabelValue("Feed Prefix");
-        setDescriptionValue("Enter a feed prefix (optional)");
+  const getDefaultName = (bulkSelect: Feed[], action: string) => {
+    if (bulkSelect.length > 0) {
+      const description =
+        action === "delete"
+          ? "Deleting a feed is a permanent action. Click on confirm if you're sure"
+          : "Enter a name for your new feed (optional)";
+
+      let prefix = "";
+      if (action == "merge") {
+        prefix = "Merge of ";
+      } else if (action == "download") {
+        prefix = "archive-";
       } else {
-        newFeedName = "duplicate-" + bulkSelect[0].data.name;
+        prefix = "";
       }
+
+      let newFeedName = "";
+      if (action !== "share") {
+        const feedNames = bulkSelect.map((select: Feed) => select.data.name);
+        // truncate name of the merged feed(limit=100)
+        newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
+        newFeedName = prefix + newFeedName;
+        newFeedName = newFeedName.substring(0, 100);
+        if (action == "duplicate") {
+          if (bulkSelect.length > 1) {
+            newFeedName = "duplicate-";
+          } else {
+            newFeedName = "duplicate-" + bulkSelect[0].data.name;
+          }
+        }
+      }
+
+      setModalState({
+        ...modalState,
+        modalDescription: description,
+        feedName: newFeedName,
+        currentAction: action,
+        isOpen: true,
+      });
     }
-    return newFeedName;
   };
 
-  const handleModalToggle = (action: string) => {
-    setModalOpen(!isModalOpen);
-    setActionValue(action);
-    const name = getDefaultName(bulkSelect, action);
-    setDefaultName(name);
-    setNameValue(name);
-    const titleValue = capitalizeFirstLetter(action);
-    setTitleValue(`${titleValue} feed`);
+  const handleModalToggle = (value: boolean) => {
+    if (value === false) {
+      const newState = getInitialState();
+      setModalState({
+        ...newState,
+      });
+    } else {
+      setModalState({
+        ...modalState,
+        errorHandling: {
+          message: "Please select a feed for this operation",
+        },
+        isOpen: value,
+      });
+    }
   };
 
   const handleNameInputChange = (value: any) => {
-    setNameValue(value);
-  };
-
-  const handleSubmit = () => {
-    handleChange(actionValue, nameValue);
+    setModalState({
+      ...modalState,
+      feedName: value,
+    });
   };
 
   const handleDelete = (bulkSelect: Feed[]) => {
@@ -105,95 +130,74 @@ const IconContainer = () => {
       const feedData = allFeeds.data?.filter(
         (feed) => !feedIds.includes(feed.data.id)
       );
-
       bulkSelect.forEach(async (feed: Feed) => {
         try {
           await feed.delete();
         } catch (error: any) {
           const errorObject = catchError(error);
-          setDeleteError(errorObject);
+          setModalState({
+            ...modalState,
+            errorHandling: errorObject,
+          });
         }
       });
       dispatch(deleteFeed(feedData));
     }
   };
 
-  React.useEffect(() => {
-    if (isModalOpen && nameInputRef && nameInputRef.current) {
-      (nameInputRef.current as HTMLInputElement).focus();
-    }
-  }, [isModalOpen]);
+  const handleShare = async (bulkSelect: Feed[]) => {
+    bulkSelect.map(async (feed) => {
+      await feed.put({
+        owner: feedName,
+      });
+    });
+  };
 
-  const handleChange = (type: string, name: any) => {
-    type === "download" && dispatch(downloadFeedRequest(bulkSelect, name));
-    type === "merge" && dispatch(mergeFeedRequest(bulkSelect, name));
-    type === "delete" && handleDelete(bulkSelect);
-    type === "duplicate" && dispatch(duplicateFeedRequest(bulkSelect, name));
+  const handleSubmit = () => {
+    currentAction === "share" && handleShare(bulkSelect);
+    currentAction === "download" &&
+      dispatch(downloadFeedRequest(bulkSelect, feedName));
+    currentAction === "merge" &&
+      dispatch(mergeFeedRequest(bulkSelect, feedName));
+    currentAction === "delete" && handleDelete(bulkSelect);
+    currentAction === "duplicate" &&
+      dispatch(duplicateFeedRequest(bulkSelect, feedName));
     dispatch(toggleSelectAll(false));
+    if (!downloadError && !errorHandling) {
+      handleModalToggle(false);
+    }
   };
 
-  const alert = (error: any, addition?: string) => {
-    return <LoadingErrorAlert error={{ ...error, value: addition }} />;
+  const alert = (error: any) => {
+    return <LoadingErrorAlert error={error} />;
   };
+
   return (
     <ToggleGroup aria-label="Feed Action Bar">
-      <ToggleGroupItem
-        aria-label="feed-action"
-        icon={
-          <Tooltip content={<div>Download selected feeds</div>}>
-            <FaDownload />
-          </Tooltip>
-        }
-        onChange={() => {
-          handleModalToggle("download");
-        }}
-      />
-      <ToggleGroupItem
-        aria-label="feed-action"
-        icon={
-          <Tooltip content={<div>Merge selected feeds</div>}>
-            <VscMerge
-              style={{
-                height: "1.25em",
-                width: "1.25em",
+      {["download", "merge", "duplicate", "share", "delete"].map((action) => {
+        return (
+          <React.Fragment key={action}>
+            <ToolGroupContainer
+              icon={actionMap[action]}
+              action={action}
+              onChangeHandler={() => {
+                bulkSelect.length === 0
+                  ? handleModalToggle(true)
+                  : getDefaultName(bulkSelect, action);
               }}
             />
-          </Tooltip>
-        }
-        onChange={() => {
-          handleModalToggle("merge");
-        }}
-      />
-      <ToggleGroupItem
-        aria-label="feed-action"
-        icon={
-          <Tooltip content={<div>Duplicate selected feeds</div>}>
-            <MdCallSplit />
-          </Tooltip>
-        }
-        onChange={() => {
-          handleModalToggle("duplicate");
-        }}
-      />
-      <ToggleGroupItem
-        aria-label="feed-action"
-        icon={
-          <Tooltip content={<div>Delete selected feeds</div>}>
-            <FaTrash />
-          </Tooltip>
-        }
-        onChange={() => handleModalToggle("delete")}
-      />
+          </React.Fragment>
+        );
+      })}
 
       <Modal
         className="feed_modal"
         data-keyboard="false"
         variant={ModalVariant.small}
-        title={dialogTitleValue}
-        description={dialogDescriptionValue}
-        isOpen={isModalOpen}
+        isOpen={isOpen}
+        title={capitalizeFirstLetter(currentAction)}
         onClose={() => {
-          handleModalToggle("");
+          handleModalToggle(false);
         }}
         onSubmit={handleSubmit}
         actions={[
@@ -202,6 +206,7 @@ const IconContainer = () => {
             variant="primary"
             form="modal-with-form-form"
             onClick={handleSubmit}
+            isDisabled={bulkSelect.length === 0}
           >
             Confirm
           </Button>,
@@ -209,34 +214,48 @@ const IconContainer = () => {
             key="cancel"
             variant="link"
             onClick={() => {
-              handleModalToggle("");
+              handleModalToggle(false);
             }}
           >
             Cancel
           </Button>,
         ]}
       >
-        {!(actionValue === "delete") && (
+        {!(modalState.currentAction === "delete") ? (
           <Form id="modal-with-form-form">
-            <FormGroup label={labelValue} fieldId="modal-with-form-form-name">
+            <FormGroup
+              label={
+                currentAction === "share"
+                  ? "Enter a User Name"
+                  : "Enter a Feed Name"
+              }
+              fieldId="modal-with-form-form-name"
+            >
               <TextInput
                 aria-label="icon-container"
                 type="email"
                 id="modal-with-form-form-name"
                 name="modal-with-form-form-name"
-                placeholder={defaultName}
-                value={nameValue}
+                placeholder={feedName}
+                value={feedName}
                 onChange={handleNameInputChange}
-                ref={nameInputRef}
               />
-              {downloadError &&
-                alert(
-                  downloadError,
-                  "Feeds from other creators need to be shared with you first."
-                )}
-              {deleteError && alert(deleteError, "")}
+              <div style={{ marginTop: "1rem" }}>
+                {Object.keys(downloadError).length > 0 &&
+                  alert({
+                    ...downloadError,
+                    message:
+                      "Feeds from other creators need to be shared with you first.",
+                  })}
+                {Object.keys(errorHandling).length > 0 && alert(errorHandling)}
+              </div>
             </FormGroup>
           </Form>
+        ) : (
+          <p>
+            Deleting a feed is a permanent action. Click on confirm if
+            you&apos;re sure.
+          </p>
         )}
       </Modal>
     </ToggleGroup>
@@ -244,3 +263,37 @@ const IconContainer = () => {
 };
 
 export default IconContainer;
+
+const actionMap: {
+  [key: string]: ReactElement;
+} = {
+  download: <FaDownload />,
+  merge: <VscMerge />,
+  duplicate: <MdCallSplit />,
+  share: <MdIosShare />,
+  delete: <FaTrash />,
+};
+
+const ToolGroupContainer = ({
+  action,
+  onChangeHandler,
+  icon,
+}: {
+  action: string;
+  onChangeHandler: () => void;
+  icon: ReactElement;
+}) => {
+  return (
+    <ToggleGroupItem
+      aria-label="feed-action"
+      icon={
+        <Tooltip
+          content={<div>{capitalizeFirstLetter(action)} selected feeds</div>}
+        >
+          {icon}
+        </Tooltip>
+      }
+      onChange={onChangeHandler}
+    />
+  );
+};

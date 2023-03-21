@@ -8,7 +8,7 @@ import {
 } from "@patternfly/react-core";
 import { CgMaximizeAlt } from "react-icons/cg";
 import { DrawerPayloadType } from "../../../store/drawer/types";
-import { MdMinimize } from "react-icons/md";
+import { TbArrowsMinimize } from "react-icons/tb";
 import { setDrawerState } from "../../../store/drawer/actions";
 
 interface ButtonProps {
@@ -88,7 +88,7 @@ export const DrawerActionButton = ({
         <Button
           style={{ paddingRight: "0px" }}
           variant="link"
-          icon={<MdMinimize style={{ color: "white" }} />}
+          icon={<TbArrowsMinimize style={{ color: "white" }} />}
           onClick={handleMinimize}
         />
         <Button
