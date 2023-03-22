@@ -23,7 +23,6 @@ import {
 } from "../../../store/pluginInstance/actions";
 import { setSidebarActive } from "../../../store/ui/actions";
 import { addTSNodes, resetTsNodes } from "../../../store/tsplugins/actions";
-
 import { resetActiveResources } from "../../../store/resources/actions";
 import { setIsNavOpen } from "../../../store/ui/actions";
 import { DestroyActiveResources } from "../../../store/resources/types";
@@ -34,6 +33,7 @@ import {
   handleMaximize,
   handleMinimize,
 } from "../../../components/common/button";
+import { clearSelectedFile } from "../../../store/explorer/actions";
 
 const ParentComponent = React.lazy(
   () => import("../../../components/feed/FeedTree/ParentComponent")
@@ -87,10 +87,10 @@ export const FeedView: React.FC = () => {
       ) {
         dispatch(resetActiveResources(dataRef.current));
       }
-
       dispatch(resetPluginInstances());
       dispatch(resetTsNodes());
       dispatch(resetFeed());
+      dispatch(clearSelectedFile());
     };
   }, [dispatch]);
 

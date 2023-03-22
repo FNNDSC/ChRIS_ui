@@ -230,3 +230,7 @@ label {
 .pf-c-toggle-group__button {
   background-color: inherit;
 }
+
+.pf-c-form-control[readonly] {
+  background-color: inherit;
+}

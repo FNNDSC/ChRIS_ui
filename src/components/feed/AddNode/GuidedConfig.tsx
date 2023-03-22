@@ -348,7 +348,7 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
       ? plugins.map((selectedPlugin: Plugin) => {
           return (
             <DropdownItem
-              style={{ padding: "0",  }}
+              style={{ padding: "0" }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();
@@ -357,10 +357,8 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
               }}
               icon={
                 selectedPlugin.data.version ===
-                selectedPluginFromMeta?.data.version ? (
+                  selectedPluginFromMeta?.data.version && (
                   <FaCheck style={{ color: "green" }} />
-                ) : (
-                  <></>
                 )
               }
               onClick={() => {

@@ -1,7 +1,7 @@
 import { Reducer } from "redux";
 import { ExplorerActionTypes, IExplorerState } from "./types";
 
-// Type-safe initialState
+
 const initialState: IExplorerState = {
   selectedFile: undefined,
 };

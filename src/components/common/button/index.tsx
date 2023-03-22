@@ -7,7 +7,7 @@ import {
   DrawerActions,
 } from "@patternfly/react-core";
 import { CgMaximizeAlt } from "react-icons/cg";
-import { DrawerPayloadType } from "../../../store/drawer/types";
+import { DrawerPayloadType, IDrawerState } from "../../../store/drawer/types";
 import { TbArrowsMinimize } from "react-icons/tb";
 import { setDrawerState } from "../../../store/drawer/actions";
 
@@ -145,4 +145,19 @@ export const handleMinimize = (actionType: string, dispatch: any) => {
 
 export const handleOpen = (actionType: string, dispatch: any) => {
   handleDrawerActions(actionType, true, false, false, dispatch, setDrawerState);
+};
+
+export const handleToggle = (
+  actionType: string,
+  drawerState: IDrawerState,
+  dispatch: any
+) => {
+  handleDrawerActions(
+    actionType,
+    !drawerState[actionType].open,
+    drawerState[actionType].maximized,
+    false,
+    dispatch,
+    setDrawerState
+  );
 };
