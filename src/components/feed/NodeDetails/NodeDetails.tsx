@@ -149,6 +149,7 @@ const NodeDetails: React.FC = () => {
             </Grid>
 
             <Status />
+
             <ExpandableSection
               toggleText={
                 isExpanded ? "Show Less Details" : "Show More Details"
