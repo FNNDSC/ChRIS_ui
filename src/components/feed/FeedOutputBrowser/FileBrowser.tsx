@@ -51,7 +51,6 @@ const FileBrowser = (props: FileBrowserProps) => {
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
 
-  const [isExpanded, setIsExpanded] = useState(false);
   const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
 
   const { files, folders, path } = pluginFilesPayload;
@@ -127,6 +126,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     duration: 1000,
     iterations: 1,
   };
+
   const generateBreadcrumb = (value: string, index: number) => {
     const onClick = () => {
       dispatch(clearSelectedFile());
@@ -194,8 +194,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       className="file-browser__previewPanel"
       isResizable
       defaultSize={
-        drawerState.preview.maximized ||
-        (!drawerState.directory.open && !drawerState.files.open)
+        !drawerState.directory.open && !drawerState.files.open
           ? "100%"
           : "60.5%"
       }
@@ -205,7 +204,6 @@ const FileBrowser = (props: FileBrowserProps) => {
         background="inherit"
         content="Preview"
         handleClose={() => {
-          setIsExpanded(false);
           handleClose("preview", dispatch);
         }}
         handleMaximize={() => {
@@ -225,9 +223,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     <Grid hasGutter className="file-browser">
       <Drawer position="right" isInline isExpanded={true}>
         <DrawerContent
-          panelContent={
-            isExpanded || drawerState.preview.open ? previewPanel : null
-          }
+          panelContent={drawerState.preview.open ? previewPanel : null}
           className="file-browser__firstGrid"
         >
           <DrawerActionButton
@@ -284,8 +280,8 @@ const FileBrowser = (props: FileBrowserProps) => {
                       } else {
                         toggleAnimation();
                         dispatch(setSelectedFile(item));
-                        dispatch(setFilePreviewPanel());
-                        setIsExpanded(true);
+                        !drawerState["preview"].open &&
+                          dispatch(setFilePreviewPanel());
                       }
                     }}
                   />
