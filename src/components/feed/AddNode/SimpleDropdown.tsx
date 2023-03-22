@@ -173,7 +173,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           disabled={type === "boolean"}
         />
 
-        <div onClick={deleteDropdown} className="close-icon">
+        <div onClick={deleteDropdown}>
           <MdClose />
         </div>
       </div>

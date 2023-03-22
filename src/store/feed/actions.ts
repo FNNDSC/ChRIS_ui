@@ -55,7 +55,6 @@ export const downloadFeedSuccess = (feed: Feed[]) =>
 export const mergeFeedRequest = (feed: Feed[], name: any) =>
   action(FeedActionTypes.MERGE_FEED_REQUEST, feed, name);
 export const mergeFeedError = (error: any) => {
-  console.log("Error", error);
   return action(FeedActionTypes.MERGE_FEED_ERROR, error);
 };
 

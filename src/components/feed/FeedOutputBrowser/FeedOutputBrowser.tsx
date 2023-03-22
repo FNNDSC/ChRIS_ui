@@ -40,13 +40,16 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     filesLoading,
     sidebarStatus,
     filesStatus,
+    previewStatus,
   } = useFeedBrowser();
 
   const panelContent = (
     <DrawerPanelContent
       isResizable
       defaultSize={
-        sidebarStatus.maximized || filesStatus.open === false ? "100%" : "15%"
+        filesStatus.open === false && previewStatus.open == false
+          ? "100%"
+          : "15%"
       }
     >
       <DrawerActionButton

@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, ReactElement } from "react";
 
 import {
   Label,
@@ -16,7 +16,7 @@ import {
   MdRotate90DegreesCcw,
   MdSettingsBrightness,
   MdOutlineRotate90DegreesCcw,
-  MdQueuePlayNext,
+  MdViewInAr,
   MdInfo,
   MdDraw,
 } from "react-icons/md";
@@ -111,7 +111,7 @@ const FileDetailView = (props: AllProps) => {
           }
         >
           <div className={preview === "large" ? "small-preview" : ""}>
-            <DicomHeader handleEvents={handleEvents} />
+            <DicomHeader viewerName={viewerName} handleEvents={handleEvents} />
             <ViewerDisplay
               preview={preview}
               viewerName={viewerName}
@@ -156,36 +156,53 @@ const actions = [
     name: "Length",
     icon: <MdDraw />,
   },
-  {
-    name: "Gallery",
-    icon: <MdQueuePlayNext />,
-  },
+
   {
     name: "TagInfo",
     icon: <MdInfo />,
   },
 ];
 
+const xtkactions = [
+  {
+    name: "Xtk Viewer",
+    icon: <MdViewInAr />,
+  },
+];
+
+const getViewerSpecificActions: {
+  [key: string]: { name: string; icon: ReactElement }[];
+} = {
+  XtkDisplay: xtkactions,
+  DcmDisplay: actions,
+};
+
 export const DicomHeader = ({
   handleEvents,
+  viewerName,
 }: {
+  viewerName: string;
   handleEvents: (action: string) => void;
 }) => {
   const [isOpen, setIsOpen] = React.useState(true);
-  const appLauncherItems = actions.map((action) => {
-    return (
-      <ApplicationLauncherItem
-        component={
-          <ButtonContainer
-            action={action.name}
-            icon={action.icon}
-            handleEvents={handleEvents}
-          />
-        }
-        key={action.name}
-      />
-    );
-  });
+  const specificActions = getViewerSpecificActions[viewerName];
+
+  const appLauncherItems =
+    specificActions &&
+    specificActions.map((action) => {
+      return (
+        <ApplicationLauncherItem
+          component={
+            <ButtonContainer
+              action={action.name}
+              icon={action.icon}
+              handleEvents={handleEvents}
+            />
+          }
+          key={action.name}
+        />
+      );
+    });
 
   return (
     <div>
@@ -193,7 +210,7 @@ export const DicomHeader = ({
         toggleIcon={
           <Tooltip
             position="left"
-            content={<span>Open Tooling For Dicoms</span>}
+            content={<span>Tools for the selected file</span>}
           >
             <AiOutlineMenuUnfold
               style={{

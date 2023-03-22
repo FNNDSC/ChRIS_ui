@@ -1,16 +1,8 @@
 import React, { ReactElement, ReactNode } from "react";
-import Moment from "react-moment";
-import {
-  Button,
-  Toolbar,
-  ToolbarItem,
-  ToolbarContent,
-} from "@patternfly/react-core";
-import { Popover, Badge } from "antd";
-import { FaEdit } from "react-icons/fa";
+import { Toolbar, ToolbarItem, ToolbarContent } from "@patternfly/react-core";
+import { Badge } from "antd";
 import { useTypedSelector } from "../../../store/hooks";
-import FeedNote from "./FeedNote";
-import { ButtonWithTooltip, handleOpen } from "../../common/button";
+import { ButtonWithTooltip, handleToggle } from "../../common/button";
 import { LoadingContent } from "../../common/loading/LoadingContent";
 import { LoadingErrorAlert } from "../../common/errorHandling";
 import { useDispatch } from "react-redux";
@@ -165,7 +157,7 @@ const DrawerActionsToolbar = ({
               />
             }
             variant="link"
-            onClick={() => handleOpen(action, dispatch)}
+            onClick={() => handleToggle(action, drawerState, dispatch)}
           />
         </Badge>
       }

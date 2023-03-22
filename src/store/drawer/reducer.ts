@@ -69,7 +69,6 @@ export const getMaximizedObject = (
   payload: DrawerPayloadType
 ) => {
   const newState = state;
-
   for (const property in newState) {
     if (property !== payload.actionType) {
       newState[property].open = false;
@@ -79,7 +78,6 @@ export const getMaximizedObject = (
       newState[property].maximized = payload.maximized;
     }
   }
-
   return newState;
 };
 

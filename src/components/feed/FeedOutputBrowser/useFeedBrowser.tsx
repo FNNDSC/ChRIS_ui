@@ -171,5 +171,6 @@ export const useFeedBrowser = () => {
     handleSidebarDrawer,
     sidebarStatus: drawerState.directory,
     filesStatus: drawerState.files,
+    previewStatus: drawerState.preview,
   };
 };
