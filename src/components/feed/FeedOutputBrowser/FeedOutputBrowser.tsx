@@ -65,48 +65,45 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
           handleSidebarDrawer("minimized");
         }}
       />
-      <DrawerPanelBody>
-        {plugins && selected && (
-          <SidebarTree
-            plugins={plugins}
-            selected={selected}
-            handlePluginSelect={handlePluginSelect}
-          />
-        )}
-      </DrawerPanelBody>
+
+      {plugins && selected && (
+        <SidebarTree
+          plugins={plugins}
+          selected={selected}
+          handlePluginSelect={handlePluginSelect}
+        />
+      )}
     </DrawerPanelContent>
   );
 
   return (
-    <>
-      <Drawer
-        position="left"
-        isExpanded={true}
-        isInline
-        className="feed-output-browser"
-      >
-        <DrawerContent panelContent={sidebarStatus.open && panelContent}>
-          <DrawerContentBody>
-            <React.Suspense
-              fallback={<SpinContainer title="Loading the File Browser" />}
-            >
-              {pluginFilesPayload && selected ? (
-                <FileBrowser
-                  selected={selected}
-                  handleFileClick={handleFileClick}
-                  pluginFilesPayload={pluginFilesPayload}
-                  filesLoading={filesLoading}
-                />
-              ) : statusTitle && statusTitle ? (
-                <FetchFilesLoader title="Fetching Files" />
-              ) : (
-                <EmptyStateLoader title="Fetching Files" />
-              )}
-            </React.Suspense>
-          </DrawerContentBody>
-        </DrawerContent>
-      </Drawer>
-    </>
+    <Drawer
+      position="left"
+      isExpanded={filesStatus || sidebarStatus || previewStatus ? true : false}
+      isInline
+      className="feed-output-browser"
+    >
+      <DrawerContent panelContent={sidebarStatus.open && panelContent}>
+        <DrawerContentBody>
+          <React.Suspense
+            fallback={<SpinContainer title="Loading the File Browser" />}
+          >
+            {pluginFilesPayload && selected ? (
+              <FileBrowser
+                selected={selected}
+                handleFileClick={handleFileClick}
+                pluginFilesPayload={pluginFilesPayload}
+                filesLoading={filesLoading}
+              />
+            ) : statusTitle && statusTitle ? (
+              <FetchFilesLoader title="Fetching Files" />
+            ) : (
+              <EmptyStateLoader title="Fetching Files" />
+            )}
+          </React.Suspense>
+        </DrawerContentBody>
+      </DrawerContent>
+    </Drawer>
   );
 };
 

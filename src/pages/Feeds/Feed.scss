@@ -88,47 +88,6 @@
   position: relative;
 }
 
-.section-two {
-  padding: 0 !important;
-  @include media-query($pf-global--breakpoint--sm) {
-    height: auto;
-  }
-  @include media-query($pf-global--breakpoint--md) {
-    height: 45vh;
-  }
-
-  @include media-query($pf-global--breakpoint--lg) {
-    height: 40vh;
-    .pf-c-drawer.pf-m-inline > .pf-c-drawer__main > .pf-c-drawer__content {
-      overflow: hidden;
-    }
-  }
-
-  @include media-query($pf-global--breakpoint--xl) {
-    height: 40vh;
-  }
-}
-
-.section-three {
-  @include media-query($pf-global--breakpoint--sm) {
-    height: auto;
-  }
-
-  @include media-query($pf-global--breakpoint--md) {
-    height: 46vh;
-  }
-
-  @include media-query($pf-global--breakpoint--lg) {
-    height: 46vh;
-  }
-
-  @include media-query($pf-global--breakpoint--xl2) {
-    height: 46vh;
-  }
-
-  padding: 0 !important;
-}
-
 .feed-block {
   background: "inherit";
   height: 100%;

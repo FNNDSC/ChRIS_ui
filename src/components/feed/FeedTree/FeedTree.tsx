@@ -434,55 +434,52 @@ const FeedTree = (props: AllProps) => {
           )}
         </div>
       </div>
-      <div className="container_feedTree">
-        <div className="svgArea">
-          {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
-            <svg
-              focusable="true"
-              className={`${svgClassName}`}
-              width="100%"
-              height="100%"
-              tabIndex={0}
-            >
-              <TransitionGroupWrapper
-                component="g"
-                className={graphClassName}
-                transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
-              >
-                {links?.map((linkData, i) => {
-                  return (
-                    <Link
-                      orientation={orientation}
-                      key={"link" + i}
-                      linkData={linkData}
-                    />
-                  );
-                })}
 
-                {nodes?.map(({ data, x, y, parent }, i) => {
-                  return (
-                    <NodeWrapper
-                      key={`node + ${i}`}
-                      data={data}
-                      position={{ x, y }}
-                      parent={parent}
-                      onNodeClick={handleNodeClick}
-                      onNodeClickTs={handleNodeClickTs}
-                      orientation={orientation}
-                      toggleLabel={feedState.toggleLabel}
-                      overlayScale={
-                        feedState.overlayScale.enabled
-                          ? feedState.overlayScale.type
-                          : undefined
-                      }
-                    />
-                  );
-                })}
-              </TransitionGroupWrapper>
-            </svg>
-          )}
-        </div>
-      </div>
+      {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
+        <svg
+          focusable="true"
+          className={`${svgClassName}`}
+          width="100%"
+          height="100%"
+          tabIndex={0}
+        >
+          <TransitionGroupWrapper
+            component="g"
+            className={graphClassName}
+            transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
+          >
+            {links?.map((linkData, i) => {
+              return (
+                <Link
+                  orientation={orientation}
+                  key={"link" + i}
+                  linkData={linkData}
+                />
+              );
+            })}
+
+            {nodes?.map(({ data, x, y, parent }, i) => {
+              return (
+                <NodeWrapper
+                  key={`node + ${i}`}
+                  data={data}
+                  position={{ x, y }}
+                  parent={parent}
+                  onNodeClick={handleNodeClick}
+                  onNodeClickTs={handleNodeClickTs}
+                  orientation={orientation}
+                  toggleLabel={feedState.toggleLabel}
+                  overlayScale={
+                    feedState.overlayScale.enabled
+                      ? feedState.overlayScale.type
+                      : undefined
+                  }
+                />
+              );
+            })}
+          </TransitionGroupWrapper>
+        </svg>
+      )}
     </div>
   );
 };
