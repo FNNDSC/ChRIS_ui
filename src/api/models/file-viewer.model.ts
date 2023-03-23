@@ -1,11 +1,8 @@
 import { FeedFile } from "@fnndsc/chrisapi";
-import {
-  FcTreeStructure,
-  FcGallery,
-  FcFolder,
-  FcList,
-  FcCommandLine,
-} from "react-icons/fc";
+import { AiOutlineFolderOpen, AiFillFile } from "react-icons/ai";
+import { ImTree } from "react-icons/im";
+import { TfiFlickr } from "react-icons/tfi";
+import { FaTerminal, FaFileImage } from "react-icons/fa";
 
 export interface IFileBlob {
   blob?: Blob;
@@ -52,9 +49,10 @@ export const fileViewerMap: any = {
 };
 
 export const iconMap: any = {
-  graph: FcTreeStructure,
-  preview: FcGallery,
-  directory: FcFolder,
-  files: FcList,
-  node: FcCommandLine,
+  graph: ImTree,
+  preview: FaFileImage,
+  directory: AiOutlineFolderOpen,
+  files: AiFillFile,
+  node: TfiFlickr,
+  terminal: FaTerminal,
 };

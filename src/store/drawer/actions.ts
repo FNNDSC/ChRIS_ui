@@ -13,3 +13,13 @@ export const setDrawerState = (drawerState: {
 export const setFilePreviewPanel = () => {
   return action(DrawerActionTypes.SET_PREVIEW_PANEL);
 };
+
+export const setDrawerCurrentlyActive = (
+  panel: string,
+  currentlyActive: string
+) => {
+  return action(DrawerActionTypes.SET_CURRENTLY_ACTIVE, {
+    panel,
+    currentlyActive,
+  });
+};

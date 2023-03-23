@@ -27,7 +27,7 @@
   }
 
   @include media-query($pf-global--breakpoint--xs) {
-    width: fit-content;
+    width: 100%;
   }
 
   @include media-query($pf-global--breakpoint--sm) {
@@ -36,7 +36,7 @@
 
   @include media-query($pf-global--breakpoint--md) {
     font-size: 0.75rem;
-    width: fit-content;
+    width: 100%;
   }
 
   @include media-query($pf-global--breakpoint--lg) {
@@ -109,7 +109,15 @@
 
     &__status {
       .ant-steps-item-icon {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 10px !important;
+        border-radius: 30px !important;
+        line-height: 20px !important;
         cursor: pointer;
+        margin: 0 0 0 2px;
+        padding-top: 3px;
+        padding-right: 0.25px;
       }
 
       .ant-steps-horizontal:not(.ant-steps-label-vertical)
@@ -121,6 +129,12 @@
         display: none;
       }
 
+      @media (min-width: 1024px) {
+        .ant-steps-item-tail {
+          margin-left: 15px !important;
+        }
+      }
+
       .ant-steps-item {
         overflow: visible !important;
       }
@@ -129,6 +143,11 @@
         color: #b8bbbe !important;
         margin-top: 0.5em;
         font-size: 12px;
+        text-align: left;
+      }
+
+      .ant-steps-horizontal:not(.ant-steps-label-vertical) .ant-steps-item {
+        padding-left: 0;
       }
 
       .ant-steps-horizontal:not(.ant-steps-label-vertical)

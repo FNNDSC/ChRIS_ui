@@ -150,6 +150,7 @@ export const EmptyStateLoader = ({ title }: { title: string }) => {
     </EmptyState>
   );
 };
+
 const FetchFilesLoader = ({ title }: { title: string }) => {
   return <SpinContainer background="inherit" title={title} />;
 };
