@@ -19,17 +19,15 @@
 
 .node-block {
   background: $node-block-background;
-  padding-top: 2rem;
   width: 100%;
   height: 100%;
   color: white;
-  font-size: 0.5rem;
   button {
     font-size: inherit;
   }
 
   @include media-query($pf-global--breakpoint--xs) {
-    width: fit-content;
+    width: 100%;
   }
 
   @include media-query($pf-global--breakpoint--sm) {
@@ -38,7 +36,7 @@
 
   @include media-query($pf-global--breakpoint--md) {
     font-size: 0.75rem;
-    width: fit-content;
+    width: 100%;
   }
 
   @include media-query($pf-global--breakpoint--lg) {
@@ -244,7 +242,6 @@ Steps Design Icon
 
 .ReactVirtualized__Grid__innerScrollContainer {
   color: #fff;
-  font-size: 0.75rem;
   font-family: monospace;
   height: 100%;
   width: 100%;

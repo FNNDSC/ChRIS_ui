@@ -14,7 +14,7 @@ import {
   PluginInstanceDescendantList,
   PluginParameterList,
 } from "@fnndsc/chrisapi";
-import { FaDownload, FaTerminal, FaCalendarAlt } from "react-icons/fa";
+import { FaDownload, FaCalendarAlt } from "react-icons/fa";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
 import PluginLog from "./PluginLog";
@@ -28,8 +28,6 @@ import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import { PipelineProvider } from "../CreateFeed/context";
-import { useDispatch } from "react-redux";
-import { getNodeOperations } from "../../../store/plugin/actions";
 import { AddNodeProvider } from "../AddNode/context";
 import "./NodeDetails.scss";
 
@@ -48,16 +46,12 @@ function getInitialState() {
 }
 
 const NodeDetails: React.FC = () => {
-  const dispatch = useDispatch();
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-  const nodeOperations = useTypedSelector(
-    (state) => state.plugin.nodeOperations
-  );
+  const drawerState = useTypedSelector((state) => state.drawers);
 
-  const { terminal } = nodeOperations;
   const { download, downloadAllClick } = useFeedBrowser();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -136,7 +130,7 @@ const NodeDetails: React.FC = () => {
     );
     return (
       <div className="node-details">
-        {terminal ? (
+        {drawerState["node"].currentlyActive === "terminal" ? (
           <PluginLog text={text} />
         ) : (
           <>
@@ -149,6 +143,7 @@ const NodeDetails: React.FC = () => {
             </Grid>
 
             <Status />
+
             <ExpandableSection
               toggleText={
                 isExpanded ? "Show Less Details" : "Show More Details"
@@ -253,26 +248,6 @@ const NodeDetails: React.FC = () => {
               </Grid>
 
               <Grid hasGutter={true}>
-                <RenderButtonGridItem>
-                  <Button
-                    onClick={() => {
-                      dispatch(getNodeOperations("terminal"));
-                    }}
-                    icon={<FaTerminal />}
-                  >
-                    View Terminal{" "}
-                    <span
-                      style={{
-                        padding: "2px",
-                        color: "#F5F5DC",
-                        fontSize: "11px",
-                      }}
-                    >
-                      ( T )
-                    </span>
-                  </Button>
-                </RenderButtonGridItem>
-
                 <RenderButtonGridItem>
                   <GraphNodeContainer />
                 </RenderButtonGridItem>
@@ -387,7 +362,7 @@ function getCommand(
 
 const RenderButtonGridItem = ({ children }: { children: ReactNode }) => {
   return (
-    <GridItem sm={12} lg={4} xl={2} xl2={2} span={2}>
+    <GridItem sm={12} lg={6} xl={3} xl2={3}>
       {children}
     </GridItem>
   );
