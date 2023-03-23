@@ -5,22 +5,27 @@ const initialState: IDrawerState = {
   graph: {
     open: true,
     maximized: false,
+    currentlyActive: "graph",
   },
   node: {
     open: true,
     maximized: false,
+    currentlyActive: "node",
   },
   directory: {
     open: true,
     maximized: false,
+    currentlyActive: "directory",
   },
   files: {
     open: true,
     maximized: false,
+    currentlyActive: "files",
   },
   preview: {
     open: false,
     maximized: false,
+    currentlyActive: "filePreview",
   },
 };
 
@@ -36,6 +41,7 @@ const reducer: Reducer<IDrawerState> = (state = initialState, action) => {
         newState = {
           ...state,
           [action.payload.actionType]: {
+            ...state[action.payload.actionType],
             open: action.payload.open,
             maximized: action.payload.maximized,
           },
@@ -53,9 +59,21 @@ const reducer: Reducer<IDrawerState> = (state = initialState, action) => {
         ["preview"]: {
           open: true,
           maximized: false,
+          currentlyActive: "preview",
         },
       };
     }
+
+    case DrawerActionTypes.SET_CURRENTLY_ACTIVE: {
+      return {
+        ...state,
+        [action.payload.panel]: {
+          ...state[action.payload.panel],
+          currentlyActive: action.payload.currentlyActive,
+        },
+      };
+    }
+
     default: {
       return state;
     }
@@ -68,7 +86,7 @@ export const getMaximizedObject = (
   state: IDrawerState,
   payload: DrawerPayloadType
 ) => {
-  const newState = state;
+  const newState = { ...state };
   for (const property in newState) {
     if (property !== payload.actionType) {
       newState[property].open = false;
@@ -85,7 +103,7 @@ export const getMinimizedObject = (
   state: IDrawerState,
   payload: DrawerPayloadType
 ) => {
-  const newState = state;
+  const newState = { ...state };
 
   for (const property in newState) {
     if (property !== payload.actionType) {

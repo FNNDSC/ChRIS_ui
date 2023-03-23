@@ -4,18 +4,18 @@ import { ErrorBoundary } from "react-error-boundary";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { useDispatch } from "react-redux";
 import {
-  PageSection,
-  Grid,
-  GridItem,
   Drawer,
   DrawerContent,
   DrawerContentBody,
   DrawerPanelContent,
 } from "@patternfly/react-core";
 import { useTypedSelector } from "../../../store/hooks";
-import { FeedDetails } from "../../../components";
 import { SpinContainer } from "../../../components/common/loading/LoadingContent";
-import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
+import {
+  getFeedRequest,
+  resetFeed,
+  setShowToolbar,
+} from "../../../store/feed/actions";
 import {
   getSelectedD3Node,
   getSelectedPlugin,
@@ -55,7 +55,7 @@ export const FeedView: React.FC = () => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-  const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
+  const { currentLayout } = useTypedSelector((state) => state.feed);
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
@@ -76,7 +76,7 @@ export const FeedView: React.FC = () => {
         handleClose("files", dispatch);
       }
     };
-  }, []);
+  }, [dispatch]);
 
   React.useEffect(() => {
     return () => {
@@ -91,11 +91,13 @@ export const FeedView: React.FC = () => {
       dispatch(resetTsNodes());
       dispatch(resetFeed());
       dispatch(clearSelectedFile());
+      dispatch(setShowToolbar(false));
     };
   }, [dispatch]);
 
   React.useEffect(() => {
     dispatch(setIsNavOpen(false));
+    dispatch(setShowToolbar(true));
   }, [dispatch]);
 
   React.useEffect(() => {
@@ -121,76 +123,23 @@ export const FeedView: React.FC = () => {
     dispatch(addTSNodes(node));
   };
 
-  const feedTree = (
-    <ErrorBoundary
-      fallback={
-        <div>
-          <LoadingErrorAlert
-            error={{
-              message: "Error found in constructing a tree",
-            }}
-          />
-        </div>
-      }
-    >
-      <GridItem
-        className="feed-block"
-        sm={12}
-        smRowSpan={12}
-        md={6}
-        mdRowSpan={12}
-        lg={6}
-        lgRowSpan={12}
-        xl={7}
-        xlRowSpan={12}
-        xl2={7}
-        xl2RowSpan={12}
-      >
-        {" "}
-        <React.Suspense
-          fallback={
-            <SpinContainer title="Fetching Resources to construct the graph" />
-          }
-        >
-          {!currentLayout ? (
-            <ParentComponent
-              onNodeClick={onNodeClick}
-              onNodeClickTs={onNodeClickTS}
-            />
-          ) : (
-            <FeedGraph onNodeClick={onNodeClick} />
-          )}
-        </React.Suspense>
-      </GridItem>
-    </ErrorBoundary>
-  );
-
-  const nodePanel = (
-    <ErrorBoundary fallback={<div></div>}>
-      <GridItem
-        sm={12}
-        smRowSpan={12}
-        md={6}
-        mdRowSpan={12}
-        lg={6}
-        lgRowSpan={12}
-        xl={5}
-        xlRowSpan={12}
-        xl2={5}
-        xl2RowSpan={12}
-        className="node-block"
-      >
-        {" "}
-        <React.Suspense
-          fallback={
-            <SpinContainer title="Fetching Selected Plugin Instance's details" />
-          }
-        >
-          <NodeDetails />
-        </React.Suspense>
-      </GridItem>
-    </ErrorBoundary>
-  );
+  const handleDrawerAction = (mode: string) => {
+    return (
+      <DrawerActionButton
+        background="#001223"
+        content={mode}
+        handleClose={() => {
+          handleClose(mode, dispatch);
+        }}
+        handleMaximize={() => {
+          handleMaximize(mode, dispatch);
+        }}
+        handleMinimize={() => {
+          handleMinimize(mode, dispatch);
+        }}
+      />
+    );
+  };
 
   const feedOutputBrowserPanel = (
     <React.Suspense
@@ -215,24 +164,104 @@ export const FeedView: React.FC = () => {
     </React.Suspense>
   );
 
+  const feedTree = (
+    <ErrorBoundary
+      fallback={
+        <div>
+          <LoadingErrorAlert
+            error={{
+              message: "Error found in constructing a tree",
+            }}
+          />
+        </div>
+      }
+    >
+      {" "}
+      <React.Suspense
+        fallback={
+          <SpinContainer title="Fetching Resources to construct the graph" />
+        }
+      >
+        {!currentLayout ? (
+          <ParentComponent
+            onNodeClick={onNodeClick}
+            onNodeClickTs={onNodeClickTS}
+          />
+        ) : (
+          <FeedGraph onNodeClick={onNodeClick} />
+        )}
+      </React.Suspense>
+    </ErrorBoundary>
+  );
+
+  const nodePanel = (
+    <ErrorBoundary
+      fallback={
+        <div>
+          <div>
+            <LoadingErrorAlert
+              error={{
+                message: "Error found in fetching resources for this panel",
+              }}
+            />
+          </div>
+        </div>
+      }
+    >
+      <div className="node-block">
+        {" "}
+        <React.Suspense
+          fallback={
+            <SpinContainer title="Fetching Selected Plugin Instance's details" />
+          }
+        >
+          <NodeDetails />
+        </React.Suspense>
+      </div>
+    </ErrorBoundary>
+  );
+
+  const inlineDrawer = (
+    <Drawer isInline position="right" isExpanded={drawerState.node.open}>
+      <DrawerContent
+        panelContent={
+          <DrawerPanelContent
+            defaultSize={drawerState.graph.open === false ? "100%" : "47%"}
+            isResizable
+          >
+            {handleDrawerAction("node")}
+            {nodePanel}
+          </DrawerPanelContent>
+        }
+      >
+        <DrawerActionButton
+          background="#151515"
+          content="Graph"
+          handleClose={() => {
+            handleClose("graph", dispatch);
+          }}
+          handleMaximize={() => {
+            handleMaximize("graph", dispatch);
+          }}
+          handleMinimize={() => {
+            handleMinimize("graph", dispatch);
+          }}
+        />
+        <DrawerContentBody>{feedTree}</DrawerContentBody>
+      </DrawerContent>
+    </Drawer>
+  );
+
   return (
     <React.Fragment>
-      <PageSection
-        variant="darker"
-        className="section-one"
-        style={{ height: "auto" }}
-      >
-        <FeedDetails />
-      </PageSection>
-
       <Drawer
+        isInline
+        position="bottom"
         isExpanded={
           drawerState.preview.open ||
           drawerState.directory.open ||
           drawerState.files.open
         }
-        isInline
-        position="bottom"
       >
         <DrawerContent
           panelContent={
@@ -244,67 +273,11 @@ export const FeedView: React.FC = () => {
               }
               isResizable
             >
-              <PageSection variant="darker" className="section-three">
-                {feedOutputBrowserPanel}
-              </PageSection>
+              {feedOutputBrowserPanel}
             </DrawerPanelContent>
           }
         >
-          <PageSection variant="darker" className="section-two">
-            <Grid
-              style={{
-                height: "100%",
-                width: "100%",
-              }}
-            >
-              <Drawer isExpanded={drawerState.node.open} isInline>
-                <DrawerContent
-                  panelContent={
-                    <DrawerPanelContent
-                      className="drawer-panel"
-                      defaultSize={
-                        drawerState.graph.open === false ? "100%" : "51.5%"
-                      }
-                      minSize={"25%"}
-                      isResizable
-                    >
-                      <DrawerActionButton
-                        background="#001223"
-                        content="Node"
-                        handleClose={() => {
-                          handleClose("node", dispatch);
-                        }}
-                        handleMaximize={() => {
-                          handleMaximize("node", dispatch);
-                        }}
-                        handleMinimize={() => {
-                          handleMinimize("node", dispatch);
-                        }}
-                      />
-                      {nodePanel}
-                    </DrawerPanelContent>
-                  }
-                >
-                  <DrawerContentBody>
-                    <DrawerActionButton
-                      background="#151515"
-                      content="Graph"
-                      handleClose={() => {
-                        handleClose("graph", dispatch);
-                      }}
-                      handleMaximize={() => {
-                        handleMaximize("graph", dispatch);
-                      }}
-                      handleMinimize={() => {
-                        handleMinimize("graph", dispatch);
-                      }}
-                    />
-                    {drawerState.graph.open && feedTree}
-                  </DrawerContentBody>
-                </DrawerContent>
-              </Drawer>
-            </Grid>
-          </PageSection>
+          {inlineDrawer}
         </DrawerContent>
       </Drawer>
     </React.Fragment>
