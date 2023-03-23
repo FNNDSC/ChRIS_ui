@@ -196,7 +196,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       defaultSize={
         !drawerState.directory.open && !drawerState.files.open
           ? "100%"
-          : "60.5%"
+          : "55%"
       }
       minSize={"25%"}
     >

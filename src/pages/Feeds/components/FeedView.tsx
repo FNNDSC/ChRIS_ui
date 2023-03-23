@@ -4,16 +4,18 @@ import { ErrorBoundary } from "react-error-boundary";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { useDispatch } from "react-redux";
 import {
-  PageSection,
   Drawer,
   DrawerContent,
   DrawerContentBody,
   DrawerPanelContent,
 } from "@patternfly/react-core";
 import { useTypedSelector } from "../../../store/hooks";
-import { FeedDetails } from "../../../components";
 import { SpinContainer } from "../../../components/common/loading/LoadingContent";
-import { getFeedRequest, resetFeed } from "../../../store/feed/actions";
+import {
+  getFeedRequest,
+  resetFeed,
+  setShowToolbar,
+} from "../../../store/feed/actions";
 import {
   getSelectedD3Node,
   getSelectedPlugin,
@@ -53,7 +55,7 @@ export const FeedView: React.FC = () => {
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
-  const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
+  const { currentLayout } = useTypedSelector((state) => state.feed);
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
@@ -89,11 +91,13 @@ export const FeedView: React.FC = () => {
       dispatch(resetTsNodes());
       dispatch(resetFeed());
       dispatch(clearSelectedFile());
+      dispatch(setShowToolbar(false));
     };
   }, [dispatch]);
 
   React.useEffect(() => {
     dispatch(setIsNavOpen(false));
+    dispatch(setShowToolbar(true));
   }, [dispatch]);
 
   React.useEffect(() => {
@@ -117,6 +121,24 @@ export const FeedView: React.FC = () => {
 
   const onNodeClickTS = (node: PluginInstance) => {
     dispatch(addTSNodes(node));
+  };
+
+  const handleDrawerAction = (mode: string) => {
+    return (
+      <DrawerActionButton
+        background="#001223"
+        content={mode}
+        handleClose={() => {
+          handleClose(mode, dispatch);
+        }}
+        handleMaximize={() => {
+          handleMaximize(mode, dispatch);
+        }}
+        handleMinimize={() => {
+          handleMinimize(mode, dispatch);
+        }}
+      />
+    );
   };
 
   const feedOutputBrowserPanel = (
@@ -204,22 +226,10 @@ export const FeedView: React.FC = () => {
       <DrawerContent
         panelContent={
           <DrawerPanelContent
-            defaultSize={drawerState.graph.open === false ? "100%" : "51.5%"}
+            defaultSize={drawerState.graph.open === false ? "100%" : "47%"}
             isResizable
           >
-            <DrawerActionButton
-              background="#001223"
-              content="Node"
-              handleClose={() => {
-                handleClose("node", dispatch);
-              }}
-              handleMaximize={() => {
-                handleMaximize("node", dispatch);
-              }}
-              handleMinimize={() => {
-                handleMinimize("node", dispatch);
-              }}
-            />
+            {handleDrawerAction("node")}
             {nodePanel}
           </DrawerPanelContent>
         }
@@ -244,14 +254,6 @@ export const FeedView: React.FC = () => {
 
   return (
     <React.Fragment>
-      <PageSection
-        variant="darker"
-        className="section-one"
-        style={{ height: "auto" }}
-      >
-        <FeedDetails />
-      </PageSection>
-
       <Drawer
         isInline
         position="bottom"

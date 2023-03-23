@@ -337,7 +337,7 @@ const reducer: Reducer<IFeedState> = (state = initialState, action) => {
     case FeedActionTypes.SHOW_TOOLBAR: {
       return {
         ...state,
-        showToolbar: !state.showToolbar,
+        showToolbar: action.payload,
       };
     }
 

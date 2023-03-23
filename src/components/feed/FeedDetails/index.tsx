@@ -1,24 +1,45 @@
 import React, { ReactElement, ReactNode } from "react";
-import { Toolbar, ToolbarItem, ToolbarContent } from "@patternfly/react-core";
-import { Badge } from "antd";
+import {
+  Toolbar,
+  ToolbarItem,
+  ToolbarContent,
+  Button,
+} from "@patternfly/react-core";
 import { useTypedSelector } from "../../../store/hooks";
 import { ButtonWithTooltip, handleToggle } from "../../common/button";
-import { LoadingContent } from "../../common/loading/LoadingContent";
-import { LoadingErrorAlert } from "../../common/errorHandling";
 import { useDispatch } from "react-redux";
 import { IDrawerState } from "../../../store/drawer/types";
 import { iconMap } from "../../../api/models/file-viewer.model";
 import "./FeedDetails.scss";
+import { FaTerminal } from "react-icons/fa";
+
+import { setDrawerCurrentlyActive } from "../../../store/drawer/actions";
+
+const getButtonStyle = (open: boolean) => {
+  return {
+    borderRadius: "50%",
+    padding: "0.5em",
+    textAlign: "center",
+    backgroundColor: !open ? "#8a8d90" : "#06c",
+  };
+};
+
+const iconStyle = {
+  color: "white",
+  width: "24px",
+  height: "24px",
+};
 
 const FeedDetails = () => {
   const dispatch = useDispatch();
-  const { currentFeed: currentFeedPayload, showToolbar } = useTypedSelector(
-    (state) => state.feed
-  );
-
   const drawerState = useTypedSelector((state) => state.drawers);
 
-  const { error, data: feed, loading } = currentFeedPayload;
+  const node = drawerState["node"].currentlyActive === "node" ? true : false;
+  const terminal =
+    drawerState["node"].currentlyActive === "terminal" ? true : false;
+
+  const NodeIcon = iconMap["node"];
+  const buttonStyle = getButtonStyle(false);
 
   const items = (
     <React.Fragment>
@@ -31,14 +52,6 @@ const FeedDetails = () => {
         }}
       >
         <DrawerActionsToolbar
-          title="Files"
-          Icon={iconMap["files"]}
-          action="files"
-          dispatch={dispatch}
-          drawerState={drawerState}
-        />
-
-        <DrawerActionsToolbar
           title="Graph"
           Icon={iconMap["graph"]}
           action="graph"
@@ -48,7 +61,7 @@ const FeedDetails = () => {
 
         <DrawerActionsToolbar
           title="Node"
-          Icon={iconMap["node"]}
+          Icon={node ? iconMap["node"] : iconMap["terminal"]}
           action="node"
           dispatch={dispatch}
           drawerState={drawerState}
@@ -63,37 +76,47 @@ const FeedDetails = () => {
         />
 
         <DrawerActionsToolbar
+          title="Files"
+          Icon={iconMap["files"]}
+          action="files"
+          dispatch={dispatch}
+          drawerState={drawerState}
+        />
+
+        <DrawerActionsToolbar
           title="Preview"
           Icon={iconMap["preview"]}
           action="preview"
           dispatch={dispatch}
           drawerState={drawerState}
         />
+
+        <Button
+          //@ts-ignore
+          style={buttonStyle}
+          onClick={() => {
+            if (terminal) {
+              dispatch(setDrawerCurrentlyActive("node", "node"));
+            } else dispatch(setDrawerCurrentlyActive("node", "terminal"));
+          }}
+          variant="primary"
+          icon={
+            node ? (
+              <FaTerminal style={iconStyle} />
+            ) : (
+              <NodeIcon style={iconStyle} />
+            )
+          }
+        />
       </div>
     </React.Fragment>
   );
 
-  if (feed) {
-    return (
-      <ToolbarComponent>
-        <ToolbarContent>{items}</ToolbarContent>
-      </ToolbarComponent>
-    );
-  } else if (loading) {
-    return (
-      <ToolbarComponent>
-        <ToolbarContent>
-          <ToolbarContainer childComponent={<LoadingContent />} />
-        </ToolbarContent>
-      </ToolbarComponent>
-    );
-  } else if (error) {
-    return (
-      <ToolbarComponent>
-        <LoadingErrorAlert error={error} />
-      </ToolbarComponent>
-    );
-  } else return null;
+  return (
+    <ToolbarComponent>
+      <ToolbarContent>{items}</ToolbarContent>
+    </ToolbarComponent>
+  );
 };
 
 export default FeedDetails;
@@ -141,25 +164,16 @@ const DrawerActionsToolbar = ({
   return (
     <ToolbarContainer
       childComponent={
-        <Badge offset={[0, 15]} dot={!drawerState[action].open}>
-          <ButtonWithTooltip
-            style={{
-              padding: "0",
-            }}
-            content={<span>{title}</span>}
-            icon={
-              <Icon
-                style={{
-                  color: "white",
-                  width: "32px",
-                  height: "32px",
-                }}
-              />
-            }
-            variant="link"
-            onClick={() => handleToggle(action, drawerState, dispatch)}
-          />
-        </Badge>
+        <ButtonWithTooltip
+          position="bottom"
+          style={getButtonStyle(drawerState[action].open)}
+          content={<span>{title}</span>}
+          icon={<Icon style={iconStyle} />}
+          variant="primary"
+          onClick={() => {
+            handleToggle(action, drawerState, dispatch);
+          }}
+        />
       }
     />
   );
