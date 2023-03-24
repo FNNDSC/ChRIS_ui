@@ -22,9 +22,10 @@ import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import PluginTitle from "./PluginTitle";
 import GraphNodeContainer from "../AddTsNode";
+import AddPipeline from "../AddPipeline/AddPipeline";
+import FeedNote from "../FeedDetails/FeedNote";
 import { useTypedSelector } from "../../../store/hooks";
 import { getErrorCodeMessage } from "./utils";
-import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import { PipelineProvider } from "../CreateFeed/context";
@@ -132,6 +133,8 @@ const NodeDetails: React.FC = () => {
       <div className="node-details">
         {drawerState["node"].currentlyActive === "terminal" ? (
           <PluginLog text={text} />
+        ) : drawerState["node"].currentlyActive === "note" ? (
+          <FeedNote />
         ) : (
           <>
             <div className="node-details__title">
