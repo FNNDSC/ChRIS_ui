@@ -39,6 +39,7 @@ import {
   handleMinimize,
 } from "../../common/button";
 import { setFilePreviewPanel } from "../../../store/drawer/actions";
+import XtkViewer from "../../detailedView/displays/XtkViewer/XtkViewer";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -196,7 +197,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       defaultSize={
         !drawerState.directory.open && !drawerState.files.open
           ? "100%"
-          : "55%"
+          : "55.3%"
       }
       minSize={"25%"}
     >
@@ -214,7 +215,10 @@ const FileBrowser = (props: FileBrowserProps) => {
         }}
       />
       <DrawerPanelBody className="file-browser__drawerbody">
-        <FileDetailView selectedFile={selectedFile} preview="large" />
+        {drawerState["preview"].currentlyActive === "preview" && (
+          <FileDetailView selectedFile={selectedFile} preview="large" />
+        )}
+        {drawerState["preview"].currentlyActive === "xtk" && <XtkViewer />}
       </DrawerPanelBody>
     </DrawerPanelContent>
   );

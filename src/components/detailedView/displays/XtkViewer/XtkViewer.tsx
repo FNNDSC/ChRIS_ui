@@ -16,6 +16,7 @@ type VolumeMode = "3D" | "2D";
 
 const getFileType = (file?: FeedFile) =>
   file?.data.fname.split(".").slice(-1)[0];
+
 const getFileData = async (file: FeedFile) =>
   (await file.getFileBlob())?.arrayBuffer();
 
@@ -40,19 +41,16 @@ function getPrimaryFileMode(file: FeedFile): ViewerMode | undefined {
 }
 
 const XtkViewer = () => {
-  /*
-  const directoryFiles =
-    useTypedSelector((state) => state.explorer.selectedFolder) || [];
-
+  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+  const selectedFileType = getFileType(selectedFile);
+  const { pluginFiles } = useTypedSelector((state) => state.resource);
+  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+  const pluginFilesPayload = selected && pluginFiles[selected.data.id];
+  const directoryFiles = pluginFilesPayload ? pluginFilesPayload.files : [];
   const crvFiles = directoryFiles.filter((file) => {
     const fileName = file.data.fname;
     return fileName?.endsWith(".crv");
   });
-
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
-  const selectedFileType = getFileType(selectedFile);
-
-  // data based on first load, before further interactions
   const defaultPrimaryFile =
     selectedFileType === "crv" ? undefined : selectedFile;
   const defaultCrvFile = selectedFileType === "crv" ? selectedFile : undefined;
@@ -167,8 +165,8 @@ const XtkViewer = () => {
 
     return () => {
       try {
-        r.destroy();
-        gui.destroy();
+        r && r.destroy();
+        gui && gui.destroy();
       } catch (e) {
         console.log(e);
       }
@@ -181,7 +179,6 @@ const XtkViewer = () => {
     orientation,
     secondaryFile,
   ]);
-
   const handleFullscreenToggle = () => {
     if (!fullscreen) {
       fullscreenRef?.current?.requestFullscreen();
@@ -306,8 +303,6 @@ const XtkViewer = () => {
       )}
     </div>
   );
-  */
-  return <div>XTK Viewer </div>;
 };
 
 export default XtkViewer;

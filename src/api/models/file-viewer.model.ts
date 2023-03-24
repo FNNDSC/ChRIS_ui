@@ -2,7 +2,8 @@ import { FeedFile } from "@fnndsc/chrisapi";
 import { AiOutlineFolderOpen, AiFillFile } from "react-icons/ai";
 import { ImTree } from "react-icons/im";
 import { TfiFlickr } from "react-icons/tfi";
-import { FaTerminal, FaFileImage } from "react-icons/fa";
+import { FaTerminal, FaFileImage, FaBrain } from "react-icons/fa";
+import { MdEditNote } from "react-icons/md";
 
 export interface IFileBlob {
   blob?: Blob;
@@ -55,4 +56,6 @@ export const iconMap: any = {
   files: AiFillFile,
   node: TfiFlickr,
   terminal: FaTerminal,
+  brain: FaBrain,
+  note: MdEditNote,
 };
