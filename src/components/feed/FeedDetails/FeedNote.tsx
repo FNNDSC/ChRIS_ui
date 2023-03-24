@@ -1,13 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { TextArea, FormGroup, Form } from "@patternfly/react-core";
+import { useTypedSelector } from "../../../store/hooks";
+import { Feed } from "@fnndsc/chrisapi";
 
-type FeedNoteProps = {
-  note: string;
-  handleEditNote: (note: string) => void;
-};
+async function fetchNote(feed?: Feed) {
+  const note = await feed?.getNote();
+  return note;
+}
 
-const FeedNote = ({ note, handleEditNote }: FeedNoteProps) => {
-  const [value, setValue] = React.useState(note ? note : "");
+const FeedNote = () => {
+  const [value, setValue] = React.useState("");
+
+  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
+
+  useEffect(() => {
+    fetchNote(feed).then((note) => {
+      setValue(note?.data.content);
+    });
+  }, [fetchNote]);
+
   const [typing, setTyping] = React.useState(false);
   const handleChange = (value: string) => {
     setValue(value);
@@ -22,32 +33,32 @@ const FeedNote = ({ note, handleEditNote }: FeedNoteProps) => {
   }, [typing]);
 
   return (
-    <div className="feed-details__note">
-      <Form>
-        <FormGroup
-          type="string"
-          helperText={
-            typing ? <i>Typing...</i> : <span>Hit Enter to Save</span>
-          }
-          fieldId="selection"
-        >
-          <TextArea
-            className="feed-details__textarea"
-            value={value}
-            onChange={handleChange}
-            onKeyDown={(event: any) => {
-              if (event.key === "Enter") {
-                handleEditNote(value);
-              } else {
-                setTyping(true);
-              }
-            }}
-            isRequired
-            aria-label="invalid text area example"
-          />
-        </FormGroup>
-      </Form>
-    </div>
+    <Form>
+      <FormGroup
+        type="string"
+        helperText={typing ? <i>Typing...</i> : <span>Hit Enter to Save</span>}
+        fieldId="selection"
+      >
+        <TextArea
+          className="feed-details__textarea"
+          value={value}
+          onChange={handleChange}
+          onKeyDown={async (event: any) => {
+            if (event.key === "Enter") {
+              const note = await fetchNote(feed);
+              await note?.put({
+                title: "Description",
+                content: value,
+              });
+            } else {
+              setTyping(true);
+            }
+          }}
+          isRequired
+          aria-label="invalid text area example"
+        />
+      </FormGroup>
+    </Form>
   );
 };
 

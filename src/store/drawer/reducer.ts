@@ -25,7 +25,7 @@ const initialState: IDrawerState = {
   preview: {
     open: false,
     maximized: false,
-    currentlyActive: "filePreview",
+    currentlyActive: "preview",
   },
 };
 
