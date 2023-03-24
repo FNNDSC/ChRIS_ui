@@ -11,7 +11,6 @@ import { useDispatch } from "react-redux";
 import { IDrawerState } from "../../../store/drawer/types";
 import { iconMap } from "../../../api/models/file-viewer.model";
 import "./FeedDetails.scss";
-import { FaTerminal } from "react-icons/fa";
 
 import { setDrawerCurrentlyActive } from "../../../store/drawer/actions";
 
@@ -35,10 +34,18 @@ const FeedDetails = () => {
   const drawerState = useTypedSelector((state) => state.drawers);
 
   const node = drawerState["node"].currentlyActive === "node" ? true : false;
+  const note = drawerState["node"].currentlyActive === "note" ? true : false;
   const terminal =
     drawerState["node"].currentlyActive === "terminal" ? true : false;
 
+  const preview =
+    drawerState["preview"].currentlyActive === "preview" ? true : false;
+
   const NodeIcon = iconMap["node"];
+  const PreviewIcon = iconMap["preview"];
+  const BrainIcon = iconMap["brain"];
+  const NoteIcon = iconMap["note"];
+  const TerminalIcon = iconMap["terminal"];
   const buttonStyle = getButtonStyle(false);
 
   const items = (
@@ -52,60 +59,146 @@ const FeedDetails = () => {
         }}
       >
         <DrawerActionsToolbar
-          title="Graph"
-          Icon={iconMap["graph"]}
-          action="graph"
-          dispatch={dispatch}
-          drawerState={drawerState}
+          button={
+            <ButtonContainer
+              title="Graph"
+              Icon={iconMap["graph"]}
+              action="graph"
+              dispatch={dispatch}
+              drawerState={drawerState}
+            />
+          }
         />
 
         <DrawerActionsToolbar
-          title="Node"
-          Icon={node ? iconMap["node"] : iconMap["terminal"]}
-          action="node"
-          dispatch={dispatch}
-          drawerState={drawerState}
+          button={
+            <ButtonContainer
+              title="Node"
+              Icon={
+                node
+                  ? iconMap["node"]
+                  : note
+                  ? iconMap["note"]
+                  : iconMap["terminal"]
+              }
+              action="node"
+              dispatch={dispatch}
+              drawerState={drawerState}
+            />
+          }
         />
 
         <DrawerActionsToolbar
-          title="Directory"
-          Icon={iconMap["directory"]}
-          action="directory"
-          dispatch={dispatch}
-          drawerState={drawerState}
+          button={
+            <ButtonContainer
+              title="Directory"
+              Icon={iconMap["directory"]}
+              action="directory"
+              dispatch={dispatch}
+              drawerState={drawerState}
+            />
+          }
         />
 
         <DrawerActionsToolbar
-          title="Files"
-          Icon={iconMap["files"]}
-          action="files"
-          dispatch={dispatch}
-          drawerState={drawerState}
+          button={
+            <ButtonContainer
+              title="Files"
+              Icon={iconMap["files"]}
+              action="files"
+              dispatch={dispatch}
+              drawerState={drawerState}
+            />
+          }
         />
 
         <DrawerActionsToolbar
-          title="Preview"
-          Icon={iconMap["preview"]}
-          action="preview"
-          dispatch={dispatch}
-          drawerState={drawerState}
+          button={
+            <ButtonContainer
+              title="Preview"
+              Icon={preview ? iconMap["preview"] : iconMap["brain"]}
+              action="preview"
+              dispatch={dispatch}
+              drawerState={drawerState}
+            />
+          }
         />
 
-        <Button
-          //@ts-ignore
-          style={buttonStyle}
-          onClick={() => {
-            if (terminal) {
-              dispatch(setDrawerCurrentlyActive("node", "node"));
-            } else dispatch(setDrawerCurrentlyActive("node", "terminal"));
-          }}
-          variant="primary"
-          icon={
-            node ? (
-              <FaTerminal style={iconStyle} />
-            ) : (
-              <NodeIcon style={iconStyle} />
-            )
+        <DrawerActionsToolbar
+          button={
+            <ButtonWithTooltip
+              //@ts-ignore
+              style={buttonStyle}
+              position="bottom"
+              content={!node && terminal ? "Node Details" : "Terminal"}
+              onClick={() => {
+                if (terminal) {
+                  dispatch(setDrawerCurrentlyActive("node", "node"));
+                } else {
+                  dispatch(setDrawerCurrentlyActive("node", "terminal"));
+                }
+              }}
+              variant="primary"
+              icon={
+                !node && terminal ? (
+                  <NodeIcon style={iconStyle} />
+                ) : (
+                  <TerminalIcon style={iconStyle} />
+                )
+              }
+            />
+          }
+        />
+
+        <DrawerActionsToolbar
+          button={
+            <ButtonWithTooltip
+              //@ts-ignore
+              style={buttonStyle}
+              position="bottom"
+              variant="primary"
+              content={!note && note ? "Node Details" : "Feed Note"}
+              onClick={() => {
+                if (note) {
+                  dispatch(setDrawerCurrentlyActive("node", "node"));
+                } else {
+                  dispatch(setDrawerCurrentlyActive("node", "note"));
+                }
+              }}
+              icon={
+                !node && note ? (
+                  <NodeIcon style={iconStyle} />
+                ) : (
+                  <NoteIcon style={iconStyle} />
+                )
+              }
+            />
+          }
+        />
+
+        <DrawerActionsToolbar
+          button={
+            <ButtonWithTooltip
+              //@ts-ignore
+              style={buttonStyle}
+              position="bottom"
+              content={preview ? "Xtk Viewer" : "Preview"}
+              variant="primary"
+              onClick={() => {
+                if (preview) {
+                  dispatch(setDrawerCurrentlyActive("preview", "xtk"));
+                } else {
+                  dispatch(setDrawerCurrentlyActive("preview", "preview"));
+                }
+              }}
+              icon={
+                preview ? (
+                  <BrainIcon style={iconStyle} />
+                ) : (
+                  <PreviewIcon style={iconStyle} />
+                )
+              }
+            />
           }
         />
       </div>
@@ -148,7 +241,11 @@ const ToolbarContainer = ({
   return <ToolbarItem spacer={spacer}>{childComponent}</ToolbarItem>;
 };
 
-const DrawerActionsToolbar = ({
+const DrawerActionsToolbar = ({ button }: { button: React.ReactNode }) => {
+  return <ToolbarContainer childComponent={button} />;
+};
+
+export const ButtonContainer = ({
   action,
   dispatch,
   Icon,
@@ -162,19 +259,15 @@ const DrawerActionsToolbar = ({
   drawerState: IDrawerState;
 }) => {
   return (
-    <ToolbarContainer
-      childComponent={
-        <ButtonWithTooltip
-          position="bottom"
-          style={getButtonStyle(drawerState[action].open)}
-          content={<span>{title}</span>}
-          icon={<Icon style={iconStyle} />}
-          variant="primary"
-          onClick={() => {
-            handleToggle(action, drawerState, dispatch);
-          }}
-        />
-      }
+    <ButtonWithTooltip
+      position="bottom"
+      style={getButtonStyle(drawerState[action].open)}
+      content={<span>{title}</span>}
+      icon={<Icon style={iconStyle} />}
+      variant="primary"
+      onClick={() => {
+        handleToggle(action, drawerState, dispatch);
+      }}
     />
   );
 };

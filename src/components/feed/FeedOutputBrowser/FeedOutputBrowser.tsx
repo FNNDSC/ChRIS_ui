@@ -7,7 +7,6 @@ import {
   DrawerContentBody,
   DrawerContent,
   DrawerPanelContent,
-  DrawerPanelBody,
   Drawer,
 } from "@patternfly/react-core";
 import { Tree } from "antd";
@@ -121,7 +120,7 @@ const SidebarTree = (props: {
     //@ts-ignore
     setTreeData(pluginSidebarTree);
   }, [plugins, selected]);
-
+ //@ts-ignore
   return (
     <DirectoryTree
       autoExpandParent
