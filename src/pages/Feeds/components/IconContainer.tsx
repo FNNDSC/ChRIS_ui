@@ -159,7 +159,10 @@ const IconContainer = () => {
       dispatch(downloadFeedRequest(bulkSelect, feedName));
     currentAction === "merge" &&
       dispatch(mergeFeedRequest(bulkSelect, feedName));
-    currentAction === "delete" && handleDelete(bulkSelect);
+    if(currentAction === "delete"){
+      handleDelete(bulkSelect);
+      handleModalToggle(false)
+    }
     currentAction === "duplicate" &&
       dispatch(duplicateFeedRequest(bulkSelect, feedName));
     dispatch(toggleSelectAll(false));
