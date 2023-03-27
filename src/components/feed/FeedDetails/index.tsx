@@ -1,10 +1,5 @@
 import React, { ReactElement, ReactNode } from "react";
-import {
-  Toolbar,
-  ToolbarItem,
-  ToolbarContent,
-  Button,
-} from "@patternfly/react-core";
+import { Toolbar, ToolbarItem, ToolbarContent } from "@patternfly/react-core";
 import { useTypedSelector } from "../../../store/hooks";
 import { ButtonWithTooltip, handleToggle } from "../../common/button";
 import { useDispatch } from "react-redux";
@@ -17,8 +12,6 @@ import { setDrawerCurrentlyActive } from "../../../store/drawer/actions";
 const getButtonStyle = (open: boolean) => {
   return {
     borderRadius: "50%",
-    padding: "0.5em",
-    textAlign: "center",
     backgroundColor: !open ? "#8a8d90" : "#06c",
   };
 };

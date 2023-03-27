@@ -650,7 +650,10 @@ const UploadComponent = ({
       variant={ModalVariant.medium}
       arial-labelledby="file-upload"
     >
-      <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
+      <div style={{ height: "200px" }}>
+        <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
+      </div>
+
       <div style={{ marginTop: "1.5rem" }}>
         Total Files to push: {localFiles.length}
         <Button
