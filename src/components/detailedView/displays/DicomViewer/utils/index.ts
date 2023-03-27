@@ -52,8 +52,6 @@ cornerstoneNIFTIImageLoader.nifti.configure({
   responseType: "arrayBuffer",
 });
 
-
-
 toolList.forEach((tool) => {
   if (tool.name === "StackScrollMouseWheelTool") {
     cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
@@ -94,7 +92,7 @@ export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
 };
 
 export const windowResize = (element: HTMLDivElement) => {
-  cornerstone.resize(element);
+  cornerstone.resize(element, true);
 };
 
 export const resetDicomSettings = (element: HTMLDivElement) => {
@@ -573,9 +571,12 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
         // finally we add the string to our output array surrounded by li elements so it shows up in the
         // DOM as a list
 
-        testOutput.push({
-          [tag.name]: text,
-        });
+        if (tag) {
+          testOutput.push({
+            [tag.name]: text,
+          });
+        }
+
         output.push(
           '<li style="color:' +
             color +
