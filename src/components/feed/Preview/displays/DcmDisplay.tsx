@@ -1,5 +1,6 @@
 import * as React from "react";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
+import { useTypedSelector } from "../../../../store/hooks";
 import {
   handleEventState,
   enableDOMElement,
@@ -18,13 +19,19 @@ export type DcmImageProps = {
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem, preview } = props;
+  const drawerState = useTypedSelector((state) => state.drawers);
 
   const onWindowResize = () => {
     const element = dicomImageRef.current;
+
     if (element) {
       windowResize(element);
     }
   };
+
+  if (drawerState["preview"].maximized === true) {
+    onWindowResize();
+  }
 
   const handleEvents = React.useCallback((event: string, value: boolean) => {
     if (event === "Zoom") {
@@ -50,37 +57,10 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       if (dicomImageRef.current) {
         resetDicomSettings(dicomImageRef.current);
       }
-
-      /*
-      cornerstoneTools.clearToolState(dicomImageRef.current, "Length");
-      cornerstone.reset(dicomImageRef.current);
-      setDicomState((dicomState) => {
-        return {
-          ...dicomState,
-          gallery: false,
-        };
-      });
-      */
     }
 
     if (event === "Length") {
       handleEventState(event, value);
-    }
-
-    if (event === "Gallery") {
-      /*
-      cornerstone.reset(dicomImageRef.current);
-      setDicomState((dicomState) => {
-        return {
-          ...dicomState,
-          gallery: value,
-        };
-      });
-      */
-    }
-
-    if (event === "TagInfo") {
-      //  handleModalToggle(value);
     }
   }, []);
 
@@ -98,9 +78,16 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       enableDOMElement(element);
       const imageId = loadDicomImage(blob);
       displayDicomImage(imageId, element);
-      window.addEventListener("resize", onWindowResize);
     }
   }, []);
+
+  React.useEffect(() => {
+    window.addEventListener("resize", onWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", onWindowResize);
+    };
+  });
 
   React.useEffect(() => {
     if (!!fileItem) {

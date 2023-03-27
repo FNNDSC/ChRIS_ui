@@ -49,7 +49,7 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
         r.destroy();
       }
     };
-  }, [fileItem, mode]);
+  }, [fileItem.blob, fileItem.file?.data.fname, mode]);
 
   const renderContainerRef = useRef(null);
 

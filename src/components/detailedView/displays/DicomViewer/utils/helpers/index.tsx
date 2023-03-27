@@ -4,7 +4,6 @@ import { FeedFile } from "@fnndsc/chrisapi";
 import ReactJson from "react-json-view";
 import { SpinContainer } from "../../../../../common/loading/LoadingContent";
 
-
 export const GalleryButtonContainer = ({
   handleClick,
   text,
@@ -51,7 +50,7 @@ export const TagInfoModal = ({
 }: {
   isModalOpen: boolean;
   handleModalToggle: (event: string, value: boolean) => void;
-  output: any[];
+  output?: any[];
   file?: FeedFile;
 }) => {
   return (
@@ -64,8 +63,10 @@ export const TagInfoModal = ({
       isOpen={isModalOpen}
       onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
     >
-      {Object.keys(output).length > 0 ? (
+      {output && Object.keys(output).length > 0 ? (
         <ReactJson
+          collapsed={false}
+          shouldCollapse={false}
           enableClipboard={true}
           theme="google"
           displayDataTypes={false}
