@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import {
   Breadcrumb,
@@ -51,8 +51,6 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
-
-  const [currentRowIndex, setCurrentRowIndex] = useState<number>(0);
 
   const { files, folders, path } = pluginFilesPayload;
   const cols = [{ title: "Name" }, { title: "Size" }, { title: "" }];
@@ -169,27 +167,6 @@ const FileBrowser = (props: FileBrowserProps) => {
       ?.animate(previewAnimation, previewAnimationTiming);
   };
 
-  const handlePrevClick = () => {
-    if (currentRowIndex >= 1) {
-      const prevItem = items[currentRowIndex - 1];
-      setCurrentRowIndex(currentRowIndex - 1);
-      if (typeof prevItem !== "string") {
-        dispatch(setSelectedFile(prevItem));
-      }
-      toggleAnimation();
-    }
-  };
-  const handleNextClick = () => {
-    if (currentRowIndex < items.length - 1) {
-      const nextItem = items[currentRowIndex + 1];
-      setCurrentRowIndex(currentRowIndex + 1);
-      if (typeof nextItem !== "string") {
-        dispatch(setSelectedFile(nextItem));
-      }
-      toggleAnimation();
-    }
-  };
-
   const previewPanel = (
     <DrawerPanelContent
       className="file-browser__previewPanel"
@@ -215,9 +192,10 @@ const FileBrowser = (props: FileBrowserProps) => {
         }}
       />
       <DrawerPanelBody className="file-browser__drawerbody">
-        {drawerState["preview"].currentlyActive === "preview" && (
-          <FileDetailView selectedFile={selectedFile} preview="large" />
-        )}
+        {drawerState["preview"].currentlyActive === "preview" &&
+          selectedFile && (
+            <FileDetailView selectedFile={selectedFile} preview="large" />
+          )}
         {drawerState["preview"].currentlyActive === "xtk" && <XtkViewer />}
       </DrawerPanelBody>
     </DrawerPanelContent>
@@ -278,7 +256,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                       dispatch(clearSelectedFile());
                       const rowIndex = rowData.rowIndex;
                       const item = items[rowIndex];
-                      setCurrentRowIndex(rowIndex);
                       if (typeof item === "string") {
                         handleFileClick(`${path}/${item}`);
                       } else {

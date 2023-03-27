@@ -1,5 +1,5 @@
-import React, { Fragment, ReactElement } from "react";
-
+import React, { Fragment, ReactElement, useCallback } from "react";
+import * as dicomParser from "dicom-parser";
 import {
   Label,
   Text,
@@ -16,7 +16,6 @@ import {
   MdRotate90DegreesCcw,
   MdSettingsBrightness,
   MdOutlineRotate90DegreesCcw,
-  MdViewInAr,
   MdInfo,
   MdDraw,
 } from "react-icons/md";
@@ -27,7 +26,11 @@ import {
   fileViewerMap,
 } from "../../../api/models/file-viewer.model";
 import { SpinContainer } from "../../common/loading/LoadingContent";
-import { ButtonContainer } from "../../detailedView/displays/DicomViewer/utils/helpers";
+import {
+  ButtonContainer,
+  TagInfoModal,
+} from "../../detailedView/displays/DicomViewer/utils/helpers";
+import { dumpDataSet } from "../../detailedView/displays/DicomViewer/utils";
 
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
@@ -51,10 +54,39 @@ function getInitialState() {
 
 const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
-
+  const [tagInfo, setTagInfo] = React.useState<any>();
   const [actionState, setActionState] = React.useState<ActionState>({});
 
+  const displayTagInfo = useCallback((result: any) => {
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      try {
+        if (reader.result) {
+          //@ts-ignore
+          const byteArray = new Uint8Array(reader.result);
+          //@ts-ignore
+          const testOutput: any[] = [];
+          const output: any[] = [];
+          const dataSet = dicomParser.parseDicom(byteArray);
+          dumpDataSet(dataSet, output, testOutput);
+          const merged = Object.assign({}, ...testOutput);
+          setTagInfo(merged);
+        }
+      } catch (error) {
+        console.log("Error", error);
+      }
+    };
+
+    if (result) {
+      reader.readAsArrayBuffer(result);
+    }
+  }, []);
+
   const handleEvents = (action: string) => {
+    if (action === "TagInfo") {
+      displayTagInfo(fileState.blob);
+    }
     const currentAction = actionState[action];
     setActionState({
       [action]: !currentAction,
@@ -91,6 +123,13 @@ const FileDetailView = (props: AllProps) => {
     viewerName = fileViewerMap[fileType];
   }
 
+  const handleModalToggle = (actionName: string, value: boolean) => {
+    setActionState({
+      ...actionState,
+      [actionName]: value,
+    });
+  };
+
   return (
     <Fragment>
       <React.Suspense
@@ -119,6 +158,11 @@ const FileDetailView = (props: AllProps) => {
               actionState={actionState}
             />
           </div>
+          <TagInfoModal
+            handleModalToggle={handleModalToggle}
+            isModalOpen={actionState["TagInfo"]}
+            output={tagInfo}
+          />
         </ErrorBoundary>
       </React.Suspense>
     </Fragment>
@@ -163,18 +207,11 @@ const actions = [
   },
 ];
 
-const xtkactions = [
-  {
-    name: "Xtk Viewer",
-    icon: <MdViewInAr />,
-  },
-];
-
 const getViewerSpecificActions: {
   [key: string]: { name: string; icon: ReactElement }[];
 } = {
-  XtkDisplay: xtkactions,
   DcmDisplay: actions,
+  NiftiDisplay: actions,
 };
 
 export const DicomHeader = ({
@@ -185,53 +222,58 @@ export const DicomHeader = ({
   handleEvents: (action: string) => void;
 }) => {
   const [isOpen, setIsOpen] = React.useState(true);
+
   const specificActions = getViewerSpecificActions[viewerName];
 
   const appLauncherItems =
-    specificActions &&
-    specificActions.map((action) => {
-      return (
-        <ApplicationLauncherItem
-          component={
-            <ButtonContainer
-              action={action.name}
-              icon={action.icon}
-              handleEvents={handleEvents}
+    specificActions && specificActions.length > 0
+      ? specificActions.map((action) => {
+          return (
+            <ApplicationLauncherItem
+              component={
+                <ButtonContainer
+                  action={action.name}
+                  icon={action.icon}
+                  handleEvents={handleEvents}
+                />
+              }
+              key={action.name}
             />
-          }
-          key={action.name}
-        />
-      );
-    });
+          );
+        })
+      : [
+          <span style={{ color: "white" }} key={"test"}>
+            No tools found for this file type
+          </span>,
+        ];
 
   return (
-    <div>
-      <ApplicationLauncher
-        toggleIcon={
-          <Tooltip
-            position="left"
-            content={<span>Tools for the selected file</span>}
-          >
-            <AiOutlineMenuUnfold
-              style={{
-                width: "24px",
-                height: "24px",
-              }}
-            />
-          </Tooltip>
-        }
-        style={{
-          position: "absolute",
-          top: "1.5em",
-          right: "0",
-          zIndex: "9999",
-          color: "black",
-        }}
-        onToggle={() => setIsOpen(!isOpen)}
-        items={appLauncherItems}
-        isOpen={isOpen}
-        position={DropdownPosition.right}
-      />
-    </div>
+    <ApplicationLauncher
+      toggleIcon={
+        <Tooltip
+          position="left"
+          content={<span>Tools for the selected file</span>}
+        >
+          <AiOutlineMenuUnfold
+            style={{
+              width: "24px",
+              height: "24px",
+              color: "white",
+            }}
+          />
+        </Tooltip>
+      }
+      style={{
+        position: "absolute",
+        top: "1.5em",
+        right: "0",
+        zIndex: "9999",
+        color: "black",
+      }}
+      onToggle={() => setIsOpen(!isOpen)}
+      items={appLauncherItems}
+      isOpen={isOpen}
+      position={DropdownPosition.right}
+    />
   );
 };

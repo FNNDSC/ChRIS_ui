@@ -163,7 +163,7 @@ const IconContainer = () => {
     currentAction === "duplicate" &&
       dispatch(duplicateFeedRequest(bulkSelect, feedName));
     dispatch(toggleSelectAll(false));
-    if (!downloadError && !errorHandling) {
+    if (!downloadError && Object.keys(errorHandling).length === 0) {
       handleModalToggle(false);
     }
   };

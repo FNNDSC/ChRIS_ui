@@ -17,7 +17,7 @@ const FeedNote = () => {
     fetchNote(feed).then((note) => {
       setValue(note?.data.content);
     });
-  }, [fetchNote]);
+  }, [feed]);
 
   const [typing, setTyping] = React.useState(false);
   const handleChange = (value: string) => {

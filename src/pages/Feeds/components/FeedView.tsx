@@ -247,7 +247,9 @@ export const FeedView: React.FC = () => {
             handleMinimize("graph", dispatch);
           }}
         />
-        <DrawerContentBody>{feedTree}</DrawerContentBody>
+        <DrawerContentBody>
+          {drawerState["graph"].open && feedTree}
+        </DrawerContentBody>
       </DrawerContent>
     </Drawer>
   );
