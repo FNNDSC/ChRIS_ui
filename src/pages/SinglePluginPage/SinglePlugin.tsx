@@ -96,7 +96,7 @@ const SinglePlugin = () => {
             value: param.data.default
               ? param.data.default
               : param.data.type !== "boolean"
-              ? "''"
+              ? "' '"
               : "",
           },
         };
