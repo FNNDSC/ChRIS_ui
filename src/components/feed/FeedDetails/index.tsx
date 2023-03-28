@@ -12,14 +12,19 @@ import { setDrawerCurrentlyActive } from "../../../store/drawer/actions";
 const getButtonStyle = (open: boolean) => {
   return {
     borderRadius: "50%",
+    width: "40px",
+    height: "40px",
     backgroundColor: !open ? "#8a8d90" : "#06c",
+    border: "none",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   };
 };
 
 const iconStyle = {
   color: "white",
-  width: "24px",
-  height: "24px",
+  fontSize: "18px",
 };
 
 const FeedDetails = () => {
