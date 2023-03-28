@@ -130,7 +130,9 @@ export interface TreeNode {
   plugin_id: number;
   pipeline_id: number;
   previous_id: number | null;
-  plugin_name?: string;
+  title: string;
+  plugin_name: string;
+  plugin_version: string;
 }
 
 export const getFeedTree = (items: any[]) => {
@@ -147,7 +149,9 @@ export const getFeedTree = (items: any[]) => {
         plugin_id: item.data.plugin_id,
         pipeline_id: item.data.pipeline_id,
         previous_id: item.data.previous_id && item.data.previous_id,
-        plugin_name: item.data.title ? item.data.title : item.data.plugin_name,
+        title: item.data.title,
+        plugin_name: item.data.plugin_name,
+        plugin_version: item.data.plugin_version,
         children: [],
       };
     }
@@ -271,8 +275,8 @@ export function catchError(errorRequest: any) {
   if (errorRequest.response) {
     return errorRequest.response.data;
   } else if (errorRequest.message) {
-    return { "error_message": errorRequest.message };
+    return { error_message: errorRequest.message };
   } else {
-    return { "error_message": errorRequest };
+    return { error_message: errorRequest };
   }
 }

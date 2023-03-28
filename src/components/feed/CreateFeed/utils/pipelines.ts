@@ -83,7 +83,6 @@ export async function fetchComputeInfo(
  
 This function takes a string input as its parameter and generates a random hex color code based on the input string. The color generated will always be the same for a given input string.
 The function uses a simple hash function to generate a numerical hash value from the input string. It then uses the hash value to generate a color by selecting three values from the set of valid hex characters (0-9 and A-F), using the hash value as a seed to ensure that the same input string always generates the same color.
-
 */
 
 export const stringToColour = (input: string) => {
