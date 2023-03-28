@@ -63,6 +63,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
         handleMinimize={() => {
           handleSidebarDrawer("minimized");
         }}
+        maximized={sidebarStatus.maximized}
       />
 
       {plugins && selected && (
@@ -120,7 +121,7 @@ const SidebarTree = (props: {
     //@ts-ignore
     setTreeData(pluginSidebarTree);
   }, [plugins, selected]);
- //@ts-ignore
+  //@ts-ignore
   return (
     <DirectoryTree
       autoExpandParent

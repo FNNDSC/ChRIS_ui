@@ -190,6 +190,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         handleMinimize={() => {
           handleMinimize("preview", dispatch);
         }}
+        maximized={drawerState["preview"].maximized}
       />
       <DrawerPanelBody className="file-browser__drawerbody">
         {drawerState["preview"].currentlyActive === "preview" &&
@@ -220,6 +221,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             handleMinimize={() => {
               handleMinimize("files", dispatch);
             }}
+            maximized={drawerState["files"].maximized}
           />
           {drawerState.files.open && (
             <DrawerContentBody>
