@@ -105,11 +105,9 @@ const NodeData = (props: NodeProps) => {
   }, [orientation, position]);
 
   const textLabel = (
-    <g id={`text_${data.id}`} transform={`translate(-60,30)`}>
+    <g id={`text_${data.id}`} transform={`translate(-30,30)`}>
       <text ref={textRef} className="label__title">
-        {`${titleName ? titleName : data.title} (${data.plugin_name}:${
-          data.plugin_version
-        })`}
+        {titleName ? titleName : data.title}
       </text>
     </g>
   );

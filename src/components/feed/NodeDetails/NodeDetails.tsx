@@ -339,6 +339,7 @@ function getCommand(
         instanceParameters[i].data.param_name === pluginParameters[j].data.name
       ) {
         const boolean = instanceParameters[i].data.type === "boolean";
+
         modifiedParams.push({
           name: pluginParameters[j].data.flag,
           value: boolean ? "" : instanceParameters[i].data.value,
