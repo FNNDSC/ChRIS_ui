@@ -243,7 +243,7 @@ export const DicomHeader = ({
         })
       : [
           <span style={{ color: "white" }} key={"test"}>
-            No tools found for this file type
+            No tools
           </span>,
         ];
 

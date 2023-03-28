@@ -33,7 +33,7 @@ const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
         params[input].default === false || params[input].default === true
           ? ""
           : params[input].default.length === 0
-          ? "''"
+          ? "' '"
           : params[input].default;
       generatedCommand += ` --${name} ${defaultValue}`;
     }
