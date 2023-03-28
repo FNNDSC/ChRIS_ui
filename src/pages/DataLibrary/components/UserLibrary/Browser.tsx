@@ -218,30 +218,38 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
     setLargePreview(!largePreview);
   };
 
+  console.log("LargePreview", largePreview);
+
   return (
     <>
       <Card
         onClick={(e) => {
-          const path = file.data.fname;
-          const folder = {
-            path,
-            name: fileName,
-          };
-          const previousPath = fileNameArray
-            .slice(0, fileNameArray.length - 1)
-            .join("/");
+          if (!largePreview) {
+            const path = file.data.fname;
+            const folder = {
+              path,
+              name: fileName,
+            };
+            const previousPath = fileNameArray
+              .slice(0, fileNameArray.length - 1)
+              .join("/");
 
-          handleOnClick(
-            e,
-            previousPath,
-            path,
-            folder,
-            browserType,
-            "file",
-            handlePreview
-          );
+            handleOnClick(
+              e,
+              previousPath,
+              path,
+              folder,
+              browserType,
+              "file",
+              handlePreview
+            );
+          }
         }}
-        onMouseDown={handleOnMouseDown}
+        onMouseDown={() => {
+          if (!largePreview) {
+            handleOnMouseDown();
+          }
+        }}
         key={file.data.fname}
         isRounded
         isSelectableRaised
@@ -281,10 +289,10 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
         </CardBody>
         {largePreview && (
           <Modal
+            className="library-preview"
             variant={ModalVariant.large}
             title="Preview"
             aria-label="viewer"
-            width={"50%"}
             isOpen={largePreview}
             onClose={() => setLargePreview(false)}
           >
