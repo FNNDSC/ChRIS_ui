@@ -42,7 +42,8 @@ const PluginCatalog = () => {
       const params = {
         limit: perPage,
         offset: offset,
-        name: search,
+        name_title_category: search,
+
       };
       const client = ChrisAPIClient.getClient();
       const pluginList = await client.getPluginMetas(params);
