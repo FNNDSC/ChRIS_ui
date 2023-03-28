@@ -137,6 +137,7 @@ export const FeedView: React.FC = () => {
         handleMinimize={() => {
           handleMinimize(mode, dispatch);
         }}
+        maximized={drawerState[mode].maximized}
       />
     );
   };
@@ -246,6 +247,7 @@ export const FeedView: React.FC = () => {
           handleMinimize={() => {
             handleMinimize("graph", dispatch);
           }}
+          maximized={drawerState["graph"].maximized}
         />
         <DrawerContentBody>
           {drawerState["graph"].open && feedTree}
