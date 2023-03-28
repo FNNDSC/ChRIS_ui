@@ -106,6 +106,7 @@ export const DrawerActionButton = ({
         )}
 
         <ButtonWithTooltip
+          style={{ paddingLeft: "0.5em", paddingRight: "0.5em" }}
           variant="link"
           content={<span>{content}</span>}
           onClick={handleClose}
