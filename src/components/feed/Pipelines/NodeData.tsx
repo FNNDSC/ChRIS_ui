@@ -105,7 +105,7 @@ const NodeData = (props: NodeProps) => {
   }, [orientation, position]);
 
   const textLabel = (
-    <g id={`text_${data.id}`} transform={`translate(-50,30)`}>
+    <g id={`text_${data.id}`} transform={`translate(-30,30)`}>
       <text ref={textRef} className="label__title">
         {titleName ? titleName : data.title}
       </text>
