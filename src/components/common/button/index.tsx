@@ -89,29 +89,32 @@ export const DrawerActionButton = ({
       }}
     >
       <DrawerActions>
+        <ButtonWithTooltip
+          style={{ zIndex: "999", padding: "0" }}
+          variant="link"
+          content={<span>{content}</span>}
+          onClick={handleClose}
+          icon={<MdMinimize style={style} />}
+        />
         {maximized ? (
           <Button
-            style={{ paddingRight: "0px" }}
+            style={{
+              paddingLeft: "0.5em",
+              paddingRight: "0.5em",
+              zIndex: "999",
+            }}
             variant="link"
             icon={<TbArrowsMinimize style={style} />}
             onClick={handleMinimize}
           />
         ) : (
           <Button
-            style={{ paddingRight: "0px" }}
+            style={{ paddingLeft: "0.5em", paddingRight: "0.5em" }}
             onClick={handleMaximize}
             variant="link"
             icon={<CgMaximizeAlt style={style} />}
           />
         )}
-
-        <ButtonWithTooltip
-          style={{ paddingLeft: "0.5em", paddingRight: "0.5em" }}
-          variant="link"
-          content={<span>{content}</span>}
-          onClick={handleClose}
-          icon={<MdMinimize style={style} />}
-        />
       </DrawerActions>
     </DrawerHead>
   );
