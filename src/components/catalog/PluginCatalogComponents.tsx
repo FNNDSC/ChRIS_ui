@@ -327,7 +327,9 @@ export const TabResources = ({
   };
   const actions = (
     <CodeBlockAction>
-      <span>Version: {parameterPayload?.version}</span>
+      <span style={{ margin: "0.5em" }}>
+        Version: {parameterPayload?.version}
+      </span>
       <ClipboardCopyButton
         id="basic-copy-button"
         textId="code-content"
