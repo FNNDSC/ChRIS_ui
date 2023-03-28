@@ -10,6 +10,7 @@ import { CgMaximizeAlt } from "react-icons/cg";
 import { DrawerPayloadType, IDrawerState } from "../../../store/drawer/types";
 import { TbArrowsMinimize } from "react-icons/tb";
 import { setDrawerState } from "../../../store/drawer/actions";
+import { MdMinimize } from "react-icons/md";
 
 interface ButtonProps {
   variant: any;
@@ -69,6 +70,7 @@ interface DrawerActionTypes {
   handleMinimize: () => void;
   content: string;
   background: string;
+  maximized: boolean;
 }
 
 export const DrawerActionButton = ({
@@ -77,7 +79,9 @@ export const DrawerActionButton = ({
   handleMinimize,
   content,
   background,
+  maximized,
 }: DrawerActionTypes) => {
+  const style = { color: "white" };
   return (
     <DrawerHead
       style={{
@@ -85,21 +89,27 @@ export const DrawerActionButton = ({
       }}
     >
       <DrawerActions>
-        <Button
-          style={{ paddingRight: "0px" }}
+        {maximized ? (
+          <Button
+            style={{ paddingRight: "0px" }}
+            variant="link"
+            icon={<TbArrowsMinimize style={style} />}
+            onClick={handleMinimize}
+          />
+        ) : (
+          <Button
+            style={{ paddingRight: "0px" }}
+            onClick={handleMaximize}
+            variant="link"
+            icon={<CgMaximizeAlt style={style} />}
+          />
+        )}
+
+        <ButtonWithTooltip
           variant="link"
-          icon={<TbArrowsMinimize style={{ color: "white" }} />}
-          onClick={handleMinimize}
-        />
-        <Button
-          style={{ paddingRight: "0px" }}
-          onClick={handleMaximize}
-          variant="link"
-          icon={<CgMaximizeAlt style={{ color: "white" }} />}
-        />
-        <DrawerCloseButtonWithTooltip
           content={<span>{content}</span>}
           onClick={handleClose}
+          icon={<MdMinimize style={style} />}
         />
       </DrawerActions>
     </DrawerHead>
