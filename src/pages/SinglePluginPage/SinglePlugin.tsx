@@ -93,7 +93,11 @@ const SinglePlugin = () => {
             id: param.data.id,
             paramName: param.data.name,
             type: param.data.type,
-            value: param.data.default ? param.data.default : "",
+            value: param.data.default
+              ? param.data.default
+              : param.data.type !== "boolean"
+              ? "''"
+              : "",
           },
         };
         generatedCommand += unpackParametersIntoString(generateInput);
@@ -149,7 +153,7 @@ const SinglePlugin = () => {
     <Wrapper>
       {!currentPluginMeta ? (
         <div style={{ margin: "auto" }}>
-          <Spinner isSVG diameter="80px" />
+          <Spinner style={{ background: "inherit" }} isSVG diameter="80px" />
         </div>
       ) : (
         <>
