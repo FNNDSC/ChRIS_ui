@@ -6,14 +6,21 @@ import {
   CodeBlockAction,
   clipboardCopyFunc,
 } from "@patternfly/react-core";
-
 import { SinglePipeline } from "../CreateFeed/types/pipeline";
 
 const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
   const [copied, setCopied] = React.useState(false);
 
-  const { currentNode, parameterList } = state;
+  const { currentNode, parameterList, pluginPipings } = state;
+
   const params = parameterList && currentNode && parameterList[currentNode];
+  const pluginPiping =
+    state.pluginPipings &&
+    state.pluginPipings.filter((piping) => {
+      if (currentNode && piping.data.id === currentNode) {
+        return piping;
+      }
+    });
 
   let generatedCommand = "";
 
@@ -25,6 +32,8 @@ const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
       const defaultValue =
         params[input].default === false || params[input].default === true
           ? ""
+          : params[input].default.length === 0
+          ? "''"
           : params[input].default;
       generatedCommand += ` --${name} ${defaultValue}`;
     }
@@ -38,6 +47,11 @@ const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
   const actions = (
     <React.Fragment>
       <CodeBlockAction>
+        <span style={{ margin: "0.5em" }}>
+          {pluginPiping && pluginPiping.length > 0
+            ? `${pluginPiping[0].data.plugin_name}:${pluginPiping[0].data.plugin_version}`
+            : "N/A"}
+        </span>
         <ClipboardCopyButton
           id="basic-copy-button"
           textId="code-content"

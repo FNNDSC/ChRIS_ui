@@ -361,7 +361,11 @@ export const TabResources = ({
                 <CardHeader>
                   <CardTitle>{compute.data.name}</CardTitle>
                 </CardHeader>
-                <CardBody>{compute.data.description}</CardBody>
+                <CardBody>
+                  {compute.data.description
+                    ? compute.data.description
+                    : "No description for this compute resource"}
+                </CardBody>
               </Card>
             );
           })
@@ -378,8 +382,6 @@ export const TabUseCases = ({ feeds }: { feeds: any[] }) => {
     <List
       style={{
         marginTop: "1.5em",
-        fontSize: "1.1em",
-        background: "#FAFAFA",
       }}
       isBordered
       isPlain
