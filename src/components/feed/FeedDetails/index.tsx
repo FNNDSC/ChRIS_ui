@@ -12,8 +12,8 @@ import { setDrawerCurrentlyActive } from "../../../store/drawer/actions";
 const getButtonStyle = (open: boolean) => {
   return {
     borderRadius: "50%",
-    width: "50px",
-    height: "50px",
+    width: "40px",
+    height: "40px",
     backgroundColor: !open ? "#8a8d90" : "#06c",
     border: "none",
     display: "flex",
@@ -24,7 +24,7 @@ const getButtonStyle = (open: boolean) => {
 
 const iconStyle = {
   color: "white",
-  fontSize: "24px",
+  fontSize: "18px",
 };
 
 const FeedDetails = () => {
