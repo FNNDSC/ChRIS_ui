@@ -279,3 +279,15 @@ Styles for pipelines
     color: white !important;
   }
 }
+
+.pf-c-code-block__header {
+  display: block;
+}
+.pf-c-code-block__actions {
+  display: block;
+}
+
+.pf-c-code-block__actions-item {
+  display: flex;
+  justify-content: space-between;
+}
