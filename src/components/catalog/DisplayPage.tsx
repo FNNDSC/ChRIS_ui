@@ -199,7 +199,7 @@ const DisplayPage = ({
       <div className="site-card-wrapper">
         <Grid className="plugins-row" hasGutter>
           {loading ? (
-            <SpinContainer title="Fetching Resources" />
+            <SpinContainer title="Fetching Resource" />
           ) : (
             loadingPluginMeta
           )}
