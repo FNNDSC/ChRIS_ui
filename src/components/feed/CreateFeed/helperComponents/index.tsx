@@ -2,8 +2,8 @@ import React, { useContext } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  Grid,
-  GridItem,
+  Flex,
+  FlexItem,
 } from "@patternfly/react-core";
 import { FaTrash, FaFile } from "react-icons/fa";
 import { CreateFeedContext } from "../context";
@@ -15,35 +15,40 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
 
   return (
     <>
-      <Grid className="file-preview" key={index}>
-        <GridItem span={10}>
-          <Breadcrumb>
-            {file.split("/").map((path: string, index: number) => {
-              return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
-            })}
-          </Breadcrumb>
-        </GridItem>
-        <GridItem span={2}>
-          <span className="trash-icon">
-            <FaTrash
-              onClick={() => {
-                dispatch({
-                  type: Types.RemoveChrisFile,
-                  payload: {
-                    file: file,
-                    checkedKeys: [],
-                  },
-                });
-                notification.info({
-                  message: `File(s) removed`,
-                  description: `${file} file(s) removed`,
-                  duration: 1,
-                });
-              }}
-            />
-          </span>
-        </GridItem>
-      </Grid>
+      <Flex className="file-preview" key={index}>
+        <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
+          <FlexItem>
+            <Breadcrumb>
+              {file.split("/").map((path: string, index: number) => {
+                return <BreadcrumbItem key={index}>{path}</BreadcrumbItem>;
+              })}
+            </Breadcrumb>
+          </FlexItem>
+        </Flex>
+
+        <Flex direction={{ default: "column" }}>
+          <FlexItem>
+            <span className="file-icon">
+              <FaTrash
+                onClick={() => {
+                  dispatch({
+                    type: Types.RemoveChrisFile,
+                    payload: {
+                      file: file,
+                      checkedKeys: [],
+                    },
+                  });
+                  notification.info({
+                    message: `File(s) removed`,
+                    description: `${file} file(s) removed`,
+                    duration: 1,
+                  });
+                }}
+              />
+            </span>
+          </FlexItem>
+        </Flex>
+      </Flex>
     </>
   );
 };
@@ -59,25 +64,30 @@ export const LocalFileList = ({
   handleDeleteDispatch?: (file: string) => void;
 }) => {
   return (
-    <>
-      <Grid className="file-preview" key={file.name}>
-        <GridItem span={10} className="file-name">
+    <Flex className="file-preview" key={file.name}>
+      <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
+        <FlexItem className="file-name">
           <span className="file-icon">
             <FaFile />
           </span>
           {file.name}
-        </GridItem>
-        {showIcon && (
-          <GridItem span={2} className="trash-icon">
-            <FaTrash
-              onClick={() => {
-                handleDeleteDispatch && handleDeleteDispatch(file.name);
-              }}
-            />
-          </GridItem>
-        )}
-      </Grid>
-    </>
+        </FlexItem>
+      </Flex>
+
+      <Flex direction={{ default: "column" }}>
+        <FlexItem>
+          {showIcon && (
+            <span className="file-icon">
+              <FaTrash
+                onClick={() => {
+                  handleDeleteDispatch && handleDeleteDispatch(file.name);
+                }}
+              />
+            </span>
+          )}
+        </FlexItem>
+      </Flex>
+    </Flex>
   );
 };
 
