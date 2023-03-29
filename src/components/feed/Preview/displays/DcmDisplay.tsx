@@ -9,6 +9,7 @@ import {
   windowResize,
   resetDicomSettings,
 } from "../../../detailedView/displays/DicomViewer/utils";
+import useSize from "../../FeedTree/useSize";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -20,7 +21,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem, preview } = props;
   const drawerState = useTypedSelector((state) => state.drawers);
-
+  const size = useSize(dicomImageRef);
   const onWindowResize = () => {
     const element = dicomImageRef.current;
 
@@ -29,7 +30,11 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
   };
 
-  if (drawerState["preview"].maximized === true) {
+  if (
+    drawerState["preview"].maximized === true ||
+    (drawerState["preview"].maximized === false &&
+      drawerState["preview"].open === true)
+  ) {
     onWindowResize();
   }
 
@@ -97,9 +102,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   return (
     <div className={preview === "large" ? "dcm-preview" : ""}>
-      <div ref={dicomImageRef} id="container">
-        <div id="dicomImageWebGL"></div>
-      </div>
+      <div ref={dicomImageRef} id="container"></div>
     </div>
   );
 };

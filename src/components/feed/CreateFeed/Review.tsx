@@ -1,10 +1,12 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import React, { ReactNode, useCallback, useContext, useEffect } from "react";
 import {
   Grid,
   GridItem,
   WizardContext,
   Split,
   SplitItem,
+  Flex,
+  FlexItem,
 } from "@patternfly/react-core";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import { CreateFeedContext, PipelineContext } from "./context";
@@ -82,15 +84,18 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
           </Grid>
         )}
         {selectedConfig.includes("swift_storage") && (
-          <ChrisFileDetails chrisFiles={chrisFiles} />
+          <div style={{ width: "60%" }}>
+            <ChrisFileDetails chrisFiles={chrisFiles} />
+          </div>
         )}
         {selectedConfig.includes("local_select") && (
           <>
             <div
               style={{
-                height: "300px",
+                height: "250px",
                 zIndex: "99999",
                 overflowY: "scroll",
+                width: "60%",
               }}
             >
               <LocalFileDetails localFiles={localFiles} />
@@ -99,7 +104,13 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
               <Split>
                 <SplitItem>
                   <div style={{ height: "230px", width: "230px" }}>
-                    <p>Tracker for Pushing Files to Storage</p>
+                    <p
+                      style={{
+                        marginBottom: "0",
+                      }}
+                    >
+                      Tracker for Pushing Files to Storage:
+                    </p>
                     <ChartDonutUtilization
                       ariaDesc="Storage capacity"
                       ariaTitle="Donut utilization chart example"
@@ -136,53 +147,62 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
       <br />
       <br />
 
-      <Grid hasGutter={true}>
-        <GridItem sm={4} md={2}>
-          <span className="review__title">Feed Name</span>
-        </GridItem>
-        <GridItem sm={8} md={10}>
-          <span className="review__value">{feedName}</span>
-        </GridItem>
-        <GridItem sm={4} md={2}>
-          <span className="review__title">Feed Description</span>
-        </GridItem>
-        <GridItem sm={8} md={10}>
+      <RenderFlexItem
+        title={<span className="review__title">Feed Name:</span>}
+        subTitle={<span className="review__value">{feedName}</span>}
+      />
+      <RenderFlexItem
+        title={<span className="review__title">Feed Description:</span>}
+        subTitle={
           <span className="review__value">{feedDescription || "N/A"}</span>
-        </GridItem>
-        <GridItem sm={4} md={2}>
-          <span className="review__title">Tags</span>
-        </GridItem>
-        <GridItem sm={8} md={10}>
-          <span className="review__value">{tagList || "N/A"}</span>
-        </GridItem>
-        <GridItem sm={4} md={2}>
-          <span className="review__title">Selected Pipeline</span>
-        </GridItem>
-        <GridItem sm={8} md={10}>
+        }
+      />
+
+      <RenderFlexItem
+        title={<span className="review__title">Tags:</span>}
+        subTitle={
+          <span className="review__value">
+            {tagList.length > 0 ? tagList : "N/A"}
+          </span>
+        }
+      />
+
+      <RenderFlexItem
+        title={<span className="review__title">Selected Pipeline:</span>}
+        subTitle={
           <span className="review__value">
             {pipelineState.pipelineName
               ? pipelineState.pipelineName
               : "None Selected"}
           </span>
-        </GridItem>
-        <GridItem sm={4} md={2}>
-          <span className="review__title">Feed Status</span>
-        </GridItem>
-        <GridItem sm={8} md={10}>
+        }
+      />
+
+      <RenderFlexItem
+        title={<span className="review__title">Feed Status:</span>}
+        subTitle={
           <span className="review__value">
-            {creatingFeedStatus && !feedError ? creatingFeedStatus : "N/A"}
+            {creatingFeedStatus && !feedError ? (
+              <span>
+                {creatingFeedStatus}
+                {creatingFeedStatus === "Creating Feed" && <span>...</span>}
+              </span>
+            ) : (
+              "N/A"
+            )}
           </span>
-        </GridItem>
-        <GridItem sm={4} md={2}>
-          <span className="review__title">Feed Error Status</span>
-        </GridItem>
-        <GridItem sm={8} md={10}>
+        }
+      />
+
+      <RenderFlexItem
+        title={<span className="review__title">Feed Error Status:</span>}
+        subTitle={
           <span className="review__value">
             {feedError ? <LoadingErrorAlert error={feedError} /> : "N/A"}
           </span>
-        </GridItem>
-      </Grid>
-      <br />
+        }
+      />
+
       {getReviewDetails()}
       <br />
     </div>
@@ -190,3 +210,24 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
 };
 
 export default Review;
+
+const RenderFlexItem = ({
+  title,
+  subTitle,
+}: {
+  title: ReactNode;
+  subTitle: ReactNode;
+}) => {
+  return (
+    <div style={{ width: "25%" }}>
+      <Flex flex={{ default: "flex_1" }} style={{ marginBottom: "0.5rem" }}>
+        <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
+          <FlexItem>{title}</FlexItem>
+        </Flex>
+        <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
+          <FlexItem>{subTitle}</FlexItem>
+        </Flex>
+      </Flex>
+    </div>
+  );
+};
