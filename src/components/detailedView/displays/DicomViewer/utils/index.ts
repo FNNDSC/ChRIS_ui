@@ -91,7 +91,7 @@ export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
   });
 };
 
-export const windowResize = (element: HTMLDivElement) => {
+export const windowResize = (element: Element) => {
   cornerstone.resize(element, true);
 };
 
