@@ -8,7 +8,14 @@
     color: inherit;
   }
 }
-
+.pf-c-options-menu__menu {
+  background-color: var(--pf-global--BackgroundColor--dark-200) !important;
+  &-item {
+    background-color: inherit;
+    color: inherit;
+  }
+ }
+ 
 .pf-c-dropdown__toggle-text,
 .pf-c-dropdown__toggle svg {
   color: white;
