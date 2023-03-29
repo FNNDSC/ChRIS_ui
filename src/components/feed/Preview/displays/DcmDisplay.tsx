@@ -24,7 +24,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const size = useSize(dicomImageRef);
   const onWindowResize = () => {
     const element = dicomImageRef.current;
-    console.log("window resize called");
+
     if (element) {
       windowResize(element);
     }
