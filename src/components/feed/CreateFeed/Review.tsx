@@ -183,7 +183,10 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         subTitle={
           <span className="review__value">
             {creatingFeedStatus && !feedError ? (
-              <span>{creatingFeedStatus}...</span>
+              <span>
+                {creatingFeedStatus}
+                {creatingFeedStatus === "Creating Feed" && <span>...</span>}
+              </span>
             ) : (
               "N/A"
             )}
