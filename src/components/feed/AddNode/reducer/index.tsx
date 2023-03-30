@@ -141,7 +141,6 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
       return {
         ...state,
         errors: {
-          ...state.errors,
           ...action.payload.error,
         },
       };
