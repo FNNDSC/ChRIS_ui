@@ -1,13 +1,5 @@
-import React, { ReactNode, useCallback, useContext, useEffect } from "react";
-import {
-  Grid,
-  GridItem,
-  WizardContext,
-  Split,
-  SplitItem,
-  Flex,
-  FlexItem,
-} from "@patternfly/react-core";
+import React, { useCallback, useContext, useEffect } from "react";
+import { Grid, WizardContext, Split, SplitItem } from "@patternfly/react-core";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import { CreateFeedContext, PipelineContext } from "./context";
 import { unpackParametersIntoString } from "../AddNode/lib/utils";
@@ -15,6 +7,7 @@ import { PluginDetails } from "../AddNode/helperComponents/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./helperComponents";
 import { AddNodeContext } from "../AddNode/context";
 import { LoadingErrorAlert } from "../../common/errorHandling";
+import { RenderFlexItem } from "../../common/layout";
 
 const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state } = useContext(CreateFeedContext);
@@ -210,24 +203,3 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
 };
 
 export default Review;
-
-const RenderFlexItem = ({
-  title,
-  subTitle,
-}: {
-  title: ReactNode;
-  subTitle: ReactNode;
-}) => {
-  return (
-    <div style={{ width: "25%" }}>
-      <Flex flex={{ default: "flex_1" }} style={{ marginBottom: "0.5rem" }}>
-        <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
-          <FlexItem>{title}</FlexItem>
-        </Flex>
-        <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
-          <FlexItem>{subTitle}</FlexItem>
-        </Flex>
-      </Flex>
-    </div>
-  );
-};
