@@ -654,19 +654,14 @@ const UploadComponent = ({
         <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
       </div>
 
-      <div style={{ marginTop: "1.5rem" }}>
-        Total Files to push: {localFiles.length}
-        <Button
-          isDisabled={localFiles.length === 0}
-          onClick={() => handleLocalFiles([])}
-          style={{ marginLeft: "1.5rem" }}
-          variant="tertiary"
-        >
-          Clear Files
-        </Button>
-      </div>
-
-      <Form style={{ marginTop: "1.5rem" }} isHorizontal>
+      <Form style={{ marginTop: "1rem" }} isHorizontal>
+        <FormGroup label={`Total Files to push: ${localFiles.length}`}>
+          {localFiles.length > 0 && !(count > 0) && (
+            <Button onClick={() => handleLocalFiles([])} variant="primary">
+              Clear Files
+            </Button>
+          )}
+        </FormGroup>
         <FormGroup
           fieldId="directory name"
           label="Directory Name"
@@ -687,7 +682,7 @@ const UploadComponent = ({
 
       <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
         <Button
-          isDisabled={localFiles.length === 0}
+          isDisabled={localFiles.length === 0 || count > 0}
           onClick={handleUpload}
           icon={<FaUpload />}
           variant="secondary"
@@ -700,6 +695,7 @@ const UploadComponent = ({
         <Progress
           style={{
             margin: "1em 0 1em 0",
+            color: "white",
           }}
           title="File Upload Tracker"
           value={count}

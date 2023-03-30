@@ -218,8 +218,6 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
     setLargePreview(!largePreview);
   };
 
-  console.log("LargePreview", largePreview);
-
   return (
     <>
       <Card

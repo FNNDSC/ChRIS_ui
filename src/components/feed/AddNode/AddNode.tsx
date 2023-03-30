@@ -22,6 +22,7 @@ const AddNode: React.FC<AddNodeProps> = ({
   selectedPlugin,
   pluginInstances,
   addNode,
+  params,
 }: AddNodeProps) => {
   const dispatch = useDispatch();
   const { childNode } = useTypedSelector(
@@ -75,6 +76,8 @@ const AddNode: React.FC<AddNodeProps> = ({
     <BasicConfiguration selectedPlugin={selectedPlugin} />
   );
   const form = <GuidedConfig />;
+  const isDisabled =
+    params && Object.keys(requiredInput).length !== params["required"].length;
 
   const steps = [
     {
@@ -89,6 +92,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       name: "Plugin Form",
       component: form,
       nextButtonText: "Add Node",
+      enableNext: !isDisabled,
     },
   ];
 
