@@ -21,7 +21,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem, preview } = props;
   const drawerState = useTypedSelector((state) => state.drawers);
-  const size = useSize(dicomImageRef);
+  useSize(dicomImageRef);
   const onWindowResize = () => {
     const element = dicomImageRef.current;
 

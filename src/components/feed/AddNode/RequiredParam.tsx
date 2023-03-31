@@ -56,12 +56,9 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
       key={param.data.id}
       isHorizontal
     >
-      <FormGroup
-        style={{ width: "100%" }}
-        isRequired
-        label={param.data.flag}
-      >
+      <FormGroup style={{ width: "100%" }} isRequired label={param.data.flag}>
         <TextInput
+          className="required-params__textInput"
           ref={inputElement}
           type="text"
           aria-label="required-parameters"
