@@ -71,16 +71,17 @@ describe("Testing CreateAnalysis", () => {
     cy.get("button.pf-c-button.pf-m-primary")
       .eq(1)
       .should("have.text", "Done")
-      .click()
+      .click();
+    cy.get('[data-test-id="create-analysis"]').click();
   });
 
   it("09 Goes to Registered Pipelines", () => {
     cy.get('[data-test-id="create-analysis"]').click();
-
   });
 
   it("11 Goes to Review", () => {
-    cy.get("button.pf-c-button.pf-m-primary").eq(2).click().wait(2000);
+    console.log(cy.get("button.pf-c-button.pf-m-primary"));
+    cy.get("button.pf-c-button.pf-m-primary").eq(1).click().wait(2000);
   });
 
   it("12 Create analysis", () => {
