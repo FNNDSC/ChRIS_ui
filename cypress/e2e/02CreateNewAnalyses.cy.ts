@@ -80,7 +80,6 @@ describe("Testing CreateAnalysis", () => {
   });
 
   it("11 Goes to Review", () => {
-    console.log(cy.get("button.pf-c-button.pf-m-primary"));
     cy.get("button.pf-c-button.pf-m-primary").eq(1).click().wait(2000);
   });
 
