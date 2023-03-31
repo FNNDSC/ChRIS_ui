@@ -276,12 +276,17 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
           <div>
             <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
             <Button
-              onClick={async () => {
-                const blob = await file.getFileBlob();
-                FileViewerModel.downloadFile(blob, fileName);
-              }}
               variant="link"
-              icon={<FaDownload />}
+              icon={
+                <FaDownload
+                  style={{ cursor: "pointer" }}
+                  onClick={async (event) => {
+                    event.stopPropagation();
+                    const blob = await file.getFileBlob();
+                    FileViewerModel.downloadFile(blob, fileName);
+                  }}
+                />
+              }
             />
           </div>
         </CardBody>
