@@ -253,9 +253,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
       <DrawerPanelContent defaultSize="65%" className="drawer_panelContent">
         <DrawerHead>
           <span tabIndex={isRightDrawerExpand ? 0 : -1}></span>
-          <DrawerActions
-            style={drawerStyle}
-          >
+          <DrawerActions style={drawerStyle}>
             <Button
               onClick={resetPlugin}
               variant="secondary"
@@ -263,7 +261,15 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             >
               Clear
             </Button>
-            <Button onClick={onCloseClick} isDisabled={params?.required.length !== Object.keys(requiredInput).length}>Done</Button>
+            <Button
+              className="done"
+              onClick={onCloseClick}
+              isDisabled={
+                params?.required.length !== Object.keys(requiredInput).length
+              }
+            >
+              Done
+            </Button>
           </DrawerActions>
         </DrawerHead>
         <DrawerPanelBody>
@@ -275,7 +281,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             {currentStep == 0 && (
               <Button
                 onClick={() => nextStep()}
-                isDisabled={pluginMeta == undefined }
+                isDisabled={pluginMeta == undefined}
               >
                 Next
               </Button>
