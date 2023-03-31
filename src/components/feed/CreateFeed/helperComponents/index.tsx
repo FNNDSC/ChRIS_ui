@@ -58,7 +58,7 @@ export const LocalFileList = ({
   handleDeleteDispatch,
   showIcon,
 }: {
-  file: LocalFile;
+  file: any;
   index: number;
   showIcon: boolean;
   handleDeleteDispatch?: (file: string) => void;
