@@ -11,7 +11,7 @@ import { SinglePipeline } from "../CreateFeed/types/pipeline";
 const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
   const [copied, setCopied] = React.useState(false);
 
-  const { currentNode, parameterList, pluginPipings } = state;
+  const { currentNode, parameterList } = state;
 
   const params = parameterList && currentNode && parameterList[currentNode];
   const pluginPiping =
