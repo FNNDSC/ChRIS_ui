@@ -78,7 +78,12 @@ const DragAndUpload = ({
 
   const handleKeyDown = useCallback(
     (e: any) => {
-      if (e.code == "KeyU") {
+      if (
+        e.code == "KeyU" &&
+        document &&
+        document.activeElement &&
+        document.activeElement.tagName !== "INPUT"
+      ) {
         open();
       }
     },

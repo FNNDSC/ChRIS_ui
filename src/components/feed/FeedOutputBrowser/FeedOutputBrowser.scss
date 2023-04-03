@@ -133,25 +133,6 @@
     }
   }
 
-  .small-preview {
-    .viewport-wrapper {
-      height: 100% !important;
-    }
-    img {
-      object-fit: contain;
-      height: 100%;
-      max-width: 100%;
-    }
-    .react-json-view {
-      height: 100%;
-      overflow: scroll;
-    }
-
-    .object-key {
-      color: white !important;
-    }
-  }
-
   .dcm-preview {
     position: relative;
     height: 100%;

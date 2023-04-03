@@ -83,7 +83,7 @@ select:focus {
 
 // Styles for the dicom viewer display
 
-.small-preview {
+.large-preview {
   height: 100%;
 
   .viewport-wrapper {
@@ -97,6 +97,10 @@ select:focus {
   .react-json-view {
     height: 100%;
     overflow: scroll;
+  }
+
+  .object-key {
+    color: white !important;
   }
 }
 
