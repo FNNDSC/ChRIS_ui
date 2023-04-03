@@ -623,7 +623,7 @@ const UploadComponent = ({
   React.useEffect(() => {
     if (countdown === 0) {
       setCurrentFile({});
-      setCountdown(0);
+      setCountdown(5);
       handleFileModal();
       countdownInterval && clearInterval(countdownInterval);
     }
@@ -688,6 +688,8 @@ const UploadComponent = ({
       setCountdownInterval(interval);
     }
   };
+
+  console.log("Count", countdown);
 
   return (
     <Modal
