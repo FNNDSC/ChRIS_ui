@@ -598,10 +598,10 @@ const UploadComponent = ({
   uploadFileModal,
   localFiles,
 }: UploadComponent) => {
+  const token = useCookieToken();
   const username = useTypedSelector((state) => state.user.username);
   const [warning, setWarning] = React.useState<Record<string, string>>({});
   const [directoryName, setDirectoryName] = React.useState("");
-
   const [countdown, setCountdown] = React.useState(5);
   const [currentFile, setCurrentFile] = React.useState({});
   const [countdownInterval, setCountdownInterval] =
@@ -623,16 +623,39 @@ const UploadComponent = ({
   React.useEffect(() => {
     if (countdown === 0) {
       setCurrentFile({});
-      setCountdown(5);
+      setCountdown(0);
       handleFileModal();
       countdownInterval && clearInterval(countdownInterval);
     }
-  }, [countdown, countdownInterval]);
+  }, [countdown, countdownInterval, handleFileModal]);
 
   React.useEffect(() => {
     const d = getTimestamp();
     setDirectoryName(`${d}`);
   }, [uploadFileModal]);
+
+  const uploadFile = async (
+    file: File,
+    url: string,
+    directoryName: string,
+    onUploadProgress: (progressEvent: ProgressEvent) => void,
+    username?: string | null
+  ) => {
+    const formData = new FormData();
+    formData.append(
+      "upload_path",
+      `${username}/uploads/${directoryName}/${file.name}`
+    );
+    formData.append("fname", file, file.name);
+
+    const config = {
+      headers: { Authorization: "Token " + token },
+      onUploadProgress,
+    };
+
+    const response = await axios.post(url, formData, config);
+    return response;
+  };
 
   const handleUpload = async () => {
     const client = ChrisAPIClient.getClient();
@@ -688,8 +711,6 @@ const UploadComponent = ({
       setCountdownInterval(interval);
     }
   };
-
-  console.log("Count", countdown);
 
   return (
     <Modal
@@ -797,28 +818,4 @@ export const ReactJSONView = ({
       collapsed={4}
     />
   );
-};
-
-export const uploadFile = async (
-  file: File,
-  url: string,
-  directoryName: string,
-  onUploadProgress: (progressEvent: ProgressEvent) => void,
-  username?: string | null
-) => {
-  const token = useCookieToken();
-  const formData = new FormData();
-  formData.append(
-    "upload_path",
-    `${username}/uploads/${directoryName}/${file.name}`
-  );
-  formData.append("fname", file, file.name);
-
-  const config = {
-    headers: { Authorization: "Token " + token },
-    onUploadProgress,
-  };
-
-  const response = await axios.post(url, formData, config);
-  return response;
 };
