@@ -212,13 +212,11 @@ export const uploadLocalFiles = async (
     );
   });
 
-  let completedUploads = 0;
   let totalProgress = 0;
   await Promise.allSettled(
-    promises.map((promise, i) => {
+    promises.map((promise) => {
       return promise
         .then(() => {
-          completedUploads++;
           totalProgress += 100 / files.length;
           statusCallback(Math.round(totalProgress));
         })
