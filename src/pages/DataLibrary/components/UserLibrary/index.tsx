@@ -1,4 +1,8 @@
 import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
+import useCookieToken from "../../../../components/common/fetch";
+import ReactJson from "react-json-view";
+
 import {
   Button,
   Modal,
@@ -7,6 +11,7 @@ import {
   FormGroup,
   TextInput,
   AlertGroup,
+  Alert as PatternflyAlert,
   ChipGroup,
   CodeBlock,
   Chip,
@@ -15,6 +20,7 @@ import {
   TabTitleText,
   CodeBlockCode,
 } from "@patternfly/react-core";
+import axios, { AxiosResponse } from "axios";
 import { Feed } from "@fnndsc/chrisapi";
 import { Alert, Progress as AntProgress } from "antd";
 import BrowserContainer from "./BrowserContainer";
@@ -32,12 +38,8 @@ import {
   setMultiColumnLayout,
 } from "./context/actions";
 import { deleteFeed } from "../../../../store/feed/actions";
-import { useDispatch } from "react-redux";
 import { catchError, fetchResource } from "../../../../api/common";
-import ReactJson from "react-json-view";
 import "./user-library.scss";
-import axios, { AxiosResponse } from "axios";
-import useCookieToken from "../../../../components/common/fetch";
 
 interface DownloadType {
   name: string;
@@ -585,7 +587,6 @@ interface UploadComponent {
 
 interface FileUpload {
   file: File;
-
   promise: Promise<AxiosResponse<any>>;
 }
 
@@ -597,15 +598,17 @@ const UploadComponent = ({
   uploadFileModal,
   localFiles,
 }: UploadComponent) => {
-  const token = useCookieToken();
   const username = useTypedSelector((state) => state.user.username);
-  const [warning, setWarning] = React.useState<string | object>("");
+  const [warning, setWarning] = React.useState<Record<string, string>>({});
   const [directoryName, setDirectoryName] = React.useState("");
 
+  const [countdown, setCountdown] = React.useState(5);
   const [currentFile, setCurrentFile] = React.useState({});
+  const [countdownInterval, setCountdownInterval] =
+    React.useState<NodeJS.Timeout | null>(null);
 
   const handleLocalUploadFiles = (files: any[]) => {
-    setWarning("");
+    setWarning({});
     handleLocalFiles(files);
   };
 
@@ -617,26 +620,14 @@ const UploadComponent = ({
     )}-${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
-  const uploadFile = async (
-    file: File,
-    url: string,
-    onUploadProgress: (progressEvent: ProgressEvent) => void
-  ) => {
-    const formData = new FormData();
-    formData.append(
-      "upload_path",
-      `${username}/uploads/${directoryName}/${file.name}`
-    );
-    formData.append("fname", file, file.name);
-
-    const config = {
-      headers: { Authorization: "Token " + token },
-      onUploadProgress,
-    };
-
-    const response = await axios.post(url, formData, config);
-    return response;
-  };
+  React.useEffect(() => {
+    if (countdown === 0) {
+      setCurrentFile({});
+      setCountdown(0);
+      handleFileModal();
+      countdownInterval && clearInterval(countdownInterval);
+    }
+  }, [countdown, countdownInterval]);
 
   React.useEffect(() => {
     const d = getTimestamp();
@@ -658,7 +649,13 @@ const UploadComponent = ({
           [file.name]: percentCompleted,
         }));
       };
-      const promise = uploadFile(file, url, onUploadProgress);
+      const promise = uploadFile(
+        file,
+        url,
+        directoryName,
+        onUploadProgress,
+        username
+      );
 
       return {
         file,
@@ -668,23 +665,27 @@ const UploadComponent = ({
 
     const completedUploads: number[] = [];
 
-    for (let i = 0; i < fileUploads.length; i++) {
-      const { promise } = fileUploads[i];
-      try {
-        await promise;
-        completedUploads.push(i);
-      } catch (error: any) {
-        const err = catchError(error);
-        setWarning(err);
-      }
-    }
+    await Promise.allSettled(
+      fileUploads.map(({ promise, file }, i) =>
+        promise
+          .then(() => completedUploads.push(i))
+          .catch((error) => {
+            const err = catchError(error);
+            setWarning({
+              ...warning,
+              [file.name]: err,
+            });
+          })
+      )
+    );
 
     if (completedUploads.length === localFiles.length) {
       handleAddFolder(directoryName);
-      setTimeout(() => {
-        setCurrentFile({});
-        handleFileModal();
-      }, 3000);
+      const intervalDelay = 2000;
+      const interval = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, intervalDelay);
+      setCountdownInterval(interval);
     }
   };
 
@@ -704,7 +705,7 @@ const UploadComponent = ({
       </div>
 
       {localFiles.length > 0 && (
-        <div style={{ height: "200px", marginTop: "1rem", overflow: "scroll" }}>
+        <div style={{ height: "300px", marginTop: "1rem", overflow: "scroll" }}>
           {localFiles.map((file, index) => {
             return (
               <LocalFileList
@@ -729,7 +730,6 @@ const UploadComponent = ({
             type="text"
             name="horizontal-form-name"
             onChange={(value) => {
-              setWarning("");
               setDirectoryName(value);
             }}
           />
@@ -747,7 +747,7 @@ const UploadComponent = ({
         </Button>
       </div>
       <CodeBlock
-        style={{ marginTop: "1rem", height: "300px", overflow: "scroll" }}
+        style={{ marginTop: "1rem", height: "400px", overflow: "scroll" }}
       >
         <CodeBlockCode>
           {Object.keys(currentFile).length === 0 ? (
@@ -755,24 +755,68 @@ const UploadComponent = ({
               You have no active uploads. Please upload Files from your local
               computer and hit the &apos;Push to File Storage&apos; button. You
               can give a directory name for your upload or use the default name
-              above. Your uploads will appear unders the &apos;Uploads&apos;
+              above. Your uploads will appear under the &apos;Uploads&apos;
               space once it is complete.
             </span>
           ) : (
-            <ReactJson
-              style={{ height: "100%" }}
-              displayDataTypes={false}
-              theme="grayscale"
-              src={currentFile}
-              name={null}
-              enableClipboard={false} // Set enableClipboard prop to false
-              displayObjectSize={false} // Set displayObjectSize prop to false
-              collapsed={4}
-            />
+            <ReactJSONView currentFile={currentFile} />
           )}
         </CodeBlockCode>
-        {warning && <CodeBlockCode>{JSON.stringify(warning)}</CodeBlockCode>}
+        <CodeBlockCode>
+          {Object.keys(warning).length > 0 && (
+            <ReactJSONView currentFile={warning} />
+          )}
+        </CodeBlockCode>
       </CodeBlock>
+      {countdown < 5 && countdown > 0 && (
+        <PatternflyAlert variant="success" title="">
+          The files have been uploaded to the server. This modal will close in{" "}
+          {countdown} seconds.
+        </PatternflyAlert>
+      )}
     </Modal>
   );
+};
+
+export const ReactJSONView = ({
+  currentFile,
+}: {
+  currentFile: Record<string, string>;
+}) => {
+  return (
+    <ReactJson
+      style={{ height: "100%" }}
+      displayDataTypes={false}
+      theme="grayscale"
+      src={currentFile}
+      name={null}
+      enableClipboard={false} // Set enableClipboard prop to false
+      displayObjectSize={false} // Set displayObjectSize prop to false
+      collapsed={4}
+    />
+  );
+};
+
+export const uploadFile = async (
+  file: File,
+  url: string,
+  directoryName: string,
+  onUploadProgress: (progressEvent: ProgressEvent) => void,
+  username?: string | null
+) => {
+  const token = useCookieToken();
+  const formData = new FormData();
+  formData.append(
+    "upload_path",
+    `${username}/uploads/${directoryName}/${file.name}`
+  );
+  formData.append("fname", file, file.name);
+
+  const config = {
+    headers: { Authorization: "Token " + token },
+    onUploadProgress,
+  };
+
+  const response = await axios.post(url, formData, config);
+  return response;
 };

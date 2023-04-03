@@ -200,9 +200,7 @@ export const uploadLocalFiles = async (
   statusCallback: (value: number) => void
 ) => {
   const client = ChrisAPIClient.getClient();
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
+  const promises = files.map(async (file) => {
     const upload_path = `${directory}/${file.name}`;
     await client.uploadFile(
       {
@@ -212,9 +210,25 @@ export const uploadLocalFiles = async (
         fname: (file as LocalFile).blob,
       }
     );
+  });
 
-    statusCallback(i + 1);
-  }
+  let completedUploads = 0;
+  let totalProgress = 0;
+  await Promise.allSettled(
+    promises.map((promise, i) => {
+      return promise
+        .then(() => {
+          completedUploads++;
+          totalProgress += 100 / files.length;
+          statusCallback(Math.round(totalProgress));
+        })
+        .catch((error) => {
+          throw new Error(error);
+        });
+    })
+  );
+
+  statusCallback(100); // in case any progress was lost due to rounding
 };
 
 export const getPlugin = async (pluginName: string) => {
