@@ -19,6 +19,7 @@ import {
   Tab,
   TabTitleText,
   CodeBlockCode,
+  Progress,
 } from "@patternfly/react-core";
 import axios, { AxiosResponse } from "axios";
 import { Feed } from "@fnndsc/chrisapi";
@@ -38,7 +39,12 @@ import {
   setMultiColumnLayout,
 } from "./context/actions";
 import { deleteFeed } from "../../../../store/feed/actions";
-import { catchError, fetchResource } from "../../../../api/common";
+import {
+  catchError,
+  fetchResource,
+  limitConcurrency,
+  getTimestamp,
+} from "../../../../api/common";
 import "./user-library.scss";
 
 interface DownloadType {
@@ -68,10 +74,10 @@ const DataLibrary = () => {
     path: "",
   });
 
-  const handleFileModal = () => {
-    setUploadFileModal(!uploadFileModal);
+  const handleFileModal = React.useCallback(() => {
+    setUploadFileModal((previousState) => !previousState);
     setLocalFiles([]);
-  };
+  }, []);
 
   const handleLocalFiles = (files: File[]) => {
     setLocalFiles(files);
@@ -606,19 +612,12 @@ const UploadComponent = ({
   const [currentFile, setCurrentFile] = React.useState({});
   const [countdownInterval, setCountdownInterval] =
     React.useState<NodeJS.Timeout | null>(null);
+  const [serverProgress, setServerProgress] = React.useState(0);
 
   const handleLocalUploadFiles = (files: any[]) => {
     setWarning({});
     handleLocalFiles(files);
   };
-
-  function getTimestamp() {
-    const pad = (n: any, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
-    const d = new Date();
-    return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
-      d.getDate()
-    )}-${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-  }
 
   React.useEffect(() => {
     if (countdown === 0) {
@@ -664,6 +663,7 @@ const UploadComponent = ({
 
     const fileUploads: FileUpload[] = localFiles.map((file) => {
       const onUploadProgress = (progressEvent: ProgressEvent) => {
+        console;
         const percentCompleted = `${Math.round(
           (progressEvent.loaded * 100) / progressEvent.total
         )}%`;
@@ -688,21 +688,36 @@ const UploadComponent = ({
 
     const completedUploads: number[] = [];
 
-    await Promise.allSettled(
-      fileUploads.map(({ promise, file }, i) =>
-        promise
-          .then(() => completedUploads.push(i))
-          .catch((error) => {
-            const err = catchError(error);
-            setWarning({
-              ...warning,
-              [file.name]: err,
-            });
-          })
-      )
+    const promises = fileUploads.map(
+      ({ promise }) =>
+        () =>
+          promise
     );
 
-    if (completedUploads.length === localFiles.length) {
+    let serverProgressForClosingModal = 0;
+
+    const results = await limitConcurrency(4, promises, (progress: number) => {
+      setServerProgress(progress);
+      serverProgressForClosingModal = progress;
+    });
+
+    results.forEach((result, i) => {
+      if (result.status === 201) {
+        completedUploads.push(i);
+      } else {
+        const err = catchError(result);
+        const { file } = fileUploads[i];
+        setWarning({
+          ...warning,
+          [file.name]: err,
+        });
+      }
+    });
+
+    if (
+      completedUploads.length === localFiles.length &&
+      serverProgressForClosingModal === 100
+    ) {
       handleAddFolder(directoryName);
       const intervalDelay = 2000;
       const interval = setInterval(() => {
@@ -770,7 +785,7 @@ const UploadComponent = ({
         </Button>
       </div>
       <CodeBlock
-        style={{ marginTop: "1rem", height: "400px", overflow: "scroll" }}
+        style={{ marginTop: "1rem", height: "300px", overflow: "scroll" }}
       >
         <CodeBlockCode>
           {Object.keys(currentFile).length === 0 ? (
@@ -791,6 +806,14 @@ const UploadComponent = ({
           )}
         </CodeBlockCode>
       </CodeBlock>
+
+      <Progress
+        style={{ marginTop: "1rem" }}
+        value={serverProgress}
+        title={`${serverProgress}% Complete`}
+        measureLocation="outside"
+      />
+
       {countdown < 5 && countdown > 0 && (
         <PatternflyAlert variant="success" title="">
           The files have been uploaded to the server. This modal will close in{" "}
