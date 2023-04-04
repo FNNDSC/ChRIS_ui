@@ -622,7 +622,8 @@ const UploadComponent = ({
   React.useEffect(() => {
     if (countdown === 0) {
       setCurrentFile({});
-      setCountdown(0);
+      setCountdown(5);
+      setServerProgress(0);
       handleFileModal();
       countdownInterval && clearInterval(countdownInterval);
     }
@@ -785,7 +786,7 @@ const UploadComponent = ({
         </Button>
       </div>
       <CodeBlock
-        style={{ marginTop: "1rem", height: "300px", overflow: "scroll" }}
+        style={{ marginTop: "1rem", height: "250px", overflow: "scroll" }}
       >
         <CodeBlockCode>
           {Object.keys(currentFile).length === 0 ? (
