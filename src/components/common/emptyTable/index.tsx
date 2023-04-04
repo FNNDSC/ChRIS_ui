@@ -18,6 +18,24 @@ interface ITableProps {
   caption: string;
 }
 
+export const EmptyStateContainer = ({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) => {
+  return (
+    <EmptyState variant={EmptyStateVariant.small}>
+      <EmptyStateIcon icon={FaSearch} />
+      <Title headingLevel="h2" size="lg">
+        {title}
+      </Title>
+      <EmptyStateBody>{description}</EmptyStateBody>
+    </EmptyState>
+  );
+};
+
 export const EmptyStateTable = ({
   cells,
   rows,
@@ -31,13 +49,7 @@ export const EmptyStateTable = ({
         <TableHeader />
         <TableBody />
       </Table>
-      <EmptyState variant={EmptyStateVariant.small}>
-        <EmptyStateIcon icon={FaSearch} />
-        <Title headingLevel="h2" size="lg">
-          {title}
-        </Title>
-        <EmptyStateBody>{description}</EmptyStateBody>
-      </EmptyState>
+      <EmptyStateContainer title={title} description={description} />
     </React.Fragment>
   );
 };

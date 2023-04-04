@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { Feed } from "@fnndsc/chrisapi";
 import { CreateFeedContext, PipelineContext } from "./context";
-import { Types, CreateFeedReduxProp, LocalFile } from "./types/feed";
+import { Types, CreateFeedReduxProp } from "./types/feed";
 import BasicInformation from "./BasicInformation";
 import ChooseConfig from "./ChooseConfig";
 import Review from "./Review";
@@ -70,7 +70,7 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     : true;
 
   const handleDispatch = React.useCallback(
-    (files: LocalFile[]) => {
+    (files: File[]) => {
       const seen = new Set();
       const withDuplicateFiles = [...state.data.localFiles, ...files];
       const result = withDuplicateFiles.filter((el) => {
@@ -104,14 +104,8 @@ export const _CreateFeed: React.FC<CreateFeedReduxProp> = ({
     [dispatch, selectedConfig, state.data.localFiles]
   );
   const handleChoseFilesClick = React.useCallback(
-    (files: any[]) => {
-      const filesConvert = Array.from(files).map((file) => {
-        return {
-          name: file.name,
-          blob: file,
-        };
-      });
-      handleDispatch(filesConvert);
+    (files: File[]) => {
+      handleDispatch(files);
     },
     [handleDispatch]
   );
