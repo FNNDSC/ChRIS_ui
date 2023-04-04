@@ -21,7 +21,7 @@ import {
   CodeBlockCode,
   Progress,
 } from "@patternfly/react-core";
-import axios, { AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { Feed } from "@fnndsc/chrisapi";
 import { Alert, Progress as AntProgress } from "antd";
 import BrowserContainer from "./BrowserContainer";
@@ -44,8 +44,10 @@ import {
   fetchResource,
   limitConcurrency,
   getTimestamp,
+  uploadWrapper,
 } from "../../../../api/common";
 import "./user-library.scss";
+import { EmptyStateContainer } from "../../../../components/common/emptyTable";
 
 interface DownloadType {
   name: string;
@@ -634,74 +636,41 @@ const UploadComponent = ({
     setDirectoryName(`${d}`);
   }, [uploadFileModal]);
 
-  const uploadFile = async (
-    file: File,
-    url: string,
-    directoryName: string,
-    onUploadProgress: (progressEvent: ProgressEvent) => void,
-    username?: string | null
-  ) => {
-    const formData = new FormData();
-    formData.append(
-      "upload_path",
-      `${username}/uploads/${directoryName}/${file.name}`
-    );
-    formData.append("fname", file, file.name);
-
-    const config = {
-      headers: { Authorization: "Token " + token },
-      onUploadProgress,
-    };
-
-    const response = await axios.post(url, formData, config);
-    return response;
-  };
-
   const handleUpload = async () => {
     const client = ChrisAPIClient.getClient();
     await client.setUrls();
-    const url = client.uploadedFilesUrl;
 
-    const fileUploads: FileUpload[] = localFiles.map((file) => {
-      const onUploadProgress = (progressEvent: ProgressEvent) => {
-        console;
-        const percentCompleted = `${Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        )}%`;
-        setCurrentFile((prevProgresses) => ({
-          ...prevProgresses,
-          [file.name]: percentCompleted,
-        }));
-      };
-      const promise = uploadFile(
-        file,
-        url,
-        directoryName,
-        onUploadProgress,
-        username
-      );
+    const onUploadProgress = (file: any, progressEvent: ProgressEvent) => {
+      const percentCompleted = `${Math.round(
+        (progressEvent.loaded * 100) / progressEvent.total
+      )}%`;
+      setCurrentFile((prevProgresses) => ({
+        ...prevProgresses,
+        [file.name]: percentCompleted,
+      }));
+    };
 
-      return {
-        file,
-        promise,
-      };
-    });
+    const uploadDirectory = `${username}/uploads/${directoryName}`;
+
+    const fileUploads: FileUpload[] = uploadWrapper(
+      localFiles,
+      client,
+      uploadDirectory,
+      token,
+      onUploadProgress
+    );
 
     const completedUploads: number[] = [];
-
     const promises = fileUploads.map(
       ({ promise }) =>
         () =>
           promise
     );
-
     let serverProgressForClosingModal = 0;
-
     const results = await limitConcurrency(4, promises, (progress: number) => {
       setServerProgress(progress);
       serverProgressForClosingModal = progress;
     });
-
     results.forEach((result, i) => {
       if (result.status === 201) {
         completedUploads.push(i);
@@ -742,10 +711,9 @@ const UploadComponent = ({
       <div style={{ height: "200px" }}>
         <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
       </div>
-
-      {localFiles.length > 0 && (
-        <div style={{ height: "300px", marginTop: "1rem", overflow: "scroll" }}>
-          {localFiles.map((file, index) => {
+      <div style={{ height: "200px", marginTop: "1rem", overflow: "scroll" }}>
+        {localFiles.length > 0 ? (
+          localFiles.map((file, index) => {
             return (
               <LocalFileList
                 key={index}
@@ -757,9 +725,11 @@ const UploadComponent = ({
                 showIcon={true}
               />
             );
-          })}
-        </div>
-      )}
+          })
+        ) : (
+          <EmptyStateContainer title="No Files Uploaded" description="" />
+        )}
+      </div>
 
       <Form style={{ marginTop: "1rem" }} isHorizontal>
         <FormGroup fieldId="directory name" label="Directory Name">
@@ -774,7 +744,6 @@ const UploadComponent = ({
           />
         </FormGroup>
       </Form>
-
       <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
         <Button
           isDisabled={localFiles.length === 0}
@@ -807,14 +776,12 @@ const UploadComponent = ({
           )}
         </CodeBlockCode>
       </CodeBlock>
-
       <Progress
         style={{ marginTop: "1rem" }}
         value={serverProgress}
         title={`${serverProgress}% Complete`}
         measureLocation="outside"
       />
-
       {countdown < 5 && countdown > 0 && (
         <PatternflyAlert variant="success" title="">
           The files have been uploaded to the server. This modal will close in{" "}

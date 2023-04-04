@@ -1,10 +1,15 @@
 import { unpackParametersIntoObject } from "../../AddNode/lib/utils";
-import { CreateFeedData, LocalFile } from "../types/feed";
+import { CreateFeedData } from "../types/feed";
 import { PipelineData } from "../types/pipeline";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import { InputType } from "../../AddNode/types";
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-import { catchError, fetchResource } from "../../../../api/common";
+import {
+  catchError,
+  fetchResource,
+  limitConcurrency,
+  uploadWrapper,
+} from "../../../../api/common";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
@@ -77,15 +82,10 @@ export const createFeedInstanceWithDircopy = async (
   if (selectedConfig.includes("local_select")) {
     const generateUnique = generatePathForLocalFile(data);
     const path = `${username}/uploads/${generateUnique}`;
-    const local_upload_path = localFiles.length > 1 ? `${path}/` : path;
-    dirpath.push(local_upload_path);
+    dirpath.push(path);
 
     try {
-      await uploadLocalFiles(
-        localFiles,
-        local_upload_path,
-        setUploadFileCallback
-      );
+      await uploadLocalFiles(localFiles, path, setUploadFileCallback);
     } catch (error) {
       const errObj = catchError(error);
       errorCallback(errObj);
@@ -195,38 +195,26 @@ export const createFeedInstanceWithFS = async (
 };
 
 export const uploadLocalFiles = async (
-  files: LocalFile[],
+  files: File[],
   directory: string,
   statusCallback: (value: number) => void
 ) => {
   const client = ChrisAPIClient.getClient();
-  const promises = files.map(async (file) => {
-    const upload_path = `${directory}/${file.name}`;
-    await client.uploadFile(
-      {
-        upload_path,
-      },
-      {
-        fname: (file as LocalFile).blob,
-      }
-    );
-  });
 
-  let totalProgress = 0;
-  await Promise.allSettled(
-    promises.map((promise) => {
-      return promise
-        .then(() => {
-          totalProgress += 100 / files.length;
-          statusCallback(Math.round(totalProgress));
-        })
-        .catch((error) => {
-          throw new Error(error);
-        });
-    })
+  const fileUploads = uploadWrapper(
+    files,
+    client,
+    directory,
+    client.auth.token
   );
-
-  statusCallback(100); // in case any progress was lost due to rounding
+  const promises = fileUploads.map(
+    ({ promise }) =>
+      () =>
+        promise
+  );
+  await limitConcurrency(4, promises, (progress: number) => {
+    statusCallback(progress);
+  });
 };
 
 export const getPlugin = async (pluginName: string) => {

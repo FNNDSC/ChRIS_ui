@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 import ChrisAPIClient from "../chrisapiclient";
 import { Pipeline, PipelineList, PluginPiping } from "@fnndsc/chrisapi";
 
@@ -334,6 +335,56 @@ export const limitConcurrency = async <T>(
   }
 
   return results;
+};
+
+export const uploadFile = async (
+  file: File,
+  url: string,
+  directoryName: string,
+  token: string,
+  onUploadProgress: (progressEvent: ProgressEvent) => void
+) => {
+  const formData = new FormData();
+  const name = file.name;
+  formData.append("upload_path", `${directoryName}/${name}`);
+  formData.append("fname", file, name);
+
+  const config = {
+    headers: { Authorization: "Token " + token },
+    onUploadProgress,
+  };
+
+  const response = await axios.post(url, formData, config);
+  console.log("Response", response);
+  return response;
+};
+
+export const uploadWrapper = (
+  localFiles: any[],
+  client: any,
+  directoryName: string,
+  token: string,
+  onUploadProgress?: (file: any, progressEvent: ProgressEvent) => void
+) => {
+  const url = client.uploadedFilesUrl;
+  return localFiles.map((file) => {
+    const onUploadProgressWrap = (progressEvent: ProgressEvent) => {
+      onUploadProgress && onUploadProgress(file, progressEvent);
+    };
+
+    const promise = uploadFile(
+      file,
+      url,
+      directoryName,
+      token,
+      onUploadProgressWrap
+    );
+
+    return {
+      file,
+      promise,
+    };
+  });
 };
 
 export function getTimestamp() {

@@ -9,9 +9,9 @@ export const RenderFlexItem = ({
   subTitle: ReactNode;
 }) => {
   return (
-    <div style={{ width: "25%" }}>
+    <div>
       <Flex flex={{ default: "flex_1" }} style={{ marginBottom: "0.5rem" }}>
-        <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
+        <Flex style={{ width: "20%" }} direction={{ default: "column" }}>
           <FlexItem>{title}</FlexItem>
         </Flex>
         <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>

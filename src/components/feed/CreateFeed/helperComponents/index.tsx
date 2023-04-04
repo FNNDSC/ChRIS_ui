@@ -7,7 +7,7 @@ import {
 } from "@patternfly/react-core";
 import { FaTrash, FaFile } from "react-icons/fa";
 import { CreateFeedContext } from "../context";
-import { Types, LocalFile } from "../types/feed";
+import { Types } from "../types/feed";
 import { notification } from "antd";
 
 export const FileList = ({ file, index }: { file: string; index: number }) => {
@@ -92,10 +92,10 @@ export const LocalFileList = ({
 };
 
 function generateLocalFileList(
-  localFiles: LocalFile[],
+  localFiles: File[],
   handleDeleteDispatch: (file: string) => void
 ) {
-  return localFiles.map((file: LocalFile, index: number) => {
+  return localFiles.map((file: File, index: number) => {
     return (
       <React.Fragment key={index}>
         <LocalFileList
@@ -128,11 +128,7 @@ export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
   );
 };
 
-export const LocalFileDetails = ({
-  localFiles,
-}: {
-  localFiles: LocalFile[];
-}) => {
+export const LocalFileDetails = ({ localFiles }: { localFiles: File[] }) => {
   const { dispatch } = useContext(CreateFeedContext);
   const handleDeleteDispatch = (file: string) => {
     dispatch({
