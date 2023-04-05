@@ -1,6 +1,18 @@
 import * as React from "react";
+import axios from "axios";
+
 import ChrisAPIClient from "../chrisapiclient";
 import { Pipeline, PipelineList, PluginPiping } from "@fnndsc/chrisapi";
+
+interface PromiseFulfilledResult<T> {
+  status: "fulfilled";
+  value: T;
+}
+
+interface PromiseRejectedResult {
+  status: "rejected";
+  reason: any;
+}
 
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
@@ -279,4 +291,118 @@ export function catchError(errorRequest: any) {
   } else {
     return { error_message: errorRequest };
   }
+}
+
+// A function to limit concurrency using Promise.allSettled.
+export const limitConcurrency = async <T>(
+  limit: number,
+  promises: (() => Promise<T>)[],
+  onProgress?: (progress: number) => void
+): Promise<T[]> => {
+  const results: T[] = [];
+  const executing: Promise<T>[] = [];
+  let settledCount = 0;
+
+  // // A helper function to execute a promise and update the results and executing arrays.
+
+  const execute = async (promise: () => Promise<T>, i: number) => {
+    const promiseResult = promise();
+
+    executing.push(promiseResult);
+
+    return promiseResult
+      .then((result) => {
+        results[i] = result;
+      })
+      .catch((err) => {
+        results[i] = err;
+      })
+      .finally(() => {
+        // Remove the Promise from the executing array once the Promise has settled.
+        executing.splice(executing.indexOf(promiseResult), 1);
+        settledCount++;
+        if (onProgress) {
+          const progress = Math.round((settledCount / promises.length) * 100);
+          onProgress(progress);
+        }
+      });
+  };
+
+  // Create batches of promises to be executed concurrently
+
+  const batches = [];
+  for (let i = 0; i < promises.length; i += limit) {
+    const batch = promises.slice(i, i + limit);
+    const batchPromise = Promise.allSettled(
+      batch.map((promise, j) => execute(promise, i + j))
+    );
+
+    batches.push(batchPromise);
+  }
+
+  await Promise.allSettled(batches);
+  if (onProgress) {
+    onProgress(100);
+  }
+
+  return results;
+};
+
+export const uploadFile = async (
+  file: File,
+  url: string,
+  directoryName: string,
+  token: string,
+  onUploadProgress: (progressEvent: ProgressEvent) => void
+) => {
+  const formData = new FormData();
+  const name = file.name;
+  formData.append("upload_path", `${directoryName}/${name}`);
+  formData.append("fname", file, name);
+  
+
+  const config = {
+    headers: { Authorization: "Token " + token },
+    onUploadProgress,
+  };
+
+  const response = await axios.post(url, formData, config);
+
+  return response;
+};
+
+export const uploadWrapper = (
+  localFiles: any[],
+  client: any,
+  directoryName: string,
+  token: string,
+  onUploadProgress?: (file: any, progressEvent: ProgressEvent) => void
+) => {
+  const url = client.uploadedFilesUrl;
+  return localFiles.map((file) => {
+    const onUploadProgressWrap = (progressEvent: ProgressEvent) => {
+      onUploadProgress && onUploadProgress(file, progressEvent);
+    };
+
+    const promise = uploadFile(
+      file,
+      url,
+      directoryName,
+      token,
+      onUploadProgressWrap
+    );
+
+    return {
+      file,
+      promise,
+    };
+  });
+};
+
+export function getTimestamp() {
+  const pad = (n: any, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
+  const d = new Date();
+  return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
+    d.getDate()
+  )}-${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }

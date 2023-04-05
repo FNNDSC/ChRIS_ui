@@ -67,7 +67,7 @@ type CreateFeedPayload = {
   };
   [Types.ResetChrisFile]: boolean;
   [Types.AddLocalFile]: {
-    files: LocalFile[];
+    files: File[];
   };
   [Types.RemoveLocalFile]: {
     filename: string;
@@ -88,10 +88,6 @@ type CreateFeedPayload = {
 export type CreateFeedActions =
   ActionMap<CreateFeedPayload>[keyof ActionMap<CreateFeedPayload>];
 
-export interface LocalFile {
-  name: string;
-  blob: File;
-}
 export interface PACSData {
   id: number;
   creation_date: string;
@@ -129,7 +125,7 @@ export interface CreateFeedData {
   checkedKeys: {
     [key: string]: Key[];
   };
-  localFiles: LocalFile[];
+  localFiles: File[];
   isDataSelected: boolean;
 }
 
