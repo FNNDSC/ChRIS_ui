@@ -621,15 +621,19 @@ const UploadComponent = ({
     handleLocalFiles(files);
   };
 
+  const handleReset = React.useCallback(() => {
+    setCurrentFile({});
+    setCountdown(5);
+    setServerProgress(0);
+    handleFileModal();
+    countdownInterval && clearInterval(countdownInterval);
+  }, [countdown, countdownInterval, handleFileModal]);
+
   React.useEffect(() => {
     if (countdown === 0) {
-      setCurrentFile({});
-      setCountdown(5);
-      setServerProgress(0);
-      handleFileModal();
-      countdownInterval && clearInterval(countdownInterval);
+      handleReset();
     }
-  }, [countdown, countdownInterval, handleFileModal]);
+  }, [handleReset]);
 
   React.useEffect(() => {
     const d = getTimestamp();
@@ -639,7 +643,6 @@ const UploadComponent = ({
   const handleUpload = async () => {
     const client = ChrisAPIClient.getClient();
     await client.setUrls();
-
     const onUploadProgress = (file: any, progressEvent: ProgressEvent) => {
       const percentCompleted = `${Math.round(
         (progressEvent.loaded * 100) / progressEvent.total
@@ -701,7 +704,7 @@ const UploadComponent = ({
     <Modal
       title="Upload Files"
       onClose={() => {
-        handleFileModal();
+        handleReset();
       }}
       isOpen={uploadFileModal}
       variant={ModalVariant.large}
@@ -731,9 +734,14 @@ const UploadComponent = ({
         )}
       </div>
 
-      <Form style={{ marginTop: "1rem" }} isHorizontal>
-        <FormGroup fieldId="directory name" label="Directory Name">
+      <Form
+        onSubmit={(event) => event.preventDefault()}
+        style={{ marginTop: "1rem" }}
+        isHorizontal
+      >
+        <FormGroup fieldId="directory name" isRequired label="Directory Name">
           <TextInput
+            isRequired
             id="horizontal form name"
             value={directoryName}
             type="text"
@@ -746,7 +754,12 @@ const UploadComponent = ({
       </Form>
       <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
         <Button
-          isDisabled={localFiles.length === 0}
+          isDisabled={
+            localFiles.length === 0 ||
+            (countdown < 5 && countdown > 0) ||
+            directoryName.length === 0 ||
+            serverProgress > 0
+          }
           onClick={handleUpload}
           icon={<FaUpload />}
           variant="secondary"
