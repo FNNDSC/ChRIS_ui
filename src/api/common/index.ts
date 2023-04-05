@@ -322,6 +322,7 @@ export const limitConcurrency = async <T>(
   const batches = [];
   for (let i = 0; i < promises.length; i += limit) {
     const batch = promises.slice(i, i + limit);
+
     const batchPromise = Promise.allSettled(
       batch.map((promise, j) => execute(promise, i + j))
     );
@@ -355,7 +356,7 @@ export const uploadFile = async (
   };
 
   const response = await axios.post(url, formData, config);
-  console.log("Response", response);
+
   return response;
 };
 
