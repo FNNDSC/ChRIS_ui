@@ -130,6 +130,8 @@ const FileDetailView = (props: AllProps) => {
     });
   };
 
+  const previewType = preview === "large" ? "large-preview" : "small-preview";
+
   return (
     <Fragment>
       <React.Suspense
@@ -149,8 +151,14 @@ const FileDetailView = (props: AllProps) => {
             </span>
           }
         >
-          <div className={preview === "large" ? "small-preview" : ""}>
-            <DicomHeader viewerName={viewerName} handleEvents={handleEvents} />
+          <div className={previewType}>
+            {previewType === "large-preview" && (
+              <DicomHeader
+                viewerName={viewerName}
+                handleEvents={handleEvents}
+              />
+            )}
+
             <ViewerDisplay
               preview={preview}
               viewerName={viewerName}

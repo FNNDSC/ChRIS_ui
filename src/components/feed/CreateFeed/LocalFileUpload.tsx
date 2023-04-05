@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect } from "react";
 import { WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
-import { LocalFile, Types } from "./types/feed";
+import { Types } from "./types/feed";
 import { LocalFileList } from "../../feed/CreateFeed/helperComponents";
 import { notification } from "antd";
 
@@ -45,7 +45,7 @@ const LocalFileUpload = () => {
 export default LocalFileUpload;
 
 type FileUploadProps = {
-  localFiles: LocalFile[];
+  localFiles: File[];
   handleDeleteDispatch: (file: string) => void;
   onNext: () => void;
   onBack: () => void;
@@ -80,7 +80,7 @@ const FileUploadComponent = ({
 
   const fileList =
     localFiles.length > 0
-      ? localFiles.map((file: LocalFile, index: number) => (
+      ? localFiles.map((file: File, index: number) => (
           <React.Fragment key={index}>
             <LocalFileList
               handleDeleteDispatch={handleDeleteDispatch}

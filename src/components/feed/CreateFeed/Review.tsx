@@ -18,8 +18,6 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { selectedConfig, uploadProgress, feedError, creatingFeedStatus } =
     state;
 
-  const uploadPercent = Math.floor((uploadProgress / localFiles.length) * 100);
-
   const {
     dropdownInput,
     requiredInput,
@@ -93,36 +91,33 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
             >
               <LocalFileDetails localFiles={localFiles} />
             </div>
-            {uploadProgress > 0 && (
-              <Split>
-                <SplitItem>
-                  <div style={{ height: "230px", width: "230px" }}>
-                    <p
-                      style={{
-                        marginBottom: "0",
-                      }}
-                    >
-                      Tracker for Pushing Files to Storage:
-                    </p>
-                    <ChartDonutUtilization
-                      ariaDesc="Storage capacity"
-                      ariaTitle="Donut utilization chart example"
-                      constrainToVisibleArea
-                      data={{ x: "Files Uploaded", y: uploadPercent }}
-                      labels={({ datum }) =>
-                        datum.x ? `${datum.x}: ${datum.y}%` : null
-                      }
-                      themeColor={
-                        uploadProgress === localFiles.length ? "green" : ""
-                      }
-                      name="chart1"
-                      subTitle={`${localFiles.length}`}
-                      title={`${uploadProgress}`}
-                    />
-                  </div>
-                </SplitItem>
-              </Split>
-            )}
+
+            <Split>
+              <SplitItem>
+                <div style={{ height: "230px", width: "230px" }}>
+                  <p
+                    style={{
+                      marginBottom: "0",
+                    }}
+                  >
+                    Tracker for Pushing Files to Storage:
+                  </p>
+                  <ChartDonutUtilization
+                    ariaDesc="Storage capacity"
+                    ariaTitle="Donut utilization chart example"
+                    constrainToVisibleArea
+                    data={{ x: "Files Uploaded", y: uploadProgress }}
+                    labels={({ datum }) =>
+                      datum.x ? `${datum.x}: ${datum.y}%` : null
+                    }
+                    themeColor={uploadProgress === 100 ? "green" : ""}
+                    name="chart1"
+                    subTitle={"100"}
+                    title={`${uploadProgress}`}
+                  />
+                </div>
+              </SplitItem>
+            </Split>
           </>
         )}
       </>
