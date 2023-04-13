@@ -37,13 +37,11 @@
     --pf-c-table-tbody-cell--PaddingTop: 1rem;
     --pf-c-table-tbody-cell--PaddingBottom: 1rem;
     margin-bottom: 1rem;
-    background-color: var(--pf-global--BackgroundColor--dark-transparent-200);
+    background-color: #36363d;
   }
 
   .pf-c-table thead {
-    background-color: var(
-      --pf-global--BackgroundColor--dark-transparent-200
-    ) !important;
+    background-color: #18181b !important;
   }
 
   &__count {

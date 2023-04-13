@@ -3,7 +3,8 @@
 @import "../../../assets/scss/helpers/mixins";
 
 .pf-c-drawer__body {
-  padding: 0 !important;
+  padding: 20px !important;
+  background-color: #18181b !important;
 }
 
 .pf-c-app-launcher__menu {
@@ -108,11 +109,6 @@
       margin-right: 0.25em;
     }
 
-    .pf-c-table {
-      background-color: var(
-        --pf-global--BackgroundColor--dark-transparent-400
-      ) !important;
-    }
   }
 
   .header-panel__buttons {
