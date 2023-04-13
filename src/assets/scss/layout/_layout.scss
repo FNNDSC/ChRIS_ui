@@ -78,10 +78,19 @@ label {
   color: white !important;
 }
 
-.pf-c-button.pf-m-tertiary,
-.pf-c-button.pf-m-secondary {
-  border: 1px solid white;
+.pf-c-page__header{
+  background-color: #18181b;
+  border-bottom: 1px solid #36363d;
 }
+
+.pf-c-toolbar{
+  background-color: #18181b;
+}
+
+.pf-c-page__main-section.pf-m-dark-100{
+  background-color: #18181b;
+}
+
 
 .pf-c-page__header-brand-toggle {
   margin-right: 1rem !important;
@@ -89,10 +98,13 @@ label {
 }
 
 .pf-c-input-group__text {
-  background-color: var(--pf-global--BackgroundColor--dark-400) !important;
+  background-color: #36363d !important;
   color: white;
 }
-
+.pf-c-page__sidebar{
+  background-color: #18181b !important;
+  border-right: 1px solid #36363d;
+}
 .pf-c-form-control {
   color: white !important;
   --pf-c-form-control--Color: white;
@@ -122,7 +134,7 @@ label {
   --pf-c-code-block--BackgroundColor: var(
     --pf-global--BackgroundColor--dark-100
   );
-  border: 1px solid white !important;
+  border: 2px solid white !important;
 }
 
 .pf-c-modal-box {
@@ -147,18 +159,18 @@ label {
   &__toggle {
     display: none;
   }
-
+  &__header{
+    background-color: #36363d !important;
+  }
   &__footer {
-    background-color: var(--pf-global--BackgroundColor--dark-400);
+    background-color: #36363d;
   }
 
   &__outer-wrap {
     padding-left: 0;
   }
 
-  --pf-c-wizard__outer-wrap--BackgroundColor: var(
-    --pf-global--BackgroundColor--dark-400
-  );
+  --pf-c-wizard__outer-wrap--BackgroundColor: #18181b ;
   --pf-c-wizard__nav--BackgroundColor: var(
     --pf-global--BackgroundColor--dark-400
   );
@@ -170,17 +182,10 @@ label {
   --pf-c-wizard__nav-link--focus--Color: white;
   --pf-c-wizard__nav-link--m-current--Color: white;
 
-  .pf-c-card {
-    --pf-c-card--BackgroundColor: var(
-      --pf-global--BackgroundColor--dark-200
-    ) !important;
-  }
 
   .pf-c-form-control {
     color: white;
-    --pf-c-form-control--BackgroundColor: var(
-      --pf-global--BackgroundColor--dark-200
-    ) !important;
+    --pf-c-form-control--BackgroundColor: #18181b !important;
     --pf-c-form-control--placeholder--Color: var(
       --pf-global--Color--400
     ) !important;
@@ -246,4 +251,15 @@ label {
 
 .pf-c-form__helper-text {
   color: white !important;
+}
+
+.pf-l-grid__item > .pf-c-card{
+  background-color: #36363d;
+}
+
+.pf-c-drawer__head{
+  background-color: #18181b !important;
+}
+div.pf-c-drawer__panel-main {
+  background-color: #18181b !important;
 }

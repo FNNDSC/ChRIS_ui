@@ -18,7 +18,6 @@
 }
 
 .node-block {
-  background: $node-block-background;
   width: 100%;
   height: 100%;
   color: white;
@@ -47,6 +46,7 @@
   .node-details {
     height: 100%;
     margin: 0 0.5em 0 0;
+    background-color: $node-block-background !important;
     &__title {
       display: flex;
       margin: 0.5em auto;
@@ -91,7 +91,6 @@
       color: var(--pf-global--palette--white);
       margin-bottom: 0.25em;
       margin-top: 0.25em;
-
       &-icon {
         color: var(--pf-global--palette--white);
         margin-right: 0.25em;
