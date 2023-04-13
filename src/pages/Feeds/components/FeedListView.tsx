@@ -399,12 +399,11 @@ const TableRow = ({
     />
   );
   const backgroundRow =
-    progress && progress < 100 && !feedError ? "#c58c00" : "inherit";
+    progress && progress < 100 && !feedError ? "#18181b" : "inherit";
   const selectedBgRow = isSelected(bulkSelect, feed)
     ? "#001223"
     : backgroundRow;
-  
-  
+
   return (
     <Tr
       key={feed.data.id}
