@@ -39,7 +39,7 @@ const DashboardPage = (props: DashboardProps) => {
     document.title = "Overview";
     dispatch(
       setSidebarActive({
-        activeItem: "overview",
+        activeItem: "",
       })
     );
   }, [dispatch]);
@@ -70,9 +70,8 @@ const DashboardPage = (props: DashboardProps) => {
       </PageSection>
       <PageSection variant="darker">
         <Grid hasGutter>
-          <GridItem style={{ marginBottom: "1rem" }} lg={6}>
+          <GridItem lg={6}>
             <CardDisplay
-             
               title="You've got data!"
               body='Visit the "Library" in the main navigation to review your data collection'
               buttonText="Go to the Library"
