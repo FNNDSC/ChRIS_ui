@@ -49,8 +49,18 @@
     }
   }
 
+  .pf-c-drawer__content{
+    background-color: #18181b;
+  }
+
+
   .pf-c-table tr > * {
     color: white;
+  }
+
+  .pf-c-table{
+    background-color: #18181b;
+
   }
 
   &__table {
