@@ -1,4 +1,3 @@
-import React from "react";
 import { Cookies } from "react-cookie";
 
 const useCookieToken = () => {
