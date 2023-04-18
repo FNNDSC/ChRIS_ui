@@ -24,6 +24,20 @@ if [ "$(id -u)" != "0" ]; then
   fi
 fi
 
+# When running on Podman with default settings, the host IP address is added to /etc/hosts
+# by Podman by the name "host.containers.local" which we'll use as the IP address.
+if [ "${DISABLE_PODMAN_HOST_IP-no}" = 'no' ] \
+  && [ "$given_cube" = 'nil' ] \
+  && [ "$given_pfdcm" = 'nil' ]; then
+  
+  PODMAN_HOST_IP="$(grep -m 1 -F host.containers.internal /etc/hosts | awk '{print $1}')"
+  if [ -n "$PODMAN_HOST_IP" ]; then
+    echo "Detected Podman host IP: $PODMAN_HOST_IP"
+    given_cube="http://$PODMAN_HOST_IP:8000/api/v1/"
+    given_pfdcm="http://$PODMAN_HOST_IP:4005/"
+  fi 
+fi
+
 function replace () {
   local target="$1"
   local api_url="$2"
