@@ -135,7 +135,7 @@ const AddPipeline = () => {
         ]}
       >
         <PipelineContainer />
-        {Object.keys(error).length > 0 && <ReactJson src={error} />}
+        {Object.keys(error).length > 0 && <ReactJson theme='grayscale' src={error} />}
       </Modal>
     </React.Fragment>
   );

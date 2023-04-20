@@ -1,0 +1,131 @@
+/**
+ * /*
+ *  File:            feed.scss
+ *  Description:     This files holds styles specific for the Feed view page
+ *  Author:          ChRIS UI
+ *
+ * @format
+ */
+
+@import "../../assets/scss/helpers/mixins";
+@import "../../assets/scss/helpers/pf4-variables";
+@import "../../assets/scss/helpers/variables";
+@import "antd/dist/antd.css";
+
+.pf-c-drawer__splitter {
+  background-color: #151515;
+  &-handle::after {
+    border-color: white !important;
+  }
+}
+
+.feed-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  &__count {
+    color: var(--pf-global--Color-200);
+    font-weight: var(--fw-normal);
+    margin-left: 0.25em;
+  }
+}
+
+.feed-list {
+  .pf-c-table {
+    --pf-c-table-tbody-cell--PaddingTop: 1rem;
+    --pf-c-table-tbody-cell--PaddingBottom: 1rem;
+    margin-bottom: 1rem;
+    background-color: var(--pf-global--BackgroundColor--dark-transparent-200);
+  }
+
+  .pf-c-table thead {
+    background-color: var(
+      --pf-global--BackgroundColor--dark-transparent-200
+    ) !important;
+  }
+
+  &__count {
+    margin-left: 1.25em;
+    display: block;
+  }
+
+  .error {
+    background-color: red;
+  }
+
+  &__split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__name {
+    a {
+      margin-left: 0.25em;
+      color: var(--pf-global--link--Color--light);
+    }
+
+    cursor: pointer;
+    outline: none;
+  }
+
+  td:last-child {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  td:first-child {
+    padding-right: 0 !important;
+    padding-left: 0.25;
+  }
+}
+
+.section-one {
+  padding: 0 !important;
+  height: 5vh;
+  position: relative;
+}
+
+.feed-block {
+  background: "inherit";
+  height: 100%;
+}
+
+.node-block {
+  padding: 0.5em;
+  height: 100%;
+}
+
+#feed-list {
+  .pf-l-split__item {
+    display: flex;
+    span,
+    div {
+      margin: auto 0;
+    }
+  }
+}
+.hideMe {
+  animation: cssAnimation 0s ease-in 30s forwards;
+  -webkit-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+@keyframes cssAnimation {
+  to {
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+}
+@-webkit-keyframes cssAnimation {
+  to {
+    width: 0;
+    height: 0;
+    visibility: hidden;
+  }
+}
+.feed_modal {
+  height: 30%;
+}

@@ -1,0 +1,106 @@
+/*
+*  File:            Viewer.scss
+*  Description:     This files holds styles specific for the output viewer components
+*  Author:          ChRIS UI
+*/
+
+@import "../../assets/scss/helpers/variables";
+
+.dicom-modal {
+  color: rgb(115, 188, 247) !important;
+  background: #d2d2d2 !important;
+  padding: 1.5rem 0 1rem !important;
+  height: 100vh;
+  min-width: 98vw;
+
+  .pf-c-drawer__panel-main {
+    background: #d2d2d2 !important;
+  }
+
+  h1,
+  button {
+    color: rgb(115, 188, 247) !important;
+  }
+
+  h3.pf-c-title {
+    margin-left: 2rem;
+  }
+  .output-viewer {
+    height: 100%;
+
+    .dicom-tab_1 {
+      display: flex;
+      justify-content: center;
+    }
+
+    .pf-c-tab-content {
+      outline: none;
+      height: 95%;
+    }
+    .empty {
+      margin: 2rem;
+      max-width: 500px;
+    }
+  }
+}
+
+.plugin-viewer {
+  display: block;
+  max-height: 100%;
+  position: relative;
+  img {
+    display: block;
+    max-height: 100%;
+    max-width: 100%;
+  }
+  .image-frame {
+    display: inline-block;
+    position: relative;
+    width: auto;
+    .legend {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+    }
+  }
+
+  iframe {
+    height: calc(100vh - 220px);
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+.dataTable-viewer {
+  table {
+    min-width: 50vw;
+    width: auto;
+    th {
+      font-weight: 700;
+      padding-bottom: 8px;
+    }
+  }
+}
+
+.dot {
+  background: $dot-background-gray;
+  border-radius: 50%;
+  display: inline-block;
+  height: 15px;
+  margin-right: 5px;
+  width: 15px;
+  &.red {
+    background: $dot-background-red;
+  }
+  &.orange {
+    background: $dot-background-orange;
+  }
+  &.yellow {
+    background: $dot-background-yellow;
+  }
+}
+
+.pf-c-breadcrumb__item {
+  font-size: 16px !important;
+  font-family: var(--pf-global--FontFamily--redhatfont--sans-serif) !important;
+}

@@ -77,8 +77,11 @@ export const getTsNodes = async (items: PluginInstance[]) => {
         params,
         boundFn
       );
-      if (parameters[0]) {
-        parentIds[instance.data.id] = parameters[0].data.value
+      const filteredParameters = parameters.filter(
+        (param) => param.data.param_name === "plugininstances"
+      );
+      if (filteredParameters[0]) {
+        parentIds[instance.data.id] = filteredParameters[0].data.value
           .split(",")
           .map(Number);
       }

@@ -1,0 +1,117 @@
+/*
+*  File:            _utilities.scss
+*  Description:     This file holds styles for utility classes
+*
+*  Author:          ChRIS UI
+*/
+
+.black-900 {
+  color: $pf-color-black-900;
+}
+
+.float-right {
+  float: right;
+}
+
+// Accessibility additions
+// Hidden on md and below (768px;)
+// ----------------------------------------------
+
+.hidden-md {
+  @media screen and (max-width: $pf-global--breakpoint--md) {
+    display: none !important;
+  }
+}
+
+// Full screen view
+// While in fullscreen, hide any children with class 'tohide'
+// ----------------------------------------------
+
+div:-webkit-full-screen {
+  width: 100% !important;
+  .tohide {
+    display: none;
+  }
+}
+div:-moz-full-screen {
+  width: 100% !important;
+  .tohide {
+    display: none;
+  }
+}
+div:-ms-fullscreen {
+  width: 100% !important;
+  .tohide {
+    display: none;
+  }
+}
+div:fullscreen {
+  width: 100% !important;
+  .tohide {
+    display: none;
+  }
+}
+
+// Inputs onfocus
+// ----------------------------------------------
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+}
+
+// Custom Scrollbar
+// ----------------------------------------------
+
+::-webkit-scrollbar {
+  width: 0.4rem;
+  height: 0.4rem;
+}
+
+::-webkit-scrollbar-track {
+  background: inherit;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #8a8d90;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #8a8d90;
+}
+
+// Styles for the dicom viewer display
+
+.small-preview {
+  height: 100%;
+
+  .viewport-wrapper {
+    height: 100% !important;
+  }
+  img {
+    max-height: 100%;
+    max-width: 100%;
+  }
+
+  .react-json-view {
+    height: 100%;
+    overflow: scroll;
+  }
+}
+
+.dcm-preview {
+  position: relative;
+  height: 100%;
+
+  #container {
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+  }
+}

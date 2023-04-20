@@ -1,0 +1,293 @@
+@import "../../../assets/scss/helpers/pf4-variables";
+@import "../../../assets/scss/helpers/variables";
+
+/* General */
+
+.svg {
+  color: white;
+}
+
+.create-analysis-button {
+  float: right;
+  border-radius: 4px !important;
+}
+
+.pf-c-table.pf-m-sticky-header
+  > thead:not(.pf-m-nested-column-header)
+  > tr
+  > * {
+  color: white;
+  background: inherit;
+}
+
+.pf-c-wizard {
+  width: 100% !important;
+  height: 100% !important;
+  h2 {
+    color: white !important;
+  }
+}
+
+.pf-c-modal-box {
+  padding: 0 !important;
+}
+
+.pf-c-modal-box.pf-m-lg {
+  height: 95%;
+}
+
+.analysis-create-wizard {
+  .pf-c-wizard__header {
+    background: #282d33;
+  }
+
+  .pf-c-wizard__footer {
+    flex-direction: row-reverse;
+  }
+
+  .pf-c-wizard__nav .pf-m-current {
+    color: var(--pf-c-wizard__nav-link--m-current--before--BackgroundColor);
+  }
+
+  .pf-c-wizard__main-body {
+    // padding is moved to pacs-alert-wrap, to make pacs alert flush with border
+    padding: 0;
+  }
+}
+
+.pacs-alert-wrap {
+  .pacs-alert-step-wrap {
+    padding: 1em;
+  }
+
+  .pacs-alert {
+    background: var(--pf-global--palette--blue-50);
+    padding: 11px 11px;
+    color: black;
+  }
+}
+
+/* Basic Information */
+
+.basic-information {
+  // typerheader
+  .rbt-input-multi {
+    padding: 5px 34px 5px 12px;
+  }
+  .rbt-close {
+    margin-top: 3px;
+  }
+  .dropdown-menu {
+    margin-top: 0;
+  }
+  .rbt-token {
+    background: var(--pf-global--Color--light-100);
+    border: solid 1px var(--pf-global--Color--dark-200);
+    border-radius: 3px;
+    color: $pf-color-black-900;
+    font-size: 14px;
+    line-height: 1em;
+    margin: 0 5px 4px 0;
+    padding: 8px 30px 4px 10px;
+
+    button {
+      font-size: 18px !important;
+      padding-top: 8px !important;
+      margin-top: 0;
+    }
+  }
+}
+/* drawer style */
+.drawer_panelContent {
+  height: 100vh;
+}
+
+/* Data Configuration */
+
+.local-file-upload,
+.chris-file-select {
+  .pf-l-split__item:first-child {
+    // "file upload/select" section
+    border-right: 1px solid #a4a4a4;
+    padding-right: var(--pf-l-split--m-gutter--MarginRight);
+  }
+  .section-header {
+    margin-bottom: 10px;
+  }
+  .file-remove {
+    cursor: pointer;
+  }
+
+  .loading-error-alert {
+    width: 100%;
+    .error-details {
+      padding: 10px;
+      margin: 10px 0px;
+      font-weight: normal;
+      border-left: 1px solid var(--pf-global--danger-color--100);
+    }
+  }
+}
+
+/* ChRIS File Select and Local File Upload */
+
+.review {
+  padding-left: 20px;
+  .tag {
+    margin-right: 10px !important;
+  }
+  .file-warning {
+    font-weight: bold;
+    svg {
+      font-size: 1.5em;
+      margin-right: 10px;
+      margin-top: 15px;
+      vertical-align: -0.225em;
+    }
+  }
+}
+
+.data-configuration {
+  &__subtitle {
+    font-size: 18px;
+    color: #737679;
+  }
+}
+
+.plugin-table-row {
+  display: flex;
+  flex-direction: column;
+
+  &__plugin-name {
+    font-size: 18px;
+  }
+  &__plugin-description {
+    font-size: 18px;
+    color: #737679;
+  }
+}
+
+.fsplugin {
+  &__datatoolbar {
+    display: flex;
+  }
+}
+
+.pf-c-radio {
+  margin-bottom: 15px !important;
+  &__label {
+    font-size: 18px !important;
+  }
+  &__input {
+    font-size: 18px !important;
+  }
+}
+
+.site-tree-search-value {
+  color: #f50;
+}
+[data-theme="dark"] .site-tree-search-value {
+  color: #d84a1b;
+}
+
+.finished-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: -10%;
+  margin-top: 2em;
+  margin-bottom: 1.5em;
+
+  &__header {
+    margin-bottom: 15px !important;
+  }
+  &__icon {
+    height: 4em;
+    width: 4em;
+    margin-bottom: 15px !important;
+  }
+
+  &__button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: -10%;
+    margin-top: 3em;
+  }
+}
+
+.file-preview {
+  margin-top: 5px;
+}
+.trash-icon,
+.file-icon {
+  font-weight: 900;
+  color: #06c;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+.file-name {
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: 0.025rem;
+  font-family: monospace;
+}
+
+/**
+Styles for pipelines 
+**/
+
+.pf-c-popover {
+  height: 350px;
+  padding: 0;
+}
+
+.pf-c-popover__content {
+  height: 100%;
+}
+
+.pf-c-popover__body {
+  height: 100%;
+  padding: 0;
+  div {
+    height: 60%;
+  }
+}
+
+// Styles for configuration Page under Pipelines
+.pf-c-expandable-section {
+  margin-top: 1rem;
+
+  &__toggle {
+    color: white;
+
+    &-icon {
+      color: inherit;
+    }
+  }
+}
+
+.pf-c-input-group input:not([type="checkbox"]):not([type="radio"]),
+.pf-c-input-group textarea {
+  flex: 2 1;
+  min-width: 0;
+  // padding-left: 0.2em;
+}
+.general-compute {
+  .ant-list-item-meta-title,
+  .ant-list-item-meta-description {
+    color: white !important;
+  }
+}
+
+.pf-c-code-block__header {
+  display: block;
+}
+.pf-c-code-block__actions {
+  display: block;
+}
+
+.pf-c-code-block__actions-item {
+  display: flex;
+  justify-content: space-between;
+}
