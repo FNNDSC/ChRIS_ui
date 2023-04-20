@@ -61,7 +61,16 @@ const NodeData = (props: NodeProps) => {
     state,
     handleSetPipelineEnvironments,
   } = props;
-  const { computeEnvs, title, currentNode } = state;
+  const { computeEnvs, title, currentNode, pluginPipings } = state;
+
+  const root = pluginPipings && pluginPipings[0];
+
+  let currentId = NaN;
+  if (data.previous_id && root) {
+    currentId = data.id - root.data.id;
+  } else {
+    currentId = 0;
+  }
 
   let currentComputeEnv = "";
   if (computeEnvs && computeEnvs[data.id]) {
@@ -107,7 +116,7 @@ const NodeData = (props: NodeProps) => {
   const textLabel = (
     <g id={`text_${data.id}`} transform={`translate(-30,30)`}>
       <text ref={textRef} className="label__title">
-        {titleName ? titleName : data.title}
+        {currentId}:{titleName ? titleName : data.title}
       </text>
     </g>
   );
