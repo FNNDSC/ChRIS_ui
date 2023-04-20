@@ -304,7 +304,7 @@ const LinkData: React.FC<LinkProps> = ({ linkData }) => {
       sourceY = source.y + sourcePadding * normY,
       targetX = target.x - targetPadding * normX,
       targetY = target.y - targetPadding * normY;
-    console.log("TS", ts, target);
+    
     if (ts) {
       return linkVertical()({
         source: [sourceX, sourceY],
