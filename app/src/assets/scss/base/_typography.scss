@@ -1,0 +1,70 @@
+/*
+*  File:            _typography.scss
+*  Description:     This file holds styles misc dom elements
+*                   
+*  Author:          ChRIS UI
+*/
+
+$fw-light: 300;
+$fw-normal: 400;
+$fw-bold: 900;
+
+// Typography
+// ----------------------------------------------
+
+p {
+  color: white !important;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  color: white !important;
+}
+h1.ant-typography {
+  @media (max-width: 560px) {
+    font-size: 2em;
+  }
+  @media (max-width: 420px) {
+    font-size: 1.5em;
+  }
+}
+
+h2 {
+  font-size: 1.5em;
+  font-weight: 400;
+}
+
+h3 {
+  font-size: 1.25em;
+  font-weight: 400;
+}
+
+p {
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+
+  & + p {
+    margin-top: 0em;
+    margin-bottom: 1.5em;
+  }
+}
+
+a {
+  text-decoration: none;
+  font-weight: bolder;
+  // Remove blue highlight in mobile
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+h1.ant-typography {
+  color: white;
+}
