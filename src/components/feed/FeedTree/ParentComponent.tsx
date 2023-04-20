@@ -32,6 +32,7 @@ const ParentComponent = (props: ParentComponentProps) => {
     if (instances && instances.length > 0) {
       const data = getFeedTree(instances);
       getTsNodes(instances).then((nodes) => {
+        
         setTsIds(nodes);
       });
       setData(data);
