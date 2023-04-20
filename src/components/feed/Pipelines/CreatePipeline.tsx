@@ -107,7 +107,7 @@ const CreatingPipeline = ({
       {creatingPipeline.loading && <Spin tip="Saving a new pipeline" />}
       {Object.keys(creatingPipeline.error).length > 0 && (
         <span>
-          <ReactJson src={creatingPipeline.error} />
+          <ReactJson theme="grayscale" src={creatingPipeline.error} />
         </span>
       )}
     </div>

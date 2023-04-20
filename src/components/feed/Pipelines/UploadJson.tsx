@@ -87,6 +87,8 @@ export const UploadJson = ({
 
   const alertStyle = {
     marginTop: "1em",
+    background: "inherit",
+    color: "white",
   };
 
   return (
@@ -99,7 +101,9 @@ export const UploadJson = ({
         <Button onClick={showOpenFile} icon={<AiOutlineUpload />}>
           Upload a JSON spec{" "}
         </Button>
-        <span style={{ marginLeft: "1em", fontWeight: 700 }}>{fileName}</span>
+        <span style={{ marginLeft: "1em", fontWeight: 700, color: "white" }}>
+          {fileName}
+        </span>
         {showSuccessIcon && (
           <Alert
             style={alertStyle}
@@ -118,6 +122,7 @@ export const UploadJson = ({
           }}
         >
           <ReactJSON
+            theme="grayscale"
             name={false}
             displayDataTypes={false}
             src={error}
