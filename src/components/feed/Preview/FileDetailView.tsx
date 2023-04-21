@@ -273,7 +273,7 @@ export const DicomHeader = ({
       }
       style={{
         position: "absolute",
-        top: "1.5em",
+        top: "2.5em",
         right: "0",
         zIndex: "9999",
         color: "black",
