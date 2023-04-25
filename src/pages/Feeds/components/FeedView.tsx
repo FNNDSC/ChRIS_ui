@@ -48,6 +48,10 @@ const NodeDetails = React.lazy(
   () => import("../../../components/feed/NodeDetails/NodeDetails")
 );
 
+const ReactFlowContainer = React.lazy(
+  () => import("../../../components/feed/ReactFlow/ReactFlowContainer")
+);
+
 export const FeedView: React.FC = () => {
   const params = useParams();
   const dispatch = useDispatch();
@@ -195,6 +199,29 @@ export const FeedView: React.FC = () => {
     </ErrorBoundary>
   );
 
+  const flowTree = (
+    <ErrorBoundary
+      fallback={
+        <div>
+          <LoadingErrorAlert
+            error={{
+              message: "Error found in constructing a tree",
+            }}
+          />
+        </div>
+      }
+    >
+      {" "}
+      <React.Suspense
+        fallback={
+          <SpinContainer title="Fetching Resources to construct the graph" />
+        }
+      >
+        <ReactFlowContainer />
+      </React.Suspense>
+    </ErrorBoundary>
+  );
+
   const nodePanel = (
     <ErrorBoundary
       fallback={
@@ -250,7 +277,12 @@ export const FeedView: React.FC = () => {
           maximized={drawerState["graph"].maximized}
         />
         <DrawerContentBody>
-          {drawerState["graph"].open && feedTree}
+          {drawerState["graph"].open &&
+            drawerState["graph"].currentlyActive === "graph" &&
+            feedTree}
+          {drawerState["graph"].open &&
+            drawerState["graph"].currentlyActive === "flow" &&
+            flowTree}
         </DrawerContentBody>
       </DrawerContent>
     </Drawer>
