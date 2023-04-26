@@ -1,72 +1,47 @@
 import React from "react";
-import ReactFlow, {
-  Controls,
-  ControlButton,
-  Background,
-  useNodesState,
-  useEdgesState,
-} from "reactflow";
 import { useTypedSelector } from "../../../store/hooks";
 import { getPluginInstanceGraph } from "./utils";
+import Tree from 'react-d3-tree';
 
-const ReactFlowContainer = () => {
-  const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
-  );
-  const { data: instances } = pluginInstances;
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+interface TreeNode {
+  name: string;
+  children?: TreeNode[];
+}
 
-  React.useEffect(() => {
-    if (instances) {
-      const { g_nodes, g_edges } = getPluginInstanceGraph(instances);
-      setNodes(g_nodes);
-      setEdges(g_edges);
-    }
-  }, [instances, setEdges, setNodes]);
+const myTreeData: TreeNode[] = [
+  {
+    name: 'Element 1',
+    children: [
+      {
+        name: 'Element 2',
+        children: [
+          {
+            name: 'Element 3',
+            children: [
+              {
+                name: 'Element 4',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
 
+const ReactFlowContainer: React.FC = () => {
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-    >
-      <CustomControls />
-      <Background color="#333" variant="dots" />
-    </ReactFlow>
+    <div style={{ width: '100%', height: '100vh' }}>
+      <Tree 
+        data={myTreeData} 
+        separation={{ 
+          siblings: 1, 
+          nonSiblings: 2 
+        }}
+        transitionDuration={0}
+      />
+    </div>
   );
 };
 
 export default ReactFlowContainer;
-
-function CustomControls() {
-  return (
-    <Controls position="top-left">
-      <ControlButton
-        onClick={() => console.log("another action")}
-        title="action"
-      >
-        <div>S</div>
-      </ControlButton>
-      <ControlButton
-        onClick={() => console.log("another action")}
-        title="another action"
-      >
-        <div>ID</div>
-      </ControlButton>
-      <ControlButton
-        onClick={() => console.log("another action")}
-        title="another action"
-        area
-        shape="rect"
-        coords="0,0,82,126"
-        href="sun.htm"
-        alt="Sun"
-      >
-        <div>Map</div>
-      </ControlButton>
-      <script></script>
-    </Controls>
-  );
-}
