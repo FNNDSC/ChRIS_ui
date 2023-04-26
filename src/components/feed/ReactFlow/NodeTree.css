@@ -1,0 +1,105 @@
+.cs410f23-node-tree
+{
+	width: 100%; 
+	height: 100%; 
+	overflow: hidden;
+
+	fill: white;
+	color: white;
+	stroke-width: 1;
+}
+
+.rd3t-node {
+	color: white;
+	fill: white;
+}
+
+:root 
+{
+	--cs410f23-node-width: 200px;
+	--cs410f23-node-height: 350px;
+	--cs410f23-header-height: 30px;
+
+	--cs410f23-size: calc(var(--cs410f23-header-height) / 3);
+	--cs410f23-hsize: calc(var(--cs410f23-size) / 2);
+}
+
+.cs410f23-wrap 
+{
+	overflow: visible;
+}
+
+.cs410f23-wrap p
+{
+	margin: 0;
+}
+
+.cs410f23-node
+{
+	width: var(--cs410f23-node-width);
+	height: var(--cs410f23-node-height);
+
+	border-radius: 5x;
+	font-family: sans-serif;
+	display: flex;
+	flex-direction: column;
+
+	overflow: visible;
+}
+
+.cs410f23-header
+{
+	height: var(--cs410f23-header-height);
+	
+	background: blue;
+	display: flex;
+	justify-content: space-between;
+
+	padding: 0 10px;
+	position: relative;
+}
+
+.cs410f23-body
+{
+	background: grey;
+	margin: 0;
+	padding: 5px 10px;
+
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+.cs410f23-fileview
+{
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.cs410f23-preview
+{
+	min-width: 200px;
+	min-height: 200px;
+}
+
+.cs410f23-socket
+{
+	position: absolute;
+	width: var(--cs410f23-size);
+	height: var(--cs410f23-size);
+	border-radius: 100%;
+	background: cyan;
+
+	top: calc(50% - var(--cs410f23-hsize));
+}
+
+.cs410f23-socket-left
+{
+	left: calc(0px - var(--cs410f23-hsize));
+
+}
+
+.cs410f23-socket-right
+{
+	right: calc(0px - var(--cs410f23-hsize));
+}

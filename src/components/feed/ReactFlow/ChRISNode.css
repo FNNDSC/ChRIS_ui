@@ -1,0 +1,249 @@
+.chris-plugin-instance-node {
+	border-radius: 5px;
+	color: white;
+
+	font-family: sans-serif;
+	position: relative;
+
+	max-width: 300px;
+
+	/* min-width: 200px; */
+	/* overflow: hidden; */
+}
+
+.chris-plugin-instance-node-thumb {
+	width: 100%;
+	max-width: 200px;
+	aspect-ratio: 1/1;
+
+	/* unclear why this is needed */
+    margin-bottom: -4px;
+
+	pointer-events: none;
+}
+
+.chris-plugin-instance-node-header {
+	background-color: rgb(0, 102, 204);
+	padding: 3px 10px;
+
+	font-size: 12px;
+
+	position: relative;
+
+	display: flex;
+	justify-content: space-between;
+}
+
+.chris-plugin-instance-node-header-closed-top {
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+.chris-plugin-instance-node-header-closed-bottom {
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+.chris-plugin-instance-node-header:hover {
+	cursor: pointer !important;
+}
+
+.chris-plugin-instance-node-header-title {
+	margin: 0;
+}
+
+.chris-plugin-instance-hide-body-button {
+	background: none;
+	outline: none;
+	border: none;
+	color: white;
+	margin: auto 0 auto 10px;
+    vertical-align: middle;
+}
+
+.chris-plugin-instance-hide-body-button:hover {
+	cursor: pointer;
+}
+
+.chris-plugin-instance-node-body {
+	display: flex;
+	flex-direction: column;
+	padding: 7px 10px 7px 10px;
+
+	background: linear-gradient(140deg, rgba(0, 102, 204, .63) 0%, rgba(95, 101, 128, .66) 100%);
+	/* backdrop-filter: blur(1px); */
+	backface-visibility: hidden;
+	border-radius: 0 0 5px 5px;
+}
+
+.hide-body .chris-plugin-instance-node-header {
+	border-radius: 5px;;
+}
+
+.hide-body .chris-plugin-instance-node-body {
+	display: none;
+	width: 200px;
+}
+  
+.react-flow__node-plugininst .react-flow__handle {
+	width: 6px;
+	height: 10px;
+	border-radius: 2px;
+	background-color: #778899;
+}
+
+.chris-plugin-instance-node-id {
+	font-size: 10px;
+	margin: 0;
+	text-align: right;
+}
+
+/*
+
+	Status effects
+
+*/
+
+.chris-plugin-instance-node[status="finishedSuccessfully"] {
+	/* box-shadow: 0px 0px 5px 0px green; */
+}
+
+.chris-plugin-instance-node[status="finishedSuccessfully"]:after {
+	content: "Finished";
+	position: absolute;
+	bottom: -1.4em;
+	right: 0;
+	color: black;
+
+	font-size: 12px;
+}
+
+.chris-plugin-instance-node[status="finishedWithError"] .chris-plugin-instance-node-header{
+	background-color: rgb(255, 44, 44);
+}
+
+.chris-plugin-instance-node[status="finishedWithError"]:after {
+	content: "Error";
+	position: absolute;
+	bottom: -1.4em;
+	right: 0;
+	color: black;
+
+	font-size: 12px;
+}
+
+.chris-plugin-instance-node[status="cancelled"] .chris-plugin-instance-node-header{
+	background-color: rgb(137, 137, 141);
+}
+
+.chris-plugin-instance-node[status="cancelled"]:after {
+	content: "Cancelled";
+	position: absolute;
+	bottom: -1.4em;
+	right: 0;
+	color: black;
+
+	font-size: 12px;
+}
+
+/*
+
+	Replay system
+
+*/
+
+.working.chris-plugin-instance-node {
+	box-shadow: 0px 0px 10px 5px #333;
+}
+
+/*
+
+	Yesh Styles
+
+*/
+
+.chris-plugin-instance-node-inline-input {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	padding-bottom: 2px;
+}
+
+.chris-plugin-instance-node-input-label {
+	font-size: 12px;
+}
+
+.chris-plugin-instance-node-inline-input > * {
+	margin: auto 0;
+	font-size: 12px;
+}
+
+/* edit here  */
+
+/* .chris-plugin-instance-node-input {
+	background: rgba(255, 255, 255, .2);
+	border: none;
+	border-bottom: 1px solid rgba(255, 255, 255, .3);
+
+	color: white;
+	margin-left: 5px;
+} */
+
+.chris-plugin-instance-node-input[type="text"] {
+	background: none;
+	font-size: 1em;
+	line-height: 1.5em;
+	border-radius: 5px;
+	box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.24), inset -1px -1px 3px rgba(255, 255, 255, 0.54);
+	caret-color: black;
+	width: 100%;
+	border: none;
+	outline: none;
+  }
+  
+  .chris-plugin-instance-node-input-label {
+	margin-bottom: 4px;
+	display: block;
+	width: 100%;
+	padding: 0;
+	border: none;
+	outline: none;
+	box-sizing: border-box;
+	color: black;
+	font-family: Verdana;
+  }
+  
+  .chris-plugin-instance-node-input-label::nth-of-type(2) {
+	margin-top: 12px;
+  }
+  
+  .chris-plugin-instance-node-input::placeholder {
+	color: black;
+  }
+  
+  .chris-plugin-instance-node-input[type="checkbox"][value="true"] {
+	height: 25px;
+	width: 25px;
+	accent-color: green;
+  }
+  .chris-plugin-instance-node-input[type="checkbox"][value="false"] {
+	height: 25px;
+	width: 25px;
+	accent-color: red;
+  }
+  
+  .chris-plugin-instance-node-input[type="number"] {
+	background: #b3dbf8;
+	height: 30px;
+	font-size: 10px;
+	border-radius: 10px;
+	box-shadow: inset 6px 6px 6px #cbced1, inset -6px -6px 6px white;
+	caret-color: black;
+	width: 30%;
+	border: none;
+	outline: none;
+  }
+
+  /* trial */
+
+ 

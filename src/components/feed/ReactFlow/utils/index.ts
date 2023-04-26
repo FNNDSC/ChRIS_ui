@@ -1,66 +1,83 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
+import NodeData, { NodeFileRef, NodeTree } from "./NodeData";
 
-export function getPluginInstanceGraph(instances: PluginInstance[]) {
-  const depthMap = new Map();
-  const linkCountMap = new Map();
-  const g_nodes = [];
-  const g_edges = [];
-  let x = 0;
-  let y = 0;
+// Return a list of plugin information in the format that d3-tree wants
+// 
+//	{ id: 0, data: {...}, children: {...} }
+//
+export async function getPluginInstanceGraph(instances: PluginInstance[])
+{
+	// Put each instance into a map
 
-  for (const node of instances) {
-    const id = node.data.id;
-    const pid = node.data.previous_id ? node.data.previous_id : -1;
+	const nodeMap = new Map<number, NodeData[]>();
 
-    if (depthMap.has(pid)) depthMap.set(id, depthMap.get(pid) + 1);
-    else depthMap.set(id, 0);
+	for (const node of instances) 
+	{
+		const id = node.data.id;
+		const pid = node.data.previous_id ? node.data.previous_id : -1;
 
-    if (linkCountMap.has(pid)) linkCountMap.set(pid, linkCountMap.get(pid) + 1);
-    else linkCountMap.set(pid, 1);
-  }
+		const nodeStartTime = Date.parse(node.data.start_date);
+		const nodeEndTime = Date.parse(node.data.end_date);
 
-  for (const node of instances) {
-    const id = node.data.id;
-    const pid = node.data.previous_id ? node.data.previous_id : -1;
+		let title = node.data.plugin_name;
+		if (!title || title.length === 0) title = "unset title";
 
-    const nodeStartTime = Date.parse(node.data.start_date);
-    const nodeEndTime = Date.parse(node.data.end_date);
+		const filesData = (await node.getFiles()).data;
+		const files = new Array<NodeFileRef>();
 
-    // get nodes from https://cube.chrisproject.org/api/v1/plugins/instances/9452/parameters/
+		for (const file of filesData)
+		{
+			const f : NodeFileRef = new NodeFileRef();
+			f.fullname = file.fname;
+			f.name = file.fname.substr(file.fname.lastIndexOf('/') + 1); // todo: check if there is any '/'
 
-    let title = node.data.plugin_name;
-    if (!title || title.length === 0) title = "unset title";
+			files.push(f);
+		}
 
-    g_nodes.push({
-      id: `${id}`,
-      type: "default",
-      position: { x: x, y: y },
-      dragHandle: ".chris-plugin-instance-node-header",
-      data: {
-        title: title,
-        options: [],
-        files: [],
-        status: node.data.status,
-        id: id,
-        time_start_ms: nodeStartTime,
-        time_end_ms: nodeEndTime - nodeStartTime,
-        thumb_url: "./uv.png",
-        depth: depthMap.get(id),
-        parent_link_count: linkCountMap.get(pid),
-        link_count: linkCountMap.get(id),
-      },
-    });
+		const data: NodeData = {
+			title: title,
+			files: files,
+			status: node.data.status,
+			id: id,
+			pid: pid,
+			time_start_ms: nodeStartTime,
+			time_end_ms: nodeEndTime - nodeStartTime,
+			thumb_url: "./uv.png"
+		};
 
-    x += 300;
-    y += 100;
+		if (nodeMap.has(pid))
+			nodeMap.get(pid)?.push(data);
+		else
+			nodeMap.set(pid, [data]);
+	}
 
-    if (pid !== undefined) {
-      g_edges.push({
-        id: `e${pid}-${id}`,
-        source: `${pid}`,
-        target: `${id}`,
-      });
-    }
-  }
-  return { g_nodes, g_edges };
+	// convert the map into a json tree
+
+	function recurseTree(node: NodeData) : NodeTree
+	{
+		const out = new NodeTree();
+		out.data = node;
+		out.children = [];
+
+		if (!nodeMap.has(node.id))
+			return out;
+
+		const children = nodeMap.get(node.id)!; // get nodes with this as parent
+		const nodes = [];
+
+		for (const c of children)
+		{
+			const r = recurseTree(c);
+			nodes.push(r);
+		}
+
+		out.children = nodes;
+
+		return out;
+	}
+
+	const nodeRoot = nodeMap.get(-1)![0]; // only ever a single root
+	const nodeTree: NodeTree = recurseTree(nodeRoot);
+
+	return nodeTree;
 }
