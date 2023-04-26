@@ -1,4 +1,8 @@
-import { PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
+import {
+  PluginInstance,
+  PluginParameter,
+  PluginPiping,
+} from "@fnndsc/chrisapi";
 import { fetchResource } from "../../../api/common";
 
 export interface Datum {
@@ -77,8 +81,11 @@ export const getTsNodes = async (items: PluginInstance[]) => {
         params,
         boundFn
       );
-      if (parameters[0]) {
-        parentIds[instance.data.id] = parameters[0].data.value
+      const filteredParameters = parameters.filter(
+        (param) => param.data.param_name === "plugininstances"
+      );
+      if (filteredParameters[0]) {
+        parentIds[instance.data.id] = filteredParameters[0].data.value
           .split(",")
           .map(Number);
       }
@@ -87,6 +94,34 @@ export const getTsNodes = async (items: PluginInstance[]) => {
   return parentIds;
 };
 
+export const getTsNodesWithPipings = async (
+  items: PluginPiping[],
+  pluginParameters?: any[]
+) => {
+  const parentIds: {
+    [key: string]: number[];
+  } = {};
+
+  for (let i = 0; i < items.length; i++) {
+    const instance = items[i];
+
+    if (instance.data.plugin_name === "pl-topologicalcopy") {
+      //@ts-ignore
+      pluginParameters.data
+        .filter((param: any) => {
+          return param.plugin_piping_id === instance.data.id;
+        })
+        .forEach((param: any) => {
+          if (param.param_name === "plugininstances") {
+            parentIds[param.plugin_piping_id] = param.value
+              .split(",")
+              .map(Number);
+          }
+        });
+    }
+  }
+  return parentIds;
+};
 export function treeAlgorithm(
   event: any,
   selectedD3Node: any,

@@ -3,12 +3,15 @@ import React, { Fragment, useEffect, useRef, useState } from "react";
 import { Spin } from "antd";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
+import { linkVertical } from "d3-shape";
+
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { SinglePipeline } from "../CreateFeed/types/pipeline";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import NodeData from "./NodeData";
 import { TreeNode, getFeedTree } from "../../../api/common";
 import useSize from "../FeedTree/useSize";
+import { getTsNodesWithPipings } from "../FeedTree/data";
 
 const nodeSize = { x: 200, y: 80 };
 const svgClassName = "feed-tree__svg";
@@ -53,7 +56,7 @@ const Tree = (props: TreeProps) => {
   });
   const size = useSize(divRef);
   const { currentPipelineId, state, handleSetCurrentNode } = props;
-  const { pluginPipings, pipelinePlugins } = state;
+  const { pluginPipings, pipelinePlugins, pluginParameters } = state;
 
   const [loading, setLoading] = React.useState(false);
   const {
@@ -63,6 +66,7 @@ const Tree = (props: TreeProps) => {
   } = props;
 
   const [data, setData] = React.useState<TreeNode[]>();
+  const [tsIds, setTsIds] = React.useState<any>();
 
   const bindZoomListener = React.useCallback(() => {
     const svg = select(`.${svgClassName}`);
@@ -99,6 +103,9 @@ const Tree = (props: TreeProps) => {
     if (pluginPipings) {
       setLoading(true);
       const tree = getFeedTree(pluginPipings);
+      getTsNodesWithPipings(pluginPipings, pluginParameters).then((tsIds) => {
+        setTsIds(tsIds);
+      });
       setData(tree);
     }
     if (pipelinePlugins) {
@@ -117,6 +124,7 @@ const Tree = (props: TreeProps) => {
   }, [
     pluginPipings,
     pipelinePlugins,
+    pluginParameters,
     currentPipelineId,
     handleSetCurrentNodeCallback,
   ]);
@@ -136,16 +144,65 @@ const Tree = (props: TreeProps) => {
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
     let nodes;
-    let links = undefined;
+    let links: any[] = [];
+    let newLinks: any[] = [];
     if (data) {
       const rootNode = d3Tree(hierarchy(data[0]));
       nodes = rootNode.descendants();
       links = rootNode.links();
+      const newLinksToAdd: any[] = [];
+
+      if (tsIds) {
+        links.forEach((link) => {
+          const targetId = link.target.data.id;
+          const sourceId = link.target.data.id;
+
+          if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
+            // tsPlugin found
+            let topologicalLink: any;
+
+            if (tsIds[targetId]) {
+              topologicalLink = link.target;
+            } else {
+              topologicalLink = link.source;
+            }
+
+            const parents = tsIds[topologicalLink.data.id];
+            const dict: any = {};
+            links &&
+              links.forEach((link) => {
+                for (let i = 0; i < parents.length; i++) {
+                  if (
+                    link.source.data.id === parents[i] &&
+                    !dict[link.source.data.id]
+                  ) {
+                    dict[link.source.data.id] = link.source;
+                  } else if (
+                    link.target.data.id === parents[i] &&
+                    !dict[link.target.data.id]
+                  ) {
+                    dict[link.target.data.id] = link.target;
+                  }
+                }
+
+                return dict;
+              });
+
+            for (const i in dict) {
+              newLinksToAdd.push({
+                source: dict[i],
+                target: topologicalLink,
+              });
+            }
+          }
+        });
+      }
+      newLinks = [...links, ...newLinksToAdd];
     }
-    return { nodes, links };
+    return { nodes, newLinks: newLinks };
   };
 
-  const { nodes, links } = generateTree();
+  const { nodes, newLinks: links } = generateTree();
 
   return (
     <>
@@ -215,7 +272,7 @@ type LinkState = {
   };
 };
 
-const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
+const LinkData: React.FC<LinkProps> = ({ linkData }) => {
   const linkRef = useRef<SVGPathElement | null>(null);
   const [initialStyle] = useState<LinkState["initialStyle"]>({ opacity: 1 });
   const nodeRadius = 12;
@@ -233,9 +290,9 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
     select(linkRef.current).style("opacity", opacity).on("end", done);
   };
 
-  const drawPath = () => {
-    const { source, target } = linkData;
+  const { source, target } = linkData;
 
+  const drawPath = (ts: boolean) => {
     const deltaX = target.x - source.x,
       deltaY = target.y - source.y,
       dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
@@ -247,20 +304,26 @@ const LinkData: React.FC<LinkProps> = ({ linkData, orientation }) => {
       sourceY = source.y + sourcePadding * normY,
       targetX = target.x - targetPadding * normX,
       targetY = target.y - targetPadding * normY;
-
-    //@ts-ignore
-
-    return orientation === "horizontal"
-      ? `M ${sourceY} ${sourceX} L ${targetY} ${targetX}`
-      : `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`;
+    
+    if (ts) {
+      return linkVertical()({
+        source: [sourceX, sourceY],
+        target: [targetX, targetY],
+      });
+    } else {
+      return `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
+    }
   };
+
+  const ts = target.data.plugin_name === "pl-topologicalcopy";
 
   return (
     <Fragment>
       <path
         ref={linkRef}
-        className="link"
-        d={drawPath()}
+        className={`link ${ts ? "ts" : ""}`}
+        //@ts-ignore
+        d={drawPath(ts)}
         style={{ ...initialStyle }}
         data-source-id={linkData.source.id}
         data-target-id={linkData.target.id}
