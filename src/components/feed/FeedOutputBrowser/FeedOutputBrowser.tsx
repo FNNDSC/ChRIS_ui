@@ -17,6 +17,7 @@ import { useFeedBrowser } from "./useFeedBrowser";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import { DrawerActionButton } from "../../common/button";
 import "./FeedOutputBrowser.scss";
+import { useTypedSelector } from "../../../store/hooks";
 
 const FileBrowser = React.lazy(() => import("./FileBrowser"));
 const { DirectoryTree } = Tree;
@@ -29,9 +30,9 @@ export interface FeedOutputBrowserProps {
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
   handlePluginSelect,
 }) => {
+  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
   const {
     plugins,
-    selected,
     pluginFilesPayload,
     statusTitle,
     handleFileClick,
@@ -40,7 +41,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     sidebarStatus,
     filesStatus,
     previewStatus,
-  } = useFeedBrowser();
+  } = useFeedBrowser(selected);
 
   const panelContent = (
     <DrawerPanelContent

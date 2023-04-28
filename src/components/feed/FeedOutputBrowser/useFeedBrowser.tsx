@@ -11,6 +11,7 @@ import {
   handleMaximize,
   handleMinimize,
 } from "../../common/button";
+import { PluginInstance } from "@fnndsc/chrisapi";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
@@ -24,7 +25,7 @@ const getInitialDownloadState = () => {
   };
 };
 
-export const useFeedBrowser = () => {
+export const useFeedBrowser = (selected?: PluginInstance) => {
   const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
   const [download, setDownload] = React.useState(getInitialDownloadState);
@@ -35,7 +36,12 @@ export const useFeedBrowser = () => {
   const { pluginFiles, loading: filesLoading } = useTypedSelector(
     (state) => state.resource
   );
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+
+  const fileLoadingPerInstance =
+    selected && filesLoading[selected.data.id]
+      ? filesLoading[selected.data.id]
+      : false;
+
   const { data: plugins } = pluginInstances;
 
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
@@ -162,7 +168,7 @@ export const useFeedBrowser = () => {
   return {
     handleFileClick,
     downloadAllClick,
-    filesLoading,
+    filesLoading: fileLoadingPerInstance,
     plugins,
     statusTitle,
     download,

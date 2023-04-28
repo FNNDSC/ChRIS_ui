@@ -8,19 +8,16 @@ import { HierarchyPointNode } from "d3-hierarchy";
 import FileBrowser from "../FeedOutputBrowser/FileBrowser";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import "./NodeTree.css";
-import { FeedFile } from "@fnndsc/chrisapi";
+
 import FileDetailView from "../Preview/FileDetailView";
 
-function CustomNode({
-  element,
-  fileBrowserProps,
-  selectedFile,
-}: {
-  element: CustomNodeElementProps;
-  fileBrowserProps: any;
-  selectedFile?: FeedFile;
-}) {
-  const { pluginFilesPayload, selected, handleFileClick, filesLoading } =
+function CustomNode({ element }: { element: CustomNodeElementProps }) {
+  //@ts-ignore
+  const fileBrowserProps = useFeedBrowser(element.nodeDatum.data.node);
+  const selectedFilePayload = useTypedSelector(
+    (state) => state.explorer.selectedFile
+  );
+  const { pluginFilesPayload, handleFileClick, filesLoading } =
     fileBrowserProps;
   const data = (element.nodeDatum as unknown as NodeTree).data;
 
@@ -28,6 +25,9 @@ function CustomNode({
   const hasChildren =
     element.nodeDatum.children != undefined &&
     element.nodeDatum.children.length > 0;
+
+  //@ts-ignore
+  const selectedTest = element.nodeDatum.data.node;
 
   return (
     <foreignObject
@@ -39,8 +39,11 @@ function CustomNode({
     >
       <div className="cs410f23-node">
         <div className="cs410f23-preview">
-          {selectedFile && (
-            <FileDetailView selectedFile={selectedFile} preview="small" />
+          {selectedFilePayload && selectedTest && (
+            <FileDetailView
+              selectedFile={selectedFilePayload[selectedTest.data.id]}
+              preview="small"
+            />
           )}
         </div>
 
@@ -66,9 +69,10 @@ function CustomNode({
 
         <div className="cs410f23-body">
           <div className="cs410f23-fileview">
-            {pluginFilesPayload && selected ? (
+            {pluginFilesPayload && selectedTest ? (
               <FileBrowser
-                selected={selected}
+                //@ts-ignore
+                selected={selectedTest}
                 handleFileClick={handleFileClick}
                 pluginFilesPayload={pluginFilesPayload}
                 filesLoading={filesLoading}
@@ -115,12 +119,10 @@ function ReactFlowContainer() {
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances
   );
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+
   const { data: instances } = pluginInstances;
 
   const [nodes, setNodes] = useState(new NodeTree());
-
-  const fileBrowserProps = useFeedBrowser();
 
   useEffect(() => {
     if (instances) {
@@ -131,7 +133,8 @@ function ReactFlowContainer() {
 
       getData();
     }
-  }, [instances]);
+    
+  }, []);
 
   return (
     <div className="cs410f23-node-tree">
@@ -140,13 +143,7 @@ function ReactFlowContainer() {
         draggable={true}
         collapsible={false}
         renderCustomNodeElement={(element: CustomNodeElementProps) => {
-          return (
-            <CustomNode
-              element={element}
-              selectedFile={selectedFile}
-              fileBrowserProps={fileBrowserProps}
-            />
-          );
+          return <CustomNode element={element} />;
         }}
         pathFunc={straightPathFunc}
         nodeSize={{ x: 300, y: 400 }}

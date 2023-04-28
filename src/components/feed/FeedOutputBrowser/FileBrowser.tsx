@@ -54,7 +54,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     usedInsideFeedOutputBrowser,
   } = props;
 
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+  const selectedFilePayload = useTypedSelector(
+    (state) => state.explorer.selectedFile
+  );
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
 
@@ -75,7 +77,8 @@ const FileBrowser = (props: FileBrowserProps) => {
   const generateTableRow = (item: string | FeedFile) => {
     let type, icon, fsize, fileName;
     type = "UNKNOWN FORMAT";
-    const isPreviewing = selectedFile === item;
+    const isPreviewing =
+      selectedFilePayload && selectedFilePayload[selected.data.id] === item;
 
     if (typeof item === "string") {
       type = "dir";
@@ -202,8 +205,11 @@ const FileBrowser = (props: FileBrowserProps) => {
       />
       <DrawerPanelBody className="file-browser__drawerbody">
         {drawerState["preview"].currentlyActive === "preview" &&
-          selectedFile && (
-            <FileDetailView selectedFile={selectedFile} preview="large" />
+          selectedFilePayload && (
+            <FileDetailView
+              selectedFile={selectedFilePayload[selected.data.id]}
+              preview="large"
+            />
           )}
         {drawerState["preview"].currentlyActive === "xtk" && <XtkViewer />}
       </DrawerPanelBody>
@@ -277,7 +283,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         handleFileClick(`${path}/${item}`);
                       } else {
                         toggleAnimation();
-                        dispatch(setSelectedFile(item));
+                        dispatch(setSelectedFile(item, selected));
                         !drawerState["preview"].open &&
                           usedInsideFeedOutputBrowser &&
                           dispatch(setFilePreviewPanel());

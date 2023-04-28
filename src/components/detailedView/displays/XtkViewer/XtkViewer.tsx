@@ -41,10 +41,14 @@ function getPrimaryFileMode(file: FeedFile): ViewerMode | undefined {
 }
 
 const XtkViewer = () => {
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+  const selectedFilePayload = useTypedSelector(
+    (state) => state.explorer.selectedFile
+  );
+  const selectedFile = selectedFilePayload && selectedFilePayload[selected?.data.id];
   const selectedFileType = getFileType(selectedFile);
   const { pluginFiles } = useTypedSelector((state) => state.resource);
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+
   const pluginFilesPayload = selected && pluginFiles[selected.data.id];
   const directoryFiles = pluginFilesPayload ? pluginFilesPayload.files : [];
   const crvFiles = directoryFiles.filter((file) => {

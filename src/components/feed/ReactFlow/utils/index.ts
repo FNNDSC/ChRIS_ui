@@ -20,20 +20,9 @@ export async function getPluginInstanceGraph(instances: PluginInstance[]) {
     let title = node.data.plugin_name;
     if (!title || title.length === 0) title = "unset title";
 
-    const filesData = (await node.getFiles()).data;
-    const files = new Array<NodeFileRef>();
-
-    for (const file of filesData) {
-      const f: NodeFileRef = new NodeFileRef();
-      f.fullname = file.fname;
-      f.name = file.fname.substr(file.fname.lastIndexOf("/") + 1); // todo: check if there is any '/'
-
-      files.push(f);
-    }
-
     const data: NodeData = {
       title: title,
-      files: files,
+      node: node,
       status: node.data.status,
       id: id,
       pid: pid,
