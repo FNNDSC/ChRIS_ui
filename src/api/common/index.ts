@@ -4,16 +4,6 @@ import axios from "axios";
 import ChrisAPIClient from "../chrisapiclient";
 import { Pipeline, PipelineList, PluginPiping } from "@fnndsc/chrisapi";
 
-interface PromiseFulfilledResult<T> {
-  status: "fulfilled";
-  value: T;
-}
-
-interface PromiseRejectedResult {
-  status: "rejected";
-  reason: any;
-}
-
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
   React.useLayoutEffect(() => {
@@ -359,7 +349,6 @@ export const uploadFile = async (
   const name = file.name;
   formData.append("upload_path", `${directoryName}/${name}`);
   formData.append("fname", file, name);
-  
 
   const config = {
     headers: { Authorization: "Token " + token },

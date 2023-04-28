@@ -589,9 +589,15 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
       }
     }
   } catch (err) {
-    console.error(err);
     return testOutput;
   }
 
-  return testOutput;
+  return testOutput.sort((a: any, b: any) => {
+    const keyA = Object.keys(a)[0];
+    const keyB = Object.keys(b)[0];
+
+    if (keyA < keyB) return -1;
+    if (keyA > keyB) return 1;
+    return 0;
+  });
 }
