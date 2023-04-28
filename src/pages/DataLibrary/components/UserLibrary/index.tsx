@@ -627,13 +627,13 @@ const UploadComponent = ({
     setServerProgress(0);
     handleFileModal();
     countdownInterval && clearInterval(countdownInterval);
-  }, [countdown, countdownInterval, handleFileModal]);
+  }, [countdownInterval, handleFileModal]);
 
   React.useEffect(() => {
     if (countdown === 0) {
       handleReset();
     }
-  }, [handleReset]);
+  }, [handleReset, countdown]);
 
   React.useEffect(() => {
     const d = getTimestamp();
