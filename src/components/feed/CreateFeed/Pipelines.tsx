@@ -11,6 +11,7 @@ import {
   DataListAction,
   DataListContent,
   WizardContext,
+  TextInput,
 } from "@patternfly/react-core";
 import {
   Tree,
@@ -58,7 +59,7 @@ const Pipelines = ({
   });
 
   const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
-  const { page, perPage } = pageState;
+  const { page, perPage, search } = pageState;
 
   const handleDispatchWrap = React.useCallback(
     (registeredPipelines: any) => {
@@ -66,6 +67,12 @@ const Pipelines = ({
     },
     [handleDispatchPipelines]
   );
+  const handlePipelineSearch = (search: string) => {
+    setPageState({
+      ...pageState,
+      search
+    })
+  }
 
   React.useEffect(() => {
     setFetchState((fetchState) => {
@@ -74,7 +81,7 @@ const Pipelines = ({
         loading: true,
       };
     });
-    fetchPipelines(perPage, page).then((result: any) => {
+    fetchPipelines(perPage, page, search).then((result: any) => {
       const { registeredPipelines, registeredPipelinesList, errorPayload } =
         result;
 
@@ -103,7 +110,7 @@ const Pipelines = ({
         });
       }
     });
-  }, [perPage, page, handleDispatchWrap]);
+  }, [perPage, page, search, handleDispatchWrap]);
 
   const handleNodeClick = async (nodeName: number, pipelineId: number) => {
     handleSetCurrentNode(pipelineId, nodeName);
@@ -234,13 +241,28 @@ const Pipelines = ({
   return (
     <>
       <UploadJson handleDispatch={handleUploadDispatch} />
-      <Pagination
-        itemCount={pageState.itemCount}
-        perPage={pageState.perPage}
-        page={pageState.page}
-        onSetPage={onSetPage}
-        onPerPageSelect={onPerPageSelect}
-      />
+      <div style={{ display: "flex", justifyContent: "space-between", padding:"0.8rem 0rem"}}>
+        <div>
+          <TextInput
+            value={pageState.search}
+            type="text"
+            placeholder="Search"
+            iconVariant="search"
+            aria-label="search"
+            onChange={(value: string) => {
+              handlePipelineSearch && handlePipelineSearch(value);
+            }}
+          />
+        </div>
+        <Pagination
+          itemCount={pageState.itemCount}
+          perPage={pageState.perPage}
+          page={pageState.page}
+          onSetPage={onSetPage}
+          onPerPageSelect={onPerPageSelect}
+        />
+      </div>
+
 
       <DataList
         style={{ backgroundColor: "inherit" }}
@@ -330,7 +352,7 @@ const Pipelines = ({
                   isHidden={!(expanded && expanded[pipeline.data.id])}
                 >
                   {(expanded && expanded[pipeline.data.id]) ||
-                  state.pipelineData[pipeline.data.id] ? (
+                    state.pipelineData[pipeline.data.id] ? (
                     <>
                       <div style={{ display: "flex", background: "black" }}>
                         <Tree
