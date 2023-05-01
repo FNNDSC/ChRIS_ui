@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { SyntheticEvent, useEffect, useState } from "react";
 import { useTypedSelector } from "../../../store/hooks";
 import { getPluginInstanceGraph } from "./utils";
-import Tree, { CustomNodeElementProps, Orientation, TreeLinkDatum } from 'react-d3-tree';
+import Tree, { CustomNodeElementProps, Orientation, TreeLinkDatum, TreeNodeDatum } from 'react-d3-tree';
 import { NodeFileRef, NodeTree } from "./utils/NodeData";
 import "./NodeTree.css";
+import { HierarchyPointNode } from "d3-hierarchy";
 
-function CustomNode(element: CustomNodeElementProps)
+function node(element: CustomNodeElementProps)
 {
 	const data = (element.nodeDatum as unknown as NodeTree).data;
 	console.log(data);
@@ -65,7 +66,7 @@ const gNodeWidth = 200;
 const gNodeHeight = 350;
 const gNodeHeaderHeight = 30;
 
-function straightPathFunc(link: TreeLinkDatum, orientation: Orientation): string
+function path(link: TreeLinkDatum, orientation: Orientation): string
 {
 	const { source, target } = link;
 
@@ -110,14 +111,21 @@ function ReactFlowContainer()
 		}
 	}, [instances]);
 
+	const [draggable, setDraggable] = useState(true);
+
+	function whyDoesntThisFire(node: HierarchyPointNode<TreeNodeDatum>, y: SyntheticEvent) {
+		setDraggable(false);
+	}
+
 	return (
 		<div className="cs410f23-node-tree">
 		  <Tree 
 		  	data={nodes}
-			draggable={true}
 			collapsible={false}
-			renderCustomNodeElement={CustomNode}
-			pathFunc={straightPathFunc}
+			draggable={draggable}
+			renderCustomNodeElement={node}
+			pathFunc={path}
+			onNodeMouseOver={whyDoesntThisFire}
 			nodeSize={{x: 300, y:400}}
 		  />
 		</div>

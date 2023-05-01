@@ -14,6 +14,10 @@
 	fill: white;
 }
 
+.rd3t-link {
+	stroke: white !important;
+}
+
 :root 
 {
 	--cs410f23-node-width: 200px;
@@ -51,7 +55,7 @@
 {
 	height: var(--cs410f23-header-height);
 	
-	background: blue;
+	background: #004080;
 	display: flex;
 	justify-content: space-between;
 
@@ -88,7 +92,7 @@
 	width: var(--cs410f23-size);
 	height: var(--cs410f23-size);
 	border-radius: 100%;
-	background: cyan;
+	background: #1890ff;
 
 	top: calc(50% - var(--cs410f23-hsize));
 }
