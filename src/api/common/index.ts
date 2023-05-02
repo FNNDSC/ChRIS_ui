@@ -174,7 +174,7 @@ export const getFeedTree = (items: any[]) => {
   return tree;
 };
 
-export const fetchPipelines = async (perPage: number, page: number, search:string) => {
+export const fetchPipelines = async (perPage: number, page: number, search:string, searchType:string) => {
   let errorPayload: any = {};
   let registeredPipelinesList, registeredPipelines;
   const offset = perPage * (page - 1);
@@ -182,7 +182,7 @@ export const fetchPipelines = async (perPage: number, page: number, search:strin
   const params = {
     limit: perPage,
     offset: offset,
-    name:search
+    [`${searchType}`]:search
   };
   try {
     registeredPipelinesList = await client.getPipelines(params);
