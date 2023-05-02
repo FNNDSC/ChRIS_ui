@@ -92,7 +92,7 @@ const DashboardPage = (props: DashboardProps) => {
             <CardDisplay
               component={<LogoComponent logo={outlineSearch} />}
               title="Discover and collect new data"
-              body='Visit "" in the main navigation to pull medical data and save it your library'
+              body='Visit "PACS Query/Retrieve" in the main navigation to pull medical data and save it your library'
               buttonText="PACS Query/Retrieve"
               buttonLink="/pacs"
             />
