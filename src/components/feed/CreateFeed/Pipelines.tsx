@@ -11,6 +11,10 @@ import {
   DataListAction,
   DataListContent,
   WizardContext,
+  TextInput,
+  Dropdown,
+  DropdownToggle,
+  DropdownItem,
 } from "@patternfly/react-core";
 import {
   Tree,
@@ -27,7 +31,14 @@ import { PipelinesProps } from "./types/pipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import ReactJson from "react-json-view";
 import { Pipeline } from "@fnndsc/chrisapi";
-
+export enum PIPELINEQueryTypes {
+  NAME,
+  ID,
+  OWNER_USERNAME,
+  CATEGORY,
+  DESCRIPTION,
+  AUTHORS
+}
 const Pipelines = ({
   justDisplay,
   state,
@@ -58,7 +69,10 @@ const Pipelines = ({
   });
 
   const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
-  const { page, perPage } = pageState;
+  const { page, perPage, search } = pageState;
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [dropdownValue, setDropdownValue] = React.useState<PIPELINEQueryTypes>(PIPELINEQueryTypes.NAME)
+
 
   const handleDispatchWrap = React.useCallback(
     (registeredPipelines: any) => {
@@ -66,6 +80,12 @@ const Pipelines = ({
     },
     [handleDispatchPipelines]
   );
+  const handlePipelineSearch = (search: string) => {
+    setPageState({
+      ...pageState,
+      search
+    })
+  }
 
   React.useEffect(() => {
     setFetchState((fetchState) => {
@@ -74,7 +94,30 @@ const Pipelines = ({
         loading: true,
       };
     });
-    fetchPipelines(perPage, page).then((result: any) => {
+     const searchTypeFN = () =>{
+       switch(dropdownValue){
+        case PIPELINEQueryTypes.NAME:
+          return "name"
+        break;
+        case  PIPELINEQueryTypes.ID:
+          return "id"
+        break;
+        case PIPELINEQueryTypes.DESCRIPTION:
+          return "description"
+        break;
+        case PIPELINEQueryTypes.AUTHORS:
+          return "authors"
+        break;
+        case PIPELINEQueryTypes.OWNER_USERNAME:
+          return "owner_username"
+        break;
+        case PIPELINEQueryTypes.CATEGORY:
+          return "category"
+          break;
+       }
+    }
+    const searchType = searchTypeFN()
+    fetchPipelines(perPage, page, search, searchType).then((result: any) => {
       const { registeredPipelines, registeredPipelinesList, errorPayload } =
         result;
 
@@ -103,7 +146,7 @@ const Pipelines = ({
         });
       }
     });
-  }, [perPage, page, handleDispatchWrap]);
+  }, [perPage, page, dropdownValue, search, handleDispatchWrap]);
 
   const handleNodeClick = async (nodeName: number, pipelineId: number) => {
     handleSetCurrentNode(pipelineId, nodeName);
@@ -224,6 +267,7 @@ const Pipelines = ({
     [onBack, onNext]
   );
 
+
   useEffect(() => {
     window.addEventListener("keydown", handleBrowserKeyDown);
     return () => {
@@ -231,16 +275,114 @@ const Pipelines = ({
     };
   }, [handleBrowserKeyDown]);
 
+  const __queryType = (type: PIPELINEQueryTypes) => {
+    switch (type) {
+      case PIPELINEQueryTypes.NAME:
+        return "Pipeline Name";
+        break;
+      case PIPELINEQueryTypes.ID:
+        return "Pipeline Id";
+        break;
+      case PIPELINEQueryTypes.OWNER_USERNAME:
+        return "Owner Username";
+        break;
+      case PIPELINEQueryTypes.CATEGORY:
+        return "Pipeline Category"
+        break;
+      case PIPELINEQueryTypes.DESCRIPTION:
+        return "Pipeline Description"
+        break;
+      case PIPELINEQueryTypes.AUTHORS:
+        return "Pipeline Authors"
+        break;
+    }
+  };
+
+  const onToggle = (isDropdownOpen: boolean) => {
+    setIsDropdownOpen(isDropdownOpen);
+  };
+
+  const onFocus = () => {
+    const element = document.getElementById('toggle-basic');
+    element?.focus();
+  };
+
+  const onSelect = () => {
+    setIsDropdownOpen(false);
+    onFocus();
+  };
+
+  const updateDropdownValue =(type:PIPELINEQueryTypes)=>{
+   setDropdownValue(type)
+   handlePipelineSearch("")
+  }
+
+  const dropdownItems = [
+    <DropdownItem key="name" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.NAME)}>
+      {__queryType(PIPELINEQueryTypes.NAME)}
+    </DropdownItem>,
+    <DropdownItem key="category" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.CATEGORY)}>
+      {__queryType(PIPELINEQueryTypes.CATEGORY)}
+    </DropdownItem>,
+    <DropdownItem key="description" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.DESCRIPTION)} >
+      {__queryType(PIPELINEQueryTypes.DESCRIPTION)}
+    </DropdownItem>,
+    <DropdownItem key="authors" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.AUTHORS)} >
+      {__queryType(PIPELINEQueryTypes.AUTHORS)}
+    </DropdownItem>,
+    <DropdownItem key="id" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.ID)} >
+      {__queryType(PIPELINEQueryTypes.ID)}
+    </DropdownItem>,
+    <DropdownItem key="owner_username" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.OWNER_USERNAME)} >
+      {__queryType(PIPELINEQueryTypes.OWNER_USERNAME)}
+    </DropdownItem>
+  ];
+
+  
+
   return (
     <>
       <UploadJson handleDispatch={handleUploadDispatch} />
-      <Pagination
-        itemCount={pageState.itemCount}
-        perPage={pageState.perPage}
-        page={pageState.page}
-        onSetPage={onSetPage}
-        onPerPageSelect={onPerPageSelect}
-      />
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "0.8rem 0rem" }}>
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <Dropdown
+            onSelect={onSelect}
+            toggle={
+              <DropdownToggle id="toggle-basic" onToggle={onToggle}>
+                <div style={{ textAlign: "left", padding: "0 0.5em" }}>
+                  <div style={{ fontSize: "smaller", color: "gray" }}>
+                    Search By
+                  </div>
+                  <div style={{ fontWeight: 600 }}>
+                    {__queryType(dropdownValue)}
+                  </div>
+                </div>
+              </DropdownToggle>
+            }
+            isOpen={isDropdownOpen}
+            dropdownItems={dropdownItems}
+          />
+          <TextInput
+            value={pageState.search}
+            type="text"
+            style={{height:"100%"}}
+            placeholder={__queryType(dropdownValue)}
+            iconVariant="search"
+            aria-label="search"
+            onChange={(value: string) => {
+              handlePipelineSearch && handlePipelineSearch(value);
+            }}
+          />
+        </div>
+        <Pagination
+          itemCount={pageState.itemCount}
+          perPage={pageState.perPage}
+          page={pageState.page}
+          onSetPage={onSetPage}
+          onPerPageSelect={onPerPageSelect}
+        />
+      </div>
+
 
       <DataList
         style={{ backgroundColor: "inherit" }}
@@ -330,7 +472,7 @@ const Pipelines = ({
                   isHidden={!(expanded && expanded[pipeline.data.id])}
                 >
                   {(expanded && expanded[pipeline.data.id]) ||
-                  state.pipelineData[pipeline.data.id] ? (
+                    state.pipelineData[pipeline.data.id] ? (
                     <>
                       <div style={{ display: "flex", background: "black" }}>
                         <Tree
