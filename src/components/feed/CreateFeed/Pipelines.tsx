@@ -275,28 +275,48 @@ const Pipelines = ({
     };
   }, [handleBrowserKeyDown]);
 
-
+  const __queryType = (type: PIPELINEQueryTypes) => {
+    switch (type) {
+      case PIPELINEQueryTypes.NAME:
+        return "Pipeline Name";
+        break;
+      case PIPELINEQueryTypes.ID:
+        return "Pipeline Id";
+        break;
+      case PIPELINEQueryTypes.OWNER_USERNAME:
+        return "Owner Username";
+        break;
+      case PIPELINEQueryTypes.CATEGORY:
+        return "Pipeline Category"
+        break;
+      case PIPELINEQueryTypes.DESCRIPTION:
+        return "Pipeline Description"
+        break;
+      case PIPELINEQueryTypes.AUTHORS:
+        return "Pipeline Authors"
+        break;
+    }
+  };
   const dropdownItems = [
     <DropdownItem key="name" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.NAME)}>
-      Name
+      {__queryType(PIPELINEQueryTypes.NAME)}
     </DropdownItem>,
     <DropdownItem key="category" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.CATEGORY)}>
-      Category
+      {__queryType(PIPELINEQueryTypes.CATEGORY)}
     </DropdownItem>,
     <DropdownItem key="description" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.DESCRIPTION)} >
-      Description
+      {__queryType(PIPELINEQueryTypes.DESCRIPTION)}
     </DropdownItem>,
     <DropdownItem key="authors" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.AUTHORS)} >
-      Authors
+      {__queryType(PIPELINEQueryTypes.AUTHORS)}
     </DropdownItem>,
     <DropdownItem key="id" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.ID)} >
-      Id
+      {__queryType(PIPELINEQueryTypes.ID)}
     </DropdownItem>,
     <DropdownItem key="owner_username" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.OWNER_USERNAME)} >
-      Owner Username
+      {__queryType(PIPELINEQueryTypes.OWNER_USERNAME)}
     </DropdownItem>
   ];
-
 
   const onToggle = (isDropdownOpen: boolean) => {
     setIsDropdownOpen(isDropdownOpen);
@@ -311,22 +331,7 @@ const Pipelines = ({
     setIsDropdownOpen(false);
     onFocus();
   };
-  const __queryType = (type: PIPELINEQueryTypes) => {
-    switch (type) {
-      case PIPELINEQueryTypes.NAME:
-        return "Pipeline Name";
-      case PIPELINEQueryTypes.ID:
-        return "Pipeline Id";
-      case PIPELINEQueryTypes.OWNER_USERNAME:
-        return "Owner Username";
-      case PIPELINEQueryTypes.CATEGORY:
-        return "Pipeline Category"
-      case PIPELINEQueryTypes.DESCRIPTION:
-        return "Pipeline Description"
-      case PIPELINEQueryTypes.AUTHORS:
-        return "Pipeline Authors"
-    }
-  };
+
 
   return (
     <>
