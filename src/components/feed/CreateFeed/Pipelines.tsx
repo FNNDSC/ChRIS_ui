@@ -359,7 +359,7 @@ const Pipelines = ({
             value={pageState.search}
             type="text"
             style={{height:"100%"}}
-            placeholder="Search"
+            placeholder={__queryType(dropdownValue)}
             iconVariant="search"
             aria-label="search"
             onChange={(value: string) => {
