@@ -297,26 +297,6 @@ const Pipelines = ({
         break;
     }
   };
-  const dropdownItems = [
-    <DropdownItem key="name" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.NAME)}>
-      {__queryType(PIPELINEQueryTypes.NAME)}
-    </DropdownItem>,
-    <DropdownItem key="category" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.CATEGORY)}>
-      {__queryType(PIPELINEQueryTypes.CATEGORY)}
-    </DropdownItem>,
-    <DropdownItem key="description" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.DESCRIPTION)} >
-      {__queryType(PIPELINEQueryTypes.DESCRIPTION)}
-    </DropdownItem>,
-    <DropdownItem key="authors" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.AUTHORS)} >
-      {__queryType(PIPELINEQueryTypes.AUTHORS)}
-    </DropdownItem>,
-    <DropdownItem key="id" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.ID)} >
-      {__queryType(PIPELINEQueryTypes.ID)}
-    </DropdownItem>,
-    <DropdownItem key="owner_username" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.OWNER_USERNAME)} >
-      {__queryType(PIPELINEQueryTypes.OWNER_USERNAME)}
-    </DropdownItem>
-  ];
 
   const onToggle = (isDropdownOpen: boolean) => {
     setIsDropdownOpen(isDropdownOpen);
@@ -332,6 +312,33 @@ const Pipelines = ({
     onFocus();
   };
 
+  const updateDropdownValue =(type:PIPELINEQueryTypes)=>{
+   setDropdownValue(type)
+   handlePipelineSearch("")
+  }
+
+  const dropdownItems = [
+    <DropdownItem key="name" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.NAME)}>
+      {__queryType(PIPELINEQueryTypes.NAME)}
+    </DropdownItem>,
+    <DropdownItem key="category" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.CATEGORY)}>
+      {__queryType(PIPELINEQueryTypes.CATEGORY)}
+    </DropdownItem>,
+    <DropdownItem key="description" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.DESCRIPTION)} >
+      {__queryType(PIPELINEQueryTypes.DESCRIPTION)}
+    </DropdownItem>,
+    <DropdownItem key="authors" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.AUTHORS)} >
+      {__queryType(PIPELINEQueryTypes.AUTHORS)}
+    </DropdownItem>,
+    <DropdownItem key="id" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.ID)} >
+      {__queryType(PIPELINEQueryTypes.ID)}
+    </DropdownItem>,
+    <DropdownItem key="owner_username" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.OWNER_USERNAME)} >
+      {__queryType(PIPELINEQueryTypes.OWNER_USERNAME)}
+    </DropdownItem>
+  ];
+
+  
 
   return (
     <>
