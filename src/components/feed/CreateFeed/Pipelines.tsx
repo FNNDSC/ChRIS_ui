@@ -12,6 +12,9 @@ import {
   DataListContent,
   WizardContext,
   TextInput,
+  Dropdown,
+  DropdownToggle,
+  DropdownItem,
 } from "@patternfly/react-core";
 import {
   Tree,
@@ -28,7 +31,14 @@ import { PipelinesProps } from "./types/pipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import ReactJson from "react-json-view";
 import { Pipeline } from "@fnndsc/chrisapi";
-
+export enum PIPELINEQueryTypes {
+  NAME,
+  ID,
+  OWNER_USERNAME,
+  CATEGORY,
+  DESCRIPTION,
+  AUTHORS
+}
 const Pipelines = ({
   justDisplay,
   state,
@@ -60,6 +70,9 @@ const Pipelines = ({
 
   const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
   const { page, perPage, search } = pageState;
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [dropdownValue, setDropdownValue] = React.useState<PIPELINEQueryTypes>(PIPELINEQueryTypes.NAME)
+
 
   const handleDispatchWrap = React.useCallback(
     (registeredPipelines: any) => {
@@ -81,7 +94,30 @@ const Pipelines = ({
         loading: true,
       };
     });
-    fetchPipelines(perPage, page, search).then((result: any) => {
+     const searchTypeFN = () =>{
+       switch(dropdownValue){
+        case PIPELINEQueryTypes.NAME:
+          return "name"
+        break;
+        case  PIPELINEQueryTypes.ID:
+          return "id"
+        break;
+        case PIPELINEQueryTypes.DESCRIPTION:
+          return "description"
+        break;
+        case PIPELINEQueryTypes.AUTHORS:
+          return "authors"
+        break;
+        case PIPELINEQueryTypes.OWNER_USERNAME:
+          return "owner_username"
+        break;
+        case PIPELINEQueryTypes.CATEGORY:
+          return "category"
+          break;
+       }
+    }
+    const searchType = searchTypeFN()
+    fetchPipelines(perPage, page, search, searchType).then((result: any) => {
       const { registeredPipelines, registeredPipelinesList, errorPayload } =
         result;
 
@@ -110,7 +146,7 @@ const Pipelines = ({
         });
       }
     });
-  }, [perPage, page, search, handleDispatchWrap]);
+  }, [perPage, page, dropdownValue, search, handleDispatchWrap]);
 
   const handleNodeClick = async (nodeName: number, pipelineId: number) => {
     handleSetCurrentNode(pipelineId, nodeName);
@@ -231,6 +267,7 @@ const Pipelines = ({
     [onBack, onNext]
   );
 
+
   useEffect(() => {
     window.addEventListener("keydown", handleBrowserKeyDown);
     return () => {
@@ -238,14 +275,85 @@ const Pipelines = ({
     };
   }, [handleBrowserKeyDown]);
 
+
+  const dropdownItems = [
+    <DropdownItem key="name" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.NAME)}>
+      Name
+    </DropdownItem>,
+    <DropdownItem key="category" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.CATEGORY)}>
+      Category
+    </DropdownItem>,
+    <DropdownItem key="description" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.DESCRIPTION)} >
+      Description
+    </DropdownItem>,
+    <DropdownItem key="authors" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.AUTHORS)} >
+      Authors
+    </DropdownItem>,
+    <DropdownItem key="id" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.ID)} >
+      Id
+    </DropdownItem>,
+    <DropdownItem key="owner_username" component="button" onClick={() => setDropdownValue(PIPELINEQueryTypes.OWNER_USERNAME)} >
+      Owner Username
+    </DropdownItem>
+  ];
+
+
+  const onToggle = (isDropdownOpen: boolean) => {
+    setIsDropdownOpen(isDropdownOpen);
+  };
+
+  const onFocus = () => {
+    const element = document.getElementById('toggle-basic');
+    element?.focus();
+  };
+
+  const onSelect = () => {
+    setIsDropdownOpen(false);
+    onFocus();
+  };
+  const __queryType = (type: PIPELINEQueryTypes) => {
+    switch (type) {
+      case PIPELINEQueryTypes.NAME:
+        return "Pipeline Name";
+      case PIPELINEQueryTypes.ID:
+        return "Pipeline Id";
+      case PIPELINEQueryTypes.OWNER_USERNAME:
+        return "Owner Username";
+      case PIPELINEQueryTypes.CATEGORY:
+        return "Pipeline Category"
+      case PIPELINEQueryTypes.DESCRIPTION:
+        return "Pipeline Description"
+      case PIPELINEQueryTypes.AUTHORS:
+        return "Pipeline Authors"
+    }
+  };
+
   return (
     <>
       <UploadJson handleDispatch={handleUploadDispatch} />
-      <div style={{ display: "flex", justifyContent: "space-between", padding:"0.8rem 0rem"}}>
-        <div>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "0.8rem 0rem" }}>
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <Dropdown
+            onSelect={onSelect}
+            toggle={
+              <DropdownToggle id="toggle-basic" onToggle={onToggle}>
+                <div style={{ textAlign: "left", padding: "0 0.5em" }}>
+                  <div style={{ fontSize: "smaller", color: "gray" }}>
+                    Search By
+                  </div>
+                  <div style={{ fontWeight: 600 }}>
+                    {__queryType(dropdownValue)}
+                  </div>
+                </div>
+              </DropdownToggle>
+            }
+            isOpen={isDropdownOpen}
+            dropdownItems={dropdownItems}
+          />
           <TextInput
             value={pageState.search}
             type="text"
+            style={{height:"100%"}}
             placeholder="Search"
             iconVariant="search"
             aria-label="search"
