@@ -72,22 +72,12 @@
   min-height: 200px;
 }
 
-<<<<<<< HEAD
-.cs410f23-socket
-{
-	position: absolute;
-	width: var(--cs410f23-size);
-	height: var(--cs410f23-size);
-	border-radius: 100%;
-	background: #1890ff;
-=======
 .cs410f23-socket {
   position: absolute;
   width: var(--cs410f23-size);
   height: var(--cs410f23-size);
   border-radius: 100%;
   background: cyan;
->>>>>>> 6c08d998 (Implement File Browser Table and Previews in the React Flow Component)
 
   top: calc(50% - var(--cs410f23-hsize));
 }
