@@ -35,7 +35,7 @@ const ComputeCatalog = () => {
     });
   };
   useEffect(() => {
-    async function fetchPipelines(
+    async function fetchComputeResources(
       perPage: number,
       page: number,
       search: string
@@ -62,7 +62,7 @@ const ComputeCatalog = () => {
       setLoading(false);
     }
 
-    fetchPipelines(perPage, page, search);
+    fetchComputeResources(perPage, page, search);
   }, [perPage, page, search]);
 
   const handleSearch = (search: string) => {
