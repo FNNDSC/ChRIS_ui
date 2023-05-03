@@ -202,13 +202,13 @@ const CheckboxComponent = () => {
   const params = useTypedSelector((state) => state.plugin.parameters);
   const { state, dispatch } = useContext(AddNodeContext);
   const { showPreviousRun, selectedPluginFromMeta } = state;
-
   const handleCheckboxChange = async () => {
     const pluginInstanceList = await selectedPluginFromMeta?.getPluginInstances(
       {
         limit: 10,
       }
     );
+
     const pluginInstances = pluginInstanceList?.getItems();
 
     if (pluginInstances && pluginInstances.length > 0) {
@@ -222,35 +222,48 @@ const CheckboxComponent = () => {
       const requiredInput: { [id: string]: InputIndex } = {};
       const dropdownInput: { [id: string]: InputIndex } = {};
 
-      const paramsFetched:
+      const paramsRequiredFetched:
         | {
-            [key: string]: string;
+            [key: string]: [number, string];
           }
         | undefined =
         params &&
         params["required"].reduce((acc, param) => {
           return {
             ...acc,
-            [param.data.name]: param.data.id,
+            [param.data.name]: [param.data.id, param.data.flag ],
+          };
+        }, {});
+
+        const paramsDropdownFetched:
+        | {
+            [key: string]: string;
+          }
+        | undefined =
+        params &&
+        params["dropdown"].reduce((acc, param) => {
+          return {
+            ...acc,
+            [param.data.name]:  param.data.flag,
           };
         }, {});
 
       for (let i = 0; i < pluginParameters.length; i++) {
         const parameter: PluginInstanceParameter = pluginParameters[i];
         const { param_name, type, value } = parameter.data;
-
-        if (paramsFetched && paramsFetched[param_name]) {
-          const id = paramsFetched[param_name];
+        if (paramsRequiredFetched && paramsRequiredFetched[param_name]) {
+          const [id, flag] = paramsRequiredFetched[param_name];
           requiredInput[id] = {
             value,
-            flag: `--${param_name}`,
+            flag,
             type,
             placeholder: "",
           };
-        } else {
+        } else if(paramsDropdownFetched){
+          const flag = paramsDropdownFetched[param_name];
           dropdownInput[v4()] = {
             value,
-            flag: `--${param_name}`,
+            flag,
             type,
             placeholder: "",
           };
