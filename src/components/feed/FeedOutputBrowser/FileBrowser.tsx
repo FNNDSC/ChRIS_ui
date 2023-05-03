@@ -46,7 +46,13 @@ const getFileName = (name: any) => {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
-  const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
+  const {
+    pluginFilesPayload,
+    handleFileClick,
+    selected,
+    filesLoading,
+    usedInsideFeedOutputBrowser,
+  } = props;
 
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
@@ -147,7 +153,9 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     return (
       <BreadcrumbItem
-        className="file-browser__header--crumb"
+        className={`file-browser__header--crumb ${
+          !usedInsideFeedOutputBrowser && `file-browser__header--smallcrumb`
+        }`}
         showDivider={true}
         key={index}
         onClick={onClick}
@@ -206,24 +214,31 @@ const FileBrowser = (props: FileBrowserProps) => {
     <Grid hasGutter className="file-browser">
       <Drawer position="right" isInline isExpanded={true}>
         <DrawerContent
-          panelContent={drawerState.preview.open ? previewPanel : null}
+          panelContent={
+            drawerState.preview.open && usedInsideFeedOutputBrowser
+              ? previewPanel
+              : null
+          }
           className="file-browser__firstGrid"
         >
-          <DrawerActionButton
-            background="inherit"
-            content="Files"
-            handleClose={() => {
-              handleClose("files", dispatch);
-            }}
-            handleMaximize={() => {
-              handleMaximize("files", dispatch);
-            }}
-            handleMinimize={() => {
-              handleMinimize("files", dispatch);
-            }}
-            maximized={drawerState["files"].maximized}
-          />
-          {drawerState.files.open && (
+          {usedInsideFeedOutputBrowser && (
+            <DrawerActionButton
+              background="inherit"
+              content="Files"
+              handleClose={() => {
+                handleClose("files", dispatch);
+              }}
+              handleMaximize={() => {
+                handleMaximize("files", dispatch);
+              }}
+              handleMinimize={() => {
+                handleMinimize("files", dispatch);
+              }}
+              maximized={drawerState["files"].maximized}
+            />
+          )}
+
+          {(drawerState.files.open || !usedInsideFeedOutputBrowser) && (
             <DrawerContentBody>
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">
@@ -264,6 +279,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         toggleAnimation();
                         dispatch(setSelectedFile(item));
                         !drawerState["preview"].open &&
+                          usedInsideFeedOutputBrowser &&
                           dispatch(setFilePreviewPanel());
                       }
                     }}

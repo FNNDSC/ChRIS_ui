@@ -94,6 +94,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
                 handleFileClick={handleFileClick}
                 pluginFilesPayload={pluginFilesPayload}
                 filesLoading={filesLoading}
+                usedInsideFeedOutputBrowser={true}
               />
             ) : statusTitle && statusTitle ? (
               <FetchFilesLoader title="Fetching Files" />

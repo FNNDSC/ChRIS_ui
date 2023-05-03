@@ -49,18 +49,16 @@
     }
   }
 
-  .pf-c-drawer__content{
+  .pf-c-drawer__content {
     background-color: #18181b;
   }
-
 
   .pf-c-table tr > * {
     color: white;
   }
 
-  .pf-c-table{
+  .pf-c-table {
     background-color: #18181b;
-
   }
 
   &__table {
@@ -94,6 +92,9 @@
       display: flex;
       justify-content: flex-end;
     }
+    &--smallcrumb {
+      font-size: 1em;
+    }
 
     @include media-query($pf-global--breakpoint--xl) {
       display: flex;
@@ -118,7 +119,6 @@
     svg {
       margin-right: 0.25em;
     }
-
   }
 
   .header-panel__buttons {
