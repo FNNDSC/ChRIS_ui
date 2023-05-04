@@ -366,7 +366,7 @@ function getCommand(
 
 const RenderButtonGridItem = ({ children }: { children: ReactNode }) => {
   return (
-    <GridItem sm={12} lg={6} xl={3} xl2={3}>
+    <GridItem sm={12} lg={6} xl={5} xl2={5}>
       {children}
     </GridItem>
   );
