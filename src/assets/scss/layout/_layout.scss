@@ -239,7 +239,13 @@ label {
 .pf-c-form-control[readonly] {
   background-color: inherit;
 }
+.pf-c-form-control:disabled{
+  border-color: #36363d;
+}
+.pf-c-dropdown__toggle:disabled{
+  background-color: #36363d;
 
+}
 .pf-c-table caption {
   background-color: inherit;
   color: white;
