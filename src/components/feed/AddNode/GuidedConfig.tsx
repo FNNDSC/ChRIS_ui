@@ -167,7 +167,7 @@ const GuidedConfig = () => {
         <>
           <div>
             <span>
-              Required Parameters <ItalicsComponent length={requiredLength} />
+              Required Parameters <ItalicsComponent length={requiredLength} isRequiredParam={true} />
             </span>
             {params &&
               params["required"].length > 0 &&
@@ -175,7 +175,7 @@ const GuidedConfig = () => {
           </div>
           <div>
             <span>
-              Optional Parameters <ItalicsComponent length={dropdownLength} />
+              Optional Parameters <ItalicsComponent length={dropdownLength} isRequiredParam={false} />
             </span>
 
             {renderDropdowns()}
@@ -310,7 +310,7 @@ const CheckboxComponent = () => {
   );
 };
 
-const ItalicsComponent = ({ length }: { length?: number }) => {
+const ItalicsComponent = ({ length, isRequiredParam }: { length?: number, isRequiredParam:boolean }) => {
   return (
     <i
       style={{
@@ -319,7 +319,7 @@ const ItalicsComponent = ({ length }: { length?: number }) => {
       }}
     >
       (
-      {`${length && length > 0 ? length : "No required"}${
+      {`${length && length > 0 ? length : isRequiredParam? "No required": "No optional"}${
         length === 1 ? " parameter" : " parameters"
       }`}
       )
