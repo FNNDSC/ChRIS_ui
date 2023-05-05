@@ -142,6 +142,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           );
         });
     return parameters;
+    
   };
 
   return (
@@ -153,9 +154,10 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
             <DropdownToggle
               id="toggle-id"
               onToggle={onToggle}
+              isDisabled = {params && params["dropdown"].length == 0}
               toggleIndicator={AiFillCaretDown}
             >
-              {paramFlag ? `${paramFlag}` : "Choose a Parameter"}
+              {paramFlag ? `${paramFlag}` : params && params["dropdown"].length == 0? "No Parameters" :"Choose a Parameter"}
             </DropdownToggle>
           }
           isOpen={isOpen}
@@ -170,7 +172,7 @@ const SimpleDropdown: React.FC<SimpleDropdownProps> = ({
           onChange={handleInputChange}
           placeholder={placeholder}
           value={value}
-          disabled={type === "boolean"}
+          disabled={type === "boolean" || params && params["dropdown"].length == 0}
         />
 
         <div onClick={deleteDropdown}>
