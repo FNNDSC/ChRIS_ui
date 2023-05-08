@@ -17,7 +17,7 @@ export async function getPluginInstanceGraph(instances: PluginInstance[]) {
     const nodeStartTime = Date.parse(node.data.start_date);
     const nodeEndTime = Date.parse(node.data.end_date);
 
-    let title = node.data.plugin_name;
+    let title = node.data.title;//plugin_name;
     if (!title || title.length === 0) title = "unset title";
 
     const data: NodeData = {

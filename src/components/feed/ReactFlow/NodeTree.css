@@ -1,91 +1,109 @@
 .cs410f23-node-tree {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
 
-  fill: white;
-  color: white;
-  stroke-width: 1;
+	fill: white;
+	color: white;
+	stroke-width: 1;
+}
+
+.rd3t-link {
+	stroke: var(--pf-global--palette--black-500) !important;
+	marker-end: url("#end-arrow");
 }
 
 .rd3t-node {
-  color: white;
-  fill: white;
+	color: white;
+	fill: white;
 }
 
 :root {
-  --cs410f23-node-width: 200px;
-  --cs410f23-node-height: 350px;
-  --cs410f23-header-height: 30px;
+	--cs410f23-node-width: 200px;
+	--cs410f23-node-height: 350px;
+	--cs410f23-header-height: 30px;
 
-  --cs410f23-size: calc(var(--cs410f23-header-height) / 3);
-  --cs410f23-hsize: calc(var(--cs410f23-size) / 2);
+	--cs410f23-size: calc(var(--cs410f23-header-height) / 3);
+	--cs410f23-hsize: calc(var(--cs410f23-size) / 2);
 }
 
 .cs410f23-wrap {
-  overflow: visible;
+	overflow: visible;
 }
 
 .cs410f23-wrap p {
-  margin: 0;
+	margin: 0;
 }
 
 .cs410f23-node {
-  width: var(--cs410f23-node-width);
-  height: var(--cs410f23-node-height);
+	min-width: var(--cs410f23-node-width);
+	min-height: var(--cs410f23-node-height);
 
-  border-radius: 5x;
-  font-family: sans-serif;
-  display: flex;
-  flex-direction: column;
-
-  overflow: visible;
+	border-radius: 5x;
+	font-family: sans-serif;
+	overflow: visible;
 }
 
 .cs410f23-header {
-  height: var(--cs410f23-header-height);
+	min-height: var(--cs410f23-header-height);
 
-  background: blue;
-  display: flex;
-  justify-content: space-between;
+	background-color: #004080;
 
-  padding: 0 10px;
-  position: relative;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+
+	padding: 0 10px;
+	position: relative;
 }
 
 .cs410f23-body {
-  background: grey;
-  margin: 0;
+	background: rgb(51, 51, 51);
+	margin: 0;
 
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
 }
 
 .cs410f23-fileview {
-  max-height: 200px;
-  overflow-y: auto;
+	max-height: 200px;
+	overflow-y: auto;
+
+	padding: 5px 5px;
+}
+
+.cs410f23-fileview-row {
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	line-height: 24px;
+	padding-left: 5px;
+}
+
+.cs410f23-fileview-row-icon {
+	margin-right: 5px;
+	font-size: 18px;
+}
+
+.cs410f23-fileview-row-icon > * {
+	vertical-align: middle;
+}
+
+.cs410f23-fileview-row-selected {
+	background:rgb(100, 100, 100);
+	border-left: 2px solid white;
+	padding-left: 3px;
 }
 
 .cs410f23-preview {
-  min-width: 200px;
-  min-height: 200px;
-}
+	width: 200px;
+	height: 200px;
 
-.cs410f23-socket {
-  position: absolute;
-  width: var(--cs410f23-size);
-  height: var(--cs410f23-size);
-  border-radius: 100%;
-  background: cyan;
+	overflow: hidden;
 
-  top: calc(50% - var(--cs410f23-hsize));
-}
-
-.cs410f23-socket-left {
-  left: calc(0px - var(--cs410f23-hsize));
-}
-
-.cs410f23-socket-right {
-  right: calc(0px - var(--cs410f23-hsize));
+	display: flex;
+	justify-content: flex-end;
+	flex-direction: column;
 }
