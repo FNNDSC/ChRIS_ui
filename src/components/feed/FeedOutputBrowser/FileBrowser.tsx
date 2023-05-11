@@ -249,7 +249,7 @@ const FileBrowser = (props: FileBrowserProps) => {
               >
                 <TableHeader className="file-browser-table--head" />
                 {filesLoading ? (
-                  <SpinContainer title="Fetching Files" />
+                  <SpinContainer title="Waiting on Node..." />
                 ) : !filesLoading && items.length === 0 ? (
                   <EmptyStateLoader title="Empty Data set" />
                 ) : (
