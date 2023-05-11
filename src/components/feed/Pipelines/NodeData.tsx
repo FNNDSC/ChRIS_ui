@@ -116,7 +116,7 @@ const NodeData = (props: NodeProps) => {
   const textLabel = (
     <g id={`text_${data.id}`} transform={`translate(-30,30)`}>
       <text ref={textRef} className="label__title">
-        {currentId}:{titleName ? titleName : data.title}
+        {currentId}:{data.id}:{titleName ? titleName : data.title}
       </text>
     </g>
   );
