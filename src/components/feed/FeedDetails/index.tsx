@@ -38,12 +38,16 @@ const FeedDetails = () => {
 
   const preview =
     drawerState["preview"].currentlyActive === "preview" ? true : false;
+  const graph = drawerState["graph"].currentlyActive === "graph" ? true : false;
 
   const NodeIcon = iconMap["node"];
   const PreviewIcon = iconMap["preview"];
   const BrainIcon = iconMap["brain"];
   const NoteIcon = iconMap["note"];
   const TerminalIcon = iconMap["terminal"];
+  const FlowIcon = iconMap["flow"];
+  const GraphIcon = iconMap["graph"];
+
   const buttonStyle = getButtonStyle(false);
 
   const items = (
@@ -60,7 +64,7 @@ const FeedDetails = () => {
           button={
             <ButtonContainer
               title="Graph"
-              Icon={iconMap["graph"]}
+              Icon={graph ? iconMap["graph"] : iconMap["flow"]}
               action="graph"
               dispatch={dispatch}
               drawerState={drawerState}
@@ -194,6 +198,32 @@ const FeedDetails = () => {
                   <BrainIcon style={iconStyle} />
                 ) : (
                   <PreviewIcon style={iconStyle} />
+                )
+              }
+            />
+          }
+        />
+
+        <DrawerActionsToolbar
+          button={
+            <ButtonWithTooltip
+              //@ts-ignore
+              style={buttonStyle}
+              position="bottom"
+              content={graph ? "Flow" : "Graph"}
+              variant="primary"
+              onClick={() => {
+                if (graph) {
+                  dispatch(setDrawerCurrentlyActive("graph", "flow"));
+                } else {
+                  dispatch(setDrawerCurrentlyActive("graph", "graph"));
+                }
+              }}
+              icon={
+                graph ? (
+                  <FlowIcon style={iconStyle} />
+                ) : (
+                  <GraphIcon style={iconStyle} />
                 )
               }
             />

@@ -1,7 +1,6 @@
 import { Reducer } from "redux";
 import { ExplorerActionTypes, IExplorerState } from "./types";
 
-
 const initialState: IExplorerState = {
   selectedFile: undefined,
 };
@@ -9,10 +8,13 @@ const initialState: IExplorerState = {
 const reducer: Reducer<IExplorerState> = (state = initialState, action) => {
   switch (action.type) {
     case ExplorerActionTypes.SET_SELECTED_FILE: {
-      const selectedFile = action.payload;
+      const { selectedFile, selectedPlugin } = action.payload;
       return {
         ...state,
-        selectedFile,
+        selectedFile: {
+          ...state.selectedFile,
+          [selectedPlugin.data.id]: selectedFile,
+        },
       };
     }
 

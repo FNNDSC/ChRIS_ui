@@ -4,6 +4,7 @@ import { ImTree } from "react-icons/im";
 import { TfiFlickr } from "react-icons/tfi";
 import { FaTerminal, FaFileImage, FaBrain } from "react-icons/fa";
 import { MdEditNote } from "react-icons/md";
+import { CgListTree } from "react-icons/cg";
 
 export interface IFileBlob {
   blob?: Blob;
@@ -58,4 +59,5 @@ export const iconMap: any = {
   terminal: FaTerminal,
   brain: FaBrain,
   note: MdEditNote,
+  flow: CgListTree,
 };

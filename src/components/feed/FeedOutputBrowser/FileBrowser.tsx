@@ -46,9 +46,17 @@ const getFileName = (name: any) => {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
-  const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
+  const {
+    pluginFilesPayload,
+    handleFileClick,
+    selected,
+    filesLoading,
+    usedInsideFeedOutputBrowser,
+  } = props;
 
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+  const selectedFilePayload = useTypedSelector(
+    (state) => state.explorer.selectedFile
+  );
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
 
@@ -69,7 +77,8 @@ const FileBrowser = (props: FileBrowserProps) => {
   const generateTableRow = (item: string | FeedFile) => {
     let type, icon, fsize, fileName;
     type = "UNKNOWN FORMAT";
-    const isPreviewing = selectedFile === item;
+    const isPreviewing =
+      selectedFilePayload && selectedFilePayload[selected.data.id] === item;
 
     if (typeof item === "string") {
       type = "dir";
@@ -147,7 +156,9 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     return (
       <BreadcrumbItem
-        className="file-browser__header--crumb"
+        className={`file-browser__header--crumb ${
+          !usedInsideFeedOutputBrowser && `file-browser__header--smallcrumb`
+        }`}
         showDivider={true}
         key={index}
         onClick={onClick}
@@ -194,8 +205,11 @@ const FileBrowser = (props: FileBrowserProps) => {
       />
       <DrawerPanelBody className="file-browser__drawerbody">
         {drawerState["preview"].currentlyActive === "preview" &&
-          selectedFile && (
-            <FileDetailView selectedFile={selectedFile} preview="large" />
+          selectedFilePayload && (
+            <FileDetailView
+              selectedFile={selectedFilePayload[selected.data.id]}
+              preview="large"
+            />
           )}
         {drawerState["preview"].currentlyActive === "xtk" && <XtkViewer />}
       </DrawerPanelBody>
@@ -206,24 +220,31 @@ const FileBrowser = (props: FileBrowserProps) => {
     <Grid hasGutter className="file-browser">
       <Drawer position="right" isInline isExpanded={true}>
         <DrawerContent
-          panelContent={drawerState.preview.open ? previewPanel : null}
+          panelContent={
+            drawerState.preview.open && usedInsideFeedOutputBrowser
+              ? previewPanel
+              : null
+          }
           className="file-browser__firstGrid"
         >
-          <DrawerActionButton
-            background="inherit"
-            content="Files"
-            handleClose={() => {
-              handleClose("files", dispatch);
-            }}
-            handleMaximize={() => {
-              handleMaximize("files", dispatch);
-            }}
-            handleMinimize={() => {
-              handleMinimize("files", dispatch);
-            }}
-            maximized={drawerState["files"].maximized}
-          />
-          {drawerState.files.open && (
+          {usedInsideFeedOutputBrowser && (
+            <DrawerActionButton
+              background="inherit"
+              content="Files"
+              handleClose={() => {
+                handleClose("files", dispatch);
+              }}
+              handleMaximize={() => {
+                handleMaximize("files", dispatch);
+              }}
+              handleMinimize={() => {
+                handleMinimize("files", dispatch);
+              }}
+              maximized={drawerState["files"].maximized}
+            />
+          )}
+
+          {(drawerState.files.open || !usedInsideFeedOutputBrowser) && (
             <DrawerContentBody>
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">
@@ -262,8 +283,9 @@ const FileBrowser = (props: FileBrowserProps) => {
                         handleFileClick(`${path}/${item}`);
                       } else {
                         toggleAnimation();
-                        dispatch(setSelectedFile(item));
+                        dispatch(setSelectedFile(item, selected));
                         !drawerState["preview"].open &&
+                          usedInsideFeedOutputBrowser &&
                           dispatch(setFilePreviewPanel());
                       }
                     }}

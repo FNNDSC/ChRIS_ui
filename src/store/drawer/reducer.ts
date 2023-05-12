@@ -27,6 +27,11 @@ const initialState: IDrawerState = {
     maximized: false,
     currentlyActive: "preview",
   },
+  flow: {
+    open: false,
+    maximized: false,
+    currentlyActive: "flow",
+  },
 };
 
 const reducer: Reducer<IDrawerState> = (state = initialState, action) => {

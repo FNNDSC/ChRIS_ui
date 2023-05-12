@@ -65,7 +65,9 @@ export type CheckInfo = {
 
 // Description state for main user items[] and item
 export interface IExplorerState {
-  selectedFile?: FeedFile;
+  selectedFile?: {
+    [id: string]: FeedFile;
+  };
 }
 
 export const ExplorerActionTypes = keyMirror({

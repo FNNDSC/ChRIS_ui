@@ -11,6 +11,7 @@ export interface FileBrowserProps {
   handleFileClick: (path: string) => void;
   selected: PluginInstance;
   filesLoading: boolean;
+  usedInsideFeedOutputBrowser: boolean;
 }
 
 export interface FileBrowserState {

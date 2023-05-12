@@ -25,7 +25,7 @@ import {
   IFileBlob,
   fileViewerMap,
 } from "../../../api/models/file-viewer.model";
-import { SpinContainer } from "../../common/loading/LoadingContent";
+
 import {
   ButtonContainer,
   TagInfoModal,
@@ -134,45 +134,36 @@ const FileDetailView = (props: AllProps) => {
 
   return (
     <Fragment>
-      <React.Suspense
+      <ErrorBoundary
         fallback={
-          <SpinContainer title="Please wait as the preview is being fetched" />
+          <span>
+            <Label icon={<AiFillInfoCircle />} color="red" href="#filled">
+              <Text component="p">
+                Oh snap ! Looks like there was an error. Please refresh the
+                browser or try again.
+              </Text>
+            </Label>
+          </span>
         }
       >
-        <ErrorBoundary
-          fallback={
-            <span>
-              <Label icon={<AiFillInfoCircle />} color="red" href="#filled">
-                <Text component="p">
-                  Oh snap ! Looks like there was an error. Please refresh the
-                  browser or try again.
-                </Text>
-              </Label>
-            </span>
-          }
-        >
-          <div className={previewType}>
-            {previewType === "large-preview" && (
-              <DicomHeader
-                viewerName={viewerName}
-                handleEvents={handleEvents}
-              />
-            )}
+        <div className={previewType}>
+          {previewType === "large-preview" && (
+            <DicomHeader viewerName={viewerName} handleEvents={handleEvents} />
+          )}
 
-            <ViewerDisplay
-              preview={preview}
-              viewerName={viewerName}
-              fileItem={fileState}
-              actionState={actionState}
-            />
-          </div>
-          <TagInfoModal
-            handleModalToggle={handleModalToggle}
-            isModalOpen={actionState["TagInfo"]}
-            output={tagInfo}
+          <ViewerDisplay
+            preview={preview}
+            viewerName={viewerName}
+            fileItem={fileState}
+            actionState={actionState}
           />
-        </ErrorBoundary>
-      </React.Suspense>
+        </div>
+        <TagInfoModal
+          handleModalToggle={handleModalToggle}
+          isModalOpen={actionState["TagInfo"]}
+          output={tagInfo}
+        />
+      </ErrorBoundary>
     </Fragment>
   );
 };
