@@ -34,16 +34,19 @@ function IwFileBrowser(props: FileBrowserProps)
 	const [currentFolder, setCurrentFolder] = useState(props.pluginFilesPayload.path);
 	const dispatch = useDispatch();
 
+	const [depth, setDepth] = useState(0);
+
 	function clickRowFile(file: FeedFile)
 	{
 		setSelected(file.data.fname);
 		dispatch(setSelectedFile(file, props.selected));
 	}
 
-	function clickRowFolder(folder: string)
+	function clickRowFolder(folder: string, direction: number)
 	{
 		props.handleFileClick(folder);
 		setCurrentFolder(folder);
+		setDepth(depth + direction); // keep track of depth
 	}
 
 	function setDefaultSelected()
@@ -62,8 +65,25 @@ function IwFileBrowser(props: FileBrowserProps)
 
 	useEffect(setDefaultSelected, [selected]);
 
+	// Are we in a subfolder?
+
+	const inSubfolder = depth > 0;
+	const upFolderDir = currentFolder.substring(0, currentFolder.lastIndexOf('/'));
+
+	let upFolderButton = <></>;
+
+	if (inSubfolder)
+		upFolderButton = (
+			<div className="cs410f23-fileview-row" onClick={() => { clickRowFolder(upFolderDir, -1); } }>
+				<span className="cs410f23-fileview-row-icon"><TbFolder /></span>
+				<span>..</span>
+			</div>
+		);
+
 	return (
+
 		<div>
+			{upFolderButton}
 			{folders.map((folder) =>
 			{
 				const name = `${currentFolder}/${folder}`;
@@ -72,10 +92,8 @@ function IwFileBrowser(props: FileBrowserProps)
 				const isSelected = name == selected;
 				const rowClass = `cs410f23-fileview-row ${isSelected ? "cs410f23-fileview-row-selected" : ""}`;
 
-				// onClick={() => { clickRow(file); } }
-
 				return (
-					<div key={name} className={rowClass} onClick={() => { clickRowFolder(name); } }>
+					<div key={name} className={rowClass} onClick={() => { clickRowFolder(name, 1); } }>
 						<span className="cs410f23-fileview-row-icon"><TbFolder /></span>
 						<span>{shortName}</span>
 					</div>
