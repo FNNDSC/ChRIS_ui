@@ -2,19 +2,7 @@ import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { PluginMeta } from "@fnndsc/chrisapi";
 import DisplayPage from "./DisplayPage";
-export enum PluginQueryTypes {
-  NAME="name",
-  ID="id",
-  NAME_EXACT="Exact Name",
-  TITLE= "Title",
-  CATEGORY = "Category",
-  TYPE = "Type",
-  AUTHORS = "Authors",
-  MIN_CREATION_DATE = "Min Creation Date",
-  Max_CREATION_DATE = "Max Creation Date",
-  NAME_TITLE_CATEGORY= "Name and Title and Category",
-  NAME_AUTHORS_CATEGORY="Name and Authors and Category "
-}
+
 const PluginCatalog = () => {
   const [plugins, setPlugins] = React.useState<any>();
   const [pageState, setPageState] = React.useState({
