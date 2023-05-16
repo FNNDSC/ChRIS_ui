@@ -18,6 +18,8 @@ export function getInitialNodeState(): AddNodeState {
     pluginMetas: [],
     componentList: [],
     showPreviousRun: false,
+    advancedConfig: {},
+    memoryLimit: "Gi",
   };
 }
 
