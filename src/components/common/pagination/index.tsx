@@ -5,16 +5,18 @@ import { debounce } from "lodash";
 interface FilterState {
   perPage: number;
   page: number;
-  filter: string;
+  search: string;
+  searchType:string;
 }
 
 export const usePaginate = () => {
   const [filterState, setFilterState] = useState<FilterState>({
     perPage: 12,
     page: 1,
-    filter: "",
+    search: "",
+    searchType:"name"
   });
-  const { perPage, page, filter } = filterState;
+  const { perPage, page, search, searchType } = filterState;
   const dispatch = useDispatch();
 
   const handlePageSet = (e: any, page: number) => {
@@ -28,23 +30,24 @@ export const usePaginate = () => {
     setFilterState({ ...filterState, perPage });
   };
 
-  const handleFilterChange = (value: string) => {
+  const handleFilterChange = (search: string, searchType:string) => {
     setFilterState({
       ...filterState,
-      filter: value,
+      search,
+      searchType
     });
   };
 
   const debouncedFilterUpdate = debounce(
-    (filter: string) => handleFilterChange(filter),
+    (search: string, searchType:string ) => handleFilterChange(search, searchType),
     500
   );
 
   const run = useCallback(
     (action: any) => {
-      dispatch(action(filter, perPage, perPage * (page - 1)));
+      dispatch(action(searchType,search,perPage, perPage * (page - 1)));
     },
-    [page, perPage, filter, dispatch]
+    [page, perPage, search, dispatch, searchType]
   );
 
   return {

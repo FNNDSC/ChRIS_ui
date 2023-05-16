@@ -31,13 +31,15 @@ import { PipelinesProps } from "./types/pipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import ReactJson from "react-json-view";
 import { Pipeline } from "@fnndsc/chrisapi";
-export enum PIPELINEQueryTypes {
-  NAME,
-  ID,
-  OWNER_USERNAME,
-  CATEGORY,
-  DESCRIPTION,
-  AUTHORS
+export const PIPELINEQueryTypes = {
+  NAME: ["Name", "Match plugin name containing this string"],
+  ID: ["Id", "Match plugin id exactly with this number"],
+  OWNER_USERNAME: ["Owner_Username", "Match pipeline's owner username exactly with this string"],
+  CATEGORY: ["Category", "Match plugin category containing this string"],
+  DESCRIPTION: ["Description", "Match plugin description containing this string"],
+  AUTHORS: ["Authors", "Match plugin authors containing this string"],
+  MIN_CREATION_DATE: ["Min_creation_date", "Match plugin creation date greater than this date"],
+  MAX_CREATION_DATE: ["Max_creation_date", "Match plugin creation date lte this date"]
 }
 const Pipelines = ({
   justDisplay,
@@ -71,7 +73,7 @@ const Pipelines = ({
   const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
   const { page, perPage, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-  const [dropdownValue, setDropdownValue] = React.useState<PIPELINEQueryTypes>(PIPELINEQueryTypes.NAME)
+  const [dropdownValue, setDropdownValue] = React.useState<string>(PIPELINEQueryTypes.NAME[0])
 
 
   const handleDispatchWrap = React.useCallback(
@@ -94,30 +96,9 @@ const Pipelines = ({
         loading: true,
       };
     });
-     const searchTypeFN = () =>{
-       switch(dropdownValue){
-        case PIPELINEQueryTypes.NAME:
-          return "name"
-        break;
-        case  PIPELINEQueryTypes.ID:
-          return "id"
-        break;
-        case PIPELINEQueryTypes.DESCRIPTION:
-          return "description"
-        break;
-        case PIPELINEQueryTypes.AUTHORS:
-          return "authors"
-        break;
-        case PIPELINEQueryTypes.OWNER_USERNAME:
-          return "owner_username"
-        break;
-        case PIPELINEQueryTypes.CATEGORY:
-          return "category"
-          break;
-       }
-    }
-    const searchType = searchTypeFN()
-    fetchPipelines(perPage, page, search, searchType).then((result: any) => {
+
+
+    fetchPipelines(perPage, page, search, dropdownValue.toLowerCase()).then((result: any) => {
       const { registeredPipelines, registeredPipelinesList, errorPayload } =
         result;
 
@@ -275,28 +256,6 @@ const Pipelines = ({
     };
   }, [handleBrowserKeyDown]);
 
-  const __queryType = (type: PIPELINEQueryTypes) => {
-    switch (type) {
-      case PIPELINEQueryTypes.NAME:
-        return "Pipeline Name";
-        break;
-      case PIPELINEQueryTypes.ID:
-        return "Pipeline Id";
-        break;
-      case PIPELINEQueryTypes.OWNER_USERNAME:
-        return "Owner Username";
-        break;
-      case PIPELINEQueryTypes.CATEGORY:
-        return "Pipeline Category"
-        break;
-      case PIPELINEQueryTypes.DESCRIPTION:
-        return "Pipeline Description"
-        break;
-      case PIPELINEQueryTypes.AUTHORS:
-        return "Pipeline Authors"
-        break;
-    }
-  };
 
   const onToggle = (isDropdownOpen: boolean) => {
     setIsDropdownOpen(isDropdownOpen);
@@ -312,33 +271,18 @@ const Pipelines = ({
     onFocus();
   };
 
-  const updateDropdownValue =(type:PIPELINEQueryTypes)=>{
+  const updateDropdownValue =(type:string)=>{
    setDropdownValue(type)
    handlePipelineSearch("")
   }
 
   const dropdownItems = [
-    <DropdownItem key="name" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.NAME)}>
-      {__queryType(PIPELINEQueryTypes.NAME)}
-    </DropdownItem>,
-    <DropdownItem key="category" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.CATEGORY)}>
-      {__queryType(PIPELINEQueryTypes.CATEGORY)}
-    </DropdownItem>,
-    <DropdownItem key="description" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.DESCRIPTION)} >
-      {__queryType(PIPELINEQueryTypes.DESCRIPTION)}
-    </DropdownItem>,
-    <DropdownItem key="authors" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.AUTHORS)} >
-      {__queryType(PIPELINEQueryTypes.AUTHORS)}
-    </DropdownItem>,
-    <DropdownItem key="id" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.ID)} >
-      {__queryType(PIPELINEQueryTypes.ID)}
-    </DropdownItem>,
-    <DropdownItem key="owner_username" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.OWNER_USERNAME)} >
-      {__queryType(PIPELINEQueryTypes.OWNER_USERNAME)}
-    </DropdownItem>
+    Object.values(PIPELINEQueryTypes).map((pipeline) => {
+      return<DropdownItem key={pipeline[0]} description={pipeline[1]} component="button" onClick={() => updateDropdownValue(pipeline[0])}>
+      {pipeline[0]}
+     </DropdownItem>
+    })
   ];
-
-  
 
   return (
     <>
@@ -351,10 +295,10 @@ const Pipelines = ({
               <DropdownToggle id="toggle-basic" onToggle={onToggle}>
                 <div style={{ textAlign: "left", padding: "0 0.5em" }}>
                   <div style={{ fontSize: "smaller", color: "gray" }}>
-                    Search By
+                    Search Pipeline By
                   </div>
                   <div style={{ fontWeight: 600 }}>
-                    {__queryType(dropdownValue)}
+                    {dropdownValue}
                   </div>
                 </div>
               </DropdownToggle>
@@ -366,11 +310,11 @@ const Pipelines = ({
             value={pageState.search}
             type="text"
             style={{height:"100%"}}
-            placeholder={__queryType(dropdownValue)}
+            placeholder={dropdownValue}
             iconVariant="search"
             aria-label="search"
             onChange={(value: string) => {
-              handlePipelineSearch && handlePipelineSearch(value);
+              handlePipelineSearch && handlePipelineSearch(value.toLowerCase());
             }}
           />
         </div>

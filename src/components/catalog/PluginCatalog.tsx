@@ -9,11 +9,12 @@ const PluginCatalog = () => {
     page: 1,
     perPage: 10,
     search: "",
+    searchType:"name_title_category",
     itemCount: 0,
   });
   const [loading, setLoading] = React.useState(false);
 
-  const { page, perPage, search } = pageState;
+  const { page, perPage, search, searchType } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
 
   const onSetPage = (_event: any, page: number) => {
@@ -36,13 +37,13 @@ const PluginCatalog = () => {
     });
   };
   useEffect(() => {
-    async function fetchPlugins(perPage: number, page: number, search: string) {
+    async function fetchPlugins(perPage: number, page: number, search: string, searchType:string) {
       setLoading(true);
       const offset = perPage * (page - 1);
       const params = {
         limit: perPage,
         offset: offset,
-        name_title_category: search,
+        [searchType]: search,
       };
       const client = ChrisAPIClient.getClient();
       const pluginList = await client.getPluginMetas(params);
@@ -76,15 +77,17 @@ const PluginCatalog = () => {
       }
     }
 
-    fetchPlugins(perPage, page, search);
-  }, [perPage, page, search]);
+    fetchPlugins(perPage, page, search, searchType);
+  }, [perPage, page, search, searchType]);
 
-  const handleSearch = (search: string) => {
+  const handleSearch = (search: string, searchType:string) => {
     setPageState({
       ...pageState,
       search,
+      searchType
     });
   };
+
 
   return (
     <>
