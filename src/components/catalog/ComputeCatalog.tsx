@@ -9,10 +9,11 @@ const ComputeCatalog = () => {
     page: 1,
     perPage: 10,
     search: "",
+    searchType: "name",
     itemCount: 0,
   });
 
-  const { page, perPage, search } = pageState;
+  const { page, perPage, search, searchType } = pageState;
   const [selectedCompute, setSelectedCompute] = React.useState<any>();
 
   const onSetPage = (_event: any, page: number) => {
@@ -27,7 +28,6 @@ const ComputeCatalog = () => {
       perPage,
     });
   };
-
   const handleFilterChange = (value: string) => {
     setPageState({
       ...pageState,
@@ -38,7 +38,8 @@ const ComputeCatalog = () => {
     async function fetchComputeResources(
       perPage: number,
       page: number,
-      search: string
+      search: string,
+      searchType:string,
     ) {
       setLoading(true);
       const offset = perPage * (page - 1);
@@ -46,7 +47,7 @@ const ComputeCatalog = () => {
       const params = {
         limit: perPage,
         offset: offset,
-        name: search,
+        [searchType]: search,
       };
       const computeResourcesList = await client.getComputeResources(params);
       const computes = computeResourcesList.getItems();
@@ -62,13 +63,14 @@ const ComputeCatalog = () => {
       setLoading(false);
     }
 
-    fetchComputeResources(perPage, page, search);
-  }, [perPage, page, search]);
+    fetchComputeResources(perPage, page, search, searchType);
+  }, [perPage, page, search, searchType]);
 
-  const handleSearch = (search: string) => {
+  const handleSearch = (search: string, searchType:string) => {
     setPageState({
       ...pageState,
       search,
+      searchType,
     });
   };
   return (

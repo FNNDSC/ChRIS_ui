@@ -22,17 +22,15 @@ import { getPluginInstancesRequest } from "../pluginInstance/actions";
 import { cujs } from "chris-utility";
 import { catchError } from "../../api/common";
 
-const params: {
-  limit: number;
-  offset: number;
-  name: string;
-} = { limit: 0, offset: 0, name: "" };
+
 
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const { name, limit, offset } = action.payload;
-  params["name"] = name;
-  params["limit"] = limit;
-  params["offset"] = offset;
+  const {search, searchType, limit, offset } = action.payload;
+  const params={
+    limit: limit,
+    [searchType]:search,
+    offset:offset
+  }
   const client = ChrisAPIClient.getClient();
 
   try {

@@ -3,13 +3,15 @@ import { Feed } from "@fnndsc/chrisapi";
 import { FeedActionTypes, FeedsResponsePayload } from "./types";
 
 export const getAllFeedsRequest = (
-  name?: string,
+  searchType: string,
+  search?:string,
   limit?: number,
   offset?: number,
   polling?: boolean
 ) =>
   action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, {
-    name,
+    searchType,
+    search,
     limit,
     offset,
     polling,
