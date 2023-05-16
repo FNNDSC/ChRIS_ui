@@ -7,24 +7,23 @@ type AllProps = {
   onSearch: (search: string, searchType:string) => void;
 };
 
-export enum FeedsQueryTypes{
-  ID="Id",
-  MIN_ID="Min_Id",
-  MAX_ID="Max_Id",
-  NAME="Name",
-  NAME_EXACT="Name_Exact",
-  NAME_STARTSWITH="Name_Startswith",
-  FILES_FNAME_ICONTAINS="Files_Fname_Icontains",
-  MIN_CREATION_DATE="Min_Creation_Date",
-  MAX_CREATION_DATE="Max_Creation_Date"
-
-}
+ const FeedsQueryTypes = {
+  ID: ["Id", "Match feed id exactly with this number"],
+  MIN_ID:["Min_Id", "Match feed id greater than this number"],
+  MAX_ID: ["Max_Id", "Match feed id less than this number"],
+  NAME: ["Name", "Match feed name containing this string"],
+  NAME_EXACT: ["Name_Exact","Match feed name exactly with this string"] ,
+  NAME_STARTSWITH:["Name_Startswith", "Match feed name starting with this string "],
+  FILES_FNAME_ICONTAINS:["Files_Fname_Icontains", "Match the feeds that have files containing all the substrings from the queried string"],
+  MIN_CREATION_DATE:["Min_Creation_Date", "Match feed creation date greater than this date"],
+  MAX_CREATION_DATE:["Max_Creation_Date", "match feed creation date less than this date"]
+  }
 
 const DataTableToolbar: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
   const [value, setValue] = useState("");
-  const [dropdownValue, setDropdownValue] = React.useState<string>( FeedsQueryTypes.NAME)
+  const [dropdownValue, setDropdownValue] = React.useState<string>( FeedsQueryTypes.NAME[0])
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   const onToggle = (isDropdownOpen: boolean) => {
@@ -47,8 +46,8 @@ const DataTableToolbar: React.FunctionComponent<AllProps> = (
    }
 
   const dropdownItems = Object.values(FeedsQueryTypes).map((feed) => {
-    return<DropdownItem key={feed} component="button" onClick={() => updateDropdownValue(feed)}>
-    {feed}
+    return<DropdownItem key={feed[0]} component="button" description={feed[1]} onClick={() => updateDropdownValue(feed[0])}>
+    {feed[0]}
    </DropdownItem>
   })
    return (
