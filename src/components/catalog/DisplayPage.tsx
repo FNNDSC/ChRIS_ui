@@ -13,26 +13,26 @@ import { EmptyStateTable } from "../common/emptyTable";
 import Moment from "react-moment";
 import { SpinContainer } from "../common/loading/LoadingContent";
 import "./DisplayPage.scss";
-export enum ComputeQueryTypes{
-  ID="Id",
-  NAME="Name",
-  NAME_EXACT="Name_Exact",
-  DESCRIPTION="Description",
-  PLUGIN_ID="Plugin_id"
+export const ComputeQueryTypes = {
+  ID: ["Id", "Match file id exactly with this number"],
+  NAME: ["Name", "Match compute resource's name containing this string"],
+  NAME_EXACT: ["Name_Exact", "Match compute resource's name containing this string"],
+  DESCRIPTION: ["Description", "Match compute resource's description containing this string"],
+  PLUGIN_ID: ["Plugin_id", "Match plugin id exactly with this string for all the compute resources associated with the plugin"]
 }
 
-export enum PluginQueryTypes {
-  NAME="Name",
-  ID="Id",
-  NAME_EXACT="Name_Exact",
-  TITLE= "Title",
-  CATEGORY = "Category",
-  TYPE = "Type",
-  AUTHORS = "Authors",
-  MIN_CREATION_DATE = "Min_Creation_Date",
-  Max_CREATION_DATE = "Max_Creation_Date",
-  NAME_TITLE_CATEGORY= "Name_Title_Category",
-  NAME_AUTHORS_CATEGORY="Name_Authors_Category"
+export const PluginQueryTypes = {
+  NAME:["Name", "Match plugin meta name containing this string"],
+  ID:["Id", "Match plugin meta id exactly with this number" ],
+  NAME_EXACT:["Exact Name", "Match plugin meta name exactly this string"],
+  TITLE: ["Title", "Match plugin meta title containing this string"],
+  CATEGORY:["Category", "Match plugin meta category exactly with this string"],
+  TYPE:["Type", "Match plugin meta type exactly with this string"],
+  AUTHORS: ["Authors", "Match plugin meta authors containing this string"],
+  MIN_CREATION_DATE: ["Min_Creation_Date", "Match plugin meta creation date greater than this date"],
+  Max_CREATION_DATE: ["Max_Creation_Date", "Match plugin meta creation date less than this date"],
+  NAME_TITLE_CATEGORY: ["Name_Title_Category", "Match plugin meta name, title or category containing this string"],
+  NAME_AUTHORS_CATEGORY:["Name_Authors_Category ", "Match plugin meta name, authors or category containing this string"]
 }
 interface PageState {
   perPage: number;
@@ -74,7 +74,7 @@ const DisplayPage = ({
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const isPlugin = title === "Plugins" ? true : false;
   const isCompute = title === "Compute" ? true : false;
-  const [dropdownValue, setDropdownValue] = React.useState<string>(isPlugin? PluginQueryTypes.NAME_TITLE_CATEGORY: ComputeQueryTypes.NAME )
+  const [dropdownValue, setDropdownValue] = React.useState<string>(isPlugin? PluginQueryTypes.NAME_TITLE_CATEGORY[0]: ComputeQueryTypes.NAME[0] )
 
 
   const isValid = (date: any) => {
@@ -103,15 +103,15 @@ const DisplayPage = ({
     }
    }
   const dropdownItems = isPlugin?[
-    Object.values(PluginQueryTypes).map((Plugin) => {
-      return<DropdownItem key={Plugin} component="button" onClick={() => updateDropdownValue(Plugin)}>
-      {Plugin}
+    Object.values(PluginQueryTypes).map((plugin) => {
+      return<DropdownItem key={plugin[0]} component="button" description={plugin[1]} onClick={() => updateDropdownValue(plugin[0])}>
+      {plugin[0]}
      </DropdownItem>
     })
   ]: [
-    Object.values(ComputeQueryTypes).map((Compute) => {
-      return<DropdownItem key={Compute} component="button" onClick={() => updateDropdownValue(Compute)}>
-      {Compute}
+    Object.values(ComputeQueryTypes).map((compute) => {
+      return<DropdownItem key={compute[0]} component="button" description={compute[1]} onClick={() => updateDropdownValue(compute[0])}>
+      {compute[0]}
      </DropdownItem>
     })
   ]

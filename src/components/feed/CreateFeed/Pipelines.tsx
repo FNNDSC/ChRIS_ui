@@ -31,13 +31,15 @@ import { PipelinesProps } from "./types/pipeline";
 import { SpinContainer } from "../../common/loading/LoadingContent";
 import ReactJson from "react-json-view";
 import { Pipeline } from "@fnndsc/chrisapi";
-export enum PIPELINEQueryTypes {
-  NAME="Name",
-  ID="Id",
-  OWNER_USERNAME="Owner_Username",
-  CATEGORY="Category",
-  DESCRIPTION="Description",
-  AUTHORS="Authors",
+export const PIPELINEQueryTypes = {
+  NAME: ["Name", "Match plugin name containing this string"],
+  ID: ["Id", "Match plugin id exactly with this number"],
+  OWNER_USERNAME: ["Owner_Username", "Match pipeline's owner username exactly with this string"],
+  CATEGORY: ["Category", "Match plugin category containing this string"],
+  DESCRIPTION: ["Description", "Match plugin description containing this string"],
+  AUTHORS: ["Authors", "Match plugin authors containing this string"],
+  MIN_CREATION_DATE: ["Min_creation_date", "Match plugin creation date greater than this date"],
+  MAX_CREATION_DATE: ["Max_creation_date", "Match plugin creation date lte this date"]
 }
 const Pipelines = ({
   justDisplay,
@@ -71,7 +73,7 @@ const Pipelines = ({
   const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
   const { page, perPage, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-  const [dropdownValue, setDropdownValue] = React.useState<PIPELINEQueryTypes>(PIPELINEQueryTypes.NAME)
+  const [dropdownValue, setDropdownValue] = React.useState<string>(PIPELINEQueryTypes.NAME[0])
 
 
   const handleDispatchWrap = React.useCallback(
@@ -269,15 +271,15 @@ const Pipelines = ({
     onFocus();
   };
 
-  const updateDropdownValue =(type:PIPELINEQueryTypes)=>{
+  const updateDropdownValue =(type:string)=>{
    setDropdownValue(type)
    handlePipelineSearch("")
   }
 
   const dropdownItems = [
-    Object.values(PIPELINEQueryTypes).map((Pipeline) => {
-      return<DropdownItem key={Pipeline} component="button" onClick={() => updateDropdownValue(Pipeline)}>
-      {Pipeline}
+    Object.values(PIPELINEQueryTypes).map((pipeline) => {
+      return<DropdownItem key={pipeline[0]} description={pipeline[1]} component="button" onClick={() => updateDropdownValue(pipeline[0])}>
+      {pipeline[0]}
      </DropdownItem>
     })
   ];
@@ -312,7 +314,7 @@ const Pipelines = ({
             iconVariant="search"
             aria-label="search"
             onChange={(value: string) => {
-              handlePipelineSearch && handlePipelineSearch(value);
+              handlePipelineSearch && handlePipelineSearch(value.toLowerCase());
             }}
           />
         </div>
