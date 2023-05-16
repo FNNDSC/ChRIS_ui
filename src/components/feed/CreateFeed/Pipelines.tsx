@@ -32,12 +32,12 @@ import { SpinContainer } from "../../common/loading/LoadingContent";
 import ReactJson from "react-json-view";
 import { Pipeline } from "@fnndsc/chrisapi";
 export enum PIPELINEQueryTypes {
-  NAME,
-  ID,
-  OWNER_USERNAME,
-  CATEGORY,
-  DESCRIPTION,
-  AUTHORS
+  NAME="Name",
+  ID="Id",
+  OWNER_USERNAME="Owner_Username",
+  CATEGORY="Category",
+  DESCRIPTION="Description",
+  AUTHORS="Authors",
 }
 const Pipelines = ({
   justDisplay,
@@ -94,30 +94,9 @@ const Pipelines = ({
         loading: true,
       };
     });
-     const searchTypeFN = () =>{
-       switch(dropdownValue){
-        case PIPELINEQueryTypes.NAME:
-          return "name"
-        break;
-        case  PIPELINEQueryTypes.ID:
-          return "id"
-        break;
-        case PIPELINEQueryTypes.DESCRIPTION:
-          return "description"
-        break;
-        case PIPELINEQueryTypes.AUTHORS:
-          return "authors"
-        break;
-        case PIPELINEQueryTypes.OWNER_USERNAME:
-          return "owner_username"
-        break;
-        case PIPELINEQueryTypes.CATEGORY:
-          return "category"
-          break;
-       }
-    }
-    const searchType = searchTypeFN()
-    fetchPipelines(perPage, page, search, searchType).then((result: any) => {
+
+
+    fetchPipelines(perPage, page, search, dropdownValue.toLowerCase()).then((result: any) => {
       const { registeredPipelines, registeredPipelinesList, errorPayload } =
         result;
 
@@ -275,28 +254,6 @@ const Pipelines = ({
     };
   }, [handleBrowserKeyDown]);
 
-  const __queryType = (type: PIPELINEQueryTypes) => {
-    switch (type) {
-      case PIPELINEQueryTypes.NAME:
-        return "Pipeline Name";
-        break;
-      case PIPELINEQueryTypes.ID:
-        return "Pipeline Id";
-        break;
-      case PIPELINEQueryTypes.OWNER_USERNAME:
-        return "Owner Username";
-        break;
-      case PIPELINEQueryTypes.CATEGORY:
-        return "Pipeline Category"
-        break;
-      case PIPELINEQueryTypes.DESCRIPTION:
-        return "Pipeline Description"
-        break;
-      case PIPELINEQueryTypes.AUTHORS:
-        return "Pipeline Authors"
-        break;
-    }
-  };
 
   const onToggle = (isDropdownOpen: boolean) => {
     setIsDropdownOpen(isDropdownOpen);
@@ -318,27 +275,12 @@ const Pipelines = ({
   }
 
   const dropdownItems = [
-    <DropdownItem key="name" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.NAME)}>
-      {__queryType(PIPELINEQueryTypes.NAME)}
-    </DropdownItem>,
-    <DropdownItem key="category" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.CATEGORY)}>
-      {__queryType(PIPELINEQueryTypes.CATEGORY)}
-    </DropdownItem>,
-    <DropdownItem key="description" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.DESCRIPTION)} >
-      {__queryType(PIPELINEQueryTypes.DESCRIPTION)}
-    </DropdownItem>,
-    <DropdownItem key="authors" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.AUTHORS)} >
-      {__queryType(PIPELINEQueryTypes.AUTHORS)}
-    </DropdownItem>,
-    <DropdownItem key="id" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.ID)} >
-      {__queryType(PIPELINEQueryTypes.ID)}
-    </DropdownItem>,
-    <DropdownItem key="owner_username" component="button" onClick={() => updateDropdownValue(PIPELINEQueryTypes.OWNER_USERNAME)} >
-      {__queryType(PIPELINEQueryTypes.OWNER_USERNAME)}
-    </DropdownItem>
+    Object.values(PIPELINEQueryTypes).map((Pipeline) => {
+      return<DropdownItem key={Pipeline} component="button" onClick={() => updateDropdownValue(Pipeline)}>
+      {Pipeline}
+     </DropdownItem>
+    })
   ];
-
-  
 
   return (
     <>
@@ -351,10 +293,10 @@ const Pipelines = ({
               <DropdownToggle id="toggle-basic" onToggle={onToggle}>
                 <div style={{ textAlign: "left", padding: "0 0.5em" }}>
                   <div style={{ fontSize: "smaller", color: "gray" }}>
-                    Search By
+                    Search Pipeline By
                   </div>
                   <div style={{ fontWeight: 600 }}>
-                    {__queryType(dropdownValue)}
+                    {dropdownValue}
                   </div>
                 </div>
               </DropdownToggle>
@@ -366,7 +308,7 @@ const Pipelines = ({
             value={pageState.search}
             type="text"
             style={{height:"100%"}}
-            placeholder={__queryType(dropdownValue)}
+            placeholder={dropdownValue}
             iconVariant="search"
             aria-label="search"
             onChange={(value: string) => {

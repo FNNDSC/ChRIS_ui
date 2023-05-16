@@ -1,6 +1,6 @@
 import React from "react";
 import { PluginMeta } from "@fnndsc/chrisapi";
-import { Pagination, Grid, TextInput, GridItem } from "@patternfly/react-core";
+import { Pagination, Grid, TextInput, GridItem, Dropdown, DropdownToggle, DropdownItem } from "@patternfly/react-core";
 import {
   Badge,
   Card,
@@ -13,7 +13,27 @@ import { EmptyStateTable } from "../common/emptyTable";
 import Moment from "react-moment";
 import { SpinContainer } from "../common/loading/LoadingContent";
 import "./DisplayPage.scss";
+export enum ComputeQueryTypes{
+  ID="Id",
+  NAME="Name",
+  NAME_EXACT="Name_Exact",
+  DESCRIPTION="Description",
+  PLUGIN_ID="Plugin_id"
+}
 
+export enum PluginQueryTypes {
+  NAME="Name",
+  ID="Id",
+  NAME_EXACT="Name_Exact",
+  TITLE= "Title",
+  CATEGORY = "Category",
+  TYPE = "Type",
+  AUTHORS = "Authors",
+  MIN_CREATION_DATE = "Min_Creation_Date",
+  Max_CREATION_DATE = "Max_Creation_Date",
+  NAME_TITLE_CATEGORY= "Name_Title_Category",
+  NAME_AUTHORS_CATEGORY="Name_Authors_Category"
+}
 interface PageState {
   perPage: number;
   page: number;
@@ -32,9 +52,9 @@ interface DisplayPageInterface {
   setSelectedResource: (resource: any) => void;
   title: string;
   showPipelineButton?: boolean;
-  handlePluginSearch?: (search: string) => void;
+  handlePluginSearch?: (search: string, searchType:string) => void;
   handlePipelineSearch?: (search: string) => void;
-  handleComputeSearch?: (search: string) => void;
+  handleComputeSearch?: (search: string, searchType:string) => void;
   pluginNavigate?: (item: PluginMeta) => void;
   search: string;
 }
@@ -51,11 +71,50 @@ const DisplayPage = ({
   search,
 }: DisplayPageInterface) => {
   const { perPage, page, itemCount } = pageState;
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const isPlugin = title === "Plugins" ? true : false;
   const isCompute = title === "Compute" ? true : false;
+  const [dropdownValue, setDropdownValue] = React.useState<string>(isPlugin? PluginQueryTypes.NAME_TITLE_CATEGORY: ComputeQueryTypes.NAME )
+
+
   const isValid = (date: any) => {
     return new Date(date).toDateString() !== "Invalid Date";
   };
+
+  const onToggle = (isDropdownOpen: boolean) => {
+    setIsDropdownOpen(isDropdownOpen);
+  };
+  const onFocus = () => {
+    const element = document.getElementById('toggle-basic');
+    element?.focus();
+  };
+
+  const onSelect = () => {
+    setIsDropdownOpen(false);
+    onFocus();
+  };
+
+  const updateDropdownValue =(type:string)=>{
+    setDropdownValue(type)
+    if(isPlugin){
+      handlePluginSearch && handlePluginSearch("", dropdownValue.toLowerCase())
+    }else{
+      handleComputeSearch && handleComputeSearch("", dropdownValue.toLowerCase())
+    }
+   }
+  const dropdownItems = isPlugin?[
+    Object.values(PluginQueryTypes).map((Plugin) => {
+      return<DropdownItem key={Plugin} component="button" onClick={() => updateDropdownValue(Plugin)}>
+      {Plugin}
+     </DropdownItem>
+    })
+  ]: [
+    Object.values(ComputeQueryTypes).map((Compute) => {
+      return<DropdownItem key={Compute} component="button" onClick={() => updateDropdownValue(Compute)}>
+      {Compute}
+     </DropdownItem>
+    })
+  ]
 
   const loadingPluginMeta =
     resources && resources.length > 0 ? (
@@ -149,32 +208,41 @@ const DisplayPage = ({
   const content = (
     <Grid hasGutter={true}>
       <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0.8rem 0rem",
-        }}
+        style={
+          { display: "flex", justifyContent: "space-between", padding: "0.8rem 0rem" }}
       >
-        <div
-          style={{
-            display: "flex",
-            gap: "1rem",
-          }}
-        >
+         <div style={{ display: "flex", flexDirection: "row" }}>
+          <Dropdown
+            onSelect={onSelect}
+            toggle={
+              <DropdownToggle id="toggle-basic" onToggle={onToggle}>
+                <div style={{ textAlign: "left", padding: "0 0.5em" }}>
+                  <div style={{ fontSize: "smaller", color: "gray" }}>
+                    {isPlugin? "Search Plugin By": "Search Compute By"}
+                  </div>
+                  <div style={{ fontWeight: 600 }}>
+                    {(dropdownValue)}
+                  </div>
+                </div>
+              </DropdownToggle>
+            }
+            isOpen={isDropdownOpen}
+            dropdownItems={dropdownItems}
+          />
           <TextInput
             value={search}
             type="text"
-            placeholder="Search"
+            style={{height:"100%"}}
+            placeholder={(dropdownValue)}
             iconVariant="search"
             aria-label="search"
             onChange={(value: string) => {
               if (isPlugin) {
-                handlePluginSearch && handlePluginSearch(value);
+                handlePluginSearch && handlePluginSearch(value, dropdownValue.toLowerCase());
               }
 
               if (isCompute) {
-                handleComputeSearch && handleComputeSearch(value);
+                handleComputeSearch && handleComputeSearch(value, dropdownValue.toLowerCase());
               }
             }}
           />

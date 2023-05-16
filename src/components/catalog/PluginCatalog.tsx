@@ -2,18 +2,31 @@ import React, { useEffect } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { PluginMeta } from "@fnndsc/chrisapi";
 import DisplayPage from "./DisplayPage";
-
+export enum PluginQueryTypes {
+  NAME="name",
+  ID="id",
+  NAME_EXACT="Exact Name",
+  TITLE= "Title",
+  CATEGORY = "Category",
+  TYPE = "Type",
+  AUTHORS = "Authors",
+  MIN_CREATION_DATE = "Min Creation Date",
+  Max_CREATION_DATE = "Max Creation Date",
+  NAME_TITLE_CATEGORY= "Name and Title and Category",
+  NAME_AUTHORS_CATEGORY="Name and Authors and Category "
+}
 const PluginCatalog = () => {
   const [plugins, setPlugins] = React.useState<any>();
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
     search: "",
+    searchType:"name_title_category",
     itemCount: 0,
   });
   const [loading, setLoading] = React.useState(false);
 
-  const { page, perPage, search } = pageState;
+  const { page, perPage, search, searchType } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
 
   const onSetPage = (_event: any, page: number) => {
@@ -36,13 +49,13 @@ const PluginCatalog = () => {
     });
   };
   useEffect(() => {
-    async function fetchPlugins(perPage: number, page: number, search: string) {
+    async function fetchPlugins(perPage: number, page: number, search: string, searchType:string) {
       setLoading(true);
       const offset = perPage * (page - 1);
       const params = {
         limit: perPage,
         offset: offset,
-        name_title_category: search,
+        [searchType]: search,
       };
       const client = ChrisAPIClient.getClient();
       const pluginList = await client.getPluginMetas(params);
@@ -76,15 +89,17 @@ const PluginCatalog = () => {
       }
     }
 
-    fetchPlugins(perPage, page, search);
-  }, [perPage, page, search]);
+    fetchPlugins(perPage, page, search, searchType);
+  }, [perPage, page, search, searchType]);
 
-  const handleSearch = (search: string) => {
+  const handleSearch = (search: string, searchType:string) => {
     setPageState({
       ...pageState,
       search,
+      searchType
     });
   };
+
 
   return (
     <>
