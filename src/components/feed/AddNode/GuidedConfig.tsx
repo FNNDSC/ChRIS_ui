@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import {
   ClipboardCopy,
   Dropdown,
@@ -10,6 +10,9 @@ import {
   Grid,
   GridItem,
   Tooltip,
+  Form,
+  FormGroup,
+  TextInput,
 } from "@patternfly/react-core";
 import { PluginInstance, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
@@ -28,12 +31,31 @@ import { fetchResource } from "../../../api/common";
 import { Button } from "antd";
 import { LoadingErrorAlert } from "../../common/errorHandling";
 
+const advancedConfigList = [
+  {
+    name: "cpu_limit",
+    helper_text: "A valid integer is required",
+  },
+  {
+    name: "memory_limit",
+    helper_text:
+      "The format of the input should be '<i>X</i> Mi' or '<i>X</i> Gi' where <i>'X'</i> is an integer",
+  },
+  {
+    name: "gpu_limit",
+    helper_text: "A valid integer is required",
+  },
+];
+
+const memory_limit = ["Mi", "Gi"];
+
 const GuidedConfig = () => {
   const dispatch = useDispatch();
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const params = useTypedSelector((state) => state.plugin.parameters);
   const { pluginMeta, dropdownInput, requiredInput, componentList, errors } =
     state;
+
   const [plugins, setPlugins] = React.useState<Plugin[]>();
   useEffect(() => {
     const fetchPluginVersions = async () => {
@@ -167,7 +189,11 @@ const GuidedConfig = () => {
         <>
           <div>
             <span>
-              Required Parameters <ItalicsComponent length={requiredLength} isRequiredParam={true} />
+              Required Parameters{" "}
+              <ItalicsComponent
+                length={requiredLength}
+                isRequiredParam={true}
+              />
             </span>
             {params &&
               params["required"].length > 0 &&
@@ -175,13 +201,18 @@ const GuidedConfig = () => {
           </div>
           <div>
             <span>
-              Optional Parameters <ItalicsComponent length={dropdownLength} isRequiredParam={false} />
+              Optional Parameters{" "}
+              <ItalicsComponent
+                length={dropdownLength}
+                isRequiredParam={false}
+              />
             </span>
 
             {renderDropdowns()}
           </div>
         </>
       </CardComponent>
+      <AdvancedConfiguration />
 
       {errors && <LoadingErrorAlert error={errors} />}
     </div>
@@ -231,11 +262,11 @@ const CheckboxComponent = () => {
         params["required"].reduce((acc, param) => {
           return {
             ...acc,
-            [param.data.name]: [param.data.id, param.data.flag ],
+            [param.data.name]: [param.data.id, param.data.flag],
           };
         }, {});
 
-        const paramsDropdownFetched:
+      const paramsDropdownFetched:
         | {
             [key: string]: string;
           }
@@ -244,7 +275,7 @@ const CheckboxComponent = () => {
         params["dropdown"].reduce((acc, param) => {
           return {
             ...acc,
-            [param.data.name]:  param.data.flag,
+            [param.data.name]: param.data.flag,
           };
         }, {});
 
@@ -259,7 +290,7 @@ const CheckboxComponent = () => {
             type,
             placeholder: "",
           };
-        } else if(paramsDropdownFetched){
+        } else if (paramsDropdownFetched) {
           const flag = paramsDropdownFetched[param_name];
           dropdownInput[v4()] = {
             value,
@@ -323,7 +354,13 @@ const CheckboxComponent = () => {
   );
 };
 
-const ItalicsComponent = ({ length, isRequiredParam }: { length?: number, isRequiredParam:boolean }) => {
+const ItalicsComponent = ({
+  length,
+  isRequiredParam,
+}: {
+  length?: number;
+  isRequiredParam: boolean;
+}) => {
   return (
     <i
       style={{
@@ -332,9 +369,13 @@ const ItalicsComponent = ({ length, isRequiredParam }: { length?: number, isRequ
       }}
     >
       (
-      {`${length && length > 0 ? length : isRequiredParam? "No required": "No optional"}${
-        length === 1 ? " parameter" : " parameters"
-      }`}
+      {`${
+        length && length > 0
+          ? length
+          : isRequiredParam
+          ? "No required"
+          : "No optional"
+      }${length === 1 ? " parameter" : " parameters"}`}
       )
     </i>
   );
@@ -504,5 +545,106 @@ const EditorValue = ({
         </GridItem>
       </Grid>
     </div>
+  );
+};
+
+const AdvancedConfiguration = () => {
+  const { state, dispatch } = useContext(AddNodeContext);
+  const [isOpen, setIsOpen] = useState(false);
+  const { errors, advancedConfig, memoryLimit } = state;
+
+  const onToggle = (isOpen: boolean) => {
+    setIsOpen(isOpen);
+  };
+
+  const onFocus = () => {
+    const element = document.getElementById("memory-limit");
+    element && element.focus();
+  };
+
+  const onSelect = () => {
+    setIsOpen(false);
+    onFocus();
+  };
+  const dropdownItems = memory_limit.map((unit) => {
+    return (
+      <DropdownItem
+        onClick={() => {
+          dispatch({
+            type: Types.MemoryLimitUnit,
+            payload: {
+              value: unit,
+            },
+          });
+        }}
+        key={unit}
+      >
+        {unit}
+      </DropdownItem>
+    );
+  });
+
+  return (
+    <CardComponent>
+      <>
+        <div>Advanced Configuration:</div>{" "}
+        {advancedConfigList.map((config) => {
+          return (
+            <Form
+              key={config.name}
+              onSubmit={(event: any) => {
+                event.preventDefault();
+              }}
+              className="required-params"
+              isHorizontal
+              aria-invalid={errors && errors[config.name] ? "true" : "false"}
+            >
+              <FormGroup
+                helperText={
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: `${config.helper_text}`,
+                    }}
+                  />
+                }
+                style={{ width: "100%" }}
+                label={`${config.name}:`}
+              >
+                <TextInput
+                  type="text"
+                  className="required-params__textInput"
+                  aria-label="advanced configuration"
+                  value={advancedConfig[config.name]}
+                  validated={
+                    errors && errors[config.name] ? "error" : "default"
+                  }
+                  onChange={(value: string) => {
+                    dispatch({
+                      type: Types.AdvancedConfiguration,
+                      payload: {
+                        key: config.name,
+                        value,
+                      },
+                    });
+                  }}
+                />
+                {config.name === "memory_limit" && (
+                  <Dropdown
+                    toggle={
+                      <DropdownToggle id="memory-limit" onToggle={onToggle}>
+                        {memoryLimit}
+                      </DropdownToggle>
+                    }
+                    onSelect={onSelect}
+                    isOpen={isOpen}
+                    dropdownItems={dropdownItems}
+                  />
+                )}
+              </FormGroup>
+            </Form>
+          );
+        })}
+      </>
+    </CardComponent>
   );
 };

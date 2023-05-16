@@ -146,6 +146,23 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
       };
     }
 
+    case Types.AdvancedConfiguration: {
+      return {
+        ...state,
+        advancedConfig: {
+          ...state.advancedConfig,
+          [action.payload.key]: action.payload.value,
+        },
+      };
+    }
+
+    case Types.MemoryLimitUnit: {
+      return {
+        ...state,
+        memoryLimit: action.payload.value,
+      };
+    }
+
     case Types.ResetState: {
       const newState = getInitialNodeState();
 
