@@ -11,12 +11,12 @@ import { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { ApplicationState } from "../../../store/root/applicationState";
 import { AddNodeProps } from "./types";
 import { getRequiredObject } from "../CreateFeed/utils/createFeed";
-import "./styles/AddNode.scss";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
 import { catchError } from "../../../api/common";
+import "./styles/AddNode.scss";
 
 const AddNode: React.FC<AddNodeProps> = ({
   selectedPlugin,
@@ -37,6 +37,8 @@ const AddNode: React.FC<AddNodeProps> = ({
     dropdownInput,
     requiredInput,
     selectedComputeEnv,
+    advancedConfig,
+    memoryLimit,
   } = state;
 
   const onBackStep = (newStep: {
@@ -132,6 +134,30 @@ const AddNode: React.FC<AddNodeProps> = ({
       return;
     }
 
+    const advancedConfigErrors: any = {};
+    const sanitizedInput: any = {};
+
+    for (const i in advancedConfig) {
+      const inputValue = advancedConfig[i];
+      //@ts-ignore
+      if (isNaN(1 * inputValue)) {
+        advancedConfigErrors[i] = "A valid integer is required";
+      } else {
+        if (i === "cpu_limit") {
+          //@ts-ignore
+          sanitizedInput[i] = `${inputValue * 1 * 1000}m`;
+        }
+        if (i === "memory_limit") {
+          sanitizedInput[i] = `${inputValue}${memoryLimit}`;
+        }
+      }
+    }
+
+    if (Object.keys(advancedConfigErrors).length > 0) {
+      errorCallback(advancedConfigErrors);
+      return;
+    }
+
     const { data: nodes } = pluginInstances;
 
     let parameterInput = await getRequiredObject(
@@ -145,6 +171,7 @@ const AddNode: React.FC<AddNodeProps> = ({
     parameterInput = {
       ...parameterInput,
       compute_resource_name: selectedComputeEnv,
+      ...sanitizedInput,
     };
 
     const pluginInstance = await plugin.getPluginInstances();
@@ -161,6 +188,7 @@ const AddNode: React.FC<AddNodeProps> = ({
       }
     } catch (error: any) {
       const errObj = catchError(error);
+
       nodeDispatch({
         type: Types.SetError,
         payload: {

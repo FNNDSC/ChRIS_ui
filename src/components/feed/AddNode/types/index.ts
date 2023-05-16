@@ -138,6 +138,10 @@ export interface AddNodeState extends InputState {
   pluginMetas: PluginMeta[];
   componentList: string[];
   showPreviousRun: boolean;
+  advancedConfig: {
+    [key: string]: string;
+  };
+  memoryLimit: string;
 }
 
 export enum Types {
@@ -155,6 +159,8 @@ export enum Types {
   ResetState = "RESET_STATE",
   SetShowPreviousRun = "SET_SHOW_PREVIOUS_RUN",
   SetError = "SET_ERROR",
+  AdvancedConfiguration = "ADVANCED_CONFIGURATION",
+  MemoryLimitUnit = "MemoryLimitUnit",
 }
 
 export interface AddNodeStateActions {
@@ -211,6 +217,15 @@ export interface AddNodeStateActions {
 
   [Types.SetShowPreviousRun]: {
     showPreviousRun: boolean;
+  };
+
+  [Types.AdvancedConfiguration]: {
+    key: string;
+    value: string;
+  };
+
+  [Types.MemoryLimitUnit]: {
+    value: string;
   };
 
   [Types.ResetState]: Record<string, unknown>;
