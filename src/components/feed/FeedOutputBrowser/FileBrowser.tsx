@@ -10,6 +10,7 @@ import {
   DrawerPanelContent,
   DrawerPanelBody,
 } from "@patternfly/react-core";
+import { Progress } from "antd";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { FaFileCode } from "react-icons/fa";
 import { MdFileDownload } from "react-icons/md";
@@ -47,22 +48,39 @@ const getFileName = (name: any) => {
 
 const FileBrowser = (props: FileBrowserProps) => {
   const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
+  const [status, setDownloadStatus] = React.useState<{
+    [key: string]: number;
+  }>({});
+
+  console.log("Status", status);
 
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
 
   const { files, folders, path } = pluginFilesPayload;
-  const cols = [{ title: "Name" }, { title: "Size" }, { title: "" }];
+  const cols = [
+    { title: "Name" },
+    { title: "Size" },
+    { title: "" },
+    { title: "" },
+  ];
   const items = files && folders ? [...files, ...folders] : [];
   const { id, plugin_name } = selected.data;
   const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
+
+  const downloadCallback = (fname: string, percent: number) => {
+    setDownloadStatus({
+      ...status,
+      [fname]: percent,
+    });
+  };
+
   const handleDownloadClick = async (e: React.MouseEvent, item: FeedFile) => {
     e.stopPropagation();
     if (item) {
-      const blob = await item.getFileBlob();
-      FileViewerModel.downloadFile(blob, item.data.fname);
+      FileViewerModel.downloadFile(item.data.fname, item, downloadCallback);
     }
   };
 
@@ -106,16 +124,27 @@ const FileBrowser = (props: FileBrowserProps) => {
       typeof item === "string" ? undefined : (
         <MdFileDownload
           className="download-file-icon"
-          onClick={(e: any) => handleDownloadClick(e, item)}
+          onClick={(e: any) => {
+            handleDownloadClick(e, item);
+          }}
         />
       );
+
+    const statusComponent =
+      typeof item !== "string" && item && status[item.data.fname] > 0 ? (
+        <Progress size="small" percent={status[item.data.fname]} />
+      ) : undefined;
 
     const download = {
       title: downloadComponent,
     };
 
+    const statusRow = {
+      title: statusComponent,
+    };
+
     return {
-      cells: [name, size, download],
+      cells: [name, size, download, statusRow],
     };
   };
   const rows = items.length > 0 ? items.map(generateTableRow) : [];
