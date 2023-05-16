@@ -4,6 +4,8 @@ import { ImTree } from "react-icons/im";
 import { TfiFlickr } from "react-icons/tfi";
 import { FaTerminal, FaFileImage, FaBrain } from "react-icons/fa";
 import { MdEditNote } from "react-icons/md";
+import axios from "axios";
+import ChrisAPIClient from "../chrisapiclient";
 
 export interface IFileBlob {
   blob?: Blob;
@@ -13,14 +15,67 @@ export interface IFileBlob {
 
 export default class FileViewerModel {
   // Download File Blob
-  static downloadFile(Fileblob: any, fileName: string) {
-    const url = window.URL.createObjectURL(new Blob([Fileblob]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  static async downloadFile(
+    fileName: string,
+    item?: FeedFile,
+    callback?: (fname: string, percentCompleted: number) => void
+  ) {
+    const client = ChrisAPIClient.getClient();
+    const token = client.auth.token;
+
+    const splitString = fileName.split("/");
+    const filename = splitString[splitString.length - 1];
+
+    if (item) {
+      const urlString = `${item.url}/${filename}`;
+
+      const response = await fetch(urlString, {
+        method: "get",
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
+
+      //@ts-ignore
+      const reader = response.body.getReader();
+
+      // Step 3: read the data
+      let receivedLength = 0; // received that many bytes at the moment
+      const chunks = []; // array of received binary chunks (comprises the body)
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          break;
+        }
+
+        chunks.push(value);
+        receivedLength += value.length;
+
+        const percentCompleted = Math.floor(
+          (receivedLength / item.data.fsize) * 100
+        );
+        callback && callback(item.data.fname, percentCompleted);
+      }
+
+      // Step 4: concatenate chunks into single Uint8Array
+      const chunksAll = new Uint8Array(receivedLength); // (4.1)
+      let position = 0;
+      for (const chunk of chunks) {
+        chunksAll.set(chunk, position); // (4.2)
+        position += chunk.length;
+      }
+
+      const blob = new Blob(chunks);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    }
   }
 }
 
