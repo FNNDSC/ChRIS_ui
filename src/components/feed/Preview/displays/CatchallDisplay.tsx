@@ -1,9 +1,6 @@
 import * as React from "react";
-import { FaDownload } from "react-icons/fa";
-import { Alert, Button } from "@patternfly/react-core";
-import FileViewerModel, {
-  IFileBlob,
-} from "../../../../api/models/file-viewer.model";
+import { Alert } from "@patternfly/react-core";
+import { IFileBlob } from "../../../../api/models/file-viewer.model";
 type AllProps = {
   fileItem: IFileBlob;
 };
@@ -21,23 +18,6 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
         <label>
           <b>File Type:</b> {ext}
         </label>
-        <Button
-          variant="primary"
-          className="float-right"
-          onClick={() => {
-            console.log("Test");
-            /*
-            //fileItem.file &&
-            //fileItem.file.data.fname &&
-           // FileViewerModel.downloadFile(
-            //  fileItem.blob,
-              //</React.Fragment>fileItem.file.data.fname
-            //)
-    */
-          }}
-        >
-          <FaDownload /> Download
-        </Button>
       </React.Fragment>
     );
     return (

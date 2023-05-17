@@ -23,7 +23,6 @@ import { FeedTreeProp } from "../../../store/feed/types";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import { getNodeOperations } from "../../../store/plugin/actions";
 import { switchTreeMode } from "../../../store/tsplugins/actions";
-import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 
 interface Separation {
   siblings: number;
@@ -103,7 +102,7 @@ const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
   const dispatch = useDispatch();
-  const { downloadAllClick } = useFeedBrowser();
+
   const divRef = useRef<HTMLDivElement>(null);
   const { feedTreeProp, currentLayout, searchFilter } = useTypedSelector(
     (state) => state.feed
@@ -278,10 +277,6 @@ const FeedTree = (props: AllProps) => {
 
       if (event.code === "KeyD") {
         dispatch(getNodeOperations("deleteNode"));
-      }
-
-      if (event.code === "KeyF") {
-        downloadAllClick();
       }
     });
   });
