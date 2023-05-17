@@ -1,11 +1,7 @@
 import React from "react";
 import { useTypedSelector } from "../../../store/hooks";
 import { useDispatch } from "react-redux";
-import JSZip from "jszip";
 import { getPluginFilesRequest } from "../../../store/resources/actions";
-import FileViewerModel from "../../../api/models/file-viewer.model";
-import { getPluginName } from "./utils";
-import { fetchResource } from "../../../api/common";
 import {
   handleClose,
   handleMaximize,
@@ -48,60 +44,6 @@ export const useFeedBrowser = () => {
       } else return;
     }
   });
-
-  const downloadAllClick = async () => {
-    const zip = new JSZip();
-    let count = 0;
-
-    if (selected) {
-      const params = {
-        limit: 100,
-        offset: 0,
-      };
-      const selectedNodeFn = selected.getFiles;
-      const boundFn = selectedNodeFn.bind(selected);
-      setDownload({
-        ...download,
-        fetchingFiles: true,
-      });
-      const { resource: files } = await fetchResource(params, boundFn);
-      setDownload({
-        ...download,
-        fetchingFiles: false,
-      });
-
-      if (files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-          count += 1;
-          const percentage = Math.round(
-            Number(((count / files.length) * 100).toFixed(2))
-          );
-
-          setDownload({
-            plugin_name: selected.data.plugin_name,
-            status: true,
-            count: percentage,
-            error: "",
-            fetchingFiles: false,
-          });
-          const file: any = files[i];
-          const fileBlob = await file.getFileBlob();
-          zip.file(file.data.fname, fileBlob);
-        }
-        const blob = await zip.generateAsync({ type: "blob" });
-        const filename = `${getPluginName(selected)}.zip`;
-       // FileViewerModel.downloadFile(blob, filename);
-        setDownload(getInitialDownloadState);
-      } else {
-        setDownload({
-          ...download,
-          status: false,
-          error:
-            "Files are not available for download yet. Please wait or try again later...",
-        });
-      }
-    }
-  };
 
   const finished = selected && status.includes(selected.data.status);
 
@@ -161,7 +103,6 @@ export const useFeedBrowser = () => {
 
   return {
     handleFileClick,
-    downloadAllClick,
     filesLoading,
     plugins,
     statusTitle,
