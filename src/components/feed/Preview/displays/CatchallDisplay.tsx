@@ -24,21 +24,27 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
         <Button
           variant="primary"
           className="float-right"
-          onClick={() =>
-            fileItem.file &&
-            fileItem.file.data.fname &&
-            FileViewerModel.downloadFile(
-              fileItem.blob,
-              fileItem.file.data.fname
-            )
-          }
+          onClick={() => {
+            console.log("Test");
+            /*
+            //fileItem.file &&
+            //fileItem.file.data.fname &&
+           // FileViewerModel.downloadFile(
+            //  fileItem.blob,
+              //</React.Fragment>fileItem.file.data.fname
+            //)
+    */
+          }}
         >
           <FaDownload /> Download
         </Button>
       </React.Fragment>
     );
     return (
-      <Alert variant="info" title={`No preview available for the filetype ${ext}`}>
+      <Alert
+        variant="info"
+        title={`No preview available for the filetype ${ext}`}
+      >
         {alertText}
       </Alert>
     );

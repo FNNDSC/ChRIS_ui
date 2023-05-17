@@ -90,7 +90,7 @@ export const useFeedBrowser = () => {
         }
         const blob = await zip.generateAsync({ type: "blob" });
         const filename = `${getPluginName(selected)}.zip`;
-        FileViewerModel.downloadFile(blob, filename);
+       // FileViewerModel.downloadFile(blob, filename);
         setDownload(getInitialDownloadState);
       } else {
         setDownload({
