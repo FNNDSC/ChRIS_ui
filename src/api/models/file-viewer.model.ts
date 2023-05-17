@@ -4,7 +4,6 @@ import { ImTree } from "react-icons/im";
 import { TfiFlickr } from "react-icons/tfi";
 import { FaTerminal, FaFileImage, FaBrain } from "react-icons/fa";
 import { MdEditNote } from "react-icons/md";
-import axios from "axios";
 import ChrisAPIClient from "../chrisapiclient";
 
 export interface IFileBlob {

@@ -7,14 +7,13 @@ import {
   ExpandableSection,
 } from "@patternfly/react-core";
 
-import { Progress } from "antd";
 import {
   Plugin,
   PluginInstance,
   PluginInstanceDescendantList,
   PluginParameterList,
 } from "@fnndsc/chrisapi";
-import { FaDownload, FaCalendarAlt } from "react-icons/fa";
+import { FaCalendarAlt } from "react-icons/fa";
 import AddNode from "../AddNode/AddNode";
 import DeleteNode from "../DeleteNode";
 import PluginLog from "./PluginLog";
@@ -27,7 +26,6 @@ import FeedNote from "../FeedDetails/FeedNote";
 import { useTypedSelector } from "../../../store/hooks";
 import { getErrorCodeMessage } from "./utils";
 import { SpinContainer } from "../../common/loading/LoadingContent";
-import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import { PipelineProvider } from "../CreateFeed/context";
 import { AddNodeProvider } from "../AddNode/context";
 import "./NodeDetails.scss";
@@ -53,7 +51,6 @@ const NodeDetails: React.FC = () => {
   );
   const drawerState = useTypedSelector((state) => state.drawers);
 
-  const { download, downloadAllClick } = useFeedBrowser();
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
@@ -233,21 +230,6 @@ const NodeDetails: React.FC = () => {
                     <AddPipeline />
                   </PipelineProvider>
                 </RenderButtonGridItem>
-
-                <RenderButtonGridItem>
-                  <Button onClick={downloadAllClick} icon={<FaDownload />}>
-                    Download Files{" "}
-                    <span
-                      style={{
-                        padding: "2px",
-                        color: "#F5F5DC",
-                        fontSize: "11px",
-                      }}
-                    >
-                      ( F )
-                    </span>
-                  </Button>
-                </RenderButtonGridItem>
               </Grid>
 
               <Grid hasGutter={true}>
@@ -262,24 +244,6 @@ const NodeDetails: React.FC = () => {
                 )}
               </Grid>
             </Grid>
-            {download.status && (
-              <>
-                <div style={{ width: 170, marginTop: "1.25em" }}>
-                  <Progress percent={download.count} size="small" />
-                </div>
-                <span>
-                  Fetching and Zipping files for {download.plugin_name}{" "}
-                </span>
-              </>
-            )}
-            <div style={{ marginTop: "1.25em" }}>
-              {download.fetchingFiles && (
-                <span>Fetching file list meta data</span>
-              )}
-            </div>
-            <div style={{ marginTop: "1.25em" }}>
-              {download.error && download.error}
-            </div>
           </>
         )}
       </div>
