@@ -24,3 +24,4 @@ declare module "typesafe-actions";
 declare module "chris-utility";
 declare module "rusha";
 declare module "antd";
+declare module "file-saver";
