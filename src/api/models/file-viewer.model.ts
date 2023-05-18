@@ -58,7 +58,7 @@ export default class FileViewerModel {
     notification.info({
       message: `Cancelling download for ${filename}`,
       description: `Total jobs ${this.itemsToDownload.length}`,
-      duration: 2
+      duration: 2,
     });
   }
 
@@ -83,10 +83,6 @@ export default class FileViewerModel {
       },
       signal,
     });
-
-    if (signal.aborted) {
-      console.log("Download cancelled ?")
-    }
 
     const response = await downloadPromise;
     //@ts-ignore
@@ -122,14 +118,7 @@ export default class FileViewerModel {
       callback(this.downloadStatus);
     }
 
-    // Step 4: concatenate chunks into single Uint8Array
-    const chunksAll = new Uint8Array(receivedLength); // (4.1)
-    let position = 0;
-    for (const chunk of chunks) {
-      chunksAll.set(chunk, position); // (4.2)
-      position += chunk.length;
-    }
-
+  
     const blob = new Blob(chunks);
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
