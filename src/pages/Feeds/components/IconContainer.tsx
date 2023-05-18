@@ -10,7 +10,7 @@ import {
   TextInput,
   Button,
 } from "@patternfly/react-core";
-import { FaTrash, FaDownload } from "react-icons/fa";
+import { FaTrash, FaFileArchive } from "react-icons/fa";
 import { VscMerge } from "react-icons/vsc";
 import { MdCallSplit, MdIosShare } from "react-icons/md";
 import { useDispatch } from "react-redux";
@@ -267,7 +267,7 @@ export default IconContainer;
 const actionMap: {
   [key: string]: ReactElement;
 } = {
-  download: <FaDownload />,
+  download: <FaFileArchive />,
   merge: <VscMerge />,
   duplicate: <MdCallSplit />,
   share: <MdIosShare />,
