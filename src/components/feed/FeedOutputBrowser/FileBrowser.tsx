@@ -19,6 +19,7 @@ import {
   AiFillFileText,
   AiFillFile,
   AiFillFolder,
+  AiOutlineClose,
 } from "react-icons/ai";
 import FileDetailView from "../Preview/FileDetailView";
 import FileViewerModel from "../../../api/models/file-viewer.model";
@@ -41,6 +42,7 @@ import {
 } from "../../common/button";
 import { setFilePreviewPanel } from "../../../store/drawer/actions";
 import XtkViewer from "../../detailedView/displays/XtkViewer/XtkViewer";
+import { notification } from "antd";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -68,17 +70,12 @@ const FileBrowser = (props: FileBrowserProps) => {
   const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
-  const downloadCallback = (fname: string, percent: number) => {
-    setDownloadStatus({
-      ...status,
-      [fname]: percent,
-    });
-  };
-
   const handleDownloadClick = async (e: React.MouseEvent, item: FeedFile) => {
     e.stopPropagation();
     if (item) {
-      FileViewerModel.downloadFile(item.data.fname, item, downloadCallback);
+      FileViewerModel.startDownload(item, notification, (status: any) => {
+        setDownloadStatus(status);
+      });
     }
   };
 
@@ -130,7 +127,25 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     const statusComponent =
       typeof item !== "string" && item && status[item.data.fname] > 0 ? (
-        <Progress size="small" percent={status[item.data.fname]} />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Progress size="small" percent={status[item.data.fname]} />
+          <AiOutlineClose
+            style={{
+              color: "red",
+            }}
+            onClick={(event) => {
+              event.stopPropagation();
+              FileViewerModel.abortControllers[item.data.fname].abort();
+              FileViewerModel.removeJobs(item, notification);
+            }}
+          />
+        </div>
       ) : undefined;
 
     const download = {
