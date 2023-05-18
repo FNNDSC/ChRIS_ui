@@ -13,68 +13,133 @@ export interface IFileBlob {
 }
 
 export default class FileViewerModel {
+  static downloadStatus: any = {};
+  static itemsToDownload: FeedFile[] = [];
+  static abortControllers: any = {};
+
+  static getFileName(item: FeedFile) {
+    const splitString = item.data.fname.split("/");
+    const filename = splitString[splitString.length - 1];
+    return filename;
+  }
+
+  static startDownload(
+    item: FeedFile,
+    notification: any,
+    callback: (status: any) => void
+  ) {
+    const findItem = this.itemsToDownload.find(
+      (currentItem) => currentItem.data.fname === item.data.fname
+    );
+
+    const filename = this.getFileName(item);
+    const urlString = `${item.url}${filename}`;
+
+    if (!findItem) {
+      this.itemsToDownload.push(item);
+      notification.info({
+        message: `Preparing ${filename} for download.`,
+        description: `Total Jobs (${this.itemsToDownload.length})`,
+      });
+      this.downloadFile(item, urlString, filename, notification, callback);
+    }
+  }
+
+  static removeJobs(item: FeedFile, notification: any) {
+    const index = this.itemsToDownload.indexOf(item);
+    if (index > -1) {
+      // only splice array when item is found
+      this.itemsToDownload.splice(index, 1); // 2nd parameter means remove one item only
+    }
+
+    delete this.downloadStatus[item.data.fname];
+    delete this.abortControllers[item.data.fname];
+    const filename = this.getFileName(item);
+    notification.info({
+      message: `Cancelling download for ${filename}`,
+      description: `Total jobs ${this.itemsToDownload.length}`,
+      duration: 2
+    });
+  }
+
   // Download File Blob
   static async downloadFile(
-    fileName: string,
-    item?: FeedFile,
-    callback?: (fname: string, percentCompleted: number) => void
+    item: FeedFile,
+    urlString: string,
+    filename: string,
+    notification: any,
+    callback: (status: any) => void
   ) {
     const client = ChrisAPIClient.getClient();
     const token = client.auth.token;
 
-    const splitString = fileName.split("/");
-    const filename = splitString[splitString.length - 1];
+    const controller = new AbortController();
+    const { signal } = controller;
 
-    if (item) {
-      const urlString = `${item.url}/${filename}`;
+    const downloadPromise = fetch(urlString, {
+      method: "get",
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      signal,
+    });
 
-      const response = await fetch(urlString, {
-        method: "get",
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
-
-      //@ts-ignore
-      const reader = response.body.getReader();
-
-      // Step 3: read the data
-      let receivedLength = 0; // received that many bytes at the moment
-      const chunks = []; // array of received binary chunks (comprises the body)
-      while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-          break;
-        }
-
-        chunks.push(value);
-        receivedLength += value.length;
-
-        const percentCompleted = Math.floor(
-          (receivedLength / item.data.fsize) * 100
-        );
-        callback && callback(item.data.fname, percentCompleted);
-      }
-
-      // Step 4: concatenate chunks into single Uint8Array
-      const chunksAll = new Uint8Array(receivedLength); // (4.1)
-      let position = 0;
-      for (const chunk of chunks) {
-        chunksAll.set(chunk, position); // (4.2)
-        position += chunk.length;
-      }
-
-      const blob = new Blob(chunks);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
+    if (signal.aborted) {
+      console.log("Download cancelled ?")
     }
+
+    const response = await downloadPromise;
+    //@ts-ignore
+    const reader = response.body.getReader();
+
+    // Step 3: read the data
+    let receivedLength = 0; // received that many bytes at the moment
+    const chunks = []; // array of received binary chunks (comprises the body)
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        break;
+      }
+
+      chunks.push(value);
+      receivedLength += value.length;
+
+      const percentCompleted = Math.floor(
+        (receivedLength / item.data.fsize) * 100
+      );
+
+      this.downloadStatus = {
+        ...this.downloadStatus,
+        [item.data.fname]: percentCompleted,
+      };
+
+      this.abortControllers = {
+        ...this.abortControllers,
+        [item.data.fname]: controller,
+      };
+
+      callback(this.downloadStatus);
+    }
+
+    // Step 4: concatenate chunks into single Uint8Array
+    const chunksAll = new Uint8Array(receivedLength); // (4.1)
+    let position = 0;
+    for (const chunk of chunks) {
+      chunksAll.set(chunk, position); // (4.2)
+      position += chunk.length;
+    }
+
+    const blob = new Blob(chunks);
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+    this.removeJobs(item, notification);
   }
 }
 

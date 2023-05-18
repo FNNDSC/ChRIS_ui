@@ -282,8 +282,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
                   style={{ cursor: "pointer" }}
                   onClick={async (event) => {
                     event.stopPropagation();
-                    const blob = await file.getFileBlob();
-                    FileViewerModel.downloadFile(blob, fileName);
+                    //   FileViewerModel.downloadFile(blob, fileName);
                   }}
                 />
               }
