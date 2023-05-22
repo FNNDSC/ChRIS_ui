@@ -2,6 +2,23 @@
 @import "../../../assets/scss/helpers/variables";
 @import "../../../assets/scss/helpers/mixins";
 
+.pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  40% {
+    box-shadow: 0 0 0 5px #bee1f4;
+  }
+
+  80% {
+    box-shadow: 0 0 0 3px #0088ce;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 #73bcf7;
+  }
+}
 .pf-c-drawer__body {
   padding: 20px !important;
   background-color: #18181b !important;
@@ -49,18 +66,16 @@
     }
   }
 
-  .pf-c-drawer__content{
+  .pf-c-drawer__content {
     background-color: #18181b;
   }
-
 
   .pf-c-table tr > * {
     color: white;
   }
 
-  .pf-c-table{
+  .pf-c-table {
     background-color: #18181b;
-
   }
 
   &__table {
@@ -118,7 +133,6 @@
     svg {
       margin-right: 0.25em;
     }
-
   }
 
   .header-panel__buttons {

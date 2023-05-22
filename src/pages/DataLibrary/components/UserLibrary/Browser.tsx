@@ -19,7 +19,6 @@ import { FaFile, FaFolder, FaDownload } from "react-icons/fa";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { LibraryContext } from "./context";
-import FileViewerModel from "../../../../api/models/file-viewer.model";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import useLongPress from "./useLongPress";
 
