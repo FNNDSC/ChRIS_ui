@@ -25,7 +25,6 @@
     "dicom-parser": "^1.8.13",
     "dompurify": "^2.4.1",
     "email-validator": "^2.0.4",
-    "file-saver": "^2.0.5",
     "hammerjs": "^2.0.8",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
