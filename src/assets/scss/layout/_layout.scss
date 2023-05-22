@@ -78,19 +78,18 @@ label {
   color: white !important;
 }
 
-.pf-c-page__header{
+.pf-c-page__header {
   background-color: #18181b;
   border-bottom: 1px solid #36363d;
 }
 
-.pf-c-toolbar{
+.pf-c-toolbar {
   background-color: #18181b;
 }
 
-.pf-c-page__main-section.pf-m-dark-100{
+.pf-c-page__main-section.pf-m-dark-100 {
   background-color: #18181b;
 }
-
 
 .pf-c-page__header-brand-toggle {
   margin-right: 1rem !important;
@@ -101,7 +100,7 @@ label {
   background-color: #36363d !important;
   color: white;
 }
-.pf-c-page__sidebar{
+.pf-c-page__sidebar {
   background-color: #18181b !important;
   border-right: 1px solid #36363d;
 }
@@ -159,7 +158,7 @@ label {
   &__toggle {
     display: none;
   }
-  &__header{
+  &__header {
     background-color: #36363d !important;
   }
   &__footer {
@@ -170,7 +169,7 @@ label {
     padding-left: 0;
   }
 
-  --pf-c-wizard__outer-wrap--BackgroundColor: #18181b ;
+  --pf-c-wizard__outer-wrap--BackgroundColor: #18181b;
   --pf-c-wizard__nav--BackgroundColor: var(
     --pf-global--BackgroundColor--dark-400
   );
@@ -181,7 +180,6 @@ label {
   --pf-c-wizard__nav-link--hover--Color: white;
   --pf-c-wizard__nav-link--focus--Color: white;
   --pf-c-wizard__nav-link--m-current--Color: white;
-
 
   .pf-c-form-control {
     color: white;
@@ -239,12 +237,11 @@ label {
 .pf-c-form-control[readonly] {
   background-color: inherit;
 }
-.pf-c-form-control:disabled{
+.pf-c-form-control:disabled {
   border-color: #36363d;
 }
-.pf-c-dropdown__toggle:disabled{
+.pf-c-dropdown__toggle:disabled {
   background-color: #36363d;
-
 }
 .pf-c-table caption {
   background-color: inherit;
@@ -259,17 +256,21 @@ label {
   color: white !important;
 }
 
-.pf-l-grid__item > .pf-c-card{
+.pf-l-grid__item > .pf-c-card {
   background-color: #36363d;
 }
 
-.pf-c-drawer__head{
+.pf-c-drawer__head {
   background-color: #18181b !important;
 }
 div.pf-c-drawer__panel-main {
   background-color: #18181b !important;
 }
 
-.pf-c-options-menu__toggle.pf-m-plain.pf-m-text{
-  color:white;
+.pf-c-options-menu__toggle.pf-m-plain.pf-m-text {
+  color: white;
+}
+
+.pulse {
+  animation: pulse 1.5s infinite;
 }
