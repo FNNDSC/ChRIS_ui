@@ -16,11 +16,15 @@ import {
 import { Spin } from "antd";
 import { Link } from "react-router-dom";
 import { FaFile, FaFolder, FaDownload } from "react-icons/fa";
+import { AiOutlineClose } from "react-icons/ai";
 import { MdOutlineOpenInNew } from "react-icons/md";
 import FileDetailView from "../../../../components/feed/Preview/FileDetailView";
 import { LibraryContext } from "./context";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 import useLongPress from "./useLongPress";
+import { notification } from "antd";
+import FileViewerModel from "../../../../api/models/file-viewer.model";
+import { Progress } from "antd";
 
 export function Browser({
   folders,
@@ -212,7 +216,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const fileNameArray = file.data.fname.split("/");
   const fileName = fileNameArray[fileNameArray.length - 1];
   const [largePreview, setLargePreview] = React.useState(false);
-
+  const [status, setDownloadStatus] = React.useState(-1)
   const handlePreview = () => {
     setLargePreview(!largePreview);
   };
@@ -275,17 +279,42 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
           <div>
             <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
             <Button
+              style={{ marginLeft: "0.5rem" }}
+              className={status >= 0 ? "pulse" : undefined}
               variant="link"
               icon={
                 <FaDownload
                   style={{ cursor: "pointer" }}
                   onClick={async (event) => {
                     event.stopPropagation();
-                    //   FileViewerModel.downloadFile(blob, fileName);
+                    FileViewerModel.startDownload(
+                      file,
+                      notification,
+                      (statusCallbackValue: any) => {
+                        const statusValue =
+                          statusCallbackValue[file.data.fname];
+                        setDownloadStatus(statusValue);
+                      }
+                    );
                   }}
                 />
               }
             />
+            {status && status > 0 ? (
+              <div style={{ display: "flex" }}>
+                <Progress size="small" percent={status} />{" "}
+                <AiOutlineClose
+                  style={{
+                    color: "red",
+                    marginLeft: "0.25rem",
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    FileViewerModel.abortControllers[file.data.fname].abort();
+                  }}
+                />
+              </div>
+            ) : null}
           </div>
         </CardBody>
         {largePreview && (
