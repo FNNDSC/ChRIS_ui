@@ -83,12 +83,17 @@ const FileBrowser = (props: FileBrowserProps) => {
     let type, icon, fsize, fileName;
     type = "UNKNOWN FORMAT";
     const isPreviewing = selectedFile === item;
+    let currentStatus = 0;
+    let isBuffering = false;
 
     if (typeof item === "string") {
       type = "dir";
       icon = getIcon(type);
       fileName = item;
     } else {
+      currentStatus = status[item.data.fname];
+      isBuffering = currentStatus >= 0 ? true : false;
+
       fileName = getFileName(item.data.fname);
       if (fileName.indexOf(".") > -1) {
         type = getFileName(fileName)[0].toUpperCase();
@@ -118,7 +123,13 @@ const FileBrowser = (props: FileBrowserProps) => {
     const downloadComponent =
       typeof item === "string" ? undefined : (
         <MdFileDownload
-          className="download-file-icon"
+          style={{
+            fontSize: "1.25rem",
+            height: "20px",
+            width: "20px",
+            borderRadius: "50%",
+          }}
+          className={`download-file-icon ${isBuffering && "pulse"}`}
           onClick={(e: any) => {
             handleDownloadClick(e, item);
           }}
@@ -130,19 +141,19 @@ const FileBrowser = (props: FileBrowserProps) => {
         <div
           style={{
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <Progress size="small" percent={status[item.data.fname]} />
+          <Progress size="small" percent={currentStatus} />
           <AiOutlineClose
             style={{
               color: "red",
+              marginLeft: "0.25rem",
             }}
             onClick={(event) => {
               event.stopPropagation();
               FileViewerModel.abortControllers[item.data.fname].abort();
-              FileViewerModel.removeJobs(item, notification);
             }}
           />
         </div>

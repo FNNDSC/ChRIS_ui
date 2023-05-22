@@ -5,6 +5,7 @@ import { TfiFlickr } from "react-icons/tfi";
 import { FaTerminal, FaFileImage, FaBrain } from "react-icons/fa";
 import { MdEditNote } from "react-icons/md";
 import ChrisAPIClient from "../chrisapiclient";
+import axios from "axios";
 
 export interface IFileBlob {
   blob?: Blob;
@@ -23,6 +24,13 @@ export default class FileViewerModel {
     return filename;
   }
 
+  static setDownloadStatus(status: number, item: FeedFile) {
+    this.downloadStatus = {
+      ...this.downloadStatus,
+      [item.data.fname]: status,
+    };
+  }
+
   static startDownload(
     item: FeedFile,
     notification: any,
@@ -33,19 +41,45 @@ export default class FileViewerModel {
     );
 
     const filename = this.getFileName(item);
-    const urlString = `${item.url}${filename}`;
+
+    const onDownloadProgress = (progress: any, item: FeedFile) => {
+      const progressCalc = Math.floor(
+        (progress.loaded / item.data.fsize) * 100
+      );
+
+      this.downloadStatus = {
+        ...this.downloadStatus,
+        [item.data.fname]: progressCalc,
+      };
+      callback(this.downloadStatus);
+    };
 
     if (!findItem) {
       this.itemsToDownload.push(item);
+      this.setDownloadStatus(0, item);
+      callback(this.downloadStatus);
       notification.info({
         message: `Preparing ${filename} for download.`,
         description: `Total Jobs (${this.itemsToDownload.length})`,
+        duration: 1,
       });
-      this.downloadFile(item, urlString, filename, notification, callback);
+
+      this.downloadFile(
+        item,
+        filename,
+        notification,
+        callback,
+        onDownloadProgress
+      );
     }
   }
 
-  static removeJobs(item: FeedFile, notification: any) {
+  static removeJobs(
+    item: FeedFile,
+    notification: any,
+    callback: (status: any) => void,
+    status: string
+  ) {
     const index = this.itemsToDownload.indexOf(item);
     if (index > -1) {
       // only splice array when item is found
@@ -55,80 +89,66 @@ export default class FileViewerModel {
     delete this.downloadStatus[item.data.fname];
     delete this.abortControllers[item.data.fname];
     const filename = this.getFileName(item);
+    callback(this.downloadStatus);
     notification.info({
-      message: `Cancelling download for ${filename}`,
+      message: `${status} download for ${filename}`,
       description: `Total jobs ${this.itemsToDownload.length}`,
-      duration: 2,
+      duration: 1.5,
     });
   }
 
   // Download File Blob
   static async downloadFile(
     item: FeedFile,
-    urlString: string,
     filename: string,
     notification: any,
-    callback: (status: any) => void
+    callback: (status: any) => void,
+    onDownloadProgressCallback: (progressEvent: number, item: FeedFile) => void
   ) {
+    const urlString = `${item.url}${filename}`;
     const client = ChrisAPIClient.getClient();
     const token = client.auth.token;
-
     const controller = new AbortController();
     const { signal } = controller;
 
-    const downloadPromise = fetch(urlString, {
-      method: "get",
-      headers: {
-        Authorization: `Token ${token}`,
-      },
-      signal,
-    });
+    this.abortControllers = {
+      ...this.abortControllers,
+      [item.data.fname]: controller,
+    };
+
+    const downloadPromise = axios
+      .get(urlString, {
+        responseType: "blob",
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        signal,
+        onDownloadProgress: (progressEvent: number) => {
+          onDownloadProgressCallback(progressEvent, item);
+        },
+      })
+      .catch((error) => {
+        this.removeJobs(item, notification, callback, error);
+        return null;
+      });
 
     const response = await downloadPromise;
-    //@ts-ignore
-    const reader = response.body.getReader();
 
-    // Step 3: read the data
-    let receivedLength = 0; // received that many bytes at the moment
-    const chunks = []; // array of received binary chunks (comprises the body)
-    while (true) {
-      const { done, value } = await reader.read();
-
-      if (done) {
-        break;
-      }
-
-      chunks.push(value);
-      receivedLength += value.length;
-
-      const percentCompleted = Math.floor(
-        (receivedLength / item.data.fsize) * 100
-      );
-
-      this.downloadStatus = {
-        ...this.downloadStatus,
-        [item.data.fname]: percentCompleted,
-      };
-
-      this.abortControllers = {
-        ...this.abortControllers,
-        [item.data.fname]: controller,
-      };
-
-      callback(this.downloadStatus);
+    if (response && response.data) {
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.target = "_blank";
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      setTimeout(function () {
+        link.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+      }, 1000);
+      this.removeJobs(item, notification, callback, "Finished");
     }
-
-  
-    const blob = new Blob(chunks);
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-    this.removeJobs(item, notification);
   }
 }
 
