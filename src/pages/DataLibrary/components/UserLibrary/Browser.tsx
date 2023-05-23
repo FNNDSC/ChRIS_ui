@@ -25,6 +25,7 @@ import useLongPress from "./useLongPress";
 import { notification } from "antd";
 import FileViewerModel from "../../../../api/models/file-viewer.model";
 import { Progress } from "antd";
+import { DotsIndicator } from "../../../../components/common/dots";
 
 export function Browser({
   folders,
@@ -216,7 +217,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
   const fileNameArray = file.data.fname.split("/");
   const fileName = fileNameArray[fileNameArray.length - 1];
   const [largePreview, setLargePreview] = React.useState(false);
-  const [status, setDownloadStatus] = React.useState(-1)
+  const [status, setDownloadStatus] = React.useState(-1);
   const handlePreview = () => {
     setLargePreview(!largePreview);
   };
@@ -280,7 +281,6 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
             <span>{(file.data.fsize / (1024 * 1024)).toFixed(3)} MB</span>
             <Button
               style={{ marginLeft: "0.5rem" }}
-              className={status >= 0 ? "pulse" : undefined}
               variant="link"
               icon={
                 <FaDownload
@@ -300,6 +300,7 @@ function FileCard({ file, browserType }: { file: any; browserType: string }) {
                 />
               }
             />
+            {status === 0 && <DotsIndicator />}
             {status && status > 0 ? (
               <div style={{ display: "flex" }}>
                 <Progress size="small" percent={status} />{" "}
