@@ -43,6 +43,7 @@ import {
 import { setFilePreviewPanel } from "../../../store/drawer/actions";
 import XtkViewer from "../../detailedView/displays/XtkViewer/XtkViewer";
 import { notification } from "antd";
+import { DotsIndicator } from "../../common/dots";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -129,7 +130,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             width: "20px",
             borderRadius: "50%",
           }}
-          className={`download-file-icon ${isBuffering && "pulse"}`}
+          className={`download-file-icon`}
           onClick={(e: any) => {
             handleDownloadClick(e, item);
           }}
@@ -137,7 +138,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       );
 
     const statusComponent =
-      typeof item !== "string" && item && status[item.data.fname] > 0 ? (
+      typeof item !== "string" && item && currentStatus > 0 ? (
         <div
           style={{
             display: "flex",
@@ -157,6 +158,8 @@ const FileBrowser = (props: FileBrowserProps) => {
             }}
           />
         </div>
+      ) : isBuffering ? (
+        <DotsIndicator />
       ) : undefined;
 
     const download = {
