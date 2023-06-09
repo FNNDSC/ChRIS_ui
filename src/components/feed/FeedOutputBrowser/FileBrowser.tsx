@@ -43,7 +43,7 @@ import {
 import { setFilePreviewPanel } from "../../../store/drawer/actions";
 import XtkViewer from "../../detailedView/displays/XtkViewer/XtkViewer";
 import { notification } from "antd";
-import { DotsIndicator } from "../../common/dots";
+import { Spin } from "antd";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -93,7 +93,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       fileName = item;
     } else {
       currentStatus = status[item.data.fname];
-      isBuffering = currentStatus >= 0 ? true : false;
+      isBuffering = currentStatus == 0 ? true : false;
 
       fileName = getFileName(item.data.fname);
       if (fileName.indexOf(".") > -1) {
@@ -102,7 +102,6 @@ const FileBrowser = (props: FileBrowserProps) => {
       fsize = bytesToSize(item.data.fsize);
       icon = getIcon(type);
     }
-
     const fileNameComponent = (
       <div
         className={`file-browser__table--fileName 
@@ -120,9 +119,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     const size = {
       title: fsize,
     };
-
-    const downloadComponent =
-      typeof item === "string" ? undefined : (
+    const downloadComponent = isBuffering? (
+      <Spin size="small" />
+      ):typeof item !== "string" && currentStatus === undefined? (
         <MdFileDownload
           style={{
             fontSize: "1.25rem",
@@ -135,19 +134,15 @@ const FileBrowser = (props: FileBrowserProps) => {
             handleDownloadClick(e, item);
           }}
         />
-      );
+      ): currentStatus > 0?(
+          <Progress
+           size="small"
+           type="line"
+           percent={currentStatus} />
+      ): undefined;
 
-    const statusComponent =
-      typeof item !== "string" && item && currentStatus > 0 ? (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Progress size="small" percent={currentStatus} />
-          <AiOutlineClose
+      const cancelComponent = typeof item !== "string" && item && currentStatus > 0 && currentStatus < 100 ? (
+        <AiOutlineClose
             style={{
               color: "red",
               marginLeft: "0.25rem",
@@ -155,19 +150,16 @@ const FileBrowser = (props: FileBrowserProps) => {
             onClick={(event) => {
               event.stopPropagation();
               FileViewerModel.abortControllers[item.data.fname].abort();
-            }}
+             }}
           />
-        </div>
-      ) : isBuffering ? (
-        <DotsIndicator />
-      ) : undefined;
+      ):undefined
 
     const download = {
       title: downloadComponent,
     };
 
     const statusRow = {
-      title: statusComponent,
+      title: cancelComponent,
     };
 
     return {
