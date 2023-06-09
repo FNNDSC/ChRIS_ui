@@ -120,7 +120,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       title: fsize,
     };
     const downloadComponent = isBuffering? (
-      <Spin size="small" />
+      <Spin size="small" tip="Preparing to download" />
       ):typeof item !== "string" && currentStatus === undefined? (
         <MdFileDownload
           style={{
