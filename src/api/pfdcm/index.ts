@@ -5,8 +5,8 @@ interface PFDCMClientOptions {
   setDefaultPACS: boolean
 }
 
-const PFDCMDefaultOptions: PFDCMClientOptions = { 
-  setDefaultPACS: true 
+const PFDCMDefaultOptions: PFDCMClientOptions = {
+  setDefaultPACS: true
 }
 
 const __stageText = (stage:PACSPullStages) => {
@@ -48,7 +48,7 @@ class PFDCMClient {
     this.url = process.env.REACT_APP_PFDCM_URL as string
     this.cube = process.env.REACT_APP_PFDCM_CUBEKEY as string
     this.swift = process.env.REACT_APP_PFDCM_SWIFTKEY as string
-    
+
     this.withFeedBack = process.env.NODE_ENV !== "production";
 
     const _service = localStorage.getItem("PFDCM_SET_SERVICE");
@@ -146,7 +146,7 @@ class PFDCMClient {
         throw message;
     } catch (error) {
       console.error(error);
-      return null; 
+      return null;
     }
   }
 
@@ -182,8 +182,8 @@ class PFDCMClient {
       const { then } = status.pypx;
       const studies: any[] = then["00-status"].study;
 
-      const images =      { requested: 0,     packed: 0,     pushed: 0,     registered: 0 }
-      const imagestatus = { requested: false, packed: false, pushed: false, registered: false }
+      const images =      { requested: 0,     received: 0,     packed: 0,     pushed: 0,     registered: 0 }
+      const imagestatus = { requested: false, received: false, packed: false, pushed: false, registered: false }
 
       for (const study of studies) {
         for (const key in study) {
@@ -199,15 +199,19 @@ class PFDCMClient {
 
             images.requested += series.images.requested.count;
             imagestatus.requested = series.images.requested.status;
-            
+
+            if (series.images.received.count === -1) break;
+            images.received += series.images.received.count;
+            imagestatus.received = series.images.received.status;
+
             if (series.images.packed.count === -1) break;
             images.packed += series.images.packed.count;
             imagestatus.packed = series.images.packed.status;
-            
+
             if (series.images.pushed.count === -1) break;
             images.pushed += series.images.pushed.count;
             imagestatus.pushed = series.images.pushed.status;
-            
+
             if (series.images.registered.count === -1) break;
             images.registered += series.images.registered.count;
             imagestatus.registered = series.images.registered.status;
@@ -220,17 +224,17 @@ class PFDCMClient {
 
       if (imagestatus.requested) {
         if (imagestatus.packed) {
-          pullstatus.progress = images.packed/images.requested;
-          pullstatus.progressText = `${images.packed} of ${images.requested}`;
+          pullstatus.progress = images.received/images.requested;
+          pullstatus.progressText = `${images.received} of ${images.requested}`;
           pullstatus.stage = PACSPullStages.RETRIEVE;
           pullstatus.stageText = __stageText(PACSPullStages.RETRIEVE);
-          
+
           if (images.pushed) {
             pullstatus.progress = images.pushed/images.requested;
             pullstatus.progressText = `${images.pushed} of ${images.requested}`;
             pullstatus.stage = PACSPullStages.PUSH;
             pullstatus.stageText = __stageText(PACSPullStages.PUSH);
-            
+
             if (images.registered) {
               if (images.registered === images.requested) {
                 pullstatus.progress = 1;
@@ -250,7 +254,7 @@ class PFDCMClient {
     } catch (error) {
       console.error(error);
     } finally {
-      return pullstatus; 
+      return pullstatus;
     }
   }
 
@@ -271,13 +275,13 @@ class PFDCMClient {
           thenArgs: [
             JSON.stringify({}),
             JSON.stringify({
-              db: "/home/dicom/log", 
-              swift: this.swift, 
+              db: "/home/dicom/log",
+              swift: this.swift,
               swiftServicesPACS: this.service,
               swiftPackEachDICOM: true
             }),
             JSON.stringify({
-              db: "/home/dicom/log", 
+              db: "/home/dicom/log",
               CUBE: this.cube,
               swiftServicesPACS: this.service,
               parseAllFilesWithSubStr: "dcm"
@@ -336,8 +340,8 @@ class PFDCMClient {
           then: "push",
           withFeedBack: this.withFeedBack,
           thenArgs: JSON.stringify({
-            db: "/home/dicom/log", 
-            swift: this.swift, 
+            db: "/home/dicom/log",
+            swift: this.swift,
             swiftServicesPACS: this.service,
             swiftPackEachDICOM: true
           })
@@ -364,11 +368,11 @@ class PFDCMClient {
         PACSservice: this.PACSservice,
         listenerService: { value: "default" },
         PACSdirective: {
-          ...query,           
+          ...query,
           then: "register",
           withFeedBack: this.withFeedBack,
           thenArgs: JSON.stringify({
-            db: "/home/dicom/log", 
+            db: "/home/dicom/log",
             CUBE: this.cube,
             swiftServicesPACS: this.service,
             parseAllFilesWithSubStr: "dcm"
@@ -389,8 +393,8 @@ class PFDCMClient {
     if (raw) {
       const studies = parseRawDcmData(raw);
       return sortStudiesByPatient(studies);
-    } 
-    else 
+    }
+    else
       return [] as PACSPatient[];
   }
 }
