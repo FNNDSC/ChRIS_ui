@@ -2,8 +2,6 @@
 @import "../../../assets/scss/helpers/variables";
 @import "../../../assets/scss/helpers/mixins";
 
-
-
 @keyframes pulse {
   40% {
     box-shadow: 0 0 0 5px #bee1f4;
@@ -151,21 +149,6 @@
     }
   }
 
-  .dcm-preview {
-    position: relative;
-    height: 100%;
-
-    #container {
-      bottom: 0;
-      height: 100%;
-      left: 0;
-      overflow: scroll;
-      position: absolute;
-      right: 0;
-      top: 0;
-      width: 100%;
-    }
-  }
   .open-with-dropdown {
     background: #ffffff63;
   }

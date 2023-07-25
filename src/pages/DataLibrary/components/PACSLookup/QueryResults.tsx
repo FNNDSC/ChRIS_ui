@@ -73,7 +73,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-        <Card isRounded isHoverable isExpanded={isPatientExpanded}>
+        <Card isRounded isExpanded={isPatientExpanded}>
           <CardHeader onExpand={expandPatient.bind(PatientCard)}>
             <Grid hasGutter style={{ width: "100%" }}>
               <GridItem lg={4}>
@@ -441,9 +441,11 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
                 {openSeriesPreview && (
                   <Modal
+                    style={{
+                      height: "800px",
+                    }}
                     title="Preview"
                     aria-label="viewer"
-                    width={"50%"}
                     isOpen={!!openSeriesPreview}
                     onClose={() => setOpenSeriesPreview(false)}
                   >
