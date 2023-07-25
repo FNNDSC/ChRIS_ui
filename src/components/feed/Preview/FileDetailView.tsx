@@ -100,6 +100,7 @@ const FileDetailView = (props: AllProps) => {
       const fileName = selectedFile.data.fname,
         fileType = getFileExtension(fileName);
       const blob = await selectedFile.getFileBlob();
+
       setFileState((fileState) => {
         return {
           ...fileState,
@@ -273,8 +274,7 @@ export const DicomHeader = ({
       }
       style={{
         position: "absolute",
-        top: "2.5em",
-        right: "0",
+        right: "var(--pf-global--spacer--md)",
         zIndex: "9999",
         color: "black",
       }}

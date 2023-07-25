@@ -104,7 +104,12 @@ export const MainRouter: React.FC = () => {
       path: "pacs",
       element: (
         <PrivateRoute>
-          <PACSLookup />
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <PACSLookup />
+          </RouterProvider>
         </PrivateRoute>
       ),
     },
