@@ -221,6 +221,7 @@ const getViewerSpecificActions: {
 } = {
   DcmDisplay: actions,
   NiftiDisplay: actions,
+  ImageDisplay: actions,
 };
 
 export const DicomHeader = ({

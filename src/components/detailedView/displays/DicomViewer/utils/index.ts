@@ -60,6 +60,7 @@ toolList.forEach((tool) => {
 });
 
 export const handleEventState = (event: string, value: boolean) => {
+  console.log("Event", event);
   if (value === true) {
     cornerstoneTools.setToolActive(event, { mouseButtonMask: 1 });
   } else {
