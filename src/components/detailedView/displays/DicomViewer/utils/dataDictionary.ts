@@ -28480,3 +28480,6 @@ export const uids = {
     '1.2.840.10008.15.0.4.8':'dicomTransferCapability',
     '1.2.840.10008.15.1.1':'Universal Coordinated Time',
   };
+
+
+ 

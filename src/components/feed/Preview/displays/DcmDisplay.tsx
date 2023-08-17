@@ -8,8 +8,11 @@ import {
   displayDicomImage,
   windowResize,
   resetDicomSettings,
+  loadJpgImage,
+  handleRotate,
 } from "../../../detailedView/displays/DicomViewer/utils";
 import useSize from "../../FeedTree/useSize";
+import { getFileExtension } from "../../../../api/models/file-explorer.model";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -51,7 +54,9 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
 
     if (event === "Rotate") {
-      handleEventState(event, value);
+      if (dicomImageRef.current) {
+        handleRotate(dicomImageRef.current);
+      }
     }
 
     if (event === "Wwwc") {
@@ -81,7 +86,12 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     const element = dicomImageRef.current;
     if (!!element) {
       enableDOMElement(element);
-      const imageId = loadDicomImage(blob);
+      let imageId;
+      if (getFileExtension(fileItem.file?.data.fname) === "dcm") {
+        imageId = loadDicomImage(blob);
+      } else {
+        imageId = loadJpgImage(blob);
+      }
       displayDicomImage(imageId, element);
     }
   }, []);
