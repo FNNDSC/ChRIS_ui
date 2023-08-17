@@ -14,6 +14,7 @@ import { Progress } from "antd";
 import { Table, TableHeader, TableBody } from "@patternfly/react-table";
 import { FaFileCode } from "react-icons/fa";
 import { MdFileDownload } from "react-icons/md";
+
 import {
   AiFillFileImage,
   AiFillFileText,
@@ -58,6 +59,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
+  const [currentRowIndex, setCurrentRowIndex] = React.useState(0);
 
   const { files, folders, path } = pluginFilesPayload;
   const cols = [
@@ -223,6 +225,31 @@ const FileBrowser = (props: FileBrowserProps) => {
       ?.animate(previewAnimation, previewAnimationTiming);
   };
 
+  const handleItem = (item: string | FeedFile) => {
+    if (typeof item === "string") {
+      handleFileClick(`${path}/${item}`);
+    } else {
+      toggleAnimation();
+      dispatch(setSelectedFile(item));
+      !drawerState["preview"].open && dispatch(setFilePreviewPanel());
+    }
+  };
+
+  const handleNext = () => {
+    if (currentRowIndex + 1 < items.length) {
+      const item = items[currentRowIndex + 1];
+      setCurrentRowIndex(currentRowIndex + 1);
+      handleItem(item);
+    }
+  };
+  const handlePrevious = () => {
+    if (currentRowIndex - 1 >= 0) {
+      const item = items[currentRowIndex - 1];
+      setCurrentRowIndex(currentRowIndex - 1);
+      handleItem(item);
+    }
+  };
+
   const previewPanel = (
     <DrawerPanelContent
       className="file-browser__previewPanel"
@@ -251,7 +278,13 @@ const FileBrowser = (props: FileBrowserProps) => {
       <DrawerPanelBody className="file-browser__drawerbody">
         {drawerState["preview"].currentlyActive === "preview" &&
           selectedFile && (
-            <FileDetailView selectedFile={selectedFile} preview="large" />
+            <FileDetailView
+              gallery={true}
+              handleNext={handleNext}
+              handlePrevious={handlePrevious}
+              selectedFile={selectedFile}
+              preview="large"
+            />
           )}
         {drawerState["preview"].currentlyActive === "xtk" && <XtkViewer />}
       </DrawerPanelBody>
@@ -313,15 +346,9 @@ const FileBrowser = (props: FileBrowserProps) => {
                     onRowClick={(event: any, rows: any, rowData: any) => {
                       dispatch(clearSelectedFile());
                       const rowIndex = rowData.rowIndex;
+                      setCurrentRowIndex(rowIndex);
                       const item = items[rowIndex];
-                      if (typeof item === "string") {
-                        handleFileClick(`${path}/${item}`);
-                      } else {
-                        toggleAnimation();
-                        dispatch(setSelectedFile(item));
-                        !drawerState["preview"].open &&
-                          dispatch(setFilePreviewPanel());
-                      }
+                      handleItem(item);
                     }}
                   />
                 )}
