@@ -9,6 +9,7 @@ import {
   windowResize,
   resetDicomSettings,
   loadJpgImage,
+  handleRotate,
 } from "../../../detailedView/displays/DicomViewer/utils";
 import useSize from "../../FeedTree/useSize";
 import { getFileExtension } from "../../../../api/models/file-explorer.model";
@@ -53,7 +54,9 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
 
     if (event === "Rotate") {
-      handleEventState(event, value);
+      if (dicomImageRef.current) {
+        handleRotate(dicomImageRef.current);
+      }
     }
 
     if (event === "Wwwc") {

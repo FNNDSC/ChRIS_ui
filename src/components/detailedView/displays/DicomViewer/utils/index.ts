@@ -60,7 +60,6 @@ toolList.forEach((tool) => {
 });
 
 export const handleEventState = (event: string, value: boolean) => {
-  console.log("Event", event);
   if (value === true) {
     cornerstoneTools.setToolActive(event, { mouseButtonMask: 1 });
   } else {
@@ -90,6 +89,12 @@ export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
   cornerstone.loadImage(imageId).then((image: any) => {
     cornerstone.displayImage(element, image);
   });
+};
+
+export const handleRotate = (element: Element) => {
+  const viewport = cornerstone.getViewport(element);
+  viewport.rotation += 90;
+  cornerstone.setViewport(element, viewport);
 };
 
 export const windowResize = (element: Element) => {
