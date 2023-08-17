@@ -9,6 +9,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { ErrorBoundary } from "react-error-boundary";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FeedFile } from "@fnndsc/chrisapi";
 import {
   MdZoomIn,
@@ -38,6 +39,9 @@ interface AllProps {
   selectedFile?: FeedFile;
   isDicom?: boolean;
   preview: "large" | "small";
+  handleNext?: () => void;
+  handlePrevious?: () => void;
+  gallery?: boolean;
 }
 
 export interface ActionState {
@@ -56,6 +60,33 @@ const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
   const [tagInfo, setTagInfo] = React.useState<any>();
   const [actionState, setActionState] = React.useState<ActionState>({});
+
+  const handleKeyboardEvents = (event: any) => {
+    switch (event.keyCode) {
+      case 39: {
+        event.preventDefault();
+        props.handleNext && props.handleNext();
+        break;
+      }
+
+      case 37: {
+        event.preventDefault();
+        props.handlePrevious && props.handlePrevious();
+        break;
+      }
+
+      default:
+        break;
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", handleKeyboardEvents);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyboardEvents);
+    };
+  });
 
   const displayTagInfo = useCallback((result: any) => {
     const reader = new FileReader();
@@ -153,6 +184,31 @@ const FileDetailView = (props: AllProps) => {
           }
         >
           <div className={previewType}>
+            {props.gallery && (
+              <div
+                style={{
+                  width: "100%",
+                  zIndex: 999,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <FaChevronLeft
+                  onClick={props.handlePrevious}
+                  style={{
+                    fontSize: "1.35rem",
+                  }}
+                />
+                <FaChevronRight
+                  onClick={props.handleNext}
+                  style={{
+                    fontSize: "1.35rem",
+                  }}
+                />
+              </div>
+            )}
+
             {previewType === "large-preview" && (
               <DicomHeader
                 viewerName={viewerName}
@@ -221,6 +277,7 @@ const getViewerSpecificActions: {
 } = {
   DcmDisplay: actions,
   NiftiDisplay: actions,
+  ImageDisplay: actions,
 };
 
 export const DicomHeader = ({
@@ -230,7 +287,7 @@ export const DicomHeader = ({
   viewerName: string;
   handleEvents: (action: string) => void;
 }) => {
-  const [isOpen, setIsOpen] = React.useState(true);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const specificActions = getViewerSpecificActions[viewerName];
 
@@ -275,8 +332,10 @@ export const DicomHeader = ({
       style={{
         position: "absolute",
         right: "var(--pf-global--spacer--md)",
+        marginRight: "-0.6rem",
         zIndex: "9999",
         color: "black",
+        marginBottom: "0.5rem",
       }}
       onToggle={() => setIsOpen(!isOpen)}
       items={appLauncherItems}
