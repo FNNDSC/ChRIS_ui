@@ -18,6 +18,13 @@ const RotateTool = cornerstoneTools.RotateTool;
 const WwwcTool = cornerstoneTools.WwwcTool;
 const LengthTool = cornerstoneTools.LengthTool;
 
+
+
+const viewportCache = {
+  scale: 0,
+  rotation: 0,
+};
+
 const toolList = [
   ZoomTool,
   PanTool,
@@ -62,8 +69,6 @@ toolList.forEach((tool) => {
 export const handleEventState = (event: string, value: boolean) => {
   if (value === true) {
     cornerstoneTools.setToolActive(event, { mouseButtonMask: 1 });
-  } else {
-    cornerstoneTools.setToolPassive(event);
   }
 };
 
@@ -86,7 +91,21 @@ export const loadJpgImage = (blob: any) => {
 };
 
 export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
+ 
   cornerstone.loadImage(imageId).then((image: any) => {
+    const viewport = cornerstone.getViewport(element, image);
+
+    if (viewport) {
+      if (viewportCache.scale > 0) {
+        viewport.scale = viewportCache.scale;
+      }
+
+      if (viewportCache.rotation > 0) {
+        viewport.rotation = viewportCache.rotation;
+      }
+
+      cornerstone.setViewport(element, viewport);
+    }
     cornerstone.displayImage(element, image);
   });
 };
@@ -94,6 +113,22 @@ export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
 export const handleRotate = (element: Element) => {
   const viewport = cornerstone.getViewport(element);
   viewport.rotation += 90;
+  viewportCache.rotation = viewport.rotation;
+  cornerstone.setViewport(element, viewport);
+};
+
+export const handleScale = (element: Element, operation: string) => {
+  const viewport = cornerstone.getViewport(element);
+
+  if (operation === "+") {
+    viewport.scale += 0.5;
+  }
+
+  if (operation === "-") {
+    viewport.scale -= 0.5;
+  }
+
+  viewportCache.scale = viewport.scale;
   cornerstone.setViewport(element, viewport);
 };
 

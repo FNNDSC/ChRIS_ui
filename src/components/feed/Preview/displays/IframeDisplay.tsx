@@ -23,12 +23,14 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
 
   return (
     <Fragment>
-      <div className="iframe-container">
+      <div style={{ backgroundColor: "#B8BBBE" }} className="iframe-container">
         <iframe
+          id="myframe"
           key={fileItem.file && fileItem.file.data.fname}
           src={url}
           width="100%"
           height="100%"
+          color="white"
           title="Gallery"
         />
       </div>
