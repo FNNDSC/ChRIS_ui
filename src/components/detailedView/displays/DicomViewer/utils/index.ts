@@ -18,8 +18,6 @@ const RotateTool = cornerstoneTools.RotateTool;
 const WwwcTool = cornerstoneTools.WwwcTool;
 const LengthTool = cornerstoneTools.LengthTool;
 
-
-
 const viewportCache = {
   scale: 0,
   rotation: 0,
@@ -91,7 +89,6 @@ export const loadJpgImage = (blob: any) => {
 };
 
 export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
- 
   cornerstone.loadImage(imageId).then((image: any) => {
     const viewport = cornerstone.getViewport(element, image);
 
@@ -139,6 +136,8 @@ export const windowResize = (element: Element) => {
 export const resetDicomSettings = (element: HTMLDivElement) => {
   cornerstone.reset(element);
   cornerstoneTools.clearToolState(element, "Length");
+  viewportCache.scale = 0;
+  viewportCache.rotation = 0;
 };
 
 export function isDicom(fileName: string) {
