@@ -10,6 +10,7 @@ import {
   resetDicomSettings,
   loadJpgImage,
   handleRotate,
+  handleScale,
 } from "../../../detailedView/displays/DicomViewer/utils";
 import useSize from "../../FeedTree/useSize";
 import { getFileExtension } from "../../../../api/models/file-explorer.model";
@@ -24,6 +25,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem, preview } = props;
   const drawerState = useTypedSelector((state) => state.drawers);
+
   useSize(dicomImageRef);
   const onWindowResize = () => {
     const element = dicomImageRef.current;
@@ -81,11 +83,49 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
   }, [props.actionState, handleEvents]);
 
+  const handleEventsThroughKeys = (event: any) => {
+    
+    switch (event.key) {
+      case "ArrowDown": {
+        if (dicomImageRef.current) handleRotate(dicomImageRef.current);
+        break;
+      }
+
+      case "+": {
+        if (dicomImageRef.current) handleScale(dicomImageRef.current, "+");
+        break;
+      }
+
+      case "-": {
+        if (dicomImageRef.current) handleScale(dicomImageRef.current, "-");
+        break;
+      }
+
+      case "r": {
+        if (dicomImageRef.current) resetDicomSettings(dicomImageRef.current);
+        break;
+      }
+      default:
+        break;
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener("keydown", handleEventsThroughKeys);
+    window.addEventListener("resize", onWindowResize);
+
+    return () => {
+      window.removeEventListener("keydown", handleEventsThroughKeys);
+      window.removeEventListener("resize", onWindowResize);
+    };
+  }, []);
+
   const initAmi = React.useCallback((fileItem: IFileBlob) => {
     const { blob } = fileItem;
     const element = dicomImageRef.current;
     if (!!element) {
       enableDOMElement(element);
+
       let imageId;
       if (getFileExtension(fileItem.file?.data.fname) === "dcm") {
         imageId = loadDicomImage(blob);
@@ -95,14 +135,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       displayDicomImage(imageId, element);
     }
   }, []);
-
-  React.useEffect(() => {
-    window.addEventListener("resize", onWindowResize);
-
-    return () => {
-      window.removeEventListener("resize", onWindowResize);
-    };
-  });
 
   React.useEffect(() => {
     if (!!fileItem) {
