@@ -16,7 +16,7 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
         "load",
         () => {
           //@ts-ignore
-          textDisplay.innerText = reader.result;
+          textDisplay.innerHTML = reader.result;
         },
         false
       );
