@@ -14,13 +14,17 @@ import { FeedFile } from "@fnndsc/chrisapi";
 import {
   MdZoomIn,
   MdOutlinePanTool,
-  MdRotate90DegreesCcw,
+  MdRotateRight,
   MdSettingsBrightness,
-  MdOutlineRotate90DegreesCcw,
   MdInfo,
   MdDraw,
 } from "react-icons/md";
-import { AiFillInfoCircle, AiOutlineMenuUnfold } from "react-icons/ai";
+import { RxReset } from "react-icons/rx";
+import {
+  AiFillInfoCircle,
+  AiOutlineMenuUnfold,
+  AiOutlineZoomIn,
+} from "react-icons/ai";
 import { getFileExtension } from "../../../api/models/file-explorer.model";
 import {
   IFileBlob,
@@ -150,7 +154,7 @@ const FileDetailView = (props: AllProps) => {
   let viewerName = "";
 
   if (!fileViewerMap[fileType]) {
-    viewerName = "IframeDisplay";
+    viewerName = "TextDisplay";
   } else {
     viewerName = fileViewerMap[fileType];
   }
@@ -161,6 +165,8 @@ const FileDetailView = (props: AllProps) => {
       [actionName]: value,
     });
   };
+
+  console.log("Viewer Name", viewerName);
 
   const previewType = preview === "large" ? "large-preview" : "small-preview";
 
@@ -239,7 +245,7 @@ export default FileDetailView;
 const actions = [
   {
     name: "Zoom",
-    icon: <MdZoomIn />,
+    icon: <AiOutlineZoomIn />,
   },
   {
     name: "Pan",
@@ -251,7 +257,7 @@ const actions = [
   },
   {
     name: "Rotate",
-    icon: <MdRotate90DegreesCcw />,
+    icon: <MdRotateRight />,
   },
   {
     name: "Wwwc",
@@ -259,7 +265,7 @@ const actions = [
   },
   {
     name: "Reset View",
-    icon: <MdOutlineRotate90DegreesCcw />,
+    icon: <RxReset />,
   },
   {
     name: "Length",

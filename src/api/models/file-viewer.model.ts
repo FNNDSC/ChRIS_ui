@@ -155,12 +155,12 @@ export default class FileViewerModel {
 // Description: Mapping for Viewer type by file type *Note: Should come from db
 // File type: Viewer component name
 export const fileViewerMap: any = {
-  stats: "IframeDisplay",
-  txt: "IframeDisplay",
+  stats: "TextDisplay",
+  txt: "TextDisplay",
   html: "IframeDisplay",
   pdf: "PdfDisplay",
-  csv: "IframeDisplay",
-  ctab: "IframeDisplay",
+  csv: "TextDisplay",
+  ctab: "TextDisplay",
   json: "JsonDisplay",
   png: "DcmDisplay",
   jpg: "DcmDisplay",
