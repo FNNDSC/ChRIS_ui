@@ -150,10 +150,12 @@ const FileDetailView = (props: AllProps) => {
   let viewerName = "";
 
   if (!fileViewerMap[fileType]) {
-    viewerName = "IframeDisplay";
+    viewerName = "TextDisplay";
   } else {
     viewerName = fileViewerMap[fileType];
   }
+
+  
 
   const handleModalToggle = (actionName: string, value: boolean) => {
     setActionState({
@@ -161,6 +163,8 @@ const FileDetailView = (props: AllProps) => {
       [actionName]: value,
     });
   };
+
+  console.log("Viewer Name", viewerName)
 
   const previewType = preview === "large" ? "large-preview" : "small-preview";
 

@@ -84,6 +84,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [props.actionState, handleEvents]);
 
   const handleEventsThroughKeys = (event: any) => {
+    console.log("Event", event);
     switch (event.key) {
       case "ArrowDown": {
         if (dicomImageRef.current) handleRotate(dicomImageRef.current);
@@ -97,6 +98,11 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
       case "-": {
         if (dicomImageRef.current) handleScale(dicomImageRef.current, "-");
+        break;
+      }
+
+      case "r": {
+        if (dicomImageRef.current) resetDicomSettings(dicomImageRef.current);
         break;
       }
       default:
