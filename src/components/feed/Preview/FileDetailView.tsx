@@ -64,6 +64,8 @@ const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
   const [tagInfo, setTagInfo] = React.useState<any>();
   const [actionState, setActionState] = React.useState<ActionState>({});
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(false);
 
   const handleKeyboardEvents = (event: any) => {
     switch (event.keyCode) {
@@ -134,16 +136,23 @@ const FileDetailView = (props: AllProps) => {
     if (selectedFile) {
       const fileName = selectedFile.data.fname,
         fileType = getFileExtension(fileName);
-      const blob = await selectedFile.getFileBlob();
 
-      setFileState((fileState) => {
-        return {
-          ...fileState,
-          blob,
-          file: selectedFile,
-          fileType,
-        };
-      });
+      try {
+        setLoading(true);
+        const blob = await selectedFile.getFileBlob();
+        setFileState((fileState) => {
+          return {
+            ...fileState,
+            blob,
+            file: selectedFile,
+            fileType,
+          };
+        });
+        setLoading(false);
+      } catch (error: any) {
+        const errorMessage = error.response || error.message;
+        setError(errorMessage);
+      }
     }
   }, [selectedFile]);
 
@@ -166,9 +175,19 @@ const FileDetailView = (props: AllProps) => {
     });
   };
 
-  console.log("Viewer Name", viewerName);
-
   const previewType = preview === "large" ? "large-preview" : "small-preview";
+
+  const errorComponent = (error?: any) => (
+    <span>
+      <Label icon={<AiFillInfoCircle />} color="red" href="#filled">
+        <Text component="p">
+          {error
+            ? error
+            : "Oh snap ! Looks like there was an error. Please refresh the browser or try again."}
+        </Text>
+      </Label>
+    </span>
+  );
 
   return (
     <Fragment>
@@ -177,18 +196,7 @@ const FileDetailView = (props: AllProps) => {
           <SpinContainer title="Please wait as the preview is being fetched" />
         }
       >
-        <ErrorBoundary
-          fallback={
-            <span>
-              <Label icon={<AiFillInfoCircle />} color="red" href="#filled">
-                <Text component="p">
-                  Oh snap ! Looks like there was an error. Please refresh the
-                  browser or try again.
-                </Text>
-              </Label>
-            </span>
-          }
-        >
+        <ErrorBoundary fallback={errorComponent()}>
           <div className={previewType}>
             {props.gallery && (
               <div
@@ -228,6 +236,11 @@ const FileDetailView = (props: AllProps) => {
               fileItem={fileState}
               actionState={actionState}
             />
+            {loading && (
+              <SpinContainer title="Please wait as the preview is being fetched" />
+            )}
+
+            {error && error}
           </div>
           <TagInfoModal
             handleModalToggle={handleModalToggle}
