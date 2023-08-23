@@ -151,6 +151,7 @@ const FileDetailView = (props: AllProps) => {
         setLoading(false);
       } catch (error: any) {
         const errorMessage = error.response || error.message;
+        setLoading(false);
         setError(errorMessage);
       }
     }
@@ -240,7 +241,7 @@ const FileDetailView = (props: AllProps) => {
               <SpinContainer title="Please wait as the preview is being fetched" />
             )}
 
-            {error && error}
+            {error && <span style={{ color: "red" }}>{error}</span>}
           </div>
           <TagInfoModal
             handleModalToggle={handleModalToggle}
