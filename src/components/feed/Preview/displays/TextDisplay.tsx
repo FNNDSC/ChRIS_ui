@@ -16,7 +16,7 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
         "load",
         () => {
           //@ts-ignore
-          textDisplay.innerHTML = reader.result;
+          textDisplay.innerText = reader.result;
         },
         false
       );
@@ -31,12 +31,22 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     <Fragment>
       <div
         style={{
-          fontFamily: "monospace",
-          fontSize: "1rem",
-          color: "white",
+          display: "block",
+          padding: "15px",
+          width: "100%",
+          height: "350px",
+          overflowY: "scroll",
         }}
-        id="text-display"
-      ></div>
+      >
+        <span
+          id="text-display"
+          style={{
+            fontFamily: "monospace",
+            fontSize: "1rem",
+            color: "white",
+          }}
+        ></span>
+      </div>
     </Fragment>
   );
 };
