@@ -7,8 +7,9 @@ import { IUserState } from "../../store/user/types";
 import { onSidebarToggle, setIsNavOpen } from "../../store/ui/actions";
 import { Page } from "@patternfly/react-core";
 import Header from "./Header";
-import Sidebar from "./Sidebar";
+import Sidebar, { AnonSidebar } from "./Sidebar";
 import "./PageWrapper.scss";
+import { useTypedSelector } from "../../store/hooks";
 
 interface IOtherProps {
   children: any;
@@ -35,11 +36,14 @@ const Wrapper: React.FC<AllProps> = (props: AllProps) => {
     }
   };
 
+  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const sidebar = isLoggedIn ? <Sidebar isNavOpen={props.isNavOpen} /> : <AnonSidebar isNavOpen={props.isNavOpen} />;
+
   return (
     <Page
       onPageResize={onPageResize}
       header={<Header onNavToggle={onNavToggle} user={user} />}
-      sidebar={<Sidebar isNavOpen={props.isNavOpen} />}
+      sidebar={sidebar}
     >
       {children}
     </Page>

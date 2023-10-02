@@ -74,17 +74,13 @@ export const MainRouter: React.FC = () => {
     {
       path: "catalog",
       element: (
-        <PrivateRoute>
-          <CatalogPage />
-        </PrivateRoute>
+        <CatalogPage />
       ),
     },
     {
       path: "plugin/:id",
       element: (
-        <PrivateRoute>
-          <SinglePlugin />
-        </PrivateRoute>
+        <SinglePlugin />
       ),
     },
     {
