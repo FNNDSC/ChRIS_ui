@@ -113,7 +113,7 @@ const Sidebar: React.FC<AllProps> = ({
             </>
           )}
         </NavGroup>
-          
+
           */}
 
         {process.env.REACT_APP_ALPHA_FEATURES === "development" && (
@@ -139,5 +139,23 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setSidebarActive: (active: { activeItem: string }) =>
     dispatch(setSidebarActive(active)),
 });
+
+
+const AnonSidebarImpl : React.FC<AllProps> = ({
+  isNavOpen,
+}: AllProps) => {
+  const body = (
+    <div style={{color: "white"}}>
+      Please log in to use all features.
+    </div>
+  );
+  return (
+    <PageSidebar theme="dark" isNavOpen={isNavOpen} nav={body} />
+  )
+}
+
+const AnonSidebar = connect(mapStateToProps, mapDispatchToProps)(AnonSidebarImpl);
+export { AnonSidebar };
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
