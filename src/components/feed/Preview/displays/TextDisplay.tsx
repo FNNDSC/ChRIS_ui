@@ -6,7 +6,7 @@ type AllProps = {
 };
 
 const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const [divHeight, setDivHeight] = React.useState("500px");
+  const [divHeight, setDivHeight] = React.useState("auto");
   const divRef = React.useRef(null);
 
   const { fileItem } = props;
