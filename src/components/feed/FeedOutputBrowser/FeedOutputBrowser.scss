@@ -16,7 +16,6 @@
   }
 }
 .pf-c-drawer__body {
-  padding: 20px !important;
   background-color: #18181b !important;
 }
 
@@ -47,6 +46,10 @@
 
 .file-browser {
   height: 100%;
+
+  &__drawerbody {
+    overflow: scroll;
+  }
   .carousel {
     position: absolute;
     bottom: 0;
@@ -165,4 +168,3 @@
 .overlay {
   pointer-events: none;
 }
-

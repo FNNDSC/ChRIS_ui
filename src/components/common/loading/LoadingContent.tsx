@@ -46,9 +46,11 @@ LoadingContent.defaultProps = {
 export const SpinContainer = ({
   title,
   background = "inherit",
+  fontColor,
 }: {
   title: string;
   background?: string;
+  fontColor?: string;
 }) => {
   return (
     <div
@@ -57,7 +59,7 @@ export const SpinContainer = ({
       }}
       className="example"
     >
-      <Spin tip={title} />
+      <Spin style={{ color: fontColor }} tip={title} />
     </div>
   );
 };

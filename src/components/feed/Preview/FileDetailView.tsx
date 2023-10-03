@@ -231,15 +231,18 @@ const FileDetailView = (props: AllProps) => {
               />
             )}
 
-            <ViewerDisplay
-              preview={preview}
-              viewerName={viewerName}
-              fileItem={fileState}
-              actionState={actionState}
-            />
-            {loading && (
-              <SpinContainer title="Please wait as the preview is being fetched" />
+            {loading === true && (
+              <SpinContainer title="Please wait as the preview is being fetched" fontColor="white" />
             )}
+
+            {
+              <ViewerDisplay
+                preview={preview}
+                viewerName={viewerName}
+                fileItem={fileState}
+                actionState={actionState}
+              />
+            }
 
             {error && <span style={{ color: "red" }}>{error}</span>}
           </div>
