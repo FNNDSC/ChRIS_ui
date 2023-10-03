@@ -6,7 +6,9 @@ type AllProps = {
 };
 
 const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const [divHeight, setDivHeight] = React.useState("auto");
+  const [divHeight, setDivHeight] = React.useState<string | undefined>(
+    undefined
+  );
   const divRef = React.useRef(null);
 
   const { fileItem } = props;
@@ -61,7 +63,7 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           display: "block",
           overflowY: "scroll",
           width: "100%",
-          height: divHeight,
+          height: divHeight ? divHeight : undefined,
         }}
       >
         <span
