@@ -270,3 +270,8 @@ div.pf-c-drawer__panel-main {
 .pf-c-options-menu__toggle.pf-m-plain.pf-m-text {
   color: white;
 }
+
+.pf-c-drawer__body {
+  min-height: 0;
+  padding: 0.25rem !important;
+}
