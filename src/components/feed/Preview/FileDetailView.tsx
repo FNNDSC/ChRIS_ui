@@ -231,9 +231,14 @@ const FileDetailView = (props: AllProps) => {
               />
             )}
 
-            {loading === true && (
-              <SpinContainer title="Please wait as the preview is being fetched" fontColor="white" />
+            {loading && (
+              <SpinContainer
+                title="Please wait as the preview is being fetched"
+                fontColor="white"
+              />
             )}
+
+            {error && <span style={{ color: "red" }}>{error}</span>}
 
             {
               <ViewerDisplay
@@ -243,8 +248,6 @@ const FileDetailView = (props: AllProps) => {
                 actionState={actionState}
               />
             }
-
-            {error && <span style={{ color: "red" }}>{error}</span>}
           </div>
           <TagInfoModal
             handleModalToggle={handleModalToggle}
