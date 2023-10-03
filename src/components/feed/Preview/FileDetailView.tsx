@@ -240,14 +240,12 @@ const FileDetailView = (props: AllProps) => {
 
             {error && <span style={{ color: "red" }}>{error}</span>}
 
-            {
-              <ViewerDisplay
-                preview={preview}
-                viewerName={viewerName}
-                fileItem={fileState}
-                actionState={actionState}
-              />
-            }
+            <ViewerDisplay
+              preview={preview}
+              viewerName={viewerName}
+              fileItem={fileState}
+              actionState={actionState}
+            />
           </div>
           <TagInfoModal
             handleModalToggle={handleModalToggle}
