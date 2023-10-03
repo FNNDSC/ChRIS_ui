@@ -1,14 +1,40 @@
 import React, { Fragment } from "react";
 import { IFileBlob } from "../../../../api/models/file-viewer.model";
+
 type AllProps = {
   fileItem: IFileBlob;
 };
 
 const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
+  const [divHeight, setDivHeight] = React.useState("500px");
+  const divRef = React.useRef(null);
+
   const { fileItem } = props;
 
   React.useEffect(() => {
+    const resizeDiv = () => {
+      if (divRef.current) {
+        //@ts-ignore
+        const newHeight = `${divRef.current.scrollHeight}px`;
+        setDivHeight(newHeight);
+      }
+    };
+
+    // Initially, calculate the height
+    resizeDiv();
+
+    // Listen for changes in content and recalculate the height
+    window.addEventListener("resize", resizeDiv);
+
+    return () => {
+      // Clean up the event listener when the component unmounts
+      window.removeEventListener("resize", resizeDiv);
+    };
+  });
+
+  React.useEffect(() => {
     const textDisplay = document.getElementById("text-display");
+
     if (textDisplay) {
       const reader = new FileReader();
 
@@ -30,12 +56,12 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   return (
     <Fragment>
       <div
+        ref={divRef}
         style={{
           display: "block",
-          padding: "15px",
-          width: "100%",
-          height: "350px",
           overflowY: "scroll",
+          width: "100%",
+          height: divHeight,
         }}
       >
         <span
