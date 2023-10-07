@@ -20,8 +20,10 @@ import {
   HeaderSinglePlugin,
   ParameterPayload,
 } from "../../components/catalog/PluginCatalogComponents";
+import { useTypedSelector } from "../../store/hooks";
 
 const SinglePlugin = () => {
+  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
   const { id } = useParams() as { id: string };
 
   const [readme, setReadme] = React.useState<string>("");
@@ -77,13 +79,11 @@ const SinglePlugin = () => {
       boundFn
     );
 
-    const { resource: computes } = await fetchResource(params, boundComputeFn);
-    const pluginInstancesList = await plugin.getPluginInstances({
-      limit: 20,
-    });
+    const { resource: computes } = isLoggedIn ? await fetchResource(params, boundComputeFn) : {resource: []};
 
-    const pluginInstances: PluginInstance[] =
-      pluginInstancesList.getItems() as PluginInstance[];
+    const pluginInstances = isLoggedIn ? (await plugin.getPluginInstances({
+      limit: 20,
+    })).getItems() as PluginInstance[] : [];
 
     if (parameters.length > 0) {
       parameters.forEach((param) => {
