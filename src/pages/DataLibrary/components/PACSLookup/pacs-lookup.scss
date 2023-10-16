@@ -85,7 +85,7 @@
         padding: 0;
 
         .series-actions {
-          background-color: #ddd;
+          border-bottom: 0.25px solid #8a8d90;
           margin: -1em -1em 1em -1em;
           height: 8em;
           overflow: hidden;
@@ -105,7 +105,7 @@
             transition: opacity 0.25s ease;
             &:hover {
               opacity: 1;
-              background-color: #ffffffab;
+              background-color: #fff;
             }
           }
         }
