@@ -241,7 +241,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
 
     return (
       <>
-        <Card isRounded isHoverable isExpanded={isStudyExpanded}>
+        <Card isRounded isExpanded={isStudyExpanded}>
           <CardHeader
             onExpand={expandStudy.bind(QueryResults, StudyInstanceUID)}
           >
@@ -568,7 +568,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isRounded isHoverable style={{ height: "100%" }}>
+      <Card isRounded style={{ height: "100%", background: "inherit" }}>
         <CardBody>
           <div className="series-actions">
             <SeriesActions />
