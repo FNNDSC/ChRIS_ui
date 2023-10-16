@@ -568,7 +568,7 @@ export const QueryResults: React.FC<QueryResultsProps> = ({
     };
 
     return (
-      <Card isRounded style={{ height: "100%", background: "inherit" }}>
+      <Card isRounded style={{ height: "100%" }}>
         <CardBody>
           <div className="series-actions">
             <SeriesActions />
