@@ -5,15 +5,15 @@
  */
 import { combineReducers } from "redux";
 
+import { userReducer } from "../user/reducer";
 import { uiReducer } from "../ui/reducer";
 import { feedsReducer } from "../feed/reducer";
+import { pluginReducer } from "../plugin/reducer";
 import { pluginInstanceReducer } from "../pluginInstance/reducer";
 import { resourceReducer } from "../resources/reducer";
-import { userReducer } from "../user/reducer";
-import { pluginReducer } from "../plugin/reducer";
-import { explorerReducer } from "../explorer/reducer";
-import { tsPluginsReducer } from "../tsplugins/reducer";
 import { drawerReducer } from "../drawer/reducer";
+import { tsPluginsReducer } from "../tsplugins/reducer";
+import { explorerReducer } from "../explorer/reducer";
 
 const rootReducer = combineReducers({
   ui: uiReducer,

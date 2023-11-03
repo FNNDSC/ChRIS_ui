@@ -1,0 +1,33 @@
+tspan {
+  fill: #ff9900 !important;
+}
+
+.feed-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  &__count {
+    color: var(--pf-global--Color-200);
+    font-weight: var(--fw-normal);
+    margin-left: 0.25em;
+  }
+}
+
+.feed-list .error {
+  background-color: red;
+}
+
+.feed-list__split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feed-list__name a {
+  margin-left: 0.25em;
+
+  cursor: pointer;
+  outline: none;
+}

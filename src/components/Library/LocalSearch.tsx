@@ -1,0 +1,212 @@
+import React, { useContext } from "react";
+import { TextInput, Button, Spinner, Label } from "@patternfly/react-core";
+import {
+  searchUploadedFiles,
+  searchFeedFiles,
+  searchPacsFiles,
+  handleUploadedFiles,
+  handleFeedFiles,
+  handlePacsFiles,
+} from "./utils";
+import { LibraryContext } from "./context";
+import { debounce } from "lodash";
+import {
+  clearSearchFilter,
+  setEmptySetIndicator,
+  setSearch,
+} from "./context/actions";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+
+const LocalSearch = ({
+  type,
+  username,
+}: {
+  type: string;
+  username: null | undefined | string;
+}) => {
+  const [value, setValue] = React.useState<{ [key: string]: string }>({
+    services: "",
+    feed: "",
+    uploads: "",
+  });
+
+  const { dispatch, state } = useContext(LibraryContext);
+  const [loading, setLoading] = React.useState<{ [key: string]: boolean }>({
+    services: false,
+    uploads: false,
+    feed: false,
+  });
+  const { search } = state;
+
+  const handleChange = (
+    _event: React.FormEvent<HTMLInputElement>,
+    valueChanged: string
+  ) => {
+    setValue({
+      ...value,
+      [type]: valueChanged,
+    });
+  };
+
+  const placeholder =
+    type === "uploads"
+      ? "Search over Uploads"
+      : type === "feed"
+      ? "Search over Completed Analyses"
+      : "Search over SERVICES/PACS";
+
+  const handleSubmit = async () => {
+    if (value[type] && username) {
+      dispatch(clearSearchFilter(type));
+      dispatch(setSearch(type));
+      if (type === "uploads") {
+        setLoading({
+          ...loading,
+          uploads: true,
+        });
+        const uploadedFiles = await searchUploadedFiles(
+          value[type].toLowerCase(),
+          dispatch
+        );
+
+        if (uploadedFiles && uploadedFiles.length > 0) {
+          handleUploadedFiles(uploadedFiles, dispatch);
+        } else {
+          dispatch(
+            setEmptySetIndicator(
+              "uploads",
+              `We couldn't find anything for the search term ${value[type]}`
+            )
+          );
+        }
+        setLoading({
+          ...loading,
+          uploads: false,
+        });
+      }
+      if (type === "feed") {
+        setLoading({
+          ...loading,
+          feed: true,
+        });
+        const feedFiles = await searchFeedFiles(
+          value[type].toLowerCase(),
+          dispatch
+        );
+        if (feedFiles && feedFiles.length > 0) {
+          handleFeedFiles(feedFiles, dispatch);
+        } else {
+          dispatch(
+            setEmptySetIndicator(
+              "feed",
+              `We couldn't find anything for the search term ${value[type]}`
+            )
+          );
+        }
+        setLoading({
+          ...loading,
+          feed: false,
+        });
+      }
+      if (type === "services") {
+        setLoading({
+          ...loading,
+          services: true,
+        });
+        const pacsFiles = await searchPacsFiles(
+          value[type].toLowerCase(),
+          dispatch
+        );
+        if (pacsFiles && pacsFiles.length > 0) {
+          handlePacsFiles(pacsFiles, dispatch);
+        } else {
+          dispatch(
+            setEmptySetIndicator(
+              "services",
+              `We couldn't find anything for the search term ${value[type]}`
+            )
+          );
+        }
+        setLoading({
+          ...loading,
+          services: false,
+        });
+      }
+    }
+  };
+
+  const debouncedHandleSubmit = debounce(() => {
+    handleSubmit();
+  }, 500);
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          marginTop: "1.25rem",
+         
+        }}
+      >
+        <TextInput
+          aria-label="local-search"
+          customIcon={<SearchIcon />}
+          placeholder={placeholder}
+          value={value[type]}
+          onChange={handleChange}
+          onKeyUp={(e) => {
+            if (e.key === "Enter") {
+              debouncedHandleSubmit();
+            }
+          }}
+          width={"50%"}
+        />
+        <Button onClick={handleSubmit}>Search</Button>
+      </div>
+
+      <div
+        style={{
+          marginTop: "1.25em",
+        }}
+      >
+        {loading[type] && (
+          <>
+            {" "}
+            <Spinner
+              style={{
+                marginRight: "1em",
+              }}
+              size="md"
+            />
+            <span>
+              Performing Search... <i>please wait</i>
+            </span>
+          </>
+        )}
+      </div>
+      {search[type] && (
+        <Label
+          style={{
+            marginTop: "1em",
+          }}
+          icon
+          onClose={() => {
+            setLoading({
+              ...loading,
+              [type]: false,
+            });
+            setValue({
+              ...value,
+              [type]: "",
+            });
+
+            dispatch(clearSearchFilter(type));
+          }}
+        >
+          Clear Search Filter
+        </Label>
+      )}
+    </>
+  );
+};
+
+export default LocalSearch;

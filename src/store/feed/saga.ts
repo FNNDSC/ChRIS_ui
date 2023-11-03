@@ -2,7 +2,7 @@ import { all, fork, put, takeEvery, delay } from "redux-saga/effects";
 import { Task } from "redux-saga";
 import { Feed, FeedList } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from "./types";
-import { IActionTypeParam } from "../../api/models/base.model";
+import { IActionTypeParam } from "../../api/model";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   getAllFeedsSuccess,
@@ -22,15 +22,13 @@ import { getPluginInstancesRequest } from "../pluginInstance/actions";
 import { cujs } from "chris-utility";
 import { catchError } from "../../api/common";
 
-
-
 function* handleGetAllFeeds(action: IActionTypeParam) {
-  const {search, searchType, limit, offset } = action.payload;
-  const params={
+  const { search, searchType, limit, offset } = action.payload;
+  const params = {
     limit: limit,
-    [searchType]:search,
-    offset:offset
-  }
+    [searchType]: search,
+    offset: offset,
+  };
   const client = ChrisAPIClient.getClient();
 
   try {

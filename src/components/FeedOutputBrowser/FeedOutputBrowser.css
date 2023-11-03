@@ -1,0 +1,118 @@
+@keyframes pulse {
+  40% {
+    box-shadow: 0 0 0 5px #bee1f4;
+  }
+
+  80% {
+    box-shadow: 0 0 0 3px #0088ce;
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 #73bcf7;
+  }
+}
+
+.feed-output-browser__button {
+  cursor: pointer;
+}
+
+.file-browser {
+  height: 100%;
+}
+
+.file-browser__drawerbody {
+  overflow: scroll;
+}
+
+.file-browser .carousel {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.file-browser__previewPanel .pf-v5-c-drawer__content,
+.file-browser__previewPanel .pf-v5-c-drawer__panel,
+.file-browser__previewPanel .pf-v5-c-drawer__panel-main {
+  overflow: hidden !important;
+}
+
+.file-browser__table--fileName {
+  display: flex;
+  flex-direction: row;
+}
+
+.file-browser__table--isPreviewing {
+  background: #002952;
+}
+
+.file-browser__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  margin-right: 0.25em;
+}
+
+.file-browser__header__info {
+  gap: 2rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media screen and (min-width: 1024px) {
+  .file-browser__header {
+    display: flex;
+  }
+}
+
+.file-browser .pf-c-breadcrumb {
+  cursor: pointer;
+  --pf-v5-c-breadcrumb__item--FontSize: var(--pf-global--FontSize--md);
+}
+
+.file-browser__firstGrid {
+  overflow-y: scroll !important;
+  height: 100% !important;
+  max-width: 100%;
+  margin: 0;
+}
+
+.file-browser__firstGrid tbody tr {
+  cursor: pointer;
+}
+
+.file-browser__firstGrid svg {
+  margin-right: 0.25em;
+}
+
+.file-browser .header-panel__buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.file-browser .preview-panel {
+  display: flex;
+  justify-content: space-between;
+}
+
+.file-browser .preview-panel > div {
+  width: 100%;
+}
+
+.file-browser .preview-panel > div > div:first-child {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.iframe-container {
+  height: 100%;
+}
+
+.iframe-container iframe {
+  height: 100% !important;
+}
+
+.overlay {
+  pointer-events: none;
+}

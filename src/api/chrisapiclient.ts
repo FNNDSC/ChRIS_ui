@@ -1,11 +1,7 @@
 import Client from '@fnndsc/chrisapi'
 import { Cookies } from 'react-cookie'
 
-declare let process: {
-  env: {
-    REACT_APP_CHRIS_UI_URL: string
-  }
-}
+
 
 
 
@@ -30,7 +26,7 @@ class ChrisAPIClient {
       } else {
         this.isTokenAuthorized = false
       }
-      this.client = new Client(process.env.REACT_APP_CHRIS_UI_URL, {
+      this.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
         token,
       })
     }
