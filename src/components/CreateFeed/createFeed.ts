@@ -96,63 +96,69 @@ export const createFeedInstanceWithDircopy = async (
   try {
     const client = ChrisAPIClient.getClient();
     const dircopy = await getPlugin("pl-dircopy");
+
     if (dircopy instanceof Plugin) {
-      const createdInstance = await client.createPluginInstance(
-        dircopy.data.id,
-        {
-          //@ts-ignore
-          dir: dirpath.join(","),
+    
+      try {
+        const createdInstance = await client.createPluginInstance(
+          dircopy.data.id,
+          {
+            //@ts-ignore
+            dir: dirpath.join(","),
+          }
+        );
+
+        if (createdInstance) {
+          if (selectedPipeline) {
+            const pipeline = pipelineData[selectedPipeline];
+            if (
+              pipeline.pluginPipings &&
+              pipeline.pluginParameters &&
+              pipeline.pipelinePlugins &&
+              pipeline.pluginPipings.length > 0
+            ) {
+              const { pluginParameters, computeEnvs, parameterList } = pipeline;
+
+              const nodes_info = client.computeWorkflowNodesInfo(
+                //@ts-ignore
+                pluginParameters.data
+              );
+
+              nodes_info.forEach((node) => {
+                if (computeEnvs && computeEnvs[node["piping_id"]]) {
+                  const compute_node =
+                    computeEnvs[node["piping_id"]]["currentlySelected"];
+
+                  const title =
+                    pipeline.title && pipeline.title[node["piping_id"]];
+                  if (title) {
+                    node.title = title;
+                  }
+                  if (compute_node) {
+                    node.compute_resource_name = compute_node;
+                  }
+                }
+
+                if (parameterList && parameterList[node["piping_id"]]) {
+                  const params = parameterList[node["piping_id"]];
+                  node["plugin_parameter_defaults"] = params;
+                }
+              });
+
+              await client.createWorkflow(selectedPipeline, {
+                previous_plugin_inst_id: createdInstance.data.id,
+                nodes_info: JSON.stringify(nodes_info),
+              });
+            }
+          }
+
+          feed = await createdInstance.getFeed();
         }
-      );
+      } catch (error) {
+        console.log("Error", error);
+      }
 
       //when the `post` finishes, the dircopyInstances's internal collection is updated
-
-      if (createdInstance) {
-        if (selectedPipeline) {
-          const pipeline = pipelineData[selectedPipeline];
-          if (
-            pipeline.pluginPipings &&
-            pipeline.pluginParameters &&
-            pipeline.pipelinePlugins &&
-            pipeline.pluginPipings.length > 0
-          ) {
-            const { pluginParameters, computeEnvs, parameterList } = pipeline;
-
-            const nodes_info = client.computeWorkflowNodesInfo(
-              //@ts-ignore
-              pluginParameters.data
-            );
-
-            nodes_info.forEach((node) => {
-              if (computeEnvs && computeEnvs[node["piping_id"]]) {
-                const compute_node =
-                  computeEnvs[node["piping_id"]]["currentlySelected"];
-
-                const title =
-                  pipeline.title && pipeline.title[node["piping_id"]];
-                if (title) {
-                  node.title = title;
-                }
-                if (compute_node) {
-                  node.compute_resource_name = compute_node;
-                }
-              }
-
-              if (parameterList && parameterList[node["piping_id"]]) {
-                const params = parameterList[node["piping_id"]];
-                node["plugin_parameter_defaults"] = params;
-              }
-            });
-
-            await client.createWorkflow(selectedPipeline, {
-              previous_plugin_inst_id: createdInstance.data.id,
-              nodes_info: JSON.stringify(nodes_info),
-            });
-          }
-        }
-
-        feed = await createdInstance.getFeed();
-      }
     }
   } catch (error) {
     const errorObj = catchError(error);
@@ -201,6 +207,9 @@ export const uploadLocalFiles = async (
   statusCallback: (value: number) => void
 ) => {
   const client = ChrisAPIClient.getClient();
+  await client.setUrls();
+
+ 
 
   const fileUploads = uploadWrapper(
     files,
@@ -213,6 +222,7 @@ export const uploadLocalFiles = async (
       () =>
         promise
   );
+
   await limitConcurrency(4, promises, (progress: number) => {
     statusCallback(progress);
   });

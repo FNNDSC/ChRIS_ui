@@ -22,6 +22,7 @@ import {
   getSelectedPlugin,
   resetPluginInstances,
 } from "../../store/pluginInstance/actions";
+import { clearSelectedFile } from "../../store/explorer/actions";
 import { addTSNodes, resetTsNodes } from "../../store/tsplugins/actions";
 import ParentComponent from "../FeedTree/ParentComponent";
 import type { PluginInstance } from "@fnndsc/chrisapi";
@@ -73,7 +74,7 @@ export default function FeedView() {
       dispatch(resetTsNodes());
       dispatch(resetFeed());
 
-      //dispatch(clearSelectedFile());
+      dispatch(clearSelectedFile());
       dispatch(setShowToolbar(false));
     };
   }, [dispatch]);
@@ -187,7 +188,10 @@ export default function FeedView() {
             }
             isResizable
           >
-           <FeedOutputBrowser explore={true} handlePluginSelect={onNodeBrowserClick}/>
+            <FeedOutputBrowser
+              explore={true}
+              handlePluginSelect={onNodeBrowserClick}
+            />
           </DrawerPanelContent>
         }
       >

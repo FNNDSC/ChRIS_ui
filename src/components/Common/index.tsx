@@ -21,7 +21,7 @@ import "./common.css";
 export const SpinContainer = ({ title }: { title: string }) => {
   return (
     <div className="example">
-      <Spin tip={title} />
+      <Spin />
     </div>
   );
 };
@@ -37,10 +37,10 @@ export const RenderFlexItem = ({
     <div>
       <Flex flex={{ default: "flex_1" }} style={{ marginBottom: "0.5rem" }}>
         <Flex style={{ width: "20%" }} direction={{ default: "column" }}>
-          <FlexItem>{title}</FlexItem>
+          <FlexItem></FlexItem>
         </Flex>
         <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
-          <FlexItem>{subTitle}</FlexItem>
+          <FlexItem></FlexItem>
         </Flex>
       </Flex>
     </div>

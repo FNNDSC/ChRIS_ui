@@ -3,6 +3,7 @@ import { WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
 import { LocalFileList } from "./HelperComponent";
+import { notification } from "antd";
 
 const LocalFileUpload = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -18,13 +19,11 @@ const LocalFileUpload = () => {
       },
     });
 
-    /*
     notification.info({
       message: "File removed",
       description: `${file} file removed`,
       duration: 1,
     });
-    */
   };
 
   return (

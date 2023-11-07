@@ -74,6 +74,7 @@ class PfdcmClient {
         for (const key in study) {
           const seriesList = study[key];
           for (const series of seriesList) {
+            console.log("Series", series);
             if (series.images.requested.count === -1) {
               images.requested = 0;
               imagestatus.request = false;
@@ -128,6 +129,13 @@ class PfdcmClient {
           }
         }
       }
+
+      console.log(
+        "pullquery",
+        query.SeriesInstanceUID,
+        imagestatus,
+        currentStatus
+      );
 
       return {
         imagestatus,

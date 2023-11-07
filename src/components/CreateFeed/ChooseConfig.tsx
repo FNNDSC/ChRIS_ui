@@ -224,20 +224,31 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
         widths={{ default: "width_50" }}
         className="drawer_panelContent"
       >
-        <DrawerHead>
+        <DrawerHead
+          style={{
+            padding: "1em",
+          }}
+        >
           <span tabIndex={isRightDrawerExpand ? 0 : -1}></span>
           <DrawerActions>
             <Button
               onClick={resetChRisFiles}
               variant="secondary"
               isDisabled={chrisFiles.length === 0}
+              style={{
+                marginRight: "0.5em",
+              }}
             >
               Clear
             </Button>
             <Button onClick={onCloseClick}>Done</Button>
           </DrawerActions>
         </DrawerHead>
-        <DrawerPanelBody>
+        <DrawerPanelBody
+          style={{
+            padding: "1em",
+          }}
+        >
           {user && user.username && (
             <ChrisFileSelect username={user.username} />
           )}
@@ -249,13 +260,20 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
         widths={{ default: "width_50" }}
         className="drawer_panelContent"
       >
-        <DrawerHead>
+        <DrawerHead
+          style={{
+            padding: "1em",
+          }}
+        >
           <span tabIndex={isRightDrawerExpand ? 0 : -1}></span>
           <DrawerActions>
             <Button
               onClick={resetPlugin}
               variant="secondary"
               isDisabled={pluginMeta === undefined}
+              style={{
+                marginRight: "0.5em",
+              }}
             >
               Clear
             </Button>
@@ -270,7 +288,11 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             </Button>
           </DrawerActions>
         </DrawerHead>
-        <DrawerPanelBody>
+        <DrawerPanelBody
+          style={{
+            padding: "1em",
+          }}
+        >
           <Steps current={currentStep} items={items} />
           <Grid style={{ marginTop: "1rem" }}>
             {steps[currentStep].content}

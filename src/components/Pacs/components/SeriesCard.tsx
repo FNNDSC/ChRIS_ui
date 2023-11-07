@@ -28,6 +28,7 @@ import { Types } from "../context/index";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import FaCodeBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import { MainRouterContext } from "../../../routes";
 
 const cubeClient = ChrisAPIClient.getClient();
 const client = new PFDCMClient();
@@ -57,6 +58,7 @@ function useInterval(callback: () => void, delay: number | null): void {
 
 const SeriesCard = ({ series }: { series: any }) => {
   const { state, dispatch } = useContext(PacsQueryContext);
+  const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const oldStep = useRef("");
 
   const [cubeFiles, setCubeFiles] = useState<any[]>();
@@ -65,10 +67,13 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   const [progress, setProgress] = useState({
     currentStep: "",
-    currentProgress: 0,
     progressText: "",
+    currentProgress: 0,
   });
+
   const { queryStageForSeries, selectedPacsService } = state;
+
+  const { currentStep, currentProgress } = progress;
 
   const {
     SeriesInstanceUID,
@@ -130,8 +135,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     const index = getIndex(step);
     const nextStep = QueryStages[index + 1];
 
-    console.log("NextStep", nextStep);
-
     if (nextStep === "retrieve") {
       await client.findRetrieve(pullQuery, selectedPacsService);
     }
@@ -146,6 +149,7 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   useInterval(async () => {
     if (queryStage !== "completed" && fetchNextStatus) {
+      console.log("PullQuery", pullQuery.SeriesInstanceUID);
       const status = await client.status(pullQuery, selectedPacsService);
 
       if (status) {
@@ -153,7 +157,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         setProgress(currentStatus);
 
         if (
-          oldStep.current !== currentStatus.currentStep &&
+          oldStep.current !== currentStatus.currentStep ||
           currentStatus.currentStep !== "completed"
         ) {
           dispatch({
@@ -165,6 +169,9 @@ const SeriesCard = ({ series }: { series: any }) => {
           });
           currentStatus.currentStep !== "completed" &&
             executeNextStepForTheSeries(currentStatus.currentStep);
+
+          currentStatus.currentStep === "completed" &&
+            setFetchNextStatus(!fetchNextStatus);
           oldStep.current = currentStatus.currentStep;
         }
       }
@@ -179,31 +186,46 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   const buttonContainer = (
     <div style={{ margin: "auto" }}>
-      <Tooltip content="Pull this series to use it in ChRIS">
-        {queryStage &&
-        queryStage !== "completed" &&
+      {!currentStep && <div>Fetching current status</div>}
+      {currentStep === "completed" && (
+        <Button
+          variant="secondary"
+          onClick={() => {
+            fetchCubeSeries();
+          }}
+        >
+          Fetch the Files
+        </Button>
+      )}
+
+      {currentStep &&
+        currentStep !== "completed" &&
         nextQueryStage &&
-        nextQueryStage !== "completed" ? (
+        currentProgress === 0 && (
           <Button
             variant="secondary"
-            style={{ marginBottom: "0.5em", fontSize: "small" }}
             onClick={() => {
               setFetchNextStatus(!fetchNextStatus);
             }}
           >
-            <b>{nextQueryStage && nextQueryStage.toUpperCase()}</b>
+            {nextQueryStage.toUpperCase()}
           </Button>
-        ) : (
+        )}
+
+      {currentStep !== "completed" &&
+        currentProgress > 0 &&
+        currentProgress < 1 &&
+        fetchNextStatus === false && (
           <Button
             variant="secondary"
             onClick={() => {
-              fetchCubeSeries();
+              setFetchNextStatus(!fetchNextStatus);
             }}
           >
-            Fetch the Files
+            Continue this step
           </Button>
         )}
-      </Tooltip>
+
       <div style={{ fontSize: "smaller", color: "gray" }}>
         {series.NumberOfSeriesRelatedInstances.value}{" "}
         {pluralize("file", series.NumberOfSeriesRelatedInstances.value)}
@@ -255,7 +277,14 @@ const SeriesCard = ({ series }: { series: any }) => {
             variant="primary"
             style={{ fontSize: "small", margin: "auto" }}
             onClick={() => {
-              console.log("Clicked");
+              if (cubeFiles) {
+                const file = cubeFiles[0];
+                const cubeSeriesPath = file.data.fname
+                  .split("/")
+                  .slice(0, -1)
+                  .join("/");
+                createFeed([cubeSeriesPath]);
+              }
             }}
           >
             <FaCodeBranch /> <b>Create Feed</b>
@@ -272,6 +301,13 @@ const SeriesCard = ({ series }: { series: any }) => {
     </>
   );
 
+  const showProcessingWithButton =
+    (currentProgress > 0 &&
+      currentProgress < 1 &&
+      fetchNextStatus &&
+      currentStep !== "completed") ||
+    (currentStep === "push" && fetchNextStatus === true);
+
   return (
     <>
       <Card isRounded style={{ height: "100%" }}>
@@ -283,11 +319,10 @@ const SeriesCard = ({ series }: { series: any }) => {
             >
               {cubeFiles && cubeFiles.length > 0 ? (
                 <div>{fileDetailsComponent}</div>
-              ) : progress.currentProgress > 0 &&
-                progress.currentProgress < 1 ? (
-                <div> Processing... </div>
+              ) : showProcessingWithButton ? (
+                <div>Processing...</div>
               ) : (
-                <>{buttonContainer}</>
+                <div>{buttonContainer} </div>
               )}
             </div>
           </div>
@@ -301,17 +336,23 @@ const SeriesCard = ({ series }: { series: any }) => {
             </FlexItem>
           </Flex>
           <Flex>
-            {progress.currentProgress > 0 && progress.currentProgress < 1 && (
-              <Progress
-                value={progress.currentProgress * 100}
-                style={{ gap: "0.5em", textAlign: "left" }}
-                title={progress.currentStep.toUpperCase()}
-                label={progress.progressText}
-                valueText={progress.progressText}
-                measureLocation={ProgressMeasureLocation.top}
-                size={ProgressSize.sm}
-              />
-            )}
+            <FlexItem
+              style={{
+                marginTop: "1em",
+              }}
+            >
+              {progress.currentProgress > 0 && progress.currentProgress < 1 && (
+                <Progress
+                  value={progress.currentProgress * 100}
+                  style={{ gap: "0.5em", textAlign: "left" }}
+                  title={progress.currentStep.toUpperCase()}
+                  label={progress.progressText}
+                  valueText={progress.progressText}
+                  measureLocation={ProgressMeasureLocation.top}
+                  size={ProgressSize.sm}
+                />
+              )}
+            </FlexItem>
           </Flex>
         </CardBody>
       </Card>

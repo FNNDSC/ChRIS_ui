@@ -68,7 +68,7 @@ const DashboardPage = (props: DashboardProps) => {
         </p>
         {children}
       </PageSection>
-      <PageSection variant="darker">
+      <PageSection>
         <Grid hasGutter>
           <GridItem lg={6}>
             <CardDisplay

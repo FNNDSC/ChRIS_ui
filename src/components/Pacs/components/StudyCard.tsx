@@ -69,10 +69,10 @@ const StudyCard = ({ study }: { study: any }) => {
       </Card>
       {isStudyExpanded && (
         <Grid hasGutter className="patient-series">
-          {study.series.map((series: any) => {
+          {study.series.map((series: any, index: number) => {
             return (
-              <GridItem sm={12} md={3} key={series.SeriesInstanceUID.value}>
-                <SeriesCard series={series} />
+              <GridItem sm={12} md={3} key={index}>
+                <SeriesCard series={series} key={index} />
               </GridItem>
             );
           })}

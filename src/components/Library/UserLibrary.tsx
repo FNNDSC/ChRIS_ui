@@ -96,7 +96,7 @@ const DataLibrary = () => {
       }
       return file.folder.path;
     });
-    //@ts-ignore
+
     router.actions.createFeedWithData(pathList);
   };
 
@@ -706,7 +706,6 @@ const UploadComponent = ({
       isOpen={uploadFileModal}
       variant={ModalVariant.large}
       arial-labelledby="file-upload"
-      style={{ color: "white" }}
     >
       <div style={{ height: "200px" }}>
         <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
@@ -769,7 +768,7 @@ const UploadComponent = ({
       >
         <CodeBlockCode>
           {Object.keys(currentFile).length === 0 ? (
-            <span style={{ color: "white", fontFamily: "monospace" }}>
+            <span style={{ fontFamily: "monospace" }}>
               You have no active uploads. Please upload Files from your local
               computer and hit the &apos;Push to File Storage&apos; button. You
               can give a directory name for your upload or use the default name
@@ -793,7 +792,7 @@ const UploadComponent = ({
         measureLocation="outside"
       />
       {countdown < 5 && countdown > 0 && (
-        <PatternflyAlert variant="success" title="">
+        <PatternflyAlert variant="success" title="Successful Upload">
           The files have been uploaded to the server. This modal will close in{" "}
           {countdown} seconds.
         </PatternflyAlert>

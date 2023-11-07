@@ -21,7 +21,8 @@ import Review from "./Review";
 import { useTypedSelector } from "../../store/hooks";
 import { addFeed } from "../../store/feed/actions";
 import { createFeed } from "./createFeed";
-import "./CreateFeed.css";
+import "./createFeed.css";
+import withSelectionAlert from "./SelectionAlert";
 
 export default function CreateFeed() {
   const storeDispatch = useDispatch();
@@ -74,6 +75,7 @@ export default function CreateFeed() {
       },
     });
     const username = user && user.username;
+
     const feed = await createFeed(
       state.data,
       dropdownInput,
@@ -223,7 +225,7 @@ export default function CreateFeed() {
               isBackDisabled: true,
             }}
           >
-            <BasicInformation />
+            {withSelectionAlert(<BasicInformation />)}
           </WizardStep>
           <WizardStep
             id={2}
@@ -232,10 +234,12 @@ export default function CreateFeed() {
               isNextDisabled: allRequiredFieldsNotEmpty ? false : true,
             }}
           >
-            <ChooseConfig
-              user={user}
-              handleFileUpload={handleChoseFilesClick}
-            />
+            {withSelectionAlert(
+              <ChooseConfig
+                user={user}
+                handleFileUpload={handleChoseFilesClick}
+              />
+            )}
           </WizardStep>
           <WizardStep id={3} name="Pipelines">
             <PipelineContainer />

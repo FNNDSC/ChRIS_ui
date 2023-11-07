@@ -53,7 +53,6 @@ function getInitialState() {
 }
 
 const FileDetailView = (props: AllProps) => {
-  console.log("Selected File", props.selectedFile);
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
   const [tagInfo, setTagInfo] = React.useState<any>();
   const [actionState, setActionState] = React.useState<ActionState>({});

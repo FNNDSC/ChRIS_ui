@@ -1,3 +1,7 @@
+.anticon svg {
+  color: white;
+}
+
 .pf-v5-c-wizard__main-body {
   height: 100%;
 }
@@ -213,7 +217,6 @@
   height: 60%;
 }
 
-
 .pf-c-input-group input:not([type="checkbox"]):not([type="radio"]),
 .pf-c-input-group textarea {
   flex: 2 1;
@@ -231,4 +234,8 @@
 .pf-c-code-block__actions-item {
   display: flex;
   justify-content: space-between;
+}
+
+.pf-v5-c-modal-box.pf-m-lg {
+  --pf-v5-c-modal-box--Width: 100%;
 }
