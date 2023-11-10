@@ -20,9 +20,13 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false, // default: true
 <<<<<<< HEAD
+<<<<<<< HEAD
       refetchOnMount: false,
 =======
 >>>>>>> 41354abc (Fix Merge Commits)
+=======
+      refetchOnMount: false,
+>>>>>>> a098c07a (Fixing merge conflicts)
     },
   },
 });
