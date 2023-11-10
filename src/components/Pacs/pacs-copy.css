@@ -1,0 +1,42 @@
+article {
+  max-width: 1400px;
+  margin: 0.5em auto;
+  padding: 1em 1em;
+  width: 100%;
+}
+
+.patient-studies,
+.patient-series {
+  margin-top: 1em;
+  padding: 1em 2em;
+  border-right: 0.5px solid lightgray;
+  border-left: 0.5px solid lightgray;
+}
+
+.study-detail-title {
+  font-weight: 600;
+}
+
+.series-actions {
+  margin: -1em -1em 1em -1em;
+  height: 8em;
+  overflow: hidden;
+  position: relative;
+}
+
+.action-button-container {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 1em;
+  text-align: center;
+}
+
+.action-button-container[class~="hover"] {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  &:hover {
+    opacity: 1;
+  }
+}

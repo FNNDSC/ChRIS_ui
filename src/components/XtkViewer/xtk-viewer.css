@@ -1,0 +1,130 @@
+.xtk-viewer-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.xtk-viewer-wrap .xtk-header {
+  padding: 13px;
+  background: black;
+  color: var(--pf-global--palette--blue-200);
+}
+
+.xtk-viewer-wrap .xtk-title {
+  font-weight: 900;
+  font-size: 1.4rem;
+  margin-bottom: 5px;
+  color: inherit;
+}
+
+.xtk-viewer-wrap .xtk-info {
+  padding-top: 0;
+}
+
+.xtk-viewer-wrap .xtk-render {
+  width: 100%;
+  text-align: center;
+  background: black;
+  color: white;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.xtk-viewer-wrap .xtk-controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background-color: black;
+}
+
+.xtk-viewer-wrap .xtk-controls .additional-files {
+  display: flex;
+}
+
+.xtk-viewer-wrap .xtk-controls .additional-files button {
+  margin-right: 10px;
+}
+
+.xtk-viewer-wrap .xtk-viewer-mode {
+  padding-top: 40px;
+  background: black;
+  color: white;
+  text-align: center;
+}
+
+.xtk-viewer-wrap .xtk-viewer-mode .instructions {
+  padding-bottom: 20px;
+}
+
+.xtk-viewer-wrap .xtk-viewer-mode button:first-of-type {
+  margin-right: 20px;
+}
+
+.xtk-viewer-wrap .fullscreen-toggle {
+  margin-top: 15px;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.xtk-viewer-wrap .crv-select-wrap {
+  color: white;
+  display: flex;
+}
+
+.xtk-viewer-wrap .crv-file-list {
+  border-top: 1px solid gray;
+  margin-top: 5px;
+  padding-top: 5px;
+}
+
+.xtk-viewer-wrap .fsm-select-wrap {
+  background-color: black;
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+
+.xtk-viewer-wrap .fsm-select-inner {
+  padding: 20px;
+  background-color: white;
+  background-color: lightgray;
+  width: 30%;
+  margin: 0 auto;
+}
+
+.xtk-viewer-wrap .fsm-file-list {
+  border-top: 1px solid gray;
+  margin-top: 5px;
+  padding-top: 5px;
+  color: white !important;
+}
+
+.xtk-viewer-wrap .volume-mode {
+  display: flex;
+}
+
+.xtk-viewer-wrap .volume-mode button:not(.active) {
+  background: gray;
+}
+
+.xtk-viewer-wrap .volume-mode .orientation {
+  margin-left: 10px;
+}
+
+.xtk-viewer-wrap .volume-mode .orientation .orientation-button-wrap {
+  padding-left: 10px;
+  border-left: 1px solid white;
+}
+
+.xtk-viewer-wrap .xtk-controls .caption {
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.xtk-viewer-wrap .dg.ac {
+  position: absolute;
+  z-index: 1;
+  top: 10px;
+}

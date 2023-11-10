@@ -1,6 +1,6 @@
 import { all, fork, takeEvery, put, delay } from "@redux-saga/core/effects";
 import { Task } from "redux-saga";
-import { IActionTypeParam } from "../../api/models/base.model";
+import { IActionTypeParam } from "../../api/model";
 import { ResourceTypes, PluginStatusLabels } from "./types";
 import { PluginInstanceTypes } from "../pluginInstance/types";
 import {

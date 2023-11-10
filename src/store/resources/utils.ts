@@ -1,12 +1,11 @@
 import { PluginStatusLabels } from "./types";
-import { GrInProgress } from "react-icons/gr";
-import {
-  AiFillRightCircle,
-  AiFillLeftCircle,
-  AiFillClockCircle,
-} from "react-icons/ai";
-import { FaFileArchive } from "react-icons/fa";
-import { MdOutlineDownloading } from "react-icons/md";
+import InProgress from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
+import FileArchive from "@patternfly/react-icons/dist/esm/icons/file-archive-icon";
+import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
+import FillRightCircle from "@patternfly/react-icons/dist/esm/icons/caret-right-icon";
+import FillLeftCircle from "@patternfly/react-icons/dist/esm/icons/caret-left-icon";
+import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
+
 
 export function getStatusLabels(
   labels: PluginStatusLabels,
@@ -58,7 +57,7 @@ export function getStatusLabels(
       errorStatuses.includes(previousStatus)
         ? true
         : false,
-    icon: AiFillClockCircle,
+    icon: ClockIcon,
   };
 
   status[1] = {
@@ -73,7 +72,7 @@ export function getStatusLabels(
         ? true
         : false,
     error: false,
-    icon: GrInProgress,
+    icon: InProgress,
   };
 
   status[2] = {
@@ -90,7 +89,7 @@ export function getStatusLabels(
       errorStatuses.includes(pluginStatus)
         ? true
         : false,
-    icon: MdOutlineDownloading,
+    icon: DownloadIcon,
   };
 
   status[3] = {
@@ -119,7 +118,7 @@ export function getStatusLabels(
         labels.pushPath.status === true)
         ? true
         : false,
-    icon: AiFillRightCircle,
+    icon: FillRightCircle,
   };
 
   status[4] = {
@@ -134,7 +133,7 @@ export function getStatusLabels(
     wait: !labels || status[3].finish !== true,
     finish: labels && labels.pullPath.status === true,
     error: false,
-    icon: AiFillLeftCircle,
+    icon: FillLeftCircle,
   };
 
   status[5] = {
@@ -151,7 +150,7 @@ export function getStatusLabels(
         ? true
         : false,
     error: false,
-    icon: FaFileArchive,
+    icon: FileArchive,
   };
 
   return status;

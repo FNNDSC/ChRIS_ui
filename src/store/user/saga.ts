@@ -2,7 +2,7 @@ import { all, fork, put, takeEvery } from 'redux-saga/effects'
 import { UserActionTypes } from './types'
 import { setAuthError, setAuthTokenSuccess } from './actions'
 import { Cookies } from 'react-cookie'
-import { IActionTypeParam } from '../../api/models/base.model'
+import { IActionTypeParam } from '../../api/model'
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
