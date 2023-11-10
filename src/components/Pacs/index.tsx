@@ -41,6 +41,7 @@ const PacsCopy = () => {
       })
     );
   }, [dispatch]);
+  
   return (
     <WrapperConnect>
       <PageSection>
