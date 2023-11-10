@@ -20,6 +20,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "src/store/explorer"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
