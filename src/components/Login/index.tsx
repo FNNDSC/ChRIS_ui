@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { useCookies } from "react-cookie";
+import ChRIS_Logo from "../../assets/chris-logo.png";
+import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 
 const brandImg2 =
   "https://github.com/patternfly/patternfly-react/raw/main/packages/react-core/src/components/assets/brandImgColor2.svg";
@@ -128,7 +130,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         </LoginFooterItem>
       </ListItem>
       <ListItem>
-        <LoginFooterItem href="https://www.patternfly.org/">
+        <LoginFooterItem href="https://web.chrisproject.org/">
           Help
         </LoginFooterItem>
       </ListItem>
@@ -161,11 +163,11 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   return (
     <LoginPage
       footerListVariants={ListVariant.inline}
-      brandImgSrc={brandImg2}
-      brandImgAlt="PatternFly logo"
+      brandImgSrc={window.innerWidth < 1200 ? ChRIS_Logo_Inline : ChRIS_Logo}
+      brandImgAlt="ChRIS logo"
       backgroundImgSrc="/assets/images/pfbg-icon.svg"
       footerListItems={listItem}
-      textContent="This is placeholder text only. Use this area to place any information or introductory message about your application that may be relevant to users."
+      textContent="ChRIS is a general-purpose, open source, distributed data and computation platform that connects a community of researchers, developers, and clinicians together."
       loginTitle="Log in to your account"
       loginSubtitle="Enter your single sign-on LDAP credentials."
       signUpForAccountMessage={signUpForAccountMessage}

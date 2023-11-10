@@ -58,10 +58,12 @@ export const TableSelectable: React.FunctionComponent = () => {
     dispatch,
   } = usePaginate();
 
-  const { data } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ["feeds", filterState],
     queryFn: () => fetchFeeds(filterState),
   });
+
+  console.log("Loading", isLoading, isFetching);
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
     (state) => state.feed
