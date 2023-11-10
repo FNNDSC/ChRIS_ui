@@ -11,7 +11,11 @@ export interface FilterState {
 
 export const usePaginate = () => {
   const [filterState, setFilterState] = useState<FilterState>({
+<<<<<<< HEAD
     perPage: 14,
+=======
+    perPage: 18,
+>>>>>>> 41354abc (Fix Merge Commits)
     page: 1,
     search: "",
     searchType:"name"
