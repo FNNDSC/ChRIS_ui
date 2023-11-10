@@ -6,19 +6,16 @@ export interface FilterState {
   perPage: number;
   page: number;
   search: string;
-  searchType:string;
+  searchType: string;
 }
 
 export const usePaginate = () => {
   const [filterState, setFilterState] = useState<FilterState>({
-<<<<<<< HEAD
     perPage: 14,
-=======
-    perPage: 18,
->>>>>>> 41354abc (Fix Merge Commits)
+
     page: 1,
     search: "",
-    searchType:"name"
+    searchType: "name",
   });
   const { perPage, page, search, searchType } = filterState;
   const dispatch = useDispatch();
@@ -34,22 +31,23 @@ export const usePaginate = () => {
     setFilterState({ ...filterState, perPage });
   };
 
-  const handleFilterChange = (search: string, searchType:string) => {
+  const handleFilterChange = (search: string, searchType: string) => {
     setFilterState({
       ...filterState,
       search,
-      searchType
+      searchType,
     });
   };
 
   const debouncedFilterUpdate = debounce(
-    (search: string, searchType:string ) => handleFilterChange(search, searchType),
+    (search: string, searchType: string) =>
+      handleFilterChange(search, searchType),
     500
   );
 
   const run = useCallback(
     (action: any) => {
-      dispatch(action(searchType,search,perPage, perPage * (page - 1)));
+      dispatch(action(searchType, search, perPage, perPage * (page - 1)));
     },
     [page, perPage, search, dispatch, searchType]
   );
