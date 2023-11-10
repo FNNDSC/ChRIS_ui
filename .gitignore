@@ -32,4 +32,4 @@ yarn-error.log*
 .npm/
 .cache/
 .yarnrc
-.github
+.github/
