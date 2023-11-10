@@ -13,11 +13,15 @@ import {
   GridItem,
   Button,
 } from "@patternfly/react-core";
+import { Typography } from "antd";
 import IconSearch from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import IconWand from "@patternfly/react-icons/dist/esm/icons/wizards-of-the-coast-icon";
 
 import { setSidebarActive } from "../../store/ui/actions";
 import "./dashboard.css";
+import { InfoIcon } from "../Common";
+
+const { Paragraph } = Typography;
 
 interface DashboardProps {
   children?: React.ReactNode;
@@ -37,7 +41,7 @@ const DashboardPage = (props: DashboardProps) => {
     document.title = "Overview";
     dispatch(
       setSidebarActive({
-        activeItem: "Dashboard",
+        activeItem: "overview",
       })
     );
   }, [dispatch]);
@@ -57,17 +61,22 @@ const DashboardPage = (props: DashboardProps) => {
   return (
     <WrapperConnect>
       <PageSection hasShadowBottom>
-        <Title style={{ color: "white" }} headingLevel="h1">
-          Welcome to ChRIS
-        </Title>
-        <p>
-          Retrieve, analyze, and visualize <i>any data </i> using a powerful
-          cloud computing platform: ChRIS.
-          <b> Let&apos;s get started.</b>
-        </p>
-        <p>
-          Build: <code className="build-version"></code>
-        </p>
+        <InfoIcon
+          title="Welcome to Chris"
+          p1={
+            <Paragraph>
+              <p>
+                Retrieve, analyze, and visualize <i>any data </i> using a
+                powerful cloud computing platform: ChRIS.
+                <b> Let&apos;s get started.</b>
+              </p>
+              <p>
+                Build: <code className="build-version"></code>
+              </p>
+            </Paragraph>
+          }
+        />
+
         {children}
       </PageSection>
       <PageSection>

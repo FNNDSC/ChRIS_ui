@@ -30,7 +30,6 @@ import { useNavigate } from "react-router";
 import PluginImg from "../../assets/brainy-pointer.png";
 import { Link } from "react-router-dom";
 
-
 export const HeaderComponent = ({
   currentPluginMeta,
 }: {
@@ -78,11 +77,11 @@ export const HeaderSinglePlugin = ({
           padding: "2em 2em",
         }}
       >
-        <GridItem lg={2} md={2} xl={1} xl2={1} sm={12}>
+        <GridItem lg={1} md={1} xl={1} xl2={1} sm={12}>
           <img className="plugin-icon" src={PluginImg} alt="Plugin icon" />
         </GridItem>
 
-        <GridItem lg={10} sm={12}>
+        <GridItem lg={11} md={11} xl={11} xl2={11} sm={12}>
           <HeaderComponent currentPluginMeta={currentPluginMeta} />
         </GridItem>
       </Grid>
