@@ -25,7 +25,7 @@ function configureStore(): Store<RootState> {
   
   // Build ALL Middleware
   let middleware;
-  if (process.env.NODE_ENV !== "production") {
+  if (import.meta.env.NODE_ENV !== "production") {
     middleware = applyMiddleware(sagaMiddleware, logger);
   } else {
     middleware = applyMiddleware(sagaMiddleware);
