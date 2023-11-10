@@ -12,10 +12,12 @@ import {
   GridItem,
   PageSection,
 } from "@patternfly/react-core";
+import { useDispatch } from "react-redux";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import WrapperConnect from "../Wrapper";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import PatientCard from "./components/PatientCard";
+import { setSidebarActive } from "../../store/ui/actions";
 import { PacsQueryContext, PacsQueryProvider, Types } from "./context";
 import PfdcmClient from "./pfdcmClient";
 import { useNavigate } from "react-router";
@@ -29,6 +31,16 @@ const dropdownMatch: { [key: string]: string } = {
 };
 
 const PacsCopy = () => {
+  const dispatch = useDispatch();
+  document.title = "Data Library";
+  React.useEffect(() => {
+    document.title = "My Library";
+    dispatch(
+      setSidebarActive({
+        activeItem: "pacs",
+      })
+    );
+  }, [dispatch]);
   return (
     <WrapperConnect>
       <PageSection>
