@@ -108,9 +108,17 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 });
 
 const AnonSidebarImpl: React.FC<AllProps> = ({ isNavOpen }: AllProps) => {
+<<<<<<< HEAD
   const body = <div>Please log in to use all features.</div>;
   return (
     <PageSidebar isSidebarOpen={isNavOpen}>
+=======
+  const body = (
+    <div>Please log in to use all features.</div>
+  );
+  return (
+    <PageSidebar theme="dark" isSidebarOpen={isNavOpen}>
+>>>>>>> 41354abc (Fix Merge Commits)
       <PageSidebarBody>{body}</PageSidebarBody>
     </PageSidebar>
   );

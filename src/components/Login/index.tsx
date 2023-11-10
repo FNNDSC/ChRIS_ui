@@ -4,8 +4,11 @@ import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { useCookies } from "react-cookie";
+<<<<<<< HEAD
 import ChRIS_Logo from "../../assets/chris-logo.png";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
+=======
+>>>>>>> 41354abc (Fix Merge Commits)
 
 const brandImg2 =
   "https://github.com/patternfly/patternfly-react/raw/main/packages/react-core/src/components/assets/brandImgColor2.svg";
@@ -130,7 +133,11 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         </LoginFooterItem>
       </ListItem>
       <ListItem>
+<<<<<<< HEAD
         <LoginFooterItem href="https://web.chrisproject.org/">
+=======
+        <LoginFooterItem href="https://www.patternfly.org/">
+>>>>>>> 41354abc (Fix Merge Commits)
           Help
         </LoginFooterItem>
       </ListItem>
@@ -163,11 +170,19 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   return (
     <LoginPage
       footerListVariants={ListVariant.inline}
+<<<<<<< HEAD
       brandImgSrc={window.innerWidth < 1200 ? ChRIS_Logo_Inline : ChRIS_Logo}
       brandImgAlt="ChRIS logo"
       backgroundImgSrc="/assets/images/pfbg-icon.svg"
       footerListItems={listItem}
       textContent="ChRIS is a general-purpose, open source, distributed data and computation platform that connects a community of researchers, developers, and clinicians together."
+=======
+      brandImgSrc={brandImg2}
+      brandImgAlt="PatternFly logo"
+      backgroundImgSrc="/assets/images/pfbg-icon.svg"
+      footerListItems={listItem}
+      textContent="This is placeholder text only. Use this area to place any information or introductory message about your application that may be relevant to users."
+>>>>>>> 41354abc (Fix Merge Commits)
       loginTitle="Log in to your account"
       loginSubtitle="Enter your single sign-on LDAP credentials."
       signUpForAccountMessage={signUpForAccountMessage}
