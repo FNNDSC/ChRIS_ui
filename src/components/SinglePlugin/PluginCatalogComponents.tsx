@@ -29,14 +29,7 @@ import { PluginMeta, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { useNavigate } from "react-router";
 import PluginImg from "../../assets/brainy-pointer.png";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
-=======
 
-<<<<<<< HEAD
->>>>>>> 41354abc (Fix Merge Commits)
-
-=======
->>>>>>> a098c07a (Fixing merge conflicts)
 export const HeaderComponent = ({
   currentPluginMeta,
 }: {
@@ -84,15 +77,7 @@ export const HeaderSinglePlugin = ({
           padding: "2em 2em",
         }}
       >
-<<<<<<< HEAD
-<<<<<<< HEAD
         <GridItem lg={1} md={1} xl={1} xl2={1} sm={12}>
-=======
-        <GridItem lg={2} md={2} xl={1} xl2={1} sm={12}>
->>>>>>> 41354abc (Fix Merge Commits)
-=======
-        <GridItem lg={1} md={1} xl={1} xl2={1} sm={12}>
->>>>>>> a098c07a (Fixing merge conflicts)
           <img className="plugin-icon" src={PluginImg} alt="Plugin icon" />
         </GridItem>
 
