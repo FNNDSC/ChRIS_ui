@@ -1,0 +1,65 @@
+#search {
+  height: 100%;
+  padding: 1em 0 2em 0;
+}
+
+#search-value,
+#search-value *,
+#search-type,
+#search-type > button {
+  height: 100%;
+}
+
+#search-value {
+  width: 100%;
+}
+
+#finalize {
+  width: 100%;
+}
+
+.pf-v5-l-split {
+  width: 100%;
+}
+
+.notification {
+  position: fixed;
+  width: 500px;
+  font-size: 14px;
+  transition: 0.3s ease;
+  opacity: 0.9;
+  border-radius: 3px 3px 3px 3px;
+  height: max-content;
+  box-shadow: 0 0 10px #999;
+}
+
+.notification .alert {
+  margin: 0;
+}
+
+.top-right {
+  top: 100px;
+  right: 12px;
+  transition: transform 0.3s ease-in-out;
+  animation: notification-in-down 0.3s;
+}
+
+.spin-container {
+  margin: 20px 0;
+  margin-bottom: 20px;
+  padding: 30px 50px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.library-preview > .pf-v5-c-button {
+  right: 3em;
+}
+
+.pf-v5-c-breadcrumb {
+  --pf-v5-c-breadcrumb__item--FontSize: var(--pf-v5-global--FontSize--md);
+}
+
+#clipboard-plugininstance-files {
+  padding-left: 0;
+}

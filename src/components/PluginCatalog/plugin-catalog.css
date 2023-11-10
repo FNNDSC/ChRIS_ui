@@ -1,0 +1,26 @@
+.pluginList__authors,
+.pluginList__version {
+  font-size: 0.75em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.pluginList__authors {
+  margin-bottom: 0.25em;
+}
+
+.pluginList__version {
+  margin: 0;
+}
+
+.pluginList .pf-v5-c-card__title {
+  display: flex;
+  align-items: center;
+}
+
+.panelcontent {
+  @media (max-width: 767px) {
+    margin-top: 5rem;
+    border-top: 1px solid rgba(199, 198, 198, 0.381);
+  }
+}
