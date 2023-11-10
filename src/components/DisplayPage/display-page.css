@@ -1,0 +1,76 @@
+.plugin-item-card {
+  margin-bottom: 0;
+  padding: 0;
+  height: 100%;
+  box-shadow: none;
+}
+
+.plugin-item-card-body {
+  font-size: 1.2em;
+  position: relative;
+}
+
+.plugin-item-name {
+  color: #0088ce;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.plugin-item-name > .plugin-star {
+  position: absolute;
+  
+  bottom: 0.75em;
+  right: 0.75em;
+  margin-left: 0.5em;
+  font-size: 22px;
+}
+
+.plugin-item-name > .plugin-star:hover {
+  cursor: pointer;
+}
+
+.plugin-item-name > .plugin-star[class~="disabled"] {
+  margin-left: 0.5em;
+  font-size: 22px;
+}
+
+.plugin-item-name > .plugin-star[class~="favorite"] {
+  margin-left: 0.5em;
+  font-size: 22px;
+}
+
+.plugin-item-name > .plugin-star[class~="favorite"]:hover {
+  color: var(--pf-blue-500);
+  cursor: pointer;
+}
+
+.plugin-item-name:hover,
+.plugin-item-name:focus {
+  text-decoration: none;
+}
+
+.plugin-item-title,
+.compute-item-description {
+  font-size: 1em;
+  font-weight: 400;
+}
+
+.plugin-item-creation {
+  font-weight: 300;
+}
+
+.plugin-item-author {
+  font-size: 1em;
+  font-weight: 300;
+}
+
+.plugin-item-author:hover,
+.plugin-item-author:focus {
+  text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  .plugins-list > .plugin-item-card {
+    padding: 0 20px;
+  }
+}
