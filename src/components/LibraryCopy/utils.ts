@@ -28,13 +28,12 @@ export default function useLongPress() {
     e: any,
     path: string,
     pathForCart: string,
-    cbFolder?: (path: string) => void
+    cbFolder?: (path: string) => void,
   ) {
     const isExist = selectedPaths.findIndex((item) => item === path);
-    console.log("Handle On Clicked", isLongPress, isExist);
+
     if (isLongPress.current) {
       if (isExist === -1) {
-        console.log("Dispatching", setSelectFolder(pathForCart));
         dispatch(setSelectFolder(pathForCart));
       } else {
         dispatch(clearSelectFolder(pathForCart));
