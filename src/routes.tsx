@@ -7,6 +7,7 @@ import Pacs from "./components/Pacs";
 import Dashboard from "./components/Dashboard";
 import FeedsPage from "./components/Feeds";
 import PipelinePage from "./components/PipelinesPage";
+import LibraryCopyPage from "./components/LibraryCopy";
 import Library from "./components/Library/";
 import {
   RouterContext,
@@ -15,13 +16,14 @@ import {
 import PluginCatalog from "./components/PluginCatalog/";
 import ComputePage from "./components/ComputePage";
 import PrivateRoute from "./components/PrivateRoute";
+import LibrarySearch from "./components/LibrarySearch";
 import SinglePlugin from "./components/SinglePlugin";
 
 interface IState {
   selectData?: Series;
 }
 
-export type Series = File[];
+export type Series = any[];
 
 interface IActions {
   createFeedWithData: (data: Series) => void;
@@ -59,6 +61,23 @@ export const MainRouter: React.FC = () => {
         </PrivateRoute>
       ),
     },
+    {
+      path: "librarycopy/*",
+      element: (
+        <PrivateRoute>
+          <LibraryCopyPage />
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "librarysearch/*",
+      element: (
+        <PrivateRoute>
+          <LibrarySearch />
+        </PrivateRoute>
+      ),
+    },
+
     {
       path: "feeds/*",
       element: (
