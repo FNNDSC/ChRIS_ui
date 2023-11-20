@@ -21,7 +21,7 @@ import {
   Progress,
 } from "@patternfly/react-core";
 import { AxiosResponse } from "axios";
-import { Feed } from "@fnndsc/chrisapi";
+
 import { Alert, Progress as AntProgress } from "antd";
 import BrowserContainer from "./BrowserContainer";
 import LocalSearch from "./LocalSearch";

@@ -370,13 +370,12 @@ const SeriesCard = ({ series }: { series: any }) => {
                 />
               )}
             </FlexItem>
-            {cubeFiles && cubeFiles.length === 0 && (
-              <FlexItem style={{ marginTop: "1em" }}>
-                <Button onClick={handleRetry} variant="secondary">
-                  Retry all steps
-                </Button>
-              </FlexItem>
-            )}
+
+            <FlexItem style={{ marginTop: "1em" }}>
+              <Button onClick={handleRetry} variant="secondary">
+                Retry all steps
+              </Button>
+            </FlexItem>
           </Flex>
         </CardBody>
       </Card>
