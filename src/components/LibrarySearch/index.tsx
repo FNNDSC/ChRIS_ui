@@ -34,8 +34,6 @@ const useSearchQuery = (query: URLSearchParams) => {
 			queryFn: () => fetchResourceforSearch(payload),
 		});
 
-		console.log("Search Data", searchData);
-
 		if (searchData.data?.resource.length > 0) {
 			searchData.data?.resource.forEach((result) => {
 				resultsArray.push({
@@ -56,11 +54,9 @@ function useSearchQueryParams() {
 }
 
 export default function LibrarySearch() {
-	
 	const query = useSearchQueryParams();
 	const searchFolderData = useSearchQuery(query);
 
-	console.log("SearchFolderData", searchFolderData, query);
 	return (
 		<WrapperConnect>
 			<LibraryProvider>
@@ -85,14 +81,12 @@ function SearchBrowser({ data }: { data: any }) {
 			url = `${data.folder_path}/${path}`;
 		} else url = `${path}/${data.folder_name}`;
 
-		console.log("URL", url);
-
 		navigate(`/librarycopy/${url}`);
 	};
 
 	return (
 		<>
-			<Breadcrumb style={{ marginLeft: "1rem" }}>
+			<Breadcrumb style={{ marginLeft: "1rem", marginTop: "0.5rem" }}>
 				{pathSplit.map((path, index: number) => {
 					return (
 						<BreadcrumbItem
