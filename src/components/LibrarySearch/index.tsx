@@ -55,6 +55,7 @@ function useSearchQueryParams() {
 
 export default function LibrarySearch() {
 	const query = useSearchQueryParams();
+
 	const searchFolderData = useSearchQuery(query);
 
 	return (

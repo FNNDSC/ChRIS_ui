@@ -130,14 +130,14 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
             handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
             selectedPlugin={selectedPlugin}
           />
-          {
+          
             <CreatingPipeline
               pipelines={pipelines}
               pipeline={pipeline}
               state={state}
               handleDispatchPipelines={handleDispatchPipelines}
             />
-          }
+          
         </>
       )}
       <ClipboardCopyCommand state={state} />
