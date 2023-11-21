@@ -1,13 +1,11 @@
-import React, { useRef } from "react";
+import React, { useRef, useContext } from "react";
 
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { TreeNode } from "../../api/common";
-import {
-  fetchComputeInfo,
-  stringToColour,
-} from "../CreateFeed/utils";
+import { fetchComputeInfo, stringToColour } from "../CreateFeed/utils";
 import { SinglePipeline } from "../CreateFeed/types/pipeline";
+import { ThemeContext } from "../DarkTheme/useTheme";
 
 export interface Point {
   x: number;
@@ -23,13 +21,13 @@ type NodeProps = {
   handleNodeClick: (
     pluginName: number,
     pipelineId: number,
-    plugin_id: number
+    plugin_id: number,
   ) => void;
   currentPipelineId: number;
   handleSetCurrentNodeTitle: (
     currentPipelineId: number,
     currentNode: number,
-    title: string
+    title: string,
   ) => void;
   handleSetPipelineEnvironments: (
     pipelineId: number,
@@ -38,7 +36,7 @@ type NodeProps = {
         computeEnvs: any[];
         currentlySelected: any;
       };
-    }
+    },
   ) => void;
 };
 
@@ -50,6 +48,7 @@ const setNodeTransform = (orientation: string, position: Point) => {
 const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
 const NodeData = (props: NodeProps) => {
+  const { isDarkTheme } = useContext(ThemeContext);
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
   const {
@@ -94,7 +93,7 @@ const NodeData = (props: NodeProps) => {
     }) => {
       handleSetPipelineEnvironments(currentPipelineId, computeEnvData);
     },
-    [currentPipelineId, handleSetPipelineEnvironments]
+    [currentPipelineId, handleSetPipelineEnvironments],
   );
 
   React.useEffect(() => {
@@ -115,11 +114,19 @@ const NodeData = (props: NodeProps) => {
 
   const textLabel = (
     <g id={`text_${data.id}`} transform={`translate(-30,30)`}>
-      <text ref={textRef} className="label__title">
+      <text
+        style={{
+          fill: isDarkTheme ? "white" : "black",
+        }}
+        ref={textRef}
+        className="label__title"
+      >
         {currentId}:{data.id}:{titleName ? titleName : data.title}
       </text>
     </g>
   );
+
+  const strokeColor = isDarkTheme ? "white" : "#F0AB00";
 
   return (
     <g
@@ -135,7 +142,7 @@ const NodeData = (props: NodeProps) => {
       <circle
         style={{
           fill: `${stringToColour(currentComputeEnv)}`,
-          stroke: data.id === currentNode ? "white" : "",
+          stroke: data.id === currentNode ? strokeColor : "",
           strokeWidth: data.id === currentNode ? "3px" : "",
         }}
         id={`node_${data.id}`}

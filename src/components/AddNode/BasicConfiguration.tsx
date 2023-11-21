@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useContext,
+} from "react";
 import {
   FormGroup,
   TextInput,
@@ -13,8 +19,8 @@ import { PluginMeta } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { PluginMetaSelectState } from "./types";
 import { fetchResource } from "../../api/common";
-import { useContext } from "react";
 import { AddNodeContext } from "./context";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import { Types } from "./types";
 import { SpinContainer } from "../Common";
 
@@ -57,7 +63,7 @@ const PluginSelect: React.FC = () => {
     const boundFn = fn.bind(client);
     let { resource: pluginMetas } = await fetchResource<PluginMeta>(
       params,
-      boundFn
+      boundFn,
     );
 
     pluginMetas =
@@ -105,19 +111,23 @@ const PluginSelect: React.FC = () => {
 };
 
 const PluginList: React.FC = () => {
+  const { isDarkTheme } = useContext(ThemeContext);
   const listRef = useRef<any>();
   const [filter, setFilter] = useState("");
   const { state, dispatch } = useContext(AddNodeContext);
   const { pluginMetas, pluginMeta } = state;
 
-  const handleFilterChange = (_event: React.FormEvent<HTMLInputElement>, filter: string) => setFilter(filter);
+  const handleFilterChange = (
+    _event: React.FormEvent<HTMLInputElement>,
+    filter: string,
+  ) => setFilter(filter);
   const matchesFilter = useCallback(
     (pluginMeta: PluginMeta) =>
       pluginMeta.data.name
         .toLowerCase()
         .trim()
         .includes(filter.toLowerCase().trim()),
-    [filter]
+    [filter],
   );
 
   const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
@@ -128,6 +138,8 @@ const PluginList: React.FC = () => {
       },
     });
   };
+
+  const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
 
   return (
     <ul ref={listRef} tabIndex={0} className="plugin-list">
@@ -150,7 +162,9 @@ const PluginList: React.FC = () => {
               <li
                 tabIndex={1}
                 key={id}
-                className={isSelected ? "selected" : ""}
+                style={{
+                  backgroundColor: isSelected ? backgroundColor : "inherit",
+                }}
                 onKeyDown={(event: any) => {
                   if (event.key === "Enter") {
                     getPluginFromMeta(item);

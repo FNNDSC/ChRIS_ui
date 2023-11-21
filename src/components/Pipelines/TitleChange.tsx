@@ -38,6 +38,7 @@ const TitleChange = ({
       style={{
         display: "flex",
         alignItems: "center",
+        marginBottom:"1rem"
       }}
     >
       <TextInput
@@ -72,6 +73,7 @@ const TitleChange = ({
         <Edit
           style={{
             ...iconFontSize,
+            marginLeft:"0.25em"
           }}
           onClick={() => {
             setEdit(true);

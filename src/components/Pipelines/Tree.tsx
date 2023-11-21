@@ -1,4 +1,10 @@
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, {
+  Fragment,
+  useEffect,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import { Spin } from "antd";
 import { tree, hierarchy } from "d3-hierarchy";
 import { select, event } from "d3-selection";
@@ -10,6 +16,7 @@ import NodeData from "./NodeData";
 import { TreeNode, getFeedTree } from "../../api/common";
 import useSize from "../FeedTree/useSize";
 import { getTsNodesWithPipings } from "../FeedTree/data";
+import { ThemeContext } from "../DarkTheme/useTheme";
 
 const nodeSize = { x: 200, y: 80 };
 const svgClassName = "feed-tree__svg";
@@ -28,12 +35,12 @@ export interface TreeProps {
   handleNodeClick: (
     nodeName: number,
     pipelineId: number,
-    plugin_id: number
+    plugin_id: number,
   ) => void;
   handleSetCurrentNodeTitle: (
     currentPipelineId: number,
     currentNode: number,
-    title: string
+    title: string,
   ) => void;
   handleSetPipelineEnvironments: (
     pipelineId: number,
@@ -42,7 +49,7 @@ export interface TreeProps {
         computeEnvs: any[];
         currentlySelected: any;
       };
-    }
+    },
   ) => void;
 }
 
@@ -73,7 +80,7 @@ const Tree = (props: TreeProps) => {
     svg.call(
       ///@ts-ignore
       d3Zoom().transform,
-      zoomIdentity.translate(translate.x, translate.y).scale(zoom)
+      zoomIdentity.translate(translate.x, translate.y).scale(zoom),
     );
 
     svg.call(
@@ -82,7 +89,7 @@ const Tree = (props: TreeProps) => {
         .scaleExtent([scaleExtent.min, scaleExtent.max])
         .on("zoom", () => {
           g.attr("transform", event.transform);
-        })
+        }),
     );
   }, [translate.x, translate.y]);
 
@@ -94,7 +101,7 @@ const Tree = (props: TreeProps) => {
     (id: number) => {
       handleSetCurrentNode(currentPipelineId, id);
     },
-    [currentPipelineId, handleSetCurrentNode]
+    [currentPipelineId, handleSetCurrentNode],
   );
 
   React.useEffect(() => {
@@ -204,7 +211,7 @@ const Tree = (props: TreeProps) => {
 
   return (
     <>
-      <div ref={divRef} className="pipelines__tree">
+      <div ref={divRef} style={{ width: "50%" }} className="pipelines__tree">
         {loading ? (
           <span>Fetching Pipeline.....</span>
         ) : translate.x > 0 && translate.y > 0 ? (
@@ -263,6 +270,7 @@ type LinkState = {
 };
 
 const LinkData: React.FC<LinkProps> = ({ linkData }) => {
+  const { isDarkTheme } = useContext(ThemeContext);
   const linkRef = useRef<SVGPathElement | null>(null);
   const [initialStyle] = useState<LinkState["initialStyle"]>({ opacity: 1 });
   const nodeRadius = 12;
@@ -275,7 +283,7 @@ const LinkData: React.FC<LinkProps> = ({ linkData }) => {
     opacity: number,
     done = () => {
       return null;
-    }
+    },
   ) => {
     select(linkRef.current).style("opacity", opacity).on("end", done);
   };
@@ -307,6 +315,8 @@ const LinkData: React.FC<LinkProps> = ({ linkData }) => {
 
   const ts = target.data.plugin_name === "pl-topologicalcopy";
 
+  const strokeWidthColor = isDarkTheme ? "#F2F9F9" : "#6A6E73";
+
   return (
     <Fragment>
       <path
@@ -314,7 +324,7 @@ const LinkData: React.FC<LinkProps> = ({ linkData }) => {
         className={`link ${ts ? "ts" : ""}`}
         //@ts-ignore
         d={drawPath(ts)}
-        style={{ ...initialStyle }}
+        style={{ ...initialStyle, stroke: strokeWidthColor }}
         data-source-id={linkData.source.id}
         data-target-id={linkData.target.id}
       />

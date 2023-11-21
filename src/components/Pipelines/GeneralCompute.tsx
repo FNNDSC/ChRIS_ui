@@ -10,7 +10,7 @@ const GeneralCompute = ({
   currentPipelineId: number;
   handleSetGeneralCompute: (
     currentPipelineId: number,
-    computeEnv: string
+    computeEnv: string,
   ) => void;
 }) => {
   const { state, dispatch } = useContext(PipelineContext);
@@ -39,7 +39,7 @@ const GeneralCompute = ({
   };
 
   return (
-    <div className="general-compute">
+    <div style={{ width: "50%" }} className="general-compute">
       <ListCompute
         computeList={computes}
         generalCompute={generalCompute}

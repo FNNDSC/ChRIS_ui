@@ -98,9 +98,7 @@
 }
 
 .label__title {
-  fill: white;
   font-size: 0.7rem;
-  font-family: sans-serif;
 }
 
 @keyframes active {

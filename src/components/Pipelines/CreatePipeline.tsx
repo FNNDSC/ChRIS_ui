@@ -29,11 +29,11 @@ const CreatingPipeline = ({
           //@ts-ignore
           pluginParameters.data,
           piping.data.id,
-          parameterList
+          parameterList,
         );
 
         const id = pluginPipings.findIndex(
-          (pipe: any) => pipe.data.id === piping.data.previous_id
+          (pipe: any) => pipe.data.id === piping.data.previous_id,
         );
 
         let titleChange = piping.data.title;
@@ -98,6 +98,7 @@ const CreatingPipeline = ({
         }
       />
       <Button
+        style={{ marginTop: "1rem" }}
         isDisabled={creatingPipeline.loading ? true : false}
         onClick={handlePipelineCreate}
       >

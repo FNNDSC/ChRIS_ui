@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { isEqual } from "lodash";
 import { Switch, Alert, TextInput } from "@patternfly/react-core";
@@ -11,6 +11,7 @@ import RotateRight from "@patternfly/react-icons/dist/esm/icons/angle-double-rig
 import useSize from "./useSize";
 import Link from "./Link";
 import NodeWrapper from "./Node";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import { TreeNodeDatum, Point, treeAlgorithm } from "./data";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import { TSID } from "./ParentComponent";
@@ -84,7 +85,7 @@ function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
 
 function getInitialState(
   props: AllProps,
-  feedTreeProp: FeedTreeProp
+  feedTreeProp: FeedTreeProp,
 ): FeedTreeState {
   return {
     d3: calculateD3Geometry(props, feedTreeProp),
@@ -102,11 +103,12 @@ const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: AllProps) => {
+  const { isDarkTheme } = useContext(ThemeContext);
   const dispatch = useDispatch();
 
   const divRef = useRef<HTMLDivElement>(null);
   const { feedTreeProp, currentLayout, searchFilter } = useTypedSelector(
-    (state) => state.feed
+    (state) => state.feed,
   );
   const { selectedD3Node } = useTypedSelector((state) => state.instance);
   const { treeMode } = useTypedSelector((state) => state.tsPlugins);
@@ -126,7 +128,7 @@ const FeedTree = (props: AllProps) => {
         .nodeSize(
           orientation === "horizontal"
             ? [nodeSize.y, nodeSize.x]
-            : [nodeSize.x, nodeSize.y]
+            : [nodeSize.x, nodeSize.y],
         )
         .separation((a, b) => {
           return a.data.parentId === b.data.parentId
@@ -140,7 +142,7 @@ const FeedTree = (props: AllProps) => {
 
       if (data) {
         const rootNode = d3Tree(
-          hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children))
+          hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children)),
         );
         nodes = rootNode.descendants();
         links = rootNode.links();
@@ -205,7 +207,7 @@ const FeedTree = (props: AllProps) => {
       separation.nonSiblings,
       separation.siblings,
       tsIds,
-    ]
+    ],
   );
 
   React.useEffect(() => {
@@ -218,7 +220,7 @@ const FeedTree = (props: AllProps) => {
 
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
-    getInitialState(props, feedTreeProp)
+    getInitialState(props, feedTreeProp),
   );
   const { scale } = feedState.d3;
   const { changeOrientation, zoom, scaleExtent } = props;
@@ -231,7 +233,7 @@ const FeedTree = (props: AllProps) => {
     svg.call(
       //@ts-ignore
       d3Zoom().transform,
-      zoomIdentity.translate(translate.x, translate.y).scale(zoom)
+      zoomIdentity.translate(translate.x, translate.y).scale(zoom),
     );
 
     svg.call(
@@ -240,7 +242,7 @@ const FeedTree = (props: AllProps) => {
         .scaleExtent([scaleExtent.min, scaleExtent.max])
         .on("zoom", () => {
           g.attr("transform", event.transform);
-        })
+        }),
     );
   }, [zoom, scaleExtent, feedTreeProp]);
 
@@ -450,6 +452,7 @@ const FeedTree = (props: AllProps) => {
                   orientation={orientation}
                   key={"link" + i}
                   linkData={linkData}
+                  isDarkTheme={isDarkTheme}
                 />
               );
             })}
@@ -491,7 +494,7 @@ const FeedTreeMemoed = React.memo(
       return false;
     }
     return true;
-  }
+  },
 );
 
 export default FeedTreeMemoed;

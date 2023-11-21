@@ -1,4 +1,5 @@
-import React, { Fragment, useRef } from "react";
+import React, { Fragment, useRef, useContext } from "react";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import { select } from "d3-selection";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { Datum, TreeNodeDatum, Point } from "./data";
@@ -31,7 +32,7 @@ const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
 const setNodeTransform = (
   orientation: "horizontal" | "vertical",
-  position: Point
+  position: Point,
 ) => {
   return orientation === "horizontal"
     ? `translate(${position.y},${position.x})`
@@ -39,6 +40,7 @@ const setNodeTransform = (
 };
 
 const Node = (props: NodeProps) => {
+  const { isDarkTheme } = useContext(ThemeContext);
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
   const {
@@ -57,7 +59,7 @@ const Node = (props: NodeProps) => {
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances.data
+    (state) => state.instance.pluginInstances.data,
   );
 
   const searchFilter = useTypedSelector((state) => state.feed.searchFilter);
@@ -119,7 +121,7 @@ const Node = (props: NodeProps) => {
   const previous_id = data.item?.data?.previous_id;
   if (previous_id) {
     const parentNode = pluginInstances?.find(
-      (node) => node.data.id === previous_id
+      (node) => node.data.id === previous_id,
     );
 
     if (
@@ -132,12 +134,19 @@ const Node = (props: NodeProps) => {
   }
 
   const textLabel = (
-    <g id={`text_${data.id}`}>
+    <g
+      style={{
+        fill: isDarkTheme ? "white" : "black",
+      }}
+      id={`text_${data.id}`}
+    >
       <text ref={textRef} className="label__title">
         {data.item?.data?.title || data.item?.data?.plugin_name}
       </text>
     </g>
   );
+
+  const strokeColor = isDarkTheme ? "white" : "#F0AB00";
 
   return (
     <Fragment>
@@ -156,9 +165,11 @@ const Node = (props: NodeProps) => {
       >
         <circle
           id={`node_${data.id}`}
-          className={`node ${statusClass} ${tsClass} 
-              ${currentId && `selected`}
-              `}
+          className={`node ${statusClass} ${tsClass}`}
+          style={{
+            stroke: currentId ? strokeColor : "",
+            strokeWidth: currentId ? "3px" : "1px",
+          }}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
         ></circle>
         {overlaySize && (
@@ -230,5 +241,5 @@ export default React.memo(
       return false;
     }
     return true;
-  }
+  },
 );

@@ -91,14 +91,14 @@ const Pipelines = ({
   const { page, perPage, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [dropdownValue, setDropdownValue] = React.useState<string>(
-    PIPELINEQueryTypes.NAME[0]
+    PIPELINEQueryTypes.NAME[0],
   );
 
   const handleDispatchWrap = React.useCallback(
     (registeredPipelines: any) => {
       handleDispatchPipelines(registeredPipelines);
     },
-    [handleDispatchPipelines]
+    [handleDispatchPipelines],
   );
   const handlePipelineSearch = (search: string) => {
     setPageState({
@@ -144,7 +144,7 @@ const Pipelines = ({
             };
           });
         }
-      }
+      },
     );
   }, [perPage, page, dropdownValue, search, handleDispatchWrap]);
 
@@ -171,7 +171,7 @@ const Pipelines = ({
         handlePipelineSecondaryResource(pipeline);
         if (!pipelineData[pipeline.data.id]) {
           const { resources } = await generatePipelineWithName(
-            pipeline.data.name
+            pipeline.data.name,
           );
           handleSetPipelineResources({
             ...resources,
@@ -183,7 +183,7 @@ const Pipelines = ({
             const piping = pluginPipings[i];
             const computeEnvData = await fetchComputeInfo(
               piping.data.plugin_id,
-              piping.data.id
+              piping.data.id,
             );
 
             if (computeEnvData) {
@@ -202,7 +202,7 @@ const Pipelines = ({
       handleSetPipelineResources,
       pipelineData,
       selectedPipeline,
-    ]
+    ],
   );
 
   const handleOnExpand = useCallback(
@@ -217,7 +217,7 @@ const Pipelines = ({
         !state.pipelineData[pipeline.data.id]
       ) {
         const { resources } = await generatePipelineWithName(
-          pipeline.data.name
+          pipeline.data.name,
         );
 
         handleSetPipelineResources({
@@ -243,7 +243,7 @@ const Pipelines = ({
       handleSetPipelineResources,
       selectedPipeline,
       state.pipelineData,
-    ]
+    ],
   );
 
   const handleKeyDown = useCallback(
@@ -253,7 +253,7 @@ const Pipelines = ({
         handleOnExpand(pipeline);
       }
     },
-    [handleOnExpand]
+    [handleOnExpand],
   );
 
   const handleBrowserKeyDown = useCallback(
@@ -264,7 +264,7 @@ const Pipelines = ({
         onNext();
       }
     },
-    [onBack, onNext]
+    [onBack, onNext],
   );
 
   useEffect(() => {
@@ -336,7 +336,7 @@ const Pipelines = ({
             value={pageState.search}
             type="text"
             placeholder={dropdownValue}
-            customIcon={<SearchIcon/>}
+            customIcon={<SearchIcon />}
             aria-label="search"
             onChange={(_event, value: string) => {
               handlePipelineSearch && handlePipelineSearch(value.toLowerCase());
@@ -420,7 +420,7 @@ const Pipelines = ({
                         const filteredPipelines = pipelines.filter(
                           (currentPipeline: any) => {
                             return currentPipeline.data.id !== pipeline.data.id;
-                          }
+                          },
                         );
                         handleDispatchPipelines(filteredPipelines);
                         await pipeline.delete();
@@ -439,7 +439,12 @@ const Pipelines = ({
                   {(expanded && expanded[pipeline.data.id]) ||
                   state.pipelineData[pipeline.data.id] ? (
                     <>
-                      <div style={{ display: "flex" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                        }}
+                      >
                         <Tree
                           state={state.pipelineData[pipeline.data.id]}
                           currentPipelineId={pipeline.data.id}

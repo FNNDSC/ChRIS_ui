@@ -62,14 +62,6 @@
   cursor: pointer;
 }
 
-.plugin-select .plugin-list li:hover {
-  background: #002952;
-}
-
-.plugin-select .plugin-list li.selected {
-  background: #002952;
-}
-
 .configuration {
   display: flex;
   flex-direction: column;
