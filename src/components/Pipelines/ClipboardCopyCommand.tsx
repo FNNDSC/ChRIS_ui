@@ -33,8 +33,8 @@ const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
         params[input].default === false || params[input].default === true
           ? ""
           : params[input].default.length === 0
-          ? "' '"
-          : params[input].default;
+            ? "' '"
+            : params[input].default;
       generatedCommand += ` --${name} ${defaultValue}`;
     }
   }
@@ -68,7 +68,7 @@ const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
   );
 
   return (
-    <CodeBlock actions={actions}>
+    <CodeBlock style={{ marginTop: "1rem" }} actions={actions}>
       <CodeBlockCode id="code-content">{generatedCommand}</CodeBlockCode>
     </CodeBlock>
   );

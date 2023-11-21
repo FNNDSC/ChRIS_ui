@@ -35,7 +35,11 @@ const ListCompute = ({
                     }}
                   />
 
-                  <Avatar />
+                  <Avatar
+                    style={{
+                      background: `${stringToColour(item.name)}`,
+                    }}
+                  />
                 </>
               }
               title={item.name}

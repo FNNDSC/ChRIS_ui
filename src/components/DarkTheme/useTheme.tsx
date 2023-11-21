@@ -24,7 +24,7 @@ export const useTheme = () => {
 
 const themeReducer = (
   state: { isDarkTheme: boolean },
-  action: { type: string }
+  action: { type: string },
 ) => {
   switch (action.type) {
     case "TOGGLE_THEME":
@@ -36,31 +36,28 @@ const themeReducer = (
 
 const ThemeContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [themeState, dispatch] = useReducer(themeReducer, {
-    isDarkTheme: true,
+    isDarkTheme:
+      localStorage.getItem(THEME_STORAGE_KEY) === "light" ? false : true,
   });
-
-  // Read the theme preference from local storage when the component mounts
-  useEffect(() => {
-    const storedThemePreference = localStorage.getItem(THEME_STORAGE_KEY);
-    if (storedThemePreference) {
-      dispatch({ type: "TOGGLE_THEME" });
-    }
-  }, []);
 
   // Add a useEffect to update the HTML class and local storage based on the theme state
   useEffect(() => {
     document.documentElement.classList.toggle(
       "pf-v5-theme-dark",
-      themeState.isDarkTheme
+      themeState.isDarkTheme,
     );
     localStorage.setItem(
       THEME_STORAGE_KEY,
-      themeState.isDarkTheme ? "dark" : "light"
+      themeState.isDarkTheme ? "dark" : "light",
     );
   }, [themeState.isDarkTheme]);
 
   const toggleTheme = () => {
     dispatch({ type: "TOGGLE_THEME" });
+    localStorage.setItem(
+      THEME_STORAGE_KEY,
+      themeState.isDarkTheme ? "dark" : "light",
+    );
   };
 
   const contextValue: ThemeContextType = {

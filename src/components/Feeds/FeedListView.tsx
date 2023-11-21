@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
@@ -28,6 +28,7 @@ import IconContainer from "../IconContainer";
 import { InfoIcon, DataTableToolbar } from "../Common";
 import { CreateFeedProvider, PipelineProvider } from "../CreateFeed/context";
 import { AddNodeProvider } from "../AddNode/context";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
 const { Paragraph } = Typography;
@@ -66,7 +67,7 @@ export const TableSelectable: React.FunctionComponent = () => {
   console.log("Loading", isLoading, isFetching);
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed
+    (state) => state.feed,
   );
   const { page, perPage } = filterState;
 
@@ -78,7 +79,7 @@ export const TableSelectable: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      })
+      }),
     );
     if (bulkData && bulkData.current) {
       dispatch(removeAllSelect(bulkData.current));
@@ -220,6 +221,7 @@ interface TableRowProps {
 
 function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
   const [intervalMs, setIntervalMs] = React.useState(2000);
+  const { isDarkTheme } = useContext(ThemeContext);
 
   const { data } = useQuery({
     queryKey: ["feedResources", feed],
@@ -349,8 +351,24 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
     />
   );
 
+  const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
+
+  const backgroundRow =
+    progress && progress < 100 && !feedError ? backgroundColor : "inherit";
+  const selectedBgRow = isSelected(bulkSelect, feed)
+    ? backgroundColor
+    : backgroundRow;
+
   return (
-    <Tr isSelectable key={feed.data.id}>
+    <Tr
+      isHoverable
+      isRowSelect={isSelected(bulkSelect, feed)}
+      isSelectable
+      key={feed.data.id}
+      style={{
+        backgroundColor: selectedBgRow,
+      }}
+    >
       <Td>{bulkCheckbox}</Td>
       <Td dataLabel={columnNames.id}>{id}</Td>
       <Td dataLabel={columnNames.analysis}>{name}</Td>

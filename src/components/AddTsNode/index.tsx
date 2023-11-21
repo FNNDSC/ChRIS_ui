@@ -9,6 +9,7 @@ import GraphNode from "./ParentContainer";
 import type { Plugin } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { getNodeOperations } from "../../store/plugin/actions";
+import './graph-node.css'
 
 const GraphNodeContainer = () => {
   const dispatch = useDispatch();

@@ -30,11 +30,7 @@ interface IHeaderProps {
 export default function Header(props: IHeaderProps) {
   const showToolbar = useTypedSelector((state) => state.feed.showToolbar);
 
-  const pageToolbar = (
-    <>
-      <ToolbarComponent token={props.user.token} />
-    </>
-  );
+  const pageToolbar = <ToolbarComponent token={props.user.token} />;
 
   const iconToolbar = showToolbar && <FeedDetails />;
 
@@ -61,6 +57,8 @@ export default function Header(props: IHeaderProps) {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          marginLeft: "30em",
+          zIndex: "999",
         }}
       >
         {iconToolbar}
