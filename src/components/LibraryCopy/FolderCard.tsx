@@ -51,7 +51,6 @@ function FolderCard({
       onClick={(e) => {
         handlePath(e);
       }}
-     
     >
       <CardHeader
         actions={{
