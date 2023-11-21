@@ -61,7 +61,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const oldStep = useRef("");
 
-  const [cubeFiles, setCubeFiles] = useState<any[]>();
+  const [cubeFilePreview, setCubeFilePreview] = useState<any>();
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
 
@@ -95,20 +95,25 @@ const SeriesCard = ({ series }: { series: any }) => {
     };
   }, [PatientID.value, SeriesInstanceUID.value, StudyInstanceUID.value]);
 
-  const fetchCubeSeries = useCallback(
+  const fetchCubeFilePreview = useCallback(
     async function fetchCubeSeries() {
+      const middleValue = Math.floor(
+        parseInt(NumberOfSeriesRelatedInstances.value) / 2,
+      );
+
       const files = await cubeClient.getPACSFiles({
         ...pullQuery,
-        limit: parseInt(NumberOfSeriesRelatedInstances.value),
+        limit: 1,
+        offset: middleValue,
       });
 
       const fileItems = files.getItems();
 
-      if (fileItems) {
-        setCubeFiles(fileItems);
+      if (fileItems && fileItems.length > 0) {
+        setCubeFilePreview(fileItems[0]);
       }
     },
-    [pullQuery, NumberOfSeriesRelatedInstances.value]
+    [pullQuery, NumberOfSeriesRelatedInstances.value],
   );
 
   useEffect(() => {
@@ -124,8 +129,9 @@ const SeriesCard = ({ series }: { series: any }) => {
             queryStage: currentStatus.currentStep,
           },
         });
-
         setProgress(currentStatus);
+
+        currentStatus.currentStep === "completed" && fetchCubeFilePreview();
       }
     }
     fetchStatusForTheFirstTime();
@@ -171,6 +177,8 @@ const SeriesCard = ({ series }: { series: any }) => {
 
           currentStatus.currentStep === "completed" &&
             setFetchNextStatus(!fetchNextStatus);
+
+          currentStatus.currentStep === "completed" && fetchCubeFilePreview();
           oldStep.current = currentStatus.currentStep;
         }
       }
@@ -186,16 +194,6 @@ const SeriesCard = ({ series }: { series: any }) => {
   const buttonContainer = (
     <div style={{ margin: "auto" }}>
       {!currentStep && <div>Fetching current status</div>}
-      {currentStep === "completed" && (
-        <Button
-          variant="secondary"
-          onClick={() => {
-            fetchCubeSeries();
-          }}
-        >
-          Fetch the Files
-        </Button>
-      )}
 
       {currentStep &&
         currentStep !== "completed" &&
@@ -213,7 +211,6 @@ const SeriesCard = ({ series }: { series: any }) => {
 
       {currentStep !== "completed" &&
         currentProgress > 0 &&
-        currentProgress < 1 &&
         fetchNextStatus === false && (
           <Button
             variant="secondary"
@@ -234,16 +231,9 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   const fileDetailsComponent = (
     <>
-      {cubeFiles && (
+      {cubeFilePreview && (
         <div style={{ marginTop: "-1em", wordWrap: "break-word" }}>
-          <FileDetailView
-            preview="small"
-            selectedFile={
-              cubeFiles[
-                Math.floor(series.NumberOfSeriesRelatedInstances.value / 2)
-              ]
-            }
-          />
+          <FileDetailView preview="small" selectedFile={cubeFilePreview} />
 
           {openSeriesPreview && (
             <Modal
@@ -255,14 +245,7 @@ const SeriesCard = ({ series }: { series: any }) => {
               isOpen={!!openSeriesPreview}
               onClose={() => setOpenSeriesPreview(false)}
             >
-              <FileDetailView
-                selectedFile={
-                  cubeFiles[
-                    Math.floor(series.NumberOfSeriesRelatedInstances.value / 2)
-                  ]
-                }
-                preview="large"
-              />
+              <FileDetailView selectedFile={cubeFilePreview} preview="large" />
             </Modal>
           )}
         </div>
@@ -276,8 +259,8 @@ const SeriesCard = ({ series }: { series: any }) => {
             variant="primary"
             style={{ fontSize: "small", margin: "auto" }}
             onClick={() => {
-              if (cubeFiles) {
-                const file = cubeFiles[0];
+              if (cubeFilePreview) {
+                const file = cubeFilePreview;
                 const cubeSeriesPath = file.data.fname
                   .split("/")
                   .slice(0, -1)
@@ -308,6 +291,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         queryStage: "none",
       },
     });
+
     await client.findRetrieve(pullQuery, selectedPacsService);
     await client.findPush(pullQuery, selectedPacsService);
     await client.findRegister(pullQuery, selectedPacsService);
@@ -317,9 +301,8 @@ const SeriesCard = ({ series }: { series: any }) => {
   };
 
   const showProcessingWithButton =
-    (currentProgress > 0 && currentProgress < 1 && fetchNextStatus) ||
-    (fetchNextStatus && currentStep !== "completed") ||
-    (currentStep === "push" && fetchNextStatus === true);
+    (currentProgress > 0 && fetchNextStatus) ||
+    (fetchNextStatus && currentStep !== "completed");
 
   return (
     <>
@@ -330,7 +313,7 @@ const SeriesCard = ({ series }: { series: any }) => {
               style={{ display: "flex", flexDirection: "column" }}
               className="action-button-container"
             >
-              {cubeFiles && cubeFiles.length > 0 ? (
+              {cubeFilePreview ? (
                 <div>{fileDetailsComponent}</div>
               ) : showProcessingWithButton ? (
                 <div>Processing...</div>
@@ -358,7 +341,7 @@ const SeriesCard = ({ series }: { series: any }) => {
                 marginTop: "1em",
               }}
             >
-              {progress.currentProgress > 0 && progress.currentProgress < 1 && (
+              {progress.currentProgress > 0 && (
                 <Progress
                   value={progress.currentProgress * 100}
                   style={{ gap: "0.5em", textAlign: "left" }}
@@ -371,11 +354,13 @@ const SeriesCard = ({ series }: { series: any }) => {
               )}
             </FlexItem>
 
-            <FlexItem style={{ marginTop: "1em" }}>
-              <Button onClick={handleRetry} variant="secondary">
-                Retry all steps
-              </Button>
-            </FlexItem>
+            {!cubeFilePreview && (
+              <FlexItem style={{ marginTop: "1em" }}>
+                <Button onClick={handleRetry} variant="secondary">
+                  Retry all steps
+                </Button>
+              </FlexItem>
+            )}
           </Flex>
         </CardBody>
       </Card>

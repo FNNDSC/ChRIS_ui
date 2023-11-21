@@ -38,10 +38,10 @@ const PacsCopy = () => {
     dispatch(
       setSidebarActive({
         activeItem: "pacs",
-      })
+      }),
     );
   }, [dispatch]);
-  
+
   return (
     <WrapperConnect>
       <PageSection>
@@ -57,16 +57,63 @@ const PacsCopy = () => {
 export default PacsCopy;
 
 const client = new PfdcmClient();
+const actions = ["Patient MRN", "Patient Name", "Accession Number"];
 
 const QueryBuilder = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const service = searchParams.get("service");
+
   const { state, dispatch } = React.useContext(PacsQueryContext);
-  const actions = ["Patient MRN", "Patient Name", "Accession Number"];
+
   const [queryOpen, setQueryOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [pacsListOpen, setPacsListOpen] = React.useState(false);
 
-  const { pacsServices, selectedPacsService, currentQueryType } = state;
+  const { pacsServices, selectedPacsService, currentQueryType, queryResult } =
+    state;
+
+  const handleSubmitQuery = async (
+    navigateToDifferentRoute: boolean,
+    currentQueryType: string,
+    value: string,
+    selectedPacsService: string,
+  ) => {
+    dispatch({
+      type: Types.SET_LOADING_SPINNER,
+      payload: {
+        loading: true,
+      },
+    });
+    const response = await client.find(
+      {
+        [currentQueryType]: value.trimStart().trimEnd(),
+      },
+      selectedPacsService,
+    );
+
+    if (response) {
+      dispatch({
+        type: Types.SET_SEARCH_RESULT,
+        payload: {
+          queryResult: response,
+        },
+      });
+
+      dispatch({
+        type: Types.SET_LOADING_SPINNER,
+        payload: {
+          loading: false,
+        },
+      });
+
+      if (navigateToDifferentRoute) {
+        navigate(
+          `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`,
+        );
+      }
+    }
+  };
 
   React.useEffect(() => {
     client.getPacsServices().then((list) => {
@@ -78,10 +125,16 @@ const QueryBuilder = () => {
           },
         });
 
+        let currentActiveService;
+        if (service) {
+          currentActiveService = service;
+        } else {
+          currentActiveService: list[0];
+        }
         dispatch({
           type: Types.SET_SELECTED_PACS_SERVICE,
           payload: {
-            selectedPacsService: list[0],
+            selectedPacsService: currentActiveService,
           },
         });
       }
@@ -94,6 +147,26 @@ const QueryBuilder = () => {
       },
     });
   }, [dispatch]);
+
+  React.useEffect(() => {
+    const queryType = searchParams.get("queryType");
+    const searchValue = searchParams.get("value");
+    if (
+      Object.keys(queryResult).length === 0 &&
+      queryType &&
+      searchValue &&
+      service
+    ) {
+      handleSubmitQuery(false, queryType, searchValue, service);
+      setValue(searchValue);
+      dispatch({
+        type: Types.SET_SELECTED_PACS_SERVICE,
+        payload: {
+          selectedPacsService: service,
+        },
+      });
+    }
+  }, [queryResult]);
 
   const onToggle = () => {
     setQueryOpen(!queryOpen);
@@ -136,39 +209,6 @@ const QueryBuilder = () => {
       }
       default:
         return;
-    }
-  };
-
-  const handleSubmitQuery = async () => {
-    dispatch({
-      type: Types.SET_LOADING_SPINNER,
-      payload: {
-        loading: true,
-      },
-    });
-    const response = await client.find(
-      {
-        [currentQueryType]: value.trimStart().trimEnd(),
-      },
-      selectedPacsService
-    );
-
-    if (response) {
-      dispatch({
-        type: Types.SET_SEARCH_RESULT,
-        payload: {
-          queryResult: response,
-        },
-      });
-
-      dispatch({
-        type: Types.SET_LOADING_SPINNER,
-        payload: {
-          loading: false,
-        },
-      });
-
-      navigate(`/pacs?queryType=${currentQueryType}&value=${value}`);
     }
   };
 
@@ -261,7 +301,18 @@ const QueryBuilder = () => {
               marginLeft: "1em",
             }}
           >
-            <Button onClick={handleSubmitQuery}>Search</Button>
+            <Button
+              onClick={() => {
+                handleSubmitQuery(
+                  true,
+                  currentQueryType,
+                  value,
+                  selectedPacsService,
+                );
+              }}
+            >
+              Search
+            </Button>
           </SplitItem>
         </Split>
       </GridItem>
@@ -271,18 +322,8 @@ const QueryBuilder = () => {
 
 const Results = () => {
   const { state } = React.useContext(PacsQueryContext);
-  const [searchParams] = useSearchParams();
-
-  const queryType = searchParams.get("queryType");
-  const value = searchParams.get("value");
 
   const { queryResult, fetchingResults } = state;
-
-  React.useEffect(() => {
-    if (!queryResult) {
-      console.log("Fetch Data", queryType, value);
-    }
-  }, [queryResult, queryType, value]);
 
   return (
     <>
