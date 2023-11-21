@@ -96,7 +96,7 @@ const StudyCard = ({ study }: { study: any }) => {
         <Grid hasGutter className="patient-series">
           {study.series.map((series: any, index: number) => {
             return (
-              <GridItem sm={12} lg={4} xl={4} md={3} key={index}>
+              <GridItem sm={12} lg={4} xl={4} xl2={2} md={4} key={index}>
                 <SeriesCard series={series} key={index} />
               </GridItem>
             );
