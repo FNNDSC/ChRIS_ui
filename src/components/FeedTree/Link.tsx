@@ -13,6 +13,7 @@ interface LinkProps {
   linkData: TreeLinkDatum;
   key: string;
   orientation: "horizontal" | "vertical";
+  isDarkTheme: boolean;
 }
 
 type LinkState = {
@@ -40,7 +41,7 @@ class Link extends React.Component<LinkProps, LinkState> {
     transitionDuration: number,
     done = () => {
       return null;
-    }
+    },
   ) {
     select(this.linkRef).style("opacity", opacity).on("end", done);
   }
@@ -82,10 +83,13 @@ class Link extends React.Component<LinkProps, LinkState> {
   };
 
   render() {
-    const { linkData } = this.props;
+    const { linkData, isDarkTheme } = this.props;
     const { target } = linkData;
 
     const ts = target.data.item?.data?.plugin_type === "ts";
+
+    const strokeWidthColor = isDarkTheme ? "#F2F9F9" : "#6A6E73";
+
     return (
       <Fragment>
         <path
@@ -95,7 +99,7 @@ class Link extends React.Component<LinkProps, LinkState> {
           className={`link ${ts ? "ts" : ""}`}
           //@ts-ignore
           d={this.drawPath(ts)}
-          style={{ ...this.state.initialStyle }}
+          style={{ ...this.state.initialStyle, stroke: strokeWidthColor }}
           data-source-id={linkData.source.id}
           data-target-id={linkData.target.id}
         />

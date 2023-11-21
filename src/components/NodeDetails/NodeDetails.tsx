@@ -45,7 +45,7 @@ function getInitialState() {
 const NodeDetails: React.FC = () => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
+    (state) => state.instance.selectedPlugin,
   );
   const drawerState = useTypedSelector((state) => state.drawers);
 
@@ -103,7 +103,7 @@ const NodeDetails: React.FC = () => {
   const renderGridItem = (title: string, value: React.ReactNode) => {
     return (
       <>
-        <GridItem className="title" span={2}>
+        <GridItem className="title" span={2} style={{ marginBottom: "1em" }}>
           {title}
         </GridItem>
         <GridItem className="value" span={10}>
@@ -118,7 +118,7 @@ const NodeDetails: React.FC = () => {
   } else {
     const Time = (
       <>
-        <CalendarAlt />
+        <CalendarAlt style={{ marginRight: "0.5em" }} />
 
         {selectedPlugin.data.start_date}
       </>
@@ -153,23 +153,23 @@ const NodeDetails: React.FC = () => {
                 {selectedPlugin.data.previous_id &&
                   renderGridItem(
                     "Parent Node ID",
-                    <span>{selectedPlugin.data.previous_id}</span>
+                    <span>{selectedPlugin.data.previous_id}</span>,
                   )}
                 {renderGridItem(
                   "Selected Node ID",
-                  <span>{selectedPlugin.data.id}</span>
+                  <span>{selectedPlugin.data.id}</span>,
                 )}
                 {renderGridItem(
                   "Plugin",
                   <span style={{ fontFamily: "monospace" }}>
                     {selectedPlugin.data.plugin_name}, ver{" "}
                     {selectedPlugin.data.plugin_version}
-                  </span>
+                  </span>,
                 )}
                 {renderGridItem("Created", Time)}
                 {renderGridItem(
                   "Compute Environment",
-                  <span>{compute_env}</span>
+                  <span>{compute_env}</span>,
                 )}
                 {runTime && (
                   <Fragment>
@@ -179,7 +179,7 @@ const NodeDetails: React.FC = () => {
                         {selectedPlugin &&
                           selectedPlugin.data &&
                           runTime(selectedPlugin)}
-                      </span>
+                      </span>,
                     )}
                   </Fragment>
                 )}
@@ -207,7 +207,7 @@ const NodeDetails: React.FC = () => {
                       ) : (
                         "None"
                       )}
-                    </span>
+                    </span>,
                   )}
               </Grid>
             </ExpandableSection>
@@ -277,7 +277,7 @@ function getRuntimeString(selected: PluginInstance) {
 function getCommand(
   plugin: Plugin,
   params: PluginInstanceDescendantList,
-  parameters: PluginParameterList
+  parameters: PluginParameterList,
 ) {
   const { dock_image, selfexec } = plugin.data;
   const modifiedParams: {
@@ -314,7 +314,7 @@ function getCommand(
 
   if (modifiedParams.length) {
     parameterCommand = modifiedParams.map(
-      (param) => `${param.name} ${param.value}`
+      (param) => `${param.name} ${param.value}`,
     );
     if (parameterCommand.length > 0) {
       command += parameterCommand.join(" ") + " \\\n";

@@ -15,3 +15,7 @@
 .pf-c-button__icon.pf-m-start {
   margin: 0;
 }
+
+.pf-v5-c-button.pf-m-control {
+ --pf-v5-c-button--after--BorderColor: transparent !important;
+}
