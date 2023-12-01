@@ -11,7 +11,7 @@ import { State as MainRouterContextState } from "../../../routes";
 import { Series } from "../../../../pages/DataLibrary/Library";
 */
 
-function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
+function getDefaultCreateFeedData(selectedData?: any[]): CreateFeedData {
   const initData = {
     feedName: "",
     feedDescription: "",
@@ -31,7 +31,7 @@ function getDefaultCreateFeedData(selectedData?: Series): CreateFeedData {
 }
 
 export function getInitialState(
-  routerContextState?: typeof MainRouterContextState,
+  routerContextState?: typeof MainRouterContextState
 ): CreateFeedState {
   const selectedData = routerContextState?.selectData;
   const isInitDataSelected = !!selectedData?.length;
@@ -50,7 +50,7 @@ export function getInitialState(
 
 export const createFeedReducer = (
   state: CreateFeedState,
-  action: CreateFeedActions,
+  action: CreateFeedActions
 ): CreateFeedState => {
   switch (action.type) {
     case Types.ToggleWizard:
@@ -117,7 +117,7 @@ export const createFeedReducer = (
           }
           return object;
         },
-        {},
+        {}
       );
 
       return {
@@ -125,7 +125,7 @@ export const createFeedReducer = (
         data: {
           ...state.data,
           chrisFiles: state.data.chrisFiles.filter(
-            (path) => path !== action.payload.file,
+            (path) => path !== action.payload.file
           ),
           checkedKeys: checkedKeysDict,
         },
@@ -158,7 +158,7 @@ export const createFeedReducer = (
         data: {
           ...state.data,
           localFiles: state.data.localFiles.filter(
-            (file) => file.name !== action.payload.filename,
+            (file) => file.name !== action.payload.filename
           ),
         },
       };
