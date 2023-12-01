@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Steps, Spin } from "antd";
 import usePluginInstanceResource from "./usePluginInstanceResource";
 

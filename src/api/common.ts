@@ -1,5 +1,5 @@
 import * as React from "react";
-import axios from "axios";
+import axios, { AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
 import { Pipeline, PipelineList, PluginPiping } from "@fnndsc/chrisapi";
 
@@ -348,7 +348,7 @@ export const uploadFile = async (
   url: string,
   directoryName: string,
   token: string,
-  onUploadProgress: (progressEvent: ProgressEvent) => void
+  onUploadProgress: (progressEvent: AxiosProgressEvent) => void
 ) => {
   const formData = new FormData();
   const name = file.name;
@@ -361,24 +361,20 @@ export const uploadFile = async (
   };
 
   const response = await axios.post(url, formData, config);
-
   return response;
 };
 
 export const uploadWrapper = (
   localFiles: any[],
-  client: any,
   directoryName: string,
   token: string,
-  onUploadProgress?: (file: any, progressEvent: ProgressEvent) => void
+  onUploadProgress?: (file: any, progressEvent: AxiosProgressEvent) => void
 ) => {
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
   return localFiles.map((file) => {
-    const onUploadProgressWrap = (progressEvent: ProgressEvent) => {
+    const onUploadProgressWrap = (progressEvent: AxiosProgressEvent) => {
       onUploadProgress && onUploadProgress(file, progressEvent);
     };
-
-   
 
     const promise = uploadFile(
       file,
