@@ -46,68 +46,20 @@ import {
   limitConcurrency,
   getTimestamp,
   uploadWrapper,
+  
 } from "../../api/common";
+import { ls } from "../../api/filesystem";
 
 const { Paragraph } = Typography;
 
-export const fetchFilesUnderThisPath = async (path?: string) => {
-  if (!path) return;
-
-  const client = ChrisAPIClient.getClient();
-  const pathList = await client.getFileBrowserPath(path);
-  const pagination = {
-    limit: 100,
-    offset: 0,
-    totalCount: 0,
-  };
-  if (pathList) {
-    const fileList = await pathList.getFiles({
-      limit: pagination.limit,
-      offset: pagination.offset,
-    });
-
-    if (fileList) {
-      const files = fileList.getItems() as any[];
-      return files;
-    }
-  }
-
-  return [];
-};
-
-export const fetchFoldersUnderThisPath = async (path?: string) => {
-  if (!path) return;
-  const client = ChrisAPIClient.getClient();
-  const uploads = await client.getFileBrowserPaths({
-    path,
-  });
-
-  const parsedUpload =
-    uploads.data && uploads.data[0].subfolders
-      ? JSON.parse(uploads.data[0].subfolders)
-      : [];
-
-  return parsedUpload;
-};
-
-const useGetFolders = (computedPath: string) => {
-  const folderData = useQuery({
-    queryKey: ["folders", computedPath],
-    queryFn: () => fetchFoldersUnderThisPath(computedPath),
+const useGetLibraryData = (computedPath: string) => {
+  const libraryData = useQuery({
+    queryKey: ["libraryData", computedPath],
+    queryFn: () => ls(computedPath),
     enabled: !!computedPath,
   });
 
-  return folderData;
-};
-
-const useGetFiles = (computedPath: string) => {
-  const fileData = useQuery({
-    queryKey: ["files", computedPath],
-    queryFn: () => fetchFilesUnderThisPath(computedPath),
-    enabled: !!computedPath,
-  });
-
-  return fileData;
+  return libraryData;
 };
 
 export const LibraryCopyPage = () => {
@@ -124,7 +76,7 @@ export const LibraryCopyPage = () => {
   };
 
   const handleAddFolder = (path: string, user: string) => {
-    navigate(`/librarycopy/${user}/uploads/${path}`);
+    navigate(`/library/${user}/uploads/${path}`);
   };
 
   return (
@@ -199,13 +151,11 @@ export const LibraryCopyPage = () => {
 function NormalBrowser() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const currentPathSplit = pathname.split("/librarycopy")[1];
+  const currentPathSplit = pathname.split("/library")[1];
   const computedPath = currentPathSplit || "/";
-  const fileData = useGetFiles(computedPath);
-  const folderData = useGetFolders(computedPath);
+  const libraryData = useGetLibraryData(computedPath);
 
-  const { data: files, isLoading: isFileLoading } = fileData;
-  const { data: folders, isLoading: isFolderLoading } = folderData;
+  const { data, isLoading } = libraryData;
 
   const handleFolderClick = debounce((folder: string) => {
     const url = `${pathname}/${folder}`;
@@ -213,7 +163,7 @@ function NormalBrowser() {
   }, 500);
 
   const handleBreadcrumb = (path: string) => {
-    navigate(`/librarycopy${path}`);
+    navigate(`/library${path}`);
   };
 
   return (
@@ -222,13 +172,16 @@ function NormalBrowser() {
         path={computedPath}
         handleFolderClick={handleBreadcrumb}
       />
-      <Browser
-        handleFolderClick={handleFolderClick}
-        files={files}
-        folders={folders}
-        path={computedPath}
-      />
-      {(isFileLoading || isFolderLoading) && (
+      {data && (
+        <Browser
+          handleFolderClick={handleFolderClick}
+          files={data.files}
+          folders={data.folders}
+          path={computedPath}
+        />
+      )}
+
+      {isLoading && (
         <SpinContainer title="Fetching the Resources for this path" />
       )}
     </>
@@ -253,6 +206,7 @@ function Cart() {
 
   const clearFeed = () => {
     dispatch(clearCart());
+    router.actions.clearFeedData();
   };
 
   const handleDelete = () => {
@@ -342,6 +296,7 @@ const items = ["feeds", "pacs"];
 
 function LocalSearch() {
   const navigate = useNavigate();
+  
   const [value, setValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [searchSpace, setSearchSpace] = useState(items[0]);
@@ -387,6 +342,7 @@ function LocalSearch() {
           })}
         </DropdownList>
       </Dropdown>
+
       <TextInput
         aria-label="Search over uploaded Space"
         onKeyDown={(e) => {

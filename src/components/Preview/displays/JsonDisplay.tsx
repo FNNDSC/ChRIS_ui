@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import ReactJSON from "react-json-view";
 import { IFileBlob } from "../../../api/model";
 import { Text } from "@patternfly/react-core";
+import { ThemeContext } from "../../DarkTheme/useTheme";
+
 type AllProps = {
   fileItem: IFileBlob;
 };
 
 const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
+  const isDarkTheme = useContext(ThemeContext);
   const [blobText, setBlobText] = useState({});
   const { fileItem } = props;
   const _isMounted = useRef(false);
@@ -38,8 +41,7 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     <>
       {blobText ? (
         <ReactJSON
-          theme="grayscale"
-          style={{ background: "inherit" }}
+          theme={isDarkTheme ? "grayscale" : "tomorrow"}
           name={false}
           displayDataTypes={false}
           src={blobText}

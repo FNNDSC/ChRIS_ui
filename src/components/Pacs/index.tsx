@@ -151,6 +151,7 @@ const QueryBuilder = () => {
   React.useEffect(() => {
     const queryType = searchParams.get("queryType");
     const searchValue = searchParams.get("value");
+
     if (
       Object.keys(queryResult).length === 0 &&
       queryType &&
@@ -163,6 +164,13 @@ const QueryBuilder = () => {
         type: Types.SET_SELECTED_PACS_SERVICE,
         payload: {
           selectedPacsService: service,
+        },
+      });
+
+      dispatch({
+        type: Types.SET_DEFAULT_EXPANDED,
+        payload: {
+          expanded: true,
         },
       });
     }
