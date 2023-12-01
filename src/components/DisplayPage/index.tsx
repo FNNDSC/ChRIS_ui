@@ -109,9 +109,7 @@ const DisplayPage = ({
       : ComputeQueryTypes.NAME[0]
   );
 
-  const isValid = (date: any) => {
-    return new Date(date).toDateString() !== "Invalid Date";
-  };
+  
 
   const onToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);

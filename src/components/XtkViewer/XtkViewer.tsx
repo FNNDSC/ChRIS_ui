@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import  { useEffect, useRef, useState } from "react";
 import { Button } from "@patternfly/react-core";
 import AiOutlineExpand from "@patternfly/react-icons/dist/esm/icons/expand-alt-icon";
 import { FeedFile } from "@fnndsc/chrisapi";

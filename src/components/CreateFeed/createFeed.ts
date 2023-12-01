@@ -98,7 +98,6 @@ export const createFeedInstanceWithDircopy = async (
     const dircopy = await getPlugin("pl-dircopy");
 
     if (dircopy instanceof Plugin) {
-    
       try {
         const createdInstance = await client.createPluginInstance(
           dircopy.data.id,
@@ -209,11 +208,8 @@ export const uploadLocalFiles = async (
   const client = ChrisAPIClient.getClient();
   await client.setUrls();
 
- 
-
   const fileUploads = uploadWrapper(
     files,
-    client,
     directory,
     client.auth.token
   );

@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { useParams } from "react-router-dom";
+
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { format } from "date-fns";
@@ -15,11 +15,7 @@ import {
   EmptyState,
   EmptyStateVariant,
   EmptyStateIcon,
-  EmptyStateBody,
-  Button,
   EmptyStateHeader,
-  EmptyStateFooter,
-  EmptyStateActions,
   Skeleton,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
@@ -27,7 +23,7 @@ import { Typography } from "antd";
 import { cujs } from "chris-utility";
 import { useTypedSelector } from "../../store/hooks";
 import { Link } from "react-router-dom";
-import { FilterState, usePaginate } from "./usePaginate";
+import { usePaginate } from "./usePaginate";
 import {
   setBulkSelect,
   removeBulkSelect,
@@ -73,14 +69,14 @@ const TableSelectable: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const searchFolderData = useSearchQuery(query);
 
-  const { perPage, page, search, searchType } = searchFolderData;
+  const { perPage, page } = searchFolderData;
 
   const dispatch = useDispatch();
 
-  const fetchFeeds = async (filterState: FilterState) => {
+  const fetchFeeds = async (filterState: any) => {
     const client = ChrisAPIClient.getClient();
     const feedsList: FeedList = await client.getFeeds({
-      limit: perPage,
+      limit: +perPage,
       offset: filterState.perPage * (filterState.page - 1),
       [filterState.searchType]: filterState.search,
     });
@@ -98,7 +94,7 @@ const TableSelectable: React.FunctionComponent = () => {
   });
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed,
+    (state) => state.feed
   );
 
   const onSetPage = (_e: any, newPage: number) => {
@@ -107,7 +103,6 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
-    
     navigate(`/feeds?page=${newPage}&&perPage=${newPerPage}`);
   };
 
@@ -123,7 +118,7 @@ const TableSelectable: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      }),
+      })
     );
     if (bulkData && bulkData.current) {
       dispatch(removeAllSelect(bulkData.current));

@@ -321,7 +321,7 @@ export const TabResources = ({
 }: {
   parameterPayload: ParameterPayload;
 }) => {
-  const clipboardCopyFunc = (event: any, text: string) => {
+  const clipboardCopyFunc = (_event: any, text: string) => {
     navigator.clipboard.writeText(text.toString());
   };
   const [copied, setCopied] = React.useState(false);
