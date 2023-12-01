@@ -62,12 +62,12 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
         setShowDragAndDrop(true);
       }
     },
-    []
+    [],
   );
 
   const handleKeyDown = useCallback(
     (e: any) => {
-      if (e.target.closest("INPUT.required-params__textInput")) return;
+      if (e.target.closest("INPUT")) return;
       switch (e.code) {
         case "KeyG":
           handleClick(e, "fs_plugin");
@@ -102,7 +102,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
       params?.required.length,
       requiredInput,
       selectedConfig,
-    ]
+    ],
   );
 
   const onCloseClick = () => {
@@ -149,7 +149,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
         type: Types.SelectedConfig,
         payload: {
           selectedConfig: state.selectedConfig.filter(
-            (value: string) => value !== "swift_storage"
+            (value: string) => value !== "swift_storage",
           ),
         },
       });
@@ -162,7 +162,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
         type: Types.SelectedConfig,
         payload: {
           selectedConfig: state.selectedConfig.filter(
-            (value: any) => value !== "fs_plugin"
+            (value: any) => value !== "fs_plugin",
           ),
         },
       });
@@ -206,7 +206,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
       type: Types.SelectedConfig,
       payload: {
         selectedConfig: state.selectedConfig.filter(
-          (value: any) => value !== "swift_storage"
+          (value: any) => value !== "swift_storage",
         ),
       },
     });

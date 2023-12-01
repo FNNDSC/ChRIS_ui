@@ -9,24 +9,24 @@ import {
   WizardHeader,
 } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
-
 import { notification } from "antd";
 import { CreateFeedContext, PipelineContext } from "./context";
 import { AddNodeContext } from "../AddNode/context";
+import { MainRouterContext } from "../../routes";
 import { Types } from "./types/feed";
 import { PipelineTypes } from "./types/pipeline";
 import BasicInformation from "./BasicInformation";
 import ChooseConfig from "./ChooseConfig";
 import PipelineContainer from "./PipelineContainter";
 import Review from "./Review";
+import withSelectionAlert from "./SelectionAlert";
 import { useTypedSelector } from "../../store/hooks";
-
 import { createFeed } from "./createFeed";
 import "./createFeed.css";
-import withSelectionAlert from "./SelectionAlert";
 
 export default function CreateFeed() {
   const queryClient = useQueryClient();
+  const router = useContext(MainRouterContext);
 
   const { state, dispatch } = useContext(CreateFeedContext);
   const { state: addNodeState, dispatch: nodeDispatch } =
@@ -88,7 +88,7 @@ export default function CreateFeed() {
       getUploadFileCount,
       getFeedError,
       selectedConfig,
-      selectedPipeline
+      selectedPipeline,
     );
 
     if (feed) {
@@ -160,18 +160,18 @@ export default function CreateFeed() {
         });
       }
     },
-    [dispatch, selectedConfig, state.data.localFiles]
+    [dispatch, selectedConfig, state.data.localFiles],
   );
 
   const handleChoseFilesClick = React.useCallback(
     (files: File[]) => {
       handleDispatch(files);
     },
-    [handleDispatch]
+    [handleDispatch],
   );
 
   const allRequiredFieldsNotEmpty: boolean = selectedConfig.includes(
-    "fs_plugin"
+    "fs_plugin",
   )
     ? params?.required.length == Object.keys(requiredInput).length
     : true;
@@ -209,6 +209,8 @@ export default function CreateFeed() {
                     type: Types.ResetState,
                   });
 
+                  router.actions.clearFeedData();
+
                   pipelineDispatch({
                     type: PipelineTypes.ResetState,
                   });
@@ -242,7 +244,7 @@ export default function CreateFeed() {
               <ChooseConfig
                 user={user}
                 handleFileUpload={handleChoseFilesClick}
-              />
+              />,
             )}
           </WizardStep>
           <WizardStep id={3} name="Pipelines">

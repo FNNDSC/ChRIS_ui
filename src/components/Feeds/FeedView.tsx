@@ -28,6 +28,7 @@ import ParentComponent from "../FeedTree/ParentComponent";
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import FeedGraph from "../FeedTree/FeedGraph";
 import NodeDetails from "../NodeDetails/NodeDetails";
+import WrapperConnect from "../Wrapper";
 import { resetActiveResources } from "../../store/resources/actions";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 
@@ -36,11 +37,11 @@ export default function FeedView() {
   const dispatch = useDispatch();
   const { id } = params;
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
+    (state) => state.instance.selectedPlugin,
   );
   const { currentLayout } = useTypedSelector((state) => state.feed);
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
+    (state) => state.instance.pluginInstances,
   );
   const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
@@ -89,7 +90,7 @@ export default function FeedView() {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      })
+      }),
     );
     id && dispatch(getFeedRequest(id));
   }, [id, dispatch]);
@@ -169,34 +170,36 @@ export default function FeedView() {
   );
 
   return (
-    <Drawer
-      isInline
-      position="bottom"
-      isExpanded={
-        drawerState.preview.open ||
-        drawerState.directory.open ||
-        drawerState.files.open
-      }
-    >
-      <DrawerContent
-        panelContent={
-          <DrawerPanelContent
-            defaultSize={
-              !drawerState.graph.open && !drawerState.node.open
-                ? "100vh"
-                : "46vh"
-            }
-            isResizable
-          >
-            <FeedOutputBrowser
-              explore={true}
-              handlePluginSelect={onNodeBrowserClick}
-            />
-          </DrawerPanelContent>
+    <WrapperConnect>
+      <Drawer
+        isInline
+        position="bottom"
+        isExpanded={
+          drawerState.preview.open ||
+          drawerState.directory.open ||
+          drawerState.files.open
         }
       >
-        {feedTreeAndGraph}
-      </DrawerContent>
-    </Drawer>
+        <DrawerContent
+          panelContent={
+            <DrawerPanelContent
+              defaultSize={
+                !drawerState.graph.open && !drawerState.node.open
+                  ? "100vh"
+                  : "46vh"
+              }
+              isResizable
+            >
+              <FeedOutputBrowser
+                explore={true}
+                handlePluginSelect={onNodeBrowserClick}
+              />
+            </DrawerPanelContent>
+          }
+        >
+          {feedTreeAndGraph}
+        </DrawerContent>
+      </Drawer>
+    </WrapperConnect>
   );
 }

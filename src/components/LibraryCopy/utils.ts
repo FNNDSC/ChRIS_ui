@@ -56,7 +56,6 @@ export default function useLongPress() {
   }
 
   function handleOnMouseDown() {
-    console.log("Starting Timer");
     startPressTimer();
   }
 
