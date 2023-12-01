@@ -57,3 +57,29 @@
 .pf-v5-c-breadcrumb__item {
   font-size: inherit;
 }
+
+
+
+.series-actions {
+  margin: -1em -1em 1em -1em;
+  height: 8em;
+  overflow: hidden;
+  position: relative;
+}
+
+.action-button-container {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 1em;
+  text-align: center;
+}
+
+.action-button-container[class~="hover"] {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  &:hover {
+    opacity: 1;
+  }
+}

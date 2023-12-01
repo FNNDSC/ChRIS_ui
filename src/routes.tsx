@@ -5,10 +5,10 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Pacs from "./components/Pacs";
 import Dashboard from "./components/Dashboard";
-import FeedsPage from "./components/Feeds";
+import FeedsListView from "./components/Feeds/FeedListView";
+import FeedView from './components/Feeds/FeedView';
 import PipelinePage from "./components/PipelinesPage";
 import LibraryCopyPage from "./components/LibraryCopy";
-import Library from "./components/Library/";
 import {
   RouterContext,
   RouterProvider,
@@ -62,10 +62,15 @@ export const MainRouter: React.FC = () => {
       ),
     },
     {
-      path: "librarycopy/*",
+      path: "library/*",
       element: (
         <PrivateRoute>
-          <LibraryCopyPage />
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <LibraryCopyPage />
+          </RouterProvider>
         </PrivateRoute>
       ),
     },
@@ -86,8 +91,16 @@ export const MainRouter: React.FC = () => {
             {...{ actions, state, route, setRoute }}
             context={MainRouterContext}
           >
-            <FeedsPage />
+            <FeedsListView />
           </RouterProvider>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "feeds/:id",
+      element: (
+        <PrivateRoute>
+          <FeedView />
         </PrivateRoute>
       ),
     },
@@ -116,19 +129,7 @@ export const MainRouter: React.FC = () => {
       path: "signup",
       element: <Signup />,
     },
-    {
-      path: "library",
-      element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <Library />
-          </RouterProvider>
-        </PrivateRoute>
-      ),
-    },
+
     {
       path: "pipelines",
       element: <PipelinePage />,

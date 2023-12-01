@@ -26,6 +26,7 @@ interface PacsQueryState {
   currentQueryType: string;
   queryResult: Record<any, any>;
   queryStageForSeries: Record<any, any>;
+  shouldDefaultExpanded: boolean;
 }
 
 type PacsQueryPayload = {
@@ -53,6 +54,10 @@ type PacsQueryPayload = {
   [Types.SET_LOADING_SPINNER]: {
     loading: boolean;
   };
+
+  [Types.SET_DEFAULT_EXPANDED]: {
+    expanded: boolean;
+  };
 };
 
 export type PacsQueryActions =
@@ -75,6 +80,7 @@ const initialState = {
   queryResult: {},
   queryStageForSeries: {},
   fetchingResults: false,
+  shouldDefaultExpanded: false,
 };
 
 export function getIndex(value: string) {
@@ -138,6 +144,13 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       return {
         ...state,
         fetchingResults: action.payload.loading,
+      };
+    }
+
+    case Types.SET_DEFAULT_EXPANDED: {
+      return {
+        ...state,
+        shouldDefaultExpanded: action.payload.expanded,
       };
     }
 

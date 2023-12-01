@@ -1,4 +1,7 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo } from "react";
+import { useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
@@ -8,7 +11,18 @@ import {
   Checkbox,
   PageSection,
   Pagination,
+  Bullseye,
+  EmptyState,
+  EmptyStateVariant,
+  EmptyStateIcon,
+  EmptyStateBody,
+  Button,
+  EmptyStateHeader,
+  EmptyStateFooter,
+  EmptyStateActions,
+  Skeleton,
 } from "@patternfly/react-core";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { Typography } from "antd";
 import { cujs } from "chris-utility";
 import { useTypedSelector } from "../../store/hooks";
@@ -25,16 +39,43 @@ import { setSidebarActive } from "../../store/ui/actions";
 import type { Feed, FeedList } from "@fnndsc/chrisapi";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import IconContainer from "../IconContainer";
+import WrapperConnect from "../Wrapper";
 import { InfoIcon, DataTableToolbar } from "../Common";
 import { CreateFeedProvider, PipelineProvider } from "../CreateFeed/context";
 import { AddNodeProvider } from "../AddNode/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import ChrisAPIClient from "../../api/chrisapiclient";
-
 const { Paragraph } = Typography;
 
-export const TableSelectable: React.FunctionComponent = () => {
+function useSearchQueryParams() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
+
+function useSearchQuery(query: URLSearchParams) {
+  const page = query.get("page") || 1;
+  const search = query.get("search") || "";
+  const searchType = query.get("searchType") || "name";
+  const perPage = query.get("perPage") || 14;
+
+  return {
+    page,
+    perPage,
+    search,
+    searchType,
+  };
+}
+
+const TableSelectable: React.FunctionComponent = () => {
   // In real usage, this data would come from some external source like an API via props.
+  const query = useSearchQueryParams();
+  const navigate = useNavigate();
+  const searchFolderData = useSearchQuery(query);
+
+  const { perPage, page, search, searchType } = searchFolderData;
+
+  const dispatch = useDispatch();
 
   const fetchFeeds = async (filterState: FilterState) => {
     const client = ChrisAPIClient.getClient();
@@ -51,25 +92,28 @@ export const TableSelectable: React.FunctionComponent = () => {
     };
   };
 
-  const {
-    filterState,
-    handlePageSet,
-    handlePerPageSet,
-    handleFilterChange,
-    dispatch,
-  } = usePaginate();
-
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["feeds", filterState],
-    queryFn: () => fetchFeeds(filterState),
+    queryKey: ["feeds", searchFolderData],
+    queryFn: () => fetchFeeds(searchFolderData),
   });
-
-  console.log("Loading", isLoading, isFetching);
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
     (state) => state.feed,
   );
-  const { page, perPage } = filterState;
+
+  const onSetPage = (_e: any, newPage: number) => {
+    console.log("PageDetails", newPage);
+    navigate(`/feeds?page=${newPage}`);
+  };
+
+  const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
+    
+    navigate(`/feeds?page=${newPage}&&perPage=${newPerPage}`);
+  };
+
+  const handleFilterChange = (search: string, searchType: string) => {
+    navigate(`/feeds?search=${search}&&searchType=${searchType}`);
+  };
 
   const bulkData = React.useRef<Feed[]>();
   bulkData.current = bulkSelect;
@@ -104,99 +148,106 @@ export const TableSelectable: React.FunctionComponent = () => {
     return (
       <Pagination
         itemCount={data.totalFeedsCount}
-        perPage={perPage}
-        page={page}
-        onSetPage={handlePageSet}
-        onPerPageSelect={handlePerPageSet}
+        perPage={+perPage}
+        page={+page}
+        onSetPage={onSetPage}
+        onPerPageSelect={onPerPageSelect}
       />
     );
   };
 
   return (
     <React.Fragment>
-      <PageSection className="feed-header">
-        <InfoIcon
-          title={`New and Existing Analyses (${
-            data && data.totalFeedsCount > 0 ? data.totalFeedsCount : 0
-          })`}
-          p1={
-            <Paragraph>
-              Analyses (aka ChRIS feeds) are computational experiments where
-              data are organized and processed by ChRIS plugins. In this view
-              you may view your analyses and also the ones shared with you.
-            </Paragraph>
-          }
-        />
-        <CreateFeedProvider>
-          <PipelineProvider>
-            <AddNodeProvider>
-              <CreateFeed />
-            </AddNodeProvider>
-          </PipelineProvider>
-        </CreateFeedProvider>
-      </PageSection>
-      <PageSection className="feed-list">
-        <div className="feed-list__split">
-          <div></div>
-          {generatePagination()}
-        </div>
-        <div className="feed-list__split">
-          <DataTableToolbar
-            onSearch={handleFilterChange}
-            label="Filter by name"
+      <WrapperConnect>
+        <PageSection className="feed-header">
+          <InfoIcon
+            title={`New and Existing Analyses (${
+              data && data.totalFeedsCount > 0 ? data.totalFeedsCount : 0
+            })`}
+            p1={
+              <Paragraph>
+                Analyses (aka ChRIS feeds) are computational experiments where
+                data are organized and processed by ChRIS plugins. In this view
+                you may view your analyses and also the ones shared with you.
+              </Paragraph>
+            }
           />
+          <CreateFeedProvider>
+            <PipelineProvider>
+              <AddNodeProvider>
+                <CreateFeed />
+              </AddNodeProvider>
+            </PipelineProvider>
+          </CreateFeedProvider>
+        </PageSection>
+        <PageSection className="feed-list">
+          <div className="feed-list__split">
+            <div></div>
+            {generatePagination()}
+          </div>
+          <div className="feed-list__split">
+            <DataTableToolbar
+              onSearch={handleFilterChange}
+              label="Filter by name"
+            />
 
-          {data && <IconContainer allFeeds={data.feeds} />}
-        </div>
-        <Table variant="compact" aria-label="Selectable table">
-          <Thead>
-            <Tr>
-              <Th>
-                <Checkbox
-                  id="test"
-                  isChecked={selectAllToggle}
-                  onChange={() => {
-                    if (!selectAllToggle) {
-                      if (data) {
-                        dispatch(setAllSelect(data.feeds));
-                      }
+            {data && <IconContainer allFeeds={data.feeds} />}
+          </div>
+          {isLoading || isFetching ? (
+            <LoadingTable />
+          ) : data && data.feeds.length > 0 ? (
+            <Table variant="compact" aria-label="Selectable table">
+              <Thead>
+                <Tr>
+                  <Th>
+                    <Checkbox
+                      id="test"
+                      isChecked={selectAllToggle}
+                      onChange={() => {
+                        if (!selectAllToggle) {
+                          if (data) {
+                            dispatch(setAllSelect(data.feeds));
+                          }
 
-                      dispatch(toggleSelectAll(true));
-                    } else {
-                      if (data) {
-                        dispatch(removeAllSelect(data.feeds));
-                      }
-                      dispatch(toggleSelectAll(false));
-                    }
-                  }}
-                />
-              </Th>
-              <Th>{columnNames.id}</Th>
-              <Th>{columnNames.analysis}</Th>
-              <Th>{columnNames.created}</Th>
-              <Th>{columnNames.creator}</Th>
-              <Th>{columnNames.runtime}</Th>
-              <Th>{columnNames.size}</Th>
-              <Th>{columnNames.status}</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {data &&
-              data.feeds.map((feed, rowIndex) => {
-                return (
-                  <TableRow
-                    key={feed.data.id}
-                    feed={feed}
-                    rowIndex={rowIndex}
-                    bulkSelect={bulkSelect}
-                    columnNames={columnNames}
-                    allFeeds={data.feeds}
-                  />
-                );
-              })}
-          </Tbody>
-        </Table>
-      </PageSection>
+                          dispatch(toggleSelectAll(true));
+                        } else {
+                          if (data) {
+                            dispatch(removeAllSelect(data.feeds));
+                          }
+                          dispatch(toggleSelectAll(false));
+                        }
+                      }}
+                    />
+                  </Th>
+                  <Th>{columnNames.id}</Th>
+                  <Th>{columnNames.analysis}</Th>
+                  <Th>{columnNames.created}</Th>
+                  <Th>{columnNames.creator}</Th>
+                  <Th>{columnNames.runtime}</Th>
+                  <Th>{columnNames.size}</Th>
+                  <Th>{columnNames.status}</Th>
+                </Tr>
+              </Thead>
+              <Tbody>
+                {data.feeds.map((feed, rowIndex) => {
+                  return (
+                    <TableRow
+                      key={feed.data.id}
+                      feed={feed}
+                      rowIndex={rowIndex}
+                      bulkSelect={bulkSelect}
+                      columnNames={columnNames}
+                      allFeeds={data.feeds}
+                    />
+                  );
+                })}
+              </Tbody>
+            </Table>
+          ) : (
+            <EmptyStateTable />
+          )}
+        </PageSection>
+      </WrapperConnect>
     </React.Fragment>
   );
 };
@@ -361,8 +412,6 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
 
   return (
     <Tr
-      isHoverable
-      isRowSelect={isSelected(bulkSelect, feed)}
       isSelectable
       key={feed.data.id}
       style={{
@@ -378,5 +427,49 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
       <Td dataLabel={columnNames.size}>{size}</Td>
       <Td dataLabel={columnNames.status}>{circularProgress}</Td>
     </Tr>
+  );
+}
+
+function EmptyStateTable() {
+  return (
+    <Table variant="compact" aria-label="Empty state table">
+      <Thead>
+        <Tr>
+          <Th>ID</Th>
+          <Th>Analysis</Th>
+          <Th>Created</Th>
+          <Th>Creator</Th>
+          <Th>Run Time</Th>
+          <Th>Size</Th>
+          <Th>Status</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Td colSpan={12}>
+            <Bullseye>
+              <EmptyState variant={EmptyStateVariant.sm}>
+                <EmptyStateHeader
+                  icon={<EmptyStateIcon icon={SearchIcon} />}
+                  titleText="No results found"
+                  headingLevel="h2"
+                />
+              </EmptyState>
+            </Bullseye>
+          </Td>
+        </Tr>
+      </Tbody>
+    </Table>
+  );
+}
+
+function LoadingTable() {
+  return (
+    <div style={{ height: "100%" }}>
+      <Skeleton
+        height="100%"
+        screenreaderText="Loading large rectangle contents"
+      />
+    </div>
   );
 }

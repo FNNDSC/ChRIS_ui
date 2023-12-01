@@ -9,6 +9,7 @@ import { CookiesProvider } from "react-cookie";
 import { RootState } from "./store/root/applicationState";
 import "@patternfly/react-core/dist/styles/base.css";
 import "./app.css";
+import "./components/Feeds/Feeds.css"
 import { ThemeContext } from "./components/DarkTheme/useTheme";
 
 interface AllProps {

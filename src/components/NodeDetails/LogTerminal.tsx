@@ -8,7 +8,7 @@ type LogTerminalProps = {
 const LogTerminal = ({ text }: LogTerminalProps) => {
   return (
     <>
-      <LogViewer hasLineNumbers={false} height={300} data={text} />
+      <LogViewer hasLineNumbers={false} height={"100%"} data={text} />
     </>
   );
 };
