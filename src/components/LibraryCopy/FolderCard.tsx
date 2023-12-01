@@ -1,9 +1,6 @@
-import { useEffect, useState } from "react";
-
 import {
   Card,
   CardHeader,
-  CardBody,
   Split,
   SplitItem,
   Button,
@@ -12,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import FaFolder from "@patternfly/react-icons/dist/esm/icons/folder-icon";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import MdOutlineOpenInNew from "@patternfly/react-icons/dist/esm/icons/open-drawer-right-icon";
+
 import ExternalLinkSquareIcon from "@patternfly/react-icons/dist/esm/icons/external-link-square-alt-icon";
 import useLongPress, { elipses } from "./utils";
 
@@ -25,7 +22,6 @@ function FolderCard({
   handleFolderClick: (path: string) => void;
   path: string;
 }) {
-  const [cubeSeriesPreview, setCubeSeriesPreview] = useState(false);
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
 
@@ -49,8 +45,6 @@ function FolderCard({
     queryFn: () => fetchFeedDetails(+id),
     enabled: !!folder.startsWith("feed"),
   });
-
-  
 
   return (
     <Card

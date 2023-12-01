@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useState,
-  useContext,
-  useRef,
-  useCallback,
-} from "react";
+import { useEffect, useState, useContext, useRef, useCallback } from "react";
 import { PluginMeta } from "@fnndsc/chrisapi";
 import {
   Pagination,

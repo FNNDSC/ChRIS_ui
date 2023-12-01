@@ -38,7 +38,7 @@ import { clearCart, clearSelectFolder } from "./context/actions";
 import { MainRouterContext } from "../../routes";
 import { InfoIcon } from "../Common";
 import FaUpload from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import type { AxiosResponse } from "axios";
+import type { AxiosProgressEvent, AxiosResponse } from "axios";
 import { useCookieToken } from "../Common";
 import { useTypedSelector } from "../../store/hooks";
 import {
@@ -46,7 +46,6 @@ import {
   limitConcurrency,
   getTimestamp,
   uploadWrapper,
-  
 } from "../../api/common";
 import { ls } from "../../api/filesystem";
 
@@ -132,7 +131,7 @@ export const LibraryCopyPage = () => {
               localFiles={localFiles}
               handleDelete={(name: string) => {
                 const filteredfiles = localFiles.filter(
-                  (file) => file.name !== name,
+                  (file) => file.name !== name
                 );
                 setLocalFiles(filteredfiles);
               }}
@@ -296,7 +295,7 @@ const items = ["feeds", "pacs"];
 
 function LocalSearch() {
   const navigate = useNavigate();
-  
+
   const [value, setValue] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [searchSpace, setSearchSpace] = useState(items[0]);
@@ -417,31 +416,32 @@ const UploadComponent = ({
   const handleUpload = async () => {
     const client = ChrisAPIClient.getClient();
     await client.setUrls();
-    const onUploadProgress = (file: any, progressEvent: ProgressEvent) => {
-      const percentCompleted = `${Math.round(
-        (progressEvent.loaded * 100) / progressEvent.total,
-      )}%`;
-      setCurrentFile((prevProgresses) => ({
-        ...prevProgresses,
-        [file.name]: percentCompleted,
-      }));
+    const onUploadProgress = (file: any, progressEvent: AxiosProgressEvent) => {
+      if (progressEvent && progressEvent.total) {
+        const percentCompleted = `${Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        )}%`;
+        setCurrentFile((prevProgresses) => ({
+          ...prevProgresses,
+          [file.name]: percentCompleted,
+        }));
+      }
     };
 
     const uploadDirectory = `${username}/uploads/${directoryName}`;
 
     const fileUploads: FileUpload[] = uploadWrapper(
       localFiles,
-      client,
       uploadDirectory,
       token,
-      onUploadProgress,
+      onUploadProgress
     );
 
     const completedUploads: number[] = [];
     const promises = fileUploads.map(
       ({ promise }) =>
         () =>
-          promise,
+          promise
     );
     let serverProgressForClosingModal = 0;
     const results = await limitConcurrency(4, promises, (progress: number) => {
@@ -465,7 +465,7 @@ const UploadComponent = ({
       completedUploads.length === localFiles.length &&
       serverProgressForClosingModal === 100
     ) {
-      handleAddFolder(directoryName, username);
+      username && handleAddFolder(directoryName, username);
       const intervalDelay = 2000;
       const interval = setInterval(() => {
         setCountdown((prevCountdown) => prevCountdown - 1);
