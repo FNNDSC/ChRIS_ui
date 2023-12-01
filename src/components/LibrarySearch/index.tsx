@@ -20,6 +20,7 @@ import {
   EmptyStateIcon,
 } from "@patternfly/react-core";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { SpinContainer } from "../Common";
 import { find } from "../../api/filesystem";
 
 const { Paragraph, Text } = Typography;
@@ -29,18 +30,16 @@ const useSearchQuery = (query: URLSearchParams) => {
   const searchSpace = query.get("space");
   let resultsArray: any[] = [];
 
-  const searchData = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["search", searchSpace, search],
     queryFn: () => find(searchSpace, search),
   });
 
-  console.log("SearchData", searchData);
-
-  const length = searchData.data?.resource?.length;
+  const length = data?.resource?.length;
 
   if (length && length > 0) {
     if (searchSpace === "feeds") {
-      searchData.data?.resource.forEach((result: any) => {
+      data?.resource.forEach((result: any) => {
         resultsArray.push({
           folder_path: result.data.creator_username,
           folder_name: `feed_${result.data.id}`,
@@ -49,7 +48,7 @@ const useSearchQuery = (query: URLSearchParams) => {
     }
 
     if (searchSpace === "pacs") {
-      searchData.data?.resource.forEach((result: any) => {
+      data?.resource.forEach((result: any) => {
         const folderSplit = result.data.fname.split("/");
         const folder_path = folderSplit.slice(0, 3).join("/");
 
@@ -61,7 +60,10 @@ const useSearchQuery = (query: URLSearchParams) => {
     }
   }
 
-  return resultsArray;
+  return {
+    results: resultsArray,
+    loading: isLoading,
+  };
 };
 
 function useSearchQueryParams() {
@@ -72,7 +74,7 @@ function useSearchQueryParams() {
 
 export default function LibrarySearch() {
   const query = useSearchQueryParams();
-  const searchFolderData = useSearchQuery(query);
+  const { results: searchFolderData, loading } = useSearchQuery(query);
 
   return (
     <WrapperConnect>
@@ -97,6 +99,7 @@ export default function LibrarySearch() {
       </PageSection>
       <PageSection>
         <LibraryProvider>
+          {loading && <SpinContainer title="Fetching Search Results" />}
           {searchFolderData && searchFolderData.length > 0 ? (
             searchFolderData.map((data, index) => {
               return <SearchBrowser key={index} data={data} />;
