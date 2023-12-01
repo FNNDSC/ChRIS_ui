@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
 import {
   Breadcrumb,
@@ -14,6 +14,7 @@ import { Progress, notification } from "antd";
 import { Table, Thead, Tbody, Th, Tr, Td } from "@patternfly/react-table";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleClose, handleMaximize, handleMinimize } from "../Feeds/utilties";
+import { ThemeContext } from "../DarkTheme/useTheme";
 
 import {
   FolderIcon,
@@ -46,6 +47,7 @@ const getFileName = (name: any) => {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
+  const { isDarkTheme } = useContext(ThemeContext);
   const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
   const [status, setDownloadStatus] = React.useState<{
     [key: string]: number;
@@ -223,8 +225,8 @@ const FileBrowser = (props: FileBrowserProps) => {
                     {items.length > 1
                       ? `(${items.length} items)`
                       : items.length === 1
-                      ? `(${items.length} item)`
-                      : "Empty Directory"}
+                        ? `(${items.length} item)`
+                        : "Empty Directory"}
                   </span>
                 </div>
               </div>
@@ -266,13 +268,16 @@ const FileBrowser = (props: FileBrowserProps) => {
                         icon = getIcon(type);
                       }
 
+                      const backgroundColor = isDarkTheme
+                        ? "#002952"
+                        : "#E7F1FA";
+
                       const fileNameComponent = (
                         <div
-                          className={`file-browser__table--fileName 
-                            ${
-                              isPreviewing &&
-                              "file-browser__table--isPreviewing"
-                            }`}
+                          className={`file-browser__table--fileName`}
+                          style={{
+                            background: isPreviewing ? backgroundColor : "",
+                          }}
                         >
                           <span>{icon}</span>
                           <span>{fileName}</span>

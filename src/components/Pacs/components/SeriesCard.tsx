@@ -6,11 +6,13 @@ import {
   useState,
   useMemo,
 } from "react";
+import { useNavigate } from "react-router";
 import {
   Card,
   Flex,
   FlexItem,
   CardBody,
+  CardHeader,
   Button,
   Badge,
   Progress,
@@ -28,9 +30,9 @@ import { Types } from "../context/index";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import FaCodeBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
 
-const cubeClient = ChrisAPIClient.getClient();
 const client = new PFDCMClient();
 
 function useInterval(callback: () => void, delay: number | null): void {
@@ -57,6 +59,7 @@ function useInterval(callback: () => void, delay: number | null): void {
 }
 
 const SeriesCard = ({ series }: { series: any }) => {
+  const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const oldStep = useRef("");
@@ -100,6 +103,8 @@ const SeriesCard = ({ series }: { series: any }) => {
       const middleValue = Math.floor(
         parseInt(NumberOfSeriesRelatedInstances.value) / 2,
       );
+
+      const cubeClient = ChrisAPIClient.getClient();
 
       const files = await cubeClient.getPACSFiles({
         ...pullQuery,
@@ -231,31 +236,27 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   const fileDetailsComponent = (
     <>
-      {cubeFilePreview && (
-        <div style={{ marginTop: "-1em", wordWrap: "break-word" }}>
-          <FileDetailView preview="small" selectedFile={cubeFilePreview} />
-
-          {openSeriesPreview && (
-            <Modal
-              style={{
-                height: "800px",
-              }}
-              title="Preview"
-              aria-label="viewer"
-              isOpen={!!openSeriesPreview}
-              onClose={() => setOpenSeriesPreview(false)}
-            >
-              <FileDetailView selectedFile={cubeFilePreview} preview="large" />
-            </Modal>
-          )}
-        </div>
+      {openSeriesPreview && (
+        <Modal
+          style={{
+            height: "800px",
+          }}
+          title="Preview"
+          aria-label="viewer"
+          isOpen={!!openSeriesPreview}
+          onClose={() => setOpenSeriesPreview(false)}
+        >
+          <FileDetailView selectedFile={cubeFilePreview} preview="large" />
+        </Modal>
       )}
+
       <div
         className="action-button-container hover"
         style={{ display: "flex", flexFlow: "row", flexWrap: "wrap" }}
       >
         <Tooltip content="Click to create a new feed with this series">
           <Button
+            icon={<FaCodeBranch />}
             variant="primary"
             style={{ fontSize: "small", margin: "auto" }}
             onClick={() => {
@@ -269,15 +270,29 @@ const SeriesCard = ({ series }: { series: any }) => {
               }
             }}
           >
-            <FaCodeBranch /> <b>Create Feed</b>
+            <b>Create Feed</b>
           </Button>
         </Tooltip>
         <Button
+          icon={<FaEye />}
           variant="secondary"
           style={{ fontSize: "small", margin: "auto" }}
           onClick={() => setOpenSeriesPreview(true)}
         >
-          <FaEye /> <b>Preview</b>
+          <b>Preview</b>
+        </Button>
+
+        <Button
+          icon={<LibraryIcon />}
+          variant="secondary"
+          style={{ fontSize: "small", margin: "auto" }}
+          onClick={() => {
+            const pathSplit = cubeFilePreview.data.fname.split("/");
+            const url = pathSplit.slice(0, pathSplit.length - 1).join("/");
+            navigate(`/library/${url}`);
+          }}
+        >
+          <b>Go to Library</b>
         </Button>
       </div>
     </>
@@ -307,7 +322,25 @@ const SeriesCard = ({ series }: { series: any }) => {
   return (
     <>
       <Card isRounded style={{ height: "100%" }}>
-        <CardBody>
+        <CardHeader
+          style={{ zIndex: "999", margin: "0 auto", display: "flex" }}
+        >
+          <div style={{ marginRight: "1em", color: "white" }}>
+            <b>{SeriesDescription.value}</b>
+          </div>
+          <div>
+            <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
+          </div>
+        </CardHeader>
+        <CardBody
+          style={{
+            height: "12em",
+          }}
+        >
+          {cubeFilePreview && (
+            <FileDetailView preview="small" selectedFile={cubeFilePreview} />
+          )}
+
           <div className="series-actions">
             <div
               style={{ display: "flex", flexDirection: "column" }}
@@ -323,35 +356,24 @@ const SeriesCard = ({ series }: { series: any }) => {
             </div>
           </div>
 
-          <Flex>
-            <FlexItem style={{ fontSize: "small" }}>
-              <b>{SeriesDescription.value}</b>
-            </FlexItem>
-            <FlexItem>
-              <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
-            </FlexItem>
-          </Flex>
           <Flex
             direction={{
               default: "column",
             }}
           >
-            <FlexItem
-              style={{
-                marginTop: "1em",
-              }}
-            >
-              {progress.currentProgress > 0 && (
-                <Progress
-                  value={progress.currentProgress * 100}
-                  style={{ gap: "0.5em", textAlign: "left" }}
-                  title={progress.currentStep.toUpperCase()}
-                  label={progress.progressText}
-                  valueText={progress.progressText}
-                  measureLocation={ProgressMeasureLocation.top}
-                  size={ProgressSize.sm}
-                />
-              )}
+            <FlexItem>
+              {progress.currentProgress > 0 &&
+                progress.currentStep !== "completed" && (
+                  <Progress
+                    value={progress.currentProgress * 100}
+                    style={{ gap: "0.5em", textAlign: "left" }}
+                    title={progress.currentStep.toUpperCase()}
+                    label={progress.progressText}
+                    valueText={progress.progressText}
+                    measureLocation={ProgressMeasureLocation.top}
+                    size={ProgressSize.sm}
+                  />
+                )}
             </FlexItem>
 
             {!cubeFilePreview && (

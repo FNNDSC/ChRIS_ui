@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
+
 import {
   Card,
   CardHeader,
+  CardBody,
   Split,
   SplitItem,
   Button,
@@ -10,6 +13,7 @@ import { Link } from "react-router-dom";
 import FaFolder from "@patternfly/react-icons/dist/esm/icons/folder-icon";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import MdOutlineOpenInNew from "@patternfly/react-icons/dist/esm/icons/open-drawer-right-icon";
+import ExternalLinkSquareIcon from "@patternfly/react-icons/dist/esm/icons/external-link-square-alt-icon";
 import useLongPress, { elipses } from "./utils";
 
 function FolderCard({
@@ -21,12 +25,15 @@ function FolderCard({
   handleFolderClick: (path: string) => void;
   path: string;
 }) {
+  const [cubeSeriesPreview, setCubeSeriesPreview] = useState(false);
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
 
   const handlePath = (e: any) => {
     handleOnClick(e, folder, `${path}/${folder}`, handleFolderClick);
   };
+
+  const isRoot = folder.startsWith("feed");
 
   const fetchFeedDetails = async (id: number) => {
     if (!id) return;
@@ -43,13 +50,16 @@ function FolderCard({
     enabled: !!folder.startsWith("feed"),
   });
 
+  
+
   return (
     <Card
-      isClickable
       isRounded
       onMouseDown={handleOnMouseDown}
       onClick={(e) => {
-        handlePath(e);
+        if (!isRoot) {
+          handlePath(e);
+        }
       }}
     >
       <CardHeader
@@ -59,7 +69,7 @@ function FolderCard({
               <span>
                 <Link to={`/feeds/${feed.data.id}`}>
                   {" "}
-                  <MdOutlineOpenInNew />
+                  <ExternalLinkSquareIcon />
                 </Link>
               </span>
             ) : null,
@@ -74,7 +84,9 @@ function FolderCard({
               variant="link"
               style={{ padding: 0 }}
               onClick={(e) => {
-                handlePath(e);
+                if (isRoot) {
+                  handlePath(e);
+                }
               }}
             >
               {feed ? elipses(feed.data.name, 40) : elipses(folder, 40)}

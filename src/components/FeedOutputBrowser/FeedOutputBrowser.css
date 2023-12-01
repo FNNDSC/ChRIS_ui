@@ -21,11 +21,8 @@
 }
 
 .file-browser__drawerbody {
-  
   overflow: scroll;
 }
-
-
 
 .file-browser .carousel {
   position: absolute;
@@ -43,10 +40,6 @@
 .file-browser__table--fileName {
   display: flex;
   flex-direction: row;
-}
-
-.file-browser__table--isPreviewing {
-  background: #002952;
 }
 
 .file-browser__header {

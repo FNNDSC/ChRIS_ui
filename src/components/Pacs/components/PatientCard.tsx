@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import pluralize from "pluralize";
 import { format, parse } from "date-fns";
 import { GridItem, Card, CardHeader, Grid } from "@patternfly/react-core";
 import StudyCard from "./StudyCard";
+import { PacsQueryContext } from "../context";
 
 function getPatientDetails(patientDetails: any) {
   return {
@@ -14,9 +15,13 @@ function getPatientDetails(patientDetails: any) {
 }
 
 const PatientCard = ({ queryResult }: { queryResult: any }) => {
+  const { state } = useContext(PacsQueryContext);
+  
   const patient = queryResult[0];
   const patientDetails = getPatientDetails(patient);
-  const [isPatientExpanded, setIsPatientExpanded] = useState(false);
+  const [isPatientExpanded, setIsPatientExpanded] = useState(
+    state.shouldDefaultExpanded || false,
+  );
   const { PatientID, PatientName, PatientBirthDate, PatientSex } =
     patientDetails;
 
@@ -58,10 +63,11 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
                 </b>
               </div>
               <div>
-                Latest Study Date:
-                ({LatestDate(
-                  queryResult.map((s: any) => s.StudyDate.value)
-                ).toDateString()})
+                Latest Study Date: (
+                {LatestDate(
+                  queryResult.map((s: any) => s.StudyDate.value),
+                ).toDateString()}
+                )
               </div>
             </GridItem>
           </Grid>

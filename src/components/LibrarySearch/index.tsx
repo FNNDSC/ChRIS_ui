@@ -3,6 +3,7 @@ import { Typography } from "antd";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router";
+import { useTypedSelector } from "../../store/hooks";
 import WrapperConnect from "../Wrapper";
 import { LibraryProvider } from "../LibraryCopy/context";
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -14,34 +15,22 @@ import {
 	BreadcrumbItem,
 	PageSection,
 } from "@patternfly/react-core";
+import { find } from "../../api/filesystem";
 
 const { Paragraph, Text } = Typography;
 
 const useSearchQuery = (query: URLSearchParams) => {
 	const search = query.get("search");
 	const searchSpace = query.get("space");
-
 	let resultsArray: any[] = [];
-	const client = ChrisAPIClient.getClient();
-	if (searchSpace === "feeds") {
-		const payload = {
-			limit: 10,
-			offset: 0,
-			files_fname_icontains: search,
-		};
 
-		const fetchResourceforSearch = async (payload) => {
-			const fn = client.getFeeds;
-			const boundFn = fn.bind(client);
-			return await fetchResource(payload, boundFn);
-		};
+	const searchData = useQuery({
+		queryKey: ["search", searchSpace, search],
+		queryFn: () => find(searchSpace, search),
+	});
 
-		const searchData = useQuery({
-			queryKey: ["search", payload],
-			queryFn: () => fetchResourceforSearch(payload),
-		});
-
-		if (searchData.data?.resource?.length > 0) {
+	if (searchData.data?.resource?.length > 0) {
+		if (searchSpace === "feeds") {
 			searchData.data?.resource.forEach((result: any) => {
 				resultsArray.push({
 					folder_path: result.data.creator_username,
@@ -49,27 +38,8 @@ const useSearchQuery = (query: URLSearchParams) => {
 				});
 			});
 		}
-	}
 
-	if (searchSpace === "pacs") {
-		const payload = {
-			limit: 10,
-			offset: 0,
-			fname_icontains_topdir_unique: search,
-		};
-
-		const fetchResourceForSearch = async (payload) => {
-			const fn = client.getPACSFiles;
-			const boundFn = fn.bind(client);
-			return await fetchResource(payload, boundFn);
-		};
-
-		const searchData = useQuery({
-			queryKey: ["search", payload],
-			queryFn: () => fetchResourceForSearch(payload),
-		});
-
-		if (searchData.data?.resource?.length > 0) {
+		if (searchSpace === "pacs") {
 			searchData.data?.resource.forEach((result: any) => {
 				const folderSplit = result.data.fname.split("/");
 				const folder_path = folderSplit.slice(0, 3).join("/");
@@ -93,7 +63,6 @@ function useSearchQueryParams() {
 
 export default function LibrarySearch() {
 	const query = useSearchQueryParams();
-
 	const searchFolderData = useSearchQuery(query);
 
 	return (
@@ -144,7 +113,7 @@ function SearchBrowser({ data }: { data: any }) {
 			url = `${data.folder_path}/${path}`;
 		} else url = `${path}/${data.folder_name}`;
 
-		navigate(`/librarycopy/${url}`);
+		navigate(`/library/${url}`);
 	};
 
 	return (
