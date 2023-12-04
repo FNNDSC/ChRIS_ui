@@ -34,6 +34,8 @@ export default function Header(props: IHeaderProps) {
 
   const iconToolbar = showToolbar && <FeedDetails />;
 
+ 
+
   return (
     <Masthead>
       <MastheadToggle>
@@ -48,7 +50,7 @@ export default function Header(props: IHeaderProps) {
         </PageToggleButton>
       </MastheadToggle>
       <MastheadMain>
-        <MastheadBrand href="https://patternfly.org" target="_blank">
+        <MastheadBrand href="" target="_blank">
           {brand}
         </MastheadBrand>
       </MastheadMain>

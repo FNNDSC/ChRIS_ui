@@ -94,11 +94,10 @@ const TableSelectable: React.FunctionComponent = () => {
   });
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed
+    (state) => state.feed,
   );
 
   const onSetPage = (_e: any, newPage: number) => {
-    console.log("PageDetails", newPage);
     navigate(`/feeds?page=${newPage}`);
   };
 
@@ -118,7 +117,7 @@ const TableSelectable: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      })
+      }),
     );
     if (bulkData && bulkData.current) {
       dispatch(removeAllSelect(bulkData.current));

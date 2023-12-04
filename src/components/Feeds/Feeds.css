@@ -7,12 +7,6 @@ tspan {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-
-  &__count {
-    color: var(--pf-global--Color-200);
-    font-weight: var(--fw-normal);
-    margin-left: 0.25em;
-  }
 }
 
 .feed-list .error {
