@@ -17,10 +17,11 @@ import { getNodeOperations } from "../../store/plugin/actions";
 
 const AddPipeline = () => {
   const reactDispatch = useDispatch();
+
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { selectedPlugin } = useTypedSelector((state) => state.instance);
   const { childPipeline } = useTypedSelector(
-    (state) => state.plugin.nodeOperations
+    (state) => state.plugin.nodeOperations,
   );
   const { state, dispatch: pipelineDispatch } =
     React.useContext(PipelineContext);
@@ -28,10 +29,21 @@ const AddPipeline = () => {
   const [error, setError] = React.useState({});
 
   const handleToggle = () => {
+    setError({});
     reactDispatch(getNodeOperations("childPipeline"));
   };
 
+  React.useEffect(() => {
+    const el = document.querySelector(".react-json-view");
+
+    if (el) {
+      //@ts-ignore
+      el!.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  });
+
   const addPipeline = async () => {
+    setError({});
     if (selectedPlugin && selectedPipeline && feed) {
       setError({});
       const {
@@ -48,7 +60,7 @@ const AddPipeline = () => {
         try {
           const nodes_info = client.computeWorkflowNodesInfo(
             //@ts-ignore
-            pluginParameters.data
+            pluginParameters.data,
           );
           nodes_info.forEach((node) => {
             if (computeEnvs && computeEnvs[node["piping_id"]]) {
@@ -94,11 +106,12 @@ const AddPipeline = () => {
               reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
             }
           }
+          handleToggle();
         } catch (error: any) {
-          setError(error.response.data);
+          const errorMessage = error.response.data || errr.message;
+          setError(errorMessage);
         }
       }
-      handleToggle();
     }
   };
 
@@ -128,9 +141,11 @@ const AddPipeline = () => {
         ]}
       >
         <PipelineContainer />
-        {Object.keys(error).length > 0 && (
-          <ReactJson theme="grayscale" src={error} />
-        )}
+        <div id="error">
+          {Object.keys(error).length > 0 && (
+            <ReactJson theme="grayscale" src={error} />
+          )}
+        </div>
       </Modal>
     </React.Fragment>
   );
