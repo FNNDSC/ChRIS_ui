@@ -17,4 +17,8 @@ article {
   font-weight: 600;
 }
 
-
+.pf-v5-c-card__header-main {
+  flex: 1;
+  display: flex;
+  flex-flow: wrap;
+}
