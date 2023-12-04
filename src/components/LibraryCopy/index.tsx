@@ -259,7 +259,6 @@ function Cart() {
                         <Chip
                           onClick={() => {
                             dispatch(clearSelectFolder(path));
-                            console.log("Path Selected");
                           }}
                           key={index}
                         >

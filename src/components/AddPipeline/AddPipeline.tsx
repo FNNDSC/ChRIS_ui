@@ -108,7 +108,7 @@ const AddPipeline = () => {
           }
           handleToggle();
         } catch (error: any) {
-          const errorMessage = error.response.data || errr.message;
+          const errorMessage = error.response.data || error.message;
           setError(errorMessage);
         }
       }

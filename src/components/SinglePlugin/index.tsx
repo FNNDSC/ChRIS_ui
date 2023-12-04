@@ -50,6 +50,60 @@ const SinglePlugin = () => {
     };
   };
 
+  const setPluginParameters = async (plugin: Plugin) => {
+    
+    let generatedCommand = "";
+    const params = { limit: 10, offset: 0 };
+    const fn = plugin.getPluginParameters;
+    const computeFn = plugin.getPluginComputeResources;
+
+    const boundFn = fn.bind(plugin);
+    const boundComputeFn = computeFn.bind(plugin);
+    const { resource: parameters } = await fetchResource<PluginParameter>(
+      params,
+      boundFn,
+    );
+
+    const { resource: computes } = isLoggedIn
+      ? await fetchResource(params, boundComputeFn)
+      : { resource: [] };
+
+    const pluginInstances = isLoggedIn
+      ? ((
+          await plugin.getPluginInstances({
+            limit: 20,
+          })
+        ).getItems() as PluginInstance[])
+      : [];
+
+    if (parameters.length > 0) {
+      parameters.forEach((param) => {
+        const generateInput = {
+          [param.data.id]: {
+            flag: param.data.flag,
+            id: param.data.id,
+            paramName: param.data.name,
+            type: param.data.type,
+            value: param.data.default
+              ? param.data.default
+              : param.data.type !== "boolean"
+                ? "' '"
+                : "",
+          },
+        };
+        generatedCommand += unpackParametersIntoString(generateInput);
+      });
+
+      setParameterPayload({
+        generatedCommand,
+        version: plugin.data.version,
+        url: plugin.url,
+        computes: computes,
+        pluginInstances: pluginInstances,
+      });
+    }
+  };
+
   const { data } = useQuery({
     queryKey: ["pluginData", id],
     queryFn: () => fetchPlugins(+id),
@@ -84,69 +138,6 @@ const SinglePlugin = () => {
     enabled: !!data?.currentPluginMeta,
   });
 
-  const setPluginParameters = async (plugin: Plugin) => {
-    let generatedCommand = "";
-    const params = { limit: 10, offset: 0 };
-    const fn = plugin.getPluginParameters;
-    const computeFn = plugin.getPluginComputeResources;
-
-    const boundFn = fn.bind(plugin);
-    const boundComputeFn = computeFn.bind(plugin);
-    const { resource: parameters } = await fetchResource<PluginParameter>(
-      params,
-      boundFn
-    );
-
-    const { resource: computes } = isLoggedIn
-      ? await fetchResource(params, boundComputeFn)
-      : { resource: [] };
-
-    const pluginInstances = isLoggedIn
-      ? ((
-          await plugin.getPluginInstances({
-            limit: 20,
-          })
-        ).getItems() as PluginInstance[])
-      : [];
-
-    if (parameters.length > 0) {
-      parameters.forEach((param) => {
-        const generateInput = {
-          [param.data.id]: {
-            flag: param.data.flag,
-            id: param.data.id,
-            paramName: param.data.name,
-            type: param.data.type,
-            value: param.data.default
-              ? param.data.default
-              : param.data.type !== "boolean"
-              ? "' '"
-              : "",
-          },
-        };
-        generatedCommand += unpackParametersIntoString(generateInput);
-      });
-
-      setParameterPayload({
-        generatedCommand,
-        version: plugin.data.version,
-        url: plugin.url,
-        computes: computes,
-        pluginInstances: pluginInstances,
-      });
-    }
-  };
-
-  React.useEffect(() => {
-    async function setPluginPayload() {
-      if (data && data.plugins && data.plugins.length > 0) {
-        await setPluginParameters(data.plugins[0]);
-      }
-    }
-
-    setPluginPayload();
-  }, []);
-
   const removeEmail = (authors: string[]) => {
     const emailRegex = /(<|\().+?@.{2,}?\..{2,}?(>|\))/g;
     // Match '<' or '(' at the beginning and end
@@ -156,6 +147,12 @@ const SinglePlugin = () => {
       authors = [authors];
     return authors.map((author) => author.replace(emailRegex, "").trim());
   };
+
+  React.useEffect(() => {
+    if (data && data.plugins && data.plugins.length > 0) {
+      setPluginParameters(data.plugins[0]);
+    }
+  }, [data]);
 
   return (
     <WrapperConnect>
