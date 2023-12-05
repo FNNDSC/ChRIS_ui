@@ -1,12 +1,9 @@
-import { useContext, useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import ReactJson from "react-json-view";
 import {
-  AlertGroup,
   Button,
-  ChipGroup,
-  Chip,
   TextInput,
   Dropdown,
   DropdownList,
@@ -24,18 +21,17 @@ import {
 } from "@patternfly/react-core";
 import { Typography } from "antd";
 import { debounce } from "lodash";
-import { Alert } from "antd";
+
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import WrapperConnect from "../Wrapper";
 import DragAndUpload from "../DragFileUpload";
+import Cart from "./Cart";
 import Browser from "./Browser";
 import { LocalFileList } from "../CreateFeed/HelperComponent";
 import { SpinContainer } from "../Common";
 import BreadcrumbContainer from "./BreadcrumbContainer";
-import { LibraryContext, LibraryProvider } from "./context/";
-import { clearCart, clearSelectFolder } from "./context/actions";
-import { MainRouterContext } from "../../routes";
+import { LibraryProvider } from "./context/";
 import { InfoIcon } from "../Common";
 import FaUpload from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import type { AxiosProgressEvent, AxiosResponse } from "axios";
@@ -75,7 +71,7 @@ export const LibraryCopyPage = () => {
   };
 
   const handleAddFolder = (path: string, user: string) => {
-    navigate(`/library/${user}/uploads/${path}`);
+    navigate(`/library/home/${user}/${path}`);
   };
 
   return (
@@ -188,107 +184,6 @@ function NormalBrowser() {
 }
 
 export default LibraryCopyPage;
-
-function Cart() {
-  const { state, dispatch } = useContext(LibraryContext);
-  const router = useContext(MainRouterContext);
-  const { selectedPaths } = state;
-
-  const handleDownload = () => {
-    console.log("Handle Download");
-  };
-
-  const createFeed = () => {
-    const pathList = selectedPaths.map((path) => path);
-    router.actions.createFeedWithData(pathList);
-  };
-
-  const clearFeed = () => {
-    dispatch(clearCart());
-    router.actions.clearFeedData();
-  };
-
-  const handleDelete = () => {
-    console.log("Handle Delete");
-  };
-
-  if (selectedPaths.length > 0) {
-    return (
-      <AlertGroup
-        style={{
-          zIndex: "999",
-        }}
-        isToast
-      >
-        <Alert
-          type="info"
-          description={
-            <>
-              <div
-                style={{
-                  marginBottom: "1em",
-                  display: "flex",
-                }}
-              >
-                <Button
-                  style={{ marginRight: "0.5em" }}
-                  onClick={createFeed}
-                  variant="primary"
-                >
-                  Create Analysis
-                </Button>
-
-                <Button
-                  style={{ marginRight: "0.5em" }}
-                  onClick={() => {
-                    handleDownload();
-                  }}
-                  variant="secondary"
-                >
-                  Download Data
-                </Button>
-                <Button variant="danger" onClick={handleDelete}>
-                  Delete Data
-                </Button>
-              </div>
-              {selectedPaths.length > 0 && (
-                <>
-                  <ChipGroup style={{ marginBottom: "1em" }} categoryName="">
-                    {selectedPaths.map((path: string, index: number) => {
-                      return (
-                        <Chip
-                          onClick={() => {
-                            dispatch(clearSelectFolder(path));
-                          }}
-                          key={index}
-                        >
-                          {path}
-                        </Chip>
-                      );
-                    })}
-                  </ChipGroup>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Button variant="tertiary" onClick={clearFeed}>
-                      Empty Cart
-                    </Button>
-                  </div>
-                </>
-              )}
-            </>
-          }
-          style={{ width: "100%", marginTop: "3em", padding: "2em" }}
-        ></Alert>
-      </AlertGroup>
-    );
-  } else {
-    return null;
-  }
-}
 
 const items = ["feeds", "pacs"];
 
