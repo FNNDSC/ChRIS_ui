@@ -190,12 +190,11 @@ const GuidedConfig = () => {
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              marginTop: "1rem",
-              gap: "20px",
+              flexDirection: "row",   
+
             }}
           >
-            <div className="configuration__renders">
+            <div  style={{marginRight:'1rem'}} className="configuration__renders">
               {renderPluginVersions()}
             </div>
             <div className="configuration__renders">{renderComputeEnvs()}</div>
@@ -254,8 +253,8 @@ export default GuidedConfig;
 
 const CardComponent = ({ children }: { children: React.ReactElement }) => {
   return (
-    <Card>
-      <CardBody>{children}</CardBody>
+    <Card >
+      <CardBody className="patternfly-card-component">{children}</CardBody>
     </Card>
   );
 };
@@ -577,6 +576,7 @@ const AdvancedConfiguration = () => {
   const dropdownItems = memory_limit.map((unit) => {
     return (
       <DropdownItem
+        isSelected={memoryLimit === unit}
         onClick={() => {
           dispatch({
             type: Types.MemoryLimitUnit,
@@ -605,7 +605,10 @@ const AdvancedConfiguration = () => {
               isHorizontal
               aria-invalid={errors && errors[config.name] ? "true" : "false"}
             >
-              <FormGroup style={{ width: "100%" }} label={`${config.name}:`}>
+              <FormGroup
+                style={{ width: "100%"}}
+                label={`${config.name}:`}
+              >
                 <TextInput
                   type="text"
                   aria-label="advanced configuration"
