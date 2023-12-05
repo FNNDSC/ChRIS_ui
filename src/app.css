@@ -58,7 +58,9 @@
   font-size: inherit;
 }
 
-
+.pf-v5-c-page__main-section {
+  padding-block-end: 0;
+}
 
 .series-actions {
   margin: -1em -1em 1em -1em;
