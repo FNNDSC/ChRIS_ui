@@ -93,7 +93,7 @@ Copy the existing `.env` file to this new file. Changes to these files will be i
 
 - Point `VITE_PFDCM_URL` to the URL of a running PFDCM instance. By default this is set to `http://localhost:4005/`.
 
-- Set `VITE_PFDCM_CUBEKEY` and `REACT_APP_PFDCM_SWIFTKEY` to the aliases (or keys) given to CUBE and Swift while setting up PFDCM. By default these are both `local`. If you're unsure what to use, you can list CUBE and Swift keys using the PFDCM API, or ask for these keys.
+- Set `VITE_PFDCM_CUBEKEY` and `VITE_PFDCM_SWIFTKEY` to the aliases (or keys) given to CUBE and Swift while setting up PFDCM. By default these are both `local`. If you're unsure what to use, you can list CUBE and Swift keys using the PFDCM API, or ask for these keys.
 
 For details on how to set up PFDCM, refer to the [PFDCM readme](https://github.com/FNNDSC/pfdcm).
 
