@@ -71,7 +71,7 @@ export const LibraryCopyPage = () => {
   };
 
   const handleAddFolder = (path: string, user: string) => {
-    navigate(`/library/home/${user}/${path}`);
+    navigate(`/library/${user}/uploads/${path}`);
   };
 
   return (
