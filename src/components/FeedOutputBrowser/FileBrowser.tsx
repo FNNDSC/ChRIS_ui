@@ -326,7 +326,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                       return (
                         <Tr
                           onClick={() => {
-                            dispatch(clearSelectedFile());
                             handleItem(item);
                           }}
                           key={index}
