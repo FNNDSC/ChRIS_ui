@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
+
 import {
   Wizard,
   Button,
@@ -33,6 +34,7 @@ const AddNode = ({
   params,
 }: AddNodeProps) => {
   const dispatch = useDispatch();
+
   const { childNode } = useTypedSelector(
     (state) => state.plugin.nodeOperations
   );
@@ -151,7 +153,7 @@ const AddNode = ({
   };
 
   return (
-    <React.Fragment>
+    <>
       <Button icon={<PlusButtonIcon />} type="button" onClick={toggleOpen}>
         Add a Child Node <span style={{ padding: "2px" }}>( C )</span>
       </Button>
@@ -192,6 +194,7 @@ const AddNode = ({
             id={"2"}
             name="Plugin Form"
             footer={{
+              nextButtonText: "Add Node",
               isNextDisabled: !isDisabled ? false : true,
             }}
           >
@@ -199,7 +202,7 @@ const AddNode = ({
           </WizardStep>
         </Wizard>
       </Modal>
-    </React.Fragment>
+    </>
   );
 };
 

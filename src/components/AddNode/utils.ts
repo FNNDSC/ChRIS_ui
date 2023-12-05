@@ -107,7 +107,7 @@ export const handleGetTokens = (
       };
     });
 
-  const values = userValue.split(" ");
+  const values = userValue.match(/(?:[^\s'"]+|"[^"]*"|'[^']*')+/g) || [];
   for (let i = 0; i < values.length; i++) {
     const currentValue = values[i];
     if (
