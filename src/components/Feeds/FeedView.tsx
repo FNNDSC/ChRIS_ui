@@ -74,7 +74,6 @@ export default function FeedView() {
       dispatch(resetPluginInstances());
       dispatch(resetTsNodes());
       dispatch(resetFeed());
-
       dispatch(clearSelectedFile());
       dispatch(setShowToolbar(false));
     };
@@ -96,11 +95,13 @@ export default function FeedView() {
   }, [id, dispatch]);
 
   const onNodeClick = (node: any) => {
+    dispatch(clearSelectedFile());
     dispatch(getSelectedPlugin(node.item));
     dispatch(getSelectedD3Node(node));
   };
 
   const onNodeBrowserClick = (node: PluginInstance) => {
+    dispatch(clearSelectedFile());
     dispatch(getSelectedPlugin(node));
   };
 
