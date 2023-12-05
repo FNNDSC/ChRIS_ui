@@ -1,36 +1,19 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
 import WrapperConnect from "../Wrapper";
-import {
-  Title,
-  PageSection,
-  Card,
-  CardBody,
-  CardTitle,
-  CardFooter,
-  Grid,
-  GridItem,
-  Button,
-} from "@patternfly/react-core";
+import { PageSection, Grid, GridItem } from "@patternfly/react-core";
 import { Typography } from "antd";
-import IconSearch from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import IconWand from "@patternfly/react-icons/dist/esm/icons/wizards-of-the-coast-icon";
-
 import { setSidebarActive } from "../../store/ui/actions";
 import "./dashboard.css";
 import { InfoIcon } from "../Common";
+import { CatalogTile } from "@patternfly/react-catalog-view-extension";
+
 
 const { Paragraph } = Typography;
 
 interface DashboardProps {
   children?: React.ReactNode;
 }
-
-const style = {
-  height: "5em",
-  width: "5em",
-};
 
 const DashboardPage = (props: DashboardProps) => {
   const dispatch = useDispatch();
@@ -45,9 +28,6 @@ const DashboardPage = (props: DashboardProps) => {
       })
     );
   }, [dispatch]);
-
-  const outlineSearch = <IconSearch style={style} />;
-  const magicWand = <IconWand style={style} />;
 
   /*
 
@@ -79,43 +59,52 @@ const DashboardPage = (props: DashboardProps) => {
 
         {children}
       </PageSection>
+
       <PageSection>
         <Grid hasGutter>
-          <GridItem lg={6}>
-            <CardDisplay
-              title="You've got data!"
-              body='Visit the "Library" in the main navigation to review your data collection'
-              buttonText="Go to the Library"
-              buttonLink="/library"
-              className="dashboard-carddisplay"
-            />
+          <GridItem lg={4}>
+            <CatalogTile
+              
+              id="simple-title"
+              featured
+              title="You've got data"
+              description={
+                'Visit the "Library" in the main navigation to review your data collection'
+              }
+            ></CatalogTile>
           </GridItem>
-          <GridItem lg={6}>
-            <CardDisplay
-              title="You've got analyses!"
-              body='Visit "New and Existing Analyses" in the main navigation to review your data analyses'
-              buttonText="Go to New and Existing Analyses"
-              buttonLink="/feeds"
-              className="dashboard-carddisplay"
-            />
+
+          <GridItem lg={4}>
+            <CatalogTile
+              id="simple-title"
+              featured
+              title="Analyses"
+              description={
+                'Visit "New and Existing Analyses" in the main navigation to review your data analyses'
+              }
+            ></CatalogTile>
           </GridItem>
-          <GridItem lg={6}>
-            <CardDisplay
-              component={<LogoComponent logo={outlineSearch} />}
+
+          <GridItem lg={4}>
+            <CatalogTile
+              id="simple-title"
+              featured
               title="Discover and collect new data"
-              body='Visit "PACS Query/Retrieve" in the main navigation to pull medical data and save it your library'
-              buttonText="PACS Query/Retrieve"
-              buttonLink="/pacs"
-            />
+              description={
+                'Visit "PACS Query/Retrieve" in the main navigation to pull medical data and save it your library'
+              }
+            ></CatalogTile>
           </GridItem>
-          <GridItem lg={6}>
-            <CardDisplay
-              component={<LogoComponent logo={magicWand} />}
-              title="Run a quick workflow"
-              body='Visit "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
-              buttonText="Run a Quick Workflow"
-              buttonLink="/feeds"
-            />
+
+          <GridItem lg={4}>
+            <CatalogTile
+              id="simple-title"
+              featured
+              title="Run a Workflow"
+              description={
+                'Visit "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
+              }
+            ></CatalogTile>
           </GridItem>
         </Grid>
       </PageSection>
@@ -124,42 +113,3 @@ const DashboardPage = (props: DashboardProps) => {
 };
 
 export default DashboardPage;
-
-const CardDisplay = ({
-  title,
-  body,
-  buttonText,
-  buttonLink,
-}: {
-  title: string;
-  body: string;
-  buttonText: string;
-  buttonLink: string;
-  className?: string;
-  component?: React.ReactElement;
-}) => {
-  const navigate = useNavigate();
-  return (
-    <Card style={{ overflow: "hidden" }}>
-      <div style={{ margin: "0 auto", textAlign: "center" }}>
-        <CardTitle>
-          <Title headingLevel="h2"> {title}</Title>
-        </CardTitle>
-        <CardBody>{body}</CardBody>
-        <CardFooter>
-          <Button
-            onClick={() => {
-              navigate(buttonLink);
-            }}
-          >
-            {buttonText}
-          </Button>
-        </CardFooter>
-      </div>
-    </Card>
-  );
-};
-
-const LogoComponent = ({ logo }: { logo: JSX.Element }) => {
-  return <>{logo}</>;
-};
