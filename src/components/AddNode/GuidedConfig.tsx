@@ -21,6 +21,7 @@ import {
   Select,
   SelectOption,
 } from "@patternfly/react-core";
+import ReactJson from "react-json-view";
 
 import { PluginInstance, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
@@ -58,9 +59,20 @@ const GuidedConfig = () => {
   const dispatch = useDispatch();
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const params = useTypedSelector((state) => state.plugin.parameters);
-  const { pluginMeta, dropdownInput, requiredInput, componentList } = state;
+  const { pluginMeta, dropdownInput, requiredInput, componentList, errors } =
+    state;
 
   const [plugins, setPlugins] = React.useState<Plugin[]>();
+
+  useEffect(() => {
+    const el = document.querySelector(".react-json-view");
+
+    if (el) {
+      //@ts-ignore
+      el!.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  });
+
   useEffect(() => {
     const fetchPluginVersions = async () => {
       const pluginList = await pluginMeta?.getPlugins({
@@ -230,6 +242,10 @@ const GuidedConfig = () => {
         </>
       </CardComponent>
       <AdvancedConfiguration />
+
+      {errors && Object.keys(errors).length > 0 && (
+        <ReactJson theme="grayscale" src={errors} />
+      )}
     </div>
   );
 };
@@ -252,7 +268,7 @@ const CheckboxComponent = () => {
     const pluginInstanceList = await selectedPluginFromMeta?.getPluginInstances(
       {
         limit: 10,
-      }
+      },
     );
 
     const pluginInstances = pluginInstanceList?.getItems();
@@ -383,8 +399,8 @@ const ItalicsComponent = ({
         length && length > 0
           ? length
           : isRequiredParam
-          ? "No required"
-          : "No optional"
+            ? "No required"
+            : "No optional"
       }${length === 1 ? " parameter" : " parameters"}`}
       )
     </i>
@@ -505,7 +521,7 @@ const EditorValue = ({
                   setValidating(true);
                   const { optional, nonOptional } = handleGetTokens(
                     editorValue,
-                    params
+                    params,
                   );
 
                   if (Object.keys(optional).length > 0) {
