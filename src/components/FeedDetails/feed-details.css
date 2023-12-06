@@ -1,0 +1,21 @@
+.ant-popover-inner-content {
+  padding: 0 !important;
+}
+
+.feed-details {
+  height: 100%;
+  width: 100%;
+}
+
+.feed-details__textarea {
+  min-height: 450px !important;
+  font-family: var(--pf-global--FontFamily--redhatfont--sans-serif) !important;
+}
+
+.pf-c-button__icon.pf-m-start {
+  margin: 0;
+}
+
+.pf-v5-c-button.pf-m-control {
+ --pf-v5-c-button--after--BorderColor: transparent !important;
+}
