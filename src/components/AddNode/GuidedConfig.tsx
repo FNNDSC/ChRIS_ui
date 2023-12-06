@@ -190,11 +190,13 @@ const GuidedConfig = () => {
           <div
             style={{
               display: "flex",
-              flexDirection: "row",   
-
+              flexDirection: "row",
             }}
           >
-            <div  style={{marginRight:'1rem'}} className="configuration__renders">
+            <div
+              style={{ marginRight: "1rem" }}
+              className="configuration__renders"
+            >
               {renderPluginVersions()}
             </div>
             <div className="configuration__renders">{renderComputeEnvs()}</div>
@@ -208,14 +210,14 @@ const GuidedConfig = () => {
 
       <CardComponent>
         <>
-          <h4>Command Line Parameters:</h4>
+          <h4 style={{ marginBottom: "1rem" }}>Command Line Parameters:</h4>
           <EditorValue params={params} />
         </>
       </CardComponent>
 
       <CardComponent>
         <>
-          <div>
+          <div style={{ marginBottom: "1rem" }}>
             <span>
               Required Parameters{" "}
               <ItalicsComponent
@@ -253,7 +255,7 @@ export default GuidedConfig;
 
 const CardComponent = ({ children }: { children: React.ReactElement }) => {
   return (
-    <Card >
+    <Card>
       <CardBody className="patternfly-card-component">{children}</CardBody>
     </Card>
   );
@@ -267,7 +269,7 @@ const CheckboxComponent = () => {
     const pluginInstanceList = await selectedPluginFromMeta?.getPluginInstances(
       {
         limit: 10,
-      },
+      }
     );
 
     const pluginInstances = pluginInstanceList?.getItems();
@@ -398,8 +400,8 @@ const ItalicsComponent = ({
         length && length > 0
           ? length
           : isRequiredParam
-            ? "No required"
-            : "No optional"
+          ? "No required"
+          : "No optional"
       }${length === 1 ? " parameter" : " parameters"}`}
       )
     </i>
@@ -520,7 +522,7 @@ const EditorValue = ({
                   setValidating(true);
                   const { optional, nonOptional } = handleGetTokens(
                     editorValue,
-                    params,
+                    params
                   );
 
                   if (Object.keys(optional).length > 0) {
@@ -604,11 +606,11 @@ const AdvancedConfiguration = () => {
               }}
               isHorizontal
               aria-invalid={errors && errors[config.name] ? "true" : "false"}
+              style={{
+                marginBottom: "0.5em",
+              }}
             >
-              <FormGroup
-                style={{ width: "100%"}}
-                label={`${config.name}:`}
-              >
+              <FormGroup style={{ width: "100%" }} label={`${config.name}:`}>
                 <TextInput
                   type="text"
                   aria-label="advanced configuration"
@@ -642,7 +644,7 @@ const AdvancedConfiguration = () => {
                     <DropdownList>{dropdownItems}</DropdownList>
                   </Dropdown>
                 )}
-                <HelperText>
+                <HelperText style={{ marginTop: "0.25em" }}>
                   <HelperTextItem>
                     <div
                       dangerouslySetInnerHTML={{

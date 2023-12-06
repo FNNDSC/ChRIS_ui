@@ -136,6 +136,7 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
               className="plugin-configuration__parameter"
               value={param.data.flag}
               name={param.data.help}
+              style={{ fontFamily: "monospace" }}
             >
               {param.data.flag}
             </DropdownItem>
@@ -157,11 +158,13 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
                 onClick={onToggle}
                 isDisabled={params && params["dropdown"].length == 0}
               >
-                {paramFlag
-                  ? `${paramFlag}`
-                  : params && params["dropdown"].length == 0
-                  ? "No Parameters"
-                  : "Choose a Parameter"}
+                <div style={{ fontFamily: "monospace" }}>
+                  {paramFlag
+                    ? `${paramFlag}`
+                    : params && params["dropdown"].length == 0
+                    ? "No Parameters"
+                    : "Choose a Parameter"}
+                </div>
               </MenuToggle>
             );
           }}
