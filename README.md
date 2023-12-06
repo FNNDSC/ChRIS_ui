@@ -153,15 +153,7 @@ To run cypress in the terminal as a headless browser use:
 Running Cypress inside a container is not currently supported
 
 
-## Learn More
 
-Interested in contributing? https://chrisproject.org/join-us
-
-You can learn more in the
-[Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the
-[React documentation](https://reactjs.org/).
 
 
 [license-badge]: https://img.shields.io/github/license/fnndsc/chris_ui.svg
