@@ -1,0 +1,27 @@
+tspan {
+  fill: #ff9900 !important;
+}
+
+.feed-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feed-list .error {
+  background-color: red;
+}
+
+.feed-list__split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feed-list__name a {
+  margin-left: 0.25em;
+
+  cursor: pointer;
+  outline: none;
+}

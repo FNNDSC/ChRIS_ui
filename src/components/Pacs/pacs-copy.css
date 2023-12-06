@@ -1,0 +1,24 @@
+article {
+  max-width: 1400px;
+  margin: 0.5em auto;
+  padding: 1em 1em;
+  width: 100%;
+}
+
+.patient-studies,
+.patient-series {
+  margin-top: 1em;
+  padding: 1em 2em;
+  border-right: 0.5px solid lightgray;
+  border-left: 0.5px solid lightgray;
+}
+
+.study-detail-title {
+  font-weight: 600;
+}
+
+.pf-v5-c-card__header-main {
+  flex: 1;
+  display: flex;
+  flex-flow: wrap;
+}

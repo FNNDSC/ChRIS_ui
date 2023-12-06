@@ -6,7 +6,7 @@
 
 This repository contains the reference UI for ChRIS, allowing users to create and interact with dynamic containerized workflows. The ChRIS UI is written primarily in [TypeScript](https://www.typescriptlang.org/) and [React](https://reactjs.org/), and uses the [PatternFly](https://github.com/patternfly/patternfly) React pattern library.
 
-![Screenshot from 2023-03-27 17-06-58](https://user-images.githubusercontent.com/15992276/228066757-db2445ed-31a7-4301-8eb2-a87ed03e9151.png)
+![Screenshot from 2023-12-05 09-22-38](https://github.com/FNNDSC/ChRIS_ui/assets/15992276/a8314bfe-e6e2-4e9c-b1c6-f7fb99e4c882)
 
 
 
@@ -29,7 +29,7 @@ running. Assuming the backend is on `http://localhost:8000/api/v1/`:
 docker run --rm -d --name chris_ui -p 3000:3000 -e REACT_APP_CHRIS_UI_URL=http://localhost:8000/api/v1/ ghcr.io/fnndsc/chris_ui:latest
 ```
 
-The *ChRIS_ui* is now running on http://localhost:3000/
+The *ChRIS_ui* is now running on http://localhost:5173/
 
 ## Development
 
@@ -89,11 +89,11 @@ Copy the existing `.env` file to this new file. Changes to these files will be i
 
 **There are four (4) major environment variables that need to be set.**
 
-- Point `REACT_APP_CHRIS_UI_URL` to your local backend instance. By default (or if you copied the `.env` file) this is set to `http://localhost:8000/api/v1/`.
+- Point `VITE_CHRIS_UI_URL` to your local backend instance. By default (or if you copied the `.env` file) this is set to `http://localhost:8000/api/v1/`.
 
-- Point `REACT_APP_PFDCM_URL` to the URL of a running PFDCM instance. By default this is set to `http://localhost:4005/`.
+- Point `VITE_PFDCM_URL` to the URL of a running PFDCM instance. By default this is set to `http://localhost:4005/`.
 
-- Set `REACT_APP_PFDCM_CUBEKEY` and `REACT_APP_PFDCM_SWIFTKEY` to the aliases (or keys) given to CUBE and Swift while setting up PFDCM. By default these are both `local`. If you're unsure what to use, you can list CUBE and Swift keys using the PFDCM API, or ask for these keys.
+- Set `VITE_PFDCM_CUBEKEY` and `VITE_PFDCM_SWIFTKEY` to the aliases (or keys) given to CUBE and Swift while setting up PFDCM. By default these are both `local`. If you're unsure what to use, you can list CUBE and Swift keys using the PFDCM API, or ask for these keys.
 
 For details on how to set up PFDCM, refer to the [PFDCM readme](https://github.com/FNNDSC/pfdcm).
 
@@ -168,7 +168,4 @@ To learn React, check out the
 [last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
 [repo-link]: https://github.com/FNNDSC/ChRIS_ui
 [code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
-
-
-
 

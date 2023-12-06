@@ -1,24 +1,29 @@
-import React, { useState } from "react";
+import * as React from "react";
 import { useNavigate, useRoutes } from "react-router-dom";
-import PrivateRoute from "./components/common/PrivateRoute";
-import { RouterContext, RouterProvider } from "./pages/Routing/RouterContext";
-import { LogIn } from "./pages/LogIn/Login";
-import { NotFoundPage as NotFound } from "./pages/NotFound/NotFound";
-import Wrapper from "./pages/Layout/PageWrapper";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import FeedsPage from "./pages/Feeds/Feeds";
-
-import Library, { Series } from "./pages/DataLibrary/Library";
-import SignUp from "./pages/SignUp/SignUp";
-import CatalogPage from "./pages/CatalogPage";
-import PACSLookup from "./pages/DataLibrary/components/PACSLookup";
-import PipelinePage from "./pages/Pipelines";
-import ComputePage from "./pages/Compute";
-import SinglePlugin from "./pages/SinglePluginPage/SinglePlugin";
+import NotFound from "./components/NotFound";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
+import Pacs from "./components/Pacs";
+import Dashboard from "./components/Dashboard";
+import FeedsListView from "./components/Feeds/FeedListView";
+import FeedView from './components/Feeds/FeedView';
+import PipelinePage from "./components/PipelinesPage";
+import LibraryCopyPage from "./components/LibraryCopy";
+import {
+  RouterContext,
+  RouterProvider,
+} from "./components/Routing/RouterContext";
+import PluginCatalog from "./components/PluginCatalog/";
+import ComputePage from "./components/ComputePage";
+import PrivateRoute from "./components/PrivateRoute";
+import LibrarySearch from "./components/LibrarySearch";
+import SinglePlugin from "./components/SinglePlugin";
 
 interface IState {
   selectData?: Series;
 }
+
+export type Series = any[];
 
 interface IActions {
   createFeedWithData: (data: Series) => void;
@@ -32,8 +37,8 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
 });
 
 export const MainRouter: React.FC = () => {
-  const [state, setState] = useState(State);
-  const [route, setRoute] = useState<string>();
+  const [state, setState] = React.useState(State);
+  const [route, setRoute] = React.useState<string>();
   const navigate = useNavigate();
 
   const actions: IActions = {
@@ -57,44 +62,51 @@ export const MainRouter: React.FC = () => {
       ),
     },
     {
-      path: "feeds/*",
-      element: (
-        <PrivateRoute>
-          <Wrapper>
-            <RouterProvider
-              {...{ actions, state, route, setRoute }}
-              context={MainRouterContext}
-            >
-              <FeedsPage />
-            </RouterProvider>
-          </Wrapper>
-        </PrivateRoute>
-      ),
-    },
-    {
-      path: "catalog",
-      element: (
-        <CatalogPage />
-      ),
-    },
-    {
-      path: "plugin/:id",
-      element: (
-        <SinglePlugin />
-      ),
-    },
-    {
-      path: "library",
+      path: "library/*",
       element: (
         <PrivateRoute>
           <RouterProvider
             {...{ actions, state, route, setRoute }}
             context={MainRouterContext}
           >
-            <Library />
+            <LibraryCopyPage />
           </RouterProvider>
         </PrivateRoute>
       ),
+    },
+    {
+      path: "librarysearch/*",
+      element: (
+        <PrivateRoute>
+          <LibrarySearch />
+        </PrivateRoute>
+      ),
+    },
+
+    {
+      path: "feeds/*",
+      element: (
+        <PrivateRoute>
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <FeedsListView />
+          </RouterProvider>
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "feeds/:id",
+      element: (
+        <PrivateRoute>
+          <FeedView />
+        </PrivateRoute>
+      ),
+    },
+    {
+      path: "plugin/:id",
+      element: <SinglePlugin />,
     },
     {
       path: "pacs",
@@ -104,10 +116,18 @@ export const MainRouter: React.FC = () => {
             {...{ actions, state, route, setRoute }}
             context={MainRouterContext}
           >
-            <PACSLookup />
+            <Pacs />
           </RouterProvider>
         </PrivateRoute>
       ),
+    },
+    {
+      path: "login",
+      element: <Login />,
+    },
+    {
+      path: "signup",
+      element: <Signup />,
     },
 
     {
@@ -115,37 +135,18 @@ export const MainRouter: React.FC = () => {
       element: <PipelinePage />,
     },
     {
+      path: "catalog",
+      element: <PluginCatalog />,
+    },
+    {
       path: "compute",
       element: <ComputePage />,
-    },
-
-    {
-      path: "login",
-      element: <LogIn />,
-    },
-    {
-      path: "signup",
-      element: <SignUp />,
     },
     {
       path: "*",
       element: <NotFound />,
     },
   ]);
-
-  {
-    /*
-    process.env.REACT_APP_ALPHA_FEATURES === "development" && (
-      <>
-        <Route path="/slicedrop" element={<SliceDropPage />} />
-        <Route path="/medview" element={<MedviewPage />} />
-        <Route path="/fetalmri" element={<FetalMri />} />
-        <Route path="/brainbrowser" element={<BrainBrowser />} />
-        <Route path="/collab" element={<Collab />} />
-      </>
-    );
-    */
-  }
 
   return element;
 };

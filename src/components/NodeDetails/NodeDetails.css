@@ -1,0 +1,193 @@
+.pf-v5-c-drawer__body {
+  padding: 0;
+}
+
+@media screen and (min-width: 768px) {
+  .section-two
+    .pf-c-drawer
+    > .pf-c-drawer__main
+    > .pf-c-drawer__panel.pf-m-resizable
+    > .pf-c-drawer__panel-main {
+    flex-shrink: 0;
+  }
+}
+
+.node-block {
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
+}
+
+.node-block button {
+  font-size: inherit;
+}
+
+@media (max-width: 576px) {
+  .node-block {
+    width: 100%;
+  }
+}
+
+@media (min-width: 576px) {
+  .node-block {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .node-block {
+    font-size: 0.75rem;
+    width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .node-block {
+    font-size: 0.85rem;
+    width: 100%;
+  }
+}
+
+.node-block .node-details {
+  height: 100%;
+  margin: 0 0.5em 0 0;
+}
+
+.node-block .node-details__title {
+  display: flex;
+  margin: 0.5em auto;
+}
+
+.node-block .node-details__title--button {
+  margin-left: auto;
+}
+
+.node-block .node-details__title--button .pf-m-start {
+  margin-right: 0px;
+}
+
+.node-block .node-details__title--button .pf-m-start svg {
+  height: 16px;
+  width: 16px;
+}
+
+.node-block .node-details__title--formInput {
+  --pf-c-form-control--Width: 30%;
+  margin-right: 1em;
+}
+
+.node-block .node-details__title--formButton {
+  margin-right: 1em;
+}
+
+.node-block .node-details__grid {
+  margin-bottom: 0.5em;
+}
+
+.node-block .node-details button {
+  width: 100%;
+}
+
+.node-block .node-details .pf-c-title {
+  font-weight: 600;
+}
+
+.node-block .node-details .pf-v5-c-expandable-section__toggle {
+  margin-bottom: 0.25em;
+  margin-top: 0.25em;
+}
+
+.node-block .node-details .pf-v5-c-expandable-section__toggle-icon {
+  margin-right: 0.25em;
+}
+
+.node-block .node-details .pf-c-form-control {
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.node-block .node-details__popover-button {
+  margin-top: 1rem;
+}
+
+.node-block .node-details__status .ant-steps-item-icon {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 10px !important;
+  border-radius: 30px !important;
+  line-height: 20px !important;
+  cursor: pointer;
+  margin: 0 0 0 2px;
+  padding-top: 3px;
+  padding-right: 0.25px;
+  border-color:#4F5255;
+}
+
+.node-block
+  .node-details
+  .ant-steps-horizontal:not(.ant-steps-label-vertical)
+  .ant-steps-item-tail {
+  display: none !important;
+}
+
+.node-block .node-details .ant-steps-item-title::after {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .node-block .node-details .ant-steps-item-tail {
+    margin-left: 15px !important;
+  }
+}
+
+.node-block .node-details .ant-steps-item {
+  overflow: visible !important;
+}
+
+.node-block .node-details .ant-steps-item-description {
+  margin-top: 0.5em;
+  font-size: 12px;
+  text-align: left;
+}
+
+.node-block
+  .node-details
+  .ant-steps-horizontal:not(.ant-steps-label-vertical)
+  .ant-steps-item {
+  padding-left: 0;
+}
+
+.node-block
+  .node-details
+  .ant-steps-horizontal:not(.ant-steps-label-vertical)
+  .ant-steps-item-tail {
+  display: outline !important;
+}
+
+.node-block .node-details .ant-steps-item-title {
+  padding-right: 0;
+}
+
+.node-block .node-details__error-message {
+  font-style: italic;
+}
+
+@media (min-width: 1200px) {
+  .pf-l-grid > .pf-m-2-col {
+    margin-bottom: 1em;
+  }
+}
+
+/* Steps Design Icon */
+.ant-popover {
+  min-width: 250px;
+  width: 100%;
+  max-width: 700px;
+  bottom: 0;
+}
+
+@media screen and (max-width: 740px) {
+  .ant-popover {
+    width: calc(100% - 40px);
+  }
+}

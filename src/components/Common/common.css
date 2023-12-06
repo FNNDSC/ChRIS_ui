@@ -1,0 +1,16 @@
+.example {
+  padding: 50px 50px;
+  text-align: center;
+  border-radius: 4px;
+  height: 100%;
+  width: 100%;
+}
+
+.datatable-toolbar {
+  margin: 0 0.5rem 0.2rem 0;
+  .pf-v5-c-input-group .toolbar-label,
+  input {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}

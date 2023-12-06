@@ -1,0 +1,241 @@
+.container_feedTree {
+  width: 100%;
+  flex-grow: 1;
+  position: relative;
+}
+
+.svgArea {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
+.setFlex {
+  display: flex;
+  flex-direction: column;
+}
+
+.feed-tree {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.feed-tree .feed-tree__orientation,
+.feed-tree .feed-tree__control {
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+}
+
+.feed-tree .feed-tree__orientation--icon,
+.feed-tree .feed-tree__control--icon {
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.feed-tree .feed-tree__individual-scale {
+  display: flex;
+}
+
+.feed-tree .feed-tree__individual-scale select {
+  height: 50%;
+}
+
+.feed-tree .feed-tree__individual-scale .dropdown-wrap {
+  margin-left: 5px;
+}
+
+.feed-tree .feed-tree__container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.feed-tree .feed-tree__container--labels {
+  display: flex;
+}
+
+.feed-tree .feed-tree__container--panelToggle {
+  padding-right: 1rem;
+}
+
+.feed-tree .feed-tree__container--panelToggle.node-graph-panel {
+  position: absolute;
+  right: 0;
+  z-index: 10;
+}
+
+.feed-tree .feed-tree__container--panelToggle.graph {
+  position: absolute;
+  bottom: 30px;
+}
+
+.grabbable {
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+.grabbable:active {
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+.link {
+  fill: none;
+  marker-end: url(#end-arrow);
+  opacity: 0.5;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+.link.ts {
+  marker-end: url(#end-arrow);
+  opacity: 0.5;
+  stroke: #0088ce;
+  stroke-width: 1.5px;
+}
+
+.label__title {
+  font-size: 0.7rem;
+}
+
+@keyframes active {
+  0% {
+    fill: #bee1f4;
+  }
+  50% {
+    fill: #0088ce;
+  }
+  100% {
+    fill: #73bcf7;
+  }
+}
+
+@keyframes graph {
+  0% {
+    fill: #cbc1ff;
+  }
+  50% {
+    fill: #b2a3ff;
+  }
+  100% {
+    fill: #8476d1;
+  }
+}
+
+@keyframes error {
+  0% {
+    fill: #c9190b;
+  }
+  90% {
+    fill: orange;
+  }
+  100% {
+    fill: #c9190b;
+  }
+}
+
+@keyframes queued {
+  0% {
+    fill: grey;
+  }
+  50% {
+    fill: black;
+  }
+  100% {
+    fill: grey;
+  }
+}
+
+@keyframes queued {
+  0% {
+    fill: pink;
+  }
+  50% {
+    fill: pink;
+  }
+  100% {
+    fill: pink;
+  }
+}
+
+.node {
+  cursor: pointer;
+  fill: white;
+}
+
+.node.search {
+  fill: #6ca100;
+}
+
+.node.search .label {
+  fill: #6ca100;
+}
+
+.node.queued {
+  fill: #aaa;
+}
+
+.node.queued .label {
+  fill: #aaa;
+}
+
+.node.success {
+  fill: #004080;
+}
+
+.node.success .label {
+  fill: #004080;
+}
+
+.node.error {
+  animation-name: error;
+  animation-duration: 2s;
+  animation-timing-function: ease-in;
+  animation-iteration-count: 1;
+  animation-delay: 1s;
+  animation-fill-mode: both;
+}
+
+.node.error .label {
+  fill: #c9190b;
+}
+
+.node.active {
+  animation-name: active;
+  animation-duration: 3s;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+  animation-delay: 1s;
+  animation-fill-mode: both;
+}
+
+.node.active .label {
+  fill: #bee1f4;
+}
+
+.node.notExecuted {
+  fill: #4f5255;
+}
+
+.node.selected {
+  stroke: white;
+  stroke-width: 3px;
+}
+
+.node.graphSelected {
+  animation-name: graph;
+  animation-duration: 5s;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+  animation-delay: 1s;
+  animation-fill-mode: both;
+  stroke: white;
+  stroke-width: 3px;
+}
+
+.node-overlay {
+  fill: #0066cc;
+}

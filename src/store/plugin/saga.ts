@@ -1,6 +1,6 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { PluginActionTypes } from "./types";
-import { IActionTypeParam } from "../../api/models/base.model";
+import { IActionTypeParam } from "../../api/model";
 
 import {
   getParamsSuccess,
