@@ -16,11 +16,11 @@ function getPatientDetails(patientDetails: any) {
 
 const PatientCard = ({ queryResult }: { queryResult: any }) => {
   const { state } = useContext(PacsQueryContext);
-  
+
   const patient = queryResult[0];
   const patientDetails = getPatientDetails(patient);
   const [isPatientExpanded, setIsPatientExpanded] = useState(
-    state.shouldDefaultExpanded || false,
+    state.shouldDefaultExpanded || false
   );
   const { PatientID, PatientName, PatientBirthDate, PatientSex } =
     patientDetails;
@@ -65,7 +65,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
               <div>
                 Latest Study Date: (
                 {LatestDate(
-                  queryResult.map((s: any) => s.StudyDate.value),
+                  queryResult.map((s: any) => s.StudyDate.value)
                 ).toDateString()}
                 )
               </div>
@@ -74,10 +74,14 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
         </CardHeader>
       </Card>
       {isPatientExpanded &&
-        queryResult.map((result: any, index: number) => {
+        queryResult.map((result: any) => {
+          
           return (
-            <div className="patient-studies" key={index}>
-              <StudyCard key={index} study={result} />
+            <div
+              className="patient-studies"
+              key={result.uid.value}
+            >
+              <StudyCard study={result} />
             </div>
           );
         })}

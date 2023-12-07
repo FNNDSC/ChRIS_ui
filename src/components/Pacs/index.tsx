@@ -22,6 +22,7 @@ import { PacsQueryContext, PacsQueryProvider, Types } from "./context";
 import PfdcmClient from "./pfdcmClient";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
+import { Alert } from "antd";
 import "./pacs-copy.css";
 
 const dropdownMatch: { [key: string]: string } = {
@@ -38,7 +39,7 @@ const PacsCopy = () => {
     dispatch(
       setSidebarActive({
         activeItem: "pacs",
-      }),
+      })
     );
   }, [dispatch]);
 
@@ -65,10 +66,10 @@ const QueryBuilder = () => {
   const service = searchParams.get("service");
 
   const { state, dispatch } = React.useContext(PacsQueryContext);
-
   const [queryOpen, setQueryOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [pacsListOpen, setPacsListOpen] = React.useState(false);
+  const [errorState, setErrorState] = React.useState("");
 
   const { pacsServices, selectedPacsService, currentQueryType, queryResult } =
     state;
@@ -77,41 +78,47 @@ const QueryBuilder = () => {
     navigateToDifferentRoute: boolean,
     currentQueryType: string,
     value: string,
-    selectedPacsService: string,
+    selectedPacsService: string
   ) => {
-    dispatch({
-      type: Types.SET_LOADING_SPINNER,
-      payload: {
-        loading: true,
-      },
-    });
-    const response = await client.find(
-      {
-        [currentQueryType]: value.trimStart().trimEnd(),
-      },
-      selectedPacsService,
-    );
-
-    if (response) {
-      dispatch({
-        type: Types.SET_SEARCH_RESULT,
-        payload: {
-          queryResult: response,
-        },
-      });
-
+    if (selectedPacsService && value.length > 0 && currentQueryType) {
       dispatch({
         type: Types.SET_LOADING_SPINNER,
         payload: {
-          loading: false,
+          loading: true,
         },
       });
+      const response = await client.find(
+        {
+          [currentQueryType]: value.trimStart().trimEnd(),
+        },
+        selectedPacsService
+      );
 
-      if (navigateToDifferentRoute) {
-        navigate(
-          `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`,
-        );
+      if (response) {
+        dispatch({
+          type: Types.SET_SEARCH_RESULT,
+          payload: {
+            queryResult: response,
+          },
+        });
+
+        dispatch({
+          type: Types.SET_LOADING_SPINNER,
+          payload: {
+            loading: false,
+          },
+        });
+
+        if (navigateToDifferentRoute) {
+          navigate(
+            `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`
+          );
+        }
       }
+    } else {
+      setErrorState(
+        "Please ensure PACS service, Search Value, and the Query Type are all selected."
+      );
     }
   };
 
@@ -257,6 +264,15 @@ const QueryBuilder = () => {
               customIcon={<SearchIcon />}
               value={value}
               aria-label="Query"
+              onKeyDown={(e) => {
+                e.key === "Enter" &&
+                  handleSubmitQuery(
+                    true,
+                    currentQueryType,
+                    value,
+                    selectedPacsService
+                  );
+              }}
               onChange={(_event, value) => setValue(value)}
             />
           </SplitItem>
@@ -271,7 +287,7 @@ const QueryBuilder = () => {
                     <div style={{ fontWeight: "600" }}>
                       {selectedPacsService
                         ? selectedPacsService
-                        : "Select a Pacs Service"}
+                        : "Select a PACS Service"}
                     </div>
                   </MenuToggle>
                 );
@@ -315,7 +331,7 @@ const QueryBuilder = () => {
                   true,
                   currentQueryType,
                   value,
-                  selectedPacsService,
+                  selectedPacsService
                 );
               }}
             >
@@ -324,6 +340,18 @@ const QueryBuilder = () => {
           </SplitItem>
         </Split>
       </GridItem>
+      {errorState && (
+        <GridItem lg={12}>
+          <Alert
+            onClose={() => {
+              setErrorState("");
+            }}
+            closable
+            type="warning"
+            description={errorState}
+          />
+        </GridItem>
+      )}
     </Grid>
   );
 };
