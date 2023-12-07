@@ -29,6 +29,7 @@ import PFDCMClient from "../pfdcmClient";
 import { Types } from "../context/index";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
+import RedoIcon from "@patternfly/react-icons/dist/esm/icons/redo-icon";
 import FaCodeBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
@@ -101,7 +102,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const fetchCubeFilePreview = useCallback(
     async function fetchCubeSeries() {
       const middleValue = Math.floor(
-        parseInt(NumberOfSeriesRelatedInstances.value) / 2,
+        parseInt(NumberOfSeriesRelatedInstances.value) / 2
       );
 
       const cubeClient = ChrisAPIClient.getClient();
@@ -118,7 +119,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         setCubeFilePreview(fileItems[0]);
       }
     },
-    [pullQuery, NumberOfSeriesRelatedInstances.value],
+    [pullQuery, NumberOfSeriesRelatedInstances.value]
   );
 
   useEffect(() => {
@@ -325,8 +326,22 @@ const SeriesCard = ({ series }: { series: any }) => {
         <CardHeader
           style={{ zIndex: "999", margin: "0 auto", display: "flex" }}
         >
-          <div style={{ marginRight: "1em", color: "white" }}>
-            <b>{SeriesDescription.value}</b>
+          <div
+            style={{
+              marginRight: "1em",
+              color: "white",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {SeriesDescription.value.length > 20 ? (
+              <Tooltip content={SeriesDescription.value}>
+                <b>{`${SeriesDescription.value.slice(0, 20)}...`}</b>
+              </Tooltip>
+            ) : (
+              <b>{SeriesDescription.value}</b>
+            )}
           </div>
           <div>
             <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
@@ -360,6 +375,9 @@ const SeriesCard = ({ series }: { series: any }) => {
             direction={{
               default: "column",
             }}
+            alignItems={{
+              default: "alignItemsCenter",
+            }}
           >
             <FlexItem>
               {progress.currentProgress > 0 &&
@@ -377,10 +395,14 @@ const SeriesCard = ({ series }: { series: any }) => {
             </FlexItem>
 
             {!cubeFilePreview && (
-              <FlexItem style={{ marginTop: "1em" }}>
-                <Button onClick={handleRetry} variant="secondary">
-                  Retry all steps
-                </Button>
+              <FlexItem style={{ marginTop: "1em", justifyContent: "center" }}>
+                <Tooltip content={"Retry all the steps if processing is stuck"}>
+                  <Button
+                    icon={<RedoIcon />}
+                    onClick={handleRetry}
+                    variant="link"
+                  ></Button>
+                </Tooltip>
               </FlexItem>
             )}
           </Flex>
