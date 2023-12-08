@@ -10,13 +10,9 @@ import {
 } from "@patternfly/react-core";
 import FaQuestionCircle from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 import SeriesCard from "./SeriesCard";
-import { PacsQueryContext } from "../context";
 
 const StudyCard = ({ study }: { study: any }) => {
-  const { state } = useContext(PacsQueryContext);
-  const [isStudyExpanded, setIsStudyExpanded] = useState(
-    state.shouldDefaultExpanded || false,
-  );
+  const [isStudyExpanded, setIsStudyExpanded] = useState(false);
 
   const formatStudyDate = (studyDateString: string) => {
     // Parse the input string to a Date object
@@ -33,10 +29,10 @@ const StudyCard = ({ study }: { study: any }) => {
         (day - 1) % 10 === 0
           ? 0
           : (day - 11) % 10 === 0
-            ? 1
-            : (day - 12) % 10 === 0
-              ? 2
-              : 3
+          ? 1
+          : (day - 12) % 10 === 0
+          ? 2
+          : 3
       ] || "th");
 
     return formattedDate.replace(day, dayWithSuffix);
@@ -63,11 +59,16 @@ const StudyCard = ({ study }: { study: any }) => {
               <div className="study-detail-title">Modalities in Study</div>
               <div>
                 {study.ModalitiesInStudy.value &&
-                  study.ModalitiesInStudy.value.split("\\").map((m: string) => (
-                    <Badge style={{ margin: "auto 0.125em" }} key={m}>
-                      {m}
-                    </Badge>
-                  ))}
+                  study.ModalitiesInStudy.value
+                    .split("\\")
+                    .map((m: string, index: number) => (
+                      <Badge
+                        style={{ margin: "auto 0.125em" }}
+                        key={`${m} _${index}`}
+                      >
+                        {m}
+                      </Badge>
+                    ))}
               </div>
             </GridItem>
             <GridItem span={2}>
@@ -98,10 +99,17 @@ const StudyCard = ({ study }: { study: any }) => {
       </Card>
       {isStudyExpanded && (
         <Grid hasGutter className="patient-series">
-          {study.series.map((series: any, index: number) => {
+          {study.series.map((series: any) => {
             return (
-              <GridItem sm={12} lg={4} xl={2} xl2={2} md={4} key={index}>
-                <SeriesCard series={series} key={index} />
+              <GridItem
+                sm={12}
+                lg={4}
+                xl={2}
+                xl2={2}
+                md={4}
+                key={series.SeriesInstanceUID.value}
+              >
+                <SeriesCard series={series} />
               </GridItem>
             );
           })}

@@ -16,19 +16,15 @@ const BreadcrumbContainer = ({
         return (
           <BreadcrumbItem
             onClick={() => {
-              const newPath =
-                index === 0
-                  ? ""
-                  : initialPathSplit.slice(0, index + 1).join("/");
+              const newPath = initialPathSplit.slice(0, index + 1).join("/");
 
-              handleFolderClick(newPath);
+              handleFolderClick("/" + newPath);
             }}
             key={index}
             to="#"
           >
             {index === 0 ? <HomeIcon /> : path}
           </BreadcrumbItem>
-        
         );
       })}
     </Breadcrumb>

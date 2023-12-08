@@ -70,10 +70,14 @@ class PfdcmClient {
 
       const images = { requested: 0, packed: 0, pushed: 0, registered: 0 };
 
+      let error = "";
+
       for (const study of studies) {
         for (const key in study) {
           const seriesList = study[key];
+
           for (const series of seriesList) {
+            error = series.error;
             if (series.images.requested.count === -1) {
               images.requested = 0;
               imagestatus.request = false;
@@ -132,6 +136,7 @@ class PfdcmClient {
       return {
         imagestatus,
         currentStatus,
+        error,
       };
     } catch (error) {
       console.log("Error while fetching status", error);
@@ -155,6 +160,7 @@ class PfdcmClient {
 
     try {
       const response = (await axios(RequestConfig)).data;
+
       const { pypx, status } = response;
       if (status) {
         return pypx;

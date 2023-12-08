@@ -50,8 +50,8 @@ const ParentComponent = (props: ParentComponentProps) => {
       separation={
         instances && instances.length > 15
           ? {
-              siblings: 0.5,
-              nonSiblings: 0.5,
+              siblings: 1,
+              nonSiblings: 2.0,
             }
           : {
               siblings: 1.0,

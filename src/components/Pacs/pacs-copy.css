@@ -22,3 +22,11 @@ article {
   display: flex;
   flex-flow: wrap;
 }
+
+@media (min-width: 769px) {
+  .last-item-align {
+    text-align: right;
+  }
+}
+
+
