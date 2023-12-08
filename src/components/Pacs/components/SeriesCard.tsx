@@ -20,6 +20,7 @@ import {
   Modal,
   Tooltip,
   ProgressMeasureLocation,
+  Text,
 } from "@patternfly/react-core";
 import pluralize from "pluralize";
 import FileDetailView from "../../Preview/FileDetailView";
@@ -68,6 +69,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const [cubeFilePreview, setCubeFilePreview] = useState<any>();
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
+  const [error, setError] = useState("");
 
   const [progress, setProgress] = useState({
     currentStep: "",
@@ -117,6 +119,8 @@ const SeriesCard = ({ series }: { series: any }) => {
 
       if (fileItems && fileItems.length > 0) {
         setCubeFilePreview(fileItems[0]);
+      } else {
+        setError("Files are not available in storage");
       }
     },
     [pullQuery, NumberOfSeriesRelatedInstances.value]
@@ -136,7 +140,6 @@ const SeriesCard = ({ series }: { series: any }) => {
           },
         });
         setProgress(currentStatus);
-
         currentStatus.currentStep === "completed" && fetchCubeFilePreview();
       }
     }
@@ -164,10 +167,14 @@ const SeriesCard = ({ series }: { series: any }) => {
       const status = await client.status(pullQuery, selectedPacsService);
 
       if (status) {
-        const { currentStatus } = status;
+        const { currentStatus, error } = status;
         setProgress(currentStatus);
 
-        if (
+        if (error) {
+          //stop polling
+          setFetchNextStatus(!fetchNextStatus);
+          setError(error);
+        } else if (
           oldStep.current !== currentStatus.currentStep ||
           currentStatus.currentStep !== "completed"
         ) {
@@ -197,9 +204,16 @@ const SeriesCard = ({ series }: { series: any }) => {
     nextQueryStage = QueryStages[index + 1];
   }
 
+  const pluralizedFileLength = (
+    <div style={{ fontSize: "smaller", color: "gray" }}>
+      {series.NumberOfSeriesRelatedInstances.value}{" "}
+      {pluralize("file", series.NumberOfSeriesRelatedInstances.value)}
+    </div>
+  );
+
   const buttonContainer = (
     <div style={{ margin: "auto" }}>
-      {!currentStep && <div>Fetching current status</div>}
+      {!currentStep && <Text>Fetching current status</Text>}
 
       {currentStep &&
         currentStep !== "completed" &&
@@ -227,11 +241,7 @@ const SeriesCard = ({ series }: { series: any }) => {
             Continue this step
           </Button>
         )}
-
-      <div style={{ fontSize: "smaller", color: "gray" }}>
-        {series.NumberOfSeriesRelatedInstances.value}{" "}
-        {pluralize("file", series.NumberOfSeriesRelatedInstances.value)}
-      </div>
+      {pluralizedFileLength}
     </div>
   );
 
@@ -307,7 +317,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         queryStage: "none",
       },
     });
-
+    setError("");
     await client.findRetrieve(pullQuery, selectedPacsService);
     await client.findPush(pullQuery, selectedPacsService);
     await client.findRegister(pullQuery, selectedPacsService);
@@ -329,7 +339,6 @@ const SeriesCard = ({ series }: { series: any }) => {
           <div
             style={{
               marginRight: "1em",
-              color: "white",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -337,10 +346,14 @@ const SeriesCard = ({ series }: { series: any }) => {
           >
             {SeriesDescription.value.length > 20 ? (
               <Tooltip content={SeriesDescription.value}>
-                <b>{`${SeriesDescription.value.slice(0, 20)}...`}</b>
+                <Text
+                  style={{ color: cubeFilePreview ? "white" : "inherit" }}
+                >{`${SeriesDescription.value.slice(0, 20)}...`}</Text>
               </Tooltip>
             ) : (
-              <b>{SeriesDescription.value}</b>
+              <Text style={{ color: cubeFilePreview ? "white" : "inherit" }}>
+                {SeriesDescription.value}
+              </Text>
             )}
           </div>
           <div>
@@ -349,7 +362,8 @@ const SeriesCard = ({ series }: { series: any }) => {
         </CardHeader>
         <CardBody
           style={{
-            height: "12em",
+            padding: "0.25rem",
+            height: "16em",
           }}
         >
           {cubeFilePreview && (
@@ -363,8 +377,16 @@ const SeriesCard = ({ series }: { series: any }) => {
             >
               {cubeFilePreview ? (
                 <div>{fileDetailsComponent}</div>
+              ) : error ? (
+                <>
+                  <Text style={{ color: "#C9190B" }}>{error} </Text>
+                  {pluralizedFileLength}
+                </>
               ) : showProcessingWithButton ? (
-                <div>Processing...</div>
+                <Text>
+                  Processing{" "}
+                  {nextQueryStage ? nextQueryStage.toLowerCase() : ""}...
+                </Text>
               ) : (
                 <div>{buttonContainer} </div>
               )}

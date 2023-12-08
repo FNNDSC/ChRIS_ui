@@ -59,11 +59,16 @@ const StudyCard = ({ study }: { study: any }) => {
               <div className="study-detail-title">Modalities in Study</div>
               <div>
                 {study.ModalitiesInStudy.value &&
-                  study.ModalitiesInStudy.value.split("\\").map((m: string) => (
-                    <Badge style={{ margin: "auto 0.125em" }} key={m}>
-                      {m}
-                    </Badge>
-                  ))}
+                  study.ModalitiesInStudy.value
+                    .split("\\")
+                    .map((m: string, index: number) => (
+                      <Badge
+                        style={{ margin: "auto 0.125em" }}
+                        key={`${m} _${index}`}
+                      >
+                        {m}
+                      </Badge>
+                    ))}
               </div>
             </GridItem>
             <GridItem span={2}>
@@ -94,10 +99,16 @@ const StudyCard = ({ study }: { study: any }) => {
       </Card>
       {isStudyExpanded && (
         <Grid hasGutter className="patient-series">
-          {study.series.map((series: any, index: number) => {
-            
+          {study.series.map((series: any) => {
             return (
-              <GridItem sm={12} lg={4} xl={2} xl2={2} md={4} key={series.SeriesInstanceUID.value}>
+              <GridItem
+                sm={12}
+                lg={4}
+                xl={2}
+                xl2={2}
+                md={4}
+                key={series.SeriesInstanceUID.value}
+              >
                 <SeriesCard series={series} />
               </GridItem>
             );

@@ -196,7 +196,7 @@ function NormalBrowser() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const currentPathSplit = pathname.split("/library/")[1];
- 
+
   const computedPath = currentPathSplit || "/";
   const fileData = useGetFiles(computedPath);
   const folderData = useGetFolders(computedPath);
