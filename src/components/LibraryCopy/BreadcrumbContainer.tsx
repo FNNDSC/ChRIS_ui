@@ -10,8 +10,6 @@ const BreadcrumbContainer = ({
 }) => {
   const initialPathSplit = path.split("/");
 
-  console.log("InitialPathSPlit", initialPathSplit);
-
   return (
     <Breadcrumb style={{ margin: "1em 1em 1em 1em" }}>
       {initialPathSplit.map((path: string, index) => {
@@ -19,7 +17,6 @@ const BreadcrumbContainer = ({
           <BreadcrumbItem
             onClick={() => {
               const newPath = initialPathSplit.slice(0, index + 1).join("/");
-              console.log("NewPath", newPath)
 
               handleFolderClick("/" + newPath);
             }}
