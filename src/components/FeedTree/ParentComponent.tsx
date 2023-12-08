@@ -50,12 +50,12 @@ const ParentComponent = (props: ParentComponentProps) => {
       separation={
         instances && instances.length > 15
           ? {
-              siblings: 1,
+              siblings: 1.0,
               nonSiblings: 2.0,
             }
           : {
-              siblings: 1.0,
-              nonSiblings: 2.0,
+              siblings: 0.75,
+              nonSiblings: 1.0,
             }
       }
       changeOrientation={changeOrientation}
