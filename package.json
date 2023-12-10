@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "sirv build --host --port ${PORT:=8080} --single --etag --quiet",
+    "start": "sirv dist --host --port ${PORT:=8080} --single --etag --quiet",
     "__start": "# npm start command is used by s2i in OpenShift as the deployment command",
     "dev": "vite",
     "build": "tsc && vite build",
