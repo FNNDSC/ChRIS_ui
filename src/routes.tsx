@@ -18,6 +18,7 @@ import ComputePage from "./components/ComputePage";
 import PrivateRoute from "./components/PrivateRoute";
 import LibrarySearch from "./components/LibrarySearch";
 import SinglePlugin from "./components/SinglePlugin";
+import PublicDatasets from "./components/PublicDatasets";
 
 interface IState {
   selectData?: Series;
@@ -141,6 +142,10 @@ export const MainRouter: React.FC = () => {
     {
       path: "compute",
       element: <ComputePage />,
+    },
+    {
+      path: "niivue",
+      element: <PublicDatasets />,
     },
     {
       path: "*",

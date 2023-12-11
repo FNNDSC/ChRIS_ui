@@ -69,6 +69,13 @@ const Sidebar: React.FC<AllProps> = ({
             <Link to="/pipelines">Pipelines</Link>
           </NavItem>
 
+          <NavItem
+            itemId="niivue"
+            isActive={sidebarActiveItem === "niivue"}
+          >
+            <Link to="/niivue">Public Datasets</Link>
+          </NavItem>
+
           {import.meta.env.REACT_APP_ALPHA_FEATURES === "development" && (
             <NavItem
               itemId="workflows"
