@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+//@ts-ignore
 import useAckee from "use-ackee";
 import Routes from "./routes";
 import { ConfigProvider, theme } from "antd";
