@@ -109,7 +109,7 @@ const TableSelectable: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const searchFolderData = useSearchQuery(query);
   const username = useTypedSelector((state) => state.user.username);
-  const [exampleType, setExampleType] = React.useState("");
+  const [exampleType, setExampleType] = React.useState(username ? 'authenticatedfeeds': 'publicFeeds');
 
   React.useEffect(() => {
     const exampleType = username ? "authenticatedfeeds" : "publicfeeds";
