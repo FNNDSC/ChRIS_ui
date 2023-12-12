@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@cornerstonejs/nifti-image-loader": "^1.0.9",
-    "@fnndsc/chrisapi": "^1.14.3",
+    "@fnndsc/chrisapi": "^1.15.0",
     "@heroicons/react": "^2.0.18",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.1.1",

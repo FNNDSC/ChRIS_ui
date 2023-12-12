@@ -39,7 +39,9 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   }
 
   async function handleSubmit(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
+    event:
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+      | React.KeyboardEvent,
   ) {
     event.preventDefault();
 
@@ -58,7 +60,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         //@ts-ignore
         error.response
           ? LoginErrorMessage.invalidCredentials
-          : LoginErrorMessage.serverError
+          : LoginErrorMessage.serverError,
       );
     }
 
@@ -67,7 +69,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         setAuthToken({
           token,
           username: username,
-        })
+        }),
       );
       const oneDayToSeconds = 24 * 60 * 60;
       setCookie(`${username}_token`, token, {
@@ -86,14 +88,14 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
   const handleUsernameChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    value: string
+    value: string,
   ) => {
     setUsername(value);
   };
 
   const handlePasswordChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    value: string
+    value: string,
   ) => {
     setPassword(value);
   };
@@ -162,7 +164,6 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
       footerListVariants={ListVariant.inline}
       brandImgSrc={window.innerWidth < 1200 ? ChRIS_Logo_Inline : ChRIS_Logo}
       brandImgAlt="ChRIS logo"
-      backgroundImgSrc="/assets/images/pfbg-icon.svg"
       footerListItems={listItem}
       textContent="ChRIS is a general-purpose, open source, distributed data and computation platform that connects a community of researchers, developers, and clinicians together."
       loginTitle="Log in to your account"
