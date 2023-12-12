@@ -1,7 +1,7 @@
 import * as React from "react";
 import axios, { AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
-import { Pipeline, PipelineList, PluginPiping } from "@fnndsc/chrisapi";
+import { Pipeline, PipelineList, PluginPiping, feed } from "@fnndsc/chrisapi";
 
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
@@ -13,7 +13,7 @@ export function useSafeDispatch(dispatch: any) {
   }, []);
   return React.useCallback(
     (...args: any[]) => (mounted.current ? dispatch(...args) : void 0),
-    [dispatch]
+    [dispatch],
   );
 }
 
@@ -31,28 +31,28 @@ function useAsync(initialState?: any) {
 
   const [{ status, data, error }, setState] = React.useReducer(
     (s: any, a: any) => ({ ...s, ...a }),
-    initialStateRef.current
+    initialStateRef.current,
   );
 
   const safeSetState = useSafeDispatch(setState);
   const setData = React.useCallback(
     (data: any) => safeSetState({ data, status: "resolved" }),
-    [safeSetState]
+    [safeSetState],
   );
   const setError = React.useCallback(
     (error: any) => safeSetState({ error, status: "rejected" }),
-    [safeSetState]
+    [safeSetState],
   );
   const reset = React.useCallback(
     () => safeSetState(initialStateRef.current),
-    [safeSetState]
+    [safeSetState],
   );
 
   const run = React.useCallback(
     (promise: any) => {
       if (!promise || !promise.then) {
         throw new Error(
-          `The argument passed to useAsync().run must be a promise`
+          `The argument passed to useAsync().run must be a promise`,
         );
       }
       safeSetState({ status: "pending" });
@@ -64,10 +64,10 @@ function useAsync(initialState?: any) {
         (error: any) => {
           setError(error);
           return Promise.reject(error);
-        }
+        },
       );
     },
-    [safeSetState, setData, setError]
+    [safeSetState, setData, setError],
   );
 
   return {
@@ -93,7 +93,7 @@ async function fetchResource<T>(
     fname_icontains?: string;
     fname_nslashes?: string;
   },
-  fn: any
+  fn: any,
 ) {
   let resourceList = await fn(params);
   let resource: T[] = [];
@@ -177,7 +177,7 @@ export const fetchPipelines = async (
   perPage: number,
   page: number,
   search: string,
-  searchType: string
+  searchType: string,
 ) => {
   let errorPayload: any = {};
   let registeredPipelinesList, registeredPipelines;
@@ -214,11 +214,11 @@ export async function fetchResources(pipelineInstance: Pipeline) {
   const boundPipelineFn = pipelineFn.bind(pipelineInstance);
   const { resource: pluginPipings } = await fetchResource<PluginPiping>(
     params,
-    boundPipelineFn
+    boundPipelineFn,
   );
   const { resource: pipelinePlugins } = await fetchResource(
     params,
-    boundPipelinePluginFn
+    boundPipelinePluginFn,
   );
   const parameters = await pipelineInstance.getDefaultParameters({
     limit: 1000,
@@ -237,9 +237,8 @@ export const generatePipelineWithName = async (pipelineName: string) => {
     name: pipelineName,
   });
   const pipelineInstanceId = pipelineInstanceList.data[0].id;
-  const pipelineInstance: Pipeline = await client.getPipeline(
-    pipelineInstanceId
-  );
+  const pipelineInstance: Pipeline =
+    await client.getPipeline(pipelineInstanceId);
   const resources = await fetchResources(pipelineInstance);
   return {
     resources,
@@ -259,7 +258,7 @@ export const generatePipelineWithData = async (data: any) => {
 
 export async function fetchComputeInfo(
   plugin_id: number,
-  dictionary_id: number
+  dictionary_id: number,
 ) {
   const client = ChrisAPIClient.getClient();
   const computeEnvs = await client.getComputeResources({
@@ -292,7 +291,7 @@ export function catchError(errorRequest: any) {
 export const limitConcurrency = async <T>(
   limit: number,
   promises: (() => Promise<T>)[],
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
 ): Promise<T[]> => {
   const results: T[] = [];
   const executing: Promise<T>[] = [];
@@ -329,7 +328,7 @@ export const limitConcurrency = async <T>(
   for (let i = 0; i < promises.length; i += limit) {
     const batch = promises.slice(i, i + limit);
     const batchPromise = Promise.allSettled(
-      batch.map((promise, j) => execute(promise, i + j))
+      batch.map((promise, j) => execute(promise, i + j)),
     );
 
     batches.push(batchPromise);
@@ -348,7 +347,7 @@ export const uploadFile = async (
   url: string,
   directoryName: string,
   token: string,
-  onUploadProgress: (progressEvent: AxiosProgressEvent) => void
+  onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
 ) => {
   const formData = new FormData();
   const name = file.name;
@@ -368,7 +367,7 @@ export const uploadWrapper = (
   localFiles: any[],
   directoryName: string,
   token: string,
-  onUploadProgress?: (file: any, progressEvent: AxiosProgressEvent) => void
+  onUploadProgress?: (file: any, progressEvent: AxiosProgressEvent) => void,
 ) => {
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
   return localFiles.map((file) => {
@@ -381,7 +380,7 @@ export const uploadWrapper = (
       url,
       directoryName,
       token,
-      onUploadProgressWrap
+      onUploadProgressWrap,
     );
 
     return {
@@ -395,6 +394,8 @@ export function getTimestamp() {
   const pad = (n: any, s = 2) => `${new Array(s).fill(0)}${n}`.slice(-s);
   const d = new Date();
   return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
-    d.getDate()
+    d.getDate(),
   )}-${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
+
+

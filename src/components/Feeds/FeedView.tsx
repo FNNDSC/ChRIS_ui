@@ -91,8 +91,7 @@ export default function FeedView() {
         activeItem: "analyses",
       }),
     );
-    id && dispatch(getFeedRequest(id));
-  }, [id, dispatch]);
+  }, [dispatch]);
 
   const onNodeClick = (node: any) => {
     dispatch(clearSelectedFile());
