@@ -41,7 +41,7 @@ function App(props: AllProps) {
       "/",
       ackeeEnvironment,
       {
-        detailed: false,
+        detailed: true,
         ignoreLocalhost: true,
         ignoreOwnVisits: true,
       },
