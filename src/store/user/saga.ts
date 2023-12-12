@@ -1,6 +1,11 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { UserActionTypes } from "./types";
-import { setAuthError, setAuthTokenSuccess, setUserLogout, setLogoutSuccess } from "./actions";
+import {
+  setAuthError,
+  setAuthTokenSuccess,
+  setUserLogout,
+  setLogoutSuccess,
+} from "./actions";
 import { Cookies } from "react-cookie";
 import { IActionTypeParam } from "../../api/model";
 
@@ -31,7 +36,6 @@ function* watchLoginRequest() {
 
 function* handleLogout(action: IActionTypeParam) {
   const cookie = new Cookies();
-  console.log("Action.payload", action.payload);
 
   cookie.remove(`${action.payload}_token`);
   cookie.remove("username");
