@@ -8,17 +8,7 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 
 ![Screenshot from 2023-12-05 09-22-38](https://github.com/FNNDSC/ChRIS_ui/assets/15992276/a8314bfe-e6e2-4e9c-b1c6-f7fb99e4c882)
 
-
-
-## Try it now!
-
-| URL                               | Description                                     |
-|-----------------------------------|-------------------------------------------------|
-| https://nightly.chrisproject.org  | latest commit to master (automatically updated) |
-| https://past.chrisproject.org     | second-to-last commit (automatically updated)   |
-| https://freeze.chrisproject.org   | tagged `freeze-chrisproject-org`, i.e. "last known working" (manually updated) |
-
-Note: https://app.chrisproject.org and https://next.chrisproject.org both redirect to https://nightly.chrisproject.org
+**Try it now!** --> https://app.chrisproject.org
 
 ## Quickstart
 
@@ -131,8 +121,14 @@ You can follow any of these steps to start UI development server
 can be used to build this project.
 
 ```shell
-s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-16 s2ichrisui
+s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-20 s2ichrisui
 ```
+
+## Analytics
+
+[Ackee](https://ackee.electerious.com/) can be used for website analytics.
+Set the environment variables `VITE_ACKEE_SERVER` and `VITE_ACKEE_DOMAIN_ID`
+to send analytics to an Ackee instance.
 
 ### E2E TESTS ARE RAN USING CYPRESS
 
