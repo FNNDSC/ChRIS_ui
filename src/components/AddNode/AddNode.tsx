@@ -128,9 +128,8 @@ const AddNode = ({
       ...sanitizedInput,
     };
 
-    const pluginInstance = await plugin.getPluginInstances();
-
     try {
+      const pluginInstance = await plugin.getPluginInstances();
       await pluginInstance.post(parameterInput);
       const nodeList = pluginInstance.getItems();
       if (nodeList) {
@@ -142,6 +141,7 @@ const AddNode = ({
       }
     } catch (error: any) {
       const errObj = catchError(error);
+      console.log("ErrorObj", errObj)
 
       nodeDispatch({
         type: Types.SetError,

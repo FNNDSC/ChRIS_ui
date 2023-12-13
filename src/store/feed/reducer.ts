@@ -2,6 +2,7 @@ import { Reducer } from "redux";
 import { IFeedState, FeedActionTypes } from "./types";
 
 export const initialState: IFeedState = {
+  allFeeds: [],
   currentFeed: {
     data: undefined,
     error: "",
@@ -26,6 +27,12 @@ export const initialState: IFeedState = {
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
+    case FeedActionTypes.GET_ALL_FEEDS_REQUEST: {
+      return {
+        ...state,
+        allFeeds: action.payload,
+      };
+    }
     case FeedActionTypes.GET_FEED_REQUEST: {
       return {
         ...state,

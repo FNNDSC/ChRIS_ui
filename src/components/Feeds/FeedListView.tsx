@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import axios from "axios";
+
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { format } from "date-fns";
@@ -26,7 +26,6 @@ import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { Typography } from "antd";
 import { cujs } from "chris-utility";
 import { useTypedSelector } from "../../store/hooks";
-import { Link } from "react-router-dom";
 import { usePaginate } from "./usePaginate";
 import {
   setBulkSelect,
@@ -35,10 +34,11 @@ import {
   toggleSelectAll,
   setAllSelect,
   getFeedSuccess,
+  getAllFeedsRequest,
 } from "../../store/feed/actions";
 import { getPluginInstancesRequest } from "../../store/pluginInstance/actions";
 import { setSidebarActive } from "../../store/ui/actions";
-import type { Feed, FeedList } from "@fnndsc/chrisapi";
+import type { Feed, FeedList, PublicFeedList } from "@fnndsc/chrisapi";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import IconContainer from "../IconContainer";
 import WrapperConnect from "../Wrapper";
@@ -60,7 +60,12 @@ const fetchFeeds = async (filterState: any) => {
     [filterState.searchType]: filterState.search,
   });
 
-  const feeds: Feed[] = feedsList.getItems();
+  let feeds: Feed[] = [];
+
+  if (feedsList.getItems()) {
+    feeds = feedsList.getItems() as Feed[];
+  }
+
   return {
     feeds,
     totalFeedsCount: feedsList.totalCount,
@@ -71,13 +76,18 @@ const fetchPublicFeeds = async (filterState: any) => {
   const offset = filterState.perPage * (filterState.page - 1);
   const client = ChrisAPIClient.getClient();
 
-  const feedsList: FeedList = await client.getPublicFeeds({
+  const feedsList: PublicFeedList = await client.getPublicFeeds({
     limit: +filterState.perPage,
-    offset: filterState.perPage * (filterState.page - 1),
+    offset,
     [filterState.searchType]: filterState.search,
   });
 
-  const feeds: Feed[] = feedsList.getItems();
+  let feeds: Feed[] = [];
+
+  if (feedsList.getItems()) {
+    feeds = feedsList.getItems() as Feed[];
+  }
+
   return {
     feeds,
     totalFeedsCount: feedsList.totalCount,
@@ -107,23 +117,18 @@ const TableSelectable: React.FunctionComponent = () => {
   // In real usage, this data would come from some external source like an API via props.
   const query = useSearchQueryParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const searchFolderData = useSearchQuery(query);
-  const username = useTypedSelector((state) => state.user.username);
-  const [exampleType, setExampleType] = React.useState(username ? 'authenticatedfeeds': 'publicFeeds');
-
-  React.useEffect(() => {
-    const exampleType = username ? "authenticatedfeeds" : "publicfeeds";
-    setExampleType(exampleType);
-  }, [username]);
-
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const [exampleType, setExampleType] = React.useState(
+    isLoggedIn ? "authenticatedfeeds" : "publicFeeds"
+  );
   const { perPage, page } = searchFolderData;
 
-  const dispatch = useDispatch();
-
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["feeds", searchFolderData],
+    queryKey: ["feeds"],
     queryFn: () => fetchFeeds(searchFolderData),
-    enabled: !!username,
+    enabled: isLoggedIn && exampleType === "authenticatedfeeds",
   });
 
   const {
@@ -131,7 +136,7 @@ const TableSelectable: React.FunctionComponent = () => {
     isLoading: publicFeedLoading,
     isFetching: publicFeedFetching,
   } = useQuery({
-    queryKey: ["publicFeeds", searchFolderData],
+    queryKey: ["publicFeeds"],
     queryFn: () => fetchPublicFeeds(searchFolderData),
     enabled: exampleType === "publicfeeds",
   });
@@ -144,8 +149,13 @@ const TableSelectable: React.FunctionComponent = () => {
       ? authenticatedFeeds
       : publicFeedsToDisplay;
 
+  React.useEffect(() => {
+    const exampleType = isLoggedIn ? "authenticatedfeeds" : "publicfeeds";
+    setExampleType(exampleType);
+  }, [isLoggedIn]);
+
   const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed,
+    (state) => state.feed
   );
 
   const onSetPage = (_e: any, newPage: number) => {
@@ -162,7 +172,7 @@ const TableSelectable: React.FunctionComponent = () => {
 
   const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (
     event,
-    _isSelected,
+    _isSelected
   ) => {
     const id = event.currentTarget.id;
     setExampleType(id as ExampleType);
@@ -176,7 +186,7 @@ const TableSelectable: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      }),
+      })
     );
     if (bulkData && bulkData.current) {
       dispatch(removeAllSelect(bulkData.current));
@@ -242,7 +252,7 @@ const TableSelectable: React.FunctionComponent = () => {
                   buttonId="authenticatedfeeds"
                   isSelected={exampleType === "authenticatedfeeds"}
                   onChange={onExampleTypeChange}
-                  isDisabled={!username}
+                  isDisabled={!isLoggedIn}
                 />
                 <ToggleGroupItem
                   text="Public Feeds"
@@ -351,7 +361,6 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
     queryKey: ["feedResources", feed],
     queryFn: async () => {
       try {
-        const client = ChrisAPIClient.getClient();
         const res = await cujs.getPluginInstanceDetails(feed);
 
         if (res.progress === 100 || res.error === true) {

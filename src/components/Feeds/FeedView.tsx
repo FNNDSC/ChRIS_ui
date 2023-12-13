@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   Drawer,
   DrawerPanelContent,
@@ -12,36 +13,56 @@ import { DrawerActionButton } from "./DrawerUtils";
 import { handleClose, handleMaximize, handleMinimize } from "./utilties";
 import type { DestroyActiveResources } from "../../store/resources/types";
 import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
+import { getFeedSuccess, setShowToolbar } from "../../store/feed/actions";
 import {
-  setShowToolbar,
-  getFeedRequest,
-  resetFeed,
-} from "../../store/feed/actions";
-import {
+  getPluginInstancesRequest,
   getSelectedD3Node,
   getSelectedPlugin,
-  resetPluginInstances,
 } from "../../store/pluginInstance/actions";
 import { clearSelectedFile } from "../../store/explorer/actions";
-import { addTSNodes, resetTsNodes } from "../../store/tsplugins/actions";
+import { addTSNodes } from "../../store/tsplugins/actions";
 import ParentComponent from "../FeedTree/ParentComponent";
-import type { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance, Feed } from "@fnndsc/chrisapi";
 import FeedGraph from "../FeedTree/FeedGraph";
 import NodeDetails from "../NodeDetails/NodeDetails";
 import WrapperConnect from "../Wrapper";
 import { resetActiveResources } from "../../store/resources/actions";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
+import ChrisAPIClient from "../../api/chrisapiclient";
+
+async function fetchAuthenticatedFeed(id?: string) {
+  if (!id) return;
+  const client = ChrisAPIClient.getClient();
+  const feed = await client.getFeed(+id);
+  return feed;
+}
+
+async function fetchPublicFeed(id?: string) {
+  if (!id) return;
+  const client = ChrisAPIClient.getClient();
+  const publicFeed = await client.getPublicFeeds({ id: +id });
+
+  if (publicFeed && publicFeed.getItems()) {
+    //@ts-ignore
+    return publicFeed.getItems()[0] as any as Feed;
+  } else {
+    return [];
+  }
+}
 
 export default function FeedView() {
   const params = useParams();
   const dispatch = useDispatch();
   const { id } = params;
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin,
+    (state) => state.instance.selectedPlugin
   );
+
+  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const { currentLayout } = useTypedSelector((state) => state.feed);
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances,
+    (state) => state.instance.pluginInstances
   );
   const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
@@ -51,6 +72,30 @@ export default function FeedView() {
     data,
     selectedPlugin,
   };
+
+  const { data: publicFeed } = useQuery({
+    queryKey: ["publicFeed", id],
+    queryFn: () => fetchPublicFeed(id),
+    enabled: !currentFeed && !isLoggedIn,
+  });
+
+  const { data: feed } = useQuery({
+    queryKey: ["authenticatedFeed", id],
+    queryFn: () => fetchAuthenticatedFeed(id),
+    enabled: !currentFeed && isLoggedIn,
+  });
+
+  React.useEffect(() => {
+    if (isLoggedIn && !currentFeed && feed) {
+      dispatch(getFeedSuccess(feed as Feed));
+      dispatch(getPluginInstancesRequest(feed));
+    }
+
+    if (!isLoggedIn && publicFeed && !currentFeed) {
+      dispatch(getFeedSuccess(publicFeed as any as Feed));
+      dispatch(getPluginInstancesRequest(publicFeed));
+    }
+  }, [isLoggedIn, currentFeed, feed, publicFeed]);
 
   React.useEffect(() => {
     return () => {
@@ -71,9 +116,6 @@ export default function FeedView() {
       ) {
         dispatch(resetActiveResources(dataRef.current));
       }
-      dispatch(resetPluginInstances());
-      dispatch(resetTsNodes());
-      dispatch(resetFeed());
       dispatch(clearSelectedFile());
       dispatch(setShowToolbar(false));
     };
@@ -89,7 +131,7 @@ export default function FeedView() {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      }),
+      })
     );
   }, [dispatch]);
 
