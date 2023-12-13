@@ -23,6 +23,7 @@ function* setPluginInstances(feed: Feed) {
       params,
       boundFn
     );
+
     const selected = pluginInstances[pluginInstances.length - 1];
     const pluginInstanceObj = {
       selected,

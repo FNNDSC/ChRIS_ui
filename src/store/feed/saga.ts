@@ -5,7 +5,7 @@ import { FeedActionTypes } from "./types";
 import { IActionTypeParam } from "../../api/model";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { getFeedSuccess, getFeedError } from "./actions";
-import { getPluginInstancesRequest } from "../pluginInstance/actions";
+
 
 import { catchError } from "../../api/common";
 
@@ -15,10 +15,9 @@ function* handleGetFeedDetails(action: IActionTypeParam) {
 
   try {
     const feed: Feed = yield client.getFeed(id);
-
     yield all([
       put(getFeedSuccess(feed)),
-      put(getPluginInstancesRequest(feed)),
+    
     ]);
   } catch (error) {
     const errObject = catchError(error);

@@ -2,6 +2,9 @@ import { action } from "typesafe-actions";
 import { Feed } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from "./types";
 
+export const getAllFeedsRequest = (feeds: Feed[]) =>
+  action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, feeds);
+
 export const getFeedRequest = (id: string) =>
   action(FeedActionTypes.GET_FEED_REQUEST, id);
 export const getFeedSuccess = (item: Feed) =>
@@ -14,8 +17,6 @@ export const setFeedTreeProp = (orientation: string) =>
 
 export const setTranslate = (translate: { x: number; y: number }) =>
   action(FeedActionTypes.TRANSLATE_PROP, translate);
-
-
 
 export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);
 

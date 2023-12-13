@@ -1,13 +1,6 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
 import { UserActionTypes } from "./types";
-import {
-  setAuthError,
-  setAuthTokenSuccess,
-  setUserLogout,
-  setLogoutSuccess,
-} from "./actions";
-import { Cookies } from "react-cookie";
-import { IActionTypeParam } from "../../api/model";
+import { setAuthError, setAuthTokenSuccess } from "./actions";
 
 // ----------------------------------------------------------------
 // Description: List - Get all Users
@@ -19,7 +12,7 @@ function* handleResponse(action: any) {
       setAuthTokenSuccess({
         token: action.payload.token,
         username: action.payload.username,
-      }),
+      })
     );
   } catch (error) {
     setAuthError();
@@ -32,23 +25,6 @@ function* watchLoginRequest() {
   yield takeEvery(UserActionTypes.SET_TOKEN, handleResponse);
 }
 
-// ----------------------------------------------------------------
-
-function* handleLogout(action: IActionTypeParam) {
-  const cookie = new Cookies();
-
-  cookie.remove(`${action.payload}_token`);
-  cookie.remove("username");
-  localStorage.removeItem("tooltip");
-  yield put(setLogoutSuccess());
-}
-
-function* watchLogoutRequest() {
-  yield takeEvery(UserActionTypes.LOGOUT_USER, handleLogout);
-}
-
-// ----------------------------------------------------------------
-
 export function* userSaga() {
-  yield all([fork(watchLoginRequest), fork(watchLogoutRequest)]);
+  yield all([fork(watchLoginRequest)]);
 }
