@@ -77,7 +77,7 @@ export default function FeedView() {
     }
 
     if (!isLoggedIn && publicFeed && Object.keys(publicFeed).length === 0) {
-      navigate("/feeds");
+      navigate("/feeds?type=public");
     }
   }, [isLoggedIn, feed, publicFeed]);
 

@@ -401,7 +401,7 @@ const UploadComponent = ({
         const { file } = fileUploads[i];
         setWarning({
           ...warning,
-          [file.name]: err,
+          [file.name]: err.error_message,
         });
       }
     });

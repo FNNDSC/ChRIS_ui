@@ -35,7 +35,7 @@ export const deleteNode = (instance: PluginInstance, feed: Feed) => {
 export const deleteNodeSuccess = () =>
   action(PluginInstanceTypes.DELETE_NODE_SUCCESS);
 
-export const deleteNodeError = (error: string) =>
+export const deleteNodeError = (error: { error_message: string }) =>
   action(PluginInstanceTypes.DELETE_NODE_ERROR, error);
 
 export const addSplitNodes = (splitNodesPayload: SplitNodesPayload) =>

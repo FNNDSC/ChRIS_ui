@@ -1,7 +1,7 @@
 import * as React from "react";
 import axios, { AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
-import { Pipeline, PipelineList, PluginPiping } from "@fnndsc/chrisapi";
+import { Pipeline, PipelineList, PluginPiping, Feed } from "@fnndsc/chrisapi";
 
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
@@ -280,11 +280,11 @@ export async function fetchComputeInfo(
 
 export function catchError(errorRequest: any) {
   if (errorRequest.response) {
-    return { error_message: errorRequest.response.data };
+    return { error_message: errorRequest.response.data as string };
   } else if (errorRequest.message) {
-    return { error_message: errorRequest.message };
+    return { error_message: errorRequest.message as string };
   } else {
-    return { error_message: errorRequest };
+    return { error_message: errorRequest as string };
   }
 }
 
@@ -397,4 +397,9 @@ export function getTimestamp() {
   return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(
     d.getDate()
   )}-${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+export async function fetchNote(feed?: Feed) {
+  const note = await feed?.getNote();
+  return note;
 }

@@ -169,9 +169,11 @@ export const InfoIcon = ({
 type AllProps = {
   label: string;
   onSearch: (search: string, searchType: string) => void;
+  search?: string;
+  searchType?: string;
 };
 
-const FeedsQueryTypes = {
+const FeedsQueryTypes: any = {
   ID: ["Id", "Match feed id exactly with this number"],
   MIN_ID: ["Min_Id", "Match feed id greater than this number"],
   MAX_ID: ["Max_Id", "Match feed id less than this number"],
@@ -198,10 +200,14 @@ const FeedsQueryTypes = {
 export const DataTableToolbar: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
-  const [value, setValue] = useState("");
+  const { searchType, search } = props;
+  const [value, setValue] = useState(search ? search : "");
   const [dropdownValue, setDropdownValue] = React.useState<string>(
-    FeedsQueryTypes.NAME[0]
+    searchType?.toUpperCase() && FeedsQueryTypes[searchType]
+      ? searchType
+      : FeedsQueryTypes.NAME[0]
   );
+
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   const onToggle = () => {
@@ -223,7 +229,7 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
     props.onSearch("", dropdownValue.toLowerCase());
   };
 
-  const dropdownItems = Object.values(FeedsQueryTypes).map((feed) => {
+  const dropdownItems = Object.values(FeedsQueryTypes).map((feed: any) => {
     return (
       <DropdownItem
         key={feed[0]}
