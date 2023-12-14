@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   Drawer,
@@ -42,23 +42,24 @@ async function fetchPublicFeed(id?: string) {
   const client = ChrisAPIClient.getClient();
   const publicFeed = await client.getPublicFeeds({ id: +id });
 
-  if (publicFeed && publicFeed.getItems()) {
+  //@ts-ignore
+  if (publicFeed && publicFeed.getItems().length > 0) {
     //@ts-ignore
     return publicFeed.getItems()[0] as any as Feed;
   } else {
-    return [];
+    return {};
   }
 }
 
 export default function FeedView() {
   const params = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id } = params;
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin
   );
 
-  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const { currentLayout } = useTypedSelector((state) => state.feed);
   const pluginInstances = useTypedSelector(
@@ -76,26 +77,30 @@ export default function FeedView() {
   const { data: publicFeed } = useQuery({
     queryKey: ["publicFeed", id],
     queryFn: () => fetchPublicFeed(id),
-    enabled: !currentFeed && !isLoggedIn,
+    enabled: !isLoggedIn,
   });
 
   const { data: feed } = useQuery({
     queryKey: ["authenticatedFeed", id],
     queryFn: () => fetchAuthenticatedFeed(id),
-    enabled: !currentFeed && isLoggedIn,
+    enabled: isLoggedIn,
   });
 
   React.useEffect(() => {
-    if (isLoggedIn && !currentFeed && feed) {
+    if (isLoggedIn && feed) {
       dispatch(getFeedSuccess(feed as Feed));
       dispatch(getPluginInstancesRequest(feed));
     }
 
-    if (!isLoggedIn && publicFeed && !currentFeed) {
+    if (!isLoggedIn && publicFeed && Object.keys(publicFeed).length > 0) {
       dispatch(getFeedSuccess(publicFeed as any as Feed));
-      dispatch(getPluginInstancesRequest(publicFeed));
+      dispatch(getPluginInstancesRequest(publicFeed as Feed));
     }
-  }, [isLoggedIn, currentFeed, feed, publicFeed]);
+
+    if (!isLoggedIn && publicFeed && Object.keys(publicFeed).length === 0) {
+      navigate("/feeds");
+    }
+  }, [isLoggedIn, feed, publicFeed]);
 
   React.useEffect(() => {
     return () => {
