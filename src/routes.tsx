@@ -18,6 +18,7 @@ import ComputePage from "./components/ComputePage";
 import PrivateRoute from "./components/PrivateRoute";
 import LibrarySearch from "./components/LibrarySearch";
 import SinglePlugin from "./components/SinglePlugin";
+import { useTypedSelector } from "./store/hooks";
 
 interface IState {
   selectData?: Series;
@@ -40,11 +41,15 @@ export const MainRouter: React.FC = () => {
   const [state, setState] = React.useState(State);
   const [route, setRoute] = React.useState<string>();
   const navigate = useNavigate();
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
 
   const actions: IActions = {
     createFeedWithData: (selectData: Series) => {
       setState({ selectData });
-      navigate("/feeds");
+      const type = isLoggedIn ? "private" : "public";
+      navigate(
+        `/feeds?search=&searchType=&page=${1}&perPage=${14}&type=${type}`
+      );
     },
 
     clearFeedData: () => {
