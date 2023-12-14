@@ -13,14 +13,15 @@ import { DrawerActionButton } from "./DrawerUtils";
 import { handleClose, handleMaximize, handleMinimize } from "./utilties";
 import type { DestroyActiveResources } from "../../store/resources/types";
 import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
-import { getFeedSuccess, setShowToolbar } from "../../store/feed/actions";
+import { getFeedSuccess, resetFeed, setShowToolbar } from "../../store/feed/actions";
 import {
   getPluginInstancesRequest,
   getSelectedD3Node,
   getSelectedPlugin,
+  resetPluginInstances,
 } from "../../store/pluginInstance/actions";
 import { clearSelectedFile } from "../../store/explorer/actions";
-import { addTSNodes } from "../../store/tsplugins/actions";
+import { addTSNodes, resetTsNodes } from "../../store/tsplugins/actions";
 import ParentComponent from "../FeedTree/ParentComponent";
 import type { PluginInstance, Feed } from "@fnndsc/chrisapi";
 import FeedGraph from "../FeedTree/FeedGraph";
@@ -100,6 +101,9 @@ export default function FeedView() {
       ) {
         dispatch(resetActiveResources(dataRef.current));
       }
+      dispatch(resetFeed())
+      dispatch(resetPluginInstances());
+      dispatch(resetTsNodes());
       dispatch(clearSelectedFile());
       dispatch(setShowToolbar(false));
     };
