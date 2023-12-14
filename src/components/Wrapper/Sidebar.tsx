@@ -14,6 +14,7 @@ import { setSidebarActive } from "../../store/ui/actions";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
+import { useTypedSelector } from "../../store/hooks";
 
 type AllProps = IUiState & IUserState & ReduxProp;
 type ReduxProp = {
@@ -24,12 +25,15 @@ const Sidebar: React.FC<AllProps> = ({
   isNavOpen,
   sidebarActiveItem,
 }: AllProps) => {
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const onSelect = (selectedItem: any) => {
     const { itemId } = selectedItem;
     setSidebarActive({
       activeItem: itemId,
     });
   };
+
+  const urlParam = isLoggedIn ? "private" : "public";
 
   const PageNav = (
     <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
@@ -52,7 +56,9 @@ const Sidebar: React.FC<AllProps> = ({
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
-            <Link to="/feeds">New and Existing Analyses</Link>
+            <Link to={`/feeds?type=${urlParam}`}>
+              New and Existing Analyses
+            </Link>
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
             <Link to="/catalog">Plugins</Link>
@@ -125,7 +131,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
 
 const AnonSidebar = connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(AnonSidebarImpl);
 export { AnonSidebar };
 

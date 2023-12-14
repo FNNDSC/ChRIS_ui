@@ -28,28 +28,7 @@ import NodeDetails from "../NodeDetails/NodeDetails";
 import WrapperConnect from "../Wrapper";
 import { resetActiveResources } from "../../store/resources/actions";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
-import ChrisAPIClient from "../../api/chrisapiclient";
-
-async function fetchAuthenticatedFeed(id?: string) {
-  if (!id) return;
-  const client = ChrisAPIClient.getClient();
-  const feed = await client.getFeed(+id);
-  return feed;
-}
-
-async function fetchPublicFeed(id?: string) {
-  if (!id) return;
-  const client = ChrisAPIClient.getClient();
-  const publicFeed = await client.getPublicFeeds({ id: +id });
-
-  //@ts-ignore
-  if (publicFeed && publicFeed.getItems().length > 0) {
-    //@ts-ignore
-    return publicFeed.getItems()[0] as any as Feed;
-  } else {
-    return {};
-  }
-}
+import { fetchAuthenticatedFeed, fetchPublicFeed } from "./utilties";
 
 export default function FeedView() {
   const params = useParams();
