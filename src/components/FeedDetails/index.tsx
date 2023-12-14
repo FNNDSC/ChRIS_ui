@@ -1,5 +1,6 @@
-import React, { ReactElement, ReactNode } from "react";
+import React, { ReactElement, ReactNode, useState } from "react";
 import { Toolbar, ToolbarItem, ToolbarContent } from "@patternfly/react-core";
+import { Badge } from "antd";
 import { useTypedSelector } from "../../store/hooks";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
 import { handleToggle } from "../Feeds/utilties";
@@ -16,6 +17,7 @@ import {
   EllipsisHorizontalCircleIcon,
 } from "@heroicons/react/24/solid";
 import { setDrawerCurrentlyActive } from "../../store/drawer/actions";
+import { fetchNote } from "../../api/common";
 import "./feed-details.css";
 
 const getButtonStyle = () => {
@@ -31,11 +33,14 @@ const getButtonStyle = () => {
 };
 
 const FeedDetails = () => {
+  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
+
   const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
 
   const node = drawerState["node"].currentlyActive === "node" ? true : false;
   const note = drawerState["node"].currentlyActive === "note" ? true : false;
+  const [showNoteBadge, setShowNoteBadge] = useState(false);
   const terminal =
     drawerState["node"].currentlyActive === "terminal" ? true : false;
 
@@ -43,6 +48,14 @@ const FeedDetails = () => {
     drawerState["preview"].currentlyActive === "preview" ? true : false;
 
   const buttonStyle = getButtonStyle();
+
+  React.useEffect(() => {
+    fetchNote(currentFeed).then((feedNote) => {
+      feedNote && feedNote.data.content.length > 0 && !note
+        ? setShowNoteBadge(true)
+        : setShowNoteBadge(false);
+    });
+  }, [note]);
 
   const items = (
     <React.Fragment>
@@ -75,7 +88,9 @@ const FeedDetails = () => {
                 node ? (
                   <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
                 ) : note ? (
-                  <PencilSquareIcon className="pf-v5-svg" />
+                  <>
+                    <PencilSquareIcon className="pf-v5-svg" />
+                  </>
                 ) : (
                   <CommandLineIcon className="pf-v5-svg" />
                 )
@@ -157,27 +172,35 @@ const FeedDetails = () => {
 
         <DrawerActionsToolbar
           button={
-            <ButtonWithTooltip
-              //@ts-ignore
-              style={buttonStyle}
-              position="bottom"
-              content={!note && note ? "Node Details" : "Feed Note"}
-              onClick={() => {
-                if (note) {
-                  dispatch(setDrawerCurrentlyActive("node", "node"));
-                } else {
-                  dispatch(setDrawerCurrentlyActive("node", "note"));
+            <Badge
+              count={showNoteBadge && !note ? "Author Notes" : 0}
+              offset={[-20, -5]}
+              color="orange"
+            >
+              <ButtonWithTooltip
+                //@ts-ignore
+                style={buttonStyle}
+                position="bottom"
+                content={!note ? "Feed Note" : "Node Details"}
+                onClick={() => {
+                  if (note) {
+                    dispatch(setDrawerCurrentlyActive("node", "node"));
+                  } else {
+                    dispatch(setDrawerCurrentlyActive("node", "note"));
+                  }
+                }}
+                Icon={
+                  !node && note ? (
+                    <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
+                  ) : (
+                    <>
+                      <PencilSquareIcon className="pf-v5-svg" />
+                    </>
+                  )
                 }
-              }}
-              Icon={
-                !node && note ? (
-                  <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
-                ) : (
-                  <PencilSquareIcon className="pf-v5-svg" />
-                )
-              }
-              isDisabled={false}
-            />
+                isDisabled={false}
+              />
+            </Badge>
           }
         />
 

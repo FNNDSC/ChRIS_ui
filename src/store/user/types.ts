@@ -1,19 +1,19 @@
 /*
-*  File:            message/types.ts
-*  Description:     Holds types and constants for managing Chris API feed calls
-*  Author:          ChRIS UI
-*  Notes:           Work in progres ...
-*/
+ *  File:            message/types.ts
+ *  Description:     Holds types and constants for managing Chris API feed calls
+ *  Author:          ChRIS UI
+ *  Notes:           Work in progres ...
+ */
 import keyMirror from "keymirror";
 
 // Description state for main user items[] and item
 export interface IUserState {
-    username?: string | null;
-    password?: string;
-    email?: string;
-    token?: string | null;
-    isRememberMe?: boolean;
-    isLoggedIn?: boolean;
+  username?: string | null;
+  password?: string;
+  email?: string;
+  token?: string | null;
+  isRememberMe?: boolean;
+  isLoggedIn?: boolean;
 }
 
 export const UserActionTypes = keyMirror({
@@ -21,8 +21,7 @@ export const UserActionTypes = keyMirror({
   SET_TOKEN_ERROR: null, // request failed
   SET_TOKEN_SUCCESS: null, // request is successful
   LOGOUT_USER: null,
+  SET_LOGOUT_USER_SUCCESS: null,
   GET_AUTH_TOKEN: null,
   GET_AUTH_TOKEN_SUCCESS: null,
 });
-
-

@@ -17,12 +17,15 @@ import {
   EmptyStateIcon,
   EmptyStateHeader,
   Skeleton,
+  ToggleGroup,
+  ToggleGroupItem,
+  ToggleGroupItemProps,
+  Button,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { Typography } from "antd";
 import { cujs } from "chris-utility";
 import { useTypedSelector } from "../../store/hooks";
-import { Link } from "react-router-dom";
 import { usePaginate } from "./usePaginate";
 import {
   setBulkSelect,
@@ -32,7 +35,7 @@ import {
   setAllSelect,
 } from "../../store/feed/actions";
 import { setSidebarActive } from "../../store/ui/actions";
-import type { Feed, FeedList } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import IconContainer from "../IconContainer";
 import WrapperConnect from "../Wrapper";
@@ -40,7 +43,8 @@ import { InfoIcon, DataTableToolbar } from "../Common";
 import { CreateFeedProvider, PipelineProvider } from "../CreateFeed/context";
 import { AddNodeProvider } from "../AddNode/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import { fetchPublicFeeds, fetchFeeds } from "./utilties";
+
 const { Paragraph } = Typography;
 
 function useSearchQueryParams() {
@@ -54,59 +58,76 @@ function useSearchQuery(query: URLSearchParams) {
   const search = query.get("search") || "";
   const searchType = query.get("searchType") || "name";
   const perPage = query.get("perPage") || 14;
+  const type = query.get("type") || "public";
 
   return {
     page,
     perPage,
     search,
     searchType,
+    type,
   };
 }
-
 const TableSelectable: React.FunctionComponent = () => {
-  // In real usage, this data would come from some external source like an API via props.
   const query = useSearchQueryParams();
   const navigate = useNavigate();
-  const searchFolderData = useSearchQuery(query);
-
-  const { perPage, page } = searchFolderData;
-
   const dispatch = useDispatch();
+  const searchFolderData = useSearchQuery(query);
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
 
-  const fetchFeeds = async (filterState: any) => {
-    const client = ChrisAPIClient.getClient();
-    const feedsList: FeedList = await client.getFeeds({
-      limit: +perPage,
-      offset: filterState.perPage * (filterState.page - 1),
-      [filterState.searchType]: filterState.search,
-    });
-
-    const feeds: Feed[] = feedsList.getItems() || [];
-    return {
-      feeds,
-      totalFeedsCount: feedsList.totalCount,
-    };
-  };
+  const { perPage, page, type, search, searchType } = searchFolderData;
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["feeds", searchFolderData],
     queryFn: () => fetchFeeds(searchFolderData),
+    enabled: isLoggedIn && type === "private",
   });
 
+  const {
+    data: publicFeeds,
+    isLoading: publicFeedLoading,
+    isFetching: publicFeedFetching,
+  } = useQuery({
+    queryKey: ["publicFeeds", searchFolderData],
+    queryFn: () => fetchPublicFeeds(searchFolderData),
+    enabled: type === "public",
+  });
+
+  const authenticatedFeeds = data ? data.feeds : [];
+  const publicFeedsToDisplay = publicFeeds ? publicFeeds.feeds : [];
+
+  const feedsToDisplay =
+    type === "private" ? authenticatedFeeds : publicFeedsToDisplay;
+
   const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed,
+    (state) => state.feed
   );
 
   const onSetPage = (_e: any, newPage: number) => {
-    navigate(`/feeds?page=${newPage}`);
+    navigate(
+      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}&type=${type}`
+    );
   };
 
   const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
-    navigate(`/feeds?page=${newPage}&&perPage=${newPerPage}`);
+    navigate(
+      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`
+    );
   };
 
   const handleFilterChange = (search: string, searchType: string) => {
-    navigate(`/feeds?search=${search}&&searchType=${searchType}`);
+    navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
+  };
+
+  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (
+    event,
+    _isSelected
+  ) => {
+    const id = event.currentTarget.id;
+
+    navigate(
+      `/feeds?search=${search}&searchType=${searchType}&page=${1}&perPage=${perPage}&type=${id}`
+    );
   };
 
   const bulkData = React.useRef<Feed[]>();
@@ -117,12 +138,21 @@ const TableSelectable: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      }),
+      })
     );
     if (bulkData && bulkData.current) {
       dispatch(removeAllSelect(bulkData.current));
     }
   }, [dispatch]);
+
+  React.useEffect(() => {
+    if (!type) {
+      const feedType = isLoggedIn ? "private" : "public";
+      navigate(
+        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=${feedType}`
+      );
+    }
+  }, [isLoggedIn]);
 
   const columnNames = {
     id: "ID",
@@ -134,14 +164,14 @@ const TableSelectable: React.FunctionComponent = () => {
     status: "Status",
   };
 
-  const generatePagination = () => {
-    if (!data || !data.totalFeedsCount) {
-      return null;
-    }
-
+  const generatePagination = (type: string) => {
     return (
       <Pagination
-        itemCount={data.totalFeedsCount}
+        itemCount={
+          type === "private"
+            ? data?.totalFeedsCount
+            : publicFeeds?.totalFeedsCount
+        }
         perPage={+perPage}
         page={+page}
         onSetPage={onSetPage}
@@ -156,7 +186,11 @@ const TableSelectable: React.FunctionComponent = () => {
         <PageSection className="feed-header">
           <InfoIcon
             title={`New and Existing Analyses (${
-              data && data.totalFeedsCount > 0 ? data.totalFeedsCount : 0
+              type === "private" && data && data.totalFeedsCount
+                ? data.totalFeedsCount
+                : publicFeeds && publicFeeds.totalFeedsCount
+                ? publicFeeds.totalFeedsCount
+                : 0
             })`}
             p1={
               <Paragraph>
@@ -176,20 +210,41 @@ const TableSelectable: React.FunctionComponent = () => {
         </PageSection>
         <PageSection className="feed-list">
           <div className="feed-list__split">
-            <div></div>
-            {generatePagination()}
+            <div>
+              <ToggleGroup aria-label="Default with single selectable">
+                <ToggleGroupItem
+                  text="Private Feeds"
+                  buttonId="private"
+                  isSelected={type === "private"}
+                  onChange={onExampleTypeChange}
+                  isDisabled={!isLoggedIn}
+                />
+                <ToggleGroupItem
+                  text="Public Feeds"
+                  buttonId="public"
+                  isSelected={type === "public"}
+                  onChange={onExampleTypeChange}
+                />
+              </ToggleGroup>
+            </div>
+            {generatePagination(type)}
           </div>
           <div className="feed-list__split">
             <DataTableToolbar
               onSearch={handleFilterChange}
               label="Filter by name"
+              searchType={searchType}
+              search={search}
             />
 
-            {data && <IconContainer allFeeds={data.feeds} />}
+            {feedsToDisplay && <IconContainer allFeeds={feedsToDisplay} />}
           </div>
-          {isLoading || isFetching ? (
+          {isLoading ||
+          isFetching ||
+          publicFeedLoading ||
+          publicFeedFetching ? (
             <LoadingTable />
-          ) : data && data.feeds.length > 0 ? (
+          ) : feedsToDisplay.length > 0 ? (
             <Table variant="compact" aria-label="Selectable table">
               <Thead>
                 <Tr>
@@ -200,13 +255,13 @@ const TableSelectable: React.FunctionComponent = () => {
                       onChange={() => {
                         if (!selectAllToggle) {
                           if (data) {
-                            dispatch(setAllSelect(data.feeds));
+                            dispatch(setAllSelect(feedsToDisplay));
                           }
 
                           dispatch(toggleSelectAll(true));
                         } else {
                           if (data) {
-                            dispatch(removeAllSelect(data.feeds));
+                            dispatch(removeAllSelect(feedsToDisplay));
                           }
                           dispatch(toggleSelectAll(false));
                         }
@@ -223,7 +278,7 @@ const TableSelectable: React.FunctionComponent = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {data.feeds.map((feed, rowIndex) => {
+                {feedsToDisplay.map((feed, rowIndex) => {
                   return (
                     <TableRow
                       key={feed.data.id}
@@ -231,7 +286,7 @@ const TableSelectable: React.FunctionComponent = () => {
                       rowIndex={rowIndex}
                       bulkSelect={bulkSelect}
                       columnNames={columnNames}
-                      allFeeds={data.feeds}
+                      allFeeds={feedsToDisplay}
                     />
                   );
                 })}
@@ -265,23 +320,29 @@ interface TableRowProps {
 }
 
 function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
+  const navigate = useNavigate();
   const [intervalMs, setIntervalMs] = React.useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
 
   const { data } = useQuery({
     queryKey: ["feedResources", feed],
     queryFn: async () => {
-      const res = await cujs.getPluginInstanceDetails(feed);
+      try {
+        const res = await cujs.getPluginInstanceDetails(feed);
 
-      if (res.progress === 100 || res.error === true) {
+        if (res.progress === 100 || res.error === true) {
+          setIntervalMs(0);
+        }
+
+        return {
+          [feed.data.id]: {
+            details: res,
+          },
+        };
+      } catch (error) {
         setIntervalMs(0);
+        return {};
       }
-
-      return {
-        [feed.data.id]: {
-          details: res,
-        },
-      };
     },
 
     refetchInterval: intervalMs,
@@ -292,19 +353,14 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
   const { id, name: feedName, creation_date, creator_username } = feed.data;
 
   const { dispatch } = usePaginate();
-  const progress =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.progress;
+  const progress = feedResources[id] && feedResources[id].details.progress;
 
-  const size =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.size;
-  const feedError =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.error;
-  const runtime =
-    feedResources[feed.data.id] && feedResources[feed.data.id].details.time;
+  const size = feedResources[id] && feedResources[id].details.size;
+  const feedError = feedResources[id] && feedResources[id].details.error;
+  const runtime = feedResources[id] && feedResources[id].details.time;
 
   const feedProgressText =
-    feedResources[feed.data.id] &&
-    feedResources[feed.data.id].details.feedProgressText;
+    feedResources[id] && feedResources[id].details.feedProgressText;
 
   let threshold = Infinity;
 
@@ -355,7 +411,14 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
 
   const name = (
     <Tooltip content={<div>View feed details</div>}>
-      <Link to={`/feeds/${feed.data.id}`}>{feedName}</Link>
+      <Button
+        variant="link"
+        onClick={() => {
+          navigate(`/feeds/${id}`);
+        }}
+      >
+        {feedName}
+      </Button>
     </Tooltip>
   );
 

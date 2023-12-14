@@ -28,7 +28,7 @@ const reducer: Reducer<IUserState> = (state = initialState, action) => {
     case UserActionTypes.SET_TOKEN_ERROR: {
       return { ...state, username: null, token: null, isLoggedIn: false }
     }
-    case UserActionTypes.LOGOUT_USER: {
+    case UserActionTypes.SET_LOGOUT_USER_SUCCESS: {
       return { ...state, username: null, token: null, isLoggedIn: false }
     }
     default: {

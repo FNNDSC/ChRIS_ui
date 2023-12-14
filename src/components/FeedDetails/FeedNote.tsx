@@ -1,18 +1,7 @@
 import React, { useEffect } from "react";
-import {
-  TextArea,
-  FormGroup,
-  Form,
-  HelperText,
-  HelperTextItem,
-} from "@patternfly/react-core";
+import { TextArea, FormGroup, Form, Button } from "@patternfly/react-core";
 import { useTypedSelector } from "../../store/hooks";
-import { Feed } from "@fnndsc/chrisapi";
-
-async function fetchNote(feed?: Feed) {
-  const note = await feed?.getNote();
-  return note;
-}
+import { fetchNote } from "../../api/common";
 
 const FeedNote = () => {
   const [value, setValue] = React.useState("");
@@ -33,42 +22,60 @@ const FeedNote = () => {
     setValue(value);
   };
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
+  const handleSave = async () => {
+    setTyping(true);
+    try {
+      const note = await fetchNote(feed);
+      await note?.put({
+        title: "Description",
+        content: value,
+      });
+      setTimeout(() => {
+        setTyping(false);
+      }, 1000);
+    } catch (error) {
       setTyping(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [typing]);
+    }
+  };
 
   return (
-    <Form>
-      <FormGroup type="string" fieldId="selection">
-        <TextArea
-          className="feed-details__textarea"
-          value={value}
-          onChange={handleChange}
-          onKeyDown={async (event: any) => {
-            if (event.key === "Enter") {
-              const note = await fetchNote(feed);
-              await note?.put({
-                title: "Description",
-                content: value,
-              });
-            } else {
-              setTyping(true);
-            }
+    <>
+      <Form>
+        <FormGroup type="string" fieldId="selection">
+          <TextArea
+            className="feed-details__textarea"
+            value={value}
+            onChange={handleChange}
+            onKeyDown={async (event: any) => {
+              if (event.key === "Enter") {
+                handleSave();
+              }
+            }}
+            isRequired
+            aria-label="invalid text area example"
+          />
+        </FormGroup>
+      </Form>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Button
+          style={{
+            width: "fit-content",
+            marginTop: "1rem",
+            marginBottom: "1rem",
           }}
-          isRequired
-          aria-label="invalid text area example"
-        />
-        <HelperText>
-          <HelperTextItem>
-            {typing ? <i>Typing...</i> : <span>Hit Enter to Save</span>}
-          </HelperTextItem>
-        </HelperText>
-      </FormGroup>
-    </Form>
+          variant="primary"
+          onClick={handleSave}
+        >
+          Save
+        </Button>
+        {typing && "Saving your note..."}
+      </div>
+    </>
   );
 };
 
