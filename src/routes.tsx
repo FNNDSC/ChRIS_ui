@@ -6,7 +6,7 @@ import Signup from "./components/Signup";
 import Pacs from "./components/Pacs";
 import Dashboard from "./components/Dashboard";
 import FeedsListView from "./components/Feeds/FeedListView";
-import FeedView from './components/Feeds/FeedView';
+import FeedView from "./components/Feeds/FeedView";
 import PipelinePage from "./components/PipelinesPage";
 import LibraryCopyPage from "./components/LibraryCopy";
 import {
@@ -86,23 +86,17 @@ export const MainRouter: React.FC = () => {
     {
       path: "feeds/*",
       element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <FeedsListView />
-          </RouterProvider>
-        </PrivateRoute>
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <FeedsListView />
+        </RouterProvider>
       ),
     },
     {
       path: "feeds/:id",
-      element: (
-        <PrivateRoute>
-          <FeedView />
-        </PrivateRoute>
-      ),
+      element: <FeedView />,
     },
     {
       path: "plugin/:id",
@@ -111,14 +105,12 @@ export const MainRouter: React.FC = () => {
     {
       path: "pacs",
       element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <Pacs />
-          </RouterProvider>
-        </PrivateRoute>
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <Pacs />
+        </RouterProvider>
       ),
     },
     {

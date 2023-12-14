@@ -21,7 +21,7 @@ export const getPlugins = async (
   name: string,
   limit: number,
   offset: number,
-  type: string
+  type: string,
 ) => {
   const client = ChrisAPIClient.getClient();
   const params = { name, limit, offset, type };
@@ -29,7 +29,7 @@ export const getPlugins = async (
   const boundFn = fn.bind(client);
   const { resource: plugins, totalCount } = await fetchResource<PluginMeta>(
     params,
-    boundFn
+    boundFn,
   );
 
   return {
@@ -41,7 +41,7 @@ export const getPlugins = async (
 export const getNewTreeData = (
   treeData: DataBreadcrumb[],
   curKey: string,
-  child: DataBreadcrumb[]
+  child: DataBreadcrumb[],
 ) => {
   const loop = (data: DataBreadcrumb[]) => {
     data.forEach((item) => {
@@ -62,7 +62,7 @@ export const getNewTreeData = (
 };
 
 export const generateTreeNodes = async (
-  treeNode: EventDataNode<any>
+  treeNode: EventDataNode<any>,
 ): Promise<DataBreadcrumb[]> => {
   const arr: any[] = [];
   //@ts-ignore
@@ -111,11 +111,11 @@ export async function fetchResources(pipelineInstance: Pipeline) {
   const boundPipelineFn = pipelineFn.bind(pipelineInstance);
   const { resource: pluginPipings } = await fetchResource<PluginPiping>(
     params,
-    boundPipelineFn
+    boundPipelineFn,
   );
   const { resource: pipelinePlugins } = await fetchResource(
     params,
-    boundPipelinePluginFn
+    boundPipelinePluginFn,
   );
   const parameters = await pipelineInstance.getDefaultParameters({
     limit: 1000,
@@ -192,11 +192,9 @@ For example, the color #FF0000 represents a shade of red. The FF in the first pa
 Similarly, the color #00FF00 represents a shade of green, and the color #0000FF represents a shade of blue. By combining different values for the red, green, and blue components, it is possible to create a wide range of different colors, from bright and saturated to pale and pastel.
 */
 
-
-
 export async function fetchComputeInfo(
   plugin_id: number,
-  dictionary_id: number
+  dictionary_id: number,
 ) {
   const client = ChrisAPIClient.getClient();
   const computeEnvs = await client.getComputeResources({
