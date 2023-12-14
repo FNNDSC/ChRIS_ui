@@ -49,11 +49,9 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   const onLogout = () => {
     queryClient.clear();
     ChrisAPIClient.setIsTokenAuthorized(false);
-
     removeCookie("username", {
       path: "/",
     });
-
     
     removeCookie(`${username}_token`, {
       path: "/",

@@ -33,10 +33,8 @@ import {
   removeAllSelect,
   toggleSelectAll,
   setAllSelect,
-  getFeedSuccess,
-  getAllFeedsRequest,
 } from "../../store/feed/actions";
-import { getPluginInstancesRequest } from "../../store/pluginInstance/actions";
+
 import { setSidebarActive } from "../../store/ui/actions";
 import type { Feed, FeedList, PublicFeedList } from "@fnndsc/chrisapi";
 import CreateFeed from "../CreateFeed/CreateFeed";
@@ -447,8 +445,6 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
       <Button
         variant="link"
         onClick={() => {
-          dispatch(getFeedSuccess(feed));
-          dispatch(getPluginInstancesRequest(feed));
           navigate(`/feeds/${id}`);
         }}
       >
