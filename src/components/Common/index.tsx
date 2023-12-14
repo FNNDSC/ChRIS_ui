@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from "react";
 import { Cookies } from "react-cookie";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { Popover, Typography, Spin } from "antd";
+import { Popover, Typography, Spin, Alert } from "antd";
 import {
   Flex,
   FlexItem,
@@ -18,6 +18,7 @@ import {
   EmptyStateIcon,
   EmptyStateHeader,
 } from "@patternfly/react-core";
+import ReactJson from "react-json-view";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import Dots from "react-activity/dist/Dots";
@@ -275,5 +276,11 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
         </div>
       </div>
     </div>
+  );
+};
+
+export const ErrorAlert = ({ errors }: { errors: any }) => {
+  return (
+    <Alert type="warning" description={<ReactJson src={errors} />}></Alert>
   );
 };

@@ -141,7 +141,6 @@ const AddNode = ({
       }
     } catch (error: any) {
       const errObj = catchError(error);
-      console.log("ErrorObj", errObj)
 
       nodeDispatch({
         type: Types.SetError,

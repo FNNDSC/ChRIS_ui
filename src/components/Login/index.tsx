@@ -18,7 +18,7 @@ import {
   HelperTextItem,
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import { setAuthToken } from "../../store/user/actions";
+import { setAuthTokenSuccess } from "../../store/user/actions";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -31,7 +31,6 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   enum LoginErrorMessage {
     invalidCredentials = `Invalid Credentials`,
@@ -39,9 +38,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   }
 
   async function handleSubmit(
-    event:
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>
-      | React.KeyboardEvent,
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
   ) {
     event.preventDefault();
 
@@ -60,16 +57,16 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         //@ts-ignore
         error.response
           ? LoginErrorMessage.invalidCredentials
-          : LoginErrorMessage.serverError,
+          : LoginErrorMessage.serverError
       );
     }
 
     if (token && username) {
       dispatch(
-        setAuthToken({
+        setAuthTokenSuccess({
           token,
           username: username,
-        }),
+        })
       );
       const oneDayToSeconds = 24 * 60 * 60;
       setCookie(`${username}_token`, token, {
@@ -80,22 +77,20 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         path: "/",
         maxAge: oneDayToSeconds,
       });
-      const then = new URLSearchParams(location.search).get("then");
-      if (then) navigate(then);
-      else navigate("/");
+      navigate(-1);
     }
   }
 
   const handleUsernameChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    value: string,
+    value: string
   ) => {
     setUsername(value);
   };
 
   const handlePasswordChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    value: string,
+    value: string
   ) => {
     setPassword(value);
   };

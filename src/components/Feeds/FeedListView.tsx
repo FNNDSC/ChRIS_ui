@@ -34,9 +34,8 @@ import {
   toggleSelectAll,
   setAllSelect,
 } from "../../store/feed/actions";
-
 import { setSidebarActive } from "../../store/ui/actions";
-import type { Feed, FeedList, PublicFeedList } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import IconContainer from "../IconContainer";
 import WrapperConnect from "../Wrapper";
@@ -44,53 +43,9 @@ import { InfoIcon, DataTableToolbar } from "../Common";
 import { CreateFeedProvider, PipelineProvider } from "../CreateFeed/context";
 import { AddNodeProvider } from "../AddNode/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import { fetchPublicFeeds, fetchFeeds } from "./utilties";
+
 const { Paragraph } = Typography;
-
-type ExampleType = "authenticatedfeeds" | "publicfeeds";
-
-const fetchFeeds = async (filterState: any) => {
-  const client = ChrisAPIClient.getClient();
-
-  const feedsList: FeedList = await client.getFeeds({
-    limit: +filterState.perPage,
-    offset: filterState.perPage * (filterState.page - 1),
-    [filterState.searchType]: filterState.search,
-  });
-
-  let feeds: Feed[] = [];
-
-  if (feedsList.getItems()) {
-    feeds = feedsList.getItems() as Feed[];
-  }
-
-  return {
-    feeds,
-    totalFeedsCount: feedsList.totalCount,
-  };
-};
-
-const fetchPublicFeeds = async (filterState: any) => {
-  const offset = filterState.perPage * (filterState.page - 1);
-  const client = ChrisAPIClient.getClient();
-
-  const feedsList: PublicFeedList = await client.getPublicFeeds({
-    limit: +filterState.perPage,
-    offset,
-    [filterState.searchType]: filterState.search,
-  });
-
-  let feeds: Feed[] = [];
-
-  if (feedsList.getItems()) {
-    feeds = feedsList.getItems() as Feed[];
-  }
-
-  return {
-    feeds,
-    totalFeedsCount: feedsList.totalCount,
-  };
-};
 
 function useSearchQueryParams() {
   const { search } = useLocation();
@@ -103,30 +58,29 @@ function useSearchQuery(query: URLSearchParams) {
   const search = query.get("search") || "";
   const searchType = query.get("searchType") || "name";
   const perPage = query.get("perPage") || 14;
+  const type = query.get("type") || "public";
 
   return {
     page,
     perPage,
     search,
     searchType,
+    type,
   };
 }
 const TableSelectable: React.FunctionComponent = () => {
-  // In real usage, this data would come from some external source like an API via props.
   const query = useSearchQueryParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const searchFolderData = useSearchQuery(query);
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-  const [exampleType, setExampleType] = React.useState(
-    isLoggedIn ? "authenticatedfeeds" : "publicFeeds"
-  );
-  const { perPage, page } = searchFolderData;
+
+  const { perPage, page, type } = searchFolderData;
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["feeds"],
+    queryKey: ["feeds", searchFolderData],
     queryFn: () => fetchFeeds(searchFolderData),
-    enabled: isLoggedIn && exampleType === "authenticatedfeeds",
+    enabled: isLoggedIn && type === "private",
   });
 
   const {
@@ -134,38 +88,31 @@ const TableSelectable: React.FunctionComponent = () => {
     isLoading: publicFeedLoading,
     isFetching: publicFeedFetching,
   } = useQuery({
-    queryKey: ["publicFeeds"],
+    queryKey: ["publicFeeds", searchFolderData],
     queryFn: () => fetchPublicFeeds(searchFolderData),
-    enabled: exampleType === "publicfeeds",
+    enabled: type === "public",
   });
 
   const authenticatedFeeds = data ? data.feeds : [];
   const publicFeedsToDisplay = publicFeeds ? publicFeeds.feeds : [];
 
   const feedsToDisplay =
-    exampleType === "authenticatedfeeds"
-      ? authenticatedFeeds
-      : publicFeedsToDisplay;
-
-  React.useEffect(() => {
-    const exampleType = isLoggedIn ? "authenticatedfeeds" : "publicfeeds";
-    setExampleType(exampleType);
-  }, [isLoggedIn]);
+    type === "private" ? authenticatedFeeds : publicFeedsToDisplay;
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
     (state) => state.feed
   );
 
   const onSetPage = (_e: any, newPage: number) => {
-    navigate(`/feeds?page=${newPage}`);
+    navigate(`/feeds?page=${newPage}&type=${type}`);
   };
 
   const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
-    navigate(`/feeds?page=${newPage}&&perPage=${newPerPage}`);
+    navigate(`/feeds?page=${newPage}&perPage=${newPerPage}&type=${type}`);
   };
 
   const handleFilterChange = (search: string, searchType: string) => {
-    navigate(`/feeds?search=${search}&&searchType=${searchType}`);
+    navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
   };
 
   const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (
@@ -173,7 +120,7 @@ const TableSelectable: React.FunctionComponent = () => {
     _isSelected
   ) => {
     const id = event.currentTarget.id;
-    setExampleType(id as ExampleType);
+    navigate(`/feeds?page=${page}&perPage=${perPage}&type=${id}`);
   };
 
   const bulkData = React.useRef<Feed[]>();
@@ -191,6 +138,11 @@ const TableSelectable: React.FunctionComponent = () => {
     }
   }, [dispatch]);
 
+  React.useEffect(() => {
+    const type = isLoggedIn ? "private" : "public";
+    navigate(`/feeds?page=${page}&perPage=${perPage}&type=${type}`);
+  }, [isLoggedIn]);
+
   const columnNames = {
     id: "ID",
     analysis: "Analysis",
@@ -201,14 +153,17 @@ const TableSelectable: React.FunctionComponent = () => {
     status: "Status",
   };
 
-  const generatePagination = () => {
-    if (!data || !data.totalFeedsCount) {
-      return null;
-    }
+  console.log("PublicFeeds", data, publicFeeds);
 
+  const generatePagination = (type: string) => {
+    console.log("Type", type);
     return (
       <Pagination
-        itemCount={data.totalFeedsCount}
+        itemCount={
+          type === "private"
+            ? data?.totalFeedsCount
+            : publicFeeds?.totalFeedsCount
+        }
         perPage={+perPage}
         page={+page}
         onSetPage={onSetPage}
@@ -223,7 +178,9 @@ const TableSelectable: React.FunctionComponent = () => {
         <PageSection className="feed-header">
           <InfoIcon
             title={`New and Existing Analyses (${
-              data && data.totalFeedsCount > 0 ? data.totalFeedsCount : 0
+              type === "private"
+                ? data && data.totalFeedsCount
+                : publicFeeds && publicFeeds.totalFeedsCount
             })`}
             p1={
               <Paragraph>
@@ -247,20 +204,20 @@ const TableSelectable: React.FunctionComponent = () => {
               <ToggleGroup aria-label="Default with single selectable">
                 <ToggleGroupItem
                   text="Authenticated Feeds"
-                  buttonId="authenticatedfeeds"
-                  isSelected={exampleType === "authenticatedfeeds"}
+                  buttonId="private"
+                  isSelected={type === "private"}
                   onChange={onExampleTypeChange}
                   isDisabled={!isLoggedIn}
                 />
                 <ToggleGroupItem
                   text="Public Feeds"
-                  buttonId="publicfeeds"
-                  isSelected={exampleType === "publicfeeds"}
+                  buttonId="public"
+                  isSelected={type === "public"}
                   onChange={onExampleTypeChange}
                 />
               </ToggleGroup>
             </div>
-            {generatePagination()}
+            {generatePagination(type)}
           </div>
           <div className="feed-list__split">
             <DataTableToolbar
