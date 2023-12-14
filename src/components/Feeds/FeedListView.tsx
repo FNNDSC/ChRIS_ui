@@ -75,7 +75,7 @@ const TableSelectable: React.FunctionComponent = () => {
   const searchFolderData = useSearchQuery(query);
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
 
-  const { perPage, page, type } = searchFolderData;
+  const { perPage, page, type, search, searchType } = searchFolderData;
 
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["feeds", searchFolderData],
@@ -104,11 +104,15 @@ const TableSelectable: React.FunctionComponent = () => {
   );
 
   const onSetPage = (_e: any, newPage: number) => {
-    navigate(`/feeds?page=${newPage}&type=${type}`);
+    navigate(
+      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}&type=${type}`
+    );
   };
 
   const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
-    navigate(`/feeds?page=${newPage}&perPage=${newPerPage}&type=${type}`);
+    navigate(
+      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`
+    );
   };
 
   const handleFilterChange = (search: string, searchType: string) => {
@@ -120,7 +124,10 @@ const TableSelectable: React.FunctionComponent = () => {
     _isSelected
   ) => {
     const id = event.currentTarget.id;
-    navigate(`/feeds?page=${page}&perPage=${perPage}&type=${id}`);
+
+    navigate(
+      `/feeds?search=${search}&searchType=${searchType}&page=${1}&perPage=${perPage}&type=${id}`
+    );
   };
 
   const bulkData = React.useRef<Feed[]>();
@@ -139,8 +146,12 @@ const TableSelectable: React.FunctionComponent = () => {
   }, [dispatch]);
 
   React.useEffect(() => {
-    const type = isLoggedIn ? "private" : "public";
-    navigate(`/feeds?page=${page}&perPage=${perPage}&type=${type}`);
+    if (!type) {
+      const feedType = isLoggedIn ? "private" : "public";
+      navigate(
+        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=${feedType}`
+      );
+    }
   }, [isLoggedIn]);
 
   const columnNames = {
@@ -153,10 +164,7 @@ const TableSelectable: React.FunctionComponent = () => {
     status: "Status",
   };
 
-  console.log("PublicFeeds", data, publicFeeds);
-
   const generatePagination = (type: string) => {
-    console.log("Type", type);
     return (
       <Pagination
         itemCount={
@@ -178,9 +186,11 @@ const TableSelectable: React.FunctionComponent = () => {
         <PageSection className="feed-header">
           <InfoIcon
             title={`New and Existing Analyses (${
-              type === "private"
-                ? data && data.totalFeedsCount
+              type === "private" && data && data.totalFeedsCount
+                ? data.totalFeedsCount
                 : publicFeeds && publicFeeds.totalFeedsCount
+                ? publicFeeds.totalFeedsCount
+                : 0
             })`}
             p1={
               <Paragraph>
@@ -203,7 +213,7 @@ const TableSelectable: React.FunctionComponent = () => {
             <div>
               <ToggleGroup aria-label="Default with single selectable">
                 <ToggleGroupItem
-                  text="Authenticated Feeds"
+                  text="Private Feeds"
                   buttonId="private"
                   isSelected={type === "private"}
                   onChange={onExampleTypeChange}
@@ -223,6 +233,8 @@ const TableSelectable: React.FunctionComponent = () => {
             <DataTableToolbar
               onSearch={handleFilterChange}
               label="Filter by name"
+              searchType={searchType}
+              search={search}
             />
 
             {feedsToDisplay && <IconContainer allFeeds={feedsToDisplay} />}

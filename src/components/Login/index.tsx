@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { useCookies } from "react-cookie";
 import ChRIS_Logo from "../../assets/chris-logo.png";
