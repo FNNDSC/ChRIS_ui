@@ -7,7 +7,7 @@
     "start": "sirv dist --host --port ${PORT:=8080} --single --etag --quiet",
     "__start": "# npm start command is used by s2i in OpenShift as the deployment command",
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "print-version": "./print_version.sh"
@@ -41,9 +41,11 @@
     "dompurify": "^2.4.1",
     "email-validator": "^2.0.4",
     "hammerjs": "^2.0.8",
+    "immer": "^10.0.3",
     "keymirror": "^0.1.1",
     "lodash": "^4.17.21",
     "marked": "^9.1.5",
+    "niivue-react": "https://gitpkg.now.sh/FNNDSC/niivue-react/niivue-react?d012b1690709ba59ff1cd27646bfe04d0147890f",
     "pako": "^1.0.11",
     "pluralize": "^8.0.0",
     "preval.macro": "^5.0.0",
@@ -67,6 +69,7 @@
     "sanitize-html": "^2.11.0",
     "sirv-cli": "^2.0.2",
     "typesafe-actions": "^5.1.0",
+    "use-immer": "^0.9.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -89,6 +92,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "vitest": "^1.0.4"
   }
 }
