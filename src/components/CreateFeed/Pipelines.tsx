@@ -17,6 +17,7 @@ import {
   MenuToggle,
   DropdownList,
 } from "@patternfly/react-core";
+import { ErrorAlert } from "../Common";
 import ReactJson from "react-json-view";
 import type { Pipeline } from "@fnndsc/chrisapi";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
@@ -29,6 +30,7 @@ import {
 } from "../Pipelines/";
 import { SpinContainer } from "../Common";
 import {
+  catchError,
   fetchComputeInfo,
   fetchPipelines,
   generatePipelineWithName,
@@ -73,6 +75,7 @@ const Pipelines = ({
   handleFormParameters,
 }: PipelinesProps) => {
   const { pipelineData, selectedPipeline, pipelines } = state;
+  const [errors, setErrors] = React.useState({});
   const [fetchState, setFetchState] = React.useState({
     loading: false,
     error: {},
@@ -91,14 +94,14 @@ const Pipelines = ({
   const { page, perPage, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [dropdownValue, setDropdownValue] = React.useState<string>(
-    PIPELINEQueryTypes.NAME[0],
+    PIPELINEQueryTypes.NAME[0]
   );
 
   const handleDispatchWrap = React.useCallback(
     (registeredPipelines: any) => {
       handleDispatchPipelines(registeredPipelines);
     },
-    [handleDispatchPipelines],
+    [handleDispatchPipelines]
   );
   const handlePipelineSearch = (search: string) => {
     setPageState({
@@ -144,9 +147,18 @@ const Pipelines = ({
             };
           });
         }
-      },
+      }
     );
   }, [perPage, page, dropdownValue, search, handleDispatchWrap]);
+
+  React.useEffect(() => {
+    const el = document.querySelector(".react-json-view");
+
+    if (el) {
+      //@ts-ignore
+      el!.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  });
 
   const handleNodeClick = async (nodeName: number, pipelineId: number) => {
     handleSetCurrentNode(pipelineId, nodeName);
@@ -171,7 +183,7 @@ const Pipelines = ({
         handlePipelineSecondaryResource(pipeline);
         if (!pipelineData[pipeline.data.id]) {
           const { resources } = await generatePipelineWithName(
-            pipeline.data.name,
+            pipeline.data.name
           );
           handleSetPipelineResources({
             ...resources,
@@ -183,7 +195,7 @@ const Pipelines = ({
             const piping = pluginPipings[i];
             const computeEnvData = await fetchComputeInfo(
               piping.data.plugin_id,
-              piping.data.id,
+              piping.data.id
             );
 
             if (computeEnvData) {
@@ -202,7 +214,7 @@ const Pipelines = ({
       handleSetPipelineResources,
       pipelineData,
       selectedPipeline,
-    ],
+    ]
   );
 
   const handleOnExpand = useCallback(
@@ -217,7 +229,7 @@ const Pipelines = ({
         !state.pipelineData[pipeline.data.id]
       ) {
         const { resources } = await generatePipelineWithName(
-          pipeline.data.name,
+          pipeline.data.name
         );
 
         handleSetPipelineResources({
@@ -243,7 +255,7 @@ const Pipelines = ({
       handleSetPipelineResources,
       selectedPipeline,
       state.pipelineData,
-    ],
+    ]
   );
 
   const handleKeyDown = useCallback(
@@ -253,7 +265,7 @@ const Pipelines = ({
         handleOnExpand(pipeline);
       }
     },
-    [handleOnExpand],
+    [handleOnExpand]
   );
 
   const handleBrowserKeyDown = useCallback(
@@ -264,7 +276,7 @@ const Pipelines = ({
         onNext();
       }
     },
-    [onBack, onNext],
+    [onBack, onNext]
   );
 
   useEffect(() => {
@@ -417,13 +429,21 @@ const Pipelines = ({
                     <Button
                       key="delete-action"
                       onClick={async () => {
-                        const filteredPipelines = pipelines.filter(
-                          (currentPipeline: any) => {
-                            return currentPipeline.data.id !== pipeline.data.id;
-                          },
-                        );
-                        handleDispatchPipelines(filteredPipelines);
-                        await pipeline.delete();
+                        try {
+                          const response = await pipeline.delete();
+                          console.log("Response", response);
+                          const filteredPipelines = pipelines.filter(
+                            (currentPipeline: any) => {
+                              return (
+                                currentPipeline.data.id !== pipeline.data.id
+                              );
+                            }
+                          );
+                          handleDispatchPipelines(filteredPipelines);
+                        } catch (error) {
+                          const err = catchError(error);
+                          setErrors(err);
+                        }
                       }}
                       variant="danger"
                     >
@@ -482,6 +502,11 @@ const Pipelines = ({
           })
         )}
       </DataList>
+      <div id="error">
+        {Object.keys(errors).length > 0 && (
+          <ErrorAlert errors={errors} cleanUpErrors={() => setErrors({})} />
+        )}
+      </div>
     </>
   );
 };

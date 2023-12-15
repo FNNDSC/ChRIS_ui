@@ -14,7 +14,7 @@ import {
 import { cujs } from "chris-utility";
 import FaTrash from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import FaFileArchive from "@patternfly/react-icons/dist/esm/icons/file-archive-icon";
-import VscMerge from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import { ShareButtonIcon } from "../../icons";
 import MdIosShare from "@patternfly/react-icons/dist/esm/icons/share-icon";
 import MdCallSplit from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import { useDispatch } from "react-redux";
@@ -28,6 +28,9 @@ import { useQueryClient } from "@tanstack/react-query";
 function capitalizeFirstLetter(stringLetter: string) {
   return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1);
 }
+
+
+
 
 interface ModalState {
   isOpen: boolean;
@@ -250,7 +253,7 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
   };
 
   const alert = (_error: any) => {
-    return <Alert variant="danger" title={_error} />;
+    return <Alert variant="info" title={_error} />;
   };
 
   return (
@@ -348,7 +351,7 @@ const actionMap: {
   [key: string]: ReactElement;
 } = {
   download: <FaFileArchive />,
-  merge: <VscMerge />,
+  merge: <ShareButtonIcon />,
   duplicate: <MdCallSplit />,
   share: <MdIosShare />,
   delete: <FaTrash />,
