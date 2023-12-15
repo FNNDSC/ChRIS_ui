@@ -285,8 +285,19 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
   );
 };
 
-export const ErrorAlert = ({ errors }: { errors: any }) => {
+export const ErrorAlert = ({
+  errors,
+  cleanUpErrors,
+}: {
+  errors: any;
+  cleanUpErrors: () => void;
+}) => {
   return (
-    <Alert type="warning" description={<ReactJson src={errors} />}></Alert>
+    <Alert
+      type="warning"
+      closable
+      onClose={cleanUpErrors}
+      description={<ReactJson  src={errors} />}
+    ></Alert>
   );
 };
