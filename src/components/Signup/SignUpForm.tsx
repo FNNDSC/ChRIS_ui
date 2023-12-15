@@ -103,7 +103,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
     setLoading(true);
     const userURL = import.meta.env.VITE_CHRIS_UI_USERS_URL;
-    const authURL = import.meta.env.VITE_APP_CHRIS_UI_AUTH_URL;
+    const authURL = import.meta.env.VITE_CHRIS_UI_AUTH_URL;
     let user;
     let token;
 
@@ -202,7 +202,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         <FormAlert>
           <Alert
             variant="danger"
-            title={"There Has been a problem connecting to the server"}
+            title={"Problem connecting to the server"}
             aria-live="polite"
             isInline
           />
