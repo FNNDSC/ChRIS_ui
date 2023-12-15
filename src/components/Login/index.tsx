@@ -112,7 +112,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
   const forgotCredentials = (
     <LoginMainFooterBandItem>
-      <span>Please contact a chris admin username or password</span>
+      <span>Contact a ChRIS admin to reset your username or password</span>
     </LoginMainFooterBandItem>
   );
 
