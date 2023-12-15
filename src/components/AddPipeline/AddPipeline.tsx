@@ -142,7 +142,9 @@ const AddPipeline = () => {
       >
         <PipelineContainer />
         <div id="error">
-          {Object.keys(error).length > 0 && <ErrorAlert errors={error} />}
+          {Object.keys(error).length > 0 && (
+            <ErrorAlert cleanUpErrors={() => setError({})} errors={error} />
+          )}
         </div>
       </Modal>
     </React.Fragment>
