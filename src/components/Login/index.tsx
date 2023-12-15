@@ -6,7 +6,6 @@ import ChrisApiClient from "@fnndsc/chrisapi";
 import { useCookies } from "react-cookie";
 import ChRIS_Logo from "../../assets/chris-logo.png";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
-
 import {
   LoginFooterItem,
   LoginForm,
@@ -19,6 +18,7 @@ import {
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import { setAuthTokenSuccess } from "../../store/user/actions";
+import "./Login.css";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -156,6 +156,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
   return (
     <LoginPage
+      className="login pf-background"
       footerListVariants={ListVariant.inline}
       brandImgSrc={window.innerWidth < 1200 ? ChRIS_Logo_Inline : ChRIS_Logo}
       brandImgAlt="ChRIS logo"
