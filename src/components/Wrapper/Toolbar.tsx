@@ -52,7 +52,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
     removeCookie("username", {
       path: "/",
     });
-    
+
     removeCookie(`${username}_token`, {
       path: "/",
     });
@@ -93,7 +93,12 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
               <DropdownList>{userDropdownItems}</DropdownList>
             </Dropdown>
           ) : (
-            <Link to="/login">Login</Link>
+            <>
+              <Link style={{ marginRight: "1rem" }} to="/login">
+                Login
+              </Link>
+              <Link to="/signup">Sign Up</Link>
+            </>
           )}
         </ToolbarItem>
       </ToolbarGroup>
