@@ -106,6 +106,13 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
         <NavGroup title="Sample Data">
           <NavItem
             itemId="analyses"
+            isActive={sidebarActiveItem === "overview"}
+          >
+            <Link to="/">Overview</Link>
+          </NavItem>
+
+          <NavItem
+            itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
             <Link to="/feeds">New and Existing Analyses</Link>
@@ -113,7 +120,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
             <Link to="/catalog">Plugins</Link>
           </NavItem>
-
+         
           <NavItem itemId="login">
             <Link to="/login">Login</Link>
           </NavItem>
