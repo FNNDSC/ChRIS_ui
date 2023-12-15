@@ -60,11 +60,7 @@ export const MainRouter: React.FC = () => {
   const element = useRoutes([
     {
       path: "/",
-      element: (
-        <PrivateRoute>
-          <Dashboard />
-        </PrivateRoute>
-      ),
+      element: <Dashboard />,
     },
     {
       path: "library/*",
@@ -129,7 +125,11 @@ export const MainRouter: React.FC = () => {
 
     {
       path: "pipelines",
-      element: <PipelinePage />,
+      element: (
+        <PrivateRoute>
+          <PipelinePage />
+        </PrivateRoute>
+      ),
     },
     {
       path: "catalog",
