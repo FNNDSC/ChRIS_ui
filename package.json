@@ -62,7 +62,8 @@
     "rusha": "^0.8.14",
     "sanitize-html": "^2.11.0",
     "typesafe-actions": "^5.1.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vite": "^5.0.9"
   },
   "devDependencies": {
     "@types/d3-hierarchy": "^1.1.7",
@@ -84,6 +85,6 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5"
+    "vite": "^5.0.9"
   }
 }
