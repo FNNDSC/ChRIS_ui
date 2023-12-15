@@ -37,8 +37,6 @@ import { useDispatch } from "react-redux";
 import { getParams } from "../../store/plugin/actions";
 import { fetchResource } from "../../api/common";
 
-
-
 const advancedConfigList = [
   {
     name: "cpu_limit",
@@ -247,7 +245,17 @@ const GuidedConfig = () => {
       <AdvancedConfiguration />
 
       {errors && Object.keys(errors).length > 0 && (
-        <ErrorAlert errors={errors} />
+        <ErrorAlert
+          errors={errors}
+          cleanUpErrors={() => {
+            nodeDispatch({
+              type: Types.SetError,
+              payload: {
+                error: {},
+              },
+            });
+          }}
+        />
       )}
     </div>
   );

@@ -2,15 +2,8 @@ import { action } from "typesafe-actions";
 import { Feed } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from "./types";
 
-export const getAllFeedsRequest = (feeds: Feed[]) =>
-  action(FeedActionTypes.GET_ALL_FEEDS_REQUEST, feeds);
-
-export const getFeedRequest = (id: string) =>
-  action(FeedActionTypes.GET_FEED_REQUEST, id);
 export const getFeedSuccess = (item: Feed) =>
   action(FeedActionTypes.GET_FEED_SUCCESS, item);
-export const getFeedError = (error: any) =>
-  action(FeedActionTypes.GET_FEED_ERROR, error);
 
 export const setFeedTreeProp = (orientation: string) =>
   action(FeedActionTypes.GET_FEED_TREE_PROP, orientation);
