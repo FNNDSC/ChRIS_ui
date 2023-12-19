@@ -78,9 +78,9 @@ const QueryBuilder = () => {
     navigateToDifferentRoute: boolean,
     currentQueryType: string,
     value: string,
-    selectedPacsService: string
+    selectedPacsService: string = "default"
   ) => {
-    if (selectedPacsService && value.length > 0 && currentQueryType) {
+    if (value.length > 0 && currentQueryType) {
       dispatch({
         type: Types.SET_LOADING_SPINNER,
         payload: {
@@ -136,7 +136,7 @@ const QueryBuilder = () => {
         if (service) {
           currentActiveService = service;
         } else {
-          currentActiveService: list[0];
+          currentActiveService = list[0];
         }
         dispatch({
           type: Types.SET_SELECTED_PACS_SERVICE,
