@@ -87,33 +87,44 @@ const QueryBuilder = () => {
           loading: true,
         },
       });
-      const response = await client.find(
-        {
-          [currentQueryType]: value.trimStart().trimEnd(),
-        },
-        selectedPacsService
-      );
 
-      if (response) {
-        dispatch({
-          type: Types.SET_SEARCH_RESULT,
-          payload: {
-            queryResult: response,
+      try {
+        const response = await client.find(
+          {
+            [currentQueryType]: value.trimStart().trimEnd(),
           },
-        });
+          selectedPacsService
+        );
 
+        if (response) {
+          dispatch({
+            type: Types.SET_SEARCH_RESULT,
+            payload: {
+              queryResult: response,
+            },
+          });
+
+          dispatch({
+            type: Types.SET_LOADING_SPINNER,
+            payload: {
+              loading: false,
+            },
+          });
+
+          if (navigateToDifferentRoute) {
+            navigate(
+              `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`
+            );
+          }
+        }
+      } catch (error: any) {
+        setErrorState(error.message);
         dispatch({
           type: Types.SET_LOADING_SPINNER,
           payload: {
             loading: false,
           },
         });
-
-        if (navigateToDifferentRoute) {
-          navigate(
-            `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`
-          );
-        }
       }
     } else {
       setErrorState(
@@ -123,29 +134,34 @@ const QueryBuilder = () => {
   };
 
   React.useEffect(() => {
-    client.getPacsServices().then((list) => {
-      if (list) {
-        dispatch({
-          type: Types.SET_LIST_PACS_SERVICES,
-          payload: {
-            pacsServices: list,
-          },
-        });
+    client
+      .getPacsServices()
+      .then((list) => {
+        if (list) {
+          dispatch({
+            type: Types.SET_LIST_PACS_SERVICES,
+            payload: {
+              pacsServices: list,
+            },
+          });
 
-        let currentActiveService;
-        if (service) {
-          currentActiveService = service;
-        } else {
-          currentActiveService = list[0];
+          let currentActiveService;
+          if (service) {
+            currentActiveService = service;
+          } else {
+            currentActiveService = list[0];
+          }
+          dispatch({
+            type: Types.SET_SELECTED_PACS_SERVICE,
+            payload: {
+              selectedPacsService: currentActiveService,
+            },
+          });
         }
-        dispatch({
-          type: Types.SET_SELECTED_PACS_SERVICE,
-          payload: {
-            selectedPacsService: currentActiveService,
-          },
-        });
-      }
-    });
+      })
+      .catch((error: any) => {
+        setErrorState(error.message);
+      });
 
     dispatch({
       type: Types.SET_CURRENT_QUERY_TYPE,
