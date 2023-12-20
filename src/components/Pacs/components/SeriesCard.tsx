@@ -64,7 +64,6 @@ const SeriesCard = ({ series }: { series: any }) => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
-  const oldStep = useRef("");
 
   const [cubeFilePreview, setCubeFilePreview] = useState<any>();
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
@@ -78,7 +77,6 @@ const SeriesCard = ({ series }: { series: any }) => {
   });
 
   const { queryStageForSeries, selectedPacsService } = state;
-
   const { currentStep, currentProgress } = progress;
 
   const {
@@ -150,15 +148,19 @@ const SeriesCard = ({ series }: { series: any }) => {
     const index = getIndex(step);
     const nextStep = QueryStages[index + 1];
 
-    if (nextStep === "retrieve") {
-      await client.findRetrieve(pullQuery, selectedPacsService);
-    }
+    try {
+      if (nextStep === "retrieve") {
+        await client.findRetrieve(pullQuery, selectedPacsService);
+      }
 
-    if (nextStep === "push") {
-      await client.findPush(pullQuery, selectedPacsService);
-    }
-    if (nextStep === "register") {
-      await client.findRegister(pullQuery, selectedPacsService);
+      if (nextStep === "push") {
+        await client.findPush(pullQuery, selectedPacsService);
+      }
+      if (nextStep === "register") {
+        await client.findRegister(pullQuery, selectedPacsService);
+      }
+    } catch (error: any) {
+      setError(error.message);
     }
   };
 
@@ -167,17 +169,10 @@ const SeriesCard = ({ series }: { series: any }) => {
       const status = await client.status(pullQuery, selectedPacsService);
 
       if (status) {
-        const { currentStatus, error } = status;
+        const { currentStatus } = status;
         setProgress(currentStatus);
 
-        if (error) {
-          //stop polling
-          setFetchNextStatus(!fetchNextStatus);
-          setError(error);
-        } else if (
-          oldStep.current !== currentStatus.currentStep ||
-          currentStatus.currentStep !== "completed"
-        ) {
+        if (status.currentStatus.currentProgress === 1) {
           dispatch({
             type: Types.SET_QUERY_STAGE_FOR_SERIES,
             payload: {
@@ -187,12 +182,9 @@ const SeriesCard = ({ series }: { series: any }) => {
           });
           currentStatus.currentStep !== "completed" &&
             executeNextStepForTheSeries(currentStatus.currentStep);
-
           currentStatus.currentStep === "completed" &&
             setFetchNextStatus(!fetchNextStatus);
-
           currentStatus.currentStep === "completed" && fetchCubeFilePreview();
-          oldStep.current = currentStatus.currentStep;
         }
       }
     }
@@ -211,9 +203,14 @@ const SeriesCard = ({ series }: { series: any }) => {
     </div>
   );
 
+  function continueNextStep(currentStep: string) {
+    executeNextStepForTheSeries(currentStep);
+    setFetchNextStatus(!fetchNextStatus);
+  }
+
   const buttonContainer = (
     <div style={{ margin: "auto" }}>
-      {!currentStep && <Text>Fetching current status</Text>}
+      {!currentStep && <Text>Fetching current status...</Text>}
 
       {currentStep &&
         currentStep !== "completed" &&
@@ -222,7 +219,9 @@ const SeriesCard = ({ series }: { series: any }) => {
           <Button
             variant="secondary"
             onClick={() => {
-              setFetchNextStatus(!fetchNextStatus);
+              if (currentStep !== "completed") {
+                continueNextStep(currentStep);
+              }
             }}
           >
             {nextQueryStage.toUpperCase()}
@@ -235,7 +234,7 @@ const SeriesCard = ({ series }: { series: any }) => {
           <Button
             variant="secondary"
             onClick={() => {
-              setFetchNextStatus(!fetchNextStatus);
+              continueNextStep(currentStep);
             }}
           >
             Continue this step
@@ -321,8 +320,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     await client.findRetrieve(pullQuery, selectedPacsService);
     await client.findPush(pullQuery, selectedPacsService);
     await client.findRegister(pullQuery, selectedPacsService);
-
-    oldStep.current = "none";
     setFetchNextStatus(true);
   };
 
@@ -423,7 +420,7 @@ const SeriesCard = ({ series }: { series: any }) => {
                     icon={<RedoIcon />}
                     onClick={handleRetry}
                     variant="link"
-                  ></Button>
+                  />
                 </Tooltip>
               </FlexItem>
             )}
