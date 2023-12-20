@@ -310,7 +310,11 @@ export const DicomHeader = ({
             </DropdownItem>
           );
         })
-      : [<DropdownItem>No tools for this file type</DropdownItem>];
+      : [
+          <DropdownItem key="No tools">
+            No tools for this file type
+          </DropdownItem>,
+        ];
 
   return (
     <Dropdown
