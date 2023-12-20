@@ -142,7 +142,13 @@ const SeriesCard = ({ series }: { series: any }) => {
       }
     }
     fetchStatusForTheFirstTime();
-  }, [dispatch, pullQuery, SeriesInstanceUID.value, selectedPacsService]);
+  }, [
+    fetchCubeFilePreview,
+    dispatch,
+    pullQuery,
+    SeriesInstanceUID.value,
+    selectedPacsService,
+  ]);
 
   const executeNextStepForTheSeries = async (step: string) => {
     const index = getIndex(step);
