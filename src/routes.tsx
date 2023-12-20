@@ -6,7 +6,7 @@ import Signup from "./components/Signup";
 import Pacs from "./components/Pacs";
 import Dashboard from "./components/Dashboard";
 import FeedsListView from "./components/Feeds/FeedListView";
-import FeedView from './components/Feeds/FeedView';
+import FeedView from "./components/Feeds/FeedView";
 import PipelinePage from "./components/PipelinesPage";
 import LibraryCopyPage from "./components/LibraryCopy";
 import {
@@ -19,6 +19,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import LibrarySearch from "./components/LibrarySearch";
 import SinglePlugin from "./components/SinglePlugin";
 import PublicDatasets from "./components/PublicDatasets";
+import { useTypedSelector } from "./store/hooks";
 
 interface IState {
   selectData?: Series;
@@ -41,11 +42,15 @@ export const MainRouter: React.FC = () => {
   const [state, setState] = React.useState(State);
   const [route, setRoute] = React.useState<string>();
   const navigate = useNavigate();
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
 
   const actions: IActions = {
     createFeedWithData: (selectData: Series) => {
       setState({ selectData });
-      navigate("/feeds");
+      const type = isLoggedIn ? "private" : "public";
+      navigate(
+        `/feeds?search=&searchType=&page=${1}&perPage=${14}&type=${type}`
+      );
     },
 
     clearFeedData: () => {
@@ -56,11 +61,7 @@ export const MainRouter: React.FC = () => {
   const element = useRoutes([
     {
       path: "/",
-      element: (
-        <PrivateRoute>
-          <Dashboard />
-        </PrivateRoute>
-      ),
+      element: <Dashboard />,
     },
     {
       path: "library/*",
@@ -87,23 +88,17 @@ export const MainRouter: React.FC = () => {
     {
       path: "feeds/*",
       element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <FeedsListView />
-          </RouterProvider>
-        </PrivateRoute>
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <FeedsListView />
+        </RouterProvider>
       ),
     },
     {
       path: "feeds/:id",
-      element: (
-        <PrivateRoute>
-          <FeedView />
-        </PrivateRoute>
-      ),
+      element: <FeedView />,
     },
     {
       path: "plugin/:id",
@@ -112,14 +107,12 @@ export const MainRouter: React.FC = () => {
     {
       path: "pacs",
       element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <Pacs />
-          </RouterProvider>
-        </PrivateRoute>
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <Pacs />
+        </RouterProvider>
       ),
     },
     {
@@ -133,7 +126,11 @@ export const MainRouter: React.FC = () => {
 
     {
       path: "pipelines",
-      element: <PipelinePage />,
+      element: (
+        <PrivateRoute>
+          <PipelinePage />
+        </PrivateRoute>
+      ),
     },
     {
       path: "catalog",

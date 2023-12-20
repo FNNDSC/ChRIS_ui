@@ -21,12 +21,12 @@ import {
   Select,
   SelectOption,
 } from "@patternfly/react-core";
-import ReactJson from "react-json-view";
 
 import { PluginInstance, PluginInstanceParameter } from "@fnndsc/chrisapi";
 import SimpleDropdown from "./SimpleDropdown";
 import RequiredParam from "./RequiredParam";
 import ComputeEnvironments from "./ComputeEnvironment";
+import { ErrorAlert } from "../Common";
 import { v4 } from "uuid";
 import { handleGetTokens, unpackParametersIntoString } from "./utils";
 import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
@@ -245,7 +245,17 @@ const GuidedConfig = () => {
       <AdvancedConfiguration />
 
       {errors && Object.keys(errors).length > 0 && (
-        <ReactJson theme="grayscale" src={errors} />
+        <ErrorAlert
+          errors={errors}
+          cleanUpErrors={() => {
+            nodeDispatch({
+              type: Types.SetError,
+              payload: {
+                error: {},
+              },
+            });
+          }}
+        />
       )}
     </div>
   );

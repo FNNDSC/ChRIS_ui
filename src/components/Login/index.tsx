@@ -1,12 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import ChrisApiClient from "@fnndsc/chrisapi";
 import { useCookies } from "react-cookie";
 import ChRIS_Logo from "../../assets/chris-logo.png";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
-
 import {
   LoginFooterItem,
   LoginForm,
@@ -18,7 +17,8 @@ import {
   HelperTextItem,
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
-import { setAuthToken } from "../../store/user/actions";
+import { setAuthTokenSuccess } from "../../store/user/actions";
+import "./Login.css";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -31,7 +31,6 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   const [errorMessage, setErrorMessage] = React.useState("");
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   enum LoginErrorMessage {
     invalidCredentials = `Invalid Credentials`,
@@ -64,7 +63,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
     if (token && username) {
       dispatch(
-        setAuthToken({
+        setAuthTokenSuccess({
           token,
           username: username,
         })
@@ -78,9 +77,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         path: "/",
         maxAge: oneDayToSeconds,
       });
-      const then = new URLSearchParams(location.search).get("then");
-      if (then) navigate(then);
-      else navigate("/");
+      navigate(-1);
     }
   }
 
@@ -115,7 +112,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
   const forgotCredentials = (
     <LoginMainFooterBandItem>
-      <span>Please contact a chris admin username or password</span>
+      <span>Contact a ChRIS admin to reset your username or password</span>
     </LoginMainFooterBandItem>
   );
 
@@ -159,10 +156,10 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
   return (
     <LoginPage
+      className="login pf-background"
       footerListVariants={ListVariant.inline}
       brandImgSrc={window.innerWidth < 1200 ? ChRIS_Logo_Inline : ChRIS_Logo}
       brandImgAlt="ChRIS logo"
-      backgroundImgSrc="/assets/images/pfbg-icon.svg"
       footerListItems={listItem}
       textContent="ChRIS is a general-purpose, open source, distributed data and computation platform that connects a community of researchers, developers, and clinicians together."
       loginTitle="Log in to your account"

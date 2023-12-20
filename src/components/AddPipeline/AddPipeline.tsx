@@ -1,10 +1,10 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import ReactJson from "react-json-view";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { PlusButtonIcon } from "../../icons";
 import PipelineContainer from "../CreateFeed/PipelineContainter";
 import { PipelineContext } from "../CreateFeed/context";
+import { ErrorAlert } from "../Common";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
 import {
@@ -21,7 +21,7 @@ const AddPipeline = () => {
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { selectedPlugin } = useTypedSelector((state) => state.instance);
   const { childPipeline } = useTypedSelector(
-    (state) => state.plugin.nodeOperations,
+    (state) => state.plugin.nodeOperations
   );
   const { state, dispatch: pipelineDispatch } =
     React.useContext(PipelineContext);
@@ -60,7 +60,7 @@ const AddPipeline = () => {
         try {
           const nodes_info = client.computeWorkflowNodesInfo(
             //@ts-ignore
-            pluginParameters.data,
+            pluginParameters.data
           );
           nodes_info.forEach((node) => {
             if (computeEnvs && computeEnvs[node["piping_id"]]) {
@@ -143,7 +143,7 @@ const AddPipeline = () => {
         <PipelineContainer />
         <div id="error">
           {Object.keys(error).length > 0 && (
-            <ReactJson theme="grayscale" src={error} />
+            <ErrorAlert cleanUpErrors={() => setError({})} errors={error} />
           )}
         </div>
       </Modal>

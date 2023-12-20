@@ -44,11 +44,8 @@ export interface IFeedState {
 }
 
 export const FeedActionTypes = keyMirror({
-  GET_FEED_REQUEST: null,
   GET_FEED_SUCCESS: null,
-  GET_FEED_ERROR: null,
 
-  SET_LAYOUT: null,
   GET_FEED_TREE_PROP: null,
   RESET_FEED: null,
 

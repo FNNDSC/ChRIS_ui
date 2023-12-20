@@ -1,11 +1,12 @@
 import * as React from "react";
 import { connect } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import { Dispatch } from "redux";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
 import { onDropdownSelect } from "../../store/ui/actions";
-import { setUserLogout } from "../../store/user/actions";
+import { setLogoutSuccess } from "../../store/user/actions";
 import {
   Dropdown,
   DropdownItem,
@@ -20,17 +21,20 @@ import {
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { Link } from "react-router-dom";
 import { ThemeContext } from "../DarkTheme/useTheme";
+import { useCookies } from "react-cookie";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
-  setUserLogout: typeof setUserLogout;
+  setLogoutSuccess: typeof setLogoutSuccess;
   token?: string | null;
 }
 type AllProps = IUserState & IUiState & IPropsFromDispatch;
 
 const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
+  const [_, _setCookie, removeCookie] = useCookies();
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
-  const { setUserLogout, token }: IPropsFromDispatch = props;
+  const queryClient = useQueryClient();
+  const { setLogoutSuccess, token }: IPropsFromDispatch = props;
   const { username, isDropdownOpen }: AllProps = props;
   const onDropdownToggle = () => {
     const { onDropdownSelect } = props;
@@ -43,10 +47,17 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
 
   // Description: Logout user
   const onLogout = () => {
+    queryClient.clear();
     ChrisAPIClient.setIsTokenAuthorized(false);
-    if (username) {
-      setUserLogout(username);
-    }
+    removeCookie("username", {
+      path: "/",
+    });
+
+    removeCookie(`${username}_token`, {
+      path: "/",
+    });
+
+    setLogoutSuccess();
   };
 
   const userDropdownItems = [
@@ -82,7 +93,12 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
               <DropdownList>{userDropdownItems}</DropdownList>
             </Dropdown>
           ) : (
-            <Link to="/login">Login</Link>
+            <>
+              <Link style={{ marginRight: "1rem" }} to="/login">
+                Login
+              </Link>
+              <Link to="/signup">Sign Up</Link>
+            </>
           )}
         </ToolbarItem>
       </ToolbarGroup>
@@ -92,7 +108,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
-  setUserLogout: (username: string) => dispatch(setUserLogout(username)),
+  setLogoutSuccess: () => dispatch(setLogoutSuccess()),
 });
 
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({

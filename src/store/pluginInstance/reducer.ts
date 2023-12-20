@@ -164,7 +164,7 @@ const reducer: Reducer<IPluginInstanceState> = (
         ...state,
         deleteNode: {
           success: false,
-          error: action.payload,
+          error: action.payload.error_message,
         },
       };
     }

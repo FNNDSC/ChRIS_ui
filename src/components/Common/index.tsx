@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from "react";
 import { Cookies } from "react-cookie";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { Popover, Typography, Spin } from "antd";
+import { Popover, Typography, Spin, Alert } from "antd";
 import {
   Flex,
   FlexItem,
@@ -18,6 +18,7 @@ import {
   EmptyStateIcon,
   EmptyStateHeader,
 } from "@patternfly/react-core";
+import ReactJson from "react-json-view";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import Dots from "react-activity/dist/Dots";
@@ -168,9 +169,11 @@ export const InfoIcon = ({
 type AllProps = {
   label: string;
   onSearch: (search: string, searchType: string) => void;
+  search?: string;
+  searchType?: string;
 };
 
-const FeedsQueryTypes = {
+const FeedsQueryTypes: any = {
   ID: ["Id", "Match feed id exactly with this number"],
   MIN_ID: ["Min_Id", "Match feed id greater than this number"],
   MAX_ID: ["Max_Id", "Match feed id less than this number"],
@@ -197,10 +200,14 @@ const FeedsQueryTypes = {
 export const DataTableToolbar: React.FunctionComponent<AllProps> = (
   props: AllProps
 ) => {
-  const [value, setValue] = useState("");
+  const { searchType, search } = props;
+  const [value, setValue] = useState(search ? search : "");
   const [dropdownValue, setDropdownValue] = React.useState<string>(
-    FeedsQueryTypes.NAME[0]
+    searchType?.toUpperCase() && FeedsQueryTypes[searchType]
+      ? searchType
+      : FeedsQueryTypes.NAME[0]
   );
+
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   const onToggle = () => {
@@ -222,7 +229,7 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
     props.onSearch("", dropdownValue.toLowerCase());
   };
 
-  const dropdownItems = Object.values(FeedsQueryTypes).map((feed) => {
+  const dropdownItems = Object.values(FeedsQueryTypes).map((feed: any) => {
     return (
       <DropdownItem
         key={feed[0]}
@@ -275,5 +282,22 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
         </div>
       </div>
     </div>
+  );
+};
+
+export const ErrorAlert = ({
+  errors,
+  cleanUpErrors,
+}: {
+  errors: any;
+  cleanUpErrors: () => void;
+}) => {
+  return (
+    <Alert
+      type="warning"
+      closable
+      onClose={cleanUpErrors}
+      description={<ReactJson  src={errors} />}
+    ></Alert>
   );
 };

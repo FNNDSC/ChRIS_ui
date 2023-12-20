@@ -26,33 +26,12 @@ export const initialState: IFeedState = {
 
 const reducer: Reducer<IFeedState> = (state = initialState, action) => {
   switch (action.type) {
-    case FeedActionTypes.GET_FEED_REQUEST: {
-      return {
-        ...state,
-        currentFeed: {
-          ...state.currentFeed,
-          loading: true,
-        },
-      };
-    }
-
     case FeedActionTypes.GET_FEED_SUCCESS: {
       return {
         ...state,
         currentFeed: {
           data: action.payload,
           error: "",
-          loading: false,
-        },
-      };
-    }
-
-    case FeedActionTypes.GET_FEED_ERROR: {
-      return {
-        ...state,
-        currentFeed: {
-          ...state.currentFeed,
-          error: action.payload,
           loading: false,
         },
       };
