@@ -162,13 +162,13 @@ const QueryBuilder = () => {
       .catch((error: any) => {
         setErrorState(error.message);
       });
-
-    dispatch({
-      type: Types.SET_CURRENT_QUERY_TYPE,
-      payload: {
-        currentQueryType: "PatientID",
-      },
-    });
+    
+      dispatch({
+        type: Types.SET_CURRENT_QUERY_TYPE,
+        payload: {
+          currentQueryType: "PatientID",
+        },
+      });
   }, [dispatch]);
 
   React.useEffect(() => {
@@ -194,6 +194,13 @@ const QueryBuilder = () => {
         type: Types.SET_DEFAULT_EXPANDED,
         payload: {
           expanded: true,
+        },
+      });
+
+      dispatch({
+        type: Types.SET_CURRENT_QUERY_TYPE,
+        payload: {
+          currentQueryType: queryType,
         },
       });
     }
