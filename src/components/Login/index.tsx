@@ -77,7 +77,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         path: "/",
         maxAge: oneDayToSeconds,
       });
-      navigate(-1);
+      navigate("/");
     }
   }
 
