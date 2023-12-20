@@ -1,28 +1,50 @@
+/**
+ * This module provides helper functions for finding "subject folders" within a set of ChRIS files.
+ */
+
 // INVARIANT: A "parentDir" must NOT have trailing slash.
 
-import { FeedFile } from "@fnndsc/chrisapi";
+type PublicDatasetFile = {
+  file_resource: string,
+  url: string,
+  id: number,
+  creation_date: string,
+  fname: string,
+  fsize: number,
+  feed_id: number,
+  plugin_inst_id: number,
+}
 
 type Subject = {
   name: string,
   dir: string,
-  files: FeedFile[]
+  files: PublicDatasetFile[]
 };
 
-function groupBySubject(files: FeedFile[]): Subject[] {
-  const fnames = files.map(file => file.data.fname);
-  const parentDir = parentDirOf(fnames);
-  const subdirs = subdirsOf(parentDir, fnames);
+function groupBySubject(files: PublicDatasetFile[], magicFilename: string): Subject[] {
+  const magicFile = files.find((file) => file.fname.endsWith(magicFilename));
+  if (magicFile === undefined) {
+    return [];
+  }
+
+  const subdirs = subdirsOf(dirname(magicFile.fname), files.map((file) => file.fname));
   return [...subdirs].map((subdir) => {
     return {
       name: basename(subdir),
       dir: subdir,
-      files: files.filter((file) => file.data.fname.startsWith(subdir))
+      files: files.filter((file) => file.fname.startsWith(subdir))
     }
   });
 }
 
 function basename(path: string): string {
-  return path.substring(path.lastIndexOf('/'));
+  const i = path.lastIndexOf('/');
+  return path.substring(i === -1 ? 0 : i + 1);
+}
+
+function dirname(path: string): string {
+  const i = path.lastIndexOf('/');
+  return path.substring(0, i === -1 ? path.length : i);
 }
 
 function subdirsOf(parentDir: string, allPaths: string[]): Set<string> {
@@ -37,24 +59,6 @@ function oneDirUnder(path: string, parentDir: string): string {
   return path.substring(0, path.indexOf('/', parentDir.length + 1));
 }
 
-function parentDirOf(paths: string[]): string {
-  return paths.reduce(commonPrefix, paths ? paths[0] : '');
-}
-
-function commonPrefix(a: string, b: string): string {
-  const aSplit = a.split('/');
-  const bSplit = b.split('/');
-  const last = lastCommonIndex(aSplit, bSplit, -1);
-  return last === -1 ? '' : aSplit.slice(0, last).join('/')
-}
-
-function lastCommonIndex(a: string[], b: string[], i: number): number {
-  if (i >= a.length || i >= b.length || a[i] !== b[i]) {
-    return i;
-  }
-  return lastCommonIndex(a, b, i + 1);
-}
-
 function filestemOf(s: string, suffix: string): string {
   const iSlash = s.lastIndexOf('/');
   const start = iSlash === -1 ? 0 : iSlash + 1;
@@ -62,5 +66,5 @@ function filestemOf(s: string, suffix: string): string {
   return s.substring(start, end);
 }
 
-export { parentDirOf, subdirsOf, groupBySubject, filestemOf };
-export type { Subject };
+export { subdirsOf, groupBySubject, filestemOf, basename };
+export type { Subject, PublicDatasetFile };
