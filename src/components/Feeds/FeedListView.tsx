@@ -152,7 +152,7 @@ const TableSelectable: React.FunctionComponent = () => {
         `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=${feedType}`
       );
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
 
   const columnNames = {
     id: "ID",
