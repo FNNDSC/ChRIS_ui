@@ -48,7 +48,11 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
       deleteNode(selectedPlugin, data);
       handleModalToggle();
     } else {
-      dispatch(deleteNodeError("Please wait for the plugin to finish running"));
+      dispatch(
+        deleteNodeError({
+          error_message: "Please wait for the plugin to finish running",
+        })
+      );
     }
   };
 

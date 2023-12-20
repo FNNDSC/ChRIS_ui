@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import ReactJson from "react-json-view";
@@ -43,6 +43,8 @@ import {
   getTimestamp,
   uploadWrapper,
 } from "../../api/common";
+import { useDispatch } from "react-redux";
+import { setSidebarActive } from "../../store/ui/actions";
 
 export const fetchFilesUnderThisPath = async (path?: string) => {
   if (!path) return;
@@ -108,6 +110,7 @@ const { Paragraph } = Typography;
 
 export const LibraryCopyPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [localFiles, setLocalFiles] = useState<File[]>([]);
 
@@ -122,6 +125,14 @@ export const LibraryCopyPage = () => {
   const handleAddFolder = (path: string, user: string) => {
     navigate(`/library/${user}/uploads/${path}`);
   };
+
+  React.useEffect(() => {
+    dispatch(
+      setSidebarActive({
+        activeItem: "lib",
+      })
+    );
+  }, [dispatch]);
 
   return (
     <WrapperConnect>
@@ -401,7 +412,7 @@ const UploadComponent = ({
         const { file } = fileUploads[i];
         setWarning({
           ...warning,
-          [file.name]: err,
+          [file.name]: err.error_message,
         });
       }
     });

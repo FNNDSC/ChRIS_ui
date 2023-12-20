@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@cornerstonejs/nifti-image-loader": "^1.0.9",
-    "@fnndsc/chrisapi": "^1.14.3",
+    "@fnndsc/chrisapi": "^1.15.0",
     "@heroicons/react": "^2.0.18",
     "@niivue/niivue": "^0.38.8",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
@@ -70,6 +70,7 @@
     "sirv-cli": "^2.0.2",
     "typesafe-actions": "^5.1.0",
     "use-immer": "^0.9.0",
+    "use-ackee": "^3.0.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -92,7 +93,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vitest": "^1.0.4"
+    "vitest": "^1.0.4",
+    "vite": "^5.0.9"
   }
 }

@@ -1,0 +1,36 @@
+.pf-background {
+  background-image: url("../../assets/loginbg_576.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+@media (max-width: 576px) and (-webkit-min-device-pixel-ratio: 2),
+  (max-width: 576px) and (min-resolution: 192dpi) {
+  .pf-background {
+    background-image: url("../../assets/loginbg_576@2x.png");
+  }
+}
+
+@media (min-width: 576px) {
+  .pf-background{
+    background-image: url("../../assets/loginbg_768.png");
+  }
+}
+
+@media (min-width: 576px) and (-webkit-min-device-pixel-ratio: 2),
+  (min-width: 576px) and (min-resolution: 192dpi) {
+  .pf-background{
+    background-image: url("../../assets/loginbg_768@2x.png");
+  }
+}
+
+@media (min-width: 992px) {
+  .pf-background {
+    background-image: url("../../assets/loginbg_1200.png");
+  }
+}
+
+.pf-v5-c-login__footer p {
+  font-size: 1.25rem;
+  font-weight: bold;
+}

@@ -1,6 +1,8 @@
 import { useContext } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+//@ts-ignore
+import useAckee from "use-ackee";
 import Routes from "./routes";
 import { ConfigProvider, theme } from "antd";
 import { Store } from "redux";
@@ -28,6 +30,23 @@ const queryClient = new QueryClient({
 function App(props: AllProps) {
   const { isDarkTheme } = useContext(ThemeContext);
   const { store } = props;
+
+  const ackeeEnvironment = {
+    server: import.meta.env.VITE_ACKEE_SERVER,
+    domainId: import.meta.env.VITE_ACKEE_DOMAIN_ID
+  };
+
+  if (ackeeEnvironment.server && ackeeEnvironment.domainId) {
+    useAckee(
+      "/",
+      ackeeEnvironment,
+      {
+        detailed: true,
+        ignoreLocalhost: true,
+        ignoreOwnVisits: true,
+      },
+    );
+  }
 
   return (
     <>

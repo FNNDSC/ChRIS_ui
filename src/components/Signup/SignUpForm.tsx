@@ -18,7 +18,7 @@ import ChrisApiClient from "@fnndsc/chrisapi";
 import { Link } from "react-router-dom";
 import { has } from "lodash";
 import { validate } from "email-validator";
-import { setAuthToken } from "../../store/user/actions";
+import { setAuthTokenSuccess } from "../../store/user/actions";
 import { EyeSlashIcon, EyeIcon } from "@patternfly/react-icons";
 import { useCookies } from "react-cookie";
 
@@ -27,14 +27,14 @@ type Validated = {
 };
 
 interface SignUpFormProps {
-  setAuthToken: (auth: { token: string; username: string }) => void;
+  setAuthTokenSuccess: (auth: { token: string; username: string }) => void;
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
   hidePasswordAriaLabel?: string;
 }
 
 const SignUpForm: React.FC<SignUpFormProps> = ({
-  setAuthToken,
+  setAuthTokenSuccess,
   isShowPasswordEnabled = true,
   hidePasswordAriaLabel = "Hide password",
   showPasswordAriaLabel = "Show password",
@@ -103,7 +103,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
     setLoading(true);
     const userURL = import.meta.env.VITE_CHRIS_UI_USERS_URL;
-    const authURL = import.meta.env.VITE_APP_CHRIS_UI_AUTH_URL;
+    const authURL = import.meta.env.VITE_CHRIS_UI_AUTH_URL;
     let user;
     let token;
 
@@ -168,7 +168,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         path: "/",
         maxAge: oneDayToSeconds,
       });
-      setAuthToken({
+      setAuthTokenSuccess({
         token,
         username: user.data.username,
       });
@@ -202,7 +202,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         <FormAlert>
           <Alert
             variant="danger"
-            title={"There Has been a problem connecting to the server"}
+            title={"Problem connecting to the server"}
             aria-live="polite"
             isInline
           />
@@ -302,8 +302,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setAuthToken: (auth: { token: string; username: string }) =>
-    dispatch(setAuthToken(auth)),
+  setAuthTokenSuccess: (auth: { token: string; username: string }) =>
+    dispatch(setAuthTokenSuccess(auth)),
 });
 
 export default connect(null, mapDispatchToProps)(SignUpForm);
