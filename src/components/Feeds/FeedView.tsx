@@ -13,7 +13,11 @@ import { DrawerActionButton } from "./DrawerUtils";
 import { handleClose, handleMaximize, handleMinimize } from "./utilties";
 import type { DestroyActiveResources } from "../../store/resources/types";
 import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
-import { getFeedSuccess, resetFeed, setShowToolbar } from "../../store/feed/actions";
+import {
+  getFeedSuccess,
+  resetFeed,
+  setShowToolbar,
+} from "../../store/feed/actions";
 import {
   getPluginInstancesRequest,
   getSelectedD3Node,
@@ -80,7 +84,7 @@ export default function FeedView() {
     if (!isLoggedIn && publicFeed && Object.keys(publicFeed).length === 0) {
       navigate("/feeds?type=public");
     }
-  }, [isLoggedIn, feed, publicFeed]);
+  }, [isLoggedIn, feed, publicFeed, dispatch, navigate]);
 
   React.useEffect(() => {
     return () => {
@@ -101,7 +105,7 @@ export default function FeedView() {
       ) {
         dispatch(resetActiveResources(dataRef.current));
       }
-      dispatch(resetFeed())
+      dispatch(resetFeed());
       dispatch(resetPluginInstances());
       dispatch(resetTsNodes());
       dispatch(clearSelectedFile());

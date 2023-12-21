@@ -22,6 +22,7 @@ import {
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import { SpinContainer } from "../Common";
 import { find } from "../../api/filesystem";
+import Cart from "../LibraryCopy/Cart";
 
 const { Paragraph, Text } = Typography;
 
@@ -138,6 +139,7 @@ function SearchBrowser({ data }: { data: any }) {
 
   return (
     <>
+      <Cart />
       <Breadcrumb style={{ marginLeft: "1rem", marginTop: "0.5rem" }}>
         {pathSplit.map((path: string, index: number) => {
           return (

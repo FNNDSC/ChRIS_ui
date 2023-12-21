@@ -17,8 +17,8 @@ class PfdcmClient {
       const url = `${this.url}api/v1/PACSservice/list/`;
       const response = await axios.get(url);
       return response.data;
-    } catch (error) {
-      console.log("Error", error);
+    } catch (error: any) {
+      throw new Error(error);
     }
   }
 
@@ -38,6 +38,7 @@ class PfdcmClient {
         PACSdirective: {
           ...query,
           then: "status",
+          json_response: true,
         },
       },
     };
@@ -138,8 +139,8 @@ class PfdcmClient {
         currentStatus,
         error,
       };
-    } catch (error) {
-      console.log("Error while fetching status", error);
+    } catch (error: any) {
+      throw new Error(error);
     }
   }
 
@@ -165,16 +166,18 @@ class PfdcmClient {
       if (status) {
         return pypx;
       }
-    } catch (error) {
-      console.log("Error", error);
+    } catch (error: any) {
+      throw new Error(error);
     }
   }
 
   async findRetrieve(query = {}, pacsService: string) {
+   
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
       },
       data: {
@@ -192,16 +195,18 @@ class PfdcmClient {
 
     try {
       await axios(RequestConfig);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      throw new Error(error);
     }
   }
 
   async findPush(query = {}, pacsService: string) {
+   
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
       },
       data: {
@@ -225,16 +230,18 @@ class PfdcmClient {
 
     try {
       await axios(RequestConfig);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      throw new Error(error);
     }
   }
 
   async findRegister(query = {}, pacsService: string) {
+  
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
       },
       data: {
@@ -258,8 +265,8 @@ class PfdcmClient {
 
     try {
       await axios(RequestConfig);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      throw new Error(error);
     }
   }
 }

@@ -80,7 +80,12 @@ export const MainRouter: React.FC = () => {
       path: "librarysearch/*",
       element: (
         <PrivateRoute>
-          <LibrarySearch />
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <LibrarySearch />
+          </RouterProvider>
         </PrivateRoute>
       ),
     },
@@ -107,12 +112,14 @@ export const MainRouter: React.FC = () => {
     {
       path: "pacs",
       element: (
-        <RouterProvider
-          {...{ actions, state, route, setRoute }}
-          context={MainRouterContext}
-        >
-          <Pacs />
-        </RouterProvider>
+        <PrivateRoute>
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <Pacs />
+          </RouterProvider>
+        </PrivateRoute>
       ),
     },
     {

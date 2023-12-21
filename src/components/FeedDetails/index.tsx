@@ -55,7 +55,7 @@ const FeedDetails = () => {
         ? setShowNoteBadge(true)
         : setShowNoteBadge(false);
     });
-  }, [note]);
+  }, [note, currentFeed]);
 
   const items = (
     <React.Fragment>

@@ -9,6 +9,7 @@ import {
   DrawerContentBody,
   DrawerPanelContent,
   DrawerPanelBody,
+  Button,
 } from "@patternfly/react-core";
 import { Progress, notification } from "antd";
 import { Table, Thead, Tbody, Th, Tr, Td } from "@patternfly/react-table";
@@ -71,8 +72,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
-  const handleDownloadClick = async (e: React.MouseEvent, item: FeedFile) => {
-    e.stopPropagation();
+  const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
       FileViewerModel.startDownload(item, notification, (status: any) => {
         setDownloadStatus(status);
@@ -225,8 +225,8 @@ const FileBrowser = (props: FileBrowserProps) => {
                     {items.length > 1
                       ? `(${items.length} items)`
                       : items.length === 1
-                        ? `(${items.length} item)`
-                        : "Empty Directory"}
+                      ? `(${items.length} item)`
+                      : "Empty Directory"}
                   </span>
                 </div>
               </div>
@@ -286,11 +286,21 @@ const FileBrowser = (props: FileBrowserProps) => {
 
                       const downloadComponent =
                         typeof item === "string" ? undefined : (
-                          <ArrowDownTrayIcon
-                            className="pf-v5-svg"
+                          <Button
+                            variant="link"
                             onClick={(e: any) => {
-                              handleDownloadClick(e, item);
+                              e.stopPropagation();
+                              handleDownloadClick(item);
                             }}
+                            icon={
+                              <ArrowDownTrayIcon
+                                className="pf-v5-svg"
+                                onClick={(e: any) => {
+                                  e.stopPropagation();
+                                  handleDownloadClick(item);
+                                }}
+                              />
+                            }
                           />
                         );
 
@@ -306,17 +316,26 @@ const FileBrowser = (props: FileBrowserProps) => {
                             }}
                           >
                             <Progress size="small" percent={currentStatus} />
-                            <XMarkIcon
-                              style={{
-                                color: "red",
-                                marginLeft: "0.25rem",
-                              }}
+                            <Button
+                              variant="link"
                               onClick={(event) => {
                                 event.stopPropagation();
                                 FileViewerModel.abortControllers[
                                   item.data.fname
                                 ].abort();
+
+                                const newDownloadStatus = { ...status };
+                                delete newDownloadStatus[item.data.fname];
+                                setDownloadStatus(newDownloadStatus);
                               }}
+                              icon={
+                                <XMarkIcon
+                                  className="pf-v5-svg"
+                                  style={{
+                                    color: "red",
+                                  }}
+                                />
+                              }
                             />
                           </div>
                         ) : isBuffering ? (
