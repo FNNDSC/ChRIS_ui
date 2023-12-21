@@ -198,13 +198,9 @@ export class FileViewerModel {
     const filename = this.getFileName(item);
 
     const onDownloadProgress = (progress: any, item: FeedFile) => {
-      const progressCalc = Math.floor(
-        (progress.loaded / item.data.fsize) * 100
-      );
-
       this.downloadStatus = {
         ...this.downloadStatus,
-        [item.data.fname]: progressCalc,
+        [item.data.fname]: Math.floor(progress * 100),
       };
       callback(this.downloadStatus);
     };
@@ -216,7 +212,7 @@ export class FileViewerModel {
       notification.info({
         message: `Preparing ${filename} for download.`,
         description: `Total Jobs (${this.itemsToDownload.length})`,
-        duration: 1,
+        duration: 5,
       });
 
       this.downloadFile(
@@ -279,6 +275,7 @@ export class FileViewerModel {
         },
         signal,
         onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
+          console.log("ProgressEvent", progressEvent);
           if (progressEvent.progress)
             onDownloadProgressCallback(progressEvent.progress, item);
         },
