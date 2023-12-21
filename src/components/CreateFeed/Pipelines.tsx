@@ -17,8 +17,8 @@ import {
   MenuToggle,
   DropdownList,
 } from "@patternfly/react-core";
+import { useQuery } from "@tanstack/react-query";
 import { ErrorAlert } from "../Common";
-import ReactJson from "react-json-view";
 import type { Pipeline } from "@fnndsc/chrisapi";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
@@ -36,6 +36,7 @@ import {
   generatePipelineWithName,
 } from "../../api/common";
 import type { PipelinesProps } from "./types/pipeline";
+import { Alert } from "antd";
 
 export const PIPELINEQueryTypes = {
   NAME: ["Name", "Match plugin name containing this string"],
@@ -76,13 +77,10 @@ const Pipelines = ({
 }: PipelinesProps) => {
   const { pipelineData, selectedPipeline, pipelines } = state;
   const [errors, setErrors] = React.useState({});
-  const [fetchState, setFetchState] = React.useState({
-    loading: false,
-    error: {},
-  });
   const { goToNextStep: onNext, goToPrevStep: onBack } =
     useContext(WizardContext);
 
+  console.log("State", state);
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
@@ -91,6 +89,7 @@ const Pipelines = ({
   });
 
   const [expanded, setExpanded] = React.useState<{ [key: string]: boolean }>();
+  const [pipeline, setPipeline] = React.useState<Pipeline>();
   const { page, perPage, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [dropdownValue, setDropdownValue] = React.useState<string>(
@@ -103,6 +102,7 @@ const Pipelines = ({
     },
     [handleDispatchPipelines]
   );
+
   const handlePipelineSearch = (search: string) => {
     setPageState({
       ...pageState,
@@ -110,46 +110,87 @@ const Pipelines = ({
     });
   };
 
-  React.useEffect(() => {
-    setFetchState((fetchState) => {
-      return {
-        ...fetchState,
-        loading: true,
-      };
-    });
+  const { isLoading, isError, error } = useQuery({
+    queryKey: ["pipelines", perPage, page, search, dropdownValue],
+    queryFn: async () => {
+      const data = await fetchPipelines(
+        perPage,
+        page,
+        search,
+        dropdownValue.toLowerCase()
+      );
 
-    fetchPipelines(perPage, page, search, dropdownValue.toLowerCase()).then(
-      (result: any) => {
-        const { registeredPipelines, registeredPipelinesList, errorPayload } =
-          result;
+      const { registeredPipelines, registeredPipelinesList, error } = data;
 
-        if (errorPayload) {
-          setFetchState((fetchState) => {
-            return {
-              ...fetchState,
-              error: errorPayload,
-            };
-          });
-        }
-        if (registeredPipelines) {
-          handleDispatchWrap(registeredPipelines);
-          setPageState((pageState) => {
-            return {
-              ...pageState,
-              itemCount: registeredPipelinesList.totalCount,
-            };
-          });
+      if (registeredPipelines) {
+        handleDispatchWrap(registeredPipelines);
+      }
 
-          setFetchState((fetchState) => {
-            return {
-              ...fetchState,
-              loading: false,
-            };
+      if (registeredPipelinesList) {
+        setPageState((pageState) => {
+          return {
+            ...pageState,
+            itemCount: registeredPipelinesList.totalCount,
+          };
+        });
+      }
+
+      if (error.error_message) {
+        throw new Error(error.error_message);
+      }
+      return data;
+    },
+    enabled: true,
+    refetchOnMount: true,
+  });
+
+  const {
+    isLoading: isResourcesLoading,
+    isError: isResourceError,
+    error: resourceError,
+  } = useQuery({
+    queryKey: ["pipelineresources", pipeline],
+    queryFn: async () => {
+      if (pipeline) {
+        try {
+          const { resources } = await generatePipelineWithName(
+            pipeline.data.name
+          );
+
+          handleSetPipelineResources({
+            ...resources,
+            pipelineId: pipeline.data.id,
           });
+          const { pluginPipings } = resources;
+
+          for (let i = 0; i < pluginPipings.length; i++) {
+            const piping = pluginPipings[i];
+            const computeEnvData = await fetchComputeInfo(
+              piping.data.plugin_id,
+              piping.data.id
+            );
+
+            if (computeEnvData) {
+              handleSetPipelineEnvironments(pipeline.data.id, computeEnvData);
+            }
+          }
+          return resources;
+        } catch (error: any) {
+          console.log("Error", error);
+          const errObj = catchError(error);
+          throw new Error(errObj.error_message);
         }
       }
-    );
-  }, [perPage, page, dropdownValue, search, handleDispatchWrap]);
+    },
+    enabled: !!pipeline,
+  });
+
+  console.log(
+    "IsFetchingErrorResources",
+    isResourcesLoading,
+    isResourceError,
+    resourceError
+  );
 
   React.useEffect(() => {
     const el = document.querySelector(".react-json-view");
@@ -182,28 +223,10 @@ const Pipelines = ({
       if (!(selectedPipeline === pipeline.data.id)) {
         handlePipelineSecondaryResource(pipeline);
         if (!pipelineData[pipeline.data.id]) {
-          const { resources } = await generatePipelineWithName(
-            pipeline.data.name
-          );
-          handleSetPipelineResources({
-            ...resources,
-            pipelineId: pipeline.data.id,
-          });
-          const { pluginPipings } = resources;
-
-          for (let i = 0; i < pluginPipings.length; i++) {
-            const piping = pluginPipings[i];
-            const computeEnvData = await fetchComputeInfo(
-              piping.data.plugin_id,
-              piping.data.id
-            );
-
-            if (computeEnvData) {
-              handleSetPipelineEnvironments(pipeline.data.id, computeEnvData);
-            }
-          }
+          setPipeline(pipeline);
         }
       } else {
+        setPipeline(undefined);
         handleCleanResources();
       }
     },
@@ -224,24 +247,18 @@ const Pipelines = ({
       } else {
         handleCleanResources();
       }
+      //Not already expanded or not previous fetched and cached in state
       if (
         !(expanded && expanded[pipeline.data.id]) ||
         !state.pipelineData[pipeline.data.id]
       ) {
-        const { resources } = await generatePipelineWithName(
-          pipeline.data.name
-        );
-
-        handleSetPipelineResources({
-          ...resources,
-          pipelineId: pipeline.data.id,
-        });
-
+        setPipeline(pipeline);
         setExpanded({
           ...expanded,
           [pipeline.data.id]: true,
         });
       } else {
+        setPipeline(undefined);
         setExpanded({
           ...expanded,
           [pipeline.data.id]: false,
@@ -365,11 +382,11 @@ const Pipelines = ({
       </div>
 
       <DataList aria-label="pipeline list">
-        {Object.keys(fetchState.error).length > 0 && (
-          <ReactJson src={fetchState.error} />
+        {isError && (
+          <Alert type="error" description={<div>{error.message}</div>} />
         )}
 
-        {fetchState.loading ? (
+        {isLoading ? (
           <SpinContainer title="Fetching Pipelines" />
         ) : (
           pipelines.length > 0 &&
@@ -430,8 +447,7 @@ const Pipelines = ({
                       key="delete-action"
                       onClick={async () => {
                         try {
-                          const response = await pipeline.delete();
-                          console.log("Response", response);
+                          await pipeline.delete();
                           const filteredPipelines = pipelines.filter(
                             (currentPipeline: any) => {
                               return (
@@ -456,8 +472,10 @@ const Pipelines = ({
                   aria-label="PrimaryContent"
                   isHidden={!(expanded && expanded[pipeline.data.id])}
                 >
-                  {(expanded && expanded[pipeline.data.id]) ||
-                  state.pipelineData[pipeline.data.id] ? (
+                  {((expanded && expanded[pipeline.data.id]) ||
+                    state.pipelineData[pipeline.data.id]) &&
+                  !isResourcesLoading &&
+                  !isResourceError ? (
                     <>
                       <div
                         style={{
@@ -505,6 +523,10 @@ const Pipelines = ({
       <div id="error">
         {Object.keys(errors).length > 0 && (
           <ErrorAlert errors={errors} cleanUpErrors={() => setErrors({})} />
+        )}
+
+        {isResourceError && (
+          <Alert type="error" description={resourceError.message} />
         )}
       </div>
     </>
