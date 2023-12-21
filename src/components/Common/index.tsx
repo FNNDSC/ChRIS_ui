@@ -74,7 +74,7 @@ export const DotsIndicator = () => {
           marginLeft: "0.75rem",
         }}
       >
-        Preparing to Download
+        Please wait for a status to appear for larger files... 
       </div>
     </div>
   );
