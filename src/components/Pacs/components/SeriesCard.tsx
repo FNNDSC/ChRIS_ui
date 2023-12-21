@@ -150,10 +150,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     selectedPacsService,
   ]);
 
-  const executeNextStepForTheSeries = async (step: string) => {
-    const index = getIndex(step);
-    const nextStep = QueryStages[index + 1];
-
+  const executeNextStepForTheSeries = async (nextStep: string) => {
     try {
       if (nextStep === "retrieve") {
         await client.findRetrieve(pullQuery, selectedPacsService);
@@ -171,7 +168,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   };
 
   useInterval(async () => {
-    if (queryStage !== "completed" && fetchNextStatus) {
+    if (fetchNextStatus) {
       const status = await client.status(pullQuery, selectedPacsService);
 
       if (status) {
@@ -186,8 +183,11 @@ const SeriesCard = ({ series }: { series: any }) => {
               queryStage: currentStatus.currentStep,
             },
           });
+
+          const index = getIndex(currentStatus.currentStep);
+          const nextStep = QueryStages[index + 1];
           currentStatus.currentStep !== "completed" &&
-            executeNextStepForTheSeries(currentStatus.currentStep);
+            executeNextStepForTheSeries(nextStep);
           currentStatus.currentStep === "completed" &&
             setFetchNextStatus(!fetchNextStatus);
           currentStatus.currentStep === "completed" && fetchCubeFilePreview();
@@ -226,7 +226,9 @@ const SeriesCard = ({ series }: { series: any }) => {
             variant="secondary"
             onClick={() => {
               if (currentStep !== "completed") {
-                continueNextStep(currentStep);
+                const index = getIndex(currentStep);
+                const nextStep = QueryStages[index + 1];
+                continueNextStep(nextStep);
               }
             }}
           >
@@ -240,7 +242,7 @@ const SeriesCard = ({ series }: { series: any }) => {
           <Button
             variant="secondary"
             onClick={() => {
-              continueNextStep(currentStep);
+              setFetchNextStatus(!fetchNextStatus);
             }}
           >
             Continue this step
@@ -387,8 +389,10 @@ const SeriesCard = ({ series }: { series: any }) => {
                 </>
               ) : showProcessingWithButton ? (
                 <Text>
-                  Processing{" "}
-                  {nextQueryStage ? nextQueryStage.toLowerCase() : ""}...
+                  {" "}
+                  {currentStep === "none"
+                    ? "Processing..."
+                    : `Processing ${currentStep}...`}
                 </Text>
               ) : (
                 <div>{buttonContainer} </div>
