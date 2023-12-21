@@ -149,16 +149,10 @@ const QueryBuilder = () => {
               },
             });
 
-            let currentActiveService;
-            if (service) {
-              currentActiveService = service;
-            } else {
-              currentActiveService = list[0];
-            }
             dispatch({
               type: Types.SET_SELECTED_PACS_SERVICE,
               payload: {
-                selectedPacsService: currentActiveService,
+                selectedPacsService: list[0],
               },
             });
           }
@@ -375,7 +369,7 @@ const QueryBuilder = () => {
               setErrorState("");
             }}
             closable
-            type="warning"
+            type="error"
             description={errorState}
           />
         </GridItem>

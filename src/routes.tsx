@@ -106,12 +106,14 @@ export const MainRouter: React.FC = () => {
     {
       path: "pacs",
       element: (
-        <RouterProvider
-          {...{ actions, state, route, setRoute }}
-          context={MainRouterContext}
-        >
-          <Pacs />
-        </RouterProvider>
+        <PrivateRoute>
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <Pacs />
+          </RouterProvider>
+        </PrivateRoute>
       ),
     },
     {
