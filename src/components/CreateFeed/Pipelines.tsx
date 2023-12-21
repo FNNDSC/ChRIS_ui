@@ -175,7 +175,6 @@ const Pipelines = ({
           }
           return resources;
         } catch (error: any) {
-          console.log("Error", error);
           const errObj = catchError(error);
           throw new Error(errObj.error_message);
         }
@@ -183,13 +182,6 @@ const Pipelines = ({
     },
     enabled: !!pipeline,
   });
-
-  console.log(
-    "IsFetchingErrorResources",
-    isResourcesLoading,
-    isResourceError,
-    resourceError
-  );
 
   React.useEffect(() => {
     const el = document.querySelector(".react-json-view");

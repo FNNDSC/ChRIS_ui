@@ -1,4 +1,4 @@
-import { useMemo, useContext } from "react";
+import { useMemo } from "react";
 import { Typography } from "antd";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -6,7 +6,7 @@ import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
 
 import WrapperConnect from "../Wrapper";
-import { LibraryContext, LibraryProvider } from "../LibraryCopy/context";
+import { LibraryProvider } from "../LibraryCopy/context";
 
 import Browser from "../LibraryCopy/Browser";
 import { InfoIcon } from "../Common";
