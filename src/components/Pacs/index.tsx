@@ -74,78 +74,93 @@ const QueryBuilder = () => {
   const { pacsServices, selectedPacsService, currentQueryType, queryResult } =
     state;
 
-  const handleSubmitQuery = async (
-    navigateToDifferentRoute: boolean,
-    currentQueryType: string,
-    value: string,
-    selectedPacsService: string = "default"
-  ) => {
-    if (value.length > 0 && currentQueryType) {
-      dispatch({
-        type: Types.SET_LOADING_SPINNER,
-        payload: {
-          loading: true,
-        },
-      });
-      const response = await client.find(
-        {
-          [currentQueryType]: value.trimStart().trimEnd(),
-        },
-        selectedPacsService
-      );
-
-      if (response) {
-        dispatch({
-          type: Types.SET_SEARCH_RESULT,
-          payload: {
-            queryResult: response,
-          },
-        });
-
+  const handleSubmitQuery = React.useCallback(
+    async (
+      navigateToDifferentRoute: boolean,
+      currentQueryType: string,
+      value: string,
+      selectedPacsService: string = "default"
+    ) => {
+      if (value.length > 0 && currentQueryType) {
         dispatch({
           type: Types.SET_LOADING_SPINNER,
           payload: {
-            loading: false,
+            loading: true,
           },
         });
 
-        if (navigateToDifferentRoute) {
-          navigate(
-            `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`
+        try {
+          const response = await client.find(
+            {
+              [currentQueryType]: value.trimStart().trimEnd(),
+            },
+            selectedPacsService
           );
+
+          if (response) {
+            dispatch({
+              type: Types.SET_SEARCH_RESULT,
+              payload: {
+                queryResult: response,
+              },
+            });
+
+            dispatch({
+              type: Types.SET_LOADING_SPINNER,
+              payload: {
+                loading: false,
+              },
+            });
+
+            if (navigateToDifferentRoute) {
+              navigate(
+                `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`
+              );
+            }
+          }
+        } catch (error: any) {
+          setErrorState(error.message);
+          dispatch({
+            type: Types.SET_LOADING_SPINNER,
+            payload: {
+              loading: false,
+            },
+          });
         }
+      } else {
+        setErrorState(
+          "Please ensure PACS service, Search Value, and the Query Type are all selected."
+        );
       }
-    } else {
-      setErrorState(
-        "Please ensure PACS service, Search Value, and the Query Type are all selected."
-      );
-    }
-  };
+    },
+    [dispatch, navigate]
+  );
 
   React.useEffect(() => {
-    client.getPacsServices().then((list) => {
-      if (list) {
-        dispatch({
-          type: Types.SET_LIST_PACS_SERVICES,
-          payload: {
-            pacsServices: list,
-          },
-        });
+    if (!service) {
+      client
+        .getPacsServices()
+        .then((list) => {
+          if (list) {
+            dispatch({
+              type: Types.SET_LIST_PACS_SERVICES,
+              payload: {
+                pacsServices: list,
+              },
+            });
 
-        let currentActiveService;
-        if (service) {
-          currentActiveService = service;
-        } else {
-          currentActiveService = list[0];
-        }
-        dispatch({
-          type: Types.SET_SELECTED_PACS_SERVICE,
-          payload: {
-            selectedPacsService: currentActiveService,
-          },
+            dispatch({
+              type: Types.SET_SELECTED_PACS_SERVICE,
+              payload: {
+                selectedPacsService: list[0],
+              },
+            });
+          }
+        })
+        .catch((error: any) => {
+          setErrorState(error.message);
         });
-      }
-    });
+    }
 
     dispatch({
       type: Types.SET_CURRENT_QUERY_TYPE,
@@ -153,7 +168,7 @@ const QueryBuilder = () => {
         currentQueryType: "PatientID",
       },
     });
-  }, [dispatch]);
+  }, [dispatch, service]);
 
   React.useEffect(() => {
     const queryType = searchParams.get("queryType");
@@ -165,8 +180,6 @@ const QueryBuilder = () => {
       searchValue &&
       service
     ) {
-      handleSubmitQuery(false, queryType, searchValue, service);
-      setValue(searchValue);
       dispatch({
         type: Types.SET_SELECTED_PACS_SERVICE,
         payload: {
@@ -180,8 +193,17 @@ const QueryBuilder = () => {
           expanded: true,
         },
       });
+
+      dispatch({
+        type: Types.SET_CURRENT_QUERY_TYPE,
+        payload: {
+          currentQueryType: queryType,
+        },
+      });
+      handleSubmitQuery(false, queryType, searchValue, service);
+      setValue(searchValue);
     }
-  }, [queryResult]);
+  }, [queryResult, dispatch, handleSubmitQuery, searchParams, service]);
 
   const onToggle = () => {
     setQueryOpen(!queryOpen);
@@ -347,7 +369,7 @@ const QueryBuilder = () => {
               setErrorState("");
             }}
             closable
-            type="warning"
+            type="error"
             description={errorState}
           />
         </GridItem>

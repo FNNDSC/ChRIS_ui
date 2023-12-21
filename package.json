@@ -1,8 +1,7 @@
 {
-  "name": "vite-project",
+  "name": "chrisui",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "start": "sirv dist --host --port ${PORT:=8080} --single --etag --quiet",
     "__start": "# npm start command is used by s2i in OpenShift as the deployment command",
@@ -89,6 +88,8 @@
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.3.2",
     "eslint": "^8.45.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "redux-devtools-extension": "^2.13.9",

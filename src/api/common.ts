@@ -179,7 +179,11 @@ export const fetchPipelines = async (
   search: string,
   searchType: string
 ) => {
-  let errorPayload: any = {};
+  let errorPayload: {
+    error_message: string;
+  } = {
+    error_message: "",
+  };
   let registeredPipelinesList, registeredPipelines;
   const offset = perPage * (page - 1);
   const client = ChrisAPIClient.getClient();
@@ -192,7 +196,8 @@ export const fetchPipelines = async (
     registeredPipelinesList = await client.getPipelines(params);
     registeredPipelines = registeredPipelinesList.getItems();
   } catch (error) {
-    errorPayload = error;
+    const errorObj = catchError(error);
+    errorPayload = errorObj;
   }
 
   return {
@@ -233,6 +238,7 @@ export async function fetchResources(pipelineInstance: Pipeline) {
 
 export const generatePipelineWithName = async (pipelineName: string) => {
   const client = ChrisAPIClient.getClient();
+  
   const pipelineInstanceList: PipelineList = await client.getPipelines({
     name: pipelineName,
   });
