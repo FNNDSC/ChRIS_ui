@@ -79,7 +79,12 @@ export const MainRouter: React.FC = () => {
       path: "librarysearch/*",
       element: (
         <PrivateRoute>
-          <LibrarySearch />
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <LibrarySearch />
+          </RouterProvider>
         </PrivateRoute>
       ),
     },
