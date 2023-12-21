@@ -54,8 +54,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     [key: string]: number;
   }>({});
 
-  console.log("Status", status);
-
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
