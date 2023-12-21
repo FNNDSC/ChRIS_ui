@@ -212,7 +212,7 @@ export const ConfigurePipelineParameters = ({
         params.map((param: any) => {
           return (
             <FormGroup name={param.name} label={param.name} key={param.name}>
-              <TextInput defaultValue={param.default} />
+              <TextInput aria-label="parameter values" defaultValue={param.default} />
             </FormGroup>
           );
         })}
