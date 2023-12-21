@@ -290,7 +290,13 @@ function LocalSearch() {
         <DropdownList>
           {items.map((item) => {
             return (
-              <DropdownItem key={item} onClick={() => setSearchSpace(item)}>
+              <DropdownItem
+                key={item}
+                onClick={() => {
+                  setSearchSpace(item);
+                  setIsOpen(!isOpen);
+                }}
+              >
                 {item}
               </DropdownItem>
             );
