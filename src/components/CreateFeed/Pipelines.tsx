@@ -80,7 +80,6 @@ const Pipelines = ({
   const { goToNextStep: onNext, goToPrevStep: onBack } =
     useContext(WizardContext);
 
-  console.log("State", state);
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,

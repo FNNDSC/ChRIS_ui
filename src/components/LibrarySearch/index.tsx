@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { Typography } from "antd";
 import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -6,7 +6,7 @@ import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
 
 import WrapperConnect from "../Wrapper";
-import { LibraryProvider } from "../LibraryCopy/context";
+import { LibraryContext, LibraryProvider } from "../LibraryCopy/context";
 
 import Browser from "../LibraryCopy/Browser";
 import { InfoIcon } from "../Common";
@@ -22,6 +22,7 @@ import {
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
 import { SpinContainer } from "../Common";
 import { find } from "../../api/filesystem";
+import Cart from "../LibraryCopy/Cart";
 
 const { Paragraph, Text } = Typography;
 
@@ -138,6 +139,7 @@ function SearchBrowser({ data }: { data: any }) {
 
   return (
     <>
+      <Cart />
       <Breadcrumb style={{ marginLeft: "1rem", marginTop: "0.5rem" }}>
         {pathSplit.map((path: string, index: number) => {
           return (

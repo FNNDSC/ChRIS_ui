@@ -275,7 +275,6 @@ export class FileViewerModel {
         },
         signal,
         onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
-          console.log("ProgressEvent", progressEvent);
           if (progressEvent.progress)
             onDownloadProgressCallback(progressEvent.progress, item);
         },
