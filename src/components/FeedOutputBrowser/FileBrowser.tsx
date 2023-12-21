@@ -74,7 +74,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
-  const handleDownloadClick = async (e: React.MouseEvent, item: FeedFile) => {
+  const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
       FileViewerModel.startDownload(item, notification, (status: any) => {
         setDownloadStatus(status);
@@ -292,14 +292,14 @@ const FileBrowser = (props: FileBrowserProps) => {
                             variant="link"
                             onClick={(e: any) => {
                               e.stopPropagation();
-                              handleDownloadClick(e, item);
+                              handleDownloadClick(item);
                             }}
                             icon={
                               <ArrowDownTrayIcon
                                 className="pf-v5-svg"
                                 onClick={(e: any) => {
                                   e.stopPropagation();
-                                  handleDownloadClick(e, item);
+                                  handleDownloadClick(item);
                                 }}
                               />
                             }
