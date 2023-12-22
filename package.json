@@ -36,7 +36,6 @@
     "d3-zoom": "^1.8.3",
     "date-fns": "^2.30.0",
     "dicom-parser": "^1.8.21",
-    "dompurify": "^2.4.1",
     "email-validator": "^2.0.4",
     "hammerjs": "^2.0.8",
     "keymirror": "^0.1.1",
@@ -90,6 +89,6 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "typescript": "^5.0.2",
-    "vite": "^5.0.9"
+    "vite": "^5.0.10"
   }
 }
