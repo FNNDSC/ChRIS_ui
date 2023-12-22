@@ -8,7 +8,7 @@ import {
   PluginParameter,
   PluginInstance,
 } from "@fnndsc/chrisapi";
-import * as sanitize from "sanitize-html";
+import sanitizeHTML from "sanitize-html";
 import { marked } from "marked";
 import { fetchResource } from "../../api/common";
 import { unpackParametersIntoString } from "../AddNode/utils";
@@ -49,7 +49,7 @@ const SinglePlugin = () => {
       fileToSanitize = file;
     }
 
-    return sanitize(fileToSanitize);
+    return sanitizeHTML(fileToSanitize);
   };
 
   const fetchPlugins = async (id: number) => {
@@ -155,6 +155,8 @@ const SinglePlugin = () => {
       setPluginParameters(data.plugins[0]);
     }
   }, [data, setPluginParameters]);
+
+  console.log("Error", error);
 
   return (
     <WrapperConnect>
