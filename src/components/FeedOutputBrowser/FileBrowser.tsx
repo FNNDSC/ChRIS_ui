@@ -74,8 +74,9 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
-      FileViewerModel.startDownload(item, notification, (status: any) => {
-        setDownloadStatus(status);
+      FileViewerModel.startDownload(item, notification, (newStatus: any) => {
+        const updatedStatus = { ...newStatus };
+        setDownloadStatus(updatedStatus);
       });
     }
   };
