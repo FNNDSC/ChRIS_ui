@@ -240,6 +240,7 @@ export class FileViewerModel {
     delete this.downloadStatus[item.data.fname];
     delete this.abortControllers[item.data.fname];
     const filename = this.getFileName(item);
+
     callback(this.downloadStatus);
     notification.info({
       message: `${status} download for ${filename}`,
@@ -275,8 +276,9 @@ export class FileViewerModel {
         },
         signal,
         onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
-          if (progressEvent.progress)
+          if (progressEvent.progress) {
             onDownloadProgressCallback(progressEvent.progress, item);
+          }
         },
       })
       .catch((error) => {
