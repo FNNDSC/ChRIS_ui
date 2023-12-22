@@ -29,7 +29,7 @@ const { Paragraph, Text } = Typography;
 const useSearchQuery = (query: URLSearchParams) => {
   const search = query.get("search");
   const searchSpace = query.get("space");
-  let resultsArray: any[] = [];
+  const resultsArray: any[] = [];
 
   const { data, isLoading } = useQuery({
     queryKey: ["search", searchSpace, search],
