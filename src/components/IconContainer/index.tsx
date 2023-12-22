@@ -29,9 +29,6 @@ function capitalizeFirstLetter(stringLetter: string) {
   return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1);
 }
 
-
-
-
 interface ModalState {
   isOpen: boolean;
   feedName: string;
@@ -157,6 +154,11 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
         owner: feedName,
       });
     });
+
+    setModalState({
+      ...modalState,
+      isOpen: false,
+    });
   };
 
   const handleError = (errorMessage: any) => {
@@ -205,6 +207,10 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
         queryClient.invalidateQueries({
           queryKey: ["feeds"],
         });
+        setModalState({
+          ...modalState,
+          isOpen: false,
+        });
       }
     } catch (error: any) {
       const errorMessage = error.response ? error.response.data : error.message;
@@ -231,6 +237,10 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
         if (createdFeed) {
           queryClient.invalidateQueries({
             queryKey: ["feeds"],
+          });
+          setModalState({
+            ...modalState,
+            isOpen: false,
           });
         }
       } catch (error: any) {
