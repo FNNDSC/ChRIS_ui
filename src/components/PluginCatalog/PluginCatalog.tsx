@@ -1,11 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import DisplayPage from "../DisplayPage";
 import type { PluginMeta } from "@fnndsc/chrisapi";
-
+import { useQuery } from "@tanstack/react-query";
 
 const PluginCatalog = () => {
-  const [plugins, setPlugins] = React.useState<any>();
   const [pageState, setPageState] = React.useState({
     page: 1,
     perPage: 10,
@@ -13,7 +12,6 @@ const PluginCatalog = () => {
     searchType: "name",
     itemCount: 0,
   });
-  const [loading, setLoading] = React.useState(false);
 
   const { page, perPage, search, searchType } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
@@ -37,54 +35,57 @@ const PluginCatalog = () => {
       search: value,
     });
   };
-  useEffect(() => {
-    async function fetchPlugins(
-      perPage: number,
-      page: number,
-      search: string,
-      searchType: string
-    ) {
-      setLoading(true);
-      const offset = perPage * (page - 1);
-      const params = {
-        limit: perPage,
-        offset: offset,
-        [searchType]: search,
-      };
-      const client = ChrisAPIClient.getClient();
-      const pluginList = await client.getPluginMetas(params);
-      const plugins: PluginMeta[] = pluginList.getItems() as PluginMeta[];
-      if (plugins) {
-        const newPluginPayload = Promise.all(
-          plugins.map(async (plugin) => {
-            const plugins = await plugin.getPlugins({ limit: 1000 });
-            const pluginItems = plugins.getItems();
-            let version = "";
 
-            if (pluginItems) {
-              version = pluginItems[pluginItems.length - 1].data.version;
-            }
-            return {
-              data: {
-                ...plugin.data,
-                version,
-              },
-            };
-          })
-        );
-        setPlugins(await newPluginPayload);
-        setPageState((pageState) => {
+  async function fetchPlugins(
+    perPage: number,
+    page: number,
+    search: string,
+    searchType: string
+  ) {
+    const offset = perPage * (page - 1);
+    const params = {
+      limit: perPage,
+      offset: offset,
+      [searchType]: search,
+    };
+    const client = ChrisAPIClient.getClient();
+    const pluginList = await client.getPluginMetas(params);
+    const plugins: PluginMeta[] = pluginList.getItems() as PluginMeta[];
+    if (plugins) {
+      const newPluginPayload = Promise.all(
+        plugins.map(async (plugin) => {
+          const plugins = await plugin.getPlugins({ limit: 1000 });
+          const pluginItems = plugins.getItems();
+          let version = "";
+
+          if (pluginItems) {
+            version = pluginItems[pluginItems.length - 1].data.version;
+          }
           return {
-            ...pageState,
-            itemCount: pluginList.totalCount,
+            data: {
+              ...plugin.data,
+              version,
+            },
           };
-        });
-        setLoading(false);
-      }
-    }
+        })
+      );
 
-    fetchPlugins(perPage, page, search, searchType);
-  }, [perPage, page, search, searchType]);
+      setPageState((pageState) => {
+        return {
+          ...pageState,
+          itemCount: pluginList.totalCount,
+        };
+      });
+      return newPluginPayload;
+    }
+  }
+
+  const { data, isLoading, isFetching } = useQuery({
+    queryKey: ["catalog", perPage, page, search, searchType],
+    queryFn: () => {
+      return fetchPlugins(perPage, page, search, searchType);
+    },
+  });
 
   const handleSearch = (search: string, searchType: string) => {
     setPageState({
@@ -97,11 +98,11 @@ const PluginCatalog = () => {
   return (
     <>
       <DisplayPage
-        loading={loading}
+        loading={isLoading || isFetching}
         pageState={pageState}
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
-        resources={plugins}
+        resources={data}
         handleFilterChange={handleFilterChange}
         selectedResource={selectedPlugin}
         setSelectedResource={(plugin: any) => {
