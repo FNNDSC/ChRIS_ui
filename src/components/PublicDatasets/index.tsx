@@ -18,6 +18,8 @@ import {NiivueCanvas, NVROptions, NVRVolume} from "niivue-react/src/index";
 import {Niivue} from "@niivue/niivue";
 import {useImmer} from "use-immer";
 import styles from './styles.module.css';
+import { setSidebarActive } from "../../store/ui/actions.ts";
+import { useDispatch } from "react-redux";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
@@ -69,6 +71,7 @@ type VolumeOptions = {
 const PublicDatasets: React.FunctionComponent = () => {
 
   const client = ChrisAPIClient.getClient();
+  const dispatch = useDispatch();
   const [feeds, setFeeds] = useState<Feed[] | null>(null);
   const [feed, setFeed] = useState<Feed | null>(null);
   const [feedFiles, setFeedFiles] = useState<Files | null>(null);
@@ -186,6 +189,15 @@ const PublicDatasets: React.FunctionComponent = () => {
 
   // EFFECTS
   // --------------------------------------------------------------------------------
+
+  React.useEffect(() => {
+    document.title = "Public Datasets Browser";
+    dispatch(
+      setSidebarActive({
+        activeItem: "niivue",
+      })
+    );
+  }, []);
 
   // on first load, get all the public feeds containing public datasets.
   useEffect(() => {
