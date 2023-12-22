@@ -17,7 +17,7 @@ import {
 } from "@patternfly/react-core";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
-import { SpinContainer } from "../Common";
+import { EmptyStateComponent, SpinContainer } from "../Common";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import "./display-page.css";
 
@@ -108,8 +108,6 @@ const DisplayPage = ({
       ? PluginQueryTypes.NAME_TITLE_CATEGORY[0]
       : ComputeQueryTypes.NAME[0]
   );
-
-  
 
   const onToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -235,7 +233,7 @@ const DisplayPage = ({
       })
     ) : (
       <GridItem>
-        <div>No Results Found</div>
+        <EmptyStateComponent />
       </GridItem>
     );
 
