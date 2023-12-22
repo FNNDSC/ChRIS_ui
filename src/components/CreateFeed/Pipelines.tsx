@@ -224,8 +224,6 @@ const Pipelines = ({
     [
       handleCleanResources,
       handlePipelineSecondaryResource,
-      handleSetPipelineEnvironments,
-      handleSetPipelineResources,
       pipelineData,
       selectedPipeline,
     ]
@@ -260,7 +258,6 @@ const Pipelines = ({
       expanded,
       handleCleanResources,
       handlePipelineSecondaryResource,
-      handleSetPipelineResources,
       selectedPipeline,
       state.pipelineData,
     ]

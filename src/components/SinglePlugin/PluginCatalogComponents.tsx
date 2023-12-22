@@ -130,7 +130,10 @@ export const DropdownPluginVersions = ({
                   setPluginParameters(plugin);
                 }
               }}
-              onClick={() => setPluginParameters(plugin)}
+              onClick={() => {
+                setPluginParameters(plugin);
+                setIsOpen(!isOpen);
+              }}
               component="button"
               key={plugin.data.id}
               name={plugin.data.version}
