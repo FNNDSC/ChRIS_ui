@@ -103,12 +103,12 @@ export default function Cart() {
             });
           } catch (error: any) {
             const errObj = catchError(error);
-            setAlert(
+            setAlertTitle(
               errObj.error_message || "An error occurred while deleting files"
             );
           }
         } else {
-          setAlert("You do not have permissions to delete this folder");
+          setAlertTitle("You do not have permissions to delete this folder");
         }
       })
     );
