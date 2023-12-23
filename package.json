@@ -17,7 +17,7 @@
     "@heroicons/react": "^2.0.18",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.1.1",
-    "@patternfly/react-core": "^5.1.1",
+    "@patternfly/react-core": "^5.1.2",
     "@patternfly/react-log-viewer": "^5.0.0",
     "@patternfly/react-table": "^5.1.1",
     "@react-hook/resize-observer": "^1.2.6",
