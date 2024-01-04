@@ -29,10 +29,10 @@ const StudyCard = ({ study }: { study: any }) => {
         (day - 1) % 10 === 0
           ? 0
           : (day - 11) % 10 === 0
-          ? 1
-          : (day - 12) % 10 === 0
-          ? 2
-          : 3
+            ? 1
+            : (day - 12) % 10 === 0
+              ? 2
+              : 3
       ] || "th");
 
     return formattedDate.replace(day, dayWithSuffix);
@@ -42,78 +42,91 @@ const StudyCard = ({ study }: { study: any }) => {
     <>
       <Card isExpanded={isStudyExpanded} isRounded isSelectable isClickable>
         <CardHeader onExpand={() => setIsStudyExpanded(!isStudyExpanded)}>
-          <Grid hasGutter>
-            <GridItem span={4}>
-              <div>
+          <div style={{ flex: "1 1 25%", maxWidth: "25%", padding: "0.5em" }}>
+            <Tooltip content={study.StudyDescription.value} position="auto">
+              <div
+                style={{
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
                 <b style={{ marginRight: "0.5em" }}>
                   {study.StudyDescription.value && study.StudyDescription.value}
                 </b>{" "}
               </div>
-              <div>
-                {study.NumberOfStudyRelatedSeries.value &&
-                  study.NumberOfStudyRelatedSeries.value}{" "}
-                series, on {`${formatStudyDate(study.StudyDate.value)}`}
-              </div>
-            </GridItem>
-            <GridItem span={2}>
-              <div className="study-detail-title">Modalities in Study</div>
-              <div>
-                {study.ModalitiesInStudy.value &&
-                  study.ModalitiesInStudy.value
-                    .split("\\")
-                    .map((m: string, index: number) => (
-                      <Badge
-                        style={{ margin: "auto 0.125em" }}
-                        key={`${m} _${index}`}
-                      >
-                        {m}
-                      </Badge>
-                    ))}
-              </div>
-            </GridItem>
-            <GridItem span={2}>
-              <div className="study-detail-title">Accession Number</div>
-              {study.AccessionNumber.value &&
-              study.AccessionNumber.value.startsWith("no value") ? (
-                <Tooltip content={study.AccessionNumber}>
-                  <FaQuestionCircle />
-                </Tooltip>
-              ) : (
-                <div>{study.AccessionNumber.value}</div>
-              )}
-            </GridItem>
+            </Tooltip>
+            <div>
+              {study.NumberOfStudyRelatedSeries.value &&
+                study.NumberOfStudyRelatedSeries.value}{" "}
+              series, on {`${formatStudyDate(study.StudyDate.value)}`}
+            </div>
+          </div>
 
-            <GridItem span={2}>
-              <div className="study-detail-title">Station</div>
-              {study.PerformedStationAETitle.value &&
-              study.PerformedStationAETitle.value.startsWith("no value") ? (
-                <Tooltip content={study.PerformedStationAETitle.value}>
-                  <FaQuestionCircle />
-                </Tooltip>
-              ) : (
-                <div>{study.PerformedStationAETitle.value}</div>
-              )}
-            </GridItem>
-          </Grid>
+          <div style={{ flex: "1 1 10%", maxWidth: "10%", padding: "0.5em" }}>
+            <div className="study-detail-title">Modalities in Study</div>
+            <div>
+              {study.ModalitiesInStudy.value &&
+                study.ModalitiesInStudy.value
+                  .split("\\")
+                  .map((m: string, index: number) => (
+                    <Badge
+                      style={{ margin: "auto 0.125em" }}
+                      key={`${m} _${index}`}
+                    >
+                      {m}
+                    </Badge>
+                  ))}
+            </div>
+          </div>
+
+          <div style={{ flex: "1 1 10%", maxWidth: "10%", padding: "0.5em" }}>
+            <div className="study-detail-title">Accession Number</div>
+            {study.AccessionNumber.value &&
+            study.AccessionNumber.value.startsWith("no value") ? (
+              <Tooltip content={study.AccessionNumber}>
+                <FaQuestionCircle />
+              </Tooltip>
+            ) : (
+              <div>{study.AccessionNumber.value}</div>
+            )}
+          </div>
+
+          <div style={{ flex: "1 1 25%", maxWidth: "25%", padding: "0.5em" }}>
+            <div className="study-detail-title">Station</div>
+            {study.PerformedStationAETitle.value &&
+            study.PerformedStationAETitle.value.startsWith("no value") ? (
+              <Tooltip content={study.PerformedStationAETitle.value}>
+                <FaQuestionCircle />
+              </Tooltip>
+            ) : (
+              <div>{study.PerformedStationAETitle.value}</div>
+            )}
+          </div>
         </CardHeader>
       </Card>
       {isStudyExpanded && (
-        <Grid hasGutter className="patient-series">
+        <div className="patient-series">
           {study.series.map((series: any) => {
             return (
-              <GridItem
-                sm={12}
-                lg={4}
-                xl={2}
-                xl2={2}
-                md={4}
-                key={series.SeriesInstanceUID.value}
-              >
-                <SeriesCard series={series} />
-              </GridItem>
+              <Grid hasGutter>
+                <GridItem
+                  style={{
+                    marginTop: "1rem",
+                     minHeight: "100px", // Adjust the height as needed
+                  }}
+                  rowSpan={1}
+                  span={12}
+                >
+                  <SeriesCard
+                    key={series.SeriesInstanceUID.value}
+                    series={series}
+                  />
+                </GridItem>
+              </Grid>
             );
           })}
-        </Grid>
+        </div>
       )}
     </>
   );

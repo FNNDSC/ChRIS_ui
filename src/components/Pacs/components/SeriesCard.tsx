@@ -6,6 +6,7 @@ import {
   useState,
   useMemo,
 } from "react";
+import { Steps } from "antd";
 import { useNavigate } from "react-router";
 import {
   Card,
@@ -26,6 +27,7 @@ import pluralize from "pluralize";
 import FileDetailView from "../../Preview/FileDetailView";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { PacsQueryContext } from "../context";
+import { DotsIndicator } from "../../Common";
 import PFDCMClient from "../pfdcmClient";
 import { Types } from "../context/index";
 import { QueryStages, getIndex } from "../context";
@@ -69,13 +71,11 @@ const SeriesCard = ({ series }: { series: any }) => {
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [error, setError] = useState("");
-
+  const [stepperStatus, setStepperStatus] = useState([]);
   const [progress, setProgress] = useState({
-    currentStep: "",
-    progressText: "",
+    currentStep: "none",
     currentProgress: 0,
   });
-
   const { queryStageForSeries, selectedPacsService } = state;
   const { currentStep, currentProgress } = progress;
 
@@ -102,7 +102,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const fetchCubeFilePreview = useCallback(
     async function fetchCubeSeries() {
       const middleValue = Math.floor(
-        parseInt(NumberOfSeriesRelatedInstances.value) / 2
+        parseInt(NumberOfSeriesRelatedInstances.value) / 2,
       );
 
       const cubeClient = ChrisAPIClient.getClient();
@@ -121,26 +121,31 @@ const SeriesCard = ({ series }: { series: any }) => {
         setError("Files are not available in storage");
       }
     },
-    [pullQuery, NumberOfSeriesRelatedInstances.value]
+    [pullQuery, NumberOfSeriesRelatedInstances.value],
   );
 
   useEffect(() => {
     async function fetchStatusForTheFirstTime() {
-      const status = await client.status(pullQuery, selectedPacsService);
+      const stepperStatus = await client.stepperStatus(
+        pullQuery,
+        selectedPacsService,
+      );
 
-      if (status) {
-        const { currentStatus } = status;
-        dispatch({
-          type: Types.SET_QUERY_STAGE_FOR_SERIES,
-          payload: {
-            SeriesInstanceUID: SeriesInstanceUID.value,
-            queryStage: currentStatus.currentStep,
-          },
-        });
-        setProgress(currentStatus);
-        currentStatus.currentStep === "completed" && fetchCubeFilePreview();
-      }
+      const { newImageStatus, progress } = stepperStatus;
+      setStepperStatus(newImageStatus);
+      setProgress(progress);
+
+      dispatch({
+        type: Types.SET_QUERY_STAGE_FOR_SERIES,
+        payload: {
+          SeriesInstanceUID: SeriesInstanceUID.value,
+          queryStage: progress.currentStep,
+        },
+      });
+
+      progress.currentStep === "completed" && fetchCubeFilePreview();
     }
+
     fetchStatusForTheFirstTime();
   }, [
     fetchCubeFilePreview,
@@ -169,30 +174,29 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   useInterval(async () => {
     if (fetchNextStatus) {
-      const status = await client.status(pullQuery, selectedPacsService);
+      const stepperStatus = await client.stepperStatus(
+        pullQuery,
+        selectedPacsService,
+      );
 
-      if (status) {
-        const { currentStatus } = status;
-        setProgress(currentStatus);
+      const { newImageStatus, progress } = stepperStatus;
+      const { currentStep } = progress;
+      setStepperStatus(newImageStatus);
+      setProgress(progress);
 
-        if (status.currentStatus.currentProgress === 1) {
-          dispatch({
-            type: Types.SET_QUERY_STAGE_FOR_SERIES,
-            payload: {
-              SeriesInstanceUID: SeriesInstanceUID.value,
-              queryStage: currentStatus.currentStep,
-            },
-          });
+      dispatch({
+        type: Types.SET_QUERY_STAGE_FOR_SERIES,
+        payload: {
+          SeriesInstanceUID: SeriesInstanceUID.value,
+          queryStage: currentStep,
+        },
+      });
 
-          const index = getIndex(currentStatus.currentStep);
-          const nextStep = QueryStages[index + 1];
-          currentStatus.currentStep !== "completed" &&
-            executeNextStepForTheSeries(nextStep);
-          currentStatus.currentStep === "completed" &&
-            setFetchNextStatus(!fetchNextStatus);
-          currentStatus.currentStep === "completed" && fetchCubeFilePreview();
-        }
-      }
+      const index = getIndex(currentStep);
+      const nextStep = QueryStages[index + 1];
+      currentStep !== "completed" && executeNextStepForTheSeries(nextStep);
+      currentStep === "completed" && setFetchNextStatus(!fetchNextStatus);
+      currentStep === "completed" && fetchCubeFilePreview();
     }
   }, 3000);
 
@@ -201,6 +205,10 @@ const SeriesCard = ({ series }: { series: any }) => {
     const index = getIndex(queryStage);
     nextQueryStage = QueryStages[index + 1];
   }
+
+  const showProcessingWithButton =
+    (currentProgress > 0 && fetchNextStatus) ||
+    (fetchNextStatus && currentStep !== "completed");
 
   const pluralizedFileLength = (
     <div style={{ fontSize: "smaller", color: "gray" }}>
@@ -213,6 +221,45 @@ const SeriesCard = ({ series }: { series: any }) => {
     executeNextStepForTheSeries(currentStep);
     setFetchNextStatus(!fetchNextStatus);
   }
+
+  const buttonContainer = (
+    <>
+      {currentStep &&
+        currentStep !== "completed" &&
+        nextQueryStage &&
+        currentProgress === 0 && (
+          <Button
+            size="sm"
+            variant="primary"
+            onClick={() => {
+              if (currentStep !== "completed") {
+                const index = getIndex(currentStep);
+                const nextStep = QueryStages[index + 1];
+                continueNextStep(nextStep);
+              }
+            }}
+          >
+            {nextQueryStage.toUpperCase()}
+          </Button>
+        )}
+
+      {currentStep !== "completed" &&
+        currentProgress > 0 &&
+        fetchNextStatus === false && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              setFetchNextStatus(!fetchNextStatus);
+            }}
+          >
+            Continue this step
+          </Button>
+        )}
+    </>
+  );
+
+  /*
 
   const buttonContainer = (
     <div style={{ margin: "auto" }}>
@@ -316,6 +363,12 @@ const SeriesCard = ({ series }: { series: any }) => {
     </>
   );
 
+   const showProcessingWithButton =
+    (currentProgress > 0 && fetchNextStatus) ||
+    (fetchNextStatus && currentStep !== "completed");
+
+*/
+
   const handleRetry = async () => {
     dispatch({
       type: Types.SET_QUERY_STAGE_FOR_SERIES,
@@ -331,11 +384,13 @@ const SeriesCard = ({ series }: { series: any }) => {
     setFetchNextStatus(true);
   };
 
-  const showProcessingWithButton =
-    (currentProgress > 0 && fetchNextStatus) ||
-    (fetchNextStatus && currentStep !== "completed");
+  const processingContainer = <DotsIndicator title="Processing..." />;
 
-  return (
+  console.log("StepperStatus", stepperStatus);
+
+  /*
+
+return (
     <>
       <Card isRounded style={{ height: "100%" }}>
         <CardHeader
@@ -434,10 +489,49 @@ const SeriesCard = ({ series }: { series: any }) => {
                 </Tooltip>
               </FlexItem>
             )}
+
+            <FlexItem>
+              <Steps size='small' items={stepperStatus} />
+            </FlexItem>
           </Flex>
         </CardBody>
       </Card>
     </>
+  );
+*/
+
+  return (
+    <Card isRounded isSelectable>
+      <CardHeader>
+        <div style={{ flex: "1 1 15%", maxWidth: "15%" }}>
+          <Tooltip content={SeriesDescription.value} position="auto">
+            <div
+              style={{
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              <b style={{ marginRight: "0.5em" }}>{SeriesDescription.value}</b>{" "}
+            </div>
+          </Tooltip>
+
+          <div>{pluralizedFileLength}</div>
+        </div>
+
+        <div style={{ flex: "1 1 10%", maxWidth: "10%" }}>
+          <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
+        </div>
+
+        <div style={{ flex: "1 1 40%", maxWidth: "40%" }}>
+          <Steps size="small" items={stepperStatus} />
+        </div>
+
+        <div style={{ flex: "1 1 10%", maxWidth: "10%", marginLeft: "1rem" }}>
+          {showProcessingWithButton ? processingContainer : buttonContainer}
+        </div>
+      </CardHeader>
+    </Card>
   );
 };
 
