@@ -268,7 +268,11 @@ class PfdcmClient {
     }
   }
 
-  async stepperStatus(query: any, selectedPacsService: string) {
+  async stepperStatus(
+    query: any,
+    selectedPacsService: string,
+    requestedFiles: number
+  ) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/sync/pypx/`,
       method: "POST",
@@ -355,6 +359,14 @@ class PfdcmClient {
       }
 
       if (imagestatus.request) {
+        currentStep = "request";
+        newImageStatus[0].description = `${images.requested} of ${requestedFiles}`;
+        newImageStatus[0].status =
+          images.requested < requestedFiles
+            ? "process"
+            : images.requested === requestedFiles
+            ? "finish"
+            : "wait";
         newImageStatus[0].status = "finish";
       }
 
@@ -365,8 +377,8 @@ class PfdcmClient {
           images.packed < images.requested
             ? "process"
             : images.packed === images.requested
-              ? "finish"
-              : "wait";
+            ? "finish"
+            : "wait";
         currentProgress = images.packed / images.requested;
       }
 
@@ -377,8 +389,8 @@ class PfdcmClient {
           images.pushed < images.requested
             ? "process"
             : images.pushed === images.requested
-              ? "finish"
-              : "wait";
+            ? "finish"
+            : "wait";
         currentProgress = images.pushed / images.requested;
       }
 
@@ -392,8 +404,7 @@ class PfdcmClient {
           currentStep = "register";
           newImageStatus[3].description = `${images.registered} of ${images.requested}`;
           newImageStatus[3].status = "process";
-          currentProgress = images.registered / images.requested
-          ;
+          currentProgress = images.registered / images.requested;
         }
       }
 

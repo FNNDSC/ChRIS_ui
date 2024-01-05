@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { parse, format } from "date-fns";
+import { useState, useContext } from "react";
+
 import {
   Card,
   CardHeader,
@@ -7,36 +7,20 @@ import {
   Badge,
   Tooltip,
   Grid,
+  Button,
 } from "@patternfly/react-core";
 import FaQuestionCircle from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 import SeriesCard from "./SeriesCard";
+import { formatStudyDate } from "./utils";
+import { PacsQueryContext, Types } from "../context";
 
 const StudyCard = ({ study }: { study: any }) => {
+  const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
 
-  const formatStudyDate = (studyDateString: string) => {
-    // Parse the input string to a Date object
-    const parsedDate = parse(studyDateString, "yyyyMMdd", new Date());
+  const { seriesPreviews, preview } = state;
 
-    // Format the Date object to 'MMMM d yyyy' format (e.g., 'December 6 2011')
-    const formattedDate = format(parsedDate, "MMMM d yyyy");
-
-    // Add 'st', 'nd', 'rd', or 'th' to the day part of the formatted date
-    const day: any = format(parsedDate, "d");
-    const dayWithSuffix =
-      day +
-      (["st", "nd", "rd"][
-        (day - 1) % 10 === 0
-          ? 0
-          : (day - 11) % 10 === 0
-            ? 1
-            : (day - 12) % 10 === 0
-              ? 2
-              : 3
-      ] || "th");
-
-    return formattedDate.replace(day, dayWithSuffix);
-  };
+  console.log("State", state);
 
   return (
     <>
@@ -107,25 +91,44 @@ const StudyCard = ({ study }: { study: any }) => {
       </Card>
       {isStudyExpanded && (
         <div className="patient-series">
-          {study.series.map((series: any) => {
-            return (
-              <Grid hasGutter>
+          <div
+            style={{
+              textAlign: "right",
+            }}
+            className="button-container"
+          >
+            <Button
+              onClick={() => {
+                dispatch({
+                  type: Types.SET_SHOW_PREVIEW,
+                  payload: {
+                    preview: !preview,
+                  },
+                });
+              }}
+              style={{ display: "inline-block" }}
+            >
+              {preview ? "Hide" : "Show"} All Previews
+            </Button>
+          </div>
+
+          <Grid hasGutter>
+            {study.series.map((series: any) => {
+              const seriesID = series.SeriesInstanceUID.value;
+              return (
                 <GridItem
-                  style={{
-                    marginTop: "1rem",
-                     minHeight: "100px", // Adjust the height as needed
-                  }}
+                  className={seriesPreviews[seriesID] ? "series-grid" : ""}
                   rowSpan={1}
-                  span={12}
+                  span={seriesPreviews[seriesID] ? 4 : 12}
                 >
                   <SeriesCard
                     key={series.SeriesInstanceUID.value}
                     series={series}
                   />
                 </GridItem>
-              </Grid>
-            );
-          })}
+              );
+            })}
+          </Grid>
         </div>
       )}
     </>

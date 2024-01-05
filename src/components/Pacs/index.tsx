@@ -64,7 +64,7 @@ const QueryBuilder = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const service = searchParams.get("service");
-
+  const queryType = searchParams.get("queryType");
   const { state, dispatch } = React.useContext(PacsQueryContext);
   const [queryOpen, setQueryOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
@@ -137,18 +137,18 @@ const QueryBuilder = () => {
   );
 
   React.useEffect(() => {
-    if (!service) {
-      client
-        .getPacsServices()
-        .then((list) => {
-          if (list) {
-            dispatch({
-              type: Types.SET_LIST_PACS_SERVICES,
-              payload: {
-                pacsServices: list,
-              },
-            });
+    client
+      .getPacsServices()
+      .then((list) => {
+        if (list) {
+          dispatch({
+            type: Types.SET_LIST_PACS_SERVICES,
+            payload: {
+              pacsServices: list,
+            },
+          });
 
+          if (!service) {
             dispatch({
               type: Types.SET_SELECTED_PACS_SERVICE,
               payload: {
@@ -156,24 +156,27 @@ const QueryBuilder = () => {
               },
             });
           }
-        })
-        .catch((error: any) => {
-          setErrorState(error.message);
-        });
+        }
+      })
+      .catch((error: any) => {
+        setErrorState(error.message);
+      });
+    
+    if (!queryType) {
+      dispatch({
+        type: Types.SET_CURRENT_QUERY_TYPE,
+        payload: {
+          currentQueryType: "PatientID",
+        },
+      });
     }
 
-    dispatch({
-      type: Types.SET_CURRENT_QUERY_TYPE,
-      payload: {
-        currentQueryType: "PatientID",
-      },
-    });
-  }, [dispatch, service]);
+   
+  }, [dispatch, service,queryType]);
 
   React.useEffect(() => {
-    const queryType = searchParams.get("queryType");
+    
     const searchValue = searchParams.get("value");
-
     if (
       Object.keys(queryResult).length === 0 &&
       queryType &&
@@ -200,6 +203,7 @@ const QueryBuilder = () => {
           currentQueryType: queryType,
         },
       });
+
       handleSubmitQuery(false, queryType, searchValue, service);
       setValue(searchValue);
     }
