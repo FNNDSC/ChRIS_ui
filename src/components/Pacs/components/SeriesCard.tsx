@@ -6,7 +6,7 @@ import {
   useState,
   useMemo,
 } from "react";
-import { Steps } from "antd";
+import { Steps, StepProps } from "antd";
 import { useNavigate } from "react-router";
 import {
   Card,
@@ -26,16 +26,17 @@ import {
 import pluralize from "pluralize";
 import FileDetailView from "../../Preview/FileDetailView";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { PacsQueryContext } from "../context";
+import { PacsQueryContext, Types } from "../context";
 import { DotsIndicator } from "../../Common";
 import PFDCMClient from "../pfdcmClient";
-import { Types } from "../context/index";
+
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import RedoIcon from "@patternfly/react-icons/dist/esm/icons/redo-icon";
 import FaCodeBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
+import { formatStudyDate } from "./utils";
 
 const client = new PFDCMClient();
 
@@ -66,26 +67,29 @@ const SeriesCard = ({ series }: { series: any }) => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
-
   const [cubeFilePreview, setCubeFilePreview] = useState<any>();
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [error, setError] = useState("");
-  const [stepperStatus, setStepperStatus] = useState([]);
+  const [stepperStatus, setStepperStatus] = useState<StepProps[]>([]);
   const [progress, setProgress] = useState({
     currentStep: "none",
     currentProgress: 0,
   });
-  const { queryStageForSeries, selectedPacsService } = state;
+  const { queryStageForSeries, selectedPacsService, preview, seriesPreviews } =
+    state;
   const { currentStep, currentProgress } = progress;
+  const [requestCounter, setRequestCounter] = useState<{
+    [key: string]: number;
+  }>({});
 
   const {
     SeriesInstanceUID,
     StudyInstanceUID,
-    PatientID,
     SeriesDescription,
     Modality,
     NumberOfSeriesRelatedInstances,
+    AccessionNumber,
   } = series;
 
   const queryStage =
@@ -95,14 +99,14 @@ const SeriesCard = ({ series }: { series: any }) => {
     return {
       SeriesInstanceUID: SeriesInstanceUID.value,
       StudyInstanceUID: StudyInstanceUID.value,
-      PatientID: PatientID.value,
+      AccessionNumber: AccessionNumber.value,
     };
-  }, [PatientID.value, SeriesInstanceUID.value, StudyInstanceUID.value]);
+  }, [AccessionNumber.value, SeriesInstanceUID.value, StudyInstanceUID.value]);
 
   const fetchCubeFilePreview = useCallback(
     async function fetchCubeSeries() {
       const middleValue = Math.floor(
-        parseInt(NumberOfSeriesRelatedInstances.value) / 2,
+        parseInt(NumberOfSeriesRelatedInstances.value) / 2
       );
 
       const cubeClient = ChrisAPIClient.getClient();
@@ -121,18 +125,39 @@ const SeriesCard = ({ series }: { series: any }) => {
         setError("Files are not available in storage");
       }
     },
-    [pullQuery, NumberOfSeriesRelatedInstances.value],
+    [pullQuery, NumberOfSeriesRelatedInstances.value]
   );
+
+  useEffect(() => {
+    if (preview && cubeFilePreview) {
+      // rejiggle layout's
+      dispatch({
+        type: Types.SET_SERIES_PREVIEWS,
+        payload: {
+          seriesID: SeriesInstanceUID.value,
+          preview: true,
+        },
+      });
+    } else if (preview === false && Object.keys(seriesPreviews).length > 0) {
+      dispatch({
+        type: Types.RESET_SERIES_PREVIEWS,
+        payload: {
+          clearSeriesPreview: true,
+        },
+      });
+    }
+  }, [preview, cubeFilePreview]);
 
   useEffect(() => {
     async function fetchStatusForTheFirstTime() {
       const stepperStatus = await client.stepperStatus(
         pullQuery,
         selectedPacsService,
+        NumberOfSeriesRelatedInstances.value
       );
 
       const { newImageStatus, progress } = stepperStatus;
-      setStepperStatus(newImageStatus);
+      setStepperStatus(newImageStatus as StepProps[]);
       setProgress(progress);
 
       dispatch({
@@ -153,9 +178,12 @@ const SeriesCard = ({ series }: { series: any }) => {
     pullQuery,
     SeriesInstanceUID.value,
     selectedPacsService,
+    NumberOfSeriesRelatedInstances.value,
   ]);
 
   const executeNextStepForTheSeries = async (nextStep: string) => {
+    console.log("ExecuteStepForNextSeries");
+
     try {
       if (nextStep === "retrieve") {
         await client.findRetrieve(pullQuery, selectedPacsService);
@@ -177,28 +205,43 @@ const SeriesCard = ({ series }: { series: any }) => {
       const stepperStatus = await client.stepperStatus(
         pullQuery,
         selectedPacsService,
+        NumberOfSeriesRelatedInstances.value
       );
 
       const { newImageStatus, progress } = stepperStatus;
-      const { currentStep } = progress;
-      setStepperStatus(newImageStatus);
+      const { currentStep, currentProgress } = progress;
+      setStepperStatus(newImageStatus as StepProps[]);
       setProgress(progress);
 
-      dispatch({
-        type: Types.SET_QUERY_STAGE_FOR_SERIES,
-        payload: {
-          SeriesInstanceUID: SeriesInstanceUID.value,
-          queryStage: currentStep,
-        },
-      });
+      if (!(requestCounter[currentStep] > 2)) {
+        setRequestCounter({
+          ...requestCounter,
+          [currentStep]: requestCounter[currentStep]
+            ? requestCounter[currentStep] + 1
+            : 1,
+        });
+      }
 
-      const index = getIndex(currentStep);
-      const nextStep = QueryStages[index + 1];
-      currentStep !== "completed" && executeNextStepForTheSeries(nextStep);
+      if (
+        requestCounter[currentStep] === 1 &&
+        (currentProgress === 0 || currentProgress === 1)
+      ) {
+        const index = getIndex(currentStep);
+        const nextStep = QueryStages[index + 1];
+        currentStep !== "completed" && executeNextStepForTheSeries(nextStep);
+        dispatch({
+          type: Types.SET_QUERY_STAGE_FOR_SERIES,
+          payload: {
+            SeriesInstanceUID: SeriesInstanceUID.value,
+            queryStage: currentStep,
+          },
+        });
+      }
+
       currentStep === "completed" && setFetchNextStatus(!fetchNextStatus);
       currentStep === "completed" && fetchCubeFilePreview();
     }
-  }, 3000);
+  }, 4000);
 
   let nextQueryStage;
   if (queryStage) {
@@ -210,18 +253,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     (currentProgress > 0 && fetchNextStatus) ||
     (fetchNextStatus && currentStep !== "completed");
 
-  const pluralizedFileLength = (
-    <div style={{ fontSize: "smaller", color: "gray" }}>
-      {series.NumberOfSeriesRelatedInstances.value}{" "}
-      {pluralize("file", series.NumberOfSeriesRelatedInstances.value)}
-    </div>
-  );
-
-  function continueNextStep(currentStep: string) {
-    executeNextStepForTheSeries(currentStep);
-    setFetchNextStatus(!fetchNextStatus);
-  }
-
   const buttonContainer = (
     <>
       {currentStep &&
@@ -232,11 +263,7 @@ const SeriesCard = ({ series }: { series: any }) => {
             size="sm"
             variant="primary"
             onClick={() => {
-              if (currentStep !== "completed") {
-                const index = getIndex(currentStep);
-                const nextStep = QueryStages[index + 1];
-                continueNextStep(nextStep);
-              }
+              setFetchNextStatus(!fetchNextStatus);
             }}
           >
             {nextQueryStage.toUpperCase()}
@@ -384,10 +411,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     setFetchNextStatus(true);
   };
 
-  const processingContainer = <DotsIndicator title="Processing..." />;
-
-  console.log("StepperStatus", stepperStatus);
-
   /*
 
 return (
@@ -500,37 +523,78 @@ return (
   );
 */
 
+  const rowLayout = (
+    <CardHeader>
+      <div style={{ flex: "1 1 15%", maxWidth: "15%" }}>
+        <Tooltip content={SeriesDescription.value} position="auto">
+          <div
+            style={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <b style={{ marginRight: "0.5em" }}>{SeriesDescription.value}</b>{" "}
+          </div>
+        </Tooltip>
+
+        <div>{series.NumberOfSeriesRelatedInstances.value} files, on </div>
+      </div>
+
+      <div style={{ flex: "1 1 10%", maxWidth: "10%" }}>
+        <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
+      </div>
+
+      <div style={{ flex: "1 1 40%", maxWidth: "40%" }}>
+        <Steps size="small" items={stepperStatus} />
+      </div>
+
+      <div style={{ flex: "1 1 10%", maxWidth: "10%", marginLeft: "1rem" }}>
+        {!showProcessingWithButton && buttonContainer}
+      </div>
+    </CardHeader>
+  );
+
+  const filePreviewLayout = (
+    <CardBody>
+      <FileDetailView preview="small" selectedFile={cubeFilePreview} />
+      <div className="series-actions">
+        {openSeriesPreview && (
+          <Modal
+            style={{
+              height: "800px",
+            }}
+            title="Preview"
+            aria-label="viewer"
+            isOpen={!!openSeriesPreview}
+            onClose={() => setOpenSeriesPreview(false)}
+          >
+            <FileDetailView selectedFile={cubeFilePreview} preview="large" />
+          </Modal>
+        )}
+
+        <div
+          className="action-button-container hover"
+          style={{ display: "flex", flexFlow: "row", flexWrap: "wrap" }}
+        >
+          <Button
+            icon={<FaEye />}
+            variant="secondary"
+            style={{ fontSize: "small", margin: "auto" }}
+            onClick={() => setOpenSeriesPreview(true)}
+          >
+            <b>Preview</b>
+          </Button>
+        </div>
+      </div>
+    </CardBody>
+  );
+
   return (
     <Card isRounded isSelectable>
-      <CardHeader>
-        <div style={{ flex: "1 1 15%", maxWidth: "15%" }}>
-          <Tooltip content={SeriesDescription.value} position="auto">
-            <div
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <b style={{ marginRight: "0.5em" }}>{SeriesDescription.value}</b>{" "}
-            </div>
-          </Tooltip>
-
-          <div>{pluralizedFileLength}</div>
-        </div>
-
-        <div style={{ flex: "1 1 10%", maxWidth: "10%" }}>
-          <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
-        </div>
-
-        <div style={{ flex: "1 1 40%", maxWidth: "40%" }}>
-          <Steps size="small" items={stepperStatus} />
-        </div>
-
-        <div style={{ flex: "1 1 10%", maxWidth: "10%", marginLeft: "1rem" }}>
-          {showProcessingWithButton ? processingContainer : buttonContainer}
-        </div>
-      </CardHeader>
+      {preview && seriesPreviews && seriesPreviews[SeriesInstanceUID.value]
+        ? filePreviewLayout
+        : rowLayout}
     </Card>
   );
 };
