@@ -413,13 +413,16 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   return (
     <>
-      <Alert
-        type="error"
-        message="An Error was found"
-        description={error}
-        closable
-        onClose={() => setError("")}
-      ></Alert>
+      {error && (
+        <Alert
+          type="error"
+          message="An Error was found"
+          description={error}
+          closable
+          onClose={() => setError("")}
+        ></Alert>
+      )}
+
       <Card isRounded isSelectable>
         {preview && seriesPreviews && seriesPreviews[SeriesInstanceUID.value]
           ? filePreviewLayout
