@@ -271,7 +271,8 @@ class PfdcmClient {
   async stepperStatus(
     query: any,
     selectedPacsService: string,
-    requestedFiles: number
+    requestedFiles: number,
+    retrieve?: boolean,
   ) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/sync/pypx/`,
@@ -293,7 +294,12 @@ class PfdcmClient {
       },
     };
 
-    const newImageStatus = [
+    const newImageStatus: {
+      title: string;
+      description: string;
+      status: string;
+      icon?: React.ReactNode;
+    }[] = [
       {
         title: "Request",
         description: "",
@@ -358,15 +364,14 @@ class PfdcmClient {
         }
       }
 
+      if (!imagestatus.request && retrieve) {
+        newImageStatus[0].icon = <Spin />;
+        newImageStatus[0].description = `Requesting ${requestedFiles} files`;
+      }
+
       if (imagestatus.request) {
         currentStep = "request";
         newImageStatus[0].description = `${images.requested} of ${requestedFiles}`;
-        newImageStatus[0].status =
-          images.requested < requestedFiles
-            ? "process"
-            : images.requested === requestedFiles
-            ? "finish"
-            : "wait";
         newImageStatus[0].status = "finish";
       }
 
@@ -377,9 +382,12 @@ class PfdcmClient {
           images.packed < images.requested
             ? "process"
             : images.packed === images.requested
-            ? "finish"
-            : "wait";
+              ? "finish"
+              : "wait";
         currentProgress = images.packed / images.requested;
+        newImageStatus[1].icon = newImageStatus[1].status === "process" && (
+          <Spin />
+        );
       }
 
       if (imagestatus.push) {
@@ -389,15 +397,18 @@ class PfdcmClient {
           images.pushed < images.requested
             ? "process"
             : images.pushed === images.requested
-            ? "finish"
-            : "wait";
+              ? "finish"
+              : "wait";
         currentProgress = images.pushed / images.requested;
+        newImageStatus[2].icon = newImageStatus[2].status === "process" && (
+          <Spin />
+        );
       }
 
       if (imagestatus.register) {
         if (images.registered === images.requested) {
           currentStep = "completed";
-          newImageStatus[3].description = "Files are available";
+          newImageStatus[3].description = `${images.registered} of ${images.requested}`;
           newImageStatus[3].status = "finish";
           currentProgress = 1;
         } else {
@@ -405,6 +416,9 @@ class PfdcmClient {
           newImageStatus[3].description = `${images.registered} of ${images.requested}`;
           newImageStatus[3].status = "process";
           currentProgress = images.registered / images.requested;
+          newImageStatus[3].icon = newImageStatus[3].status === "process" && (
+            <Spin />
+          );
         }
       }
 
@@ -415,7 +429,7 @@ class PfdcmClient {
           currentProgress,
         },
       };
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(error);
     }
   }
