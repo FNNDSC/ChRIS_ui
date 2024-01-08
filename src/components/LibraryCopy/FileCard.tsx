@@ -100,7 +100,6 @@ const FileCard = ({ file }: { file: any }) => {
             <div style={{ display: "flex" }}>
               <Progress size="sm" value={status} />{" "}
               <AiOutlineClose
-                t
                 style={{
                   color: "red",
                   marginLeft: "0.25rem",
