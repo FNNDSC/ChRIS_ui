@@ -89,17 +89,18 @@ const FileCard = ({ file }: { file: any }) => {
                     (statusCallbackValue: any) => {
                       const statusValue = statusCallbackValue[file.data.fname];
                       setDownloadStatus(statusValue);
-                    }
+                    },
                   );
                 }}
               />
             }
           />
-          {status === 0 && <DotsIndicator />}
+          {status === 0 && <DotsIndicator title="Processing Download..." />}
           {status && status > 0 ? (
             <div style={{ display: "flex" }}>
               <Progress size="sm" value={status} />{" "}
               <AiOutlineClose
+                t
                 style={{
                   color: "red",
                   marginLeft: "0.25rem",

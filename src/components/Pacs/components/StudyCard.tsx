@@ -17,16 +17,13 @@ import { PacsQueryContext, Types } from "../context";
 const StudyCard = ({ study }: { study: any }) => {
   const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
-
   const { seriesPreviews, preview } = state;
-
-  console.log("State", state);
 
   return (
     <>
       <Card isExpanded={isStudyExpanded} isRounded isSelectable isClickable>
-        <CardHeader onExpand={() => setIsStudyExpanded(!isStudyExpanded)}>
-          <div style={{ flex: "1 1 25%", maxWidth: "25%", padding: "0.5em" }}>
+        <CardHeader className='flex-series-container' onExpand={() => setIsStudyExpanded(!isStudyExpanded)}>
+          <div className="flex-series-item">
             <Tooltip content={study.StudyDescription.value} position="auto">
               <div
                 style={{
@@ -47,7 +44,7 @@ const StudyCard = ({ study }: { study: any }) => {
             </div>
           </div>
 
-          <div style={{ flex: "1 1 10%", maxWidth: "10%", padding: "0.5em" }}>
+          <div className="flex-series-item ">
             <div className="study-detail-title">Modalities in Study</div>
             <div>
               {study.ModalitiesInStudy.value &&
@@ -64,7 +61,7 @@ const StudyCard = ({ study }: { study: any }) => {
             </div>
           </div>
 
-          <div style={{ flex: "1 1 10%", maxWidth: "10%", padding: "0.5em" }}>
+          <div className="flex-series-item">
             <div className="study-detail-title">Accession Number</div>
             {study.AccessionNumber.value &&
             study.AccessionNumber.value.startsWith("no value") ? (
@@ -76,7 +73,7 @@ const StudyCard = ({ study }: { study: any }) => {
             )}
           </div>
 
-          <div style={{ flex: "1 1 25%", maxWidth: "25%", padding: "0.5em" }}>
+          <div className="flex-series-item">
             <div className="study-detail-title">Station</div>
             {study.PerformedStationAETitle.value &&
             study.PerformedStationAETitle.value.startsWith("no value") ? (
@@ -87,17 +84,12 @@ const StudyCard = ({ study }: { study: any }) => {
               <div>{study.PerformedStationAETitle.value}</div>
             )}
           </div>
-        </CardHeader>
-      </Card>
-      {isStudyExpanded && (
-        <div className="patient-series">
-          <div
-            style={{
-              textAlign: "right",
-            }}
-            className="button-container"
-          >
+
+          <div className="flex-series-item">
             <Button
+              className="button-with-margin"
+              size="sm"
+              style={{ marginRight: "0.25em" }}
               onClick={() => {
                 dispatch({
                   type: Types.SET_SHOW_PREVIEW,
@@ -105,21 +97,35 @@ const StudyCard = ({ study }: { study: any }) => {
                     preview: !preview,
                   },
                 });
+
+                if (preview === false) {
+                  setIsStudyExpanded(true);
+                }
               }}
-              style={{ display: "inline-block" }}
             >
               {preview ? "Hide" : "Show"} All Previews
             </Button>
+            <Button className="button-with-margin" size="sm">
+              Pull Study
+            </Button>
           </div>
-
+        </CardHeader>
+      </Card>
+      {isStudyExpanded && (
+        <div className="patient-series">
           <Grid hasGutter>
             {study.series.map((series: any) => {
               const seriesID = series.SeriesInstanceUID.value;
+              const seriesPreview = seriesPreviews[seriesID];
               return (
                 <GridItem
+                  key={series.SeriesInstanceUID.value}
                   className={seriesPreviews[seriesID] ? "series-grid" : ""}
                   rowSpan={1}
-                  span={seriesPreviews[seriesID] ? 4 : 12}
+                  lg={seriesPreview ? 4 : 12}
+                  md={seriesPreview ? 4 : 12}
+                  sm={12}
+                  xl={seriesPreview ? 3 : 12}
                 >
                   <SeriesCard
                     key={series.SeriesInstanceUID.value}

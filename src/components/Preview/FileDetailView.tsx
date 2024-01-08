@@ -186,7 +186,7 @@ const FileDetailView = (props: AllProps) => {
     <Fragment>
       <React.Suspense
         fallback={
-          <SpinContainer title="Please wait as the preview is being fetched" />
+          <SpinContainer title="" />
         }
       >
         <ErrorBoundary fallback={errorComponent()}>
