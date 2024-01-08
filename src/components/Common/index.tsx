@@ -63,7 +63,7 @@ export const RenderFlexItem = ({
   );
 };
 
-export const DotsIndicator = () => {
+export const DotsIndicator = ({ title }: { title: string }) => {
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <Dots />
@@ -74,7 +74,7 @@ export const DotsIndicator = () => {
           marginLeft: "0.75rem",
         }}
       >
-        Please wait for a status to appear for larger files... 
+        {title}
       </div>
     </div>
   );
@@ -85,7 +85,7 @@ export const ClipboardCopyContainer = ({ path }: { path: string }) => {
 
   const clipboardCopyFunc2 = (
     _event: React.ClipboardEvent<HTMLDivElement>,
-    text: string
+    text: string,
   ) => {
     if (typeof navigator.clipboard == "undefined") {
       const textArea = document.createElement("textarea");
@@ -198,14 +198,14 @@ const FeedsQueryTypes: any = {
 };
 
 export const DataTableToolbar: React.FunctionComponent<AllProps> = (
-  props: AllProps
+  props: AllProps,
 ) => {
   const { searchType, search } = props;
   const [value, setValue] = useState(search ? search : "");
   const [dropdownValue, setDropdownValue] = React.useState<string>(
     searchType?.toUpperCase() && FeedsQueryTypes[searchType]
       ? searchType
-      : FeedsQueryTypes.NAME[0]
+      : FeedsQueryTypes.NAME[0],
   );
 
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
@@ -297,7 +297,7 @@ export const ErrorAlert = ({
       type="warning"
       closable
       onClose={cleanUpErrors}
-      description={<ReactJson  src={errors} />}
+      description={<ReactJson src={errors} />}
     ></Alert>
   );
 };

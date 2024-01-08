@@ -19,6 +19,9 @@ export enum Types {
   SET_QUERY_STAGE_FOR_SERIES = "SET_QUERY_STAGE_FOR_SERIES",
   SET_LOADING_SPINNER = "SET_LOADING_SPINNER",
   SET_DEFAULT_EXPANDED = "SET_DEFAULT_EXPANDED",
+  SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
+  SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
+  RESET_SERIES_PREVIEWS='RESET_SERIES_PREVIEWS'
 }
 
 interface PacsQueryState {
@@ -28,6 +31,10 @@ interface PacsQueryState {
   queryResult: Record<any, any>;
   queryStageForSeries: Record<any, any>;
   shouldDefaultExpanded: boolean;
+  preview: boolean;
+  seriesPreviews: {
+    [key: string]: boolean;
+  };
 }
 
 type PacsQueryPayload = {
@@ -59,6 +66,19 @@ type PacsQueryPayload = {
   [Types.SET_DEFAULT_EXPANDED]: {
     expanded: boolean;
   };
+
+  [Types.SET_SHOW_PREVIEW]: {
+    preview: boolean;
+  };
+
+  [Types.SET_SERIES_PREVIEWS]: {
+    seriesID: number;
+    preview: boolean;
+  };
+  
+  [Types.RESET_SERIES_PREVIEWS]: {
+    clearSeriesPreview: boolean;
+  };
 };
 
 export type PacsQueryActions =
@@ -82,6 +102,8 @@ const initialState = {
   queryStageForSeries: {},
   fetchingResults: false,
   shouldDefaultExpanded: false,
+  preview: false,
+  seriesPreviews: {},
 };
 
 export function getIndex(value: string) {
@@ -152,6 +174,31 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       return {
         ...state,
         shouldDefaultExpanded: action.payload.expanded,
+      };
+    }
+
+    case Types.SET_SHOW_PREVIEW: {
+      return {
+        ...state,
+        preview: action.payload.preview,
+      };
+    }
+
+    case Types.SET_SERIES_PREVIEWS: {
+      return {
+        ...state,
+        seriesPreviews: {
+          ...state.seriesPreviews,
+          [action.payload.seriesID]: action.payload.preview,
+        },
+      };
+    }
+
+    case Types.RESET_SERIES_PREVIEWS: {
+      console.log("RESET REDUCER")
+      return {
+        ...state,
+        seriesPreviews: {},
       };
     }
 

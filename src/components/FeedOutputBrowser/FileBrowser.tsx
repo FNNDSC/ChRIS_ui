@@ -226,8 +226,8 @@ const FileBrowser = (props: FileBrowserProps) => {
                     {items.length > 1
                       ? `(${items.length} items)`
                       : items.length === 1
-                      ? `(${items.length} item)`
-                      : "Empty Directory"}
+                        ? `(${items.length} item)`
+                        : "Empty Directory"}
                   </span>
                 </div>
               </div>
@@ -340,7 +340,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                             />
                           </div>
                         ) : isBuffering ? (
-                          <DotsIndicator />
+                          <DotsIndicator title="Please wait for a status to appear for larger files..." />
                         ) : undefined;
 
                       return (
