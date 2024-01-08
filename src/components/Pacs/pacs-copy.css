@@ -29,4 +29,28 @@ article {
   }
 }
 
+.series-grid {
+  margin-top: 1rem;
+}
 
+.buttonContainer {
+  padding-left: 1rem;
+}
+
+.flex-series-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.flex-series-item {
+  flex: 1;
+  box-sizing: border-box;
+  max-width: 350px; /* Set your desired maximum width for each flex-series-item */
+  margin: 0 5px; /* Adjust the margin as needed */
+}
+
+.flex-series-item.steps-container {
+  flex: 3; /* Adjust the flex value to allocate more space for the Steps container */
+  max-width: none; /* Allow the Steps container to take the full available width */
+}
