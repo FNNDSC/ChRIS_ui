@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Alert } from "antd";
 import { IFileBlob } from "../../../api/model";
 import { useTypedSelector } from "../../../store/hooks";
 import {
@@ -25,6 +26,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem, preview } = props;
   const drawerState = useTypedSelector((state) => state.drawers);
+  const [error, setError] = React.useState(false);
 
   useSize(dicomImageRef);
   const onWindowResize = () => {
@@ -84,7 +86,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [props.actionState, handleEvents]);
 
   const handleEventsThroughKeys = (event: any) => {
-    
     switch (event.key) {
       case "ArrowDown": {
         if (dicomImageRef.current) handleRotate(dicomImageRef.current);
@@ -132,7 +133,9 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       } else {
         imageId = loadJpgImage(blob);
       }
-      displayDicomImage(imageId, element);
+      displayDicomImage(imageId, element, () => {
+        setError(true);
+      });
     }
   }, []);
 
@@ -144,7 +147,16 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   return (
     <div className={preview === "large" ? "dcm-preview" : ""}>
-      <div ref={dicomImageRef} id="container"></div>
+      {error ? (
+        <Alert
+          type="error"
+          closable
+          onClose={()=>setError(false)}
+          description="This file does not have image data. Failed to parse..."
+        />
+      ) : (
+        <div ref={dicomImageRef} id="container"></div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import pluralize from "pluralize";
+import { pluralize } from "../../../api/common";
 import { format, parse } from "date-fns";
 import { GridItem, Card, CardHeader, Grid } from "@patternfly/react-core";
 import StudyCard from "./StudyCard";
