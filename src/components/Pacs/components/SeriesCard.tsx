@@ -17,7 +17,7 @@ import {
   Modal,
   Tooltip,
 } from "@patternfly/react-core";
-import pluralize from "pluralize";
+
 import FileDetailView from "../../Preview/FileDetailView";
 import { DotsIndicator } from "../../Common";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -27,7 +27,7 @@ import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import FaBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import { Alert } from "antd";
-
+import { pluralize } from "../../../api/common";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
 
@@ -104,6 +104,8 @@ const SeriesCard = ({ series }: { series: any }) => {
         parseInt(NumberOfSeriesRelatedInstances.value) / 2,
       );
 
+      console.log("middleValue", middleValue)
+
       const cubeClient = ChrisAPIClient.getClient();
 
       const files = await cubeClient.getPACSFiles({
@@ -111,6 +113,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         limit: 1,
         offset: middleValue,
       });
+      console.log("Files", files)
 
       const fileItems = files.getItems();
 
@@ -200,7 +203,7 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   useInterval(
     async () => {
-      console.log("USE INTERVAL");
+      console.log("USE INTERVAL:");
       if (fetchNextStatus && !isFetching) {
         setIsFetching(true);
         try {
@@ -350,6 +353,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     </>
   );
 
+  
   const rowLayout = (
     <CardHeader className="flex-series-container">
       <div className="flex-series-item">
@@ -367,7 +371,10 @@ const SeriesCard = ({ series }: { series: any }) => {
 
         <div>
           {series.NumberOfSeriesRelatedInstances.value}{" "}
-          {pluralize("file", series.NumberOfSeriesRelatedInstances.value)}{" "}
+          {pluralize(
+            "file",
+            +series.NumberOfSeriesRelatedInstances.value,
+          )}
         </div>
       </div>
 
@@ -426,7 +433,7 @@ const SeriesCard = ({ series }: { series: any }) => {
       <Card isRounded isSelectable>
         {preview && seriesPreviews && seriesPreviews[SeriesInstanceUID.value]
           ? filePreviewLayout
-          : !preview && rowLayout}
+          : rowLayout}
         {cubeFilePreview && LargeFilePreview}
       </Card>
     </>
