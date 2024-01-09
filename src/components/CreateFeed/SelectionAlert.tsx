@@ -1,5 +1,5 @@
 import { Chip, ChipGroup } from "@patternfly/react-core";
-import pluralize from "pluralize";
+import { pluralize } from "../../api/common";
 import React, { useContext } from "react";
 import { MainRouterContext } from "../../routes";
 

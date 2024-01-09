@@ -7,19 +7,30 @@ export const formatStudyDate = (studyDateString: string) => {
   // Format the Date object to 'MMMM d yyyy' format (e.g., 'December 6 2011')
   const formattedDate = format(parsedDate, "MMMM d yyyy");
 
-  // Add 'st', 'nd', 'rd', or 'th' to the day part of the formatted date
+  // Determine the day part of the formatted date
   const day: any = format(parsedDate, "d");
-  const dayWithSuffix =
-    day +
-    (["st", "nd", "rd"][
-      (day - 1) % 10 === 0
-        ? 0
-        : (day - 11) % 10 === 0
-          ? 1
-          : (day - 12) % 10 === 0
-            ? 2
-            : 3
-    ] || "th");
+
+  // Add 'st', 'nd', 'rd', or 'th' to the day part of the formatted date
+  const dayWithSuffix = getDayWithSuffix(day);
 
   return formattedDate.replace(day, dayWithSuffix);
+};
+
+const getDayWithSuffix = (day: number) => {
+  if (day >= 11 && day <= 13) {
+    return day + "th";
+  }
+
+  const lastDigit = day % 10;
+
+  switch (lastDigit) {
+    case 1:
+      return day + "st";
+    case 2:
+      return day + "nd";
+    case 3:
+      return day + "rd";
+    default:
+      return day + "th";
+  }
 };
