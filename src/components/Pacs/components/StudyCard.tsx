@@ -40,7 +40,7 @@ const StudyCard = ({ study }: { study: any }) => {
             <div>
               {study.NumberOfStudyRelatedSeries.value &&
                 study.NumberOfStudyRelatedSeries.value}{" "}
-              series, on {`${formatStudyDate(study.StudyDate.value)}`}
+              series, {`${formatStudyDate(study.StudyDate.value)}`}
             </div>
           </div>
 
