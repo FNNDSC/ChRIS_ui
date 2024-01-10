@@ -13,16 +13,52 @@ import FaQuestionCircle from "@patternfly/react-icons/dist/esm/icons/question-ci
 import SeriesCard from "./SeriesCard";
 import { formatStudyDate } from "./utils";
 import { PacsQueryContext, Types } from "../context";
+import PFDCMClient from "../pfdcmClient";
+import useInterval from "./useInterval";
+
+const client = new PFDCMClient();
 
 const StudyCard = ({ study }: { study: any }) => {
   const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
-  const { seriesPreviews, preview } = state;
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchNextStatus, setFetchNextStatus] = useState(false);
+  const { seriesPreviews, preview, selectedPacsService } = state;
+
+  const query = {
+    AccessionNumber: study.AccessionNumber.value,
+    StudyInstanceUID: study.StudyInstanceUID.value,
+  };
+
+  useInterval(
+    async () => {
+      if (fetchNextStatus && !isFetching) {
+        setIsFetching(true);
+        try {
+          const stepperStatus = await client.pullStudyStatus(
+            query,
+            selectedPacsService,
+            study.NumberOfStudyRelatedInstances.value,
+            true,
+          );
+        } catch (error) {
+          console.log("Error", error);
+          setIsFetching(false);
+        } finally {
+          setIsFetching(false);
+        }
+      }
+    },
+    fetchNextStatus ? 3000 : null,
+  );
 
   return (
     <>
       <Card isExpanded={isStudyExpanded} isRounded isSelectable isClickable>
-        <CardHeader className='flex-series-container' onExpand={() => setIsStudyExpanded(!isStudyExpanded)}>
+        <CardHeader
+          className="flex-series-container"
+          onExpand={() => setIsStudyExpanded(!isStudyExpanded)}
+        >
           <div className="flex-series-item">
             <Tooltip content={study.StudyDescription.value} position="auto">
               <div
@@ -105,7 +141,14 @@ const StudyCard = ({ study }: { study: any }) => {
             >
               {preview ? "Hide" : "Show"} All Previews
             </Button>
-            <Button className="button-with-margin" size="sm">
+            <Button
+              onClick={async () => {
+                await client.findRetrieve(query, selectedPacsService);
+                setFetchNextStatus(!fetchNextStatus);
+              }}
+              className="button-with-margin"
+              size="sm"
+            >
               Pull Study
             </Button>
           </div>

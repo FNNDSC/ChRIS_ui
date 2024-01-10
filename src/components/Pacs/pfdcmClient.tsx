@@ -23,7 +23,12 @@ class PfdcmClient {
     }
   }
 
-  async status(query: any, selectedPacsService: string) {
+  async pullStudyStatus(
+    query: any,
+    selectedPacsService: string,
+    requestedFiles: number,
+    retreive: boolean,
+  ) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/sync/pypx/`,
       method: "POST",
@@ -47,99 +52,18 @@ class PfdcmClient {
     try {
       const response = (await axios(RequestConfig)).data;
 
-      const imagestatus = {
-        request: false,
-        pack: false,
-        push: false,
-        register: false,
-      };
-
-      const currentStatus = {
-        currentStep: "",
-        progressText: "",
-        currentProgress: 0,
-      };
-
-      if (!response.status)
-        return {
-          imagestatus,
-          currentStatus,
-        };
-
       const { then } = response.pypx;
 
       const studies = then["00-status"].study;
+      const stepperStatus = this.calculateStatus(
+        studies,
+        requestedFiles,
+        retreive,
+      );
 
-      const images = { requested: 0, packed: 0, pushed: 0, registered: 0 };
+      console.log("Stepper Status", stepperStatus);
 
-      let error = "";
-
-      for (const study of studies) {
-        for (const key in study) {
-          const seriesList = study[key];
-
-          for (const series of seriesList) {
-            error = series.error;
-            if (series.images.requested.count === -1) {
-              images.requested = 0;
-              imagestatus.request = false;
-              break;
-            }
-            images.requested += series.images.requested.count;
-            imagestatus.request = series.images.requested.status;
-
-            if (series.images.packed.count === -1) break;
-            images.packed += series.images.packed.count;
-            imagestatus.pack = series.images.packed.status;
-
-            if (series.images.pushed.count === -1) break;
-            images.pushed += series.images.pushed.count;
-            imagestatus.push = series.images.pushed.status;
-
-            if (series.images.registered.count === -1) break;
-            images.registered += series.images.registered.count;
-            imagestatus.register = series.images.registered.status;
-          }
-        }
-      }
-
-      if (!imagestatus.request) {
-        currentStatus.currentStep = "none";
-        currentStatus.progressText = "";
-        currentStatus.currentProgress = 0;
-      }
-
-      if (imagestatus.request) {
-        if (imagestatus.pack) {
-          currentStatus.currentProgress = images.packed / images.requested;
-          currentStatus.currentStep = "retrieve";
-          currentStatus.progressText = `${images.packed} of ${images.requested}`;
-        }
-
-        if (imagestatus.push) {
-          currentStatus.currentProgress = images.pushed / images.requested;
-          currentStatus.currentStep = "push";
-          currentStatus.progressText = `${images.pushed} of ${images.requested}`;
-        }
-        if (imagestatus.register) {
-          if (images.registered === images.requested) {
-            currentStatus.currentProgress = 1;
-            currentStatus.currentStep = "completed";
-            currentStatus.progressText = "Files are available for this series";
-          } else {
-            currentStatus.currentProgress =
-              images.registered / images.requested;
-            currentStatus.currentStep = "register";
-            currentStatus.progressText = `${images.registered} of ${images.requested}`;
-          }
-        }
-      }
-
-      return {
-        imagestatus,
-        currentStatus,
-        error,
-      };
+      return stepperStatus;
     } catch (error: any) {
       throw new Error(error);
     }
@@ -271,8 +195,9 @@ class PfdcmClient {
   async stepperStatus(
     query: any,
     selectedPacsService: string,
-    requestedFiles: number,
+    requestedFiles?: number,
     retrieve?: boolean,
+    seriesInstanceUID?: string,
   ) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/sync/pypx/`,
@@ -294,75 +219,93 @@ class PfdcmClient {
       },
     };
 
-    const newImageStatus: {
-      title: string;
-      description: string;
-      status: string;
-      icon?: React.ReactNode;
-    }[] = [
-      {
-        title: "Request",
-        description: "",
-        status: "wait",
-      },
-      {
-        title: "Retrieve",
-        description: "",
-        status: "wait",
-      },
-      { title: "Push", description: "", status: "wait" },
-      {
-        title: "Register",
-        description: "",
-        status: "wait",
-      },
-    ];
+    try {
+      const response = (await axios(RequestConfig)).data;
+      const { then } = response.pypx;
+      const studies = then["00-status"].study;
 
-    const imagestatus = {
-      request: false,
-      pack: false,
-      push: false,
-      register: false,
-    };
+      const stepperStatus = this.calculateStatus(
+        studies,
+        requestedFiles,
+        retrieve,
+        seriesInstanceUID,
+      );
+
+      return stepperStatus;
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  }
+
+  calculateStatus(
+    studies: any[],
+    requestedFiles?: number,
+    retrieve?: boolean,
+    seriesInstanceUID?: string,
+  ) {
+    const statusMap = new Map<string, any>();
+    const progressMap = new Map<string, { imagestatus: any; images: any }>();
 
     let currentStep = "none";
     let currentProgress = 0;
 
-    try {
-      const response = (await axios(RequestConfig)).data;
-      const { then } = response.pypx;
+    for (const study of studies) {
+      for (const key in study) {
+        const seriesList = study[key];
 
-      const studies = then["00-status"].study;
-      const images = { requested: 0, packed: 0, pushed: 0, registered: 0 };
+        for (const [index, series] of seriesList.entries()) {
+          const images = { requested: 0, packed: 0, pushed: 0, registered: 0 };
+          const imagestatus = {
+            request: false,
+            pack: false,
+            push: false,
+            register: false,
+          };
 
-      for (const study of studies) {
-        for (const key in study) {
-          const seriesList = study[key];
+          const currentSeries = seriesInstanceUID
+            ? seriesInstanceUID
+            : series.study.seriesListInStudy.seriesList[index];
 
-          for (const series of seriesList) {
-            if (series.images.requested.count === -1) {
-              images.requested = 0;
-              imagestatus.request = false;
-              break;
-            }
-
-            images.requested += series.images.requested.count;
-            imagestatus.request = series.images.requested.status;
-
-            if (series.images.packed.count === -1) break;
-            images.packed += series.images.packed.count;
-            imagestatus.pack = series.images.packed.status;
-
-            if (series.images.pushed.count === -1) break;
-            images.pushed += series.images.pushed.count;
-            imagestatus.push = series.images.pushed.status;
-
-            if (series.images.registered.count === -1) break;
-            images.registered += series.images.registered.count;
-            imagestatus.register = series.images.registered.status;
+          if (series.images.requested.count === -1) {
+            images.requested = 0;
+            imagestatus.request = false;
+            break;
           }
+
+          images.requested += series.images.requested.count;
+          imagestatus.request = series.images.requested.status;
+
+          if (series.images.packed.count === -1) break;
+          images.packed += series.images.packed.count;
+          imagestatus.pack = series.images.packed.status;
+
+          if (series.images.pushed.count === -1) break;
+          images.pushed += series.images.pushed.count;
+          imagestatus.push = series.images.pushed.status;
+
+          if (series.images.registered.count === -1) break;
+          images.registered += series.images.registered.count;
+          imagestatus.register = series.images.registered.status;
+
+          progressMap.set(currentSeries, { imagestatus, images });
         }
       }
+    }
+
+    for (const [seriesKey, seriesData] of progressMap.entries()) {
+      const newImageStatus: {
+        title: string;
+        description: string;
+        status: string;
+        icon?: React.ReactNode;
+      }[] = [
+        { title: "Request", description: "", status: "wait" },
+        { title: "Retrieve", description: "", status: "wait" },
+        { title: "Push", description: "", status: "wait" },
+        { title: "Register", description: "", status: "wait" },
+      ];
+
+      const { imagestatus, images } = seriesData;
 
       if (!imagestatus.request && retrieve) {
         newImageStatus[0].icon = <Spin />;
@@ -422,16 +365,16 @@ class PfdcmClient {
         }
       }
 
-      return {
-        newImageStatus,
+      statusMap.set(seriesKey, {
+        newImageStatus: newImageStatus,
         progress: {
           currentStep,
           currentProgress,
         },
-      };
-    } catch (error: any) {
-      throw new Error(error);
+      });
     }
+
+    return statusMap;
   }
 }
 export default PfdcmClient;
