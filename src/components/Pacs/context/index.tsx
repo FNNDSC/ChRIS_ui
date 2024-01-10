@@ -22,6 +22,7 @@ export enum Types {
   SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
   SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
   RESET_SERIES_PREVIEWS='RESET_SERIES_PREVIEWS'
+  SET_SERIES_STATUS='SET_SERIES_STATUS'
 }
 
 interface PacsQueryState {
@@ -35,6 +36,7 @@ interface PacsQueryState {
   seriesPreviews: {
     [key: string]: boolean;
   };
+  seriesStatus : {}
 }
 
 type PacsQueryPayload = {
@@ -79,6 +81,10 @@ type PacsQueryPayload = {
   [Types.RESET_SERIES_PREVIEWS]: {
     clearSeriesPreview: boolean;
   };
+
+  [Types.SET_SERIES_STATUS]: {
+    status: Record<string, any[]>
+  }
 };
 
 export type PacsQueryActions =
@@ -104,6 +110,7 @@ const initialState = {
   shouldDefaultExpanded: false,
   preview: false,
   seriesPreviews: {},
+  seriesStatus: new Map()
 };
 
 export function getIndex(value: string) {
@@ -195,12 +202,26 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
     }
 
     case Types.RESET_SERIES_PREVIEWS: {
-      console.log("RESET REDUCER")
+     
       return {
         ...state,
         seriesPreviews: {},
       };
     }
+
+
+  case Types.SET_SERIES_STATUS : {
+    
+
+    const newSeriesStatus = new Map([...state.seriesStatus, ...action.payload.status]);
+    
+ 
+    return {
+      ...state,
+      seriesStatus:newSeriesStatus
+    }
+    break;
+  }
 
     default:
       return state;

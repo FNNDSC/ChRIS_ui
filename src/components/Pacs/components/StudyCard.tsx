@@ -24,7 +24,7 @@ const StudyCard = ({ study }: { study: any }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const { seriesPreviews, preview, selectedPacsService } = state;
-
+  const [allCompleted, setAllCompleted] = useState(true);
   const query = {
     AccessionNumber: study.AccessionNumber.value,
     StudyInstanceUID: study.StudyInstanceUID.value,
@@ -41,8 +41,28 @@ const StudyCard = ({ study }: { study: any }) => {
             study.NumberOfStudyRelatedInstances.value,
             true,
           );
+
+          dispatch({
+            type: Types.SET_SERIES_STATUS,
+            payload: {
+              status: stepperStatus,
+            },
+          });
+
+          let allCompleted = true;
+
+          for (const [, seriesData] of stepperStatus) {
+            if (seriesData.progress.currentStep !== "completed") {
+              allCompleted = false;
+              break;
+            }
+          }
+
+          if (allCompleted) {
+            setIsFetching(false);
+            setFetchNextStatus(!fetchNextStatus);
+          }
         } catch (error) {
-          console.log("Error", error);
           setIsFetching(false);
         } finally {
           setIsFetching(false);

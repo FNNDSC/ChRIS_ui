@@ -61,8 +61,6 @@ class PfdcmClient {
         retreive,
       );
 
-      console.log("Stepper Status", stepperStatus);
-
       return stepperStatus;
     } catch (error: any) {
       throw new Error(error);
@@ -233,6 +231,7 @@ class PfdcmClient {
 
       return stepperStatus;
     } catch (error: any) {
+      console.log("Error", error);
       throw new Error(error);
     }
   }
@@ -269,6 +268,7 @@ class PfdcmClient {
           if (series.images.requested.count === -1) {
             images.requested = 0;
             imagestatus.request = false;
+            progressMap.set(currentSeries, { imagestatus, images });
             break;
           }
 

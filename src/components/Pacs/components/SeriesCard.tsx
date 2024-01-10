@@ -35,27 +35,6 @@ import useInterval from "./useInterval";
 const client = new PFDCMClient();
 
 const SeriesCard = ({ series }: { series: any }) => {
-  const navigate = useNavigate();
-  const { state, dispatch } = useContext(PacsQueryContext);
-  const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
-  const [cubeFilePreview, setCubeFilePreview] = useState<any>();
-  const [fetchNextStatus, setFetchNextStatus] = useState(false);
-  const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
-  const [error, setError] = useState("");
-
-  const [stepperStatus, setStepperStatus] = useState<StepProps[]>([]);
-  const [progress, setProgress] = useState({
-    currentStep: "none",
-    currentProgress: 0,
-  });
-  const { queryStageForSeries, selectedPacsService, preview, seriesPreviews } =
-    state;
-  const { currentStep, currentProgress } = progress;
-  const [requestCounter, setRequestCounter] = useState<{
-    [key: string]: number;
-  }>({});
-  const [isFetching, setIsFetching] = useState(false);
-
   const {
     SeriesInstanceUID,
     StudyInstanceUID,
@@ -64,6 +43,36 @@ const SeriesCard = ({ series }: { series: any }) => {
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
+  const navigate = useNavigate();
+  const { state, dispatch } = useContext(PacsQueryContext);
+  const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
+  const [cubeFilePreview, setCubeFilePreview] = useState<any>();
+  const [fetchNextStatus, setFetchNextStatus] = useState(false);
+  const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
+  const [error, setError] = useState("");
+
+  const {
+    queryStageForSeries,
+    selectedPacsService,
+    preview,
+    seriesPreviews,
+    seriesStatus,
+  } = state;
+
+  const status = seriesStatus.get(SeriesInstanceUID.value);
+  const { newImageStatus: stepperStatus, progress } = status || {
+    newImageStatus: [],
+    progress: {
+      currentStep: "none",
+      currentProgress: 0,
+    },
+  };
+
+  const { currentStep, currentProgress } = progress;
+  const [requestCounter, setRequestCounter] = useState<{
+    [key: string]: number;
+  }>({});
+  const [isFetching, setIsFetching] = useState(false);
 
   const queryStage =
     queryStageForSeries && queryStageForSeries[SeriesInstanceUID.value];
@@ -132,16 +141,21 @@ const SeriesCard = ({ series }: { series: any }) => {
         pullQuery,
         selectedPacsService,
         NumberOfSeriesRelatedInstances.value,
-        true,
+        false,
         SeriesInstanceUID.value,
       );
 
       const status = stepperStatus.get(SeriesInstanceUID.value);
 
       if (status) {
-        const { newImageStatus, progress } = status;
-        setStepperStatus(newImageStatus as StepProps[]);
-        setProgress(progress);
+        const { progress } = status;
+
+        dispatch({
+          type: Types.SET_SERIES_STATUS,
+          payload: {
+            status: stepperStatus,
+          },
+        });
 
         dispatch({
           type: Types.SET_QUERY_STAGE_FOR_SERIES,
@@ -186,51 +200,59 @@ const SeriesCard = ({ series }: { series: any }) => {
     async () => {
       if (fetchNextStatus && !isFetching) {
         setIsFetching(true);
+        
         try {
           const stepperStatus = await client.stepperStatus(
             pullQuery,
             selectedPacsService,
             NumberOfSeriesRelatedInstances.value,
-            true,
+            currentStep === "retrieve" && true,
             SeriesInstanceUID.value,
           );
 
           const status = stepperStatus.get(SeriesInstanceUID.value);
 
-          const { newImageStatus, progress } = status;
-          const { currentStep, currentProgress } = progress;
+          if (status) {
+            const { newImageStatus, progress } = status;
+            const { currentStep, currentProgress } = progress;
 
-          setStepperStatus(newImageStatus as StepProps[]);
-          setProgress(progress);
-
-          if (!requestCounter[currentStep]) {
-            setRequestCounter({
-              ...requestCounter,
-              [currentStep]: 1,
-            });
-          }
-
-          if (
-            requestCounter[currentStep] === 1 &&
-            (currentProgress === 0 || currentProgress === 1)
-          ) {
-            const index = getIndex(currentStep);
-            const nextStep = QueryStages[index + 1];
-            currentStep !== "completed" &&
-              executeNextStepForTheSeries(nextStep);
             dispatch({
-              type: Types.SET_QUERY_STAGE_FOR_SERIES,
+              type: Types.SET_SERIES_STATUS,
               payload: {
-                SeriesInstanceUID: SeriesInstanceUID.value,
-                queryStage: currentStep,
+                status: stepperStatus,
               },
             });
-          }
 
-          if (currentStep === "completed") {
-            await fetchCubeFilePreview();
-            setFetchNextStatus(!fetchNextStatus);
-            setIsFetching(false);
+            if (!requestCounter[currentStep]) {
+              setRequestCounter({
+                ...requestCounter,
+                [currentStep]: 1,
+              });
+            }
+
+            if (
+              requestCounter[currentStep] === 1 &&
+              (currentProgress === 0 || currentProgress === 1)
+            ) {
+              const index = getIndex(currentStep);
+              const nextStep = QueryStages[index + 1];
+              currentStep !== "completed" &&
+                executeNextStepForTheSeries(nextStep);
+
+              dispatch({
+                type: Types.SET_QUERY_STAGE_FOR_SERIES,
+                payload: {
+                  SeriesInstanceUID: SeriesInstanceUID.value,
+                  queryStage: currentStep,
+                },
+              });
+            }
+
+            if (currentStep === "completed") {
+              await fetchCubeFilePreview();
+              setFetchNextStatus(!fetchNextStatus);
+              setIsFetching(false);
+            }
           }
         } catch (error) {
           // Handle error if needed
