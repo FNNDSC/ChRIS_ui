@@ -30,31 +30,9 @@ import { Alert } from "antd";
 import { pluralize } from "../../../api/common";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
+import useInterval from "./useInterval";
 
 const client = new PFDCMClient();
-
-function useInterval(callback: () => void, delay: number | null): void {
-  const savedCallback = useRef<() => void | null>();
-
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  useEffect(() => {
-    function tick() {
-      if (savedCallback.current) {
-        savedCallback.current();
-      }
-    }
-
-    if (delay !== null) {
-      const id = setInterval(tick, delay);
-      return () => {
-        clearInterval(id);
-      };
-    }
-  }, [delay]);
-}
 
 const SeriesCard = ({ series }: { series: any }) => {
   const navigate = useNavigate();
@@ -104,8 +82,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         parseInt(NumberOfSeriesRelatedInstances.value) / 2,
       );
 
-      console.log("middleValue", middleValue)
-
       const cubeClient = ChrisAPIClient.getClient();
 
       const files = await cubeClient.getPACSFiles({
@@ -113,7 +89,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         limit: 1,
         offset: middleValue,
       });
-      console.log("Files", files)
 
       const fileItems = files.getItems();
 
@@ -157,21 +132,27 @@ const SeriesCard = ({ series }: { series: any }) => {
         pullQuery,
         selectedPacsService,
         NumberOfSeriesRelatedInstances.value,
+        true,
+        SeriesInstanceUID.value,
       );
 
-      const { newImageStatus, progress } = stepperStatus;
-      setStepperStatus(newImageStatus as StepProps[]);
-      setProgress(progress);
+      const status = stepperStatus.get(SeriesInstanceUID.value);
 
-      dispatch({
-        type: Types.SET_QUERY_STAGE_FOR_SERIES,
-        payload: {
-          SeriesInstanceUID: SeriesInstanceUID.value,
-          queryStage: progress.currentStep,
-        },
-      });
+      if (status) {
+        const { newImageStatus, progress } = status;
+        setStepperStatus(newImageStatus as StepProps[]);
+        setProgress(progress);
 
-      progress.currentStep === "completed" && (await fetchCubeFilePreview());
+        dispatch({
+          type: Types.SET_QUERY_STAGE_FOR_SERIES,
+          payload: {
+            SeriesInstanceUID: SeriesInstanceUID.value,
+            queryStage: progress.currentStep,
+          },
+        });
+
+        progress.currentStep === "completed" && (await fetchCubeFilePreview());
+      }
     }
 
     fetchStatusForTheFirstTime();
@@ -203,7 +184,6 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   useInterval(
     async () => {
-      console.log("USE INTERVAL:");
       if (fetchNextStatus && !isFetching) {
         setIsFetching(true);
         try {
@@ -212,9 +192,12 @@ const SeriesCard = ({ series }: { series: any }) => {
             selectedPacsService,
             NumberOfSeriesRelatedInstances.value,
             true,
+            SeriesInstanceUID.value,
           );
 
-          const { newImageStatus, progress } = stepperStatus;
+          const status = stepperStatus.get(SeriesInstanceUID.value);
+
+          const { newImageStatus, progress } = status;
           const { currentStep, currentProgress } = progress;
 
           setStepperStatus(newImageStatus as StepProps[]);
@@ -353,7 +336,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     </>
   );
 
-  
   const rowLayout = (
     <CardHeader className="flex-series-container">
       <div className="flex-series-item">
@@ -371,10 +353,7 @@ const SeriesCard = ({ series }: { series: any }) => {
 
         <div>
           {series.NumberOfSeriesRelatedInstances.value}{" "}
-          {pluralize(
-            "file",
-            +series.NumberOfSeriesRelatedInstances.value,
-          )}
+          {pluralize("file", +series.NumberOfSeriesRelatedInstances.value)}
         </div>
       </div>
 
