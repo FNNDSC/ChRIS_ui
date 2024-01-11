@@ -2,6 +2,13 @@ import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { Spin } from "antd";
 
+interface ImageStatusType {
+  title: string;
+  description: string;
+  status: string;
+  icon?: React.ReactNode;
+}
+
 class PfdcmClient {
   private readonly url: string;
   private readonly cube: string;
@@ -23,12 +30,7 @@ class PfdcmClient {
     }
   }
 
-  async pullStudyStatus(
-    query: any,
-    selectedPacsService: string,
-    requestedFiles: number,
-    retreive: boolean,
-  ) {
+  async pullStudyStatus(query: any, selectedPacsService: string) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/sync/pypx/`,
       method: "POST",
@@ -55,11 +57,7 @@ class PfdcmClient {
       const { then } = response.pypx;
 
       const studies = then["00-status"].study;
-      const stepperStatus = this.calculateStatus(
-        studies,
-        requestedFiles,
-        retreive,
-      );
+      const stepperStatus = this.calculateStatus(studies);
 
       return stepperStatus;
     } catch (error: any) {
@@ -231,7 +229,7 @@ class PfdcmClient {
 
       return stepperStatus;
     } catch (error: any) {
-      console.log("Error", error);
+    
       throw new Error(error);
     }
   }
@@ -242,11 +240,17 @@ class PfdcmClient {
     retrieve?: boolean,
     seriesInstanceUID?: string,
   ) {
-    const statusMap = new Map<string, any>();
+    const statusMap: Record<
+      string,
+      {
+        newImageStatus: ImageStatusType[];
+        progress: {
+          currentStep: string;
+          currentProgress: number;
+        };
+      }
+    > = {};
     const progressMap = new Map<string, { imagestatus: any; images: any }>();
-
-    let currentStep = "none";
-    let currentProgress = 0;
 
     for (const study of studies) {
       for (const key in study) {
@@ -293,12 +297,9 @@ class PfdcmClient {
     }
 
     for (const [seriesKey, seriesData] of progressMap.entries()) {
-      const newImageStatus: {
-        title: string;
-        description: string;
-        status: string;
-        icon?: React.ReactNode;
-      }[] = [
+      let currentStep = "none";
+      let currentProgress = 0;
+      const newImageStatus: ImageStatusType[] = [
         { title: "Request", description: "", status: "wait" },
         { title: "Retrieve", description: "", status: "wait" },
         { title: "Push", description: "", status: "wait" },
@@ -309,12 +310,16 @@ class PfdcmClient {
 
       if (!imagestatus.request && retrieve) {
         newImageStatus[0].icon = <Spin />;
-        newImageStatus[0].description = `Requesting ${requestedFiles} files`;
+        newImageStatus[0].description = requestedFiles
+          ? `Requesting ${requestedFiles} files`
+          : `Requesting files`;
       }
 
       if (imagestatus.request) {
         currentStep = "request";
-        newImageStatus[0].description = `${images.requested} of ${requestedFiles}`;
+        newImageStatus[0].description = `${images.requested} of ${
+          requestedFiles ? requestedFiles : images.requested
+        }`;
         newImageStatus[0].status = "finish";
       }
 
@@ -343,9 +348,9 @@ class PfdcmClient {
               ? "finish"
               : "wait";
         currentProgress = images.pushed / images.requested;
-        newImageStatus[2].icon = newImageStatus[2].status === "process" && (
-          <Spin />
-        );
+        newImageStatus[2].icon = imagestatus.pack &&
+          !imagestatus.push &&
+          !imagestatus.register && <Spin />;
       }
 
       if (imagestatus.register) {
@@ -365,13 +370,13 @@ class PfdcmClient {
         }
       }
 
-      statusMap.set(seriesKey, {
+      statusMap[seriesKey] = {
         newImageStatus: newImageStatus,
         progress: {
           currentStep,
           currentProgress,
         },
-      });
+      };
     }
 
     return statusMap;

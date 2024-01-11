@@ -39,7 +39,7 @@ const PacsCopy = () => {
     dispatch(
       setSidebarActive({
         activeItem: "pacs",
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -79,7 +79,7 @@ const QueryBuilder = () => {
       navigateToDifferentRoute: boolean,
       currentQueryType: string,
       value: string,
-      selectedPacsService: string = "default"
+      selectedPacsService: string = "default",
     ) => {
       if (value.length > 0 && currentQueryType) {
         dispatch({
@@ -94,7 +94,7 @@ const QueryBuilder = () => {
             {
               [currentQueryType]: value.trimStart().trimEnd(),
             },
-            selectedPacsService
+            selectedPacsService,
           );
 
           if (response) {
@@ -114,7 +114,7 @@ const QueryBuilder = () => {
 
             if (navigateToDifferentRoute) {
               navigate(
-                `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`
+                `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`,
               );
             }
           }
@@ -129,11 +129,11 @@ const QueryBuilder = () => {
         }
       } else {
         setErrorState(
-          "Please ensure PACS service, Search Value, and the Query Type are all selected."
+          "Please ensure PACS service, Search Value, and the Query Type are all selected.",
         );
       }
     },
-    [dispatch, navigate]
+    [dispatch, navigate],
   );
 
   React.useEffect(() => {
@@ -161,7 +161,7 @@ const QueryBuilder = () => {
       .catch((error: any) => {
         setErrorState(error.message);
       });
-    
+
     if (!queryType) {
       dispatch({
         type: Types.SET_CURRENT_QUERY_TYPE,
@@ -170,12 +170,9 @@ const QueryBuilder = () => {
         },
       });
     }
-
-   
-  }, [dispatch, service,queryType]);
+  }, [dispatch, service, queryType]);
 
   React.useEffect(() => {
-    
     const searchValue = searchParams.get("value");
     if (
       Object.keys(queryResult).length === 0 &&
@@ -296,7 +293,7 @@ const QueryBuilder = () => {
                     true,
                     currentQueryType,
                     value,
-                    selectedPacsService
+                    selectedPacsService,
                   );
               }}
               onChange={(_event, value) => setValue(value)}
@@ -357,7 +354,7 @@ const QueryBuilder = () => {
                   true,
                   currentQueryType,
                   value,
-                  selectedPacsService
+                  selectedPacsService,
                 );
               }}
             >
@@ -394,7 +391,9 @@ const Results = () => {
       (queryResult.data && Object.keys(queryResult.data).length === 0) ? (
         <EmptyStateComponent />
       ) : (
-        <PatientCard queryResult={queryResult.data} />
+        <div className="result-grid">
+          <PatientCard queryResult={queryResult.data} />
+        </div>
       )}
     </>
   );
