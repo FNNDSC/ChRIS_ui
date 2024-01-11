@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 
 import {
   Card,
@@ -9,6 +9,7 @@ import {
   Grid,
   Button,
 } from "@patternfly/react-core";
+import { DotsIndicator } from "../../Common";
 import FaQuestionCircle from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 import SeriesCard from "./SeriesCard";
 import { formatStudyDate } from "./utils";
@@ -23,12 +24,25 @@ const StudyCard = ({ study }: { study: any }) => {
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
-  const { seriesPreviews, preview, selectedPacsService } = state;
-  const [allCompleted, setAllCompleted] = useState(true);
+  const { seriesPreviews, preview, selectedPacsService, queryResult } = state;
   const query = {
     AccessionNumber: study.AccessionNumber.value,
     StudyInstanceUID: study.StudyInstanceUID.value,
   };
+
+  useEffect(() => {
+    return () => {
+     
+
+      dispatch({
+        type: Types.RESET_SERIES_PREVIEWS,
+      });
+
+      dispatch({
+        type: Types.RESET_SERIES_STATUS,
+      });
+    };
+  }, [queryResult, dispatch]);
 
   useInterval(
     async () => {
@@ -37,22 +51,37 @@ const StudyCard = ({ study }: { study: any }) => {
         try {
           const stepperStatus = await client.pullStudyStatus(
             query,
-            selectedPacsService,
-            study.NumberOfStudyRelatedInstances.value,
-            true,
+            selectedPacsService
           );
 
           dispatch({
             type: Types.SET_SERIES_STATUS,
             payload: {
               status: stepperStatus,
+              studyInstanceUID: study.StudyInstanceUID.value,
             },
           });
 
           let allCompleted = true;
 
-          for (const [, seriesData] of stepperStatus) {
-            if (seriesData.progress.currentStep !== "completed") {
+          for (const [, seriesData] of Object.entries(stepperStatus)) {
+            const statusArray = [
+              "none",
+              "retrieve",
+              "push",
+              "register",
+              "completed",
+            ];
+
+            const currentStep = seriesData.progress.currentStep;
+
+            const findIndex = statusArray.findIndex(
+              (step) => step === currentStep
+            );
+
+           
+
+            if (findIndex < 1 && seriesData.progress.currentProgress !== 1) {
               allCompleted = false;
               break;
             }
@@ -63,23 +92,24 @@ const StudyCard = ({ study }: { study: any }) => {
             setFetchNextStatus(!fetchNextStatus);
           }
         } catch (error) {
+        
           setIsFetching(false);
         } finally {
           setIsFetching(false);
         }
       }
     },
-    fetchNextStatus ? 3000 : null,
+    fetchNextStatus ? 3000 : null
   );
 
   return (
     <>
       <Card isExpanded={isStudyExpanded} isRounded isSelectable isClickable>
         <CardHeader
-          className="flex-series-container"
+          className="flex-studies-container"
           onExpand={() => setIsStudyExpanded(!isStudyExpanded)}
         >
-          <div className="flex-series-item">
+          <div className="flex-studies-item">
             <Tooltip content={study.StudyDescription.value} position="auto">
               <div
                 style={{
@@ -88,9 +118,9 @@ const StudyCard = ({ study }: { study: any }) => {
                   whiteSpace: "nowrap",
                 }}
               >
-                <b style={{ marginRight: "0.5em" }}>
+                <span style={{ marginRight: "0.5em" }}>
                   {study.StudyDescription.value && study.StudyDescription.value}
-                </b>{" "}
+                </span>{" "}
               </div>
             </Tooltip>
             <div>
@@ -100,7 +130,7 @@ const StudyCard = ({ study }: { study: any }) => {
             </div>
           </div>
 
-          <div className="flex-series-item ">
+          <div className="flex-studies-item ">
             <div className="study-detail-title">Modalities in Study</div>
             <div>
               {study.ModalitiesInStudy.value &&
@@ -117,7 +147,7 @@ const StudyCard = ({ study }: { study: any }) => {
             </div>
           </div>
 
-          <div className="flex-series-item">
+          <div className="flex-studies-item">
             <div className="study-detail-title">Accession Number</div>
             {study.AccessionNumber.value &&
             study.AccessionNumber.value.startsWith("no value") ? (
@@ -129,7 +159,7 @@ const StudyCard = ({ study }: { study: any }) => {
             )}
           </div>
 
-          <div className="flex-series-item">
+          <div className="flex-studies-item">
             <div className="study-detail-title">Station</div>
             {study.PerformedStationAETitle.value &&
             study.PerformedStationAETitle.value.startsWith("no value") ? (
@@ -141,9 +171,8 @@ const StudyCard = ({ study }: { study: any }) => {
             )}
           </div>
 
-          <div className="flex-series-item">
+          <div className="flex-studies-item button-container">
             <Button
-              className="button-with-margin"
               size="sm"
               style={{ marginRight: "0.25em" }}
               onClick={() => {
@@ -161,16 +190,21 @@ const StudyCard = ({ study }: { study: any }) => {
             >
               {preview ? "Hide" : "Show"} All Previews
             </Button>
-            <Button
-              onClick={async () => {
-                await client.findRetrieve(query, selectedPacsService);
-                setFetchNextStatus(!fetchNextStatus);
-              }}
-              className="button-with-margin"
-              size="sm"
-            >
-              Pull Study
-            </Button>
+
+            {isFetching || fetchNextStatus ? (
+              <DotsIndicator title="Pulling Study..." />
+            ) : (
+              <Button
+                onClick={async () => {
+                  await client.findRetrieve(query, selectedPacsService);
+                  setFetchNextStatus(!fetchNextStatus);
+                }}
+                className="button-with-margin"
+                size="sm"
+              >
+                Pull Study
+              </Button>
+            )}
           </div>
         </CardHeader>
       </Card>
