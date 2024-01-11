@@ -20,7 +20,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
   const patient = queryResult[0];
   const patientDetails = getPatientDetails(patient);
   const [isPatientExpanded, setIsPatientExpanded] = useState(
-    state.shouldDefaultExpanded || false
+    state.shouldDefaultExpanded || false,
   );
   const { PatientID, PatientName, PatientBirthDate, PatientSex } =
     patientDetails;
@@ -44,7 +44,11 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
 
   return (
     <>
-      <Card isRounded isExpanded={isPatientExpanded}>
+      <Card
+        
+        isRounded
+        isExpanded={isPatientExpanded}
+      >
         <CardHeader onExpand={() => setIsPatientExpanded(!isPatientExpanded)}>
           <Grid hasGutter style={{ width: "100%" }}>
             <GridItem lg={4} md={4} sm={12}>
@@ -65,7 +69,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
               <div>
                 Latest Study Date: (
                 {LatestDate(
-                  queryResult.map((s: any) => s.StudyDate.value)
+                  queryResult.map((s: any) => s.StudyDate.value),
                 ).toDateString()}
                 )
               </div>

@@ -1,12 +1,5 @@
-import {
-  useRef,
-  useEffect,
-  useContext,
-  useCallback,
-  useState,
-  useMemo,
-} from "react";
-import { Steps, StepProps } from "antd";
+import { useEffect, useContext, useCallback, useState, useMemo } from "react";
+import { Steps } from "antd";
 import { useNavigate } from "react-router";
 import {
   Card,
@@ -30,54 +23,11 @@ import { Alert } from "antd";
 import { pluralize } from "../../../api/common";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
+import useInterval from "./useInterval";
 
 const client = new PFDCMClient();
 
-function useInterval(callback: () => void, delay: number | null): void {
-  const savedCallback = useRef<() => void | null>();
-
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  useEffect(() => {
-    function tick() {
-      if (savedCallback.current) {
-        savedCallback.current();
-      }
-    }
-
-    if (delay !== null) {
-      const id = setInterval(tick, delay);
-      return () => {
-        clearInterval(id);
-      };
-    }
-  }, [delay]);
-}
-
 const SeriesCard = ({ series }: { series: any }) => {
-  const navigate = useNavigate();
-  const { state, dispatch } = useContext(PacsQueryContext);
-  const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
-  const [cubeFilePreview, setCubeFilePreview] = useState<any>();
-  const [fetchNextStatus, setFetchNextStatus] = useState(false);
-  const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
-  const [error, setError] = useState("");
-
-  const [stepperStatus, setStepperStatus] = useState<StepProps[]>([]);
-  const [progress, setProgress] = useState({
-    currentStep: "none",
-    currentProgress: 0,
-  });
-  const { queryStageForSeries, selectedPacsService, preview, seriesPreviews } =
-    state;
-  const { currentStep, currentProgress } = progress;
-  const [requestCounter, setRequestCounter] = useState<{
-    [key: string]: number;
-  }>({});
-  const [isFetching, setIsFetching] = useState(false);
-
   const {
     SeriesInstanceUID,
     StudyInstanceUID,
@@ -86,6 +36,39 @@ const SeriesCard = ({ series }: { series: any }) => {
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
+  const navigate = useNavigate();
+  const { state, dispatch } = useContext(PacsQueryContext);
+  const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
+  const [cubeFilePreview, setCubeFilePreview] = useState<any>();
+  const [fetchNextStatus, setFetchNextStatus] = useState(false);
+  const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
+  const [error, setError] = useState("");
+
+  const {
+    queryStageForSeries,
+    selectedPacsService,
+    preview,
+    seriesPreviews,
+    seriesStatus,
+  } = state;
+
+  const status =
+    seriesStatus &&
+    seriesStatus[StudyInstanceUID.value] &&
+    seriesStatus[StudyInstanceUID.value][SeriesInstanceUID.value];
+  const { newImageStatus: stepperStatus, progress } = status || {
+    newImageStatus: [],
+    progress: {
+      currentStep: "none",
+      currentProgress: 0,
+    },
+  };
+
+  const { currentStep, currentProgress } = progress;
+  const [requestCounter, setRequestCounter] = useState<{
+    [key: string]: number;
+  }>({});
+  const [isFetching, setIsFetching] = useState(false);
 
   const queryStage =
     queryStageForSeries && queryStageForSeries[SeriesInstanceUID.value];
@@ -104,8 +87,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         parseInt(NumberOfSeriesRelatedInstances.value) / 2,
       );
 
-      console.log("middleValue", middleValue)
-
       const cubeClient = ChrisAPIClient.getClient();
 
       const files = await cubeClient.getPACSFiles({
@@ -113,7 +94,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         limit: 1,
         offset: middleValue,
       });
-      console.log("Files", files)
 
       const fileItems = files.getItems();
 
@@ -157,31 +137,47 @@ const SeriesCard = ({ series }: { series: any }) => {
         pullQuery,
         selectedPacsService,
         NumberOfSeriesRelatedInstances.value,
+        false,
+        SeriesInstanceUID.value,
       );
 
-      const { newImageStatus, progress } = stepperStatus;
-      setStepperStatus(newImageStatus as StepProps[]);
-      setProgress(progress);
+      const status = stepperStatus[SeriesInstanceUID.value];
 
-      dispatch({
-        type: Types.SET_QUERY_STAGE_FOR_SERIES,
-        payload: {
-          SeriesInstanceUID: SeriesInstanceUID.value,
-          queryStage: progress.currentStep,
-        },
-      });
+      if (status) {
+        const { progress } = status;
 
-      progress.currentStep === "completed" && (await fetchCubeFilePreview());
+        dispatch({
+          type: Types.SET_SERIES_STATUS,
+          payload: {
+            status: stepperStatus,
+            studyInstanceUID: StudyInstanceUID.value,
+          },
+        });
+
+        dispatch({
+          type: Types.SET_QUERY_STAGE_FOR_SERIES,
+          payload: {
+            SeriesInstanceUID: SeriesInstanceUID.value,
+            queryStage: progress.currentStep,
+          },
+        });
+
+        progress.currentStep === "completed" && (await fetchCubeFilePreview());
+      }
     }
 
-    fetchStatusForTheFirstTime();
+    if (!status) {
+      fetchStatusForTheFirstTime();
+    }
   }, [
     fetchCubeFilePreview,
     dispatch,
     pullQuery,
     SeriesInstanceUID.value,
+    StudyInstanceUID.value,
     selectedPacsService,
     NumberOfSeriesRelatedInstances.value,
+    status
   ]);
 
   const executeNextStepForTheSeries = async (nextStep: string) => {
@@ -203,51 +199,62 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   useInterval(
     async () => {
-      console.log("USE INTERVAL:");
       if (fetchNextStatus && !isFetching) {
         setIsFetching(true);
+
         try {
           const stepperStatus = await client.stepperStatus(
             pullQuery,
             selectedPacsService,
             NumberOfSeriesRelatedInstances.value,
-            true,
+            currentStep === "none" && true,
+            SeriesInstanceUID.value,
           );
 
-          const { newImageStatus, progress } = stepperStatus;
-          const { currentStep, currentProgress } = progress;
+          const status = stepperStatus[SeriesInstanceUID.value];
 
-          setStepperStatus(newImageStatus as StepProps[]);
-          setProgress(progress);
+          if (status) {
+            const { progress } = status;
+            const { currentStep, currentProgress } = progress;
 
-          if (!requestCounter[currentStep]) {
-            setRequestCounter({
-              ...requestCounter,
-              [currentStep]: 1,
-            });
-          }
-
-          if (
-            requestCounter[currentStep] === 1 &&
-            (currentProgress === 0 || currentProgress === 1)
-          ) {
-            const index = getIndex(currentStep);
-            const nextStep = QueryStages[index + 1];
-            currentStep !== "completed" &&
-              executeNextStepForTheSeries(nextStep);
             dispatch({
-              type: Types.SET_QUERY_STAGE_FOR_SERIES,
+              type: Types.SET_SERIES_STATUS,
               payload: {
-                SeriesInstanceUID: SeriesInstanceUID.value,
-                queryStage: currentStep,
+                status: stepperStatus,
+                studyInstanceUID: StudyInstanceUID.value,
               },
             });
-          }
 
-          if (currentStep === "completed") {
-            await fetchCubeFilePreview();
-            setFetchNextStatus(!fetchNextStatus);
-            setIsFetching(false);
+            if (!requestCounter[currentStep]) {
+              setRequestCounter({
+                ...requestCounter,
+                [currentStep]: 1,
+              });
+            }
+
+            if (
+              requestCounter[currentStep] === 1 &&
+              (currentProgress === 0 || currentProgress === 1)
+            ) {
+              const index = getIndex(currentStep);
+              const nextStep = QueryStages[index + 1];
+              currentStep !== "completed" &&
+                executeNextStepForTheSeries(nextStep);
+
+              dispatch({
+                type: Types.SET_QUERY_STAGE_FOR_SERIES,
+                payload: {
+                  SeriesInstanceUID: SeriesInstanceUID.value,
+                  queryStage: currentStep,
+                },
+              });
+            }
+
+            if (currentStep === "completed") {
+              await fetchCubeFilePreview();
+              setFetchNextStatus(!fetchNextStatus);
+              setIsFetching(false);
+            }
           }
         } catch (error) {
           // Handle error if needed
@@ -279,7 +286,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         currentProgress === 0 && (
           <Button
             size="sm"
-            className="button-with-margin"
             variant="primary"
             onClick={() => {
               setFetchNextStatus(!fetchNextStatus);
@@ -293,7 +299,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         currentProgress > 0 &&
         fetchNextStatus === false && (
           <Button
-            className="button-with-margin"
             variant="primary"
             size="sm"
             onClick={() => {
@@ -331,7 +336,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         <Button
           style={{ marginRight: "0.25em" }}
           size="sm"
-          className="button-with-margin"
           icon={<FaEye />}
           onClick={() => setOpenSeriesPreview(true)}
           variant="tertiary"
@@ -353,7 +357,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     </>
   );
 
-  
   const rowLayout = (
     <CardHeader className="flex-series-container">
       <div className="flex-series-item">
@@ -365,20 +368,20 @@ const SeriesCard = ({ series }: { series: any }) => {
               whiteSpace: "nowrap",
             }}
           >
-            <b style={{ marginRight: "0.5em" }}>{SeriesDescription.value}</b>{" "}
+            <span style={{ marginRight: "0.5em" }}>
+              {SeriesDescription.value}
+            </span>{" "}
           </div>
         </Tooltip>
 
         <div>
           {series.NumberOfSeriesRelatedInstances.value}{" "}
-          {pluralize(
-            "file",
-            +series.NumberOfSeriesRelatedInstances.value,
-          )}
+          {pluralize("file", +series.NumberOfSeriesRelatedInstances.value)}
         </div>
       </div>
 
       <div className="flex-series-item">
+        <div>Modality</div>
         <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
       </div>
 
