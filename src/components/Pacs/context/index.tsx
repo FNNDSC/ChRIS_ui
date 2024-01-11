@@ -21,7 +21,9 @@ export enum Types {
   SET_DEFAULT_EXPANDED = "SET_DEFAULT_EXPANDED",
   SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
   SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
-  RESET_SERIES_PREVIEWS='RESET_SERIES_PREVIEWS'
+  RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
+  SET_SERIES_STATUS = "SET_SERIES_STATUS",
+  RESET_SERIES_STATUS = "RESET_SERIES_STATUS"
 }
 
 interface PacsQueryState {
@@ -35,6 +37,7 @@ interface PacsQueryState {
   seriesPreviews: {
     [key: string]: boolean;
   };
+  seriesStatus: Record<string, any>;
 }
 
 type PacsQueryPayload = {
@@ -75,10 +78,17 @@ type PacsQueryPayload = {
     seriesID: number;
     preview: boolean;
   };
-  
+
   [Types.RESET_SERIES_PREVIEWS]: {
     clearSeriesPreview: boolean;
   };
+
+  [Types.SET_SERIES_STATUS]: {
+    status: Record<string, any[]>;
+    studyInstanceUID: string;
+  };
+
+  [Types.RESET_SERIES_STATUS]: Record<any, unknown>;
 };
 
 export type PacsQueryActions =
@@ -104,6 +114,7 @@ const initialState = {
   shouldDefaultExpanded: false,
   preview: false,
   seriesPreviews: {},
+  seriesStatus: {},
 };
 
 export function getIndex(value: string) {
@@ -195,10 +206,33 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
     }
 
     case Types.RESET_SERIES_PREVIEWS: {
-      console.log("RESET REDUCER")
       return {
         ...state,
         seriesPreviews: {},
+      };
+    }
+
+    case Types.SET_SERIES_STATUS: {
+      const { studyInstanceUID, status } = action.payload;
+      const newSeriesStatus = state.seriesStatus[studyInstanceUID]
+        ? {
+            [studyInstanceUID]: {
+              ...state.seriesStatus[studyInstanceUID],
+              ...status,
+            },
+          }
+        : { [studyInstanceUID]: status };
+
+      return {
+        ...state,
+        seriesStatus: newSeriesStatus,
+      };
+    }
+
+    case Types.RESET_SERIES_STATUS: {
+      return {
+        ...state,
+        seriesStatus: {},
       };
     }
 

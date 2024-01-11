@@ -1,26 +1,26 @@
-article {
-  max-width: 1400px;
-  margin: 0.5em auto;
-  padding: 1em 1em;
-  width: 100%;
+.result-grid,
+.patient-studies,
+.patient-series {
+  margin-top: 1em;
+}
+
+.result-grid {
+  padding-top: 1em;
+  padding-bottom: 1em;
 }
 
 .patient-studies,
 .patient-series {
-  margin-top: 1em;
   padding: 1em 2em;
   border-right: 0.5px solid lightgray;
   border-left: 0.5px solid lightgray;
-}
-
-.study-detail-title {
-  font-weight: 600;
 }
 
 .pf-v5-c-card__header-main {
   flex: 1;
   display: flex;
   flex-flow: wrap;
+  justify-content: space-between;
 }
 
 @media (min-width: 769px) {
@@ -33,24 +33,39 @@ article {
   margin-top: 1rem;
 }
 
-.buttonContainer {
-  padding-left: 1rem;
+.flex-studies-item {
+  width: 18%;
+  margin-left: 0.5em;
 }
 
-.flex-series-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+.button-with-margin {
+  margin-top: 0.25em;
 }
 
 .flex-series-item {
-  flex: 1;
-  box-sizing: border-box;
-  max-width: 350px; /* Set your desired maximum width for each flex-series-item */
-  margin: 0 5px; /* Adjust the margin as needed */
+  width: 15%;
+  margin-left: 1em;
 }
 
-.flex-series-item.steps-container {
-  flex: 3; /* Adjust the flex value to allocate more space for the Steps container */
-  max-width: none; /* Allow the Steps container to take the full available width */
+.steps-container {
+  flex: 2;
+}
+
+.flex-series-item.button-container {
+  flex: 1;
+  margin-left: 1.5em;
+}
+
+@media (max-width: 600px) {
+  .flex-series-item {
+    width: 100%; /* Set full width for all elements on smaller screens */
+  }
+
+  .flex-series-item.steps-container {
+    flex: 1; /* Adjust the flex value for steps container on smaller screens */
+  }
+
+  .flex-series-item.button-container {
+    flex: 1; /* Adjust the flex value for button container on smaller screens */
+  }
 }
