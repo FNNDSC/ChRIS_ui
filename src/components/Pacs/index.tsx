@@ -85,7 +85,8 @@ const QueryBuilder = () => {
       selectedPacsService: string = "default",
     ) => {
       if (value.length > 0 && currentQueryType) {
-        const csv = value.trim().split(",");
+        const csv = value.trim().split(/[,\s]+/);
+       
 
         dispatch({
           type: Types.SET_LOADING_SPINNER,
