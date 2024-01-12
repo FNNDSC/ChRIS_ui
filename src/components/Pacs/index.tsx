@@ -114,7 +114,7 @@ const QueryBuilder = () => {
                 text: `Completed ${responses.length} of ${csv.length} searches`,
               },
             });
-          } catch (error) {
+          } catch (error: any) {
             setErrorState(error.message);
             dispatch({
               type: Types.SET_LOADING_SPINNER,
@@ -405,14 +405,12 @@ const Results = () => {
 
   const { queryResult, fetchingResults } = state;
 
-  
-
   return (
     <>
       {fetchingResults.status && <SpinContainer title={fetchingResults.text} />}
 
       {queryResult.length > 0 ? (
-        queryResult.map((result, index) => {
+        queryResult.map((result: any, index: any) => {
           if (result && result.data.length > 0) {
             return (
               <div key={`${index}`} className="result-grid">
