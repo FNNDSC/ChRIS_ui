@@ -23,6 +23,7 @@ import PfdcmClient from "./pfdcmClient";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { Alert } from "antd";
+
 import "./pacs-copy.css";
 
 const dropdownMatch: { [key: string]: string } = {
@@ -39,7 +40,7 @@ const PacsCopy = () => {
     dispatch(
       setSidebarActive({
         activeItem: "pacs",
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -63,7 +64,6 @@ const actions = ["Patient MRN", "Patient Name", "Accession Number"];
 const QueryBuilder = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const service = searchParams.get("service");
 
   const { state, dispatch } = React.useContext(PacsQueryContext);
   const [queryOpen, setQueryOpen] = React.useState(false);
@@ -74,112 +74,126 @@ const QueryBuilder = () => {
   const { pacsServices, selectedPacsService, currentQueryType, queryResult } =
     state;
 
+  const service = searchParams.get("service");
+  const queryType = searchParams.get("queryType");
+
   const handleSubmitQuery = React.useCallback(
     async (
       navigateToDifferentRoute: boolean,
       currentQueryType: string,
       value: string,
-      selectedPacsService: string = "default"
+      selectedPacsService: string = "default",
     ) => {
       if (value.length > 0 && currentQueryType) {
+        const csv = value.trim().split(/[,\s]+/);
+       
+
         dispatch({
           type: Types.SET_LOADING_SPINNER,
           payload: {
-            loading: true,
+            status: true,
+            text: `Fetching ${csv.length} results `,
           },
         });
 
-        try {
-          const response = await client.find(
-            {
-              [currentQueryType]: value.trimStart().trimEnd(),
-            },
-            selectedPacsService
-          );
-
-          if (response) {
-            dispatch({
-              type: Types.SET_SEARCH_RESULT,
-              payload: {
-                queryResult: response,
+        const responses = [];
+        for (const value of csv) {
+          try {
+            const response = await client.find(
+              {
+                [currentQueryType]: value.trimStart().trimEnd(),
               },
-            });
+              selectedPacsService,
+            );
+
+            response && responses.push(response);
 
             dispatch({
               type: Types.SET_LOADING_SPINNER,
               payload: {
-                loading: false,
+                status: true,
+                text: `Completed ${responses.length} of ${csv.length} searches`,
               },
             });
-
-            if (navigateToDifferentRoute) {
-              navigate(
-                `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`
-              );
-            }
+          } catch (error: any) {
+            setErrorState(error.message);
+            dispatch({
+              type: Types.SET_LOADING_SPINNER,
+              payload: {
+                status: true,
+                text: `Completed ${responses.length} of ${csv.length} searches. Found an error for value ${value}`,
+              },
+            });
+            continue;
           }
-        } catch (error: any) {
-          setErrorState(error.message);
+        }
+
+        if (responses.length > 0) {
           dispatch({
-            type: Types.SET_LOADING_SPINNER,
+            type: Types.SET_SEARCH_RESULT,
             payload: {
-              loading: false,
+              queryResult: responses,
             },
           });
         }
+
+        dispatch({
+          type: Types.SET_LOADING_SPINNER,
+          payload: {
+            status: false,
+            text: `Search Complete`,
+          },
+        });
+
+        if (navigateToDifferentRoute) {
+          navigate(
+            `/pacs?queryType=${currentQueryType}&value=${value}&service=${selectedPacsService}`,
+          );
+        }
       } else {
         setErrorState(
-          "Please ensure PACS service, Search Value, and the Query Type are all selected."
+          "Please ensure PACS service, Search Value, and the Query Type are all selected.",
         );
       }
     },
-    [dispatch, navigate]
+    [dispatch, navigate],
   );
 
   React.useEffect(() => {
-    if (!service) {
-      client
-        .getPacsServices()
-        .then((list) => {
-          if (list) {
-            dispatch({
-              type: Types.SET_LIST_PACS_SERVICES,
-              payload: {
-                pacsServices: list,
-              },
-            });
+    client
+      .getPacsServices()
+      .then((list) => {
+        if (list) {
+          dispatch({
+            type: Types.SET_LIST_PACS_SERVICES,
+            payload: {
+              pacsServices: list,
+            },
+          });
 
+          const findIndex = list.findIndex(
+            (listItem: string) => listItem === "PACSDCM",
+          );
+
+          if (!service) {
             dispatch({
               type: Types.SET_SELECTED_PACS_SERVICE,
               payload: {
-                selectedPacsService: list[0],
+                selectedPacsService: findIndex > 1 ? list[findIndex] : list[0],
               },
             });
           }
-        })
-        .catch((error: any) => {
-          setErrorState(error.message);
-        });
-    }
-
-    dispatch({
-      type: Types.SET_CURRENT_QUERY_TYPE,
-      payload: {
-        currentQueryType: "PatientID",
-      },
-    });
+        }
+      })
+      .catch((error: any) => {
+        setErrorState(error.message);
+      });
   }, [dispatch, service]);
 
   React.useEffect(() => {
-    const queryType = searchParams.get("queryType");
     const searchValue = searchParams.get("value");
 
-    if (
-      Object.keys(queryResult).length === 0 &&
-      queryType &&
-      searchValue &&
-      service
-    ) {
+    if (queryResult.length === 0 && queryType && searchValue && service) {
       dispatch({
         type: Types.SET_SELECTED_PACS_SERVICE,
         payload: {
@@ -187,12 +201,13 @@ const QueryBuilder = () => {
         },
       });
 
-      dispatch({
-        type: Types.SET_DEFAULT_EXPANDED,
-        payload: {
-          expanded: true,
-        },
-      });
+      queryResult.length < 2 &&
+        dispatch({
+          type: Types.SET_DEFAULT_EXPANDED,
+          payload: {
+            expanded: true,
+          },
+        });
 
       dispatch({
         type: Types.SET_CURRENT_QUERY_TYPE,
@@ -200,10 +215,18 @@ const QueryBuilder = () => {
           currentQueryType: queryType,
         },
       });
+
       handleSubmitQuery(false, queryType, searchValue, service);
       setValue(searchValue);
     }
-  }, [queryResult, dispatch, handleSubmitQuery, searchParams, service]);
+  }, [
+    queryResult,
+    queryType,
+    dispatch,
+    handleSubmitQuery,
+    searchParams,
+    service,
+  ]);
 
   const onToggle = () => {
     setQueryOpen(!queryOpen);
@@ -292,7 +315,7 @@ const QueryBuilder = () => {
                     true,
                     currentQueryType,
                     value,
-                    selectedPacsService
+                    selectedPacsService,
                   );
               }}
               onChange={(_event, value) => setValue(value)}
@@ -306,7 +329,7 @@ const QueryBuilder = () => {
               toggle={(toggleRef) => {
                 return (
                   <MenuToggle onClick={onTogglePacsList} ref={toggleRef}>
-                    <div style={{ fontWeight: "600" }}>
+                    <div>
                       {selectedPacsService
                         ? selectedPacsService
                         : "Select a PACS Service"}
@@ -353,7 +376,7 @@ const QueryBuilder = () => {
                   true,
                   currentQueryType,
                   value,
-                  selectedPacsService
+                  selectedPacsService,
                 );
               }}
             >
@@ -385,12 +408,20 @@ const Results = () => {
 
   return (
     <>
-      {fetchingResults && <SpinContainer title="Fetching Search Results" />}
-      {Object.keys(queryResult).length === 0 ||
-      (queryResult.data && Object.keys(queryResult.data).length === 0) ? (
-        <EmptyStateComponent />
+      {fetchingResults.status && <SpinContainer title={fetchingResults.text} />}
+
+      {queryResult.length > 0 ? (
+        queryResult.map((result: any, index: any) => {
+          if (result && result.data.length > 0) {
+            return (
+              <div key={`${index}`} className="result-grid">
+                <PatientCard queryResult={result.data} />
+              </div>
+            );
+          } else <EmptyStateComponent />;
+        })
       ) : (
-        <PatientCard queryResult={queryResult.data} />
+        <EmptyStateComponent />
       )}
     </>
   );

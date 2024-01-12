@@ -88,23 +88,33 @@ export const loadJpgImage = (blob: any) => {
   return cornerstoneFileImageLoader.fileManager.add(blob);
 };
 
-export const displayDicomImage = (imageId: string, element: HTMLDivElement) => {
-  cornerstone.loadImage(imageId).then((image: any) => {
-    const viewport = cornerstone.getViewport(element, image);
+export const displayDicomImage = (
+  imageId: string,
+  element: HTMLDivElement,
+  onError?: () => void
+) => {
+  cornerstone
+    .loadImage(imageId)
+    .then((image: any) => {
+      const viewport = cornerstone.getViewport(element, image);
 
-    if (viewport) {
-      if (viewportCache.scale > 0) {
-        viewport.scale = viewportCache.scale;
+      if (viewport) {
+        if (viewportCache.scale > 0) {
+          viewport.scale = viewportCache.scale;
+        }
+
+        if (viewportCache.rotation > 0) {
+          viewport.rotation = viewportCache.rotation;
+        }
+
+        cornerstone.setViewport(element, viewport);
       }
 
-      if (viewportCache.rotation > 0) {
-        viewport.rotation = viewportCache.rotation;
-      }
-
-      cornerstone.setViewport(element, viewport);
-    }
-    cornerstone.displayImage(element, image);
-  });
+      cornerstone.displayImage(element, image);
+    })
+    .catch(() => {
+      onError && onError();
+    });
 };
 
 export const handleRotate = (element: Element) => {

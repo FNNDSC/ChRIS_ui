@@ -409,3 +409,8 @@ export async function fetchNote(feed?: Feed) {
   const note = await feed?.getNote();
   return note;
 }
+
+
+export const pluralize = (file: string, length: number) => {
+    return length === 1 ? file : `${file}s`;
+  };

@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import pluralize from "pluralize";
+
 import { format, parse } from "date-fns";
 import { GridItem, Card, CardHeader, Grid } from "@patternfly/react-core";
 import StudyCard from "./StudyCard";
@@ -20,7 +20,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
   const patient = queryResult[0];
   const patientDetails = getPatientDetails(patient);
   const [isPatientExpanded, setIsPatientExpanded] = useState(
-    state.shouldDefaultExpanded || false
+    state.shouldDefaultExpanded || false,
   );
   const { PatientID, PatientName, PatientBirthDate, PatientSex } =
     patientDetails;
@@ -49,25 +49,23 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
           <Grid hasGutter style={{ width: "100%" }}>
             <GridItem lg={4} md={4} sm={12}>
               <div>{PatientName.split("^").reverse().join(" ")}</div>
-              <div>Patient MRN: ({PatientID})</div>
+              <div>Patient MRN: {PatientID}</div>
             </GridItem>
             <GridItem lg={4} md={4} sm={12}>
-              <div>Patient Sex: ({PatientSex})</div>
-              <div>Patient Birth Date: ({formattedDate})</div>
+              <div>Patient Sex: {PatientSex}</div>
+              <div>Patient Birth Date: {formattedDate}</div>
             </GridItem>
 
             <GridItem lg={4} md={4} sm={12} className="last-item-align">
               <div>
-                <b>
-                  {queryResult.length} {pluralize("study", queryResult.length)}
-                </b>
+                {queryResult.length}{" "}
+                {queryResult.length === 1 ? "study" : "studies"}
               </div>
               <div>
-                Latest Study Date: (
+                Latest Study Date:
                 {LatestDate(
-                  queryResult.map((s: any) => s.StudyDate.value)
+                  queryResult.map((s: any) => s.StudyDate.value),
                 ).toDateString()}
-                )
               </div>
             </GridItem>
           </Grid>

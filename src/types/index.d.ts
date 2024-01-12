@@ -13,5 +13,5 @@ declare module "dicom-parser";
 declare module "rusha";
 declare module "hammerjs";
 declare module "preval.macro";
-declare module "pluralize";
+
 declare module 'sanitize-html'

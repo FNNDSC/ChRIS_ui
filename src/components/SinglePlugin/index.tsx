@@ -156,8 +156,6 @@ const SinglePlugin = () => {
     }
   }, [data, setPluginParameters]);
 
-  console.log("Error", error);
-
   return (
     <WrapperConnect>
       {isLoading || isFetching ? (
