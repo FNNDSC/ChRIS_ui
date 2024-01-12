@@ -44,7 +44,7 @@
     "keymirror": "^0.1.1",
     "lodash": "^4.17.21",
     "marked": "^9.1.5",
-    "niivue-react": "https://gitpkg.now.sh/FNNDSC/niivue-react/niivue-react?c01dd9cef1bd9ff6a7d055f4a2573d62df1a7b11",
+    "niivue-react": "https://gitpkg.now.sh/niivue/niivue-react/niivue-react?51f33bdf5a942e8cb61651b6e392a2781d548cc7",
     "pako": "^1.0.11",
     "pluralize": "^8.0.0",
     "preval.macro": "^5.0.0",
