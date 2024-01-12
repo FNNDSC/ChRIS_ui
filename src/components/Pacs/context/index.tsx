@@ -30,8 +30,9 @@ interface PacsQueryState {
   selectedPacsService: string;
   pacsServices: string[];
   currentQueryType: string;
-  queryResult: Record<any, any>;
+  queryResult: Record<any, any>[];
   queryStageForSeries: Record<any, any>;
+  fetchingResults: { status: boolean; text: string };
   shouldDefaultExpanded: boolean;
   preview: boolean;
   seriesPreviews: {
@@ -39,6 +40,19 @@ interface PacsQueryState {
   };
   seriesStatus: Record<string, any>;
 }
+
+const initialState = {
+  selectedPacsService: "",
+  pacsServices: [],
+  currentQueryType: "PatientID",
+  queryResult: [],
+  queryStageForSeries: {},
+  fetchingResults: { status: false, text: "" },
+  shouldDefaultExpanded: false,
+  preview: false,
+  seriesPreviews: {},
+  seriesStatus: {},
+};
 
 type PacsQueryPayload = {
   [Types.SET_SELECTED_PACS_SERVICE]: {
@@ -54,7 +68,7 @@ type PacsQueryPayload = {
   };
 
   [Types.SET_SEARCH_RESULT]: {
-    queryResult: Record<any, any>;
+    queryResult: Record<any, any>[];
   };
 
   [Types.SET_QUERY_STAGE_FOR_SERIES]: {
@@ -63,7 +77,8 @@ type PacsQueryPayload = {
   };
 
   [Types.SET_LOADING_SPINNER]: {
-    loading: boolean;
+    status: boolean;
+    text: string;
   };
 
   [Types.SET_DEFAULT_EXPANDED]: {
@@ -102,19 +117,6 @@ export const QueryStages: {
   2: "push",
   3: "register",
   4: "completed",
-};
-
-const initialState = {
-  selectedPacsService: "",
-  pacsServices: [],
-  currentQueryType: "",
-  queryResult: {},
-  queryStageForSeries: {},
-  fetchingResults: false,
-  shouldDefaultExpanded: false,
-  preview: false,
-  seriesPreviews: {},
-  seriesStatus: {},
 };
 
 export function getIndex(value: string) {
@@ -177,7 +179,10 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
     case Types.SET_LOADING_SPINNER: {
       return {
         ...state,
-        fetchingResults: action.payload.loading,
+        fetchingResults: {
+          status: action.payload.status,
+          text: action.payload.text,
+        },
       };
     }
 
