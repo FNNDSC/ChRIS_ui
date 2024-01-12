@@ -229,7 +229,6 @@ class PfdcmClient {
 
       return stepperStatus;
     } catch (error: any) {
-    
       throw new Error(error);
     }
   }
@@ -256,6 +255,8 @@ class PfdcmClient {
       for (const key in study) {
         const seriesList = study[key];
 
+       
+
         for (const [index, series] of seriesList.entries()) {
           const images = { requested: 0, packed: 0, pushed: 0, registered: 0 };
           const imagestatus = {
@@ -268,6 +269,8 @@ class PfdcmClient {
           const currentSeries = seriesInstanceUID
             ? seriesInstanceUID
             : series.study.seriesListInStudy.seriesList[index];
+
+          if (!currentSeries) continue;
 
           if (series.images.requested.count === -1) {
             images.requested = 0;
@@ -295,6 +298,8 @@ class PfdcmClient {
         }
       }
     }
+
+
 
     for (const [seriesKey, seriesData] of progressMap.entries()) {
       let currentStep = "none";
@@ -378,6 +383,8 @@ class PfdcmClient {
         },
       };
     }
+
+   
 
     return statusMap;
   }
