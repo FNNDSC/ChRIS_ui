@@ -44,6 +44,8 @@ const SeriesCard = ({ series }: { series: any }) => {
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [error, setError] = useState("");
 
+  console.log("State", state);
+
   const {
     queryStageForSeries,
     selectedPacsService,
@@ -177,7 +179,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     StudyInstanceUID.value,
     selectedPacsService,
     NumberOfSeriesRelatedInstances.value,
-    status
   ]);
 
   const executeNextStepForTheSeries = async (nextStep: string) => {

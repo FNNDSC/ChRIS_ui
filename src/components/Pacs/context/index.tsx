@@ -23,7 +23,7 @@ export enum Types {
   SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
   RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
   SET_SERIES_STATUS = "SET_SERIES_STATUS",
-  RESET_SERIES_STATUS = "RESET_SERIES_STATUS"
+  RESET_SERIES_STATUS = "RESET_SERIES_STATUS",
 }
 
 interface PacsQueryState {
@@ -214,14 +214,14 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
 
     case Types.SET_SERIES_STATUS: {
       const { studyInstanceUID, status } = action.payload;
-      const newSeriesStatus = state.seriesStatus[studyInstanceUID]
-        ? {
-            [studyInstanceUID]: {
-              ...state.seriesStatus[studyInstanceUID],
-              ...status,
-            },
-          }
-        : { [studyInstanceUID]: status };
+
+      const newSeriesStatus = {
+        ...state.seriesStatus,
+        [studyInstanceUID]: {
+          ...state.seriesStatus[studyInstanceUID],
+          ...status,
+        },
+      };
 
       return {
         ...state,
