@@ -19,16 +19,40 @@ export enum Types {
   SET_QUERY_STAGE_FOR_SERIES = "SET_QUERY_STAGE_FOR_SERIES",
   SET_LOADING_SPINNER = "SET_LOADING_SPINNER",
   SET_DEFAULT_EXPANDED = "SET_DEFAULT_EXPANDED",
+  SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
+  SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
+  RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
+  SET_SERIES_STATUS = "SET_SERIES_STATUS",
+  RESET_SERIES_STATUS = "RESET_SERIES_STATUS",
 }
 
 interface PacsQueryState {
   selectedPacsService: string;
   pacsServices: string[];
   currentQueryType: string;
-  queryResult: Record<any, any>;
+  queryResult: Record<any, any>[];
   queryStageForSeries: Record<any, any>;
+  fetchingResults: { status: boolean; text: string };
   shouldDefaultExpanded: boolean;
+  preview: boolean;
+  seriesPreviews: {
+    [key: string]: boolean;
+  };
+  seriesStatus: Record<string, any>;
 }
+
+const initialState = {
+  selectedPacsService: "",
+  pacsServices: [],
+  currentQueryType: "PatientID",
+  queryResult: [],
+  queryStageForSeries: {},
+  fetchingResults: { status: false, text: "" },
+  shouldDefaultExpanded: false,
+  preview: false,
+  seriesPreviews: {},
+  seriesStatus: {},
+};
 
 type PacsQueryPayload = {
   [Types.SET_SELECTED_PACS_SERVICE]: {
@@ -44,7 +68,7 @@ type PacsQueryPayload = {
   };
 
   [Types.SET_SEARCH_RESULT]: {
-    queryResult: Record<any, any>;
+    queryResult: Record<any, any>[];
   };
 
   [Types.SET_QUERY_STAGE_FOR_SERIES]: {
@@ -53,12 +77,33 @@ type PacsQueryPayload = {
   };
 
   [Types.SET_LOADING_SPINNER]: {
-    loading: boolean;
+    status: boolean;
+    text: string;
   };
 
   [Types.SET_DEFAULT_EXPANDED]: {
     expanded: boolean;
   };
+
+  [Types.SET_SHOW_PREVIEW]: {
+    preview: boolean;
+  };
+
+  [Types.SET_SERIES_PREVIEWS]: {
+    seriesID: number;
+    preview: boolean;
+  };
+
+  [Types.RESET_SERIES_PREVIEWS]: {
+    clearSeriesPreview: boolean;
+  };
+
+  [Types.SET_SERIES_STATUS]: {
+    status: Record<string, any[]>;
+    studyInstanceUID: string;
+  };
+
+  [Types.RESET_SERIES_STATUS]: Record<any, unknown>;
 };
 
 export type PacsQueryActions =
@@ -72,16 +117,6 @@ export const QueryStages: {
   2: "push",
   3: "register",
   4: "completed",
-};
-
-const initialState = {
-  selectedPacsService: "",
-  pacsServices: [],
-  currentQueryType: "",
-  queryResult: {},
-  queryStageForSeries: {},
-  fetchingResults: false,
-  shouldDefaultExpanded: false,
 };
 
 export function getIndex(value: string) {
@@ -144,7 +179,10 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
     case Types.SET_LOADING_SPINNER: {
       return {
         ...state,
-        fetchingResults: action.payload.loading,
+        fetchingResults: {
+          status: action.payload.status,
+          text: action.payload.text,
+        },
       };
     }
 
@@ -152,6 +190,54 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       return {
         ...state,
         shouldDefaultExpanded: action.payload.expanded,
+      };
+    }
+
+    case Types.SET_SHOW_PREVIEW: {
+      return {
+        ...state,
+        preview: action.payload.preview,
+      };
+    }
+
+    case Types.SET_SERIES_PREVIEWS: {
+      return {
+        ...state,
+        seriesPreviews: {
+          ...state.seriesPreviews,
+          [action.payload.seriesID]: action.payload.preview,
+        },
+      };
+    }
+
+    case Types.RESET_SERIES_PREVIEWS: {
+      return {
+        ...state,
+        seriesPreviews: {},
+      };
+    }
+
+    case Types.SET_SERIES_STATUS: {
+      const { studyInstanceUID, status } = action.payload;
+
+      const newSeriesStatus = {
+        ...state.seriesStatus,
+        [studyInstanceUID]: {
+          ...state.seriesStatus[studyInstanceUID],
+          ...status,
+        },
+      };
+
+      return {
+        ...state,
+        seriesStatus: newSeriesStatus,
+      };
+    }
+
+    case Types.RESET_SERIES_STATUS: {
+      return {
+        ...state,
+        seriesStatus: {},
       };
     }
 
