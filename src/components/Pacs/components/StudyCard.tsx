@@ -32,8 +32,6 @@ const StudyCard = ({ study }: { study: any }) => {
 
   useEffect(() => {
     return () => {
-     
-
       dispatch({
         type: Types.RESET_SERIES_PREVIEWS,
       });
@@ -51,7 +49,7 @@ const StudyCard = ({ study }: { study: any }) => {
         try {
           const stepperStatus = await client.pullStudyStatus(
             query,
-            selectedPacsService
+            selectedPacsService,
           );
 
           dispatch({
@@ -76,12 +74,10 @@ const StudyCard = ({ study }: { study: any }) => {
             const currentStep = seriesData.progress.currentStep;
 
             const findIndex = statusArray.findIndex(
-              (step) => step === currentStep
+              (step) => step === currentStep,
             );
 
-           
-
-            if (findIndex < 1 && seriesData.progress.currentProgress !== 1) {
+            if (findIndex <= 1 && seriesData.progress.currentProgress !== 1) {
               allCompleted = false;
               break;
             }
@@ -92,14 +88,13 @@ const StudyCard = ({ study }: { study: any }) => {
             setFetchNextStatus(!fetchNextStatus);
           }
         } catch (error) {
-        
           setIsFetching(false);
         } finally {
           setIsFetching(false);
         }
       }
     },
-    fetchNextStatus ? 3000 : null
+    fetchNextStatus ? 3000 : null,
   );
 
   return (
