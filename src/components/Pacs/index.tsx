@@ -91,7 +91,7 @@ const QueryBuilder = () => {
           type: Types.SET_LOADING_SPINNER,
           payload: {
             status: true,
-            text: `Fetching ${csv.lenght} results `,
+            text: `Fetching ${csv.length} results `,
           },
         });
 
@@ -200,12 +200,13 @@ const QueryBuilder = () => {
         },
       });
 
-      dispatch({
-        type: Types.SET_DEFAULT_EXPANDED,
-        payload: {
-          expanded: true,
-        },
-      });
+      queryResult.length < 2 &&
+        dispatch({
+          type: Types.SET_DEFAULT_EXPANDED,
+          payload: {
+            expanded: true,
+          },
+        });
 
       dispatch({
         type: Types.SET_CURRENT_QUERY_TYPE,
@@ -404,7 +405,7 @@ const Results = () => {
 
   const { queryResult, fetchingResults } = state;
 
-  console.log("State", state);
+  
 
   return (
     <>
