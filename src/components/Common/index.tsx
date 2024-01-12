@@ -35,9 +35,12 @@ export const EmptyStateComponent = () => {
 };
 
 export const SpinContainer = ({ title }: { title: string }) => {
+ 
   return (
     <div className="example">
-      <Spin tip={title} />
+      <Spin tip={title}>
+        <div className="content"></div>
+      </Spin>
     </div>
   );
 };
