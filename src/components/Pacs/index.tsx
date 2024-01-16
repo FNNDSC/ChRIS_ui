@@ -86,7 +86,6 @@ const QueryBuilder = () => {
     ) => {
       if (value.length > 0 && currentQueryType) {
         const csv = value.trim().split(/[,\s]+/);
-       
 
         dispatch({
           type: Types.SET_LOADING_SPINNER,
