@@ -40,8 +40,10 @@ interface PacsQueryState {
     [key: string]: boolean;
   };
   pullStudy: boolean;
-  seriesCurrentUpdate: Record<string, string>;
-  setResourcesDict: Record<string, any>;
+  seriesUpdate: {
+    [key: string]: Record<string, string>;
+  };
+  resourcesDict: Record<string, any>;
 }
 
 const initialState = {
@@ -55,7 +57,8 @@ const initialState = {
   preview: false,
   pullStudy: false,
   seriesUpdate: {},
-  setResourcesDict: {},
+  seriesPreviews: {},
+  resourcesDict: {},
 };
 
 type PacsQueryPayload = {
@@ -102,10 +105,6 @@ type PacsQueryPayload = {
     clearSeriesPreview: boolean;
   };
 
-  [Types.SET_SERIES_STATUS]: {
-    status: Record<string, any[]>;
-    studyInstanceUID: string;
-  };
   [Types.SET_PULL_STUDY]: Record<any, any>;
 
   [Types.SET_SERIES_UPDATE]: {
