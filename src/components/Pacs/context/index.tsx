@@ -22,8 +22,9 @@ export enum Types {
   SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
   SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
   RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
-  SET_SERIES_STATUS = "SET_SERIES_STATUS",
-  RESET_SERIES_STATUS = "RESET_SERIES_STATUS",
+  SET_PULL_STUDY = "SET_PULL_STUDY",
+  SET_SERIES_UPDATE = "SET_SERIES_UPDATE",
+  SET_RESOURCES_DICT = "SET_RESOURCES_DICT",
 }
 
 interface PacsQueryState {
@@ -38,7 +39,9 @@ interface PacsQueryState {
   seriesPreviews: {
     [key: string]: boolean;
   };
-  seriesStatus: Record<string, any>;
+  pullStudy: boolean;
+  seriesCurrentUpdate: Record<string, string>;
+  setResourcesDict: Record<string, any>;
 }
 
 const initialState = {
@@ -50,8 +53,9 @@ const initialState = {
   fetchingResults: { status: false, text: "" },
   shouldDefaultExpanded: false,
   preview: false,
-  seriesPreviews: {},
-  seriesStatus: {},
+  pullStudy: false,
+  seriesUpdate: {},
+  setResourcesDict: {},
 };
 
 type PacsQueryPayload = {
@@ -102,8 +106,18 @@ type PacsQueryPayload = {
     status: Record<string, any[]>;
     studyInstanceUID: string;
   };
+  [Types.SET_PULL_STUDY]: Record<any, any>;
 
-  [Types.RESET_SERIES_STATUS]: Record<any, unknown>;
+  [Types.SET_SERIES_UPDATE]: {
+    currentStep: string;
+    seriesInstanceUID: string;
+    studyInstanceUID: string;
+  };
+
+  [Types.SET_RESOURCES_DICT]: {
+    type: string;
+    resourcesDict: Record<string, boolean>;
+  };
 };
 
 export type PacsQueryActions =
@@ -217,27 +231,35 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       };
     }
 
-    case Types.SET_SERIES_STATUS: {
-      const { studyInstanceUID, status } = action.payload;
-
-      const newSeriesStatus = {
-        ...state.seriesStatus,
-        [studyInstanceUID]: {
-          ...state.seriesStatus[studyInstanceUID],
-          ...status,
-        },
-      };
-
+    case Types.SET_PULL_STUDY: {
       return {
         ...state,
-        seriesStatus: newSeriesStatus,
+        pullStudy: !state.pullStudy,
       };
     }
 
-    case Types.RESET_SERIES_STATUS: {
+    case Types.SET_SERIES_UPDATE: {
+      const { seriesInstanceUID, studyInstanceUID, currentStep } =
+        action.payload;
+
       return {
         ...state,
-        seriesStatus: {},
+        seriesUpdate: {
+          [studyInstanceUID]: {
+            ...state.seriesUpdate[studyInstanceUID],
+            [seriesInstanceUID]: currentStep,
+          },
+        },
+      };
+    }
+
+    case Types.SET_RESOURCES_DICT: {
+      return {
+        ...state,
+        resourcesDict: {
+          ...state.resourcesDict,
+          [action.payload.type]: action.payload.resourcesDict,
+        },
       };
     }
 
