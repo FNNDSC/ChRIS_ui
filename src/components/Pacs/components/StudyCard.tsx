@@ -19,10 +19,7 @@ import EyeIcon from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import SeriesCard from "./SeriesCard";
 import { formatStudyDate } from "./utils";
 import { PacsQueryContext, Types } from "../context";
-import PFDCMClient from "../pfdcmClient";
 import useInterval from "./useInterval";
-
-const client = new PFDCMClient();
 
 const StudyCard = ({ study }: { study: any }) => {
   const { state, dispatch } = useContext(PacsQueryContext);
@@ -33,15 +30,10 @@ const StudyCard = ({ study }: { study: any }) => {
   const {
     seriesPreviews,
     preview,
-    selectedPacsService,
-    queryResult,
+
     resourcesDict,
     seriesUpdate,
   } = state;
-  const query = {
-    AccessionNumber: study.AccessionNumber.value,
-    StudyInstanceUID: study.StudyInstanceUID.value,
-  };
 
   const userPreferences = resourcesDict && resourcesDict["study"];
 
@@ -117,7 +109,7 @@ const StudyCard = ({ study }: { study: any }) => {
           onExpand={() => setIsStudyExpanded(!isStudyExpanded)}
         >
           {userPreferences && userPreferencesArray.length > 0 ? (
-            userPreferencesArray.map((key, index) => {
+            userPreferencesArray.map((key: string) => {
               return (
                 <div key={key} className="flex-studies-item">
                   <div className="study-detail-title">{key}</div>
@@ -209,7 +201,7 @@ const StudyCard = ({ study }: { study: any }) => {
             >
               <Button
                 size="sm"
-                variant="teritary"
+                variant="tertiary"
                 style={{ marginRight: "0.25em" }}
                 onClick={() => {
                   dispatch({

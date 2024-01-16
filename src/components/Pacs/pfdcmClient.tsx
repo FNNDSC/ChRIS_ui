@@ -2,7 +2,7 @@ import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { Spin } from "antd";
 
-interface ImageStatusType {
+export interface ImageStatusType {
   title: string;
   description: string;
   status: string;
@@ -156,9 +156,9 @@ class PfdcmClient {
   async stepperStatus(
     query: any,
     selectedPacsService: string,
+    seriesInstanceUID: string,
     requestedFiles?: number,
     retrieve?: boolean,
-    seriesInstanceUID?: string,
   ) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/sync/pypx/`,
@@ -187,9 +187,9 @@ class PfdcmClient {
 
       const stepperStatus = this.calculateStatus(
         studies,
+        seriesInstanceUID,
         requestedFiles,
         retrieve,
-        seriesInstanceUID,
       );
 
       return stepperStatus;
@@ -200,9 +200,9 @@ class PfdcmClient {
 
   calculateStatus(
     studies: any[],
+    seriesInstanceUID: string,
     requestedFiles?: number,
     retrieve?: boolean,
-    seriesInstanceUID?: string,
   ) {
     const statusMap = new Map<
       string,
@@ -220,7 +220,7 @@ class PfdcmClient {
       for (const key in study) {
         const seriesList = study[key];
 
-        for (const [index, series] of seriesList.entries()) {
+        for (const [_, series] of seriesList.entries()) {
           const images = { requested: 0, packed: 0, pushed: 0, registered: 0 };
           const imagestatus = {
             request: false,
@@ -256,7 +256,7 @@ class PfdcmClient {
       }
     }
 
-    for (const [seriesKey, seriesData] of progressMap.entries()) {
+    for (const [_, seriesData] of progressMap.entries()) {
       let currentStep = "none";
       let currentProgress = 0;
       const newImageStatus: ImageStatusType[] = [

@@ -15,7 +15,7 @@ import FileDetailView from "../../Preview/FileDetailView";
 import { DotsIndicator } from "../../Common";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { PacsQueryContext, Types } from "../context";
-import PFDCMClient from "../pfdcmClient";
+import PFDCMClient, { ImageStatusType } from "../pfdcmClient";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import FaBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
@@ -43,7 +43,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [error, setError] = useState("");
-  const [stepperStatus, setStepperStatus] = useState([]);
+  const [stepperStatus, setStepperStatus] = useState<ImageStatusType[]>([]);
   const [currentProgressStep, setCurrentProgressStep] = useState({
     currentStep: "none",
     currentProgress: 0,
@@ -134,9 +134,10 @@ const SeriesCard = ({ series }: { series: any }) => {
       const stepperStatus = await client.stepperStatus(
         pullQuery,
         selectedPacsService,
+        SeriesInstanceUID.value,
         NumberOfSeriesRelatedInstances.value,
         false,
-        SeriesInstanceUID.value,
+        
       );
 
       const status = stepperStatus.get(SeriesInstanceUID.value);
@@ -201,9 +202,10 @@ const SeriesCard = ({ series }: { series: any }) => {
           const stepperStatus = await client.stepperStatus(
             pullQuery,
             selectedPacsService,
+            SeriesInstanceUID.value,
             NumberOfSeriesRelatedInstances.value,
             currentStep === "none" && true,
-            SeriesInstanceUID.value,
+            
           );
 
           const status = stepperStatus.get(SeriesInstanceUID.value);
@@ -386,6 +388,7 @@ const SeriesCard = ({ series }: { series: any }) => {
 
       <div className="flex-series-item steps-container ">
         {stepperStatus.length > 0 ? (
+          //@ts-ignore
           <Steps size="small" items={stepperStatus} />
         ) : (
           <DotsIndicator title="Fetching Status..." />

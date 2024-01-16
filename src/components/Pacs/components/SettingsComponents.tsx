@@ -14,7 +14,7 @@ const SettingsComponent = ({
 	handleModalClose: () => void;
 }) => {
 	const username = useTypedSelector((state) => state.user.username);
-	const { state, dispatch } = React.useContext(PacsQueryContext);
+	const { dispatch } = React.useContext(PacsQueryContext);
 	const [recordDict, setRecordDict] = React.useState<Record<string, boolean>>(
 		{},
 	);
@@ -34,7 +34,7 @@ const SettingsComponent = ({
 
 	return (
 		<div>
-			{Object.entries(study).map(([key, value]) => {
+			{Object.entries(study).map(([key]) => {
 				return (
 					<div
 						key={key}
@@ -95,7 +95,7 @@ const SettingsComponent = ({
 						},
 					};
 
-					const response = await axios.post(url, formData, config);
+					await axios.post(url, formData, config);
 
 					dispatch({
 						type: Types.SET_RESOURCES_DICT,
@@ -116,7 +116,10 @@ const SettingsComponent = ({
 			</Button>
 
 			<Button
-				varaint="tertiary"
+				style={{
+					marginLeft: "1rem",
+				}}
+				variant="tertiary"
 				onClick={() => {
 					setRecordDict({});
 
