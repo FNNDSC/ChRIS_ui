@@ -43,28 +43,22 @@ const SeriesCard = ({ series }: { series: any }) => {
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [error, setError] = useState("");
+  const [stepperStatus, setStepperStatus] = useState([]);
+  const [currentProgressStep, setCurrentProgressStep] = useState({
+    currentStep: "none",
+    currentProgress: 0,
+  });
 
   const {
     queryStageForSeries,
     selectedPacsService,
     preview,
     seriesPreviews,
-    seriesStatus,
+    pullStudy,
   } = state;
 
-  const status =
-    seriesStatus &&
-    seriesStatus[StudyInstanceUID.value] &&
-    seriesStatus[StudyInstanceUID.value][SeriesInstanceUID.value];
-  const { newImageStatus: stepperStatus, progress } = status || {
-    newImageStatus: [],
-    progress: {
-      currentStep: "none",
-      currentProgress: 0,
-    },
-  };
+  const { currentStep, currentProgress } = currentProgressStep;
 
-  const { currentStep, currentProgress } = progress;
   const [requestCounter, setRequestCounter] = useState<{
     [key: string]: number;
   }>({});
@@ -115,7 +109,11 @@ const SeriesCard = ({ series }: { series: any }) => {
           preview: true,
         },
       });
-    } else if (preview === false && Object.keys(seriesPreviews).length > 0) {
+    } else if (
+      preview === false &&
+      seriesPreviews &&
+      Object.keys(seriesPreviews).length > 0
+    ) {
       dispatch({
         type: Types.RESET_SERIES_PREVIEWS,
         payload: {
@@ -141,24 +139,19 @@ const SeriesCard = ({ series }: { series: any }) => {
         SeriesInstanceUID.value,
       );
 
-      const status = stepperStatus[SeriesInstanceUID.value];
+      const status = stepperStatus.get(SeriesInstanceUID.value);
 
       if (status) {
-        const { progress } = status;
+        const { progress, newImageStatus } = status;
+        setStepperStatus(newImageStatus);
+        setCurrentProgressStep(progress);
 
         dispatch({
-          type: Types.SET_SERIES_STATUS,
+          type: Types.SET_SERIES_UPDATE,
           payload: {
-            status: stepperStatus,
-            studyInstanceUID: StudyInstanceUID.value,
-          },
-        });
-
-        dispatch({
-          type: Types.SET_QUERY_STAGE_FOR_SERIES,
-          payload: {
-            SeriesInstanceUID: SeriesInstanceUID.value,
-            queryStage: progress.currentStep,
+            currentStep: progress.currentStep,
+            seriesInstanceUID: SeriesInstanceUID.value,
+            studyInstanceUID: series.StudyInstanceUID.value,
           },
         });
 
@@ -166,7 +159,9 @@ const SeriesCard = ({ series }: { series: any }) => {
       }
     }
 
-    if (!status) {
+    if (pullStudy) {
+      setFetchNextStatus(true);
+    } else {
       fetchStatusForTheFirstTime();
     }
   }, [
@@ -177,7 +172,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     StudyInstanceUID.value,
     selectedPacsService,
     NumberOfSeriesRelatedInstances.value,
-    status
+    pullStudy,
   ]);
 
   const executeNextStepForTheSeries = async (nextStep: string) => {
@@ -211,17 +206,21 @@ const SeriesCard = ({ series }: { series: any }) => {
             SeriesInstanceUID.value,
           );
 
-          const status = stepperStatus[SeriesInstanceUID.value];
+          const status = stepperStatus.get(SeriesInstanceUID.value);
 
           if (status) {
-            const { progress } = status;
+            const { progress, newImageStatus } = status;
             const { currentStep, currentProgress } = progress;
 
+            setStepperStatus(newImageStatus);
+            setCurrentProgressStep(progress);
+
             dispatch({
-              type: Types.SET_SERIES_STATUS,
+              type: Types.SET_SERIES_UPDATE,
               payload: {
-                status: stepperStatus,
-                studyInstanceUID: StudyInstanceUID.value,
+                currentStep,
+                seriesInstanceUID: SeriesInstanceUID.value,
+                studyInstanceUID: series.StudyInstanceUID.value,
               },
             });
 
@@ -265,7 +264,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         }
       }
     },
-    fetchNextStatus ? 3000 : null,
+    fetchNextStatus && pullStudy ? 5000 : fetchNextStatus ? 3000 : null,
   );
 
   let nextQueryStage;
@@ -409,7 +408,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     </CardBody>
   );
 
-  const LargeFilePreview = (
+  const largeFilePreview = (
     <Modal
       style={{ height: "800px" }}
       title="Preview"
@@ -437,7 +436,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         {preview && seriesPreviews && seriesPreviews[SeriesInstanceUID.value]
           ? filePreviewLayout
           : rowLayout}
-        {cubeFilePreview && LargeFilePreview}
+        {cubeFilePreview && largeFilePreview}
       </Card>
     </>
   );
