@@ -2,7 +2,7 @@ import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { Spin } from "antd";
 
-interface ImageStatusType {
+export interface ImageStatusType {
   title: string;
   description: string;
   status: string;
@@ -25,41 +25,6 @@ class PfdcmClient {
       const url = `${this.url}api/v1/PACSservice/list/`;
       const response = await axios.get(url);
       return response.data;
-    } catch (error: any) {
-      throw new Error(error);
-    }
-  }
-
-  async pullStudyStatus(query: any, selectedPacsService: string) {
-    const RequestConfig: AxiosRequestConfig = {
-      url: `${this.url}api/v1/PACS/sync/pypx/`,
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      data: {
-        PACSservice: {
-          value: selectedPacsService,
-        },
-        listenerService: { value: "default" },
-        PACSdirective: {
-          ...query,
-          then: "status",
-          json_response: true,
-        },
-      },
-    };
-
-    try {
-      const response = (await axios(RequestConfig)).data;
-
-      const { then } = response.pypx;
-
-      const studies = then["00-status"].study;
-      const stepperStatus = this.calculateStatus(studies);
-
-      return stepperStatus;
     } catch (error: any) {
       throw new Error(error);
     }
@@ -191,9 +156,9 @@ class PfdcmClient {
   async stepperStatus(
     query: any,
     selectedPacsService: string,
+    seriesInstanceUID: string,
     requestedFiles?: number,
     retrieve?: boolean,
-    seriesInstanceUID?: string,
   ) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/sync/pypx/`,
@@ -222,9 +187,9 @@ class PfdcmClient {
 
       const stepperStatus = this.calculateStatus(
         studies,
+        seriesInstanceUID,
         requestedFiles,
         retrieve,
-        seriesInstanceUID,
       );
 
       return stepperStatus;
@@ -235,11 +200,11 @@ class PfdcmClient {
 
   calculateStatus(
     studies: any[],
+    seriesInstanceUID: string,
     requestedFiles?: number,
     retrieve?: boolean,
-    seriesInstanceUID?: string,
   ) {
-    const statusMap: Record<
+    const statusMap = new Map<
       string,
       {
         newImageStatus: ImageStatusType[];
@@ -248,14 +213,14 @@ class PfdcmClient {
           currentProgress: number;
         };
       }
-    > = {};
+    >();
     const progressMap = new Map<string, { imagestatus: any; images: any }>();
 
     for (const study of studies) {
       for (const key in study) {
         const seriesList = study[key];
 
-        for (const [index, series] of seriesList.entries()) {
+        for (const [_, series] of seriesList.entries()) {
           const images = { requested: 0, packed: 0, pushed: 0, registered: 0 };
           const imagestatus = {
             request: false,
@@ -264,16 +229,10 @@ class PfdcmClient {
             register: false,
           };
 
-          const currentSeries = seriesInstanceUID
-            ? seriesInstanceUID
-            : series.study.seriesListInStudy.seriesList[index];
-
-          if (!currentSeries) continue;
-
           if (series.images.requested.count === -1) {
             images.requested = 0;
             imagestatus.request = false;
-            progressMap.set(currentSeries, { imagestatus, images });
+            progressMap.set(seriesInstanceUID, { imagestatus, images });
             break;
           }
 
@@ -292,12 +251,12 @@ class PfdcmClient {
           images.registered += series.images.registered.count;
           imagestatus.register = series.images.registered.status;
 
-          progressMap.set(currentSeries, { imagestatus, images });
+          progressMap.set(seriesInstanceUID, { imagestatus, images });
         }
       }
     }
 
-    for (const [seriesKey, seriesData] of progressMap.entries()) {
+    for (const [_, seriesData] of progressMap.entries()) {
       let currentStep = "none";
       let currentProgress = 0;
       const newImageStatus: ImageStatusType[] = [
@@ -371,13 +330,13 @@ class PfdcmClient {
         }
       }
 
-      statusMap[seriesKey] = {
+      statusMap.set(seriesInstanceUID, {
         newImageStatus: newImageStatus,
         progress: {
           currentStep,
           currentProgress,
         },
-      };
+      });
     }
 
     return statusMap;
