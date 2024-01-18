@@ -10,11 +10,11 @@ import {
   Modal,
   Tooltip,
 } from "@patternfly/react-core";
-
 import FileDetailView from "../../Preview/FileDetailView";
 import { DotsIndicator } from "../../Common";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { PacsQueryContext, Types } from "../context";
+import { CardHeaderComponent } from "./SettingsComponents";
 import PFDCMClient, { ImageStatusType } from "../pfdcmClient";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
@@ -24,6 +24,7 @@ import { pluralize } from "../../../api/common";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
 import useInterval from "./useInterval";
+import useSettings from "../useSettings";
 
 const client = new PFDCMClient();
 
@@ -36,6 +37,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
+  const { data, isLoading, error: queryError } = useSettings();
   const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
@@ -50,12 +52,15 @@ const SeriesCard = ({ series }: { series: any }) => {
   });
 
   const {
-    queryStageForSeries,
+    seriesUpdate,
     selectedPacsService,
     preview,
     seriesPreviews,
     pullStudy,
+    resourcesDict,
   } = state;
+
+  const userPreferences = resourcesDict && resourcesDict["series"];
 
   const { currentStep, currentProgress } = currentProgressStep;
 
@@ -65,7 +70,10 @@ const SeriesCard = ({ series }: { series: any }) => {
   const [isFetching, setIsFetching] = useState(false);
 
   const queryStage =
-    queryStageForSeries && queryStageForSeries[SeriesInstanceUID.value];
+    (seriesUpdate &&
+      Object.keys(seriesUpdate).length > 0 &&
+      seriesUpdate[StudyInstanceUID.value][SeriesInstanceUID.value]) ||
+    "none";
 
   const pullQuery = useMemo(() => {
     return {
@@ -137,7 +145,6 @@ const SeriesCard = ({ series }: { series: any }) => {
         SeriesInstanceUID.value,
         NumberOfSeriesRelatedInstances.value,
         false,
-        
       );
 
       const status = stepperStatus.get(SeriesInstanceUID.value);
@@ -204,8 +211,7 @@ const SeriesCard = ({ series }: { series: any }) => {
             selectedPacsService,
             SeriesInstanceUID.value,
             NumberOfSeriesRelatedInstances.value,
-            currentStep === "none" && true,
-            
+            currentStep === "none" ? true : false,
           );
 
           const status = stepperStatus.get(SeriesInstanceUID.value);
@@ -216,15 +222,6 @@ const SeriesCard = ({ series }: { series: any }) => {
 
             setStepperStatus(newImageStatus);
             setCurrentProgressStep(progress);
-
-            dispatch({
-              type: Types.SET_SERIES_UPDATE,
-              payload: {
-                currentStep,
-                seriesInstanceUID: SeriesInstanceUID.value,
-                studyInstanceUID: series.StudyInstanceUID.value,
-              },
-            });
 
             if (!requestCounter[currentStep]) {
               setRequestCounter({
@@ -243,10 +240,11 @@ const SeriesCard = ({ series }: { series: any }) => {
                 executeNextStepForTheSeries(nextStep);
 
               dispatch({
-                type: Types.SET_QUERY_STAGE_FOR_SERIES,
+                type: Types.SET_SERIES_UPDATE,
                 payload: {
-                  SeriesInstanceUID: SeriesInstanceUID.value,
-                  queryStage: currentStep,
+                  currentStep,
+                  seriesInstanceUID: SeriesInstanceUID.value,
+                  studyInstanceUID: series.StudyInstanceUID.value,
                 },
               });
             }
@@ -358,33 +356,53 @@ const SeriesCard = ({ series }: { series: any }) => {
     </>
   );
 
+  const userPreferencesArray = userPreferences && Object.keys(userPreferences);
+
   const rowLayout = (
-    <CardHeader className="flex-series-container">
-      <div className="flex-series-item">
-        <Tooltip content={SeriesDescription.value} position="auto">
-          <div
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <span style={{ marginRight: "0.5em" }}>
-              {SeriesDescription.value}
-            </span>{" "}
+    <CardHeader
+      actions={{
+        actions: <CardHeaderComponent resource={series} type="series" />,
+      }}
+      className="flex-series-container"
+    >
+      {userPreferences && userPreferencesArray.length > 0 ? (
+        userPreferencesArray.map((key: string) => {
+          return (
+            <div key={key} className="flex-series-item">
+              <div className="study-detail-title hide-content">
+                <span style={{ marginRight: "0.5em" }}>{key} </span>
+              </div>
+              <Tooltip content={series[key].value} position="auto">
+                <div className="hide-content">
+                  {series[key] ? series[key].value : "N/A"}
+                </div>
+              </Tooltip>
+            </div>
+          );
+        })
+      ) : (
+        <>
+          <div className="flex-series-item">
+            <Tooltip content={SeriesDescription.value} position="auto">
+              <div className="hide-content">
+                <span style={{ marginRight: "0.5em" }}>
+                  {SeriesDescription.value}
+                </span>{" "}
+              </div>
+            </Tooltip>
+
+            <div>
+              {series.NumberOfSeriesRelatedInstances.value}{" "}
+              {pluralize("file", +series.NumberOfSeriesRelatedInstances.value)}
+            </div>
           </div>
-        </Tooltip>
 
-        <div>
-          {series.NumberOfSeriesRelatedInstances.value}{" "}
-          {pluralize("file", +series.NumberOfSeriesRelatedInstances.value)}
-        </div>
-      </div>
-
-      <div className="flex-series-item">
-        <div>Modality</div>
-        <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
-      </div>
+          <div className="flex-series-item">
+            <div>Modality</div>
+            <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
+          </div>
+        </>
+      )}
 
       <div className="flex-series-item steps-container ">
         {stepperStatus.length > 0 ? (
@@ -435,7 +453,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         ></Alert>
       )}
 
-      <Card isRounded isSelectable>
+      <Card isRounded>
         {preview && seriesPreviews && seriesPreviews[SeriesInstanceUID.value]
           ? filePreviewLayout
           : rowLayout}
