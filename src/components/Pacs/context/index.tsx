@@ -24,7 +24,6 @@ export enum Types {
   RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
   SET_PULL_STUDY = "SET_PULL_STUDY",
   SET_SERIES_UPDATE = "SET_SERIES_UPDATE",
-  SET_RESOURCES_DICT = "SET_RESOURCES_DICT",
 }
 
 interface PacsQueryState {
@@ -43,7 +42,6 @@ interface PacsQueryState {
   seriesUpdate: {
     [key: string]: Record<string, string>;
   };
-  resourcesDict: Record<string, any>;
 }
 
 const initialState = {
@@ -58,7 +56,6 @@ const initialState = {
   pullStudy: false,
   seriesUpdate: {},
   seriesPreviews: {},
-  resourcesDict: {},
 };
 
 type PacsQueryPayload = {
@@ -111,11 +108,6 @@ type PacsQueryPayload = {
     currentStep: string;
     seriesInstanceUID: string;
     studyInstanceUID: string;
-  };
-
-  [Types.SET_RESOURCES_DICT]: {
-    type: string;
-    resourcesDict: Record<string, boolean>;
   };
 };
 
@@ -248,16 +240,6 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
             ...state.seriesUpdate[studyInstanceUID],
             [seriesInstanceUID]: currentStep,
           },
-        },
-      };
-    }
-
-    case Types.SET_RESOURCES_DICT: {
-      return {
-        ...state,
-        resourcesDict: {
-          ...state.resourcesDict,
-          [action.payload.type]: action.payload.resourcesDict,
         },
       };
     }

@@ -1,23 +1,66 @@
-import React from "react";
+import { useState } from "react";
 import axios from "axios";
-import { PacsQueryContext, Types } from "../context";
+import { useQueryClient } from "@tanstack/react-query";
+import { Popover } from "antd";
 import { Checkbox, Button } from "@patternfly/react-core";
 import ChrisApiClient from "../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../store/hooks";
+import SettingsIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
 import "@patternfly/react-core/dist/styles/base.css";
 
-const SettingsComponent = ({
-	study,
+export const CardHeaderComponent = ({
+	resource,
+	type,
+}: {
+	resource: any;
+	type: string;
+}) => {
+	const [settingsModal, setSettingsModal] = useState(false);
+
+	return (
+		<div>
+			<Popover
+				content={
+					<SettingsComponent
+						resource={resource}
+						type={type}
+						handleModalClose={() => {
+							setSettingsModal(!settingsModal);
+						}}
+					/>
+				}
+				title="Study Card Configuration"
+				trigger="click"
+				open={settingsModal}
+				onOpenChange={() => {
+					setSettingsModal(!settingsModal);
+				}}
+			>
+				<Button
+					onClick={() => {
+						setSettingsModal(!settingsModal);
+					}}
+					variant="link"
+					icon={<SettingsIcon />}
+				></Button>
+			</Popover>
+		</div>
+	);
+};
+
+export const SettingsComponent = ({
+	resource,
+	type,
 	handleModalClose,
 }: {
-	study: any;
+	type: string;
+	resource: any;
 	handleModalClose: () => void;
 }) => {
+	const queryClient = useQueryClient();
 	const username = useTypedSelector((state) => state.user.username);
-	const { dispatch } = React.useContext(PacsQueryContext);
-	const [recordDict, setRecordDict] = React.useState<Record<string, boolean>>(
-		{},
-	);
+
+	const [recordDict, setRecordDict] = useState<Record<string, boolean>>({});
 
 	const handleChange = (key: string, checked: boolean) => {
 		if (!recordDict[key]) {
@@ -32,9 +75,98 @@ const SettingsComponent = ({
 		}
 	};
 
+	const saveUserData = async () => {
+		const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
+
+		const client = ChrisApiClient.getClient();
+		await client.setUrls();
+		const formData = new FormData();
+		const fileName = "settings.json";
+
+		const path = `${username}/uploads/config`;
+		const pathList = await client.getFileBrowserPath(path);
+
+		try {
+			let existingContent: {
+				[key: string]: Record<string, boolean>;
+			} = {};
+			if (pathList) {
+				const files = await pathList.getFiles();
+				const fileItems = files.getItems();
+
+				if (fileItems) {
+					// Use Promise.all to wait for all async operations to complete
+					const fileContentArray = await Promise.all(
+						fileItems.map(async (_file) => {
+							const blob = await _file.getFileBlob();
+							const reader = new FileReader();
+
+							// Use a Promise to wait for the reader.onload to complete
+							const readPromise = new Promise((resolve) => {
+								reader.onload = function (e) {
+									const contents =
+										(e.target && e.target.result) as string || "{}";
+									resolve(JSON.parse(contents));
+								};
+							});
+
+							reader.readAsText(blob);
+
+							// Delete the file after processing
+							await _file._delete();
+
+							// Wait for the reader.onload to complete before moving to the next file
+							return await readPromise;
+						}),
+					);
+
+					existingContent = fileContentArray[0] as {
+						[key: string]: Record<string, boolean>;
+					};
+				}
+			}
+
+			const dataTransformed = { [type]: recordDict };
+
+			const data = JSON.stringify({
+				...existingContent,
+				...dataTransformed,
+			});
+
+			formData.append(
+				"upload_path",
+				`${username}/uploads/config/${fileName}`,
+			);
+
+			formData.append(
+				"fname",
+				new Blob([data], {
+					type: "application/json",
+				}),
+				fileName,
+			);
+
+			const config = {
+				headers: {
+					Authorization: "Token " + client.auth.token,
+				},
+			};
+
+			await axios.post(url, formData, config);
+
+			queryClient.invalidateQueries({
+				queryKey: ["metadata"],
+			});
+
+			handleModalClose();
+		} catch (error) {
+			console.error("Error:", error);
+		}
+	};
+
 	return (
 		<div>
-			{Object.entries(study).map(([key]) => {
+			{Object.entries(resource).map(([key]) => {
 				return (
 					<div
 						key={key}
@@ -64,50 +196,8 @@ const SettingsComponent = ({
 			})}
 
 			<Button
-				onClick={async () => {
-					const url = `${
-						import.meta.env.VITE_CHRIS_UI_URL
-					}uploadedfiles/`;
-
-					const client = ChrisApiClient.getClient();
-					await client.setUrls();
-					const formData = new FormData();
-					const fileName = "settings.json";
-
-					const data = JSON.stringify(recordDict);
-
-					formData.append(
-						"upload_path",
-						`${username}/uploads/config/${fileName}`,
-					);
-
-					formData.append(
-						"fname",
-						new Blob([data], {
-							type: "application/json",
-						}),
-						fileName,
-					);
-
-					const config = {
-						headers: {
-							Authorization: "Token " + client.auth.token,
-						},
-					};
-
-					await axios.post(url, formData, config);
-
-					dispatch({
-						type: Types.SET_RESOURCES_DICT,
-						payload: {
-							type: "study",
-							resourcesDict: recordDict,
-						},
-					});
-
-					handleModalClose();
-				}}
-				variant="tertiary"
+				onClick={() => saveUserData()}
+				variant="secondary"
 				style={{
 					marginTop: "1rem",
 				}}
@@ -119,17 +209,10 @@ const SettingsComponent = ({
 				style={{
 					marginLeft: "1rem",
 				}}
-				variant="tertiary"
-				onClick={() => {
+				variant="secondary"
+				onClick={async () => {
 					setRecordDict({});
-
-					dispatch({
-						type: Types.SET_RESOURCES_DICT,
-						payload: {
-							type: "study",
-							resourcesDict: {},
-						},
-					});
+					await saveUserData();
 				}}
 			>
 				Reset to Default
@@ -137,5 +220,3 @@ const SettingsComponent = ({
 		</div>
 	);
 };
-
-export default SettingsComponent;
