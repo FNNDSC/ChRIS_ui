@@ -2,11 +2,11 @@ import WrapperConnect from "../Wrapper";
 import {
   Alert,
   Breadcrumb,
-  BreadcrumbItem, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement,
+  BreadcrumbItem, Button, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement,
   PageBreadcrumb,
   PageGroup,
   PageNavigation,
-  PageSection, Progress, ProgressVariant
+  PageSection, Popover, Progress, ProgressVariant, TextContent, Text, TextVariants, Slider
 } from "@patternfly/react-core";
 import { InfoIcon } from "../Common";
 import { Typography } from "antd";
@@ -20,7 +20,7 @@ import {useImmer} from "use-immer";
 import styles from './styles.module.css';
 import { setSidebarActive } from "../../store/ui/actions.ts";
 import { useDispatch } from "react-redux";
-import { files2volumes, VolumeOptions } from "./options.tsx";
+import { CVDVolume, files2volumes, VolumeOptions } from "./options.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
@@ -62,7 +62,7 @@ const PublicDatasets: React.FunctionComponent = () => {
   const [feedFiles, setFeedFiles] = useState<Files | null>(null);
   const [giveupPagingFiles, setGiveupPagingFiles] = useState(false);
   const [problems, setProblems] = useState<Problem[]>([]);
-  const [selected, setSelected] = useState<SelectedSubject | null>(null);
+  const [selected, setSelected] = useImmer<SelectedSubject | null>(null);
 
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
 
@@ -291,6 +291,49 @@ const PublicDatasets: React.FunctionComponent = () => {
                       }
                     </DropdownList>
                   </Dropdown>
+                </BreadcrumbItem>
+              }
+              { subjects && selected &&
+                <BreadcrumbItem>
+                  <Popover
+                    triggerAction="hover"
+                    bodyContent={<div>{
+                      selected.volumes.map(({ name, volume }, i) => {
+
+                        const setValue = (change: (volume: CVDVolume) => void) => {
+                          setSelected((draft) => {
+                            if (draft === null) {
+                              throw new Error('unreachable code');
+                            }
+                            change(draft.volumes[i].volume);
+                          });
+                        };
+
+                        // TODO debounce for performance
+                        const setOpacity = (_e: any, value: number) => {
+                          setValue((volume) => volume.opacity = value);
+                        };
+
+                        return (<>
+                          <TextContent>
+                            <Text component={TextVariants.h3}>{name}</Text>
+                          </TextContent>
+                          <Text component={TextVariants.p}>Opacity: {volume.opacity}</Text>
+                          <Slider
+                            min={0.0}
+                            max={1.0}
+                            step={0.05}
+                            value={volume.opacity}
+                            onChange={setOpacity}
+                          />
+
+                        </>)
+                      })
+                    }</div>}
+                    maxWidth="40rem"
+                  >
+                    <Button variant="tertiary">File Options</Button>
+                  </Popover>
                 </BreadcrumbItem>
               }
             </Breadcrumb>
