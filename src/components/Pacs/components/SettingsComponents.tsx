@@ -1,8 +1,7 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { Popover } from "antd";
-import { PacsQueryContext, Types } from "../context";
 import { Checkbox, Button } from "@patternfly/react-core";
 import ChrisApiClient from "../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../store/hooks";
@@ -60,7 +59,7 @@ export const SettingsComponent = ({
 }) => {
 	const queryClient = useQueryClient();
 	const username = useTypedSelector((state) => state.user.username);
-	const { dispatch } = useContext(PacsQueryContext);
+
 	const [recordDict, setRecordDict] = useState<Record<string, boolean>>({});
 
 	const handleChange = (key: string, checked: boolean) => {
@@ -76,7 +75,7 @@ export const SettingsComponent = ({
 		}
 	};
 
-	const saveUserData = async (deleteObject?: boolean) => {
+	const saveUserData = async () => {
 		const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
 
 		const client = ChrisApiClient.getClient();
@@ -88,7 +87,9 @@ export const SettingsComponent = ({
 		const pathList = await client.getFileBrowserPath(path);
 
 		try {
-			let existingContent = {};
+			let existingContent: {
+				[key: string]: Record<string, boolean>;
+			} = {};
 			if (pathList) {
 				const files = await pathList.getFiles();
 				const fileItems = files.getItems();
@@ -104,8 +105,7 @@ export const SettingsComponent = ({
 							const readPromise = new Promise((resolve) => {
 								reader.onload = function (e) {
 									const contents =
-										(e.target && e.target.result) || {};
-
+										(e.target && e.target.result) as string || "{}";
 									resolve(JSON.parse(contents));
 								};
 							});
@@ -120,7 +120,9 @@ export const SettingsComponent = ({
 						}),
 					);
 
-					existingContent = fileContentArray[0];
+					existingContent = fileContentArray[0] as {
+						[key: string]: Record<string, boolean>;
+					};
 				}
 			}
 
@@ -210,7 +212,7 @@ export const SettingsComponent = ({
 				variant="secondary"
 				onClick={async () => {
 					setRecordDict({});
-					await saveUserData(true);
+					await saveUserData();
 				}}
 			>
 				Reset to Default

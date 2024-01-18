@@ -1,5 +1,5 @@
 import { useEffect, useContext, useCallback, useState, useMemo } from "react";
-import { Steps } from "antd";
+import { Steps, Alert } from "antd";
 import { useNavigate } from "react-router";
 import {
   Card,
@@ -9,6 +9,7 @@ import {
   Badge,
   Modal,
   Tooltip,
+  Skeleton,
 } from "@patternfly/react-core";
 import FileDetailView from "../../Preview/FileDetailView";
 import { DotsIndicator } from "../../Common";
@@ -19,7 +20,7 @@ import PFDCMClient, { ImageStatusType } from "../pfdcmClient";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import FaBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import { Alert } from "antd";
+
 import { pluralize } from "../../../api/common";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
@@ -32,8 +33,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const {
     SeriesInstanceUID,
     StudyInstanceUID,
-    SeriesDescription,
-    Modality,
+
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
@@ -57,10 +57,9 @@ const SeriesCard = ({ series }: { series: any }) => {
     preview,
     seriesPreviews,
     pullStudy,
-    resourcesDict,
   } = state;
 
-  const userPreferences = resourcesDict && resourcesDict["series"];
+  const userPreferences = data && data["series"];
 
   const { currentStep, currentProgress } = currentProgressStep;
 
@@ -159,7 +158,7 @@ const SeriesCard = ({ series }: { series: any }) => {
           payload: {
             currentStep: progress.currentStep,
             seriesInstanceUID: SeriesInstanceUID.value,
-            studyInstanceUID: series.StudyInstanceUID.value,
+            studyInstanceUID: StudyInstanceUID.value,
           },
         });
 
@@ -365,28 +364,34 @@ const SeriesCard = ({ series }: { series: any }) => {
       }}
       className="flex-series-container"
     >
-      {userPreferences && userPreferencesArray.length > 0 ? (
-        userPreferencesArray.map((key: string) => {
-          return (
-            <div key={key} className="flex-series-item">
-              <div className="study-detail-title hide-content">
-                <span style={{ marginRight: "0.5em" }}>{key} </span>
-              </div>
-              <Tooltip content={series[key].value} position="auto">
-                <div className="hide-content">
-                  {series[key] ? series[key].value : "N/A"}
-                </div>
-              </Tooltip>
+      {isLoading ? (
+        <div className="flex-series-item">
+          <Skeleton width="100%" height="100%" />{" "}
+        </div>
+      ) : queryError ? (
+        <Alert type="error" description="Please refresh the page..." />
+      ) : userPreferences &&
+        userPreferencesArray &&
+        userPreferencesArray.length > 0 ? (
+        userPreferencesArray.map((key: string) => (
+          <div key={key} className="flex-series-item">
+            <div className="study-detail-title hide-content">
+              <span style={{ marginRight: "0.5em" }}>{key} </span>
             </div>
-          );
-        })
+            <Tooltip content={series[key].value} position="auto">
+              <div className="hide-content">
+                {series[key] ? series[key].value : "N/A"}
+              </div>
+            </Tooltip>
+          </div>
+        ))
       ) : (
         <>
           <div className="flex-series-item">
-            <Tooltip content={SeriesDescription.value} position="auto">
+            <Tooltip content={series.SeriesDescription.value} position="auto">
               <div className="hide-content">
                 <span style={{ marginRight: "0.5em" }}>
-                  {SeriesDescription.value}
+                  {series.SeriesDescription.value}
                 </span>{" "}
               </div>
             </Tooltip>
@@ -399,12 +404,14 @@ const SeriesCard = ({ series }: { series: any }) => {
 
           <div className="flex-series-item">
             <div>Modality</div>
-            <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
+            <Badge key={series.SeriesInstanceUID.value}>
+              {series.Modality.value}
+            </Badge>
           </div>
         </>
       )}
 
-      <div className="flex-series-item steps-container ">
+      <div className="flex-series-item steps-container">
         {stepperStatus.length > 0 ? (
           //@ts-ignore
           <Steps size="small" items={stepperStatus} />
