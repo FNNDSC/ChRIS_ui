@@ -1,11 +1,9 @@
-import { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { PacsQueryContext } from "./context";
 
 const useSettings = () => {
-	async function fetchData(username: string) {
+	async function fetchData(username?: string | null) {
 		const client = ChrisAPIClient.getClient();
 		const path = `${username}/uploads/config`;
 		const pathList = await client.getFileBrowserPath(path);
@@ -29,10 +27,22 @@ const useSettings = () => {
 					const reader = new FileReader();
 
 					// Use a Promise to wait for the reader.onload to complete
-					const readPromise = new Promise((resolve) => {
+					const readPromise = new Promise((resolve, reject) => {
 						reader.onload = function (e) {
-							const contents = JSON.parse(e.target.result);
-							resolve(contents);
+							try {
+								const value = e.target
+									? e.target.result
+									: ("{}" as any);
+								const contents = JSON.parse(value);
+								resolve(contents);
+							} catch (parseError: any) {
+								// Handle JSON parsing error
+								reject(
+									new Error(
+										`Error parsing JSON: ${parseError.message}`,
+									),
+								);
+							}
 						};
 					});
 
@@ -44,15 +54,22 @@ const useSettings = () => {
 			);
 
 			return fileContents[0];
-		} catch (error) {
-			console.error("Error fetching file contents:", error);
-			return null;
+		} catch (error: any) {
+			throw new Error(
+				error.message || "An error occurred while processing files",
+			);
 		}
 	}
 
 	const username = useTypedSelector((state) => state.user.username);
 
-	const { isLoading, data, error } = useQuery({
+	const { isLoading, data, error }: {
+		isLoading: boolean,
+		data?: {
+			[key: string]: Record<string,boolean>,
+		},
+		error:any
+	} = useQuery({
 		queryKey: ["metadata"],
 		queryFn: async () => await fetchData(username),
 	});

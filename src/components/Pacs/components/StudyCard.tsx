@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-
+import {  Alert } from "antd";
 import {
   Card,
   CardHeader,
@@ -8,6 +8,7 @@ import {
   Tooltip,
   Grid,
   Button,
+  Skeleton,
 } from "@patternfly/react-core";
 import { DotsIndicator } from "../../Common";
 import FaQuestionCircle from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
@@ -19,7 +20,7 @@ import { PacsQueryContext, Types } from "../context";
 import { CardHeaderComponent } from "./SettingsComponents";
 import useInterval from "./useInterval";
 import useSettings from "../useSettings";
-import { SpinContainer } from "../../Common";
+
 
 const StudyCard = ({ study }: { study: any }) => {
   const { data, isLoading, error } = useSettings();
@@ -67,7 +68,6 @@ const StudyCard = ({ study }: { study: any }) => {
     <>
       <Card isExpanded={isStudyExpanded} isRounded isSelectable isClickable>
         <CardHeader
-
           actions={{
             actions: <CardHeaderComponent resource={study} type="study" />,
           }}
@@ -75,10 +75,20 @@ const StudyCard = ({ study }: { study: any }) => {
           onExpand={() => setIsStudyExpanded(!isStudyExpanded)}
         >
           {isLoading ? (
-            <SpinContainer title="Fetching Content..."></SpinContainer>
+            <GridItem lg={4} md={4} sm={12}>
+              <Skeleton
+                width="100%"
+                height="100%"
+                screenreaderText="Loading contents"
+              />
+            </GridItem>
+          ) : error ? (
+            <GridItem>
+              <Alert type="error" description="Please Refresh the page..." />
+            </GridItem>
           ) : (
             <>
-              {userPreferences && userPreferencesArray.length > 0 ? (
+              {userPreferences && userPreferencesArray && userPreferencesArray.length > 0 ? (
                 userPreferencesArray.map((key: string) => (
                   <div key={key} className="flex-studies-item">
                     <div className="study-detail-title">{key}</div>
