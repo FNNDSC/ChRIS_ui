@@ -13,27 +13,19 @@ import { Typography } from "antd";
 import React, { useState, useEffect } from "react";
 import { Collection, Feed, FeedFile } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient.ts";
-import { basename, filestemOf, groupBySubject, PublicDatasetFile, Subject } from "./subjects.ts";
-import {NiivueCanvas, NVROptions, NVRVolume} from "niivue-react/src/index";
+import { groupBySubject, PublicDatasetFile, Subject } from "./subjects.ts";
+import {NiivueCanvas, NVRVolume} from "niivue-react/src/index";
 import {Niivue} from "@niivue/niivue";
 import {useImmer} from "use-immer";
 import styles from './styles.module.css';
 import { setSidebarActive } from "../../store/ui/actions.ts";
 import { useDispatch } from "react-redux";
+import { files2volumes, VolumeOptions } from "./options.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
 const _NIIVUE = new Niivue();
 const NIIVUE_COLORMAPS = _NIIVUE.colormaps();
-
-const DEFAULT_COLORMAPS_MAP = {
-  cortex: 'gray',
-  csf: 'gray',
-  hemispheres: 'gray',
-  mask: 'gray',
-  template: 'gray',
-  ventricles: 'red'
-}
 
 /**
  * https://github.com/FNNDSC/fnndsc/blob/26f4345a99c4486faedb732afe16fc1f14265d54/js/chrisAPI/src/feedfile.js#L38C1-L39
@@ -56,17 +48,10 @@ type Files = {
 
 type SelectedSubject = {
   subject: Subject,
-  volumes: {[key: string]: VolumeOptions}
+  volumes: VolumeOptions[]
 }
 
-/**
- * A subset of `NVRVolume` but with non-optional keys.
- */
-type VolumeOptions = {
-  url: string,
-  opacity: number,
-  colormap: string
-}
+
 
 const PublicDatasets: React.FunctionComponent = () => {
 
@@ -171,20 +156,7 @@ const PublicDatasets: React.FunctionComponent = () => {
   };
 
   const setSubject = (subject: Subject) => {
-    const volumeEntries = subject.files
-      .filter((file) => file.fname.endsWith('.nii.gz'))
-      .map(file2entry);
-    if (volumeEntries.length > 0) {
-      // set the "preferred" volume to be opaque, leave everything else transparent.
-      // currently, the implementation is hard-coded to use the volume named as "template" as the "preferred"
-      // volume because we're focused on the fetal atlas dataset browser. In the future, we should probably
-      // get this from some kind of metadata, e.g. maybe `.is.chris.publicdataset` could be called
-      // `.is.chris.publicdataset.json` instead with the contents `{"preferred_volume": "template"}`
-      const i = volumeEntries.findIndex(([name, _vo]) => name.includes('template'));
-      volumeEntries[i === -1 ? 0 : i][1].opacity = 1.0;
-    }
-    const volumes = Object.fromEntries(volumeEntries);
-    setSelected({subject, volumes});
+    setSelected({subject, volumes: files2volumes(subject.files)});
   };
 
   // EFFECTS
@@ -343,20 +315,13 @@ const PublicDatasets: React.FunctionComponent = () => {
         selected &&
         <PageSection isFilled>
           <div className={styles.niivueContainer}>
-            <NiivueCanvas volumes={Object.values(selected.volumes)} />
+            <NiivueCanvas volumes={selected.volumes.map((v) => v.volume)} />
           </div>
         </PageSection>
 
       }
     </WrapperConnect>
   );
-}
-
-function file2entry(file: PublicDatasetFile): [string, VolumeOptions] {
-  const name = basename(file.fname);
-  // warning: hard-coded string ".nii.gz"
-  const colormap = DEFAULT_COLORMAPS_MAP[filestemOf(name, '.nii.gz') as keyof typeof DEFAULT_COLORMAPS_MAP] || 'gray';
-  return [name, {url: file.file_resource, opacity: 0.0, colormap}];
 }
 
 export default PublicDatasets;
