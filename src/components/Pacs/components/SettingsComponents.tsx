@@ -105,7 +105,8 @@ export const SettingsComponent = ({
 							const readPromise = new Promise((resolve) => {
 								reader.onload = function (e) {
 									const contents =
-										(e.target && e.target.result) as string || "{}";
+										((e.target &&
+											e.target.result) as string) || "{}";
 									resolve(JSON.parse(contents));
 								};
 							});
@@ -158,6 +159,7 @@ export const SettingsComponent = ({
 				queryKey: ["metadata"],
 			});
 
+			setRecordDict({});
 			handleModalClose();
 		} catch (error) {
 			console.error("Error:", error);
