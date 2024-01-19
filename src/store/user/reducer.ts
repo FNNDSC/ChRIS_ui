@@ -1,10 +1,10 @@
-import { Reducer } from 'redux'
-import { IUserState, UserActionTypes } from './types'
-import { Cookies } from 'react-cookie'
+import { Reducer } from "redux";
+import { IUserState, UserActionTypes } from "./types";
+import { Cookies } from "react-cookie";
 
-const cookie = new Cookies()
-const user = cookie.get('username')
-const token = cookie.get(`${user}_token`)
+const cookie = new Cookies();
+const user = cookie.get("username");
+const token = cookie.get(`${user}_token`);
 
 // Type-safe initialState
 const initialState: IUserState = {
@@ -12,10 +12,13 @@ const initialState: IUserState = {
   token: token,
   isRememberMe: false,
   isLoggedIn: token ? true : false,
-}
+};
 
 // ***** NOTE: Working *****
-const reducer: Reducer<IUserState> = (state = initialState, action) => {
+const reducer: Reducer<IUserState> = (
+  state = initialState,
+  action: typeof UserActionTypes
+) => {
   switch (action.type) {
     case UserActionTypes.SET_TOKEN_SUCCESS: {
       return {
@@ -23,18 +26,18 @@ const reducer: Reducer<IUserState> = (state = initialState, action) => {
         username: action.payload.username,
         token: action.payload.token,
         isLoggedIn: true,
-      }
+      };
     }
     case UserActionTypes.SET_TOKEN_ERROR: {
-      return { ...state, username: null, token: null, isLoggedIn: false }
+      return { ...state, username: null, token: null, isLoggedIn: false };
     }
     case UserActionTypes.SET_LOGOUT_USER_SUCCESS: {
-      return { ...state, username: null, token: null, isLoggedIn: false }
+      return { ...state, username: null, token: null, isLoggedIn: false };
     }
     default: {
-      return state
+      return state;
     }
   }
-}
+};
 
-export { reducer as userReducer }
+export { reducer as userReducer };
