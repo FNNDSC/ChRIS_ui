@@ -6,7 +6,10 @@ export const initialState: ITSPluginState = {
   tsNodes: undefined,
 };
 
-const reducer: Reducer<ITSPluginState> = (state = initialState, action) => {
+const reducer: Reducer<ITSPluginState> = (
+  state = initialState,
+  action: typeof TSPluginTypes
+) => {
   switch (action.type) {
     case TSPluginTypes.ADD_TS_NODE: {
       if (!state.tsNodes) {

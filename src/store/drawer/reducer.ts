@@ -29,7 +29,7 @@ const initialState: IDrawerState = {
   },
 };
 
-const reducer: Reducer<IDrawerState> = (state = initialState, action) => {
+const reducer: Reducer<IDrawerState> = (state = initialState, action:typeof DrawerActionTypes) => {
   switch (action.type) {
     case DrawerActionTypes.SET_DRAWER_STATE: {
       let newState;
