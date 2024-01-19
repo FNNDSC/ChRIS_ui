@@ -10,6 +10,7 @@ import {
   TextInput,
   Button,
   Alert,
+  Checkbox,
 } from "@patternfly/react-core";
 import { cujs } from "chris-utility";
 import FaTrash from "@patternfly/react-icons/dist/esm/icons/trash-icon";
@@ -35,6 +36,7 @@ interface ModalState {
   currentAction: string;
   modalDescription: string;
   errorHandling: Record<string, unknown>;
+  sharePublically: boolean;
 }
 
 const getInitialState = () => {
@@ -44,6 +46,7 @@ const getInitialState = () => {
     currentAction: "",
     modalDescription: "",
     errorHandling: {},
+    sharePublically: false,
   };
 };
 
@@ -119,7 +122,7 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
 
   const handleNameInputChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    value: string
+    value: string,
   ) => {
     setModalState({
       ...modalState,
@@ -149,16 +152,26 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
   };
 
   const handleShare = async (bulkSelect: Feed[]) => {
-    bulkSelect.map(async (feed) => {
-      await feed.put({
-        owner: feedName,
-      });
-    });
+    try {
+      if (modalState.sharePublically) {
+        bulkSelect.map(async (feed) => {
+          await feed.put({
+            //@ts-ignore
+            public: true,
+          });
+        });
+      } else {
+        bulkSelect.map(async (feed) => {
+          await feed.put({
+            owner: feedName,
+          });
+        });
+      }
 
-    setModalState({
-      ...modalState,
-      isOpen: false,
-    });
+      setModalState(getInitialState());
+    } catch (error: any) {
+      handleError(error.response.data || error.message);
+    }
   };
 
   const handleError = (errorMessage: any) => {
@@ -171,7 +184,7 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
   const handleDownloadFeed = async (
     feedList: Feed[],
     feedName: string,
-    operation: string
+    operation: string,
   ) => {
     const client = ChrisAPIClient.getClient();
     cujs.setClient(client);
@@ -232,7 +245,7 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
       try {
         const createdFeed: Feed = await cujs.mergeMultipleFeeds(
           feedIdList,
-          newFeedName
+          newFeedName,
         );
         if (createdFeed) {
           queryClient.invalidateQueries({
@@ -327,6 +340,7 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
               fieldId="modal-with-form-form-name"
             >
               <TextInput
+                isDisabled={modalState.sharePublically}
                 aria-label="icon-container"
                 type="email"
                 id="modal-with-form-form-name"
@@ -335,6 +349,26 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
                 value={feedName}
                 onChange={handleNameInputChange}
               />
+
+              {modalState.currentAction === "share" && (
+                <>
+                  <Checkbox
+                    isChecked={modalState.sharePublically}
+                    id="checked"
+                    style={{
+                      marginTop: "1em",
+                    }}
+                    label="Share this feed publically"
+                    onChange={(_event, checked: boolean) => {
+                      setModalState({
+                        ...modalState,
+                        sharePublically: checked,
+                      });
+                    }}
+                  />
+                </>
+              )}
+
               <div style={{ marginTop: "1rem" }}>
                 {Object.keys(errorHandling).length > 0 &&
                   //@ts-ignore
