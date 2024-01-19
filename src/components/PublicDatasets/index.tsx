@@ -2,38 +2,46 @@ import WrapperConnect from "../Wrapper";
 import {
   Alert,
   Breadcrumb,
-  BreadcrumbItem, Button, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement,
+  BreadcrumbItem,
+  Button, Checkbox,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  MenuToggleElement,
   PageBreadcrumb,
   PageGroup,
   PageNavigation,
-  PageSection, Popover, Progress, ProgressVariant, TextContent, Text, TextVariants, Slider
+  PageSection,
+  Popover,
+  Progress,
+  ProgressVariant,
+  Slider,
+  Text,
+  TextContent,
+  TextVariants
 } from "@patternfly/react-core";
+import { DesktopIcon, BrainIcon } from "@patternfly/react-icons";
 import { InfoIcon } from "../Common";
 import { Typography } from "antd";
-import React, { useState, useEffect } from "react";
-import { Collection, Feed, FeedFile } from "@fnndsc/chrisapi";
+import React, { useEffect, useState } from "react";
+import { Feed, FeedFile } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient.ts";
 import { groupBySubject, PublicDatasetFile, Subject } from "./subjects.ts";
-import {NiivueCanvas, NVRVolume} from "niivue-react/src/index";
-import {Niivue} from "@niivue/niivue";
-import {useImmer} from "use-immer";
-import styles from './styles.module.css';
+import { NiivueCanvas, NVROptions } from "niivue-react/src/index";
+import { Niivue, NVImage, SLICE_TYPE } from "@niivue/niivue";
+import { useImmer } from "use-immer";
+import styles from "./styles.module.css";
 import { setSidebarActive } from "../../store/ui/actions.ts";
 import { useDispatch } from "react-redux";
 import { CVDVolume, files2volumes, VolumeOptions } from "./options.tsx";
+import { fileResourceUrlOf, hideColorBarofInvisibleVolume } from "./helpers.ts";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
 const _NIIVUE = new Niivue();
 const NIIVUE_COLORMAPS = _NIIVUE.colormaps();
 
-/**
- * https://github.com/FNNDSC/fnndsc/blob/26f4345a99c4486faedb732afe16fc1f14265d54/js/chrisAPI/src/feedfile.js#L38C1-L39
- */
-function fileResourceUrlOf(file: FeedFile): string {
-  const item = file.collection.items[0];
-  return Collection.getLinkRelationUrls(item, 'file_resource')[0];
-}
 
 type Problem = {
   variant: "warning" | "success" | "danger" | "info"
@@ -51,8 +59,6 @@ type SelectedSubject = {
   volumes: VolumeOptions[]
 }
 
-
-
 const PublicDatasets: React.FunctionComponent = () => {
 
   const client = ChrisAPIClient.getClient();
@@ -64,9 +70,20 @@ const PublicDatasets: React.FunctionComponent = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [selected, setSelected] = useImmer<SelectedSubject | null>(null);
 
+  const [nvOptions, setNvOptions] = useImmer<NVROptions>({
+    isColorbar: true,
+    isOrientCube: true,
+    isHighResolutionCapable: true,
+    sliceType: SLICE_TYPE.MULTIPLANAR,
+    isSliceMM: true,
+    backColor: [0, 0, 0],
+    multiplanarForceRender: true,
+  });
+
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
 
   const subjects = feedFiles ? groupBySubject(feedFiles.items, MAGIC_PUBLIC_DATASET_FILENAME) : [];
+  const volumes = selected?.volumes.map((v) => v.volume).map(hideColorBarofInvisibleVolume) || [];
 
   // HELPER FUNCTIONS
   // --------------------------------------------------------------------------------
@@ -267,6 +284,10 @@ const PublicDatasets: React.FunctionComponent = () => {
         <PageNavigation>
           <PageBreadcrumb>
             <Breadcrumb>
+              <BreadcrumbItem>
+                <DesktopIcon />
+
+              </BreadcrumbItem>
               { feed && <BreadcrumbItem>{feed.data.name}</BreadcrumbItem>}
               { subjects && selected &&
                 <BreadcrumbItem>
@@ -314,7 +335,11 @@ const PublicDatasets: React.FunctionComponent = () => {
                           setValue((volume) => volume.opacity = value);
                         };
 
-                        return (<>
+                        const setColorbarvisible = (_e: React.FormEvent<HTMLInputElement>, checked: boolean) => {
+                          setValue((volume) => volume.colorbarVisible = checked);
+                        };
+
+                        return (<div key={`${name}-options`}>
                           <TextContent>
                             <Text component={TextVariants.h3}>{name}</Text>
                           </TextContent>
@@ -326,13 +351,29 @@ const PublicDatasets: React.FunctionComponent = () => {
                             value={volume.opacity}
                             onChange={setOpacity}
                           />
+                          {
+                            volume.opacity > 0 &&
+                            <>
+                              <Checkbox
+                                label="Show colormap"
+                                isChecked={volume.colorbarVisible}
+                                onChange={setColorbarvisible}
+                                id={`${name}-colormapvisible-checkbox`}
+                              />
 
-                        </>)
+
+                            </>
+                          }
+
+                        </div>)
                       })
                     }</div>}
+                    minWidth="20rem"
                     maxWidth="40rem"
                   >
-                    <Button variant="tertiary">File Options</Button>
+                    <Button variant="tertiary">
+                      <BrainIcon /> Options
+                    </Button>
                   </Popover>
                 </BreadcrumbItem>
               }
@@ -353,16 +394,30 @@ const PublicDatasets: React.FunctionComponent = () => {
           />
         </PageSection>
       }
-
-      {
-        selected &&
-        <PageSection isFilled>
-          <div className={styles.niivueContainer}>
-            <NiivueCanvas volumes={selected.volumes.map((v) => v.volume)} />
-          </div>
-        </PageSection>
-
-      }
+      <PageSection isFilled>
+        <div className={styles.niivueContainer}>
+          <NiivueCanvas
+            options={nvOptions}
+            volumes={volumes}
+            onSync={(nv: Niivue) => {
+              // workaround for behavior mismatch between desired behavior of hideColorBarofInvisibleVolume
+              // and Niivue colorbarVisible bug https://github.com/niivue/niivue/issues/848
+              if (nv.volumes.length !== volumes.length) {
+                return;  // not done loading yet
+              }
+              const wronglyShowingColorbar = volumes
+                .filter((v) => !v.colorbarVisible)
+                .map((v) => nv.getMediaByUrl(v.url))
+                .filter((v): v is NVImage => v !== undefined)
+                .filter((v) => v.colorbarVisible);
+              if (wronglyShowingColorbar.length > 0) {
+                wronglyShowingColorbar.forEach((v) => v.colorbarVisible = false);
+                nv.updateGLVolume();
+              }
+            }}
+          />
+        </div>
+      </PageSection>
     </WrapperConnect>
   );
 }
