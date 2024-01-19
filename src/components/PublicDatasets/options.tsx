@@ -15,6 +15,7 @@ type CVDVolume = {
   colormap: string,
   cal_min: number,
   cal_max: number,
+  colorbarVisible: boolean
 };
 
 /**
@@ -42,6 +43,7 @@ const DEFAULT_VOLUMEOPTION: PreVolumeOptions = {
     colormap: 'gray',
     cal_min: 0.0,
     cal_max: 1.0,
+    colorbarVisible: true
   },
   zIndex: 0.0,
   name: '!!!PLACEHOLDER!!! If you see me, I am a bug!',
@@ -62,6 +64,7 @@ const DEFAULT_VOLUMEOPTIONS_LOOKUP: { [key: string]: PreVolumeOptions } = {
       colormap: 'gray',
       cal_min: 0.0,
       cal_max: 450.0,
+      colorbarVisible: true
     },
     zIndex: -1,  // template.nii.gz should be displayed under other layers
     name: 'template'
@@ -73,6 +76,7 @@ const DEFAULT_VOLUMEOPTIONS_LOOKUP: { [key: string]: PreVolumeOptions } = {
       colormap: 'red',
       cal_min: 0.0,
       cal_max: 1.0,
+      colorbarVisible: false
     },
     zIndex: 1,  // ventricles.nii.gz should be displayed over other layers,
     name: 'ventricles'
