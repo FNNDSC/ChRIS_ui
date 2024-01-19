@@ -104,7 +104,7 @@ export class TreeModel {
   private _parseTreeChildren(
     workingItems: PluginInstance[],
     _workingId: NodeId,
-    _parentIndex = 0
+    _parentIndex = 0,
   ) {
     const cloneArr: PluginInstance[] = workingItems.slice();
     cloneArr.forEach((item: PluginInstance) => {
@@ -135,7 +135,7 @@ export class TreeModel {
       this._workingItems,
       (subitem: PluginInstance) => {
         return id === subitem.data.previous_id;
-      }
+      },
     );
     // Does this node have children - recur
     !!workingChildrenArr &&
@@ -189,10 +189,10 @@ export class FileViewerModel {
   static startDownload(
     item: FeedFile,
     notification: any,
-    callback: (status: any) => void
+    callback: (status: any) => void,
   ) {
     const findItem = this.itemsToDownload.find(
-      (currentItem) => currentItem.data.fname === item.data.fname
+      (currentItem) => currentItem.data.fname === item.data.fname,
     );
 
     const filename = this.getFileName(item);
@@ -220,7 +220,7 @@ export class FileViewerModel {
         filename,
         notification,
         callback,
-        onDownloadProgress
+        onDownloadProgress,
       );
     }
   }
@@ -229,7 +229,7 @@ export class FileViewerModel {
     item: FeedFile,
     notification: any,
     callback: (status: any) => void,
-    status: string
+    status: string,
   ) {
     const index = this.itemsToDownload.indexOf(item);
     if (index > -1) {
@@ -255,7 +255,7 @@ export class FileViewerModel {
     filename: string,
     notification: any,
     callback: (status: any) => void,
-    onDownloadProgressCallback: (progressEvent: number, item: FeedFile) => void
+    onDownloadProgressCallback: (progressEvent: number, item: FeedFile) => void,
   ) {
     const urlString = `${item.url}${filename}`;
     const client = ChrisAPIClient.getClient();
