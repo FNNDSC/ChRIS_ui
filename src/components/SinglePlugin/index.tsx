@@ -44,7 +44,7 @@ const SinglePlugin = () => {
     const type: string = download_url.split(".").reverse()[0];
 
     if (type === "md" || type === "rst") {
-      fileToSanitize = marked.parse(file);
+      fileToSanitize = await marked.parse(file);
     } else {
       fileToSanitize = file;
     }
