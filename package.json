@@ -44,7 +44,7 @@
     "keymirror": "^0.1.1",
     "lodash": "^4.17.21",
     "marked": "^9.1.5",
-    "niivue-react": "https://gitpkg.now.sh/niivue/niivue-react/niivue-react?51f33bdf5a942e8cb61651b6e392a2781d548cc7",
+    "niivue-react": "github:niivue/niivue-react",
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
     "rc-tree": "^5.8.0",
@@ -67,8 +67,8 @@
     "sanitize-html": "^2.11.0",
     "sirv-cli": "^2.0.2",
     "typesafe-actions": "^5.1.0",
-    "use-immer": "^0.9.0",
     "use-ackee": "^3.0.1",
+    "use-immer": "^0.9.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -93,7 +93,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "typescript": "^5.0.2",
-    "vitest": "^1.0.4",
-    "vite": "^5.0.10"
+    "vite": "^5.0.10",
+    "vitest": "^1.0.4"
   }
 }

@@ -36,11 +36,9 @@ import { setSidebarActive } from "../../store/ui/actions.ts";
 import { useDispatch } from "react-redux";
 import { CVDVolume, files2volumes, VolumeOptions } from "./options.tsx";
 import { fileResourceUrlOf, hideColorBarofInvisibleVolume } from "./helpers.ts";
+import ColormapDropdown from "./colormapdropdown.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
-
-const _NIIVUE = new Niivue();
-const NIIVUE_COLORMAPS = _NIIVUE.colormaps();
 
 
 type Problem = {
@@ -339,6 +337,10 @@ const PublicDatasets: React.FunctionComponent = () => {
                           setValue((volume) => volume.colorbarVisible = checked);
                         };
 
+                        const setColormap = (colormap: string) => {
+                          setValue((volume) => volume.colormap = colormap);
+                        }
+
                         return (<div key={`${name}-options`}>
                           <TextContent>
                             <Text component={TextVariants.h3}>{name}</Text>
@@ -360,11 +362,9 @@ const PublicDatasets: React.FunctionComponent = () => {
                                 onChange={setColorbarvisible}
                                 id={`${name}-colormapvisible-checkbox`}
                               />
-
-
+                              <ColormapDropdown selectedColormap={volume.colormap} onSelect={setColormap}/>
                             </>
                           }
-
                         </div>)
                       })
                     }</div>}
@@ -399,22 +399,6 @@ const PublicDatasets: React.FunctionComponent = () => {
           <NiivueCanvas
             options={nvOptions}
             volumes={volumes}
-            onSync={(nv: Niivue) => {
-              // workaround for behavior mismatch between desired behavior of hideColorBarofInvisibleVolume
-              // and Niivue colorbarVisible bug https://github.com/niivue/niivue/issues/848
-              if (nv.volumes.length !== volumes.length) {
-                return;  // not done loading yet
-              }
-              const wronglyShowingColorbar = volumes
-                .filter((v) => !v.colorbarVisible)
-                .map((v) => nv.getMediaByUrl(v.url))
-                .filter((v): v is NVImage => v !== undefined)
-                .filter((v) => v.colorbarVisible);
-              if (wronglyShowingColorbar.length > 0) {
-                wronglyShowingColorbar.forEach((v) => v.colorbarVisible = false);
-                nv.updateGLVolume();
-              }
-            }}
           />
         </div>
       </PageSection>
