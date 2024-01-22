@@ -23,7 +23,6 @@ const BreadcrumbContainer = ({
                 handleFolderClick("/" + newPath);
               }
             }}
-            }}
             key={index}
             to="#"
           >
