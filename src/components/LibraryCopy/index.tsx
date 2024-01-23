@@ -442,12 +442,13 @@ const UploadComponent = ({
 
   return (
     <Modal
+      width="70%"
       title="Upload Files"
       onClose={() => {
         handleReset();
       }}
       isOpen={uploadFileModal}
-      variant={ModalVariant.md}
+      variant={ModalVariant.medium}
       arial-labelledby="file-upload"
     >
       <div style={{ height: "200px" }}>
