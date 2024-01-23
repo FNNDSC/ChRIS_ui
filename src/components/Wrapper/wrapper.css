@@ -1,4 +1,56 @@
-.pf-v5-c-toolbar__group {
-  align-self: end;
-  justify-content: end;
+/* YourComponent.css */
+
+/* Styling for the Toolbar component */
+.toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Styling for the first ToolbarGroup component */
+.feed-details {
+  margin-left: 40em;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 1880px) {
+  .feed-details {
+    margin-left: 15em;
+  }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 1200px) {
+  .feed-details {
+    margin-left: 10em;
+  }
+}
+
+@media (max-width: 992px) {
+  .feed-details {
+    margin-left: 5em;
+  }
+}
+
+/* Styling for the second ToolbarGroup component */
+.authentication {
+  margin-left: auto;
+}
+
+/* Additional styling for responsive design if needed */
+@media (max-width: 912px) {
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .feed-details {
+    margin-left: 0;
+    margin-bottom: 0.25rem; /* Add margin to separate rows */
+  }
+
+  .authentication {
+    margin-left: 0;
+  }
 }
