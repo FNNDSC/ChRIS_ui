@@ -1,7 +1,9 @@
-import { CVDVolume } from "./options.tsx";
+import { ChNVRVolume } from "./options.tsx";
 import { Collection, FeedFile } from "@fnndsc/chrisapi";
+import { DraftFunction, Updater } from "use-immer";
+import { isDraftable } from "immer";
 
-function hideColorBarofInvisibleVolume(v: CVDVolume): CVDVolume {
+function hideColorBarofInvisibleVolume(v: ChNVRVolume): ChNVRVolume {
   return v.opacity === 0.0 ? {...v, colorbarVisible: false} : v;
 }
 
@@ -13,4 +15,26 @@ function fileResourceUrlOf(file: FeedFile): string {
   return Collection.getLinkRelationUrls(item, 'file_resource')[0];
 }
 
-export { hideColorBarofInvisibleVolume, fileResourceUrlOf };
+/**
+ * Wrap an `Updater` to be used in contexts where you are sure `x` is not `null`.
+ */
+function nullUpdaterGuard<T>(updater: Updater<T | null>): Updater<T> {
+  return (update) => {
+    if (isDraftFunction(update)) {
+      return updater((draft) => {
+        if (draft === null) {
+          throw Error('draft is null');
+        }
+        update(draft);
+      });
+    } else {
+      updater(update);
+    }
+  };
+}
+
+function isDraftFunction<T>(update: T | DraftFunction<T>): update is DraftFunction<T> {
+  return typeof update === "function";
+}
+
+export { hideColorBarofInvisibleVolume, fileResourceUrlOf, nullUpdaterGuard };

@@ -8,7 +8,7 @@ import {
   PluginInstance,
   FileBrowserPath,
 } from "@fnndsc/chrisapi";
-import { inflate } from "pako";
+import { inflate, inflateRaw } from "pako";
 import {
   getPluginInstanceResourceSuccess,
   stopFetchingPluginResources,
@@ -33,7 +33,7 @@ export const fetchFilesFromAPath = async (path: string) => {
   const foldersList: FileBrowserPathFileList = await client.getFileBrowserPaths(
     {
       path,
-    }
+    },
   );
   let folders: string[] = [];
   const pathList: FileBrowserPath = await client.getFileBrowserPath(path);
@@ -86,6 +86,7 @@ function* handleGetPluginStatus(instance: PluginInstance) {
       //@ts-ignore
       const pluginDetails = yield instance.get();
       //@ts-ignore
+
       const pluginStatus = pluginDetails.data.summary;
       const status = pluginDetails.data.status;
 
@@ -95,7 +96,7 @@ function* handleGetPluginStatus(instance: PluginInstance) {
       if (previousInstanceId) {
         const previousInstance: PluginInstance =
           yield ChrisAPIClient.getClient().getPluginInstance(
-            previousInstanceId
+            previousInstanceId,
           );
         previousStatus = previousInstance.data.status;
       }
@@ -143,7 +144,7 @@ function* handleGetInstanceStatus(instance: PluginInstance) {
         getPluginInstanceStatusSuccess({
           selected: instance,
           status: instance.data.status,
-        })
+        }),
       );
       if (
         pluginDetails.data.status === "finishedWithError" ||
@@ -198,7 +199,7 @@ function* watchStatusCancelPoll(pollTask: PollTask) {
       const id = action.payload;
       const taskToCancel = pollTask[id];
       cancelStatusPolling(taskToCancel);
-    }
+    },
   );
 }
 
@@ -218,6 +219,7 @@ function* pollInstanceEndpoints(action: IActionTypeParam) {
 
   for (let i = 0; i < pluginInstances.length; i++) {
     const instance = pluginInstances[i];
+
     const task: Task = yield fork(handleGetInstanceStatus, instance);
     pollTask[instance.data.id] = task;
   }
@@ -232,21 +234,21 @@ function* watchGetPluginFilesRequest() {
 function* watchGetPluginStatusRequest() {
   yield takeEvery(
     ResourceTypes.GET_PLUGIN_STATUS_REQUEST,
-    pollInstanceEndpoints
+    pollInstanceEndpoints,
   );
 }
 
 function* watchResetActiveResources() {
   yield takeEvery(
     ResourceTypes.RESET_ACTIVE_RESOURCES,
-    handleResetActiveResources
+    handleResetActiveResources,
   );
 }
 
 function* watchSelectedPlugin() {
   yield takeEvery(
     PluginInstanceTypes.GET_SELECTED_PLUGIN,
-    pollorCancelEndpoints
+    pollorCancelEndpoints,
   );
 }
 
@@ -260,13 +262,27 @@ export function* resourceSaga() {
 }
 
 function getLog(raw: string) {
+  // Step 1: Decode base64
   const strData = atob(raw);
-  const data = inflate(strData);
 
-  let output = "";
-  for (let i = 0; i < data.length; i++) {
-    output += String.fromCharCode(parseInt(data[i]));
+  // Try inflating with "deflate" method
+  try {
+    const inflatedData = inflate(strData, { to: "string" });
+    return JSON.parse(inflatedData);
+  } catch (error1) {
+    console.error("Error inflating with deflate:", error1);
+
+    // If "deflate" fails, try "zlib" method
+    try {
+      const inflatedData = inflateRaw(strData, { to: "string" });
+      return JSON.parse(inflatedData);
+    } catch (error2) {
+      console.error("Error inflating with zlib:", error2);
+    }
   }
 
-  return JSON.parse(output);
+  // If both "deflate" and "zlib" fail, you may need to handle other compression methods here.
+
+  console.error("Unable to inflate the data.");
+  return null;
 }

@@ -16,9 +16,12 @@ const BreadcrumbContainer = ({
         return (
           <BreadcrumbItem
             onClick={() => {
-              const newPath = initialPathSplit.slice(0, index + 1).join("/");
-
-              handleFolderClick("/" + newPath);
+              if (index === 0) {
+                handleFolderClick("");
+              } else {
+                const newPath = initialPathSplit.slice(0, index + 1).join("/");
+                handleFolderClick("/" + newPath);
+              }
             }}
             key={index}
             to="#"

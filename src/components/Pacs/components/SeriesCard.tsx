@@ -1,5 +1,5 @@
 import { useEffect, useContext, useCallback, useState, useMemo } from "react";
-import { Steps } from "antd";
+import { Steps, Alert } from "antd";
 import { useNavigate } from "react-router";
 import {
   Card,
@@ -9,21 +9,23 @@ import {
   Badge,
   Modal,
   Tooltip,
+  Skeleton,
 } from "@patternfly/react-core";
-
 import FileDetailView from "../../Preview/FileDetailView";
 import { DotsIndicator } from "../../Common";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { PacsQueryContext, Types } from "../context";
-import PFDCMClient from "../pfdcmClient";
+import { CardHeaderComponent } from "./SettingsComponents";
+import PFDCMClient, { ImageStatusType } from "../pfdcmClient";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import FaBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import { Alert } from "antd";
+
 import { pluralize } from "../../../api/common";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
 import useInterval from "./useInterval";
+import useSettings from "../useSettings";
 
 const client = new PFDCMClient();
 
@@ -31,11 +33,11 @@ const SeriesCard = ({ series }: { series: any }) => {
   const {
     SeriesInstanceUID,
     StudyInstanceUID,
-    SeriesDescription,
-    Modality,
+
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
+  const { data, isLoading, error: queryError } = useSettings();
   const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
@@ -43,35 +45,34 @@ const SeriesCard = ({ series }: { series: any }) => {
   const [fetchNextStatus, setFetchNextStatus] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [error, setError] = useState("");
+  const [stepperStatus, setStepperStatus] = useState<ImageStatusType[]>([]);
+  const [currentProgressStep, setCurrentProgressStep] = useState({
+    currentStep: "none",
+    currentProgress: 0,
+  });
 
   const {
-    queryStageForSeries,
+    seriesUpdate,
     selectedPacsService,
     preview,
     seriesPreviews,
-    seriesStatus,
+    pullStudy,
   } = state;
 
-  const status =
-    seriesStatus &&
-    seriesStatus[StudyInstanceUID.value] &&
-    seriesStatus[StudyInstanceUID.value][SeriesInstanceUID.value];
-  const { newImageStatus: stepperStatus, progress } = status || {
-    newImageStatus: [],
-    progress: {
-      currentStep: "none",
-      currentProgress: 0,
-    },
-  };
+  const userPreferences = data && data["series"];
 
-  const { currentStep, currentProgress } = progress;
+  const { currentStep, currentProgress } = currentProgressStep;
+
   const [requestCounter, setRequestCounter] = useState<{
     [key: string]: number;
   }>({});
   const [isFetching, setIsFetching] = useState(false);
 
   const queryStage =
-    queryStageForSeries && queryStageForSeries[SeriesInstanceUID.value];
+    (seriesUpdate &&
+      Object.keys(seriesUpdate).length > 0 &&
+      seriesUpdate[StudyInstanceUID.value][SeriesInstanceUID.value]) ||
+    "none";
 
   const pullQuery = useMemo(() => {
     return {
@@ -115,7 +116,11 @@ const SeriesCard = ({ series }: { series: any }) => {
           preview: true,
         },
       });
-    } else if (preview === false && Object.keys(seriesPreviews).length > 0) {
+    } else if (
+      preview === false &&
+      seriesPreviews &&
+      Object.keys(seriesPreviews).length > 0
+    ) {
       dispatch({
         type: Types.RESET_SERIES_PREVIEWS,
         payload: {
@@ -136,29 +141,24 @@ const SeriesCard = ({ series }: { series: any }) => {
       const stepperStatus = await client.stepperStatus(
         pullQuery,
         selectedPacsService,
+        SeriesInstanceUID.value,
         NumberOfSeriesRelatedInstances.value,
         false,
-        SeriesInstanceUID.value,
       );
 
-      const status = stepperStatus[SeriesInstanceUID.value];
+      const status = stepperStatus.get(SeriesInstanceUID.value);
 
       if (status) {
-        const { progress } = status;
+        const { progress, newImageStatus } = status;
+        setStepperStatus(newImageStatus);
+        setCurrentProgressStep(progress);
 
         dispatch({
-          type: Types.SET_SERIES_STATUS,
+          type: Types.SET_SERIES_UPDATE,
           payload: {
-            status: stepperStatus,
+            currentStep: progress.currentStep,
+            seriesInstanceUID: SeriesInstanceUID.value,
             studyInstanceUID: StudyInstanceUID.value,
-          },
-        });
-
-        dispatch({
-          type: Types.SET_QUERY_STAGE_FOR_SERIES,
-          payload: {
-            SeriesInstanceUID: SeriesInstanceUID.value,
-            queryStage: progress.currentStep,
           },
         });
 
@@ -166,7 +166,9 @@ const SeriesCard = ({ series }: { series: any }) => {
       }
     }
 
-    if (!status) {
+    if (pullStudy) {
+      setFetchNextStatus(true);
+    } else {
       fetchStatusForTheFirstTime();
     }
   }, [
@@ -177,7 +179,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     StudyInstanceUID.value,
     selectedPacsService,
     NumberOfSeriesRelatedInstances.value,
-    status
+    pullStudy,
   ]);
 
   const executeNextStepForTheSeries = async (nextStep: string) => {
@@ -206,24 +208,19 @@ const SeriesCard = ({ series }: { series: any }) => {
           const stepperStatus = await client.stepperStatus(
             pullQuery,
             selectedPacsService,
-            NumberOfSeriesRelatedInstances.value,
-            currentStep === "none" && true,
             SeriesInstanceUID.value,
+            NumberOfSeriesRelatedInstances.value,
+            currentStep === "none" ? true : false,
           );
 
-          const status = stepperStatus[SeriesInstanceUID.value];
+          const status = stepperStatus.get(SeriesInstanceUID.value);
 
           if (status) {
-            const { progress } = status;
+            const { progress, newImageStatus } = status;
             const { currentStep, currentProgress } = progress;
 
-            dispatch({
-              type: Types.SET_SERIES_STATUS,
-              payload: {
-                status: stepperStatus,
-                studyInstanceUID: StudyInstanceUID.value,
-              },
-            });
+            setStepperStatus(newImageStatus);
+            setCurrentProgressStep(progress);
 
             if (!requestCounter[currentStep]) {
               setRequestCounter({
@@ -242,10 +239,11 @@ const SeriesCard = ({ series }: { series: any }) => {
                 executeNextStepForTheSeries(nextStep);
 
               dispatch({
-                type: Types.SET_QUERY_STAGE_FOR_SERIES,
+                type: Types.SET_SERIES_UPDATE,
                 payload: {
-                  SeriesInstanceUID: SeriesInstanceUID.value,
-                  queryStage: currentStep,
+                  currentStep,
+                  seriesInstanceUID: SeriesInstanceUID.value,
+                  studyInstanceUID: series.StudyInstanceUID.value,
                 },
               });
             }
@@ -265,7 +263,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         }
       }
     },
-    fetchNextStatus ? 3000 : null,
+    fetchNextStatus && pullStudy ? 5000 : fetchNextStatus ? 3000 : null,
   );
 
   let nextQueryStage;
@@ -357,36 +355,65 @@ const SeriesCard = ({ series }: { series: any }) => {
     </>
   );
 
+  const userPreferencesArray = userPreferences && Object.keys(userPreferences);
+
   const rowLayout = (
-    <CardHeader className="flex-series-container">
-      <div className="flex-series-item">
-        <Tooltip content={SeriesDescription.value} position="auto">
-          <div
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <span style={{ marginRight: "0.5em" }}>
-              {SeriesDescription.value}
-            </span>{" "}
-          </div>
-        </Tooltip>
-
-        <div>
-          {series.NumberOfSeriesRelatedInstances.value}{" "}
-          {pluralize("file", +series.NumberOfSeriesRelatedInstances.value)}
+    <CardHeader
+      actions={{
+        actions: <CardHeaderComponent resource={series} type="series" />,
+      }}
+      className="flex-series-container"
+    >
+      {isLoading ? (
+        <div className="flex-series-item">
+          <Skeleton width="100%" height="100%" />{" "}
         </div>
-      </div>
+      ) : queryError ? (
+        <Alert type="error" description="Please refresh the page..." />
+      ) : userPreferences &&
+        userPreferencesArray &&
+        userPreferencesArray.length > 0 ? (
+        userPreferencesArray.map((key: string) => (
+          <div key={key} className="flex-series-item">
+            <div className="study-detail-title hide-content">
+              <span style={{ marginRight: "0.5em" }}>{key} </span>
+            </div>
+            <Tooltip content={series[key].value} position="auto">
+              <div className="hide-content">
+                {series[key] ? series[key].value : "N/A"}
+              </div>
+            </Tooltip>
+          </div>
+        ))
+      ) : (
+        <>
+          <div className="flex-series-item">
+            <Tooltip content={series.SeriesDescription.value} position="auto">
+              <div className="hide-content">
+                <span style={{ marginRight: "0.5em" }}>
+                  {series.SeriesDescription.value}
+                </span>{" "}
+              </div>
+            </Tooltip>
 
-      <div className="flex-series-item">
-        <div>Modality</div>
-        <Badge key={SeriesInstanceUID.value}>{Modality.value}</Badge>
-      </div>
+            <div>
+              {series.NumberOfSeriesRelatedInstances.value}{" "}
+              {pluralize("file", +series.NumberOfSeriesRelatedInstances.value)}
+            </div>
+          </div>
 
-      <div className="flex-series-item steps-container ">
+          <div className="flex-series-item">
+            <div>Modality</div>
+            <Badge key={series.SeriesInstanceUID.value}>
+              {series.Modality.value}
+            </Badge>
+          </div>
+        </>
+      )}
+
+      <div className="flex-series-item steps-container">
         {stepperStatus.length > 0 ? (
+          //@ts-ignore
           <Steps size="small" items={stepperStatus} />
         ) : (
           <DotsIndicator title="Fetching Status..." />
@@ -409,7 +436,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     </CardBody>
   );
 
-  const LargeFilePreview = (
+  const largeFilePreview = (
     <Modal
       style={{ height: "800px" }}
       title="Preview"
@@ -433,11 +460,11 @@ const SeriesCard = ({ series }: { series: any }) => {
         ></Alert>
       )}
 
-      <Card isRounded isSelectable>
+      <Card isRounded>
         {preview && seriesPreviews && seriesPreviews[SeriesInstanceUID.value]
           ? filePreviewLayout
           : rowLayout}
-        {cubeFilePreview && LargeFilePreview}
+        {cubeFilePreview && largeFilePreview}
       </Card>
     </>
   );

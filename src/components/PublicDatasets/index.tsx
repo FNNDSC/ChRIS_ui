@@ -1,9 +1,11 @@
-import WrapperConnect from "../Wrapper";
+import React, { useEffect, useState } from "react";
+import { DraftFunction, useImmer } from "use-immer";
+import { useDispatch } from "react-redux";
 import {
   Alert,
   Breadcrumb,
   BreadcrumbItem,
-  Button, Checkbox,
+  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -16,30 +18,27 @@ import {
   Popover,
   Progress,
   ProgressVariant,
-  Slider,
-  Text,
-  TextContent,
-  TextVariants
 } from "@patternfly/react-core";
-import { DesktopIcon, BrainIcon } from "@patternfly/react-icons";
-import { InfoIcon } from "../Common";
+import { BrainIcon, DesktopIcon } from "@patternfly/react-icons";
 import { Typography } from "antd";
-import React, { useEffect, useState } from "react";
 import { Feed, FeedFile } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "../../api/chrisapiclient.ts";
-import { groupBySubject, PublicDatasetFile, Subject } from "./subjects.ts";
-import { NiivueCanvas, NVROptions } from "niivue-react/src/index";
-import { Niivue, NVImage, SLICE_TYPE } from "@niivue/niivue";
-import { useImmer } from "use-immer";
-import styles from "./styles.module.css";
+import { NiivueCanvas } from "niivue-react/src/index";
+import { SLICE_TYPE } from "@niivue/niivue";
+
+import WrapperConnect from "../Wrapper";
+import { InfoIcon } from "../Common";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { setSidebarActive } from "../../store/ui/actions.ts";
-import { useDispatch } from "react-redux";
-import { CVDVolume, files2volumes, VolumeOptions } from "./options.tsx";
-import { fileResourceUrlOf, hideColorBarofInvisibleVolume } from "./helpers.ts";
-import ColormapDropdown from "./colormapdropdown.tsx";
+
+import { groupBySubject, PublicDatasetFile, Subject } from "./subjects";
+import styles from "./styles.module.css";
+import {VolumeEntry, ChNVROptions} from "./models.ts";
+import { files2volumes } from "./options.tsx";
+import { fileResourceUrlOf, hideColorBarofInvisibleVolume, nullUpdaterGuard } from "./helpers.ts";
+import NiivueOptionsPanel from "./NiivueOptionsPanel.tsx";
+import SelectedFilesOptionsPane from "./SelectedFilesOptionsPane.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
-
 
 type Problem = {
   variant: "warning" | "success" | "danger" | "info"
@@ -54,7 +53,7 @@ type Files = {
 
 type SelectedSubject = {
   subject: Subject,
-  volumes: VolumeOptions[]
+  volumes: VolumeEntry[]
 }
 
 const PublicDatasets: React.FunctionComponent = () => {
@@ -68,7 +67,7 @@ const PublicDatasets: React.FunctionComponent = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [selected, setSelected] = useImmer<SelectedSubject | null>(null);
 
-  const [nvOptions, setNvOptions] = useImmer<NVROptions>({
+  const [nvOptions, setNvOptions] = useImmer<ChNVROptions>({
     isColorbar: true,
     isOrientCube: true,
     isHighResolutionCapable: true,
@@ -82,6 +81,9 @@ const PublicDatasets: React.FunctionComponent = () => {
 
   const subjects = feedFiles ? groupBySubject(feedFiles.items, MAGIC_PUBLIC_DATASET_FILENAME) : [];
   const volumes = selected?.volumes.map((v) => v.volume).map(hideColorBarofInvisibleVolume) || [];
+  const setSelectedVolumes = (update: DraftFunction<VolumeEntry[]>) => {
+    nullUpdaterGuard(setSelected)((draft) => update(draft.volumes));
+  };
 
   // HELPER FUNCTIONS
   // --------------------------------------------------------------------------------
@@ -245,7 +247,6 @@ const PublicDatasets: React.FunctionComponent = () => {
 
   return (
     <WrapperConnect>
-
       <PageSection>
         <InfoIcon
           title="Public Datasets"
@@ -283,7 +284,15 @@ const PublicDatasets: React.FunctionComponent = () => {
           <PageBreadcrumb>
             <Breadcrumb>
               <BreadcrumbItem>
-                <DesktopIcon />
+                <Popover
+                  bodyContent={<NiivueOptionsPanel options={nvOptions} setOptions={setNvOptions} />}
+                  minWidth="20rem"
+                  maxWidth="40rem"
+                >
+                  <Button variant="tertiary">
+                    <DesktopIcon /> Viewer
+                  </Button>
+                </Popover>
 
               </BreadcrumbItem>
               { feed && <BreadcrumbItem>{feed.data.name}</BreadcrumbItem>}
@@ -313,61 +322,10 @@ const PublicDatasets: React.FunctionComponent = () => {
                 </BreadcrumbItem>
               }
               { subjects && selected &&
+
                 <BreadcrumbItem>
                   <Popover
-                    triggerAction="hover"
-                    bodyContent={<div>{
-                      selected.volumes.map(({ name, volume }, i) => {
-
-                        const setValue = (change: (volume: CVDVolume) => void) => {
-                          setSelected((draft) => {
-                            if (draft === null) {
-                              throw new Error('unreachable code');
-                            }
-                            change(draft.volumes[i].volume);
-                          });
-                        };
-
-                        // TODO debounce for performance
-                        const setOpacity = (_e: any, value: number) => {
-                          setValue((volume) => volume.opacity = value);
-                        };
-
-                        const setColorbarvisible = (_e: React.FormEvent<HTMLInputElement>, checked: boolean) => {
-                          setValue((volume) => volume.colorbarVisible = checked);
-                        };
-
-                        const setColormap = (colormap: string) => {
-                          setValue((volume) => volume.colormap = colormap);
-                        }
-
-                        return (<div key={`${name}-options`}>
-                          <TextContent>
-                            <Text component={TextVariants.h3}>{name}</Text>
-                          </TextContent>
-                          <Text component={TextVariants.p}>Opacity: {volume.opacity}</Text>
-                          <Slider
-                            min={0.0}
-                            max={1.0}
-                            step={0.05}
-                            value={volume.opacity}
-                            onChange={setOpacity}
-                          />
-                          {
-                            volume.opacity > 0 &&
-                            <>
-                              <Checkbox
-                                label="Show colormap"
-                                isChecked={volume.colorbarVisible}
-                                onChange={setColorbarvisible}
-                                id={`${name}-colormapvisible-checkbox`}
-                              />
-                              <ColormapDropdown selectedColormap={volume.colormap} onSelect={setColormap}/>
-                            </>
-                          }
-                        </div>)
-                      })
-                    }</div>}
+                    bodyContent={<SelectedFilesOptionsPane volumes={selected.volumes} setVolumes={setSelectedVolumes}/>}
                     minWidth="20rem"
                     maxWidth="40rem"
                   >

@@ -12,7 +12,10 @@ const initialState: IUiState = {
   isNavOpen: true,
 };
 
-const reducer: Reducer<IUiState> = (state = initialState, action) => {
+const reducer: Reducer<IUiState> = (
+  state = initialState,
+  action: typeof UserActionTypes
+) => {
   switch (action.type) {
     case UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN: {
       return { ...state, isDropdownOpen: action.payload };
