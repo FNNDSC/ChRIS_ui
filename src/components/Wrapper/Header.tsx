@@ -14,7 +14,6 @@ import BarsIcon from "@patternfly/react-icons/dist/esm/icons/bars-icon";
 import ToolbarComponent from "./Toolbar";
 import { IUserState } from "../../store/user/types";
 import { useTypedSelector } from "../../store/hooks";
-import FeedDetails from "../FeedDetails";
 
 const brand = (
   <React.Fragment>
@@ -30,11 +29,9 @@ interface IHeaderProps {
 export default function Header(props: IHeaderProps) {
   const showToolbar = useTypedSelector((state) => state.feed.showToolbar);
 
-  const pageToolbar = <ToolbarComponent token={props.user.token} />;
-
-  const iconToolbar = showToolbar && <FeedDetails />;
-
- 
+  const pageToolbar = (
+    <ToolbarComponent showToolbar={showToolbar} token={props.user.token} />
+  );
 
   return (
     <Masthead>
@@ -54,16 +51,7 @@ export default function Header(props: IHeaderProps) {
           {brand}
         </MastheadBrand>
       </MastheadMain>
-      <MastheadContent
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginLeft: "30em",
-          zIndex: "999",
-        }}
-      >
-        {iconToolbar}
+      <MastheadContent className="mastheadContent">
         {pageToolbar}
       </MastheadContent>
     </Masthead>
