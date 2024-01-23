@@ -16,7 +16,8 @@ type ChNVROptions = {
   sliceType: SLICE_TYPE,
   isSliceMM: boolean,
   backColor: number[],
-  multiplanarForceRender: boolean
+  multiplanarForceRender: boolean,
+  isRadiologicalConvention: boolean
 };
 
 /**
