@@ -1,5 +1,5 @@
-import React, { ReactElement, ReactNode, useState } from "react";
-import { Toolbar, ToolbarItem, ToolbarContent } from "@patternfly/react-core";
+import React, { ReactNode, useState } from "react";
+import { ToolbarItem } from "@patternfly/react-core";
 import { Badge } from "antd";
 import { useTypedSelector } from "../../store/hooks";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
