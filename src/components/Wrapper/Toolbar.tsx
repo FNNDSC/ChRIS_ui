@@ -2,6 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dispatch } from "redux";
+import FeedDetails from "../FeedDetails";
 import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
@@ -28,7 +29,11 @@ interface IPropsFromDispatch {
   setLogoutSuccess: typeof setLogoutSuccess;
   token?: string | null;
 }
-type AllProps = IUserState & IUiState & IPropsFromDispatch;
+
+interface ComponentProps {
+  showToolbar: boolean;
+}
+type AllProps = IUserState & IUiState & IPropsFromDispatch & ComponentProps;
 
 const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   const [_, _setCookie, removeCookie] = useCookies();
@@ -66,12 +71,15 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
     </DropdownItem>,
   ];
   return (
-    <Toolbar>
-      <ToolbarGroup>
+    <Toolbar className="toolbar">
+      <ToolbarGroup className="feed-details">
+        {props.showToolbar && <FeedDetails />}
+      </ToolbarGroup>
+      <ToolbarGroup className="authentication">
         <ToolbarItem>
           <Switch
             id="simple switch"
-            label="Dark Theme"
+            label="Theme"
             isChecked={isDarkTheme}
             onChange={handleChange}
             ouiaId="Basic Switch"
