@@ -27,7 +27,7 @@ import { NiivueCanvas } from "niivue-react/src/index";
 import WrapperConnect from "../Wrapper";
 import { InfoIcon } from "../Common";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { setSidebarActive } from "../../store/ui/actions.ts";
+import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions.ts";
 
 import { groupBySubject, PublicDatasetFile, Subject } from "./subjects";
 import styles from "./styles.module.css";
@@ -173,12 +173,13 @@ const PublicDatasets: React.FunctionComponent = () => {
 
   React.useEffect(() => {
     document.title = "Fetal MRI Viewer";
+    dispatch(setIsNavOpen(false));
     dispatch(
       setSidebarActive({
         activeItem: "niivue",
       })
     );
-  }, []);
+  }, [dispatch]);
 
   // on first load, get all the public feeds containing public datasets.
   useEffect(() => {
@@ -241,11 +242,11 @@ const PublicDatasets: React.FunctionComponent = () => {
     <WrapperConnect>
       <PageSection>
         <InfoIcon
-          title="Fetal MRI Viewer"
+          title="Fetal Neonatal Developmental Science Center (FNNDSC): Fetal MRI Viewer"
           p1={
             <Typography>
               <p>
-                Datasets found in public feeds can be visualized here using
+                Datasets found in public feeds can be visualized here using{' '}
                 <a href="https://github.com/niivue/niivue" target="_blank" rel="noreferrer nofollow">Niivue</a>.
               </p>
               <p>
