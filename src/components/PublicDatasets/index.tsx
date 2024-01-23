@@ -23,7 +23,6 @@ import { BrainIcon, DesktopIcon } from "@patternfly/react-icons";
 import { Typography } from "antd";
 import { Feed, FeedFile } from "@fnndsc/chrisapi";
 import { NiivueCanvas } from "niivue-react/src/index";
-import { SLICE_TYPE } from "@niivue/niivue";
 
 import WrapperConnect from "../Wrapper";
 import { InfoIcon } from "../Common";
@@ -37,6 +36,7 @@ import { files2volumes } from "./options.tsx";
 import { fileResourceUrlOf, hideColorBarofInvisibleVolume, nullUpdaterGuard } from "./helpers.ts";
 import NiivueOptionsPanel from "./NiivueOptionsPanel.tsx";
 import SelectedFilesOptionsPane from "./SelectedFilesOptionsPane.tsx";
+import { DEFAULT_OPTIONS } from "./defaults.ts";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
@@ -67,15 +67,7 @@ const PublicDatasets: React.FunctionComponent = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [selected, setSelected] = useImmer<SelectedSubject | null>(null);
 
-  const [nvOptions, setNvOptions] = useImmer<ChNVROptions>({
-    isColorbar: true,
-    isOrientCube: true,
-    isHighResolutionCapable: true,
-    sliceType: SLICE_TYPE.MULTIPLANAR,
-    isSliceMM: true,
-    backColor: [0, 0, 0],
-    multiplanarForceRender: true,
-  });
+  const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
 
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
 
