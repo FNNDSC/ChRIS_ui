@@ -18,6 +18,7 @@ import {
   Form,
   Alert as PatternflyAlert,
   Progress,
+  ProgressSize,
 } from "@patternfly/react-core";
 import { Typography } from "antd";
 import { debounce } from "lodash";
@@ -29,7 +30,7 @@ import DragAndUpload from "../DragFileUpload";
 import Cart from "./Cart";
 import Browser from "./Browser";
 import { LocalFileList } from "../CreateFeed/HelperComponent";
-import { SpinContainer } from "../Common";
+import { SpinContainer, EmptyStateComponent } from "../Common";
 import BreadcrumbContainer from "./BreadcrumbContainer";
 import { LibraryProvider } from "./context/";
 import { InfoIcon } from "../Common";
@@ -120,6 +121,9 @@ export const LibraryCopyPage = () => {
 
   const handleFileModal = () => {
     setIsOpenModal(!isOpenModal);
+    if (isOpenModal && localFiles.length > 0) {
+      setLocalFiles([]);
+    }
   };
 
   const handleAddFolder = (path: string, user: string) => {
@@ -130,7 +134,7 @@ export const LibraryCopyPage = () => {
     dispatch(
       setSidebarActive({
         activeItem: "lib",
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -187,7 +191,7 @@ export const LibraryCopyPage = () => {
               localFiles={localFiles}
               handleDelete={(name: string) => {
                 const filteredfiles = localFiles.filter(
-                  (file) => file.name !== name
+                  (file) => file.name !== name,
                 );
                 setLocalFiles(filteredfiles);
               }}
@@ -381,7 +385,7 @@ const UploadComponent = ({
     const onUploadProgress = (file: any, progressEvent: AxiosProgressEvent) => {
       if (progressEvent && progressEvent.total) {
         const percentCompleted = `${Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
+          (progressEvent.loaded * 100) / progressEvent.total,
         )}%`;
         setCurrentFile((prevProgresses) => ({
           ...prevProgresses,
@@ -396,14 +400,14 @@ const UploadComponent = ({
       localFiles,
       uploadDirectory,
       token,
-      onUploadProgress
+      onUploadProgress,
     );
 
     const completedUploads: number[] = [];
     const promises = fileUploads.map(
       ({ promise }) =>
         () =>
-          promise
+          promise,
     );
     let serverProgressForClosingModal = 0;
     const results = await limitConcurrency(4, promises, (progress: number) => {
@@ -428,7 +432,7 @@ const UploadComponent = ({
       serverProgressForClosingModal === 100
     ) {
       username && handleAddFolder(directoryName, username);
-      const intervalDelay = 2000;
+      const intervalDelay = 1000;
       const interval = setInterval(() => {
         setCountdown((prevCountdown) => prevCountdown - 1);
       }, intervalDelay);
@@ -443,13 +447,19 @@ const UploadComponent = ({
         handleReset();
       }}
       isOpen={uploadFileModal}
-      variant={ModalVariant.large}
+      variant={ModalVariant.md}
       arial-labelledby="file-upload"
     >
       <div style={{ height: "200px" }}>
         <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
       </div>
-      <div style={{ height: "200px", marginTop: "1rem", overflow: "scroll" }}>
+      <div
+        style={{
+          height: "200px",
+          marginTop: "1rem",
+          overflow: "scroll",
+        }}
+      >
         {localFiles.length > 0 ? (
           localFiles.map((file, index) => {
             return (
@@ -465,7 +475,7 @@ const UploadComponent = ({
             );
           })
         ) : (
-          <div>No files Upload</div>
+          <EmptyStateComponent title="No files have been uploaded yet..." />
         )}
       </div>
 
@@ -497,13 +507,13 @@ const UploadComponent = ({
           }
           onClick={handleUpload}
           icon={<FaUpload />}
-          variant="secondary"
+          variant="primary"
         >
           Push to File Storage
         </Button>
       </div>
       <CodeBlock
-        style={{ marginTop: "1rem", height: "250px", overflow: "scroll" }}
+        style={{ marginTop: "1rem", height: "200px", overflow: "scroll" }}
       >
         <CodeBlockCode>
           {Object.keys(currentFile).length === 0 ? (
@@ -525,6 +535,7 @@ const UploadComponent = ({
         </CodeBlockCode>
       </CodeBlock>
       <Progress
+        size={ProgressSize.sm}
         style={{ marginTop: "1rem" }}
         value={serverProgress}
         title={`${serverProgress}% Complete`}
