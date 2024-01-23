@@ -172,11 +172,7 @@ const FeedDetails = () => {
 
         <DrawerActionsToolbar
           button={
-            <Badge
-              count={showNoteBadge && !note ? "Author Notes" : 0}
-              offset={[-20, -5]}
-              color="orange"
-            >
+            <Badge dot={showNoteBadge && !note ? true : false} offset={[-5, 0]}>
               <ButtonWithTooltip
                 //@ts-ignore
                 style={buttonStyle}
