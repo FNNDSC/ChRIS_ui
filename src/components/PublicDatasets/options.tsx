@@ -4,19 +4,8 @@
  */
 
 import { basename, filestemOf, PublicDatasetFile } from "./subjects.ts";
+import { ChNVRVolume, VolumeEntry } from "./models.ts";
 
-/**
- * "ChrisVisualDataset Volume": A subset of `NVRVolume` but with non-optional keys.
- * This type should be given to `<NiivueCanvas volumes=...>`.
- */
-type CVDVolume = {
-  url: string,
-  opacity: number,
-  colormap: string,
-  cal_min: number,
-  cal_max: number,
-  colorbarVisible: boolean
-};
 
 /**
  * A private type predecessor to `VolumeOptions` with an additional `zIndex`
@@ -25,16 +14,9 @@ type CVDVolume = {
 type PreVolumeOptions = {
   name: string,
   zIndex: number,
-  volume: CVDVolume
+  volume: ChNVRVolume
 };
 
-/**
- * Volume name and Niivue volume options.
- */
-type VolumeOptions = {
-  name: string,
-  volume: CVDVolume
-};
 
 const DEFAULT_VOLUMEOPTION: PreVolumeOptions = {
   volume: {
@@ -87,7 +69,7 @@ const DEFAULT_VOLUMEOPTIONS_LOOKUP: { [key: string]: PreVolumeOptions } = {
 /**
  * Filter the list of files for volumes and add options to them.
  */
-function files2volumes(files: PublicDatasetFile[]): VolumeOptions[] {
+function files2volumes(files: PublicDatasetFile[]): VolumeEntry[] {
   const volumes = files
     .filter((file) => file.fname.endsWith('.nii.gz'))
     .map(file2prevolume);
@@ -112,12 +94,11 @@ function file2prevolume(file: PublicDatasetFile): PreVolumeOptions {
   };
 }
 
-function delZIndex(x: PreVolumeOptions): VolumeOptions {
+function delZIndex(x: PreVolumeOptions): VolumeEntry {
   return {
     volume: x.volume,
     name: x.name
   };
 }
 
-export type { CVDVolume, VolumeOptions };
 export { files2volumes };

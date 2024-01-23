@@ -22,8 +22,8 @@ export enum Types {
   SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
   SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
   RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
-  SET_SERIES_STATUS = "SET_SERIES_STATUS",
-  RESET_SERIES_STATUS = "RESET_SERIES_STATUS",
+  SET_PULL_STUDY = "SET_PULL_STUDY",
+  SET_SERIES_UPDATE = "SET_SERIES_UPDATE",
 }
 
 interface PacsQueryState {
@@ -38,7 +38,10 @@ interface PacsQueryState {
   seriesPreviews: {
     [key: string]: boolean;
   };
-  seriesStatus: Record<string, any>;
+  pullStudy: boolean;
+  seriesUpdate: {
+    [key: string]: Record<string, string>;
+  };
 }
 
 const initialState = {
@@ -50,8 +53,9 @@ const initialState = {
   fetchingResults: { status: false, text: "" },
   shouldDefaultExpanded: false,
   preview: false,
+  pullStudy: false,
+  seriesUpdate: {},
   seriesPreviews: {},
-  seriesStatus: {},
 };
 
 type PacsQueryPayload = {
@@ -98,12 +102,13 @@ type PacsQueryPayload = {
     clearSeriesPreview: boolean;
   };
 
-  [Types.SET_SERIES_STATUS]: {
-    status: Record<string, any[]>;
+  [Types.SET_PULL_STUDY]: Record<any, any>;
+
+  [Types.SET_SERIES_UPDATE]: {
+    currentStep: string;
+    seriesInstanceUID: string;
     studyInstanceUID: string;
   };
-
-  [Types.RESET_SERIES_STATUS]: Record<any, unknown>;
 };
 
 export type PacsQueryActions =
@@ -217,27 +222,25 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       };
     }
 
-    case Types.SET_SERIES_STATUS: {
-      const { studyInstanceUID, status } = action.payload;
-
-      const newSeriesStatus = {
-        ...state.seriesStatus,
-        [studyInstanceUID]: {
-          ...state.seriesStatus[studyInstanceUID],
-          ...status,
-        },
-      };
-
+    case Types.SET_PULL_STUDY: {
       return {
         ...state,
-        seriesStatus: newSeriesStatus,
+        pullStudy: !state.pullStudy,
       };
     }
 
-    case Types.RESET_SERIES_STATUS: {
+    case Types.SET_SERIES_UPDATE: {
+      const { seriesInstanceUID, studyInstanceUID, currentStep } =
+        action.payload;
+
       return {
         ...state,
-        seriesStatus: {},
+        seriesUpdate: {
+          [studyInstanceUID]: {
+            ...state.seriesUpdate[studyInstanceUID],
+            [seriesInstanceUID]: currentStep,
+          },
+        },
       };
     }
 

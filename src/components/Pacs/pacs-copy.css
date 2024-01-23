@@ -69,3 +69,9 @@
     flex: 1; /* Adjust the flex value for button container on smaller screens */
   }
 }
+
+.hide-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,5 +1,5 @@
-import React, { ReactElement, ReactNode, useState } from "react";
-import { Toolbar, ToolbarItem, ToolbarContent } from "@patternfly/react-core";
+import React, { ReactNode, useState } from "react";
+import { ToolbarItem } from "@patternfly/react-core";
 import { Badge } from "antd";
 import { useTypedSelector } from "../../store/hooks";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
@@ -59,192 +59,167 @@ const FeedDetails = () => {
 
   const items = (
     <React.Fragment>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        <DrawerActionsToolbar
-          button={
-            <ButtonContainer
-              title="Graph"
-              Icon={<FaCodeBranch />}
-              action="graph"
-              dispatch={dispatch}
-              drawerState={drawerState}
-              isDisabled={drawerState["graph"].open}
-            />
-          }
-        />
+      <DrawerActionsToolbar
+        button={
+          <ButtonContainer
+            title="Graph"
+            Icon={<FaCodeBranch />}
+            action="graph"
+            dispatch={dispatch}
+            drawerState={drawerState}
+            isDisabled={drawerState["graph"].open}
+          />
+        }
+      />
 
-        <DrawerActionsToolbar
-          button={
-            <ButtonContainer
-              title="Node"
+      <DrawerActionsToolbar
+        button={
+          <ButtonContainer
+            title="Node"
+            Icon={
+              node ? (
+                <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
+              ) : note ? (
+                <>
+                  <PencilSquareIcon className="pf-v5-svg" />
+                </>
+              ) : (
+                <CommandLineIcon className="pf-v5-svg" />
+              )
+            }
+            action="node"
+            dispatch={dispatch}
+            drawerState={drawerState}
+            isDisabled={drawerState["node"].open}
+          />
+        }
+      />
+
+      <DrawerActionsToolbar
+        button={
+          <ButtonContainer
+            title="Directory"
+            Icon={<FolderOpenIcon className="pf-v5-svg" />}
+            action="directory"
+            dispatch={dispatch}
+            drawerState={drawerState}
+            isDisabled={drawerState["directory"].open}
+          />
+        }
+      />
+
+      <DrawerActionsToolbar
+        button={
+          <ButtonContainer
+            title="Files"
+            Icon={<FaFileIcon />}
+            action="files"
+            dispatch={dispatch}
+            drawerState={drawerState}
+            isDisabled={drawerState["files"].open}
+          />
+        }
+      />
+
+      <DrawerActionsToolbar
+        button={
+          <ButtonContainer
+            title="Preview"
+            Icon={
+              preview ? <PhotoIcon className="pf-v5-svg" /> : <FaBrainIcon />
+            }
+            action="preview"
+            dispatch={dispatch}
+            drawerState={drawerState}
+            isDisabled={drawerState["preview"].open}
+          />
+        }
+      />
+
+      <DrawerActionsToolbar
+        button={
+          <ButtonWithTooltip
+            //@ts-ignore
+            style={buttonStyle}
+            position="bottom"
+            content={!node && terminal ? "Node Details" : "Terminal"}
+            onClick={() => {
+              if (terminal) {
+                dispatch(setDrawerCurrentlyActive("node", "node"));
+              } else {
+                dispatch(setDrawerCurrentlyActive("node", "terminal"));
+              }
+            }}
+            Icon={
+              !node && terminal ? (
+                <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
+              ) : (
+                <CommandLineIcon className="pf-v5-svg" />
+              )
+            }
+            isDisabled={false}
+          />
+        }
+      />
+
+      <DrawerActionsToolbar
+        button={
+          <Badge dot={showNoteBadge && !note ? true : false} offset={[-5, 0]}>
+            <ButtonWithTooltip
+              //@ts-ignore
+              style={buttonStyle}
+              position="bottom"
+              content={!note ? "Feed Note" : "Node Details"}
+              onClick={() => {
+                if (note) {
+                  dispatch(setDrawerCurrentlyActive("node", "node"));
+                } else {
+                  dispatch(setDrawerCurrentlyActive("node", "note"));
+                }
+              }}
               Icon={
-                node ? (
+                !node && note ? (
                   <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
-                ) : note ? (
+                ) : (
                   <>
                     <PencilSquareIcon className="pf-v5-svg" />
                   </>
-                ) : (
-                  <CommandLineIcon className="pf-v5-svg" />
-                )
-              }
-              action="node"
-              dispatch={dispatch}
-              drawerState={drawerState}
-              isDisabled={drawerState["node"].open}
-            />
-          }
-        />
-
-        <DrawerActionsToolbar
-          button={
-            <ButtonContainer
-              title="Directory"
-              Icon={<FolderOpenIcon className="pf-v5-svg" />}
-              action="directory"
-              dispatch={dispatch}
-              drawerState={drawerState}
-              isDisabled={drawerState["directory"].open}
-            />
-          }
-        />
-
-        <DrawerActionsToolbar
-          button={
-            <ButtonContainer
-              title="Files"
-              Icon={<FaFileIcon />}
-              action="files"
-              dispatch={dispatch}
-              drawerState={drawerState}
-              isDisabled={drawerState["files"].open}
-            />
-          }
-        />
-
-        <DrawerActionsToolbar
-          button={
-            <ButtonContainer
-              title="Preview"
-              Icon={
-                preview ? <PhotoIcon className="pf-v5-svg" /> : <FaBrainIcon />
-              }
-              action="preview"
-              dispatch={dispatch}
-              drawerState={drawerState}
-              isDisabled={drawerState["preview"].open}
-            />
-          }
-        />
-
-        <DrawerActionsToolbar
-          button={
-            <ButtonWithTooltip
-              //@ts-ignore
-              style={buttonStyle}
-              position="bottom"
-              content={!node && terminal ? "Node Details" : "Terminal"}
-              onClick={() => {
-                if (terminal) {
-                  dispatch(setDrawerCurrentlyActive("node", "node"));
-                } else {
-                  dispatch(setDrawerCurrentlyActive("node", "terminal"));
-                }
-              }}
-              Icon={
-                !node && terminal ? (
-                  <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
-                ) : (
-                  <CommandLineIcon className="pf-v5-svg" />
                 )
               }
               isDisabled={false}
             />
-          }
-        />
+          </Badge>
+        }
+      />
 
-        <DrawerActionsToolbar
-          button={
-            <Badge
-              count={showNoteBadge && !note ? "Author Notes" : 0}
-              offset={[-20, -5]}
-              color="orange"
-            >
-              <ButtonWithTooltip
-                //@ts-ignore
-                style={buttonStyle}
-                position="bottom"
-                content={!note ? "Feed Note" : "Node Details"}
-                onClick={() => {
-                  if (note) {
-                    dispatch(setDrawerCurrentlyActive("node", "node"));
-                  } else {
-                    dispatch(setDrawerCurrentlyActive("node", "note"));
-                  }
-                }}
-                Icon={
-                  !node && note ? (
-                    <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
-                  ) : (
-                    <>
-                      <PencilSquareIcon className="pf-v5-svg" />
-                    </>
-                  )
-                }
-                isDisabled={false}
-              />
-            </Badge>
-          }
-        />
-
-        <DrawerActionsToolbar
-          button={
-            <ButtonWithTooltip
-              //@ts-ignore
-              style={buttonStyle}
-              position="bottom"
-              content={preview ? "Xtk Viewer" : "Preview"}
-              onClick={() => {
-                if (preview) {
-                  dispatch(setDrawerCurrentlyActive("preview", "xtk"));
-                } else {
-                  dispatch(setDrawerCurrentlyActive("preview", "preview"));
-                }
-              }}
-              Icon={
-                preview ? <FaBrainIcon /> : <PhotoIcon className="pf-v5-svg" />
+      <DrawerActionsToolbar
+        button={
+          <ButtonWithTooltip
+            //@ts-ignore
+            style={buttonStyle}
+            position="bottom"
+            content={preview ? "Xtk Viewer" : "Preview"}
+            onClick={() => {
+              if (preview) {
+                dispatch(setDrawerCurrentlyActive("preview", "xtk"));
+              } else {
+                dispatch(setDrawerCurrentlyActive("preview", "preview"));
               }
-              isDisabled={false}
-            />
-          }
-        />
-      </div>
+            }}
+            Icon={
+              preview ? <FaBrainIcon /> : <PhotoIcon className="pf-v5-svg" />
+            }
+            isDisabled={false}
+          />
+        }
+      />
     </React.Fragment>
   );
 
-  return (
-    <ToolbarComponent>
-      <ToolbarContent>{items}</ToolbarContent>
-    </ToolbarComponent>
-  );
+  return <>{items}</>;
 };
 
 export default FeedDetails;
-
-export const ToolbarComponent = ({ children }: { children: ReactElement }) => {
-  return (
-    <Toolbar isFullHeight className="feed-details">
-      {children}
-    </Toolbar>
-  );
-};
 
 const ToolbarContainer = ({
   childComponent,

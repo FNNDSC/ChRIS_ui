@@ -17,5 +17,11 @@
 }
 
 .pf-v5-c-button.pf-m-control {
- --pf-v5-c-button--after--BorderColor: transparent !important;
+  --pf-v5-c-button--after--BorderColor: transparent !important;
+}
+
+.ant-badge-dot {
+  width: 8px !important;
+  height: 8px !important;
+  minwidth: 8px !important;
 }

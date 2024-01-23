@@ -24,7 +24,10 @@ export const initialState: IFeedState = {
   showToolbar: false,
 };
 
-const reducer: Reducer<IFeedState> = (state = initialState, action) => {
+const reducer: Reducer<IFeedState> = (
+  state = initialState,
+  action: typeof FeedActionTypes
+) => {
   switch (action.type) {
     case FeedActionTypes.GET_FEED_SUCCESS: {
       return {

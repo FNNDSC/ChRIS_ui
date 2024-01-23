@@ -1,6 +1,6 @@
 import { describe, it, expect, test } from "vitest";
 import { hideColorBarofInvisibleVolume } from "./helpers.ts";
-import { CVDVolume } from "./options.tsx";
+import { ChNVRVolume } from "./options.tsx";
 
 describe.concurrent('hideColorBarofInvisibleVolume', () => {
   const visibleExamples: CVDVolume[] = [

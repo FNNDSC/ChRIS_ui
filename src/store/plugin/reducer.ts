@@ -18,7 +18,7 @@ const initialState: IPluginState = {
   },
 };
 
-const reducer: Reducer<IPluginState> = (state = initialState, action) => {
+const reducer: Reducer<IPluginState> = (state = initialState, action:typeof PluginActionTypes) => {
   switch (action.type) {
     case PluginActionTypes.GET_NODE_OPERATIONS: {
       return {
