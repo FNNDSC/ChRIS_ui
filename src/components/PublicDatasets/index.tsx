@@ -172,7 +172,7 @@ const PublicDatasets: React.FunctionComponent = () => {
   // --------------------------------------------------------------------------------
 
   React.useEffect(() => {
-    document.title = "Public Datasets Browser";
+    document.title = "Fetal MRI Viewer";
     dispatch(
       setSidebarActive({
         activeItem: "niivue",
@@ -241,7 +241,7 @@ const PublicDatasets: React.FunctionComponent = () => {
     <WrapperConnect>
       <PageSection>
         <InfoIcon
-          title="Public Datasets"
+          title="Fetal MRI Viewer"
           p1={
             <Typography>
               <p>

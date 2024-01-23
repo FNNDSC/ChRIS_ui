@@ -79,7 +79,7 @@ const Sidebar: React.FC<AllProps> = ({
             itemId="niivue"
             isActive={sidebarActiveItem === "niivue"}
           >
-            <Link to="/niivue">Public Datasets</Link>
+            <Link to="/niivue">Fetal MRI Viewer</Link>
           </NavItem>
 
           {import.meta.env.REACT_APP_ALPHA_FEATURES === "development" && (
@@ -150,7 +150,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
             itemId="niivue"
             isActive={sidebarActiveItem === "niivue"}
           >
-            <Link to="/niivue">Public Datasets</Link>
+            <Link to="/niivue">Fetal MRI Viewer</Link>
           </NavItem>
 
           <NavItem itemId="login">
