@@ -25,17 +25,16 @@ import Dots from "react-activity/dist/Dots";
 import "react-activity/dist/library.css";
 import "./common.css";
 
-export const EmptyStateComponent = () => {
+export const EmptyStateComponent = ({ title }: { title?: string }) => {
   return (
     <EmptyState variant={EmptyStateVariant.lg}>
       <EmptyStateHeader icon={<EmptyStateIcon icon={CubesIcon} />} />
-      <EmptyStateBody>No results found.</EmptyStateBody>
+      <EmptyStateBody>{title ? title : "No results found"}</EmptyStateBody>
     </EmptyState>
   );
 };
 
 export const SpinContainer = ({ title }: { title: string }) => {
- 
   return (
     <div className="example">
       <Spin tip={title}>
