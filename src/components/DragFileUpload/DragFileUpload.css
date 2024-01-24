@@ -1,6 +1,7 @@
 .drag-and-upload-container {
   position: relative;
   height: 100%;
+  cursor: pointer;
 }
 
 .tag {
@@ -24,7 +25,6 @@
 .drag-and-upload-container svg {
   color: #6c757d;
 }
-
 
 // Add the following CSS styles
 

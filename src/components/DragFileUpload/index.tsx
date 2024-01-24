@@ -1,5 +1,5 @@
 import { Tooltip } from "@patternfly/react-core";
-import React, { useCallback, useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import IconUpload from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import { CreateFeedContext } from "../CreateFeed/context";
@@ -113,6 +113,7 @@ const DragAndUpload = ({
           <span className="tag-text">U</span>
         </div>
       </Tooltip>
+      {/* @ts-ignore*/}
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <IconUpload />
