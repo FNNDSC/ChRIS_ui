@@ -106,13 +106,21 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
         ) : (
           <>
             <ToolbarItem>
-              <Button variant="link" onClick={() => navigate("/login")}>
+              <Button
+                style={{ padding: "0" }}
+                variant="link"
+                onClick={() => navigate("/login")}
+              >
                 Login
               </Button>
             </ToolbarItem>
 
             <ToolbarItem>
-              <Button variant="link" onClick={() => navigate("/signup")}>
+              <Button
+                style={{ padding: "0" }}
+                variant="link"
+                onClick={() => navigate("/signup")}
+              >
                 Sign Up
               </Button>
             </ToolbarItem>
