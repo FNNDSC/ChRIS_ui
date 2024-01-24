@@ -1,5 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
+import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dispatch } from "redux";
 import FeedDetails from "../FeedDetails";
@@ -17,6 +18,7 @@ import {
   ToolbarGroup,
   ToolbarItem,
   Switch,
+  Button,
 } from "@patternfly/react-core";
 
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -36,6 +38,7 @@ interface ComponentProps {
 type AllProps = IUserState & IUiState & IPropsFromDispatch & ComponentProps;
 
 const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
+  const navigate = useNavigate();
   const [_, _setCookie, removeCookie] = useCookies();
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
   const queryClient = useQueryClient();
@@ -85,8 +88,9 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
             ouiaId="Basic Switch"
           />
         </ToolbarItem>
-        <ToolbarItem>
-          {token ? (
+
+        {token ? (
+          <ToolbarItem>
             <Dropdown
               isPlain
               isOpen={isDropdownOpen}
@@ -100,15 +104,22 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
             >
               <DropdownList>{userDropdownItems}</DropdownList>
             </Dropdown>
-          ) : (
-            <>
-              <Link style={{ marginRight: "1rem" }} to="/login">
+          </ToolbarItem>
+        ) : (
+          <>
+            <ToolbarItem>
+              <Button variant="link" onClick={() => navigate("/login")}>
                 Login
-              </Link>
-              <Link to="/signup">Sign Up</Link>
-            </>
-          )}
-        </ToolbarItem>
+              </Button>
+            </ToolbarItem>
+
+            <ToolbarItem>
+              <Button variant="link" onClick={() => navigate("/signup")}>
+                Sign Up
+              </Button>
+            </ToolbarItem>
+          </>
+        )}
       </ToolbarGroup>
     </Toolbar>
   );
