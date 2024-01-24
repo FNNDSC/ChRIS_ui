@@ -22,7 +22,6 @@ import {
 } from "@patternfly/react-core";
 
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { Link } from "react-router-dom";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { useCookies } from "react-cookie";
 
