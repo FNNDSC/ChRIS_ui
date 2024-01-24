@@ -356,7 +356,7 @@ export const uploadFile = async (
   onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
 ) => {
   const formData = new FormData();
-  const name = file.name;
+  const name = file.webkitRelativePath ? file.webkitRelativePath : file.name;
 
   formData.append("upload_path", `${directoryName}/${name}`);
   formData.append("fname", file, name);
