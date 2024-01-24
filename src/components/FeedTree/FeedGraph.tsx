@@ -1,6 +1,6 @@
 import React from "react";
 import { connect, useDispatch } from "react-redux";
-import ForceGraph2D from "react-force-graph-2d";
+import ForceGraph2D, {ForceGraphMethods, NodeObject} from "react-force-graph-2d";
 import { ApplicationState } from "../../store/root/applicationState";
 import { TreeModel } from "../../api/model";
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -13,10 +13,16 @@ import { useTypedSelector } from "../../store/hooks";
 import type { PluginInstancePayload } from "../../store/pluginInstance/types";
 import "./FeedTree.css";
 
+
+/*
+
 const useForceUpdate = () => {
   const setToggle = React.useState(false)[1];
   return () => setToggle((b) => !b);
 };
+
+
+*/
 
 interface IFeedProps {
   pluginInstances: PluginInstancePayload;
@@ -41,13 +47,13 @@ const FeedGraph = (props: IFeedProps) => {
 
   const [graphData, setGraphData] = React.useState();
   const [controls] = React.useState({ "DAG Orientation": "td" });
-  const forceUpdate = useForceUpdate();
+  //const forceUpdate = useForceUpdate();
 
   const handleNodeClick = (node: NodeObject) => {
     const distance = 40;
     if (node && node.x && node.y && node.z && fgRef.current) {
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-
+ //@ts-ignore
       fgRef.current.cameraPosition(
         {
           x: node.x * distRatio,
@@ -64,7 +70,10 @@ const FeedGraph = (props: IFeedProps) => {
     onNodeClick(node.item);
   };
 
+  /*
+
   React.useEffect(() => {
+     //@ts-ignore
     // add controls GUI
     const gui = new dat.GUI();
     gui
@@ -78,7 +87,12 @@ const FeedGraph = (props: IFeedProps) => {
         null,
       ])
       .onChange(forceUpdate);
-  }, []);
+  }, [controls, forceUpdate]);
+
+  */
+
+
+  /*
 
   React.useEffect(() => {
     // add collision force
@@ -89,6 +103,8 @@ const FeedGraph = (props: IFeedProps) => {
       );
     }
   }, []);
+
+  */
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {
@@ -145,11 +161,13 @@ const FeedGraph = (props: IFeedProps) => {
           </div>
           <>
             <ForceGraph2D
+              //@ts-ignore
               height={size.height || 500}
               //@ts-ignore
               width={size.width || 500}
               ref={fgRef}
               graphData={graphData}
+              //@ts-ignore
               dagMode={controls["DAG Orientation"]}
               dagLevelDistance={50}
               backgroundColor="#101020"
