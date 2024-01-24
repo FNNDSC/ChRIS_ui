@@ -20,7 +20,6 @@ import {
   Switch,
   Button,
 } from "@patternfly/react-core";
-
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { useCookies } from "react-cookie";
