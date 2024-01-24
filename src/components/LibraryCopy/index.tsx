@@ -44,6 +44,7 @@ import {
 } from "../../api/common";
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
+import { fetchResource } from "../../api/common";
 
 export const fetchFilesUnderThisPath = async (path?: string) => {
   if (!path) return;
@@ -53,17 +54,16 @@ export const fetchFilesUnderThisPath = async (path?: string) => {
   const pagination = {
     limit: 20,
     offset: 0,
-    totalCount: 0,
   };
-  if (pathList) {
-    const fileList = await pathList.getFiles({
-      limit: pagination.limit,
-      offset: pagination.offset,
-    });
 
-    if (fileList) {
-      const files = fileList.getItems() as any[];
-      return files;
+  if (pathList) {
+    const fn = pathList.getFiles;
+    const boundFn = fn.bind(pathList);
+
+    const { resource } = await fetchResource(pagination, boundFn);
+
+    if (resource) {
+      return resource;
     }
   }
 

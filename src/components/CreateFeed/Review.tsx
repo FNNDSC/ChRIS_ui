@@ -44,7 +44,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         onBack();
       }
     },
-    [onNext, handleSave, onBack]
+    [onNext, handleSave, onBack],
   );
 
   useEffect(() => {
@@ -125,8 +125,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     );
   };
 
-  const feedErrorMessage =
-    feedError && feedError.value.length > 0 && feedError.value[0];
+  const feedErrorMessage = (feedError && feedError["error_message"]) || "";
 
   return (
     <div className="review">
