@@ -170,7 +170,7 @@ export const LibraryCopyPage = () => {
               onClick={handleFileModal}
               icon={<FaUpload />}
             >
-              Upload Files
+              Upload
             </Button>
           </div>
         </PageSection>
@@ -345,6 +345,7 @@ const UploadComponent = ({
   localFiles,
 }: UploadComponent) => {
   const token = useCookieToken();
+  const folderInput = useRef<HTMLInput>(null);
   const username = useTypedSelector((state) => state.user.username);
   const [warning, setWarning] = useState<Record<string, string>>({});
   const [directoryName, setDirectoryName] = useState("");
@@ -359,16 +360,22 @@ const UploadComponent = ({
   const ref2 = useRef(null);
   const ref3 = useRef(null);
   const ref4 = useRef(null);
+  const ref5 = useRef(null);
 
   const steps: TourProps["steps"] = [
     {
-      title: "Upload File",
+      title: "Upload Files",
       description: "Put your files here",
       target: () => ref1.current,
     },
     {
+      title: "Upload a Folder",
+      description: "Click this button to upload a folder",
+      target: () => ref5.current,
+    },
+    {
       title: "Directory Name",
-      description: "Enter a Directory Name or use the default",
+      description: "Enter a Directory Name or use the default value. If you use the default value, note it down to track the folder in the Library Page",
       target: () => ref2.current,
     },
     {
@@ -472,20 +479,55 @@ const UploadComponent = ({
     <Modal
       width="70%"
       title="Upload Files"
-      onClose={() => {
-        handleReset();
-      }}
+      onClose={() => handleReset()}
       isOpen={uploadFileModal}
       variant="medium"
       aria-labelledby="file-upload"
     >
       <Button onClick={() => showTour(!tour)} variant="link">
-        Take a Tour
+        'Click' here for a quick tutorial
       </Button>
       <Tour open={tour} onClose={() => showTour(false)} steps={steps} />
-      <div ref={ref1} style={{ height: "200px" }}>
+
+      {/* Drag and Upload Section */}
+      <div
+        className="drag-and-upload-section"
+        ref={ref1}
+        style={{ height: "200px" }}
+      >
         <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
       </div>
+
+      {/* Upload Folder Section */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: "1rem",
+        }}
+      >
+        <input
+          ref={folderInput}
+          style={{ display: "none" }}
+          type="file"
+          webkitdirectory="true"
+          onChange={(e) => {
+            const fileList = Array.from(e.target.files);
+            handleLocalUploadFiles(fileList);
+          }}
+        />
+        <Button
+          ref={ref5}
+          onClick={() => folderInput.current.click()}
+          variant="primary"
+        >
+          'Click' here to Upload an Entire Folder{" "}
+        </Button>
+      </div>
+
+      {/* Local Files Section */}
       <div
         style={{
           height: "200px",
@@ -504,10 +546,11 @@ const UploadComponent = ({
             />
           ))
         ) : (
-          <EmptyStateComponent title="No files have been uploaded yet..." />
+          <EmptyStateComponent title="No files or Folders have been uploaded yet..." />
         )}
       </div>
 
+      {/* Directory Name Section */}
       <Form
         onSubmit={(event) => event.preventDefault()}
         style={{ marginTop: "1rem" }}
@@ -517,16 +560,16 @@ const UploadComponent = ({
           <TextInput
             ref={ref2}
             isRequired
-            id="horizontal form name"
+            id="horizontal-form-name"
             value={directoryName}
             type="text"
             name="horizontal-form-name"
-            onChange={(_event, value) => {
-              setDirectoryName(value);
-            }}
+            onChange={(_event, value) => setDirectoryName(value)}
           />
         </FormGroup>
       </Form>
+
+      {/* Upload Button Section */}
       <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
         <Button
           ref={ref3}
@@ -544,6 +587,7 @@ const UploadComponent = ({
         </Button>
       </div>
 
+      {/* Code Display Section */}
       <div ref={ref4}>
         <CodeBlock
           style={{ marginTop: "1rem", height: "200px", overflow: "scroll" }}
@@ -552,10 +596,10 @@ const UploadComponent = ({
             {Object.keys(currentFile).length === 0 ? (
               <span style={{ fontFamily: "monospace" }}>
                 You have no active uploads. Please upload Files from your local
-                computer and hit the &apos;Push to File Storage&apos; button.
-                You can give a directory name for your upload or use the default
-                name above. Your uploads will appear under the
-                &apos;Uploads&apos; space once it is complete.
+                computer and hit the 'Push to File Storage' button. You can give
+                a directory name for your upload or use the default name above.
+                Your uploads will appear under the 'Uploads' space once it is
+                complete.
               </span>
             ) : (
               <ReactJSONView currentFile={currentFile} />
@@ -569,6 +613,7 @@ const UploadComponent = ({
         </CodeBlock>
       </div>
 
+      {/* Progress Bar Section */}
       <Progress
         size="sm"
         style={{ marginTop: "1rem" }}
@@ -576,6 +621,8 @@ const UploadComponent = ({
         title={`${serverProgress}% Complete`}
         measureLocation="outside"
       />
+
+      {/* Countdown Alert Section */}
       {countdown < 5 && countdown > 0 && (
         <PatternflyAlert variant="success" title="Successful Upload">
           The files have been uploaded to the server. This modal will close in{" "}

@@ -1,0 +1,55 @@
+.drag-and-upload-container {
+  position: relative;
+  height: 100%;
+}
+
+.tag {
+  position: absolute;
+  top: 10%;
+  right: 8%;
+  background-color: #36b37e;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.tag-text {
+  font-weight: bold;
+}
+
+.drag-and-upload-container p {
+  margin-top: 1rem;
+}
+
+.drag-and-upload-container svg {
+  color: #6c757d;
+}
+
+
+// Add the following CSS styles
+
+/* Animation Styles */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply the animation to the drag-and-upload-section */
+.drag-and-upload-section {
+  animation: fadeInUp 0.5s ease-in-out;
+}
+
+/* Additional styling for animations/transitions */
+.tag {
+  transition: background-color 0.3s ease-in-out;
+}
+
+.drag-and-upload-container p {
+  transition: color 0.3s ease-in-out;
+}
