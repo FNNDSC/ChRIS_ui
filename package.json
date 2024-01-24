@@ -51,7 +51,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-error-boundary": "^4.0.12",
-    "react-force-graph-3d": "^1.24.1",
+    "react-force-graph-2d": "^1.25.3",
     "react-json-view": "^1.21.3",
     "react-lazylog": "^4.5.3",
     "react-redux": "^9.1.0",
