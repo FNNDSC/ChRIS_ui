@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  RefObject,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import ReactJson from "react-json-view";
@@ -345,7 +351,8 @@ const UploadComponent = ({
   localFiles,
 }: UploadComponent) => {
   const token = useCookieToken();
-  const folderInput = useRef<HTMLInput>(null);
+  const folderInput: RefObject<HTMLInputElement> =
+    useRef<HTMLInputElement>(null);
   const username = useTypedSelector((state) => state.user.username);
   const [warning, setWarning] = useState<Record<string, string>>({});
   const [directoryName, setDirectoryName] = useState("");
@@ -375,7 +382,8 @@ const UploadComponent = ({
     },
     {
       title: "Directory Name",
-      description: "Enter a Directory Name or use the default value. If you use the default value, note it down to track the folder in the Library Page",
+      description:
+        "Enter a Directory Name or use the default value. If you use the default value, note it down to track the folder in the Library Page",
       target: () => ref2.current,
     },
     {
@@ -512,15 +520,19 @@ const UploadComponent = ({
           ref={folderInput}
           style={{ display: "none" }}
           type="file"
+          //@ts-ignore
           webkitdirectory="true"
           onChange={(e) => {
-            const fileList = Array.from(e.target.files);
-            handleLocalUploadFiles(fileList);
+            if (e.target) {
+              //@ts-ignore
+              const fileList = Array.from(e.target.files);
+              handleLocalUploadFiles(fileList);
+            }
           }}
         />
         <Button
           ref={ref5}
-          onClick={() => folderInput.current.click()}
+          onClick={() => folderInput.current && folderInput.current.click()}
           variant="primary"
         >
           'Click' here to Upload an Entire Folder{" "}
@@ -546,7 +558,7 @@ const UploadComponent = ({
             />
           ))
         ) : (
-          <EmptyStateComponent title="No files or Folders have been uploaded yet..." />
+          <EmptyStateComponent title="No Files or Folders have been uploaded yet..." />
         )}
       </div>
 
