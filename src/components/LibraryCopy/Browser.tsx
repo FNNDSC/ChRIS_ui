@@ -21,7 +21,7 @@ const Browser = ({ handleFolderClick, folders, files, path }: BrowserProps) => {
         files.length > 0 &&
         files.map((file) => {
           return (
-            <GridItem sm={1} lg={2} md={2} xl={4} xl2={4} key={file.data.fname}>
+            <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={file.data.fname}>
               <FileCard file={file} />
             </GridItem>
           );
@@ -32,8 +32,8 @@ const Browser = ({ handleFolderClick, folders, files, path }: BrowserProps) => {
           return (
             <GridItem
               sm={1}
-              lg={2}
-              md={2}
+              lg={4}
+              md={4}
               xl={4}
               xl2={4}
               key={`${folder}_${index}`}
