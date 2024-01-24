@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import ReactJson from "react-json-view";
@@ -11,16 +11,14 @@ import {
   MenuToggle,
   PageSection,
   Modal,
-  ModalVariant,
   CodeBlockCode,
   CodeBlock,
   FormGroup,
   Form,
   Alert as PatternflyAlert,
   Progress,
-  ProgressSize,
 } from "@patternfly/react-core";
-import { Typography } from "antd";
+import { Typography, Tour, TourProps } from "antd";
 import { debounce } from "lodash";
 
 import { useLocation, useNavigate } from "react-router";
@@ -196,6 +194,7 @@ export const LibraryCopyPage = () => {
                 setLocalFiles(filteredfiles);
               }}
             />
+
             <Cart />
             <LocalSearch />
 
@@ -354,6 +353,35 @@ const UploadComponent = ({
   const [countdownInterval, setCountdownInterval] =
     useState<NodeJS.Timeout | null>(null);
   const [serverProgress, setServerProgress] = useState(0);
+  const [tour, showTour] = useState(false);
+
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const ref3 = useRef(null);
+  const ref4 = useRef(null);
+
+  const steps: TourProps["steps"] = [
+    {
+      title: "Upload File",
+      description: "Put your files here",
+      target: () => ref1.current,
+    },
+    {
+      title: "Directory Name",
+      description: "Enter a Directory Name or use the default",
+      target: () => ref2.current,
+    },
+    {
+      title: "Push to Storage",
+      description: "Hit the button that is named 'Push to File Storage'",
+      target: () => ref3.current,
+    },
+    {
+      title: "Track your progress",
+      description: "Report bugs to the admin if any",
+      target: () => ref4.current,
+    },
+  ];
 
   const handleLocalUploadFiles = (files: any[]) => {
     setWarning({});
@@ -448,10 +476,14 @@ const UploadComponent = ({
         handleReset();
       }}
       isOpen={uploadFileModal}
-      variant={ModalVariant.medium}
-      arial-labelledby="file-upload"
+      variant="medium"
+      aria-labelledby="file-upload"
     >
-      <div style={{ height: "200px" }}>
+      <Button onClick={() => showTour(!tour)} variant="link">
+        Take a Tour
+      </Button>
+      <Tour open={tour} onClose={() => showTour(false)} steps={steps} />
+      <div ref={ref1} style={{ height: "200px" }}>
         <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
       </div>
       <div
@@ -462,19 +494,15 @@ const UploadComponent = ({
         }}
       >
         {localFiles.length > 0 ? (
-          localFiles.map((file, index) => {
-            return (
-              <LocalFileList
-                key={index}
-                handleDeleteDispatch={(name) => {
-                  handleDelete(name);
-                }}
-                file={file}
-                index={index}
-                showIcon={true}
-              />
-            );
-          })
+          localFiles.map((file, index) => (
+            <LocalFileList
+              key={index}
+              handleDeleteDispatch={(name) => handleDelete(name)}
+              file={file}
+              index={index}
+              showIcon={true}
+            />
+          ))
         ) : (
           <EmptyStateComponent title="No files have been uploaded yet..." />
         )}
@@ -487,6 +515,7 @@ const UploadComponent = ({
       >
         <FormGroup fieldId="directory name" isRequired label="Directory Name">
           <TextInput
+            ref={ref2}
             isRequired
             id="horizontal form name"
             value={directoryName}
@@ -500,6 +529,7 @@ const UploadComponent = ({
       </Form>
       <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
         <Button
+          ref={ref3}
           isDisabled={
             localFiles.length === 0 ||
             (countdown < 5 && countdown > 0) ||
@@ -513,30 +543,34 @@ const UploadComponent = ({
           Push to File Storage
         </Button>
       </div>
-      <CodeBlock
-        style={{ marginTop: "1rem", height: "200px", overflow: "scroll" }}
-      >
-        <CodeBlockCode>
-          {Object.keys(currentFile).length === 0 ? (
-            <span style={{ fontFamily: "monospace" }}>
-              You have no active uploads. Please upload Files from your local
-              computer and hit the &apos;Push to File Storage&apos; button. You
-              can give a directory name for your upload or use the default name
-              above. Your uploads will appear under the &apos;Uploads&apos;
-              space once it is complete.
-            </span>
-          ) : (
-            <ReactJSONView currentFile={currentFile} />
-          )}
-        </CodeBlockCode>
-        <CodeBlockCode>
-          {Object.keys(warning).length > 0 && (
-            <ReactJSONView currentFile={warning} />
-          )}
-        </CodeBlockCode>
-      </CodeBlock>
+
+      <div ref={ref4}>
+        <CodeBlock
+          style={{ marginTop: "1rem", height: "200px", overflow: "scroll" }}
+        >
+          <CodeBlockCode>
+            {Object.keys(currentFile).length === 0 ? (
+              <span style={{ fontFamily: "monospace" }}>
+                You have no active uploads. Please upload Files from your local
+                computer and hit the &apos;Push to File Storage&apos; button.
+                You can give a directory name for your upload or use the default
+                name above. Your uploads will appear under the
+                &apos;Uploads&apos; space once it is complete.
+              </span>
+            ) : (
+              <ReactJSONView currentFile={currentFile} />
+            )}
+          </CodeBlockCode>
+          <CodeBlockCode>
+            {Object.keys(warning).length > 0 && (
+              <ReactJSONView currentFile={warning} />
+            )}
+          </CodeBlockCode>
+        </CodeBlock>
+      </div>
+
       <Progress
-        size={ProgressSize.sm}
+        size="sm"
         style={{ marginTop: "1rem" }}
         value={serverProgress}
         title={`${serverProgress}% Complete`}
