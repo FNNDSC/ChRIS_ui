@@ -42,7 +42,7 @@ const DashboardPage = (props: DashboardProps) => {
     <WrapperConnect>
       <PageSection hasShadowBottom>
         <InfoIcon
-          title="Welcome to Chris"
+          title="Welcome to ChRIS"
           p1={
             <Paragraph>
               <p>
