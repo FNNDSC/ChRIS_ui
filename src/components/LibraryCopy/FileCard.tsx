@@ -97,7 +97,13 @@ const FileCard = ({ file }: { file: any }) => {
           />
           {status === 0 && <DotsIndicator title="Processing Download..." />}
           {status && status > 0 ? (
-            <div style={{ display: "flex" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <Progress
                 style={{
                   width: "100%",
