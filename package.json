@@ -15,8 +15,8 @@
   "dependencies": {
     "@cornerstonejs/nifti-image-loader": "^1.0.9",
     "@fnndsc/chrisapi": "^1.15.0",
-    "@niivue/niivue": "^0.38.8",
     "@heroicons/react": "^2.1.1",
+    "@niivue/niivue": "^0.38.8",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.1.2",
     "@patternfly/react-core": "^5.1.2",
@@ -43,8 +43,8 @@
     "immer": "^10.0.3",
     "keymirror": "^0.1.1",
     "lodash": "^4.17.21",
-    "niivue-react": "github:niivue/niivue-react",
     "marked": "^11.1.1",
+    "niivue-react": "github:niivue/niivue-react",
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
     "rc-tree": "^5.8.0",
@@ -70,7 +70,8 @@
     "typescript": "^5.3.3",
     "use-ackee": "^3.0.1",
     "use-immer": "^0.9.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "vite-plugin-babel-macros": "^1.0.6"
   },
   "devDependencies": {
     "@types/d3-hierarchy": "^1.1.7",

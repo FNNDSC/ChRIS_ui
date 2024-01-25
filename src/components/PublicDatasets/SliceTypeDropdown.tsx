@@ -5,7 +5,7 @@ import { SLICE_TYPE } from "@niivue/niivue";
 const SLICE_NAMES: { [key: string]: [SLICE_TYPE, boolean]} = {
   "Axial": [SLICE_TYPE.AXIAL, false],
   "Coronal": [SLICE_TYPE.CORONAL, false],
-  "Saggital": [SLICE_TYPE.SAGITTAL, false],
+  "Sagittal": [SLICE_TYPE.SAGITTAL, false],
   "3D render": [SLICE_TYPE.RENDER, false],
   "A+C+S": [SLICE_TYPE.MULTIPLANAR, false],
   "A+C+S+3D": [SLICE_TYPE.MULTIPLANAR, true]

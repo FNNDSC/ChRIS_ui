@@ -5,7 +5,7 @@ import {
   Alert,
   Breadcrumb,
   BreadcrumbItem,
-  Button,
+  Button, Chip,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -17,7 +17,7 @@ import {
   PageSection,
   Popover,
   Progress,
-  ProgressVariant,
+  ProgressVariant
 } from "@patternfly/react-core";
 import { BrainIcon, DesktopIcon } from "@patternfly/react-icons";
 import { Typography } from "antd";
@@ -37,6 +37,8 @@ import { fileResourceUrlOf, hideColorBarofInvisibleVolume, nullUpdaterGuard } fr
 import NiivueOptionsPanel from "./NiivueOptionsPanel.tsx";
 import SelectedFilesOptionsPane from "./SelectedFilesOptionsPane.tsx";
 import { DEFAULT_OPTIONS } from "./defaults.ts";
+import preval from "preval.macro";
+import HeaderOptionBar from "./HeaderOptionBar.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
@@ -56,6 +58,15 @@ type SelectedSubject = {
   volumes: VolumeEntry[]
 }
 
+/**
+ * Type emitted by Niivue.onLocationChange
+ *
+ * https://github.com/niivue/niivue/issues/860
+ */
+type CrosshairLocation = {
+  string: string;
+}
+
 const PublicDatasets: React.FunctionComponent = () => {
 
   const client = ChrisAPIClient.getClient();
@@ -70,6 +81,12 @@ const PublicDatasets: React.FunctionComponent = () => {
   const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
 
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
+  const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>({string: ""});
+
+  const buildVersion: string = preval`
+    const { execSync } = require('child_process')
+    module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
+  `;
 
   const subjects = feedFiles ? groupBySubject(feedFiles.items, MAGIC_PUBLIC_DATASET_FILENAME) : [];
   const volumes = selected?.volumes.map((v) => v.volume).map(hideColorBarofInvisibleVolume) || [];
@@ -241,23 +258,27 @@ const PublicDatasets: React.FunctionComponent = () => {
   return (
     <WrapperConnect>
       <PageSection>
-        <InfoIcon
-          title="Fetal Neonatal Developmental Science Center (FNNDSC): Fetal MRI Viewer"
-          p1={
-            <Typography>
-              <p>
-                Datasets found in public feeds can be visualized here using{' '}
-                <a href="https://github.com/niivue/niivue" target="_blank" rel="noreferrer nofollow">Niivue</a>.
-              </p>
-              <p>
-                For how to add data here, see the documentation:
-                <a href="https://chrisproject.org/docs/public_dataset_viewer" target="_blank" rel="noreferrer nofollow">
-                  https://chrisproject.org/docs/public_dataset_viewer
-                </a>.
-              </p>
-            </Typography>
-          }
-        />
+        <div className={styles.leftAndRightContainer}>
+          <InfoIcon
+            title="Fetal MRI Atlas Viewer"
+            p1={
+              <Typography>
+                <p>
+                  Datasets found in public feeds can be visualized here using{' '}
+                  <a href="https://github.com/niivue/niivue" target="_blank" rel="noreferrer nofollow">Niivue</a>.
+                </p>
+                <p>
+                  For how to add data here, see the documentation:
+                  <a href="https://chrisproject.org/docs/public_dataset_viewer" target="_blank" rel="noreferrer nofollow">
+                    https://chrisproject.org/docs/public_dataset_viewer
+                  </a>.
+                </p>
+              </Typography>
+            }
+          />
+          {/* RIGHT side of header bar */}
+          <HeaderOptionBar options={nvOptions} setOptions={setNvOptions} />
+        </div>
       </PageSection>
 
       {
@@ -315,7 +336,6 @@ const PublicDatasets: React.FunctionComponent = () => {
                 </BreadcrumbItem>
               }
               { subjects && selected &&
-
                 <BreadcrumbItem>
                   <Popover
                     bodyContent={<SelectedFilesOptionsPane volumes={selected.volumes} setVolumes={setSelectedVolumes}/>}
@@ -350,8 +370,55 @@ const PublicDatasets: React.FunctionComponent = () => {
           <NiivueCanvas
             options={nvOptions}
             volumes={volumes}
+            onStart={(nv) => {
+              nv.onLocationChange = (location) => setCrosshairLocation(location as CrosshairLocation);
+            }}
           />
         </div>
+      </PageSection>
+      <PageSection>
+        <footer>
+          <div className={styles.leftAndRightContainer}>
+            {/* LEFT FOOTER */}
+            <div>
+              Location: {crosshairLocation.string}
+            </div>
+          </div>
+          <div className={styles.leftAndRightContainer}>
+            {/* LEFT FOOTER */}
+            <div className={styles.footerItems}>
+              <div>
+                &copy; 2024
+              </div>
+              <div>
+                <a href="https://www.fnndsc.org/" target="_blank">
+                  Fetal-Neonatal Neuroimaging Developmental Science Center
+                </a>
+              </div>
+            </div>
+            {/* RIGHT FOOTER */}
+            <div className={styles.footerItems}>
+              <div>
+                <em>ChRIS_ui</em> version {buildVersion}
+              </div>
+              <Popover
+                triggerAction="hover"
+                showClose={true}
+                headerContent={<div>We appreciate any comments and suggestions!</div>}
+                bodyContent={<div>
+                  Email{" "}
+                  <a href="mailto:dev@babyMRI.org">dev@babyMRI.org</a>{" "}
+                  or create an issue on{" "}
+                  <a href="https://github.com/FNNDSC/ChRIS_ui">
+                    GitHub
+                  </a>.
+                </div>}
+              >
+                <Chip isReadOnly={true} component="button"><b>Feedback</b></Chip>
+              </Popover>
+            </div>
+          </div>
+        </footer>
       </PageSection>
     </WrapperConnect>
   );
