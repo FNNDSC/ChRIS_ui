@@ -529,6 +529,7 @@ const UploadComponent = ({
               handleLocalUploadFiles(fileList);
             }
           }}
+          multiple
         />
         <Button
           ref={ref5}
