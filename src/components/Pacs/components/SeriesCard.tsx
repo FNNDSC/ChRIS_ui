@@ -10,6 +10,7 @@ import {
   Modal,
   Tooltip,
   Skeleton,
+  ModalVariant,
 } from "@patternfly/react-core";
 import FileDetailView from "../../Preview/FileDetailView";
 import { DotsIndicator } from "../../Common";
@@ -33,7 +34,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const {
     SeriesInstanceUID,
     StudyInstanceUID,
-
+    SeriesDescription,
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
@@ -199,6 +200,17 @@ const SeriesCard = ({ series }: { series: any }) => {
     }
   };
 
+  function setSeriesUpdate(step: string) {
+    dispatch({
+      type: Types.SET_SERIES_UPDATE,
+      payload: {
+        currentStep: step,
+        seriesInstanceUID: SeriesInstanceUID.value,
+        studyInstanceUID: series.StudyInstanceUID.value,
+      },
+    });
+  }
+
   useInterval(
     async () => {
       if (fetchNextStatus && !isFetching) {
@@ -237,18 +249,11 @@ const SeriesCard = ({ series }: { series: any }) => {
               const nextStep = QueryStages[index + 1];
               currentStep !== "completed" &&
                 executeNextStepForTheSeries(nextStep);
-
-              dispatch({
-                type: Types.SET_SERIES_UPDATE,
-                payload: {
-                  currentStep,
-                  seriesInstanceUID: SeriesInstanceUID.value,
-                  studyInstanceUID: series.StudyInstanceUID.value,
-                },
-              });
+              setSeriesUpdate(nextStep);
             }
 
             if (currentStep === "completed") {
+              setSeriesUpdate(currentStep);
               await fetchCubeFilePreview();
               setFetchNextStatus(!fetchNextStatus);
               setIsFetching(false);
@@ -273,15 +278,17 @@ const SeriesCard = ({ series }: { series: any }) => {
   }
 
   const showProcessingWithButton =
-    (currentProgress > 0 && fetchNextStatus) ||
-    (fetchNextStatus && currentStep !== "completed");
+    stepperStatus.length > 0 &&
+    ((currentProgress > 0 && fetchNextStatus) ||
+      (fetchNextStatus && currentStep !== "completed"));
 
   const buttonContainer = (
     <>
       {currentStep &&
         currentStep !== "completed" &&
         nextQueryStage &&
-        currentProgress === 0 && (
+        currentProgress === 0 &&
+        stepperStatus.length > 0 && (
           <Button
             size="sm"
             variant="primary"
@@ -438,7 +445,7 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   const largeFilePreview = (
     <Modal
-      style={{ height: "800px" }}
+      variant={ModalVariant.large}
       title="Preview"
       aria-label="viewer"
       isOpen={openSeriesPreview}
