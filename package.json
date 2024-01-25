@@ -15,8 +15,8 @@
   "dependencies": {
     "@cornerstonejs/nifti-image-loader": "^1.0.9",
     "@fnndsc/chrisapi": "^1.15.0",
-    "@heroicons/react": "^2.1.1",
     "@niivue/niivue": "^0.38.8",
+    "@heroicons/react": "^2.1.1",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.1.2",
     "@patternfly/react-core": "^5.1.2",
@@ -43,8 +43,8 @@
     "immer": "^10.0.3",
     "keymirror": "^0.1.1",
     "lodash": "^4.17.21",
-    "marked": "^11.1.1",
     "niivue-react": "github:niivue/niivue-react",
+    "marked": "^11.1.1",
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
     "rc-tree": "^5.8.0",
@@ -55,7 +55,7 @@
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-error-boundary": "^4.0.12",
-    "react-force-graph-3d": "^1.24.1",
+    "react-force-graph-2d": "^1.25.3",
     "react-json-view": "^1.21.3",
     "react-lazylog": "^4.5.3",
     "react-redux": "^9.1.0",
@@ -70,8 +70,7 @@
     "typescript": "^5.3.3",
     "use-ackee": "^3.0.1",
     "use-immer": "^0.9.0",
-    "uuid": "^9.0.1",
-    "vite": "^5.0.12"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/d3-hierarchy": "^1.1.7",
@@ -95,6 +94,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "typescript": "^5.0.2",
+    "vite": "^5.0.10",
     "vitest": "^1.0.4"
   }
 }

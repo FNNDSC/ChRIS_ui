@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  RefObject,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import ReactJson from "react-json-view";
@@ -11,16 +17,14 @@ import {
   MenuToggle,
   PageSection,
   Modal,
-  ModalVariant,
   CodeBlockCode,
   CodeBlock,
   FormGroup,
   Form,
   Alert as PatternflyAlert,
   Progress,
-  ProgressSize,
 } from "@patternfly/react-core";
-import { Typography } from "antd";
+import { Typography, Tour, TourProps } from "antd";
 import { debounce } from "lodash";
 
 import { useLocation, useNavigate } from "react-router";
@@ -46,6 +50,7 @@ import {
 } from "../../api/common";
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
+import { fetchResource } from "../../api/common";
 
 export const fetchFilesUnderThisPath = async (path?: string) => {
   if (!path) return;
@@ -55,17 +60,16 @@ export const fetchFilesUnderThisPath = async (path?: string) => {
   const pagination = {
     limit: 20,
     offset: 0,
-    totalCount: 0,
   };
-  if (pathList) {
-    const fileList = await pathList.getFiles({
-      limit: pagination.limit,
-      offset: pagination.offset,
-    });
 
-    if (fileList) {
-      const files = fileList.getItems() as any[];
-      return files;
+  if (pathList) {
+    const fn = pathList.getFiles;
+    const boundFn = fn.bind(pathList);
+
+    const { resource } = await fetchResource(pagination, boundFn);
+
+    if (resource) {
+      return resource;
     }
   }
 
@@ -172,7 +176,7 @@ export const LibraryCopyPage = () => {
               onClick={handleFileModal}
               icon={<FaUpload />}
             >
-              Upload Files
+              Upload
             </Button>
           </div>
         </PageSection>
@@ -196,6 +200,7 @@ export const LibraryCopyPage = () => {
                 setLocalFiles(filteredfiles);
               }}
             />
+
             <Cart />
             <LocalSearch />
 
@@ -346,6 +351,8 @@ const UploadComponent = ({
   localFiles,
 }: UploadComponent) => {
   const token = useCookieToken();
+  const folderInput: RefObject<HTMLInputElement> =
+    useRef<HTMLInputElement>(null);
   const username = useTypedSelector((state) => state.user.username);
   const [warning, setWarning] = useState<Record<string, string>>({});
   const [directoryName, setDirectoryName] = useState("");
@@ -354,6 +361,42 @@ const UploadComponent = ({
   const [countdownInterval, setCountdownInterval] =
     useState<NodeJS.Timeout | null>(null);
   const [serverProgress, setServerProgress] = useState(0);
+  const [tour, showTour] = useState(false);
+
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const ref3 = useRef(null);
+  const ref4 = useRef(null);
+  const ref5 = useRef(null);
+
+  const steps: TourProps["steps"] = [
+    {
+      title: "Upload Files",
+      description: "Put your files here",
+      target: () => ref1.current,
+    },
+    {
+      title: "Upload a Folder",
+      description: "Click this button to upload a folder",
+      target: () => ref5.current,
+    },
+    {
+      title: "Directory Name",
+      description:
+        "Enter a Directory Name or use the default value. If you use the default value, note it down to track the folder in the Library Page",
+      target: () => ref2.current,
+    },
+    {
+      title: "Push to Storage",
+      description: "Hit the button that is named 'Push to File Storage'",
+      target: () => ref3.current,
+    },
+    {
+      title: "Track your progress",
+      description: "Report bugs to the admin if any",
+      target: () => ref4.current,
+    },
+  ];
 
   const handleLocalUploadFiles = (files: any[]) => {
     setWarning({});
@@ -444,16 +487,59 @@ const UploadComponent = ({
     <Modal
       width="70%"
       title="Upload Files"
-      onClose={() => {
-        handleReset();
-      }}
+      onClose={() => handleReset()}
       isOpen={uploadFileModal}
-      variant={ModalVariant.medium}
-      arial-labelledby="file-upload"
+      variant="medium"
+      aria-labelledby="file-upload"
     >
-      <div style={{ height: "200px" }}>
+      <Button onClick={() => showTour(!tour)} variant="link">
+        'Click' here for a quick tutorial
+      </Button>
+      <Tour open={tour} onClose={() => showTour(false)} steps={steps} />
+
+      {/* Drag and Upload Section */}
+      <div
+        className="drag-and-upload-section"
+        ref={ref1}
+        style={{ height: "200px" }}
+      >
         <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
       </div>
+
+      {/* Upload Folder Section */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          marginTop: "1rem",
+        }}
+      >
+        <input
+          ref={folderInput}
+          style={{ display: "none" }}
+          type="file"
+          //@ts-ignore
+          webkitdirectory="true"
+          onChange={(e) => {
+            if (e.target) {
+              //@ts-ignore
+              const fileList = Array.from(e.target.files);
+              handleLocalUploadFiles(fileList);
+            }
+          }}
+        />
+        <Button
+          ref={ref5}
+          onClick={() => folderInput.current && folderInput.current.click()}
+          variant="primary"
+        >
+          'Click' here to Upload an Entire Folder{" "}
+        </Button>
+      </div>
+
+      {/* Local Files Section */}
       <div
         style={{
           height: "200px",
@@ -462,24 +548,21 @@ const UploadComponent = ({
         }}
       >
         {localFiles.length > 0 ? (
-          localFiles.map((file, index) => {
-            return (
-              <LocalFileList
-                key={index}
-                handleDeleteDispatch={(name) => {
-                  handleDelete(name);
-                }}
-                file={file}
-                index={index}
-                showIcon={true}
-              />
-            );
-          })
+          localFiles.map((file, index) => (
+            <LocalFileList
+              key={index}
+              handleDeleteDispatch={(name) => handleDelete(name)}
+              file={file}
+              index={index}
+              showIcon={true}
+            />
+          ))
         ) : (
-          <EmptyStateComponent title="No files have been uploaded yet..." />
+          <EmptyStateComponent title="No Files or Folders have been uploaded yet..." />
         )}
       </div>
 
+      {/* Directory Name Section */}
       <Form
         onSubmit={(event) => event.preventDefault()}
         style={{ marginTop: "1rem" }}
@@ -487,19 +570,21 @@ const UploadComponent = ({
       >
         <FormGroup fieldId="directory name" isRequired label="Directory Name">
           <TextInput
+            ref={ref2}
             isRequired
-            id="horizontal form name"
+            id="horizontal-form-name"
             value={directoryName}
             type="text"
             name="horizontal-form-name"
-            onChange={(_event, value) => {
-              setDirectoryName(value);
-            }}
+            onChange={(_event, value) => setDirectoryName(value)}
           />
         </FormGroup>
       </Form>
+
+      {/* Upload Button Section */}
       <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
         <Button
+          ref={ref3}
           isDisabled={
             localFiles.length === 0 ||
             (countdown < 5 && countdown > 0) ||
@@ -513,35 +598,43 @@ const UploadComponent = ({
           Push to File Storage
         </Button>
       </div>
-      <CodeBlock
-        style={{ marginTop: "1rem", height: "200px", overflow: "scroll" }}
-      >
-        <CodeBlockCode>
-          {Object.keys(currentFile).length === 0 ? (
-            <span style={{ fontFamily: "monospace" }}>
-              You have no active uploads. Please upload Files from your local
-              computer and hit the &apos;Push to File Storage&apos; button. You
-              can give a directory name for your upload or use the default name
-              above. Your uploads will appear under the &apos;Uploads&apos;
-              space once it is complete.
-            </span>
-          ) : (
-            <ReactJSONView currentFile={currentFile} />
-          )}
-        </CodeBlockCode>
-        <CodeBlockCode>
-          {Object.keys(warning).length > 0 && (
-            <ReactJSONView currentFile={warning} />
-          )}
-        </CodeBlockCode>
-      </CodeBlock>
+
+      {/* Code Display Section */}
+      <div ref={ref4}>
+        <CodeBlock
+          style={{ marginTop: "1rem", height: "200px", overflow: "scroll" }}
+        >
+          <CodeBlockCode>
+            {Object.keys(currentFile).length === 0 ? (
+              <span style={{ fontFamily: "monospace" }}>
+                You have no active uploads. Please upload Files from your local
+                computer and hit the 'Push to File Storage' button. You can give
+                a directory name for your upload or use the default name above.
+                Your uploads will appear under the 'Uploads' space once it is
+                complete.
+              </span>
+            ) : (
+              <ReactJSONView currentFile={currentFile} />
+            )}
+          </CodeBlockCode>
+          <CodeBlockCode>
+            {Object.keys(warning).length > 0 && (
+              <ReactJSONView currentFile={warning} />
+            )}
+          </CodeBlockCode>
+        </CodeBlock>
+      </div>
+
+      {/* Progress Bar Section */}
       <Progress
-        size={ProgressSize.sm}
+        size="sm"
         style={{ marginTop: "1rem" }}
         value={serverProgress}
         title={`${serverProgress}% Complete`}
         measureLocation="outside"
       />
+
+      {/* Countdown Alert Section */}
       {countdown < 5 && countdown > 0 && (
         <PatternflyAlert variant="success" title="Successful Upload">
           The files have been uploaded to the server. This modal will close in{" "}

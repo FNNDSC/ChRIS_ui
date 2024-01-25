@@ -8,7 +8,6 @@ import "./dashboard.css";
 import { InfoIcon } from "../Common";
 import { CatalogTile } from "@patternfly/react-catalog-view-extension";
 
-
 const { Paragraph } = Typography;
 
 interface DashboardProps {
@@ -25,7 +24,7 @@ const DashboardPage = (props: DashboardProps) => {
     dispatch(
       setSidebarActive({
         activeItem: "overview",
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -42,7 +41,7 @@ const DashboardPage = (props: DashboardProps) => {
     <WrapperConnect>
       <PageSection hasShadowBottom>
         <InfoIcon
-          title="Welcome to Chris"
+          title="Welcome to ChRIS"
           p1={
             <Paragraph>
               <p>
@@ -64,7 +63,6 @@ const DashboardPage = (props: DashboardProps) => {
         <Grid hasGutter>
           <GridItem lg={4}>
             <CatalogTile
-              
               id="simple-title"
               featured
               title="You've got data"
