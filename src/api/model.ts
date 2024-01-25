@@ -191,6 +191,7 @@ export class FileViewerModel {
     notification: any,
     callback: (status: any) => void,
   ) {
+    
     const findItem = this.itemsToDownload.find(
       (currentItem) => currentItem.data.fname === item.data.fname,
     );
@@ -200,7 +201,7 @@ export class FileViewerModel {
     const onDownloadProgress = (progress: any, item: FeedFile) => {
       this.downloadStatus = {
         ...this.downloadStatus,
-        [item.data.fname]: Math.floor(progress * 100),
+        [item.data.fname]: progress,
       };
       callback(this.downloadStatus);
     };
@@ -276,8 +277,12 @@ export class FileViewerModel {
         },
         signal,
         onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
-          if (progressEvent.progress) {
-            onDownloadProgressCallback(progressEvent.progress, item);
+          if (progressEvent.loaded) {
+            const progress = Math.floor(
+              (progressEvent.loaded / item.data.fsize) * 100,
+            );
+
+            onDownloadProgressCallback(progress, item);
           }
         },
       })
