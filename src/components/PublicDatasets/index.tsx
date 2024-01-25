@@ -380,7 +380,7 @@ const PublicDatasets: React.FunctionComponent = () => {
         <footer>
           <div className={styles.leftAndRightContainer}>
             {/* LEFT FOOTER */}
-            <div>
+            <div className={styles.crosshairLocationText}>
               Location: {crosshairLocation.string}
             </div>
           </div>
@@ -388,7 +388,7 @@ const PublicDatasets: React.FunctionComponent = () => {
             {/* LEFT FOOTER */}
             <div className={styles.footerItems}>
               <div>
-                &copy; 2024
+                &copy;&nbsp;2024
               </div>
               <div>
                 <a href="https://www.fnndsc.org/" target="_blank">
@@ -399,7 +399,10 @@ const PublicDatasets: React.FunctionComponent = () => {
             {/* RIGHT FOOTER */}
             <div className={styles.footerItems}>
               <div>
-                <em>ChRIS_ui</em> version {buildVersion}
+                <em>ChRIS_ui</em>
+                <span className={styles.hideOnMobile}>
+                  version {buildVersion}
+                </span>
               </div>
               <Popover
                 triggerAction="hover"

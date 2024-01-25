@@ -5,7 +5,7 @@
 
 .leftAndRightContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-between;
 }
 
@@ -17,4 +17,26 @@
   content: "|";
   margin-left: 0.3em;
   margin-right: 0.3em;
+}
+
+.crosshairLocationText {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.hideOnMobile {
+  display: none;
+}
+
+
+/* On wide screen, description appears to the left of widget */
+@media only screen and (min-width: 600px) {
+  .hideOnMobile {
+    display: initial;
+  }
+
+  .leftAndRightContainer {
+    flex-direction: row;
+  }
 }
