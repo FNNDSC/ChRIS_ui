@@ -4,7 +4,7 @@
  * but with non-optional keys.
  */
 
-import { SLICE_TYPE } from "@niivue/niivue";
+import { DRAG_MODE, SLICE_TYPE } from "@niivue/niivue";
 
 /**
  * Mostly the same thing as `NVROptions` but with non-optional keys.
@@ -14,6 +14,7 @@ type ChNVROptions = {
   isOrientCube: boolean,
   isHighResolutionCapable: boolean,
   sliceType: SLICE_TYPE,
+  dragMode: DRAG_MODE,
   isSliceMM: boolean,
   backColor: number[],
   multiplanarForceRender: boolean,

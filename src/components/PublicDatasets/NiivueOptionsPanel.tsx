@@ -1,10 +1,9 @@
 import SliceTypeDropdown from "./SliceTypeDropdown.tsx";
 import { SLICE_TYPE } from "@niivue/niivue";
-import { Checkbox, Switch } from "@patternfly/react-core";
+import { Checkbox } from "@patternfly/react-core";
 import React from "react";
 import { ChNVROptions } from "./models.ts";
 import { Updater } from "use-immer";
-
 
 type NiivueOptionsPanelProps = {
   options: ChNVROptions,
@@ -45,15 +44,6 @@ const NiivueOptionsPanel: React.FC<NiivueOptionsPanelProps> = ({ options, setOpt
         draft.isHighResolutionCapable = value;
       })}
       id="set-niivue-ishighresolutioncapable"
-    />
-    <Switch
-      label="Radiological convention"
-      labelOff="Neurological convention"
-      isChecked={options.isRadiologicalConvention}
-      onChange={(_e, value) => setOptions((draft) => {
-        draft.isRadiologicalConvention = value;
-      })}
-      id="set-niivue-radiologicalconventions"
     />
   </div>);
 }
