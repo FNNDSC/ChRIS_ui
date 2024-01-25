@@ -34,7 +34,6 @@ const SeriesCard = ({ series }: { series: any }) => {
   const {
     SeriesInstanceUID,
     StudyInstanceUID,
-    SeriesDescription,
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
