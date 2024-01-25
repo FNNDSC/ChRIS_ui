@@ -4,34 +4,34 @@
  * but with non-optional keys.
  */
 
-import { DRAG_MODE, SLICE_TYPE } from "@niivue/niivue";
+import { NVROptions, NVRVolume } from "niivue-react/src/model.ts";
 
 /**
- * Mostly the same thing as `NVROptions` but with non-optional keys.
+ * Subset of `NVROptions` with non-optional keys.
  */
-type ChNVROptions = {
-  isColorbar: boolean,
-  isOrientCube: boolean,
-  isHighResolutionCapable: boolean,
-  sliceType: SLICE_TYPE,
-  dragMode: DRAG_MODE,
-  isSliceMM: boolean,
-  backColor: number[],
-  multiplanarForceRender: boolean,
-  isRadiologicalConvention: boolean
-};
+type ChNVROptions = Required<Pick<NVROptions,
+  "isColorbar"
+  | "isOrientCube"
+  | "isHighResolutionCapable"
+  | "sliceType"
+  | "dragMode"
+  | "isSliceMM"
+  | "backColor"
+  | "multiplanarForceRender"
+  | "isRadiologicalConvention"
+>>;
 
 /**
- * A subset of `NVRVolume` but with non-optional keys.
+ * A subset of `NVRVolume` with non-optional keys.
  */
-type ChNVRVolume = {
-  url: string,
-  opacity: number,
-  colormap: string,
-  cal_min: number,
-  cal_max: number,
-  colorbarVisible: boolean
-};
+type ChNVRVolume = Required<Pick<NVRVolume,
+  "url"
+  | "opacity"
+  | "colormap"
+  | "cal_min"
+  | "cal_max"
+  | "colorbarVisible"
+>>;
 
 /**
  * Volume name and Niivue volume options.
