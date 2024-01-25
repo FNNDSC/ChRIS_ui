@@ -272,7 +272,7 @@ class PfdcmClient {
       if (!imagestatus.request && retrieve) {
         newImageStatus[0].icon = <Spin />;
         newImageStatus[0].description = requestedFiles
-          ? `Requesting ${requestedFiles} ${requestedFiles.length === 1 ? ' file': ' files'}`
+          ? `Requesting ${requestedFiles} ${requestedFiles === 1 ? ' file': ' files'}`
           : `Requesting files`;
       }
 
