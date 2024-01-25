@@ -41,6 +41,7 @@ const reducer: Reducer<IFeedState> = (
     }
 
     case FeedActionTypes.SET_LAYOUT: {
+      
       return {
         ...state,
         currentLayout: !state.currentLayout,

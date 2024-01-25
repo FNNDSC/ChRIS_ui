@@ -105,7 +105,7 @@ const DisplayPage = ({
   const isCompute = title === "Compute" ? true : false;
   const [dropdownValue, setDropdownValue] = React.useState<string>(
     isPlugin
-      ? PluginQueryTypes.NAME_TITLE_CATEGORY[0]
+      ? PluginQueryTypes.NAME[0]
       : ComputeQueryTypes.NAME[0]
   );
 

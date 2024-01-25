@@ -128,7 +128,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
   const PageNav = (
     <Nav>
       <NavList>
-        <NavGroup title="Sample Data">
+        <NavGroup title="Discover ChRIS">
           <NavItem
             itemId="analyses"
             isActive={sidebarActiveItem === "overview"}
@@ -145,16 +145,11 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
             <Link to="/catalog">Plugins</Link>
           </NavItem>
-
           <NavItem
             itemId="niivue"
             isActive={sidebarActiveItem === "niivue"}
           >
             <Link to="/niivue">Fetal MRI Viewer</Link>
-          </NavItem>
-
-          <NavItem itemId="login">
-            <Link to="/login">Login</Link>
           </NavItem>
         </NavGroup>
       </NavList>
@@ -170,7 +165,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
 
 const AnonSidebar = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(AnonSidebarImpl);
 export { AnonSidebar };
 
