@@ -370,17 +370,23 @@ const PublicDatasets: React.FunctionComponent = () => {
           />
         </PageSection>
       }
-      <PageSection isFilled>
-        <div className={styles.niivueContainer}>
-          <NiivueCanvas
-            options={nvOptions}
-            volumes={volumes}
-            onStart={(nv) => {
-              nv.onLocationChange = (location) => setCrosshairLocation(location as CrosshairLocation);
-            }}
-          />
-        </div>
-      </PageSection>
+      {/*
+        * WARNING!
+        * DO NOT put <NiivueCanvas /> in a <PageSection isFilled>.
+        * Niivue tries to set its own canvas size when the canvas'
+        * parent is resized, HOWEVER <PageSection> reports an
+        * incorrect size to Niivue.
+        * TODO ALSO FIX INCORRECT SIZE ON THE SIDEBAR BEING EXPANDED.
+        */}
+      <div className={styles.niivueContainer}>
+        <NiivueCanvas
+          options={nvOptions}
+          volumes={volumes}
+          onStart={(nv) => {
+            nv.onLocationChange = (location) => setCrosshairLocation(location as CrosshairLocation);
+          }}
+        />
+      </div>
       <PageSection>
         <footer>
           <div className={styles.leftAndRightContainer}>
