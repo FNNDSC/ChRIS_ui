@@ -379,13 +379,13 @@ const PublicDatasets: React.FunctionComponent = () => {
               nv.onLocationChange = (location) => setCrosshairLocation(location as CrosshairLocation);
 
               // workaround for https://github.com/niivue/niivue/issues/861
-              const badlyResizeCanvasEverySecond = () => {
+              const badlyResizeCanvasEveryHalfSecond = () => {
                 setTimeout(() => {
                   nv.resizeListener();
-                  badlyResizeCanvasEverySecond();
-                }, 1000);
+                  badlyResizeCanvasEveryHalfSecond();
+                }, 500);
               };
-              badlyResizeCanvasEverySecond();
+              badlyResizeCanvasEveryHalfSecond();
             }}
           />
         </div>
