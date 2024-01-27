@@ -377,6 +377,15 @@ const PublicDatasets: React.FunctionComponent = () => {
             volumes={volumes}
             onStart={(nv) => {
               nv.onLocationChange = (location) => setCrosshairLocation(location as CrosshairLocation);
+
+              // workaround for https://github.com/niivue/niivue/issues/861
+              const badlyResizeCanvasEverySecond = () => {
+                setTimeout(() => {
+                  nv.resizeListener();
+                  badlyResizeCanvasEverySecond();
+                }, 1000);
+              };
+              badlyResizeCanvasEverySecond();
             }}
           />
         </div>
