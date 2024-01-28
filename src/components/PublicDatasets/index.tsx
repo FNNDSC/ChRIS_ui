@@ -22,7 +22,6 @@ import {
 import { BrainIcon, DesktopIcon } from "@patternfly/react-icons";
 import { Typography } from "antd";
 import { Feed, FeedFile } from "@fnndsc/chrisapi";
-import { NiivueCanvas } from "niivue-react/src/index";
 
 import WrapperConnect from "../Wrapper";
 import { InfoIcon } from "../Common";
@@ -40,6 +39,7 @@ import { DEFAULT_OPTIONS } from "./defaults.ts";
 import preval from "preval.macro";
 import HeaderOptionBar from "./HeaderOptionBar.tsx";
 import FeedButton from "./FeedButton.tsx";
+import { CrosshairLocation, SizedNiivueCanvas } from "./SizedNiivueCanvas.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
@@ -59,14 +59,7 @@ type SelectedSubject = {
   volumes: VolumeEntry[]
 }
 
-/**
- * Type emitted by Niivue.onLocationChange
- *
- * https://github.com/niivue/niivue/issues/860
- */
-type CrosshairLocation = {
-  string: string;
-}
+
 
 const PublicDatasets: React.FunctionComponent = () => {
 
@@ -80,6 +73,8 @@ const PublicDatasets: React.FunctionComponent = () => {
   const [selected, setSelected] = useImmer<SelectedSubject | null>(null);
 
   const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
+  const [nvSize, setNvSize] = useState(10);
+  const [sizeIsScaling, setSizeIsScaling] = useState(false);
 
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
   const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>({string: ""});
@@ -370,24 +365,13 @@ const PublicDatasets: React.FunctionComponent = () => {
         </PageSection>
       }
       <PageSection isFilled>
-        <div className={styles.niivueContainer}>
-          <NiivueCanvas
-            options={nvOptions}
-            volumes={volumes}
-            onStart={(nv) => {
-              nv.onLocationChange = (location) => setCrosshairLocation(location as CrosshairLocation);
-
-              // workaround for https://github.com/niivue/niivue/issues/861
-              const badlyResizeCanvasEveryHalfSecond = () => {
-                setTimeout(() => {
-                  nv.resizeListener();
-                  badlyResizeCanvasEveryHalfSecond();
-                }, 500);
-              };
-              badlyResizeCanvasEveryHalfSecond();
-            }}
-          />
-        </div>
+        <SizedNiivueCanvas
+          size={nvSize}
+          isScaling={sizeIsScaling}
+          onLocationChange={setCrosshairLocation}
+          options={nvOptions}
+          volumes={volumes}
+        />
       </PageSection>
       <PageSection>
         <footer>

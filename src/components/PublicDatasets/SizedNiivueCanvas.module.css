@@ -1,0 +1,9 @@
+.niivueContainer {
+  height: 100%;
+  width: 100%;
+}
+
+/* workaround for https://github.com/niivue/niivue/issues/862 */
+.niivueContainer canvas {
+  display: block;
+}
