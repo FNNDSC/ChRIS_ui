@@ -39,7 +39,6 @@ import SelectedFilesOptionsPane from "./SelectedFilesOptionsPane.tsx";
 import { DEFAULT_OPTIONS } from "./defaults.ts";
 import preval from "preval.macro";
 import HeaderOptionBar from "./HeaderOptionBar.tsx";
-import MdCallSplit from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
 import FeedButton from "./FeedButton.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
