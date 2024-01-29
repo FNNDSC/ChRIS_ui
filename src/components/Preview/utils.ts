@@ -1,5 +1,6 @@
 import { TAG_DICT, uids } from "./dataDictionary";
 import Hammer from "hammerjs";
+import { Cookies } from "react-cookie";
 import * as dicomParser from "dicom-parser";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneMath from "cornerstone-math";
@@ -46,6 +47,23 @@ cornerstoneFileImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
+export const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
+
+export const prepareNifti = () => {
+  const cookie = new Cookies();
+  const user = cookie.get("username");
+  const token: string = cookie.get(`${user}_token`);
+
+  cornerstoneNIFTIImageLoader.nifti.configure({
+    headers: {
+      "Content-Type": "application/vnd.collection+json",
+      Authorization: "Token " + token,
+    },
+    method: "get",
+    responseType: "arrayBuffer",
+  });
+};
+
 const client = ChrisAPIClient.getClient();
 const token = client.auth.token;
 cornerstoneNIFTIImageLoader.nifti.configure({
@@ -89,13 +107,17 @@ export const loadJpgImage = (blob: any) => {
 };
 
 export const displayDicomImage = (
-  imageId: string,
+  imageId: string | any,
   element: HTMLDivElement,
-  onError?: () => void
+  fileExtension: string,
+  onError?: () => void,
 ) => {
+  
+  const id = fileExtension === "nii" ? imageId.url : imageId;
   cornerstone
-    .loadImage(imageId)
+    .loadAndCacheImage(id)
     .then((image: any) => {
+      const imageIdArray = [];
       const viewport = cornerstone.getViewport(element, image);
 
       if (viewport) {
@@ -110,9 +132,34 @@ export const displayDicomImage = (
         cornerstone.setViewport(element, viewport);
       }
 
+      if (fileExtension === "nii") {
+        const niftiSlices = cornerstone.metaData.get(
+          "multiFrameModule",
+          imageId.url,
+        ).numberOfFrames;
+
+        imageIdArray.push(
+          ...Array.from(
+            Array(niftiSlices),
+            (_, i) =>
+              `nifti:${imageId.filePath}#${imageId.slice.dimension}-${i},t-0`,
+          ),
+        );
+      } else {
+        imageIdArray.push(imageId);
+      }
+
+      const stack = {
+        currentImageIdIndex: 0,
+        imageIds: imageIdArray,
+      };
+
       cornerstone.displayImage(element, image);
+      cornerstoneTools.addStackStateManager(element, ["stack"]);
+      cornerstoneTools.addToolState(element, "stack", stack);
     })
-    .catch(() => {
+    .catch((error) => {
+      console.warn("Error in loading dicom image", error);
       onError && onError();
     });
 };
@@ -389,7 +436,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
             str += sha1Text(
               dataSet.byteArray,
               fragment.position,
-              fragment.length
+              fragment.length,
             );
             str += "</li>";
 
@@ -417,7 +464,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
               dataSet,
               element,
               frameIndex,
-              bot
+              bot,
             );
             str += "; length = " + imageFrame.length;
             str += sha1Text(imageFrame);
@@ -597,7 +644,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
               const groupHexStr = ("0000" + group.toString(16)).substring(-4);
               const element = dataSet.uint16(propertyName, 1);
               const elementHexStr = ("0000" + element.toString(16)).substring(
-                -4
+                -4,
               );
               text += "x" + groupHexStr + elementHexStr;
             } else if (vr === "SQ") {
@@ -635,7 +682,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
             title +
             '">' +
             text +
-            "</li>"
+            "</li>",
         );
       }
     }

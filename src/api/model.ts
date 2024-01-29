@@ -322,7 +322,7 @@ export const fileViewerMap: any = {
   gif: "ImageDisplay",
   dcm: "DcmDisplay",
   default: "CatchallDisplay",
-  nii: "NiftiDisplay",
+  nii: "DcmDisplay",
   gz: "CatchallDisplay",
   mgz: "XtkDisplay",
   fsm: "XtkDisplay",
