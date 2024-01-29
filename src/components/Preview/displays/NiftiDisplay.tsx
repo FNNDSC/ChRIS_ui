@@ -7,6 +7,7 @@ import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
 import { IFileBlob } from "../../../api/model";
 import { Cookies } from "react-cookie";
 import { SpinContainer } from "../../Common";
+import useSize from "../../FeedTree/useSize";
 
 const cookie = new Cookies();
 const user = cookie.get("username");
@@ -40,6 +41,21 @@ const NiftiDisplay = (props: AllProps) => {
   const [loader, setLoader] = React.useState(false);
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem } = props;
+  useSize(dicomImageRef);
+
+  const onWindowResize = () => {
+    const element = dicomImageRef.current;
+
+    if (element) {
+      cornerstone.resize(element, true);
+    }
+  };
+
+  
+
+  React.useEffect(() => {
+    window.addEventListener("resize", onWindowResize);
+  }, []);
 
   const initAmi = React.useCallback(async (fileItem: IFileBlob) => {
     const { blob, file } = fileItem;
@@ -53,15 +69,15 @@ const NiftiDisplay = (props: AllProps) => {
       const image = await cornerstone.loadAndCacheImage(imageIdObject.url);
       niftiSlices = cornerstone.metaData.get(
         "multiFrameModule",
-        imageIdObject.url
+        imageIdObject.url,
       ).numberOfFrames;
 
       imageIdArray.push(
         ...Array.from(
           Array(niftiSlices),
           (_, i) =>
-            `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`
-        )
+            `nifti:${imageIdObject.filePath}#${imageIdObject.slice.dimension}-${i},t-0`,
+        ),
       );
 
       const element = dicomImageRef.current;
