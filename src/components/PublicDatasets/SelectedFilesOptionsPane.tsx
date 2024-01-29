@@ -1,6 +1,6 @@
 import { ChNVRVolume, VolumeEntry } from "./models.ts";
-import React from "react";
-import { Checkbox, Slider, Text, TextContent, TextVariants } from "@patternfly/react-core";
+import React, { useRef } from "react";
+import { Button, Checkbox, Slider, SliderOnChangeEvent, Text, TextContent, TextVariants } from "@patternfly/react-core";
 import ColormapDropdown from "./ColormapDropdown.tsx";
 import { DraftFunction } from "use-immer";
 
@@ -30,7 +30,11 @@ const SelectedFilesOptionsPane: React.FC<SelectedFilesOptionsPaneProps> = ({volu
 
       const setColormap = (colormap: string) => {
         setValue((volume) => volume.colormap = colormap);
-      }
+      };
+
+      const setCalMin = (_e: SliderOnChangeEvent, cal_min: number) => {
+        setValue((volume) => volume.cal_min = cal_min);
+      };
 
       return (<div key={`${name}-options`}>
         <TextContent>
@@ -47,6 +51,21 @@ const SelectedFilesOptionsPane: React.FC<SelectedFilesOptionsPaneProps> = ({volu
         {
           volume.opacity > 0 &&
           <>
+            {/*
+              * TODO about cal_min, cal_max:
+              * - can we use a two-ended slider component? (not sure if Patternfly provides one)
+              * - min cal_min and max cal_max should not be hard-coded
+              * - we have one slider for cal_min but not cal_max for now because cal_min alone adjusts contrast
+              */}
+            <Text component={TextVariants.p}>cal_min: {volume.cal_min}</Text>
+            <Slider
+              min={0}
+              max={volume.cal_max}
+              step={1}
+              value={volume.cal_min}
+              onChange={setCalMin}
+            />
+
             <Checkbox
               label="Show colormap"
               isChecked={volume.colorbarVisible}
@@ -54,6 +73,15 @@ const SelectedFilesOptionsPane: React.FC<SelectedFilesOptionsPaneProps> = ({volu
               id={`${name}-colormapvisible-checkbox`}
             />
             <ColormapDropdown selectedColormap={volume.colormap} onSelect={setColormap} />
+            {
+              volume.colormap === 'gray' ||
+              <Button
+                variant="tertiary"
+                onClick={() => setColormap("gray")}
+              >
+                Reset colormap to "gray"
+              </Button>
+            }
           </>
         }
       </div>)
