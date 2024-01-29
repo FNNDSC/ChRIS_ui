@@ -10,7 +10,9 @@ const DEFAULT_OPTIONS: ChNVROptions = {
   isSliceMM: true,
   backColor: [0, 0, 0],
   multiplanarForceRender: true,
-  isRadiologicalConvention: true
+  isRadiologicalConvention: true,
+  show3Dcrosshair: true,
+  crosshairWidth: 1
 };
 
 export {DEFAULT_OPTIONS};

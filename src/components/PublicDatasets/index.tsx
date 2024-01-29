@@ -295,7 +295,7 @@ const PublicDatasets: React.FunctionComponent = () => {
             <Breadcrumb>
               <BreadcrumbItem>
                 <Popover
-                  bodyContent={<NiivueOptionsPanel options={nvOptions} setOptions={setNvOptions} />}
+                  bodyContent={<NiivueOptionsPanel options={nvOptions} setOptions={setNvOptions} size={nvSize} setSize={setNvSize} sizeIsScaling={sizeIsScaling} setSizeIsScaling={setSizeIsScaling} />}
                   minWidth="20rem"
                   maxWidth="40rem"
                 >

@@ -19,6 +19,8 @@ type ChNVROptions = Required<Pick<NVROptions,
   | "backColor"
   | "multiplanarForceRender"
   | "isRadiologicalConvention"
+  | "show3Dcrosshair"
+  | "crosshairWidth"
 >>;
 
 /**
