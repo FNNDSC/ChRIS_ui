@@ -12,6 +12,8 @@ import {
   loadJpgImage,
   handleRotate,
   handleScale,
+  ImageId,
+  prepareNifti,
 } from "../utils";
 import useSize from "../../FeedTree/useSize";
 import { getFileExtension } from "../../../api/model";
@@ -22,6 +24,8 @@ export type DcmImageProps = {
   actionState: any;
 };
 
+prepareNifti();
+
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
   const { fileItem, preview } = props;
@@ -29,6 +33,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const [error, setError] = React.useState(false);
 
   useSize(dicomImageRef);
+
   const onWindowResize = () => {
     const element = dicomImageRef.current;
 
@@ -122,18 +127,26 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, []);
 
   const initAmi = React.useCallback((fileItem: IFileBlob) => {
-    const { blob } = fileItem;
+    const { blob, file } = fileItem;
     const element = dicomImageRef.current;
-    if (element) {
-      enableDOMElement(element);
 
-      let imageId;
-      if (getFileExtension(fileItem.file?.data.fname) === "dcm") {
+    let imageId: string | any;
+
+    if (element && file) {
+      enableDOMElement(element);
+      const fileExtension = getFileExtension(file.data.fname);
+      if (fileExtension && fileExtension === "dcm") {
         imageId = loadDicomImage(blob);
+      } else if (fileExtension && fileExtension === "nii") {
+        const fileArray = file.data.fname.split("/");
+        const fileName = fileArray[fileArray.length - 1];
+        const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
+        imageId = imageIdObject;
       } else {
         imageId = loadJpgImage(blob);
       }
-      displayDicomImage(imageId, element, () => {
+
+      displayDicomImage(imageId, element, fileExtension, () => {
         setError(true);
       });
     }
@@ -151,7 +164,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         <Alert
           type="error"
           closable
-          onClose={()=>setError(false)}
+          onClose={() => setError(false)}
           description="This file does not have image data. Failed to parse..."
         />
       ) : (
