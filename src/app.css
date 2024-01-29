@@ -85,3 +85,13 @@
     opacity: 1;
   }
 }
+
+.button-style {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

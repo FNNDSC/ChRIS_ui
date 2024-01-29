@@ -33,6 +33,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const [error, setError] = React.useState(false);
 
   useSize(dicomImageRef);
+
   const onWindowResize = () => {
     const element = dicomImageRef.current;
 
@@ -128,12 +129,12 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const initAmi = React.useCallback((fileItem: IFileBlob) => {
     const { blob, file } = fileItem;
     const element = dicomImageRef.current;
+
     let imageId: string | any;
 
     if (element && file) {
       enableDOMElement(element);
       const fileExtension = getFileExtension(file.data.fname);
-
       if (fileExtension && fileExtension === "dcm") {
         imageId = loadDicomImage(blob);
       } else if (fileExtension && fileExtension === "nii") {

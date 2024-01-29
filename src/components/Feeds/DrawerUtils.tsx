@@ -30,7 +30,6 @@ export const ButtonWithTooltip = ({
   position,
   description,
   className,
-  style,
   onClick,
   isDisabled,
   Icon,
@@ -38,7 +37,6 @@ export const ButtonWithTooltip = ({
   return (
     <Tooltip position={position} content={content}>
       <Button
-        style={style}
         className={className}
         onClick={onClick}
         variant={isDisabled ? "primary" : "control"}

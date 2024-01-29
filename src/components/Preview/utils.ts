@@ -112,10 +112,9 @@ export const displayDicomImage = (
   fileExtension: string,
   onError?: () => void,
 ) => {
-  
   const id = fileExtension === "nii" ? imageId.url : imageId;
   cornerstone
-    .loadAndCacheImage(id)
+    .loadImage(id)
     .then((image: any) => {
       const imageIdArray = [];
       const viewport = cornerstone.getViewport(element, image);
@@ -145,21 +144,21 @@ export const displayDicomImage = (
               `nifti:${imageId.filePath}#${imageId.slice.dimension}-${i},t-0`,
           ),
         );
+        const stack = {
+          currentImageIdIndex: imageId.slice.index,
+          imageIds: imageIdArray,
+        };
+
+        cornerstoneTools.addStackStateManager(element, ["stack"]);
+        cornerstoneTools.addToolState(element, "stack", stack);
+        cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
       } else {
         imageIdArray.push(imageId);
       }
 
-      const stack = {
-        currentImageIdIndex: 0,
-        imageIds: imageIdArray,
-      };
-
-      cornerstone.displayImage(element, image);
-      cornerstoneTools.addStackStateManager(element, ["stack"]);
-      cornerstoneTools.addToolState(element, "stack", stack);
+      cornerstone.displayImage(element, image, viewport);
     })
-    .catch((error) => {
-      console.warn("Error in loading dicom image", error);
+    .catch(() => {
       onError && onError();
     });
 };
