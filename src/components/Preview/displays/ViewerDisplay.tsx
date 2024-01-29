@@ -7,7 +7,6 @@ import {
   ImageDisplay,
   DcmDisplay,
   PdfDisplay,
-  NiftiDisplay,
   XtkDisplay,
   TextDisplay,
 } from "./index";
@@ -20,7 +19,6 @@ const components = {
   DcmDisplay,
   CatchallDisplay,
   PdfDisplay,
-  NiftiDisplay,
   XtkDisplay,
   TextDisplay,
 };
@@ -33,7 +31,7 @@ interface ViewerDisplayProps {
 }
 
 const ViewerDisplay: React.FC<ViewerDisplayProps> = (
-  props: ViewerDisplayProps
+  props: ViewerDisplayProps,
 ) => {
   const Component = (components as any)[props.viewerName || "CatchallDisplay"];
 
