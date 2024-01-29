@@ -23,7 +23,7 @@ type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 const Wrapper: React.FC<AllProps> = (props: AllProps) => {
   const { children, user }: IOtherProps = props;
-  const onNavToggle = () => {
+  const  onNavToggle = () => {
     props.setIsNavOpen(!props.isNavOpen);
   };
 
