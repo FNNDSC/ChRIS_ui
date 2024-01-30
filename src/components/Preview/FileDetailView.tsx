@@ -13,6 +13,7 @@ import {
   Toolbar,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { useQuery } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import FaChevronLeft from "@patternfly/react-icons/dist/esm/icons/chevron-left-icon";
 import FaChevronRight from "@patternfly/react-icons/dist/esm/icons/chevron-right-icon";
@@ -62,7 +63,6 @@ const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
   const [tagInfo, setTagInfo] = React.useState<any>();
   const [actionState, setActionState] = React.useState<ActionState>({});
-  const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const drawerState = useTypedSelector((state) => state.drawers);
 
@@ -131,34 +131,30 @@ const FileDetailView = (props: AllProps) => {
   const { selectedFile, preview } = props;
   const { fileType } = fileState;
 
-  const fetchData = React.useCallback(async () => {
-    if (selectedFile) {
-      const fileName = selectedFile.data.fname,
-        fileType = getFileExtension(fileName);
-
-      try {
-        setLoading(true);
-        const blob = await selectedFile.getFileBlob();
-        setFileState((fileState) => {
-          return {
-            ...fileState,
-            blob,
-            file: selectedFile,
-            fileType,
-          };
-        });
-        setLoading(false);
-      } catch (error: any) {
-        const errorMessage = error.response || error.message;
-        setLoading(false);
-        setError(errorMessage);
-      }
+  const fetchData = async (selectedFile: FeedFile) => {
+    const fileName = selectedFile.data.fname;
+    const fileType = getFileExtension(fileName);
+    try {
+      const blob = await selectedFile.getFileBlob();
+      setFileState((fileState) => {
+        return {
+          ...fileState,
+          blob,
+          file: selectedFile,
+          fileType,
+        };
+      });
+    } catch (error: any) {
+      const errorMessage = error.response || error.message;
+      setError(errorMessage);
     }
-  }, [selectedFile]);
+  };
 
-  React.useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { isLoading } = useQuery({
+    queryKey: ["preview"],
+    queryFn: () => selectedFile && fetchData(selectedFile),
+    enabled: !!selectedFile,
+  });
 
   let viewerName = "";
 
@@ -224,8 +220,8 @@ const FileDetailView = (props: AllProps) => {
               />
             )}
 
-            {loading && (
-              <SpinContainer title="Please wait as the preview is being fetched" />
+            {isLoading && (
+              <SpinContainer title="Please wait as the file is being fetched..." />
             )}
 
             {error && <span style={{ color: "red" }}>{error}</span>}
@@ -313,7 +309,6 @@ export const DicomHeader = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  
   const specificActions = getViewerSpecificActions[viewerName];
 
   const appLauncherItems =

@@ -1,5 +1,5 @@
-
 import { useContext, useState } from "react";
+import axios from "axios";
 import { MainRouterContext } from "../../routes";
 import {
   AlertGroup,
@@ -38,7 +38,7 @@ export default function Cart() {
 
   const handleDownload = () => {
     setAlertTitle(
-      "Download is under construction. Please use the archive feature in the feed..."
+      "Download is under construction. Please use the archive feature in the feed...",
     );
   };
 
@@ -57,6 +57,8 @@ export default function Cart() {
 
     await Promise.all(
       selectedPaths.map(async (path) => {
+     
+
         if (path.startsWith(`${username}/uploads`)) {
           setProgress({
             ...progress,
@@ -65,52 +67,87 @@ export default function Cart() {
 
           try {
             const pathList = await client.getFileBrowserPath(path);
-            const fn = pathList.getFiles;
-            const boundFn = fn.bind(pathList);
-            const data = await fetchResource(
-              { limit: 100, offset: 0 },
-              boundFn
-            );
 
-            setProgress({
-              ...progress,
-              currentStep: `Fetching Files for the path ${path}`,
-              totalFilesToDelete: data.totalCount,
-            });
+            if (!pathList) {
+              
+              const request = await axios.get(
+                `${
+                  import.meta.env.VITE_CHRIS_UI_URL
+                }uploadedfiles/search/?fname_exact=${path}&limit=1`,
+                {
+                  headers: {
+                    Authorization: `Token ${client.auth.token}`,
+                  },
+                },
+              );
 
-            if (data.resource) {
-              let count = 0;
-              for (const file of data.resource) {
-                //@ts-ignore
-                await file._delete();
-                count++;
-                setProgress({
-                  ...progress,
-                  currentProgress: Math.floor((count / data.totalCount) * 100),
-                });
+              if (request.status === 200) {
+                const file = request.data.results[0];
+                if (file) {
+                  const url = file.url;
+
+                  await axios.delete(url, {
+                    headers: {
+                      Authorization: `Token ${client.auth.token}`,
+                    },
+                  });
+                  dispatch(clearSelectFolder(path));
+                  queryClient.invalidateQueries({
+                    queryKey: ["files"],
+                  });
+                }
               }
-            }
-            dispatch(clearSelectFolder(path));
-            const resetProgress = {
-              currentProgress: 0,
-              currentStep: "",
-              totalFilesToDelete: 0,
-            };
+            } else {
+              const fn = pathList.getFiles;
+              const boundFn = fn.bind(pathList);
+              const data = await fetchResource(
+                { limit: 100, offset: 0 },
+                boundFn,
+              );
 
-            setProgress(resetProgress);
-            queryClient.invalidateQueries({
-              queryKey: ["folders"],
-            });
+              setProgress({
+                ...progress,
+                currentStep: `Fetching Files for the path ${path}`,
+                totalFilesToDelete: data.totalCount,
+              });
+
+              if (data.resource) {
+                let count = 0;
+                for (const file of data.resource) {
+                  //@ts-ignore
+                  await file._delete();
+                  count++;
+                  setProgress({
+                    ...progress,
+                    currentProgress: Math.floor(
+                      (count / data.totalCount) * 100,
+                    ),
+                  });
+                }
+              }
+
+              dispatch(clearSelectFolder(path));
+              const resetProgress = {
+                currentProgress: 0,
+                currentStep: "",
+                totalFilesToDelete: 0,
+              };
+
+              setProgress(resetProgress);
+              queryClient.invalidateQueries({
+                queryKey: ["folders"],
+              });
+            }
           } catch (error: any) {
             const errObj = catchError(error);
             setAlertTitle(
-              errObj.error_message || "An error occurred while deleting files"
+              errObj.error_message || "An error occurred while deleting files",
             );
           }
         } else {
           setAlertTitle("You do not have permissions to delete this folder");
         }
-      })
+      }),
     );
   };
 
