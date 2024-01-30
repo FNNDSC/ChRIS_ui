@@ -68,8 +68,6 @@ export default function CreateFeed() {
       : false;
 
   const handleSave = async () => {
-    // Set the progress to 'Started'
-
     dispatch({
       type: Types.SetFeedCreationState,
       payload: {
@@ -176,20 +174,19 @@ export default function CreateFeed() {
     ? params?.required.length == Object.keys(requiredInput).length
     : true;
 
+  const closeWizard = () => {
+    dispatch({
+      type: Types.ToggleWizard,
+    });
+
+    nodeDispatch({
+      type: Types.ResetState,
+    });
+  };
+
   return (
     <div>
-      <Button
-        variant="primary"
-        onClick={() => {
-          dispatch({
-            type: Types.ToggleWizard,
-          });
-
-          nodeDispatch({
-            type: Types.ResetState,
-          });
-        }}
-      >
+      <Button variant="primary" onClick={() => closeWizard()}>
         Create Feed
       </Button>
       <Modal
@@ -200,10 +197,10 @@ export default function CreateFeed() {
         isOpen={wizardOpen}
       >
         <Wizard
+          onClose={() => closeWizard()}
           header={
             <WizardHeader
               onClose={() => {
-                //routerContext.actions.clearFeedData();
                 if (wizardOpen) {
                   dispatch({
                     type: Types.ResetState,
@@ -222,6 +219,7 @@ export default function CreateFeed() {
           }
           height={500}
           width={"100%"}
+          title='Create a New Analysis'
         >
           <WizardStep
             id={1}
