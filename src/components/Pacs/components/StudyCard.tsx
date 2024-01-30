@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import {  Alert } from "antd";
+import { Alert } from "antd";
 import {
   Card,
   CardHeader,
@@ -20,7 +20,6 @@ import { PacsQueryContext, Types } from "../context";
 import { CardHeaderComponent } from "./SettingsComponents";
 import useInterval from "./useInterval";
 import useSettings from "../useSettings";
-
 
 const StudyCard = ({ study }: { study: any }) => {
   const { data, isLoading, error } = useSettings();
@@ -88,7 +87,9 @@ const StudyCard = ({ study }: { study: any }) => {
             </GridItem>
           ) : (
             <>
-              {userPreferences && userPreferencesArray && userPreferencesArray.length > 0 ? (
+              {userPreferences &&
+              userPreferencesArray &&
+              userPreferencesArray.length > 0 ? (
                 userPreferencesArray.map((key: string) => (
                   <div key={key} className="flex-studies-item">
                     <div className="study-detail-title">{key}</div>

@@ -117,3 +117,34 @@
   margin-inline-end: 0;
   margin-bottom: 0;
 }
+
+.centered-container {
+  right: var(--pf-global--spacer--md);
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* Center items horizontally */
+  z-index: 9999;
+  margin-left: 47em;
+  position:absolute;
+  top:0;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 1880px) {
+  .centered-container {
+    margin-left: 22em
+  }
+}
+
+/* Media queries for responsive design */
+@media (max-width: 1200px) {
+  .centered-container {
+    margin-left: 10em;
+  }
+}
+
+@media (max-width: 992px) {
+  .centered-container {
+    justify-content: center;
+  }
+}
