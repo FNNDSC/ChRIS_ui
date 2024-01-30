@@ -81,17 +81,15 @@ export const generateTreeNodes = async (
         isLeaf: true,
       });
     } else {
-      const ischeckable =
-        (items[i] === "data" ||
-          items[i] == "None-XR_Posteroanterior_PA_view" ||
-          items[i].includes("-upload-")) &&
-        !items[i].includes("uploads");
+     
+      const checkList = ["uploads", "SERVICES", "PACS"];
+      const isCheckable = !checkList.includes(items[i]);
       arr.push({
         //@ts-ignore
         breadcrumb: `${treeNode.breadcrumb}/${items[i]}`,
         title: items[i],
         key: `${treeNode.key}-${i}`,
-        checkable: ischeckable,
+        checkable: isCheckable,
       });
     }
   }
