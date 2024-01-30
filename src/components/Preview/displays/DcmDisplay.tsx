@@ -127,6 +127,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, []);
 
   const initAmi = React.useCallback((fileItem: IFileBlob) => {
+    
     const { blob, file } = fileItem;
     const element = dicomImageRef.current;
 
@@ -135,9 +136,10 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     if (element && file) {
       enableDOMElement(element);
       const fileExtension = getFileExtension(file.data.fname);
+      const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
       if (fileExtension && fileExtension === "dcm") {
         imageId = loadDicomImage(blob);
-      } else if (fileExtension && fileExtension === "nii") {
+      } else if (fileExtension && isNifti) {
         const fileArray = file.data.fname.split("/");
         const fileName = fileArray[fileArray.length - 1];
         const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);

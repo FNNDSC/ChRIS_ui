@@ -334,11 +334,28 @@ export const fileViewerMap: any = {
   crv: "XtkDisplay",
   smoothwm: "XtkDisplay",
   pial: "XtkDisplay",
+  "nii.gz":"DcmDisplay"
 };
 
-// Description: get file type by file extention
-export function getFileExtension(filename: string) {
-  const name = filename.substring(filename.lastIndexOf(".") + 1);
+export function getFileExtension(filename: string): string {
+  const lowercasedFilename = filename.toLowerCase();
 
-  return name;
+  // Check if the filename ends with ".dcm" or ".nii.gz"
+  if (lowercasedFilename.endsWith(".dcm")) {
+    return "dcm";
+  }
+
+  const niiGzIndex = lowercasedFilename.lastIndexOf(".nii.gz");
+  if (niiGzIndex !== -1 && niiGzIndex === lowercasedFilename.length - 7) {
+    return "nii.gz";
+  }
+
+  // Check if the filename ends with ".nii"
+  if (lowercasedFilename.endsWith(".nii")) {
+    return "nii";
+  }
+
+  // Use a general regular expression for other cases
+  const match = filename.match(/\.([^.]+(\.[^.]+)+)$/);
+  return match ? match[1] : "";
 }
