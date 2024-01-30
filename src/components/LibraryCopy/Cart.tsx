@@ -57,7 +57,7 @@ export default function Cart() {
 
     await Promise.all(
       selectedPaths.map(async (path) => {
-        console.log("Path", path);
+     
 
         if (path.startsWith(`${username}/uploads`)) {
           setProgress({
@@ -69,7 +69,7 @@ export default function Cart() {
             const pathList = await client.getFileBrowserPath(path);
 
             if (!pathList) {
-              console.log("Check");
+              
               const request = await axios.get(
                 `${
                   import.meta.env.VITE_CHRIS_UI_URL
