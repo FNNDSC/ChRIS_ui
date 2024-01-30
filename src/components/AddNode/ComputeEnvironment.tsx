@@ -26,6 +26,7 @@ const ComputeEnvironment: React.FC = () => {
 
   const setStates = useCallback(
     (currentComputeEnv: string) => {
+      
       setMenuState((menuState) => {
         return {
           ...menuState,
@@ -60,6 +61,7 @@ const ComputeEnvironment: React.FC = () => {
     event?: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent
   ) => {
     const id = event?.currentTarget.id;
+    
     if (id) {
       setStates(id);
     }
@@ -70,11 +72,12 @@ const ComputeEnvironment: React.FC = () => {
         return (
           <SelectOption
             actions={
-              <MenuItemAction aria-label={computeEnv} onClick={onSelect} />
+              <MenuItemAction aria-label={computeEnv}  />
             }
             isSelected={selectedComputeEnv === computeEnv.data.name}
             id={computeEnv.data.name}
             key={computeEnv.data.id}
+            onClick={onSelect}
           >
             {computeEnv.data.name}
           </SelectOption>

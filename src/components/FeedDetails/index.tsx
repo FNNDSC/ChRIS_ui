@@ -20,18 +20,6 @@ import { setDrawerCurrentlyActive } from "../../store/drawer/actions";
 import { fetchNote } from "../../api/common";
 import "./feed-details.css";
 
-const getButtonStyle = () => {
-  return {
-    borderRadius: "50%",
-    width: "40px",
-    height: "40px",
-    border: "none",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  };
-};
-
 const FeedDetails = () => {
   const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
 
@@ -47,7 +35,7 @@ const FeedDetails = () => {
   const preview =
     drawerState["preview"].currentlyActive === "preview" ? true : false;
 
-  const buttonStyle = getButtonStyle();
+  
 
   React.useEffect(() => {
     fetchNote(currentFeed).then((feedNote) => {
@@ -139,8 +127,8 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonWithTooltip
-            //@ts-ignore
-            style={buttonStyle}
+           
+            className='button-style'
             position="bottom"
             content={!node && terminal ? "Node Details" : "Terminal"}
             onClick={() => {
@@ -166,8 +154,8 @@ const FeedDetails = () => {
         button={
           <Badge dot={showNoteBadge && !note ? true : false} offset={[-5, 0]}>
             <ButtonWithTooltip
-              //@ts-ignore
-              style={buttonStyle}
+              
+              className='button-style'
               position="bottom"
               content={!note ? "Feed Note" : "Node Details"}
               onClick={() => {
@@ -195,8 +183,7 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonWithTooltip
-            //@ts-ignore
-            style={buttonStyle}
+            className='button-style'
             position="bottom"
             content={preview ? "Xtk Viewer" : "Preview"}
             onClick={() => {
@@ -262,7 +249,7 @@ export const ButtonContainer = ({
   return (
     <ButtonWithTooltip
       position="bottom"
-      style={getButtonStyle()}
+      className="button-style"
       content={<span>{title}</span>}
       Icon={Icon}
       variant="primary"

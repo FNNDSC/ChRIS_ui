@@ -8,20 +8,27 @@ import {
   DropdownList,
   MenuToggle,
   MenuToggleElement,
+  Button,
+  Tooltip,
+  Toolbar,
+  ToolbarItem,
 } from "@patternfly/react-core";
+import { useQuery } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 import FaChevronLeft from "@patternfly/react-icons/dist/esm/icons/chevron-left-icon";
 import FaChevronRight from "@patternfly/react-icons/dist/esm/icons/chevron-right-icon";
-import MdZoomIn from "@patternfly/react-icons/dist/esm/icons/outlined-window-maximize-icon";
-import MdOutlinePanTool from "@patternfly/react-icons/dist/esm/icons/outlined-address-book-icon";
-import MdRotateRight from "@patternfly/react-icons/dist/esm/icons/clock-icon";
-import MdSettingsBrightness from "@patternfly/react-icons/dist/esm/icons/stethoscope-icon";
-import MdDraw from "@patternfly/react-icons/dist/esm/icons/draw-polygon-icon";
-import MdInfo from "@patternfly/react-icons/dist/esm/icons/info-icon";
-import RxReset from "@patternfly/react-icons/dist/esm/icons/window-restore-icon";
-import AiFillInfoCircle from "@patternfly/react-icons/dist/esm/icons/info-icon";
-import AiOutlineZoomIn from "@patternfly/react-icons/dist/esm/icons/zone-icon";
+import ZoomIcon from "@patternfly/react-icons/dist/esm/icons/search-plus-icon";
+import PanIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import RotateIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
+import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
+import InfoIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
+import {
+  PencilIcon,
+  LightBulbIcon,
+  MagnifyingGlassCircleIcon,
+} from "@heroicons/react/24/solid";
 import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
+import { useTypedSelector } from "../../store/hooks";
 import type { FeedFile } from "@fnndsc/chrisapi";
 import { getFileExtension } from "../../api/model";
 import { IFileBlob, fileViewerMap } from "../../api/model";
@@ -56,8 +63,8 @@ const FileDetailView = (props: AllProps) => {
   const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
   const [tagInfo, setTagInfo] = React.useState<any>();
   const [actionState, setActionState] = React.useState<ActionState>({});
-  const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
+  const drawerState = useTypedSelector((state) => state.drawers);
 
   const handleKeyboardEvents = (event: any) => {
     switch (event.keyCode) {
@@ -124,34 +131,30 @@ const FileDetailView = (props: AllProps) => {
   const { selectedFile, preview } = props;
   const { fileType } = fileState;
 
-  const fetchData = React.useCallback(async () => {
-    if (selectedFile) {
-      const fileName = selectedFile.data.fname,
-        fileType = getFileExtension(fileName);
-
-      try {
-        setLoading(true);
-        const blob = await selectedFile.getFileBlob();
-        setFileState((fileState) => {
-          return {
-            ...fileState,
-            blob,
-            file: selectedFile,
-            fileType,
-          };
-        });
-        setLoading(false);
-      } catch (error: any) {
-        const errorMessage = error.response || error.message;
-        setLoading(false);
-        setError(errorMessage);
-      }
+  const fetchData = async (selectedFile: FeedFile) => {
+    const fileName = selectedFile.data.fname;
+    const fileType = getFileExtension(fileName);
+    try {
+      const blob = await selectedFile.getFileBlob();
+      setFileState((fileState) => {
+        return {
+          ...fileState,
+          blob,
+          file: selectedFile,
+          fileType,
+        };
+      });
+    } catch (error: any) {
+      const errorMessage = error.response || error.message;
+      setError(errorMessage);
     }
-  }, [selectedFile]);
+  };
 
-  React.useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { isLoading } = useQuery({
+    queryKey: ["preview"],
+    queryFn: () => selectedFile && fetchData(selectedFile),
+    enabled: !!selectedFile,
+  });
 
   let viewerName = "";
 
@@ -172,7 +175,11 @@ const FileDetailView = (props: AllProps) => {
 
   const errorComponent = (error?: any) => (
     <span>
-      <Label icon={<AiFillInfoCircle />} color="red" href="#filled">
+      <Label
+        icon={<InfoIcon className="pf-v5-svg" />}
+        color="red"
+        href="#filled"
+      >
         <Text component="p">
           {error
             ? error
@@ -182,13 +189,11 @@ const FileDetailView = (props: AllProps) => {
     </span>
   );
 
+  const fullScreen = drawerState["preview"].maximized === true;
+
   return (
     <Fragment>
-      <React.Suspense
-        fallback={
-          <SpinContainer title="" />
-        }
-      >
+      <React.Suspense fallback={<SpinContainer title="" />}>
         <ErrorBoundary fallback={errorComponent()}>
           <div className={previewType}>
             {props.gallery && (
@@ -210,11 +215,13 @@ const FileDetailView = (props: AllProps) => {
               <DicomHeader
                 viewerName={viewerName}
                 handleEvents={handleEvents}
+                fullScreen={fullScreen}
+                actionState={actionState}
               />
             )}
 
-            {loading && (
-              <SpinContainer title="Please wait as the preview is being fetched" />
+            {isLoading && (
+              <SpinContainer title="Please wait as the file is being fetched..." />
             )}
 
             {error && <span style={{ color: "red" }}>{error}</span>}
@@ -242,36 +249,42 @@ export default FileDetailView;
 const actions = [
   {
     name: "Zoom",
-    icon: <AiOutlineZoomIn />,
+    icon: <ZoomIcon />,
   },
   {
     name: "Pan",
-    icon: <MdOutlinePanTool />,
+    icon: <PanIcon />,
   },
   {
     name: "Magnify",
-    icon: <MdZoomIn />,
+    icon: (
+      <MagnifyingGlassCircleIcon
+        height="1em"
+        width="1em"
+        className="pf-v5-svg"
+      />
+    ),
   },
   {
     name: "Rotate",
-    icon: <MdRotateRight />,
+    icon: <RotateIcon />,
   },
   {
     name: "Wwwc",
-    icon: <MdSettingsBrightness />,
+    icon: <LightBulbIcon className="pf-v5-svg" />,
   },
   {
     name: "Reset View",
-    icon: <RxReset />,
+    icon: <ResetIcon />,
   },
   {
     name: "Length",
-    icon: <MdDraw />,
+    icon: <PencilIcon className="pf-v5-svg" />,
   },
 
   {
     name: "TagInfo",
-    icon: <MdInfo />,
+    icon: <InfoIcon />,
   },
 ];
 
@@ -286,9 +299,13 @@ const getViewerSpecificActions: {
 export const DicomHeader = ({
   handleEvents,
   viewerName,
+  fullScreen,
+  actionState,
 }: {
   viewerName: string;
   handleEvents: (action: string) => void;
+  fullScreen: boolean;
+  actionState: ActionState;
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
@@ -297,18 +314,49 @@ export const DicomHeader = ({
   const appLauncherItems =
     specificActions && specificActions.length > 0
       ? specificActions.map((action) => {
-          return (
-            <DropdownItem
-              icon={action.icon}
-              key={action.name}
-              onClick={(ev) => {
-                ev.preventDefault();
-                handleEvents(action.name);
-              }}
-            >
-              {action.name}
-            </DropdownItem>
-          );
+          if (fullScreen) {
+            const spacer: {
+              xl?: "spacerLg";
+              lg?: "spacerLg";
+              md?: "spacerMd";
+              sm?: "spacerSm";
+            } = {
+              xl: "spacerLg",
+              lg: "spacerLg",
+              md: "spacerMd",
+              sm: "spacerSm",
+            };
+            return (
+              <ToolbarItem spacer={spacer} key={action.name}>
+                <Tooltip content={<span>{action.name}</span>}>
+                  <Button
+                    className="button-style"
+                    variant={
+                      actionState[action.name] === true ? "primary" : "control"
+                    }
+                    icon={action.icon}
+                    onClick={(ev) => {
+                      ev.preventDefault();
+                      handleEvents(action.name);
+                    }}
+                  />
+                </Tooltip>
+              </ToolbarItem>
+            );
+          } else {
+            return (
+              <DropdownItem
+                icon={action.icon}
+                key={action.name}
+                onClick={(ev) => {
+                  ev.preventDefault();
+                  handleEvents(action.name);
+                }}
+              >
+                {action.name}
+              </DropdownItem>
+            );
+          }
         })
       : [
           <DropdownItem key="No tools">
@@ -316,7 +364,9 @@ export const DicomHeader = ({
           </DropdownItem>,
         ];
 
-  return (
+  return fullScreen ? (
+    <Toolbar className="centered-container">{appLauncherItems}</Toolbar>
+  ) : (
     <Dropdown
       toggle={(toggleRef: React.Ref<MenuToggleElement>) => {
         return (
