@@ -112,7 +112,8 @@ export const displayDicomImage = (
   fileExtension: string,
   onError?: () => void,
 ) => {
-  const id = fileExtension === "nii" ? imageId.url : imageId;
+  const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
+  const id = isNifti ? imageId.url : imageId;
   cornerstone
     .loadImage(id)
     .then((image: any) => {
@@ -131,7 +132,7 @@ export const displayDicomImage = (
         cornerstone.setViewport(element, viewport);
       }
 
-      if (fileExtension === "nii") {
+      if (isNifti) {
         const niftiSlices = cornerstone.metaData.get(
           "multiFrameModule",
           imageId.url,
