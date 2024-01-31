@@ -191,7 +191,6 @@ export class FileViewerModel {
     notification: any,
     callback: (status: any) => void,
   ) {
-    
     const findItem = this.itemsToDownload.find(
       (currentItem) => currentItem.data.fname === item.data.fname,
     );
@@ -334,28 +333,15 @@ export const fileViewerMap: any = {
   crv: "XtkDisplay",
   smoothwm: "XtkDisplay",
   pial: "XtkDisplay",
-  "nii.gz":"DcmDisplay"
+  "nii.gz": "DcmDisplay",
 };
 
-export function getFileExtension(filename: string): string {
-  const lowercasedFilename = filename.toLowerCase();
-
-  // Check if the filename ends with ".dcm" or ".nii.gz"
-  if (lowercasedFilename.endsWith(".dcm")) {
-    return "dcm";
-  }
-
-  const niiGzIndex = lowercasedFilename.lastIndexOf(".nii.gz");
-  if (niiGzIndex !== -1 && niiGzIndex === lowercasedFilename.length - 7) {
+// Description: get file type by file extention
+export function getFileExtension(filename: string) {
+  if (filename.includes(".nii.gz")) {
     return "nii.gz";
   }
 
-  // Check if the filename ends with ".nii"
-  if (lowercasedFilename.endsWith(".nii")) {
-    return "nii";
-  }
-
-  // Use a general regular expression for other cases
-  const match = filename.match(/\.([^.]+(\.[^.]+)+)$/);
-  return match ? match[1] : "";
+  const name = filename.substring(filename.lastIndexOf(".") + 1);
+  return name;
 }

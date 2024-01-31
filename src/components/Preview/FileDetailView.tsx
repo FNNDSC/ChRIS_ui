@@ -101,7 +101,6 @@ const FileDetailView = (props: AllProps) => {
           setTagInfo(merged);
         }
       } catch (error) {
-        
         return {
           blob: undefined,
           file: undefined,
@@ -115,12 +114,12 @@ const FileDetailView = (props: AllProps) => {
     }
   }, []);
 
-  
   const { selectedFile, preview } = props;
 
   const fetchData = async (selectedFile: FeedFile) => {
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
+
     try {
       const blob = await selectedFile.getFileBlob();
       return {
@@ -138,13 +137,11 @@ const FileDetailView = (props: AllProps) => {
   const { data, isLoading }: { data?: IFileBlob; isLoading: boolean } =
     useQuery({
       queryKey: ["preview", selectedFile],
-      queryFn: () =>  selectedFile && fetchData(selectedFile),
+      queryFn: () => selectedFile && fetchData(selectedFile),
       enabled: !!selectedFile,
     });
 
   let viewerName = "";
-
-  
 
   if (data && data.fileType) {
     const { fileType } = data;
@@ -154,7 +151,6 @@ const FileDetailView = (props: AllProps) => {
       viewerName = fileViewerMap[fileType];
     }
   }
-
 
   const handleEvents = (action: string) => {
     if (action === "TagInfo" && data) {
