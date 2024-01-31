@@ -17,6 +17,7 @@ import {
 } from "../utils";
 import useSize from "../../FeedTree/useSize";
 import { getFileExtension } from "../../../api/model";
+import { SpinContainer } from "../../Common";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -31,6 +32,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview } = props;
   const drawerState = useTypedSelector((state) => state.drawers);
   const [error, setError] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   useSize(dicomImageRef);
 
@@ -127,30 +129,44 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, []);
 
   const initAmi = React.useCallback((fileItem: IFileBlob) => {
-    
     const { blob, file } = fileItem;
     const element = dicomImageRef.current;
 
     let imageId: string | any;
 
     if (element && file) {
-      enableDOMElement(element);
-      const fileExtension = getFileExtension(file.data.fname);
-      const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
-      if (fileExtension && fileExtension === "dcm") {
-        imageId = loadDicomImage(blob);
-      } else if (fileExtension && isNifti) {
-        const fileArray = file.data.fname.split("/");
-        const fileName = fileArray[fileArray.length - 1];
-        const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
-        imageId = imageIdObject;
-      } else {
-        imageId = loadJpgImage(blob);
-      }
+      try {
+        setLoading(true);
+        enableDOMElement(element);
+        const fileExtension = getFileExtension(file.data.fname);
+        const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
 
-      displayDicomImage(imageId, element, fileExtension, () => {
+        if (fileExtension && fileExtension === "dcm") {
+          imageId = loadDicomImage(blob);
+        } else if (fileExtension && isNifti) {
+          const fileArray = file.data.fname.split("/");
+          const fileName = fileArray[fileArray.length - 1];
+          const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
+          imageId = imageIdObject;
+        } else {
+          imageId = loadJpgImage(blob);
+        }
+
+        displayDicomImage(
+          imageId,
+          element,
+          fileExtension,
+          () => {
+            setError(true);
+          },
+          () => {
+            setLoading(false);
+          },
+        );
+      } catch (error: any) {
+        // Handle the error as needed
         setError(true);
-      });
+      }
     }
   }, []);
 
@@ -161,7 +177,10 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [fileItem, initAmi]);
 
   return (
-    <div className={preview === "large" ? "dcm-preview" : ""}>
+    <div
+      ref={dicomImageRef}
+      className={preview === "large" ? "dcm-preview" : ""}
+    >
       {error ? (
         <Alert
           type="error"
@@ -169,8 +188,10 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
           onClose={() => setError(false)}
           description="This file does not have image data. Failed to parse..."
         />
+      ) : loading ? (
+        <SpinContainer title="Processing the file using cornerstone..." />
       ) : (
-        <div ref={dicomImageRef} id="container"></div>
+        <div id="container"></div>
       )}
     </div>
   );
