@@ -111,6 +111,7 @@ export const displayDicomImage = (
   element: HTMLDivElement,
   fileExtension: string,
   onError?: () => void,
+  onSuccess?: () => void
 ) => {
   const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
   const id = isNifti ? imageId.url : imageId;
@@ -135,15 +136,15 @@ export const displayDicomImage = (
       if (isNifti) {
         const niftiSlices = cornerstone.metaData.get(
           "multiFrameModule",
-          imageId.url,
+          imageId.url
         ).numberOfFrames;
 
         imageIdArray.push(
           ...Array.from(
             Array(niftiSlices),
             (_, i) =>
-              `nifti:${imageId.filePath}#${imageId.slice.dimension}-${i},t-0`,
-          ),
+              `nifti:${imageId.filePath}#${imageId.slice.dimension}-${i},t-0`
+          )
         );
         const stack = {
           currentImageIdIndex: imageId.slice.index,
@@ -158,6 +159,7 @@ export const displayDicomImage = (
       }
 
       cornerstone.displayImage(element, image, viewport);
+      onSuccess && onSuccess();
     })
     .catch(() => {
       onError && onError();
@@ -436,7 +438,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
             str += sha1Text(
               dataSet.byteArray,
               fragment.position,
-              fragment.length,
+              fragment.length
             );
             str += "</li>";
 
@@ -464,7 +466,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
               dataSet,
               element,
               frameIndex,
-              bot,
+              bot
             );
             str += "; length = " + imageFrame.length;
             str += sha1Text(imageFrame);
@@ -644,7 +646,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
               const groupHexStr = ("0000" + group.toString(16)).substring(-4);
               const element = dataSet.uint16(propertyName, 1);
               const elementHexStr = ("0000" + element.toString(16)).substring(
-                -4,
+                -4
               );
               text += "x" + groupHexStr + elementHexStr;
             } else if (vr === "SQ") {
@@ -682,7 +684,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
             title +
             '">' +
             text +
-            "</li>",
+            "</li>"
         );
       }
     }
