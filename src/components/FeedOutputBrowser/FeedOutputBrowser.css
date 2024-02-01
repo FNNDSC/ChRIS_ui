@@ -125,14 +125,15 @@
   align-items: center; /* Center items horizontally */
   z-index: 9999;
   margin-left: 47em;
-  position:absolute;
-  top:0;
+  position: absolute;
+  top: 0;
+  background: inherit;
 }
 
 /* Media queries for responsive design */
 @media (max-width: 1880px) {
   .centered-container {
-    margin-left: 22em
+    margin-left: 22em;
   }
 }
 

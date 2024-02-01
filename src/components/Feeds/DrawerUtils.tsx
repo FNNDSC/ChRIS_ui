@@ -11,7 +11,7 @@ import {
   ArrowsPointingInIcon,
   ArrowsPointingOutIcon,
 } from "@heroicons/react/24/outline";
-import FaMinus from "@patternfly/react-icons/dist/esm/icons/minus-icon";
+
 
 interface ButtonProps {
   variant?: any;
@@ -65,30 +65,19 @@ export const DrawerCloseButtonWithTooltip = ({
 };
 
 interface DrawerActionTypes {
-  handleClose: () => void;
   handleMaximize: () => void;
   handleMinimize: () => void;
   content: string;
   maximized: boolean;
 }
 export const DrawerActionButton = ({
-  handleClose,
   handleMaximize,
   handleMinimize,
-  content,
   maximized,
 }: DrawerActionTypes) => {
   return (
     <DrawerHead>
       <DrawerActions>
-        <Button
-          style={{ zIndex: "999", padding: "0" }}
-          variant="link"
-          content={content}
-          onClick={handleClose}
-          icon={<FaMinus />}
-          isDisabled={false}
-        />
         {maximized ? (
           <Button
             style={{
