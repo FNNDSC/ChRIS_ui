@@ -10,7 +10,7 @@ import {
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../store/hooks";
 import { DrawerActionButton } from "./DrawerUtils";
-import { handleClose, handleMaximize, handleMinimize } from "./utilties";
+import { handleMaximize, handleMinimize } from "./utilties";
 import type { DestroyActiveResources } from "../../store/resources/types";
 import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
 import {
@@ -88,16 +88,6 @@ export default function FeedView() {
 
   React.useEffect(() => {
     return () => {
-      if (window.matchMedia("(max-width: 767px)").matches) {
-        handleClose("node", dispatch);
-        handleClose("directory", dispatch);
-        handleClose("files", dispatch);
-      }
-    };
-  }, [dispatch]);
-
-  React.useEffect(() => {
-    return () => {
       if (
         dataRef.current &&
         dataRef.current.selectedPlugin &&
@@ -146,9 +136,6 @@ export default function FeedView() {
     return (
       <DrawerActionButton
         content={mode}
-        handleClose={() => {
-          handleClose(mode, dispatch);
-        }}
         handleMaximize={() => {
           handleMaximize(mode, dispatch);
         }}
@@ -177,9 +164,6 @@ export default function FeedView() {
       >
         <DrawerActionButton
           content="Graph"
-          handleClose={() => {
-            handleClose("graph", dispatch);
-          }}
           handleMaximize={() => {
             handleMaximize("graph", dispatch);
           }}

@@ -14,7 +14,7 @@ import {
 import { Progress, notification } from "antd";
 import { Table, Thead, Tbody, Th, Tr, Td } from "@patternfly/react-table";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
-import { handleClose, handleMaximize, handleMinimize } from "../Feeds/utilties";
+import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 import { ThemeContext } from "../DarkTheme/useTheme";
 
 import {
@@ -166,9 +166,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     >
       <DrawerActionButton
         content="Preview"
-        handleClose={() => {
-          handleClose("preview", dispatch);
-        }}
+      
         handleMaximize={() => {
           handleMaximize("preview", dispatch);
         }}
@@ -202,9 +200,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         >
           <DrawerActionButton
             content="Files"
-            handleClose={() => {
-              handleClose("files", dispatch);
-            }}
+           
             handleMaximize={() => {
               handleMaximize("files", dispatch);
             }}

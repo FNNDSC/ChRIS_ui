@@ -23,6 +23,7 @@ import {
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { useCookies } from "react-cookie";
+import { useTypedSelector } from "../../store/hooks";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
@@ -36,6 +37,12 @@ interface ComponentProps {
 type AllProps = IUserState & IUiState & IPropsFromDispatch & ComponentProps;
 
 const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
+  const drawerState = useTypedSelector((state) => state.drawers);
+
+  const fullScreen =
+    drawerState &&
+    drawerState["preview"].open &&
+    drawerState["preview"].maximized;
   const navigate = useNavigate();
   const [_, _setCookie, removeCookie] = useCookies();
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
@@ -74,7 +81,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   return (
     <Toolbar className="toolbar">
       <ToolbarGroup className="feed-details">
-        {props.showToolbar && <FeedDetails />}
+        {props.showToolbar && !fullScreen && <FeedDetails />}
       </ToolbarGroup>
       <ToolbarGroup className="authentication">
         <ToolbarItem>
@@ -87,7 +94,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
           />
         </ToolbarItem>
 
-        {token ? (
+        {token ?  (
           <ToolbarItem>
             <Dropdown
               isPlain
