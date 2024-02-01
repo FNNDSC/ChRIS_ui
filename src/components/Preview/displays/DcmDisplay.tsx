@@ -17,6 +17,7 @@ import {
 } from "../utils";
 import useSize from "../../FeedTree/useSize";
 import { getFileExtension } from "../../../api/model";
+import { SpinContainer } from "../../Common";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -31,6 +32,11 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview } = props;
   const drawerState = useTypedSelector((state) => state.drawers);
   const [error, setError] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [sliceInfo, setSliceInfo] = React.useState({
+    currentSliceIndex: 0,
+    totalSlices: 0,
+  });
 
   useSize(dicomImageRef);
 
@@ -133,22 +139,46 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     let imageId: string | any;
 
     if (element && file) {
-      enableDOMElement(element);
-      const fileExtension = getFileExtension(file.data.fname);
-      if (fileExtension && fileExtension === "dcm") {
-        imageId = loadDicomImage(blob);
-      } else if (fileExtension && fileExtension === "nii") {
-        const fileArray = file.data.fname.split("/");
-        const fileName = fileArray[fileArray.length - 1];
-        const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
-        imageId = imageIdObject;
-      } else {
-        imageId = loadJpgImage(blob);
-      }
+      try {
+        setLoading(true);
+        enableDOMElement(element);
 
-      displayDicomImage(imageId, element, fileExtension, () => {
+        const fileExtension = getFileExtension(file.data.fname);
+        const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
+
+        if (fileExtension && fileExtension === "dcm") {
+          imageId = loadDicomImage(blob);
+        } else if (fileExtension && isNifti) {
+          const fileArray = file.data.fname.split("/");
+          const fileName = fileArray[fileArray.length - 1];
+          const imageIdObject = ImageId.fromURL(`nifti:${file.url}${fileName}`);
+          imageId = imageIdObject;
+        } else {
+          imageId = loadJpgImage(blob);
+        }
+
+        displayDicomImage(
+          imageId,
+          element,
+          fileExtension,
+          () => {
+            setError(true);
+          },
+          () => {
+            setLoading(false);
+          },
+          (currentSliceIndex: number, totalSlices: number) => {
+            setSliceInfo({
+              currentSliceIndex,
+              totalSlices,
+            });
+          },
+        );
+      } catch (error: any) {
+        console.log("Error", error);
+        // Handle the error as needed
         setError(true);
-      });
+      }
     }
   }, []);
 
@@ -159,18 +189,38 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [fileItem, initAmi]);
 
   return (
-    <div className={preview === "large" ? "dcm-preview" : ""}>
-      {error ? (
-        <Alert
-          type="error"
-          closable
-          onClose={() => setError(false)}
-          description="This file does not have image data. Failed to parse..."
-        />
-      ) : (
-        <div ref={dicomImageRef} id="container"></div>
-      )}
-    </div>
+    <>
+      <div
+        ref={dicomImageRef}
+        className={preview === "large" ? "dcm-preview" : ""}
+      >
+        {" "}
+        {sliceInfo.currentSliceIndex > 0 && sliceInfo.totalSlices > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              top: "0",
+              right: "0",
+              padding:'0.5em'
+            }}
+          >
+            {sliceInfo.currentSliceIndex}/{sliceInfo.totalSlices}
+          </div>
+        )}
+        {error ? (
+          <Alert
+            type="error"
+            closable
+            onClose={() => setError(false)}
+            description="This file does not have image data. Failed to parse..."
+          />
+        ) : loading ? (
+          <SpinContainer title="Processing the file using cornerstone..." />
+        ) : (
+          <div id="container"></div>
+        )}
+      </div>
+    </>
   );
 };
 

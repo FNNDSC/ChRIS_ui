@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { getPluginFilesRequest } from "../../store/resources/actions";
 import { useTypedSelector } from "../../store/hooks";
-import { handleClose, handleMaximize, handleMinimize } from "../Feeds/utilties";
+import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
@@ -90,9 +90,7 @@ export const useFeedBrowser = () => {
   };
 
   const handleSidebarDrawer = (action: string) => {
-    if (action === "close") {
-      handleClose("directory", dispatch);
-    } else if (action === "maximized") {
+    if (action === "maximized") {
       handleMaximize("directory", dispatch);
     } else handleMinimize("directory", dispatch);
   };

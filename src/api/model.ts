@@ -191,7 +191,6 @@ export class FileViewerModel {
     notification: any,
     callback: (status: any) => void,
   ) {
-    
     const findItem = this.itemsToDownload.find(
       (currentItem) => currentItem.data.fname === item.data.fname,
     );
@@ -334,11 +333,15 @@ export const fileViewerMap: any = {
   crv: "XtkDisplay",
   smoothwm: "XtkDisplay",
   pial: "XtkDisplay",
+  "nii.gz": "DcmDisplay",
 };
 
 // Description: get file type by file extention
 export function getFileExtension(filename: string) {
-  const name = filename.substring(filename.lastIndexOf(".") + 1);
+  if (filename.includes(".nii.gz")) {
+    return "nii.gz";
+  }
 
+  const name = filename.substring(filename.lastIndexOf(".") + 1);
   return name;
 }

@@ -53,9 +53,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     >
       <DrawerActionButton
         content="Directory"
-        handleClose={() => {
-          handleSidebarDrawer("close");
-        }}
+     
         handleMaximize={() => {
           handleSidebarDrawer("maximized");
         }}
