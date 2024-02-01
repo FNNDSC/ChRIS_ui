@@ -54,7 +54,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
     onDropdownSelect(!props.isDropdownOpen);
   };
 
-  const handleChange = (_event: React.FormEvent<HTMLInputElement>) => {
+  const handleChange = () => {
     toggleTheme();
   };
 
