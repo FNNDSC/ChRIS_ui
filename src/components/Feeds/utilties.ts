@@ -30,17 +30,6 @@ export const handleDrawerActions = (
   );
 };
 
-export const handleClose = (actionType: string, dispatch: Dispatch) => {
-  handleDrawerActions(
-    actionType,
-    false,
-    false,
-    false,
-    dispatch,
-    setDrawerState
-  );
-};
-
 export const handleMaximize = (actionType: string, dispatch: Dispatch) => {
   handleDrawerActions(actionType, true, true, false, dispatch, setDrawerState);
 };
