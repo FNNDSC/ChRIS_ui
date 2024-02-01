@@ -33,6 +33,10 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const drawerState = useTypedSelector((state) => state.drawers);
   const [error, setError] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [sliceInfo, setSliceInfo] = React.useState({
+    currentSliceIndex: 0,
+    totalSlices: 0,
+  });
 
   useSize(dicomImageRef);
 
@@ -138,6 +142,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       try {
         setLoading(true);
         enableDOMElement(element);
+
         const fileExtension = getFileExtension(file.data.fname);
         const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
 
@@ -162,8 +167,15 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
           () => {
             setLoading(false);
           },
+          (currentSliceIndex: number, totalSlices: number) => {
+            setSliceInfo({
+              currentSliceIndex,
+              totalSlices,
+            });
+          },
         );
       } catch (error: any) {
+        console.log("Error", error);
         // Handle the error as needed
         setError(true);
       }
@@ -177,23 +189,38 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [fileItem, initAmi]);
 
   return (
-    <div
-      ref={dicomImageRef}
-      className={preview === "large" ? "dcm-preview" : ""}
-    >
-      {error ? (
-        <Alert
-          type="error"
-          closable
-          onClose={() => setError(false)}
-          description="This file does not have image data. Failed to parse..."
-        />
-      ) : loading ? (
-        <SpinContainer title="Processing the file using cornerstone..." />
-      ) : (
-        <div id="container"></div>
-      )}
-    </div>
+    <>
+      <div
+        ref={dicomImageRef}
+        className={preview === "large" ? "dcm-preview" : ""}
+      >
+        {" "}
+        {sliceInfo.currentSliceIndex > 0 && sliceInfo.totalSlices > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              top: "0",
+              right: "0",
+              padding:'0.5em'
+            }}
+          >
+            {sliceInfo.currentSliceIndex}/{sliceInfo.totalSlices}
+          </div>
+        )}
+        {error ? (
+          <Alert
+            type="error"
+            closable
+            onClose={() => setError(false)}
+            description="This file does not have image data. Failed to parse..."
+          />
+        ) : loading ? (
+          <SpinContainer title="Processing the file using cornerstone..." />
+        ) : (
+          <div id="container"></div>
+        )}
+      </div>
+    </>
   );
 };
 
