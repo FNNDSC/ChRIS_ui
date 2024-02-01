@@ -71,6 +71,7 @@ const SeriesCard = ({ series }: { series: any }) => {
   const queryStage =
     (seriesUpdate &&
       Object.keys(seriesUpdate).length > 0 &&
+      seriesUpdate[StudyInstanceUID.value] &&
       seriesUpdate[StudyInstanceUID.value][SeriesInstanceUID.value]) ||
     "none";
 

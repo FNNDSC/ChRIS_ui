@@ -9,12 +9,13 @@ import {
   FormGroup,
   TextInput,
   Button,
-  Alert,
   Checkbox,
 } from "@patternfly/react-core";
+import { Alert } from "antd";
 import { cujs } from "chris-utility";
+import FaDownload from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import FaTrash from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import FaFileArchive from "@patternfly/react-icons/dist/esm/icons/file-archive-icon";
+
 import { ShareButtonIcon } from "../../icons";
 import MdIosShare from "@patternfly/react-icons/dist/esm/icons/share-icon";
 import MdCallSplit from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
@@ -276,7 +277,7 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
   };
 
   const alert = (_error: any) => {
-    return <Alert variant="info" title={_error} />;
+    return <Alert type="error" closable description={_error} />;
   };
 
   return (
@@ -311,7 +312,7 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
         actions={[
           <Button
             key="create"
-            variant="primary"
+            variant={currentAction === "delete" ? "danger" : "primary"}
             form="modal-with-form-form"
             onClick={handleSubmit}
             isDisabled={bulkSelect.length === 0}
@@ -379,10 +380,11 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
             </FormGroup>
           </Form>
         ) : (
-          <p>
-            Deleting a feed is a permanent action. Click on confirm if
-            you&apos;re sure.
-          </p>
+          <Alert
+            type="error"
+            description=" Deleting a feed is a permanent action. Click on confirm if
+            you're sure."
+          />
         )}
       </Modal>
     </ToggleGroup>
@@ -394,7 +396,7 @@ export default IconContainer;
 const actionMap: {
   [key: string]: ReactElement;
 } = {
-  download: <FaFileArchive />,
+  download: <FaDownload />,
   merge: <ShareButtonIcon />,
   duplicate: <MdCallSplit />,
   share: <MdIosShare />,
