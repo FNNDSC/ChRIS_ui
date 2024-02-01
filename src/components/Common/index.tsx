@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from "react";
 import { Cookies } from "react-cookie";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { Popover, Typography, Spin, Alert, AlertProps } from "antd";
+import { Popover, Typography, Spin, Alert} from "antd";
 import {
   Flex,
   FlexItem,
