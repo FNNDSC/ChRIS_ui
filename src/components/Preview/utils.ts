@@ -106,12 +106,17 @@ export const loadJpgImage = (blob: any) => {
   return cornerstoneFileImageLoader.fileManager.add(blob);
 };
 
+export const getNiftiSlices = (url: string) => {
+  return cornerstone.metaData.get("multiFrameModule", url).numberOfFrames;
+};
+
 export const displayDicomImage = (
   imageId: string | any,
   element: HTMLDivElement,
   fileExtension: string,
   onError?: () => void,
-  onSuccess?: () => void
+  onSuccess?: () => void,
+  onSliceInfo?: (currentSliceIndex: number, totalSlices: number) => void,
 ) => {
   const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
   const id = isNifti ? imageId.url : imageId;
@@ -133,21 +138,20 @@ export const displayDicomImage = (
         cornerstone.setViewport(element, viewport);
       }
 
+      let niftiSlices = 0;
       if (isNifti) {
-        const niftiSlices = cornerstone.metaData.get(
-          "multiFrameModule",
-          imageId.url
-        ).numberOfFrames;
+        niftiSlices = getNiftiSlices(imageId.url) as number;
+        const centerSliceIndex = Math.floor(niftiSlices / 2); // Calculate the center slice index
 
         imageIdArray.push(
           ...Array.from(
             Array(niftiSlices),
             (_, i) =>
-              `nifti:${imageId.filePath}#${imageId.slice.dimension}-${i},t-0`
-          )
+              `nifti:${imageId.filePath}#${imageId.slice.dimension}-${i},t-0`,
+          ),
         );
         const stack = {
-          currentImageIdIndex: imageId.slice.index,
+          currentImageIdIndex: centerSliceIndex,
           imageIds: imageIdArray,
         };
 
@@ -160,6 +164,21 @@ export const displayDicomImage = (
 
       cornerstone.displayImage(element, image, viewport);
       onSuccess && onSuccess();
+
+      // Add event listener for the cornerstoneimagerendered event
+      element.addEventListener("cornerstoneimagerendered", () => {
+  
+        // Access the current slice index from the stack tool state
+        const stackToolState = cornerstoneTools.getToolState(element, "stack");
+        if (
+          stackToolState &&
+          stackToolState.data &&
+          stackToolState.data.length > 0
+        ) {
+          const currentSliceIndex = stackToolState.data[0].currentImageIdIndex;
+          onSliceInfo && onSliceInfo(currentSliceIndex, niftiSlices);
+        }
+      });
     })
     .catch(() => {
       onError && onError();
@@ -438,7 +457,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
             str += sha1Text(
               dataSet.byteArray,
               fragment.position,
-              fragment.length
+              fragment.length,
             );
             str += "</li>";
 
@@ -466,7 +485,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
               dataSet,
               element,
               frameIndex,
-              bot
+              bot,
             );
             str += "; length = " + imageFrame.length;
             str += sha1Text(imageFrame);
@@ -646,7 +665,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
               const groupHexStr = ("0000" + group.toString(16)).substring(-4);
               const element = dataSet.uint16(propertyName, 1);
               const elementHexStr = ("0000" + element.toString(16)).substring(
-                -4
+                -4,
               );
               text += "x" + groupHexStr + elementHexStr;
             } else if (vr === "SQ") {
@@ -684,7 +703,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
             title +
             '">' +
             text +
-            "</li>"
+            "</li>",
         );
       }
     }
