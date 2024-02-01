@@ -51,16 +51,7 @@ export interface ActionState {
   [key: string]: boolean;
 }
 
-function getInitialState() {
-  return {
-    blob: undefined,
-    file: undefined,
-    fileType: "",
-  };
-}
-
 const FileDetailView = (props: AllProps) => {
-  const [fileState, setFileState] = React.useState<IFileBlob>(getInitialState);
   const [tagInfo, setTagInfo] = React.useState<any>();
   const [actionState, setActionState] = React.useState<ActionState>({});
   const [error, setError] = React.useState(false);
@@ -110,7 +101,11 @@ const FileDetailView = (props: AllProps) => {
           setTagInfo(merged);
         }
       } catch (error) {
-        console.log("Error", error);
+        return {
+          blob: undefined,
+          file: undefined,
+          fileType: "",
+        };
       }
     };
 
@@ -119,50 +114,53 @@ const FileDetailView = (props: AllProps) => {
     }
   }, []);
 
+  const { selectedFile, preview } = props;
+
+  const fetchData = async (selectedFile: FeedFile) => {
+    const fileName = selectedFile.data.fname;
+    const fileType = getFileExtension(fileName);
+
+    try {
+      const blob = await selectedFile.getFileBlob();
+      return {
+        blob,
+        file: selectedFile,
+        fileType,
+      };
+    } catch (error: any) {
+      const errorMessage = error.response || error.message;
+      setError(errorMessage);
+      return {};
+    }
+  };
+
+  const { data, isLoading }: { data?: IFileBlob; isLoading: boolean } =
+    useQuery({
+      queryKey: ["preview", selectedFile],
+      queryFn: () => selectedFile && fetchData(selectedFile),
+      enabled: !!selectedFile,
+    });
+
+  let viewerName = "";
+
+  if (data && data.fileType) {
+    const { fileType } = data;
+    if (!fileViewerMap[fileType]) {
+      viewerName = "TextDisplay";
+    } else {
+      viewerName = fileViewerMap[fileType];
+    }
+  }
+
   const handleEvents = (action: string) => {
-    if (action === "TagInfo") {
-      displayTagInfo(fileState.blob);
+    if (action === "TagInfo" && data) {
+      displayTagInfo(data.blob);
     }
     const currentAction = actionState[action];
     setActionState({
       [action]: !currentAction,
     });
   };
-  const { selectedFile, preview } = props;
-  const { fileType } = fileState;
-
-  const fetchData = async (selectedFile: FeedFile) => {
-    const fileName = selectedFile.data.fname;
-    const fileType = getFileExtension(fileName);
-    try {
-      const blob = await selectedFile.getFileBlob();
-      setFileState((fileState) => {
-        return {
-          ...fileState,
-          blob,
-          file: selectedFile,
-          fileType,
-        };
-      });
-    } catch (error: any) {
-      const errorMessage = error.response || error.message;
-      setError(errorMessage);
-    }
-  };
-
-  const { isLoading } = useQuery({
-    queryKey: ["preview"],
-    queryFn: () => selectedFile && fetchData(selectedFile),
-    enabled: !!selectedFile,
-  });
-
-  let viewerName = "";
-
-  if (!fileViewerMap[fileType]) {
-    viewerName = "TextDisplay";
-  } else {
-    viewerName = fileViewerMap[fileType];
-  }
 
   const handleModalToggle = (actionName: string, value: boolean) => {
     setActionState({
@@ -226,12 +224,14 @@ const FileDetailView = (props: AllProps) => {
 
             {error && <span style={{ color: "red" }}>{error}</span>}
 
-            <ViewerDisplay
-              preview={preview}
-              viewerName={viewerName}
-              fileItem={fileState}
-              actionState={actionState}
-            />
+            {data && (
+              <ViewerDisplay
+                preview={preview}
+                viewerName={viewerName}
+                fileItem={data}
+                actionState={actionState}
+              />
+            )}
           </div>
           <TagInfoModal
             handleModalToggle={handleModalToggle}

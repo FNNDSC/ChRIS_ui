@@ -106,13 +106,20 @@ export const loadJpgImage = (blob: any) => {
   return cornerstoneFileImageLoader.fileManager.add(blob);
 };
 
+export const getNiftiSlices = (url: string) => {
+  return cornerstone.metaData.get("multiFrameModule", url).numberOfFrames;
+};
+
 export const displayDicomImage = (
   imageId: string | any,
   element: HTMLDivElement,
   fileExtension: string,
   onError?: () => void,
+  onSuccess?: () => void,
+  onSliceInfo?: (currentSliceIndex: number, totalSlices: number) => void,
 ) => {
-  const id = fileExtension === "nii" ? imageId.url : imageId;
+  const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
+  const id = isNifti ? imageId.url : imageId;
   cornerstone
     .loadImage(id)
     .then((image: any) => {
@@ -131,11 +138,10 @@ export const displayDicomImage = (
         cornerstone.setViewport(element, viewport);
       }
 
-      if (fileExtension === "nii") {
-        const niftiSlices = cornerstone.metaData.get(
-          "multiFrameModule",
-          imageId.url,
-        ).numberOfFrames;
+      let niftiSlices = 0;
+      if (isNifti) {
+        niftiSlices = getNiftiSlices(imageId.url) as number;
+        const centerSliceIndex = Math.floor(niftiSlices / 2); // Calculate the center slice index
 
         imageIdArray.push(
           ...Array.from(
@@ -145,7 +151,7 @@ export const displayDicomImage = (
           ),
         );
         const stack = {
-          currentImageIdIndex: imageId.slice.index,
+          currentImageIdIndex: centerSliceIndex,
           imageIds: imageIdArray,
         };
 
@@ -157,6 +163,22 @@ export const displayDicomImage = (
       }
 
       cornerstone.displayImage(element, image, viewport);
+      onSuccess && onSuccess();
+
+      // Add event listener for the cornerstoneimagerendered event
+      element.addEventListener("cornerstoneimagerendered", () => {
+  
+        // Access the current slice index from the stack tool state
+        const stackToolState = cornerstoneTools.getToolState(element, "stack");
+        if (
+          stackToolState &&
+          stackToolState.data &&
+          stackToolState.data.length > 0
+        ) {
+          const currentSliceIndex = stackToolState.data[0].currentImageIdIndex;
+          onSliceInfo && onSliceInfo(currentSliceIndex, niftiSlices);
+        }
+      });
     })
     .catch(() => {
       onError && onError();
