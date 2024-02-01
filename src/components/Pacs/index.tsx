@@ -23,6 +23,7 @@ import PfdcmClient from "./pfdcmClient";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { Alert } from "antd";
+import { pluralize } from "../../api/common";
 
 import "./pacs-copy.css";
 
@@ -91,7 +92,7 @@ const QueryBuilder = () => {
           type: Types.SET_LOADING_SPINNER,
           payload: {
             status: true,
-            text: `Fetching ${csv.length} results `,
+            text: `Fetching ${csv.length} ${pluralize("result", csv.length)} `,
           },
         });
 
