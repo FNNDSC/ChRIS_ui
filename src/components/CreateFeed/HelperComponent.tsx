@@ -8,6 +8,7 @@ import {
 import { notification } from "antd";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import FileIcon from "@patternfly/react-icons/dist/esm/icons/file-icon";
+import FolderIcon from "@patternfly/react-icons/dist/esm/icons/folder-icon";
 
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
@@ -60,30 +61,38 @@ export const LocalFileList = ({
   file,
   handleDeleteDispatch,
   showIcon,
+  isFolder,
 }: {
   file: any;
   index: number;
   showIcon: boolean;
-  handleDeleteDispatch?: (file: string) => void;
+  handleDeleteDispatch?: (file: string, type?: string) => void;
+  isFolder?: boolean;
 }) => {
+  const fileName = isFolder ? file.webkitRelativePath.split("/")[0] : file.name;
+
   return (
-    <Flex className="file-preview" key={file.name}>
+    <Flex className="file-preview" key={fileName}>
       <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
         <FlexItem className="file-name">
           <span className="file-icon">
-            <FileIcon />
+            {isFolder ? <FolderIcon /> : <FileIcon />}
           </span>
-          {file.name}
+          {fileName}
         </FlexItem>
       </Flex>
 
       <Flex direction={{ default: "column" }}>
         <FlexItem>
           {showIcon && (
-            <span className="file-icon">
+            <span style={{ cursor: "pointer" }} className="file-icon">
               <TrashIcon
                 onClick={() => {
-                  handleDeleteDispatch && handleDeleteDispatch(file.name);
+                  handleDeleteDispatch &&
+                    handleDeleteDispatch(
+                      fileName,
+                      isFolder ? "folder" : "files"
+                    );
                 }}
               />
             </span>
