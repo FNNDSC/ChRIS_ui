@@ -336,9 +336,9 @@ export const fileViewerMap: any = {
   "nii.gz": "DcmDisplay",
 };
 
-// Description: get file type by file extention
+// Description: get file type by file extension
 export function getFileExtension(filename: string) {
-  if (filename.includes(".nii.gz")) {
+  if (filename.endsWith(".nii.gz")) {
     return "nii.gz";
   }
 
