@@ -57,7 +57,9 @@ const DragAndUpload = ({
     isDragReject,
     isDragActive,
     isDragAccept,
-  } = useDropzone({ onDrop });
+  } = useDropzone({
+    onDrop,
+  });
 
   const { state, dispatch } = useContext(CreateFeedContext);
 

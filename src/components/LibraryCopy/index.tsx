@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  RefObject,
-} from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import ReactJson from "react-json-view";
@@ -23,14 +17,14 @@ import {
   Form,
   Alert as PatternflyAlert,
   Progress,
+  ModalVariant,
 } from "@patternfly/react-core";
-import { Typography, Tour, TourProps } from "antd";
+import { Typography } from "antd";
 import { debounce } from "lodash";
 
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import WrapperConnect from "../Wrapper";
-import DragAndUpload from "../DragFileUpload";
 import Cart from "./Cart";
 import Browser from "./Browser";
 import { LocalFileList } from "../CreateFeed/HelperComponent";
@@ -51,6 +45,7 @@ import {
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
 import { fetchResource } from "../../api/common";
+import "./LibraryCopy.css";
 
 export const fetchFilesUnderThisPath = async (path?: string) => {
   if (!path) return;
@@ -193,11 +188,15 @@ export const LibraryCopyPage = () => {
               uploadFileModal={isOpenModal}
               handleAddFolder={handleAddFolder}
               localFiles={localFiles}
-              handleDelete={(name: string) => {
-                const filteredfiles = localFiles.filter(
-                  (file) => file.name !== name,
-                );
-                setLocalFiles(filteredfiles);
+              handleDelete={(name: string, type?: string) => {
+                if (type === "folder") {
+                  setLocalFiles([]);
+                } else {
+                  const filteredfiles = localFiles.filter(
+                    (file) => file.name !== name,
+                  );
+                  setLocalFiles(filteredfiles);
+                }
               }}
             />
 
@@ -215,9 +214,12 @@ export const LibraryCopyPage = () => {
 function NormalBrowser() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const currentPathSplit = pathname.split("/library/")[1];
+
+  const decodedPath = decodeURIComponent(pathname);
+  const currentPathSplit = decodedPath.split("/library/")[1];
 
   const computedPath = currentPathSplit || "/";
+
   const fileData = useGetFiles(computedPath);
   const folderData = useGetFolders(computedPath);
 
@@ -225,7 +227,7 @@ function NormalBrowser() {
   const { data: folders, isLoading: isFolderLoading } = folderData;
 
   const handleFolderClick = debounce((folder: string) => {
-    const url = `${pathname}/${folder}`;
+    const url = `${decodedPath}/${folder}`;
     navigate(url);
   }, 500);
 
@@ -328,10 +330,10 @@ function LocalSearch() {
   );
 }
 
-interface UploadComponent {
+interface UploadComponentProps {
   handleFileModal: () => void;
   handleLocalFiles: (files: File[]) => void;
-  handleDelete: (name: string) => void;
+  handleDelete: (name: string, type?: string) => void;
   uploadFileModal: boolean;
   localFiles: File[];
   handleAddFolder: (path: string, user: string) => void;
@@ -342,67 +344,85 @@ interface FileUpload {
   promise: Promise<AxiosResponse<any>>;
 }
 
-const UploadComponent = ({
+const UploadComponent: React.FC<UploadComponentProps> = ({
   handleFileModal,
   handleLocalFiles,
   handleAddFolder,
   handleDelete,
   uploadFileModal,
   localFiles,
-}: UploadComponent) => {
+}) => {
   const token = useCookieToken();
-  const folderInput: RefObject<HTMLInputElement> =
-    useRef<HTMLInputElement>(null);
+  const folderInput = useRef<HTMLInputElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
   const username = useTypedSelector((state) => state.user.username);
   const [warning, setWarning] = useState<Record<string, string>>({});
-  const [directoryName, setDirectoryName] = useState("");
-  const [countdown, setCountdown] = useState(5);
-  const [currentFile, setCurrentFile] = useState({});
+  const [directoryName, setDirectoryName] = useState<string>("");
+  const [countdown, setCountdown] = useState<number>(5);
+  const [currentFile, setCurrentFile] = useState<Record<string, string>>({});
   const [countdownInterval, setCountdownInterval] =
     useState<NodeJS.Timeout | null>(null);
-  const [serverProgress, setServerProgress] = useState(0);
-  const [tour, showTour] = useState(false);
+  const [serverProgress, setServerProgress] = useState<number>(0);
+  const [progress, setProgress] = useState<number>(0);
 
-  const ref1 = useRef(null);
-  const ref2 = useRef(null);
-  const ref3 = useRef(null);
-  const ref4 = useRef(null);
-  const ref5 = useRef(null);
+  // Handle file change for local upload
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files || [];
+    const files = Array.from(fileList);
 
-  const steps: TourProps["steps"] = [
-    {
-      title: "Upload Files",
-      description: "Put your files here",
-      target: () => ref1.current,
-    },
-    {
-      title: "Upload a Folder",
-      description: "Click this button to upload a folder",
-      target: () => ref5.current,
-    },
-    {
-      title: "Directory Name",
-      description:
-        "Enter a Directory Name or use the default value. If you use the default value, note it down to track the folder in the Library Page",
-      target: () => ref2.current,
-    },
-    {
-      title: "Push to Storage",
-      description: "Hit the button that is named 'Push to File Storage'",
-      target: () => ref3.current,
-    },
-    {
-      title: "Track your progress",
-      description: "Report bugs to the admin if any",
-      target: () => ref4.current,
-    },
-  ];
+    // Calculate the total size of all files
+    const totalSize = files.reduce(
+      (total, file) => total + (file.size || 0),
+      0,
+    );
 
+    // Initialize loaded size
+    let loadedSize = 0;
+
+    // Initialize completed files count
+    let completedFiles = 0;
+
+    // Use FileReader to read file contents and track progress for each file
+    files.forEach((file) => {
+      const reader = new FileReader();
+
+      reader.onprogress = (event) => {
+        // Update loaded size
+        loadedSize += event.loaded || 0;
+
+        // Calculate overall progress
+        const overallProgress = (loadedSize / totalSize) * 100;
+
+        // Update progress
+        setProgress(overallProgress);
+      };
+
+      // Read the file as ArrayBuffer
+      reader.readAsArrayBuffer(file);
+
+      reader.onloadend = () => {
+        // Update completed files count
+        if (++completedFiles === files.length) {
+          // Reset loaded size when all files are loaded
+          loadedSize = 0;
+
+          // Reset progress to 0 when all files are loaded
+          setProgress(0);
+
+          // Pass the fileList to the parent component
+          handleLocalUploadFiles(files);
+        }
+      };
+    });
+  };
+
+  // Handle local file uploads
   const handleLocalUploadFiles = (files: any[]) => {
     setWarning({});
     handleLocalFiles(files);
   };
 
+  // Handle reset
   const handleReset = useCallback(() => {
     setCurrentFile({});
     setCountdown(5);
@@ -411,17 +431,20 @@ const UploadComponent = ({
     countdownInterval && clearInterval(countdownInterval);
   }, [countdownInterval, handleFileModal]);
 
+  // Countdown effect
   useEffect(() => {
     if (countdown === 0) {
       handleReset();
     }
   }, [handleReset, countdown]);
 
+  // Effect for updating directory name
   useEffect(() => {
     const d = getTimestamp();
     setDirectoryName(`${d}`);
   }, [uploadFileModal]);
 
+  // Handle server upload
   const handleUpload = async () => {
     const client = ChrisAPIClient.getClient();
     await client.setUrls();
@@ -453,10 +476,12 @@ const UploadComponent = ({
           promise,
     );
     let serverProgressForClosingModal = 0;
+
     const results = await limitConcurrency(4, promises, (progress: number) => {
       setServerProgress(progress);
       serverProgressForClosingModal = progress;
     });
+
     results.forEach((result, i) => {
       if (result.status === 201) {
         completedUploads.push(i);
@@ -485,79 +510,79 @@ const UploadComponent = ({
 
   return (
     <Modal
-      width="70%"
-      title="Upload Files"
+      variant={ModalVariant.medium}
       onClose={() => handleReset()}
       isOpen={uploadFileModal}
-      variant="medium"
       aria-labelledby="file-upload"
+      className="custom-modal" // Add a custom class for styling
     >
-      <Button onClick={() => showTour(!tour)} variant="link">
-        'Click' here for a quick tutorial
-      </Button>
-      <Tour open={tour} onClose={() => showTour(false)} steps={steps} />
-
-      {/* Drag and Upload Section */}
-      <div
-        className="drag-and-upload-section"
-        ref={ref1}
-        style={{ height: "200px" }}
-      >
-        <DragAndUpload handleLocalUploadFiles={handleLocalUploadFiles} />
-      </div>
-
-      {/* Upload Folder Section */}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          marginTop: "1rem",
-        }}
-      >
+      {/* Upload Buttons Section */}
+      <div className="upload-buttons">
         <input
           ref={folderInput}
           style={{ display: "none" }}
           type="file"
           //@ts-ignore
           webkitdirectory="true"
-          onChange={(e) => {
-            if (e.target) {
-              //@ts-ignore
-              const fileList = Array.from(e.target.files);
-              handleLocalUploadFiles(fileList);
-            }
-          }}
+          onChange={handleFileChange}
+          multiple
+        />
+        <input
+          ref={fileInput}
+          style={{ display: "none" }}
+          type="file"
+          onChange={handleFileChange}
           multiple
         />
         <Button
-          ref={ref5}
           onClick={() => folderInput.current && folderInput.current.click()}
           variant="primary"
         >
-          'Click' here to Upload an Entire Folder{" "}
+          Upload Folder
+        </Button>
+        <Button
+          onClick={() => fileInput.current && fileInput.current.click()}
+          variant="primary"
+        >
+          Upload Files
         </Button>
       </div>
 
       {/* Local Files Section */}
-      <div
-        style={{
-          height: "200px",
-          marginTop: "1rem",
-          overflow: "scroll",
-        }}
-      >
-        {localFiles.length > 0 ? (
-          localFiles.map((file, index) => (
+      <div className="local-files-section">
+        {progress > 0 ? (
+          <Progress
+            aria-labelledby="file-upload"
+            size="sm"
+            style={{ marginTop: "1rem" }}
+            value={progress}
+            measureLocation="outside"
+          />
+        ) : localFiles.length > 0 ? (
+          localFiles[0].webkitRelativePath ? (
             <LocalFileList
-              key={index}
-              handleDeleteDispatch={(name) => handleDelete(name)}
-              file={file}
-              index={index}
+              key={0} // Use a unique key for the folder
+              handleDeleteDispatch={(name, type?: string) =>
+                handleDelete(name, type)
+              }
+              file={localFiles[0]}
+              index={0}
               showIcon={true}
+              isFolder={true}
             />
-          ))
+          ) : (
+            localFiles.map((file: File, index: number) => (
+              <LocalFileList
+                key={index}
+                handleDeleteDispatch={(name, type?: string) =>
+                  handleDelete(name, type)
+                }
+                file={file}
+                index={index}
+                showIcon={true}
+              />
+            ))
+          )
         ) : (
           <EmptyStateComponent title="No Files or Folders have been uploaded yet..." />
         )}
@@ -566,12 +591,10 @@ const UploadComponent = ({
       {/* Directory Name Section */}
       <Form
         onSubmit={(event) => event.preventDefault()}
-        style={{ marginTop: "1rem" }}
-        isHorizontal
+        className="directory-form"
       >
         <FormGroup fieldId="directory name" isRequired label="Directory Name">
           <TextInput
-            ref={ref2}
             isRequired
             id="horizontal-form-name"
             value={directoryName}
@@ -583,9 +606,8 @@ const UploadComponent = ({
       </Form>
 
       {/* Upload Button Section */}
-      <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+      <div className="upload-button-section">
         <Button
-          ref={ref3}
           isDisabled={
             localFiles.length === 0 ||
             (countdown < 5 && countdown > 0) ||
@@ -601,10 +623,8 @@ const UploadComponent = ({
       </div>
 
       {/* Code Display Section */}
-      <div ref={ref4}>
-        <CodeBlock
-          style={{ marginTop: "1rem", height: "200px", overflow: "scroll" }}
-        >
+      <div className="code-display-section">
+        <CodeBlock style={{ height: "200px", overflow: "scroll" }}>
           <CodeBlockCode>
             {Object.keys(currentFile).length === 0 ? (
               <span style={{ fontFamily: "monospace" }}>
