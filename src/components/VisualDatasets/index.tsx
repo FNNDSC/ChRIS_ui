@@ -61,7 +61,7 @@ type SelectedSubject = {
 
 
 
-const PublicDatasets: React.FunctionComponent = () => {
+const VisualDatasets: React.FunctionComponent = () => {
 
   const client = ChrisAPIClient.getClient();
   const dispatch = useDispatch();
@@ -101,7 +101,7 @@ const PublicDatasets: React.FunctionComponent = () => {
     }
   };
 
-  const fetchFeedsContainingPublicDatasets = async () => {
+  const fetchFeedsContainingVisualDatasets = async () => {
     const searchParams = {
       files_fname_icontains: MAGIC_PUBLIC_DATASET_FILENAME,
       limit: 10
@@ -196,7 +196,7 @@ const PublicDatasets: React.FunctionComponent = () => {
 
   // on first load, get all the public feeds containing public datasets.
   useEffect(() => {
-    fetchFeedsContainingPublicDatasets();
+    fetchFeedsContainingVisualDatasets();
   }, []);
 
   // once feeds have been found, automatically select the first feed.
@@ -424,4 +424,4 @@ const PublicDatasets: React.FunctionComponent = () => {
   );
 }
 
-export default PublicDatasets;
+export default VisualDatasets;
