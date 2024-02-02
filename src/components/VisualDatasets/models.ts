@@ -24,23 +24,60 @@ type ChNVROptions = Required<Pick<NVROptions,
 >>;
 
 /**
- * A subset of `NVRVolume` with non-optional keys.
+ * Niivue options for volumes which can be customized in the Visual Dataset Browser.
  */
-type ChNVRVolume = Required<Pick<NVRVolume,
-  "url"
-  | "opacity"
+type VolumeSettings = Pick<NVRVolume,
+  "opacity"
   | "colormap"
-  | "cal_min"
-  | "cal_max"
+  | "cal_min"  // contrast can be increased by increasing cal_min
+  // cal_max is not listed here because changing it is usually pointless
   | "colorbarVisible"
->>;
+>;
 
 /**
- * Volume name and Niivue volume options.
+ * A subset of `NVRVolume` with non-optional keys.
  */
-type VolumeEntry = {
-  name: string,
-  volume: ChNVRVolume
+type ChNVRVolume = { url: string } & Required<VolumeSettings>;
+
+/**
+ * ChRIS file from filebrowser API (missing type from @fnndsc/chrisapi)
+ */
+type FilebrowserFile = {
+  file_resource: string,
+  creation_date: string,
+  fname: string,
+  fsize: number,
+}
+
+/**
+ * Data associated with a file from a visual dataset.
+ */
+type VisualDatasetFile = {
+  file: FilebrowserFile;
+  defaultSettings: Required<VolumeSettings>;
+  currentSettings: ChNVRVolume;
+
+  // metadata provided by a sidecar file.
+  // spec: https://github.com/FNNDSC/pl-visual-dataset/blob/8fdf598a84bba05511dd7aeab8a711f6098e83df/pubchrisvisual/types.py#L27-L50
+  name: string | null;
+  author: string | null;
+  description: string | null;
+  citation: string[];
+  website: string | null;
 };
 
-export type { VolumeEntry, ChNVRVolume, ChNVROptions };
+/**
+ * Contents of a `.chrisvisualdataset.volume.json` created by pl-visual-dataset.
+ *
+ * https://github.com/FNNDSC/pl-visual-dataset/blob/8fdf598a84bba05511dd7aeab8a711f6098e83df/pubchrisvisual/types.py#L27-L50
+ */
+type Sidecar = {
+  name?: string;
+  author?: string;
+  description?: string;
+  citation?: string[];
+  website?: string;
+  niivue_defaults?: VolumeSettings
+};
+
+export type { VolumeSettings, ChNVRVolume, ChNVROptions, FilebrowserFile, VisualDatasetFile, Sidecar };
