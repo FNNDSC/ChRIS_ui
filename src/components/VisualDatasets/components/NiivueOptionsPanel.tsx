@@ -2,7 +2,7 @@ import SliceTypeDropdown from "./SliceTypeDropdown.tsx";
 import { SLICE_TYPE } from "@niivue/niivue";
 import { Slider, Switch, Text, TextVariants, ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
 import React from "react";
-import { ChNVROptions } from "./models.ts";
+import { ChNVROptions } from "../models.ts";
 import { Updater } from "use-immer";
 
 type NiivueOptionsPanelProps = {

@@ -1,5 +1,5 @@
 import React from "react";
-import { ChNVROptions } from "./models.ts";
+import { ChNVROptions } from "../models.ts";
 import { Updater } from "use-immer";
 
 import styles from "./HeaderOptionBar.module.css";

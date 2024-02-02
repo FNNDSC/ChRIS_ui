@@ -1,4 +1,4 @@
-import { ChNVRVolume, VolumeEntry } from "./models.ts";
+import { ChNVRVolume, VolumeEntry } from "../models.ts";
 import React from "react";
 import { Button, Checkbox, Slider, SliderOnChangeEvent, Text, TextContent, TextVariants } from "@patternfly/react-core";
 import ColormapDropdown from "./ColormapDropdown.tsx";

@@ -33,13 +33,13 @@ import styles from "./styles.module.css";
 import {VolumeEntry, ChNVROptions} from "./models.ts";
 import { files2volumes } from "./options.tsx";
 import { fileResourceUrlOf, hideColorBarofInvisibleVolume, nullUpdaterGuard } from "./helpers.ts";
-import NiivueOptionsPanel from "./NiivueOptionsPanel.tsx";
-import SelectedFilesOptionsPane from "./SelectedFilesOptionsPane.tsx";
+import NiivueOptionsPanel from "./components/NiivueOptionsPanel.tsx";
+import SelectedFilesOptionsPane from "./components/SelectedFilesOptionsPane.tsx";
 import { DEFAULT_OPTIONS } from "./defaults.ts";
 import preval from "preval.macro";
-import HeaderOptionBar from "./HeaderOptionBar.tsx";
-import FeedButton from "./FeedButton.tsx";
-import { CrosshairLocation, SizedNiivueCanvas } from "./SizedNiivueCanvas.tsx";
+import HeaderOptionBar from "./components/HeaderOptionBar.tsx";
+import FeedButton from "./components/FeedButton.tsx";
+import { CrosshairLocation, SizedNiivueCanvas } from "./components/SizedNiivueCanvas.tsx";
 
 const MAGIC_PUBLIC_DATASET_FILENAME = '.is.chris.publicdataset';
 
