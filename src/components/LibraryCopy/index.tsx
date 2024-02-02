@@ -215,9 +215,12 @@ export const LibraryCopyPage = () => {
 function NormalBrowser() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const currentPathSplit = pathname.split("/library/")[1];
+
+  const decodedPath = decodeURIComponent(pathname);
+  const currentPathSplit = decodedPath.split("/library/")[1];
 
   const computedPath = currentPathSplit || "/";
+
   const fileData = useGetFiles(computedPath);
   const folderData = useGetFolders(computedPath);
 
@@ -225,7 +228,7 @@ function NormalBrowser() {
   const { data: folders, isLoading: isFolderLoading } = folderData;
 
   const handleFolderClick = debounce((folder: string) => {
-    const url = `${pathname}/${folder}`;
+    const url = `${decodedPath}/${folder}`;
     navigate(url);
   }, 500);
 
