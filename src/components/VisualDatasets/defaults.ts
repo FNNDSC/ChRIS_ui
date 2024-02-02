@@ -9,7 +9,7 @@ const DEFAULT_OPTIONS: ChNVROptions = {
   dragMode: DRAG_MODE.measurement,
   isSliceMM: true,
   backColor: [0, 0, 0],
-  multiplanarForceRender: true,
+  multiplanarForceRender: false,
   isRadiologicalConvention: true,
   show3Dcrosshair: true,
   crosshairWidth: 1
