@@ -190,8 +190,8 @@ class VisualDatasetsClient {
   public async getFiles(plinst: PluginInstance, subjectName: string): Promise<VisualDatasetFile[]> {
     const files = await this.getFilesFromFilebrowser(plinst, subjectName);
     const pairs = pairNiftisWithAssociatedOptions(files);
-    const getOptionsPromises = pairs.map(async ({nifti, option}) => {
-      const sidecar = option === null ? {} : await badlyFetchFileResource(option);
+    const getOptionsPromises = pairs.map(async ({nifti, sidecarFile}) => {
+      const sidecar = sidecarFile === null ? {} : await badlyFetchFileResource(sidecarFile);
       const defaultSettings = { ...DEFAULT_VOLUME, ...sidecar.niivue_defaults };
       const currentSettings = {...defaultSettings, url: nifti.file_resource};
       return {
