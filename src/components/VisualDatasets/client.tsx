@@ -222,14 +222,7 @@ class VisualDatasetsClient {
           body: `The path ${subjectDir} contains ${fileCollection.totalCount} files, which is too many for me to handle.`
         });
       }
-      const items = fileCollection.getItems();
-      if (items === null) {
-        throw new Error(
-          "This if statement is just for TypeScript type narrowing. " +
-          "If you see this error message, please fix @fnndsc/chrisapi"
-        );
-      }
-      return items.map(uncollectionifyFilebrowserFile);
+      return fileCollection.getItems()!.map(uncollectionifyFilebrowserFile);
     } catch (e) {
       this.problems.pushOnce({
         variant: "danger",
