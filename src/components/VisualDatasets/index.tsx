@@ -39,6 +39,20 @@ import VisualDatasetsClient from "./client.tsx";
 import ProblemsManager from "./problems.ts";
 import { nullUpdaterGuard } from "./helpers.ts";
 
+/**
+ * The "Visual Datasets Viewer" is a view of ChRIS_ui which implements a
+ * visualizer component for feeds containing datasets conforming to the
+ * "visual dataset" specification described here:
+ *
+ * https://chrisproject.org/docs/visual_dataset
+ *
+ * It is a wrapper around Niivue, providing controls for Niivue's settings
+ * and logic for feeding data from CUBE to Niivue.
+ *
+ * The primary purpose of the "Visual Datasets Viewer" is to power
+ * http://fetalmri.org. Nonetheless, the "Visual Datasets Browser"
+ * is generally useful for other datasets of 3D medical images.
+ */
 const VisualDatasets: React.FunctionComponent = () => {
 
   const client = ChrisAPIClient.getClient();
