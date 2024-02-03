@@ -2,7 +2,7 @@ import { FilebrowserFile } from "./models.ts";
 
 type NiftiAndOptionPair = {
   nifti: FilebrowserFile;
-  option: FilebrowserFile | null;
+  sidecarFile: FilebrowserFile | null;
 };
 
 function pairNiftisWithAssociatedOptions(files: FilebrowserFile[]): NiftiAndOptionPair[] {
@@ -10,9 +10,9 @@ function pairNiftisWithAssociatedOptions(files: FilebrowserFile[]): NiftiAndOpti
   const sidecars = files.filter(isSidecar);
 
   return niftis.map((nifti) => {
-    const option = sidecars
+    const sidecarFile = sidecars
       .find((sidecar) => sidecarIsForNifti(nifti, sidecar)) || null;
-    return { nifti, option };
+    return { nifti, sidecarFile };
   });
 }
 
