@@ -31,7 +31,7 @@ const FILES_PER_SUBJECT_LIMIT = 20;
 /**
  * Versions of `pl-visual-dataset` compatible with this viewer.
  */
-const COMPATIBLE_PL_VISUAL_DATASET_VERSIONS = /0\.0\.5/;
+const COMPATIBLE_PL_VISUAL_DATASET_VERSIONS = ['0.0.5'];
 
 
 /**
@@ -122,8 +122,9 @@ class VisualDatasetsClient {
         variant: 'warning',
         title: `Feed ${feed.data.id} not thoroughly checked`,
         body: (<div>
-          No instance of plugin pl-visual-dataset was found in the{' '}
-          {PLUGININSTANCES_LIMIT} most recent plugin instances of the
+          No instance of plugin pl-visual-dataset with (supported versions
+          {COMPATIBLE_PL_VISUAL_DATASET_VERSIONS.join(',')}) was found in
+          the {PLUGININSTANCES_LIMIT} most recent plugin instances of the
           feed titled "{feed.data.name}". Even though it might contain
           a public visual dataset, the feed will not show up here because
           I am lazy.
@@ -243,7 +244,8 @@ class VisualDatasetsClient {
  */
 function isPlVisualDataset(p: PluginInstance): boolean {
   return p.data.plugin_name === 'pl-visual-dataset'
-    && p.data.plugin_version.search(COMPATIBLE_PL_VISUAL_DATASET_VERSIONS) !== -1;
+    && COMPATIBLE_PL_VISUAL_DATASET_VERSIONS
+      .findIndex((v) => v === p.data.plugin_version) !== -1;
 }
 
 async function badlyFetchFileResource(option: FilebrowserFile): Promise<Sidecar> {
