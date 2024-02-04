@@ -28,6 +28,11 @@ const PLUGININSTANCES_LIMIT = 20;
  */
 const FILES_PER_SUBJECT_LIMIT = 20;
 
+/**
+ * Versions of `pl-visual-dataset` compatible with this viewer.
+ */
+const COMPATIBLE_PL_VISUAL_DATASET_VERSIONS = /0\.0\.5/;
+
 
 /**
  * Contacts CUBE to search for datasets conformant to the "Visual Dataset"
@@ -106,7 +111,7 @@ class VisualDatasetsClient {
     // See https://github.com/FNNDSC/ChRIS_ultron_backEnd/issues/530
     const plinstCollection = await feed.getPluginInstances({limit: PLUGININSTANCES_LIMIT});
     const plinsts = plinstCollection.getItems() as PluginInstance[];
-    const plugininstance = plinsts.find((plinst) => plinst.data.plugin_name === 'pl-visual-dataset');
+    const plugininstance = plinsts.find(isPlVisualDataset);
 
     if (plugininstance !== undefined) {
       return { feed, plugininstance };
@@ -231,6 +236,14 @@ class VisualDatasetsClient {
       throw e;
     }
   }
+}
+
+/**
+ * @returns true if is a plugin instance of a compatible version of `pl-visual-dataset`
+ */
+function isPlVisualDataset(p: PluginInstance): boolean {
+  return p.data.plugin_name === 'pl-visual-dataset'
+    && p.data.plugin_version.search(COMPATIBLE_PL_VISUAL_DATASET_VERSIONS) !== -1;
 }
 
 async function badlyFetchFileResource(option: FilebrowserFile): Promise<Sidecar> {
