@@ -1,6 +1,12 @@
-.leftAndRightContainer {
+.leftAndRightWhenWide {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+}
+
+.leftAndRight {
+  display: flex;
+  flex-direction: row;
   justify-content: space-between;
 }
 
@@ -31,7 +37,12 @@
     display: initial;
   }
 
-  .leftAndRightContainer {
+  .hideOnDesktop {
+    display: none;
+  }
+
+  .leftAndRightWhenWide {
     flex-direction: row;
+    flex-wrap: nowrap;
   }
 }
