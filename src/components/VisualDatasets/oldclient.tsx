@@ -11,28 +11,6 @@ import { DEFAULT_VOLUME } from "./defaults.ts";
 // Pagination is currently not implemented anywhere.
 // When number of resources returned > limit, please call ProblemManager.pushOnce
 
-/**
- * A file created by `pl-visual-dataset`.
- */
-const MAGIC_PUBLIC_DATASET_FILENAME = '.chrisvisualdataset.root.json';
-/**
- * Maximum number of public visual datasets to search for.
- */
-const FEEDS_SEARCH_LIMIT = 10;
-/**
- * Maximum number of plugin instances to query for per feed.
- */
-const PLUGININSTANCES_LIMIT = 20;
-/**
- * Maximum number of plugin instances to query for per subject.
- */
-const FILES_PER_SUBJECT_LIMIT = 20;
-
-/**
- * Versions of `pl-visual-dataset` compatible with this viewer.
- */
-const COMPATIBLE_PL_VISUAL_DATASET_VERSIONS = ['0.0.5'];
-
 
 /**
  * Contacts CUBE to search for datasets conformant to the "Visual Dataset"
@@ -73,10 +51,7 @@ class VisualDatasetsClient {
    * - private visual datasets?
    */
   public async getVisualDatasetFeeds(): Promise<VisualDataset[]> {
-    const searchParams = {
-      files_fname_icontains: MAGIC_PUBLIC_DATASET_FILENAME,
-      limit: FEEDS_SEARCH_LIMIT
-    };
+
 
     try {
       const feedsCollection = await this.client.getPublicFeeds(searchParams);
@@ -142,13 +117,7 @@ class VisualDatasetsClient {
     if (datasets.length === 0) {
       this.problems.pushOnce({
         variant: "warning",
-        title: 'No public datasets found.',
-        body: (<span>
-          To add a public dataset, follow these instructions:{' '}
-          <a href="https://chrisproject.org/docs/public_dataset_browser" target="_blank">
-            https://chrisproject.org/docs/public_dataset_browser
-          </a>
-        </span>)
+
       });
       return null;
     }

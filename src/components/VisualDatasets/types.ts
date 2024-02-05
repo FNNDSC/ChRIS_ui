@@ -2,22 +2,40 @@ import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import React from "react";
 
 /**
- * A feed and a plugin instance of that feed which is a visual dataset.
+ * A "Visual Dataset" in _ChRIS_ comprises two plugin instances:
  *
- * In the current version, a "visual dataset" is a public feed which
- * has exactly one plugin instance of pl-visual-dataset.
- * See https://chrisproject.org/docs/visual_dataset for documentation.
+ * - The "parent" plugin instance contains data (NIFTI files)
+ * - The "child" plugin instance contains metadata (tags manifest and JSON
+ *   sidecars)
  *
- * In the future, we might want to consider feeds which contain multiple
- * public datasets.
+ * INVARIANTS:
+ *
+ * - `dataPlinst` is the previous plugin instance of `manifestPlinst`
+ * - `indexPlinst` is a plugin instance of `pl-visual-dataset`
+ * - `feed` is the feed of `dataPlinst` and `indexPlinst`
  */
-type VisualDataset = { feed: Feed, plugininstance: PluginInstance };
+type VisualDataset = {
+  feed: Feed,
+  dataPlinst: PluginInstance
+  indexPlinst: PluginInstance
+};
 
+/**
+ * The result of trying to get datasets from CUBE. Getting datasets
+ * involves multiple HTTP requests and can return [0, n) datasets,
+ */
+type GetDatasetsResult = {
+  errors: Problem[],
+  datasets: VisualDataset[]
+};
 
+/**
+ * A UI-friendly message about abnormal happenings.
+ */
 type Problem = {
   variant: "warning" | "success" | "danger" | "info"
   title: string,
   body?: React.ReactNode
 };
 
-export type { Problem, VisualDataset };
+export type { Problem, VisualDataset, GetDatasetsResult };
