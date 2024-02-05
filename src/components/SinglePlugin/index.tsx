@@ -9,7 +9,8 @@ import {
   PluginInstance,
 } from "@fnndsc/chrisapi";
 import sanitizeHTML from "sanitize-html";
-import { marked } from "marked";
+import { micromark } from "micromark";
+import { gfm, gfmHtml } from "micromark-extension-gfm";
 import { fetchResource } from "../../api/common";
 import { unpackParametersIntoString } from "../AddNode/utils";
 import {
@@ -44,7 +45,10 @@ const SinglePlugin = () => {
     const type: string = download_url.split(".").reverse()[0];
 
     if (type === "md" || type === "rst") {
-      fileToSanitize = await marked.parse(file);
+      fileToSanitize = micromark(file, {
+        extensions: [gfm()],
+        htmlExtensions: [gfmHtml()],
+      });
     } else {
       fileToSanitize = file;
     }
@@ -89,7 +93,7 @@ const SinglePlugin = () => {
       const boundComputeFn = computeFn.bind(plugin);
       const { resource: parameters } = await fetchResource<PluginParameter>(
         params,
-        boundFn
+        boundFn,
       );
 
       const { resource: computes } = isLoggedIn
@@ -115,8 +119,8 @@ const SinglePlugin = () => {
               value: param.data.default
                 ? param.data.default
                 : param.data.type !== "boolean"
-                ? "' '"
-                : "",
+                  ? "' '"
+                  : "",
             },
           };
           generatedCommand += unpackParametersIntoString(generateInput);
@@ -131,7 +135,7 @@ const SinglePlugin = () => {
         });
       }
     },
-    [isLoggedIn]
+    [isLoggedIn],
   );
 
   const { data, isLoading, isFetching, isError, error } = useQuery({
