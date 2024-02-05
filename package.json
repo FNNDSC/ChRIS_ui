@@ -9,6 +9,8 @@
     "build": "tsc && vite build",
     "test": "vitest",
     "test:e2e": "playwright test -c playwright.config.ts; rc=$?; c8 report -o coverage -r clover -r text && exit $rc",
+    "test:ui": "playwright test -c playwright.config.ts --ui",
+    "test:codegen": "playwright codegen http://localhost:5173",
     "test:fetalmri": "playwright test -c playwright-fetalmri.config.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",

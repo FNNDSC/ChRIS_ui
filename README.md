@@ -152,10 +152,10 @@ With Playwright installed, run
 npm run test:e2e
 ```
 
-Or
+Or, use a GUI to run tests one-by-one:
 
 ```shell
-npx playwright test -c playwright.config.ts --ui
+npm run test:ui
 ```
 
 ### Writing Tests
@@ -171,7 +171,7 @@ npm run dev
 In another terminal, open the website and start recording tests:
 
 ```shell
-npx playwright codegen http://localhost:5173
+npm run test:codegen
 ```
 
 <!-- Image Links -->
