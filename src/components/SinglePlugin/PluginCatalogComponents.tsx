@@ -57,7 +57,7 @@ export const HeaderComponent = ({
         <p style={{ color: "gray" }}>
           Created{" "}
           {new Date(
-            currentPluginMeta.data.creation_date.split("T")[0]
+            currentPluginMeta.data.creation_date.split("T")[0],
           ).toDateString()}
         </p>
       </GridItem>
@@ -189,7 +189,7 @@ export const HeaderCardPlugin = ({
 }: {
   plugins?: Plugin[];
   currentPluginMeta: PluginMeta;
-  readme: string;
+  readme?: string;
   removeEmail: (authors: string[]) => string[];
   parameterPayload?: ParameterPayload;
   setPluginParameters: (plugin: Plugin) => Promise<void>;
@@ -238,7 +238,7 @@ export const HeaderCardPlugin = ({
 
       setFeedLoad(false);
     },
-    []
+    [],
   );
 
   React.useEffect(() => {
@@ -434,7 +434,7 @@ export const HeaderSidebar = ({
         </p>
 
         <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="Copied">
-          {parameterPayload?.url}
+          {parameterPayload?.url ? parameterPayload.url : ""}
         </ClipboardCopy>
       </div>
       <div className="plugin-body-detail-section">
@@ -451,7 +451,7 @@ export const HeaderSidebar = ({
             <div key={author}>
               <UserAltIcon /> {author}
             </div>
-          )
+          ),
         )}
       </div>
       <div className="plugin-body-detail-section">
@@ -479,7 +479,7 @@ export const HeaderSidebar = ({
       <div className="plugin-body-detail-section">
         <h4>Date added</h4>
         {new Date(
-          currentPluginMeta.data.creation_date.split("T")[0]
+          currentPluginMeta.data.creation_date.split("T")[0],
         ).toDateString()}
       </div>
     </div>
