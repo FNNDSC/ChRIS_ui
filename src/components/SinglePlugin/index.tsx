@@ -8,7 +8,6 @@ import {
   PluginParameter,
   PluginInstance,
 } from "@fnndsc/chrisapi";
-import sanitizeHTML from "sanitize-html";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import { fetchResource } from "../../api/common";
@@ -53,7 +52,7 @@ const SinglePlugin = () => {
       fileToSanitize = file;
     }
 
-    return sanitizeHTML(fileToSanitize);
+    return fileToSanitize;
   };
 
   const fetchPlugins = async (id: number) => {
