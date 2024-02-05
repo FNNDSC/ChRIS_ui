@@ -23,55 +23,47 @@ The *ChRIS_ui* is now running on http://localhost:3000/
 
 ## Development
 
-### [0] Preconditions
+We support development on **Linux** only.
 
-1. **Install latest Docker for your platform.**
-    
-    Currently tested platforms
-    - Ubuntu 18.04+ (typically 20.04+, and Pop!_OS)
-    - Fedora 32+
-    - Arch Linux
-    - macOS 11.X+ (Big Sur)
 
-2. **Get the backend services up so you can fully test the UI against actual data.**
-    * Install latest [``Docker Compose``](https://docs.docker.com/compose/)
-    * On a Linux machine make sure to add your computer user to the ``docker`` group
+#### 1. Have the [_ChRIS_ backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd) running.
 
-3. **Open a terminal and start the backend services.**
-    ```bash
-    git clone https://github.com/FNNDSC/miniChRIS.git
-    cd miniChRIS
-    ./minichris.sh
-    ```
+For local development, use [Docker Compose](https://docs.docker.com/compose/) and [miniChRIS-docker](https://github.com/FNNDSC/miniChRIS-docker). Open a terminal and run
 
-    <details>
-      <summary>
-        <strong>
-          Alternatively, start the backend in development mode:
-        </strong>
-      </summary>
+```shell
+git clone https://github.com/FNNDSC/miniChRIS-docker.git
+cd miniChRIS-docker
+./minichris.sh
+```
 
-      ### Get the backend running from ChRIS_ultron_backEnd
+<details>
+<summary>
+  <strong>
+    Alternatively, start the backend in development mode (click to expand)
+  </strong>
+</summary>
 
-      ```bash
-      $ git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
-      $ cd ChRIS_ultron_backEnd
-      $ ./make.sh -U -I -i
-      ```
+##### Get the backend running from ChRIS_ultron_backEnd
 
-      ### Tearing down the ChRIS backend
+```bash
+$ git clone https://github.com/FNNDSC/ChRIS_ultron_backEnd.git
+$ cd ChRIS_ultron_backEnd
+$ ./make.sh -U -I -i
+```
 
-      You can later remove all the backend containers and release storage volumes with:
-      ```bash
-      $ cd ChRIS_ultron_backEnd
-      $ sudo rm -r FS
-      $ ./unmake.sh
-      ```
-    </details>
+##### Tearing down the ChRIS backend
 
-See [FNNDSC/miniChRIS](https://github.com/FNNDSC/miniChRIS) for details.
+You can later remove all the backend containers and release storage volumes with:
 
-### [1] Configuring the backend URL
+```bash
+$ cd ChRIS_ultron_backEnd
+$ sudo rm -r FS
+$ ./unmake.sh
+```
+
+</details>
+
+#### 2. Configuring the backend URL
 
 For development, it is recommended that you create either a `.env.local`
 or `.env.development.local` environment variables file in the root of the project.
@@ -87,38 +79,43 @@ Copy the existing `.env` file to this new file. Changes to these files will be i
 
 For details on how to set up PFDCM, refer to the [PFDCM readme](https://github.com/FNNDSC/pfdcm).
 
-### [2] Start UI development server
+#### 3. Start UI development server
+
 You can follow any of these steps to start UI development server
 
-* #### Using ``node`` and ``yarn`` package manager directly on the metal
+```shell
+git clone https://github.com/FNNDSC/ChRIS_ui.git
+cd ChRIS_ui
+npm i
+npm run dev
+```
 
-    Open a new terminal on your system and follow these steps:
-    ```bash
-    $ git clone https://github.com/FNNDSC/ChRIS_ui.git
-    $ cd ChRIS_ui
-    $ npm i
-    $ npm run dev
-    ```
+<details>
+<summary>
+<strong>
+Alternatively, using Docker (click to expand)
+</strong>
+</summary>
 
-    More details can be found in the
-    [wiki](https://github.com/FNNDSC/ChRIS_ui/wiki/Development-and-deployment-directly-on-the-metal).
+These instructions are no longer supported.
 
-* #### Using ``docker``
+Open a new terminal on your system and follow these steps:
 
-    Open a new terminal on your system and follow these steps:
-    ```bash
-    $ git clone https://github.com/FNNDSC/ChRIS_ui.git
-    $ cd ChRIS_ui
-    $ docker build -t fnndsc/chris_ui:dev -f Dockerfile_dev .
-    $ docker run --rm -it -v $PWD:/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --userns=host --name chris_ui fnndsc/chris_ui:dev
-    ```
-    Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```bash
+git clone https://github.com/FNNDSC/ChRIS_ui.git
+cd ChRIS_ui
+docker build -t localhost/fnndsc/chris_ui:dev -f Dockerfile_dev .
+docker run --rm -it -v $PWD:/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --userns=host --name chris_ui localhost/fnndsc/chris_ui:dev
+```
 
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## Build the ChRIS UI app for production
+</details>
+
+## Build for production
 
 [Source-to-image](https://github.com/openshift/source-to-image#readme)
-can be used to build this project.
+must be used to build this project for deployment.
 
 ```shell
 s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-20 s2ichrisui
@@ -130,27 +127,54 @@ s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-20 s2ichrisui
 Set the environment variables `VITE_ACKEE_SERVER` and `VITE_ACKEE_DOMAIN_ID`
 to send analytics to an Ackee instance.
 
-### E2E TESTS ARE RAN USING CYPRESS
+## Testing
 
-## Prerequisites:
-- ChRIS_ultron_backend is running on `http://localhost:8000/api/v1/`
-- ChRIS_ui is running on `http://localhost:3000/`
-- You have Cypress installed using `npm install`
-```
-- To run: 
-`$ npm run cypress:open`
-```
-This will open cypress in an interactive UI. 
-To run cypress in the terminal as a headless browser use: 
-```
-`npm run cypress:run`
+_ChRIS_ui_ does unit tests using [vitest](https://vitest.dev/) and end-to-end (E2E) tests using [Playwright](https://playwright.dev).
+
+### Unit Tests
+
+Unit tests are defined in `*.test.ts` files inside `src`.
+
+It is recommended to leave this command running while developing _ChRIS_ui_.
+
+```shell
+npm test
 ```
 
-Running Cypress inside a container is not currently supported
+### End-to-End Tests
 
+E2E tests are located under `tests/`. Tests specific to http://fetalmri.org are found under `tests/fetalmri.org`.
 
+Playwright requires some system dependencies. On first run, you will be prompted to install these dependencies.
+With Playwright installed, run
 
+```shell
+npm run test:e2e
+```
 
+Or
+
+```shell
+npx playwright test -c playwright.config.ts --ui
+```
+
+### Writing Tests
+
+E2E tests can be recorded from user interactions. See https://playwright.dev/docs/codegen-intro
+
+First, start the development server:
+
+```shell
+npm run dev
+```
+
+In another terminal, open the website and start recording tests:
+
+```shell
+npx playwright codegen http://localhost:5173
+```
+
+<!-- Image Links -->
 
 [license-badge]: https://img.shields.io/github/license/fnndsc/chris_ui.svg
 [last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
