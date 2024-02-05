@@ -86,10 +86,21 @@
   }
 }
 
-.button-style {
-  border-radius: 50%;
+.small-button {
+  width: 20px;
+  height: 20px;
+  font-size:12px;
+  
+}
+
+.large-button {
   width: 40px;
   height: 40px;
+}
+
+.button-style {
+  border-radius: 50%;
+  padding:1rem;
   border: none;
   display: flex;
   justify-content: center;
