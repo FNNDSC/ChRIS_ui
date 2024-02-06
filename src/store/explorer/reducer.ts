@@ -1,12 +1,14 @@
 import { Reducer } from "redux";
 import { ExplorerActionTypes, IExplorerState } from "./types";
 
-
 const initialState: IExplorerState = {
   selectedFile: undefined,
 };
 
-const reducer: Reducer<IExplorerState> = (state = initialState, action:typeof ExplorerActionTypes) => {
+const reducer: Reducer<IExplorerState> = (
+  state = initialState,
+  action: typeof ExplorerActionTypes,
+) => {
   switch (action.type) {
     case ExplorerActionTypes.SET_SELECTED_FILE: {
       const selectedFile = action.payload;

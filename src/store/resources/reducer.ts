@@ -12,7 +12,7 @@ export const initialState: IResourceState = {
 
 const reducer: Reducer<IResourceState> = (
   state = initialState,
-  action: typeof ResourceTypes
+  action: typeof ResourceTypes,
 ) => {
   switch (action.type) {
     case ResourceTypes.GET_PLUGIN_STATUS_SUCCESS: {
@@ -42,7 +42,7 @@ const reducer: Reducer<IResourceState> = (
       const pluginStatusLabels = getStatusLabels(
         pluginStatus,
         pluginDetails,
-        previousStatus
+        previousStatus,
       );
 
       return {

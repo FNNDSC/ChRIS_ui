@@ -29,7 +29,10 @@ const initialState: IDrawerState = {
   },
 };
 
-const reducer: Reducer<IDrawerState> = (state = initialState, action:typeof DrawerActionTypes) => {
+const reducer: Reducer<IDrawerState> = (
+  state = initialState,
+  action: typeof DrawerActionTypes,
+) => {
   switch (action.type) {
     case DrawerActionTypes.SET_DRAWER_STATE: {
       let newState;
@@ -84,7 +87,7 @@ export { reducer as drawerReducer };
 
 export const getMaximizedObject = (
   state: IDrawerState,
-  payload: DrawerPayloadType
+  payload: DrawerPayloadType,
 ) => {
   const newState = { ...state };
   for (const property in newState) {
@@ -101,7 +104,7 @@ export const getMaximizedObject = (
 
 export const getMinimizedObject = (
   state: IDrawerState,
-  payload: DrawerPayloadType
+  payload: DrawerPayloadType,
 ) => {
   const newState = { ...state };
 

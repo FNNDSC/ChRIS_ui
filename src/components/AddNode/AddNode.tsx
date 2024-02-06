@@ -16,7 +16,7 @@ import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
 import { addNodeRequest } from "../../store/pluginInstance/actions";
 import { getNodeOperations, getParams } from "../../store/plugin/actions";
-import { getRequiredObject } from "../CreateFeed/createFeed";
+import { getRequiredObject } from "../CreateFeed/createFeedHelper";
 import { useTypedSelector } from "../../store/hooks";
 import { useDispatch } from "react-redux";
 import { AddNodeContext } from "./context";
@@ -36,7 +36,7 @@ const AddNode = ({
   const dispatch = useDispatch();
 
   const { childNode } = useTypedSelector(
-    (state) => state.plugin.nodeOperations
+    (state) => state.plugin.nodeOperations,
   );
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
 
@@ -119,7 +119,7 @@ const AddNode = ({
       requiredInput,
       plugin,
       errorCallback,
-      selectedPlugin
+      selectedPlugin,
     );
 
     parameterInput = {

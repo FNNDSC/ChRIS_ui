@@ -26,7 +26,7 @@ export const initialState: IFeedState = {
 
 const reducer: Reducer<IFeedState> = (
   state = initialState,
-  action: typeof FeedActionTypes
+  action: typeof FeedActionTypes,
 ) => {
   switch (action.type) {
     case FeedActionTypes.GET_FEED_SUCCESS: {
@@ -41,7 +41,6 @@ const reducer: Reducer<IFeedState> = (
     }
 
     case FeedActionTypes.SET_LAYOUT: {
-      
       return {
         ...state,
         currentLayout: !state.currentLayout,

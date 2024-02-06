@@ -70,7 +70,7 @@ const FileUploadComponent = ({
         onNext();
       }
     },
-    [localFiles.length, onBack, onNext]
+    [localFiles.length, onBack, onNext],
   );
 
   useEffect(() => {

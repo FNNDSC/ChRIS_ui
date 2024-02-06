@@ -29,7 +29,7 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
     React.useState<SimpleDropdownState>(getInitialState);
   const { isOpen } = dropdownState;
   const [paramFlag, value, type, placeholder] = unPackForKeyValue(
-    dropdownInput[id]
+    dropdownInput[id],
   );
 
   useEffect(() => {
@@ -126,7 +126,7 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
       params["dropdown"]
         .filter(
           (param) =>
-            param.data.optional === true && !useParam.has(param.data.flag)
+            param.data.optional === true && !useParam.has(param.data.flag),
         )
         .map((param) => {
           return (
@@ -162,8 +162,8 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
                   {paramFlag
                     ? `${paramFlag}`
                     : params && params["dropdown"].length == 0
-                    ? "No Parameters"
-                    : "Choose a Parameter"}
+                      ? "No Parameters"
+                      : "Choose a Parameter"}
                 </div>
               </MenuToggle>
             );

@@ -17,7 +17,7 @@ const FeedNote = () => {
   const [typing, setTyping] = React.useState(false);
   const handleChange = (
     _event: React.ChangeEvent<HTMLTextAreaElement>,
-    value: string
+    value: string,
   ) => {
     setValue(value);
   };

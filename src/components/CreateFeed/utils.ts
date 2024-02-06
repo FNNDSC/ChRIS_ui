@@ -81,7 +81,6 @@ export const generateTreeNodes = async (
         isLeaf: true,
       });
     } else {
-     
       const checkList = ["uploads", "SERVICES", "PACS"];
       const isCheckable = !checkList.includes(items[i]);
       arr.push({

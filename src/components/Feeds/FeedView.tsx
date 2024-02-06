@@ -41,13 +41,13 @@ export default function FeedView() {
   const navigate = useNavigate();
   const { id } = params;
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
+    (state) => state.instance.selectedPlugin,
   );
 
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const { currentLayout } = useTypedSelector((state) => state.feed);
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
+    (state) => state.instance.pluginInstances,
   );
   const dataRef = React.useRef<DestroyActiveResources>();
   const { data } = pluginInstances;
@@ -113,7 +113,7 @@ export default function FeedView() {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      })
+      }),
     );
   }, [dispatch]);
 
