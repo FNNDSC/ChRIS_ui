@@ -73,5 +73,6 @@ export default defineConfig({
   webServer: {
     command: "npm run dev:public",
     url: "http://localhost:25173",
+    reuseExistingServer:true
   },
 });
