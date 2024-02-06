@@ -21,20 +21,20 @@ function* handleGetParams(action: IActionTypeParam) {
     const boundFn = fn.bind(plugin);
     const { resource: params } = yield fetchResource<PluginParameter[]>(
       { limit: 20, offset: 0 },
-      boundFn
+      boundFn,
     );
     const computeFn = plugin.getPluginComputeResources;
     const boundComputeFn = computeFn.bind(plugin);
     const { resource: computeEnvs } = yield fetchResource<any>(
       { limit: 20, offset: 0 },
-      boundComputeFn
+      boundComputeFn,
     );
 
     const required = params.filter(
-      (param: PluginParameter) => param.data.optional === false
+      (param: PluginParameter) => param.data.optional === false,
     );
     const dropdown = params.filter(
-      (param: PluginParameter) => param.data.optional === true
+      (param: PluginParameter) => param.data.optional === true,
     );
 
     yield all([
@@ -42,7 +42,7 @@ function* handleGetParams(action: IActionTypeParam) {
         getParamsSuccess({
           required,
           dropdown,
-        })
+        }),
       ),
       put(getComputeEnvSuccess(computeEnvs)),
     ]);

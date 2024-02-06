@@ -100,18 +100,18 @@ const TableSelectable: React.FunctionComponent = () => {
     type === "private" ? authenticatedFeeds : publicFeedsToDisplay;
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed
+    (state) => state.feed,
   );
 
   const onSetPage = (_e: any, newPage: number) => {
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}&type=${type}`
+      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}&type=${type}`,
     );
   };
 
   const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`
+      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`,
     );
   };
 
@@ -121,12 +121,12 @@ const TableSelectable: React.FunctionComponent = () => {
 
   const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (
     event,
-    _isSelected
+    _isSelected,
   ) => {
     const id = event.currentTarget.id;
 
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${1}&perPage=${perPage}&type=${id}`
+      `/feeds?search=${search}&searchType=${searchType}&page=${1}&perPage=${perPage}&type=${id}`,
     );
   };
 
@@ -138,7 +138,7 @@ const TableSelectable: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "analyses",
-      })
+      }),
     );
     if (bulkData && bulkData.current) {
       dispatch(removeAllSelect(bulkData.current));
@@ -149,7 +149,7 @@ const TableSelectable: React.FunctionComponent = () => {
     if (!type) {
       const feedType = isLoggedIn ? "private" : "public";
       navigate(
-        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=${feedType}`
+        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=${feedType}`,
       );
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
@@ -189,8 +189,8 @@ const TableSelectable: React.FunctionComponent = () => {
               type === "private" && data && data.totalFeedsCount
                 ? data.totalFeedsCount
                 : publicFeeds && publicFeeds.totalFeedsCount
-                ? publicFeeds.totalFeedsCount
-                : 0
+                  ? publicFeeds.totalFeedsCount
+                  : 0
             })`}
             p1={
               <Paragraph>

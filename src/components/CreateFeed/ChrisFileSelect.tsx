@@ -60,13 +60,13 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   const { chrisFiles, checkedKeys } = state.data;
   const { goToPrevStep: onBack, goToNextStep: onNext } = useWizardContext();
   const [tree, setTree] = useState<DataBreadcrumb[]>(
-    (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username)
+    (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
   );
   const [loadingError, setLoadingError] = useState<Error>();
 
   const fetchKeysFromDict: Key[] = React.useMemo(
     () => getCheckedKeys(checkedKeys),
-    [checkedKeys]
+    [checkedKeys],
   );
 
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
@@ -123,7 +123,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         onBack();
       }
     },
-    [chrisFiles.length, onBack, onNext]
+    [chrisFiles.length, onBack, onNext],
   );
 
   useEffect(() => {

@@ -47,7 +47,7 @@ function getInitialState() {
 const NodeDetails: React.FC = () => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
+    (state) => state.instance.selectedPlugin,
   );
   const navigate = useNavigate();
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
@@ -168,28 +168,28 @@ const NodeDetails: React.FC = () => {
                   {renderGridItem("Feed Name", <>{feed && feed.data.name}</>)}
                   {renderGridItem(
                     "Feed Author",
-                    <>{feed && feed.data.creator_username}</>
+                    <>{feed && feed.data.creator_username}</>,
                   )}
                   {selectedPlugin.data.previous_id &&
                     renderGridItem(
                       "Parent Node ID",
-                      <span>{selectedPlugin.data.previous_id}</span>
+                      <span>{selectedPlugin.data.previous_id}</span>,
                     )}
                   {renderGridItem(
                     "Selected Node ID",
-                    <span>{selectedPlugin.data.id}</span>
+                    <span>{selectedPlugin.data.id}</span>,
                   )}
                   {renderGridItem(
                     "Plugin",
                     <span style={{ fontFamily: "monospace" }}>
                       {selectedPlugin.data.plugin_name}, ver{" "}
                       {selectedPlugin.data.plugin_version}
-                    </span>
+                    </span>,
                   )}
                   {renderGridItem("Created", Time)}
                   {renderGridItem(
                     "Compute Environment",
-                    <span>{compute_env}</span>
+                    <span>{compute_env}</span>,
                   )}
                   {runTime && (
                     <Fragment>
@@ -199,7 +199,7 @@ const NodeDetails: React.FC = () => {
                           {selectedPlugin &&
                             selectedPlugin.data &&
                             runTime(selectedPlugin)}
-                        </span>
+                        </span>,
                       )}
                     </Fragment>
                   )}
@@ -229,7 +229,7 @@ const NodeDetails: React.FC = () => {
                         ) : (
                           "None"
                         )}
-                      </span>
+                      </span>,
                     )}
                 </Grid>
               </ExpandableSection>
@@ -300,7 +300,7 @@ function getRuntimeString(selected: PluginInstance) {
 function getCommand(
   plugin: Plugin,
   params: PluginInstanceDescendantList,
-  parameters: PluginParameterList
+  parameters: PluginParameterList,
 ) {
   const { dock_image, selfexec } = plugin.data;
   const modifiedParams: {
@@ -337,7 +337,7 @@ function getCommand(
 
   if (modifiedParams.length) {
     parameterCommand = modifiedParams.map(
-      (param) => `${param.name} ${param.value}`
+      (param) => `${param.name} ${param.value}`,
     );
     if (parameterCommand.length > 0) {
       command += parameterCommand.join(" ") + " \\\n";

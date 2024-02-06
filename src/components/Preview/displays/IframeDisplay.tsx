@@ -12,7 +12,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   if (fileItem.fileType === "html") {
     url = fileItem.blob
       ? window.URL.createObjectURL(
-          new Blob([fileItem.blob], { type: "text/html" })
+          new Blob([fileItem.blob], { type: "text/html" }),
         )
       : "";
   } else {

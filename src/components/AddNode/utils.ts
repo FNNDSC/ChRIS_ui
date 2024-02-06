@@ -54,7 +54,7 @@ export const getAllParamsWithName = (
   flag: string,
   value: string,
   type: string,
-  placeholder: string
+  placeholder: string,
 ) => {
   const result: InputIndex = {};
   result["flag"] = flag;
@@ -68,7 +68,7 @@ export function getRequiredParamsWithName(
   flag: string,
   value: string,
   type: string,
-  placeholder: string
+  placeholder: string,
 ) {
   const result: InputIndex = {};
   result["flag"] = flag;
@@ -83,7 +83,7 @@ export const handleGetTokens = (
   params: {
     required: PluginParameter[];
     dropdown: PluginParameter[];
-  }
+  },
 ) => {
   const totalParams = [...params.required, ...params.dropdown];
   const userValue = value.trim();

@@ -14,7 +14,7 @@ const initialState: IUiState = {
 
 const reducer: Reducer<IUiState> = (
   state = initialState,
-  action: typeof UserActionTypes
+  action: typeof UserActionTypes,
 ) => {
   switch (action.type) {
     case UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN: {

@@ -77,7 +77,9 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
               <GridItem lg={4} md={4} sm={12}>
                 <Alert type="error" description="Please refresh the page..." />
               </GridItem>
-            ) : userPreferences && userPreferencesArray && userPreferencesArray.length > 0 ? (
+            ) : userPreferences &&
+              userPreferencesArray &&
+              userPreferencesArray.length > 0 ? (
               userPreferencesArray.map((key: string) => (
                 <GridItem key={key} lg={4} md={4} sm={12}>
                   <div>{key}</div>
