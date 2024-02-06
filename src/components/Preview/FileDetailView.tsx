@@ -3,11 +3,6 @@ import * as dicomParser from "dicom-parser";
 import {
   Label,
   Text,
-  Dropdown,
-  DropdownItem,
-  DropdownList,
-  MenuToggle,
-  MenuToggleElement,
   Button,
   Tooltip,
   Toolbar,
@@ -15,8 +10,7 @@ import {
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
-import FaChevronLeft from "@patternfly/react-icons/dist/esm/icons/chevron-left-icon";
-import FaChevronRight from "@patternfly/react-icons/dist/esm/icons/chevron-right-icon";
+
 import ZoomIcon from "@patternfly/react-icons/dist/esm/icons/search-plus-icon";
 import PanIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import RotateIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
@@ -27,7 +21,7 @@ import {
   LightBulbIcon,
   MagnifyingGlassCircleIcon,
 } from "@heroicons/react/24/solid";
-import EllipsisVIcon from "@patternfly/react-icons/dist/esm/icons/ellipsis-v-icon";
+
 import { useTypedSelector } from "../../store/hooks";
 import type { FeedFile } from "@fnndsc/chrisapi";
 import { getFileExtension } from "../../api/model";
@@ -194,21 +188,6 @@ const FileDetailView = (props: AllProps) => {
       <React.Suspense fallback={<SpinContainer title="" />}>
         <ErrorBoundary fallback={errorComponent()}>
           <div className={previewType}>
-            {props.gallery && (
-              <div
-                style={{
-                  width: "100%",
-                  zIndex: 999,
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <FaChevronLeft onClick={props.handlePrevious} />
-                <FaChevronRight onClick={props.handleNext} />
-              </div>
-            )}
-
             {previewType === "large-preview" && (
               <DicomHeader
                 viewerName={viewerName}
@@ -307,96 +286,43 @@ export const DicomHeader = ({
   fullScreen: boolean;
   actionState: ActionState;
 }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-
   const specificActions = getViewerSpecificActions[viewerName];
 
   const appLauncherItems =
-    specificActions && specificActions.length > 0
-      ? specificActions.map((action) => {
-          if (fullScreen) {
-            const spacer: {
-              xl?: "spacerLg";
-              lg?: "spacerLg";
-              md?: "spacerMd";
-              sm?: "spacerSm";
-            } = {
-              xl: "spacerLg",
-              lg: "spacerLg",
-              md: "spacerMd",
-              sm: "spacerSm",
-            };
-            return (
-              <ToolbarItem spacer={spacer} key={action.name}>
-                <Tooltip content={<span>{action.name}</span>}>
-                  <Button
-                    className="button-style"
-                    variant={
-                      actionState[action.name] === true ? "primary" : "control"
-                    }
-                    icon={action.icon}
-                    onClick={(ev) => {
-                      ev.preventDefault();
-                      handleEvents(action.name);
-                    }}
-                  />
-                </Tooltip>
-              </ToolbarItem>
-            );
-          } else {
-            return (
-              <DropdownItem
-                icon={action.icon}
-                key={action.name}
-                onClick={(ev) => {
-                  ev.preventDefault();
-                  handleEvents(action.name);
-                }}
-              >
-                {action.name}
-              </DropdownItem>
-            );
-          }
-        })
-      : [
-          <DropdownItem key="No tools">
-            No tools for this file type
-          </DropdownItem>,
-        ];
+    specificActions &&
+    specificActions.length > 0 &&
+    specificActions.map((action) => {
+      const spacer: {
+        xl?: "spacerLg";
+        lg?: "spacerLg";
+        md?: "spacerMd";
+        sm?: "spacerSm";
+      } = {
+        xl: "spacerLg",
+        lg: "spacerLg",
+        md: "spacerMd",
+        sm: "spacerSm",
+      };
+      return (
+        <ToolbarItem spacer={spacer} key={action.name}>
+          <Tooltip content={<span>{action.name}</span>}>
+            <Button
+              className={`${
+                fullScreen ? "large-button" : "small-button"
+              } button-style`}
+              variant={
+                actionState[action.name] === true ? "primary" : "control"
+              }
+              icon={action.icon}
+              onClick={(ev) => {
+                ev.preventDefault();
+                handleEvents(action.name);
+              }}
+            />
+          </Tooltip>
+        </ToolbarItem>
+      );
+    });
 
-  return fullScreen ? (
-    <Toolbar className="centered-container">{appLauncherItems}</Toolbar>
-  ) : (
-    <Dropdown
-      toggle={(toggleRef: React.Ref<MenuToggleElement>) => {
-        return (
-          <MenuToggle
-            style={{
-              paddingLeft: "0px",
-            }}
-            aria-label="Kebab dropdown toggle"
-            onClick={() => setIsOpen(!isOpen)}
-            isExpanded={isOpen}
-            variant="plain"
-            ref={toggleRef}
-          >
-            <EllipsisVIcon />
-          </MenuToggle>
-        );
-      }}
-      style={{
-        position: "absolute",
-        right: "var(--pf-global--spacer--md)",
-        marginRight: "-0.6rem",
-        zIndex: "9999",
-        marginBottom: "0.5rem",
-      }}
-      onOpenChange={() => setIsOpen(!isOpen)}
-      onSelect={() => setIsOpen(!isOpen)}
-      isOpen={isOpen}
-      shouldFocusToggleOnSelect
-    >
-      <DropdownList>{appLauncherItems}</DropdownList>
-    </Dropdown>
-  );
+  return <Toolbar className="centered-container">{appLauncherItems}</Toolbar>;
 };
