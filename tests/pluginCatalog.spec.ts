@@ -15,9 +15,12 @@ test.describe("Plugin catalog page", () => {
     await page.locator('.pf-v5-c-clipboard-copy__group .pf-v5-c-button').click({delay: 500});
     await expect(page.getByText('Copied')).toBeVisible();
 
-    await page.goto('/catalog');
-    await page.getByPlaceholder('Name').focus();
-    await clipboard.ctrlV(page);
-    await expect(page.getByPlaceholder('Name')).toHaveValue(/https:\/\/.+\/api\/v1\/plugins\/\d+\//);
+    // paste from clipboard doesn't seem to work on Safari
+    if (browserName !== 'webkit') {
+      await page.goto('/catalog');
+      await page.getByPlaceholder('Name').focus();
+      await clipboard.ctrlV(page);
+      await expect(page.getByPlaceholder('Name')).toHaveValue(/https:\/\/.+\/api\/v1\/plugins\/\d+\//);
+    }
   });
 });
