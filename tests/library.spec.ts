@@ -2,6 +2,7 @@ import { test, expect } from "./fixtures/loggedIn.ts";
 import path from "path";
 
 test("Test Library Page", async ({ page }) => {
+    //Avoids timeouts.
     test.slow();
     await page.goto("library");
 
@@ -31,10 +32,8 @@ test("Test Library Page", async ({ page }) => {
         await fileChooser.setFiles(SOME_FILE);
 
         // Extract the file name from the file-name div
-
-        const fileNameElementHandle = await page.$(".file-name");
-        const fileName = await fileNameElementHandle.evaluate((element) =>
-            element.textContent.trim(),
+        const fileName = await page.$eval(".file-name", (element) =>
+            element.textContent,
         );
 
         // Check if the file name is 'package-lock.json'
@@ -51,9 +50,10 @@ test("Test Library Page", async ({ page }) => {
             ".pf-v5-c-menu-toggle__text",
             (element) => element.textContent,
         );
+        
         const directoryNameValue = await page.$eval(
             "input[name='horizontal-form-name']",
-            (element) => element.value,
+            (element) => element.textContent,
         );
         const expectedURL = `/library/${username}/uploads/${directoryNameValue}`;
 
