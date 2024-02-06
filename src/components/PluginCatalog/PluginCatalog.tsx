@@ -40,7 +40,7 @@ const PluginCatalog = () => {
     perPage: number,
     page: number,
     search: string,
-    searchType: string
+    searchType: string,
   ) {
     const offset = perPage * (page - 1);
     const params = {
@@ -67,7 +67,7 @@ const PluginCatalog = () => {
               version,
             },
           };
-        })
+        }),
       );
 
       setPageState((pageState) => {

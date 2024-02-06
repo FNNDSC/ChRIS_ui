@@ -60,7 +60,7 @@ const BasicInformation: React.FC = () => {
         onNext();
       }
     },
-    [onNext, feedName]
+    [onNext, feedName],
   );
 
   useEffect(() => {

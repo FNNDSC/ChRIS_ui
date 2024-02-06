@@ -79,7 +79,7 @@ const ConfigureJoin = ({
                     onChange={(event: any) => {
                       handleCheckboxChange(
                         event.target.checked,
-                        param.data.name
+                        param.data.name,
                       );
                     }}
                   >
@@ -93,7 +93,7 @@ const ConfigureJoin = ({
                       className="input"
                       value={joinInput[param.data.name] as string}
                       onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>
+                        event: React.ChangeEvent<HTMLInputElement>,
                       ) => {
                         handleValueChange(event.target.value, param.data.name);
                       }}

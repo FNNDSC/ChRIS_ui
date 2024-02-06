@@ -7,7 +7,7 @@ type AllProps = {
 };
 
 const CatchallDisplay: React.FunctionComponent<AllProps> = (
-  props: AllProps
+  props: AllProps,
 ) => {
   const noPreviewMessage = () => {
     const { fileItem } = props;

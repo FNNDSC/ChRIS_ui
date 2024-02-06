@@ -116,7 +116,7 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
         item,
         currentNode,
         currentPipelineId,
-        computeEnvList
+        computeEnvList,
       );
   };
 
@@ -130,14 +130,13 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
             handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
             selectedPlugin={selectedPlugin}
           />
-          
-            <CreatingPipeline
-              pipelines={pipelines}
-              pipeline={pipeline}
-              state={state}
-              handleDispatchPipelines={handleDispatchPipelines}
-            />
-          
+
+          <CreatingPipeline
+            pipelines={pipelines}
+            pipeline={pipeline}
+            state={state}
+            handleDispatchPipelines={handleDispatchPipelines}
+          />
         </>
       )}
       <ClipboardCopyCommand state={state} />
@@ -182,7 +181,7 @@ export const ConfigurePipelineParameters = ({
   handleFormParameters: (
     currentNode: number,
     currentPipelineId: number,
-    paramDict: any[]
+    paramDict: any[],
   ) => void;
   currentPipelineId: number;
 }) => {
@@ -212,7 +211,10 @@ export const ConfigurePipelineParameters = ({
         params.map((param: any) => {
           return (
             <FormGroup name={param.name} label={param.name} key={param.name}>
-              <TextInput aria-label="parameter values" defaultValue={param.default} />
+              <TextInput
+                aria-label="parameter values"
+                defaultValue={param.default}
+              />
             </FormGroup>
           );
         })}

@@ -39,7 +39,7 @@ const ComputeCatalog = () => {
       perPage: number,
       page: number,
       search: string,
-      searchType: string
+      searchType: string,
     ) {
       setLoading(true);
       const offset = perPage * (page - 1);

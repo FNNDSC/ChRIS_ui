@@ -61,7 +61,7 @@ const DragAndUpload = ({
     onDrop,
     // FS access API is not available on Firefox, and also causes trouble for testing.
     // https://github.com/react-dropzone/react-dropzone/discussions/1339
-    useFsAccessApi: false
+    useFsAccessApi: false,
   });
 
   const { state, dispatch } = useContext(CreateFeedContext);

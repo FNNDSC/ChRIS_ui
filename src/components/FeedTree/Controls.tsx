@@ -49,7 +49,7 @@ export const NodeScaleDropdown = ({
       isOpen={open}
       onSelect={(_: any, label: any) => {
         const type = Array.from(labels.keys()).find(
-          (type) => labels.get(type) == label
+          (type) => labels.get(type) == label,
         );
         if (type) {
           onChange(type);

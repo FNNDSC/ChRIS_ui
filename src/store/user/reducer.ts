@@ -17,7 +17,7 @@ const initialState: IUserState = {
 // ***** NOTE: Working *****
 const reducer: Reducer<IUserState> = (
   state = initialState,
-  action: typeof UserActionTypes
+  action: typeof UserActionTypes,
 ) => {
   switch (action.type) {
     case UserActionTypes.SET_TOKEN_SUCCESS: {

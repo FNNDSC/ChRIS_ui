@@ -49,7 +49,7 @@ export type GraphNodeProps = {
 const GraphNode = (props: GraphNodeProps) => {
   const { onVisibleChange, visible, selectedTsPlugin } = props;
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
+    (state) => state.instance.selectedPlugin,
   );
   const { tsNodes, treeMode } = useTypedSelector((state) => state.tsPlugins);
   const nodes = useTypedSelector((state) => state.instance.pluginInstances);
@@ -153,7 +153,7 @@ const GraphNode = (props: GraphNodeProps) => {
           const node = await client.createPluginInstanceSplit(
             selectedPlugin.data.id,
             splitInput["filter"] as string,
-            splitInput["compute_resource"] as string
+            splitInput["compute_resource"] as string,
           );
           const instanceIds = node.data.created_plugin_inst_ids.split(",");
           const splitNodes = [];
@@ -163,7 +163,7 @@ const GraphNode = (props: GraphNodeProps) => {
             splitNodes.push(pluginInstance);
           }
           dispatch(
-            addSplitNodes({ splitNodes, nodes: nodes.data, selectedPlugin })
+            addSplitNodes({ splitNodes, nodes: nodes.data, selectedPlugin }),
           );
           handleResets();
           onVisibleChange(!visible);
