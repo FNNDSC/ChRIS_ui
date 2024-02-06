@@ -18,7 +18,7 @@ export const handleDrawerActions = (
       maximized: boolean;
       minimized: boolean;
     };
-  }
+  },
 ) => {
   dispatch(
     action({
@@ -26,7 +26,7 @@ export const handleDrawerActions = (
       open,
       maximized,
       minimized,
-    })
+    }),
   );
 };
 
@@ -45,7 +45,7 @@ export const handleOpen = (actionType: string, dispatch: Dispatch) => {
 export const handleToggle = (
   actionType: string,
   drawerState: IDrawerState,
-  dispatch: Dispatch
+  dispatch: Dispatch,
 ) => {
   handleDrawerActions(
     actionType,
@@ -53,7 +53,7 @@ export const handleToggle = (
     drawerState[actionType].maximized,
     false,
     dispatch,
-    setDrawerState
+    setDrawerState,
   );
 };
 

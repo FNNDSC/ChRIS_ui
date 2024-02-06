@@ -26,7 +26,6 @@ const ComputeEnvironment: React.FC = () => {
 
   const setStates = useCallback(
     (currentComputeEnv: string) => {
-      
       setMenuState((menuState) => {
         return {
           ...menuState,
@@ -40,7 +39,7 @@ const ComputeEnvironment: React.FC = () => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   React.useEffect(() => {
@@ -58,10 +57,10 @@ const ComputeEnvironment: React.FC = () => {
   };
 
   const onSelect = (
-    event?: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent
+    event?: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent,
   ) => {
     const id = event?.currentTarget.id;
-    
+
     if (id) {
       setStates(id);
     }
@@ -71,9 +70,7 @@ const ComputeEnvironment: React.FC = () => {
     ? computeEnvs.map((computeEnv) => {
         return (
           <SelectOption
-            actions={
-              <MenuItemAction aria-label={computeEnv}  />
-            }
+            actions={<MenuItemAction aria-label={computeEnv} />}
             isSelected={selectedComputeEnv === computeEnv.data.name}
             id={computeEnv.data.name}
             key={computeEnv.data.id}

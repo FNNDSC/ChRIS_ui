@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { Spin } from "antd";
@@ -272,7 +272,9 @@ class PfdcmClient {
       if (!imagestatus.request && retrieve) {
         newImageStatus[0].icon = <Spin />;
         newImageStatus[0].description = requestedFiles
-          ? `Requesting ${requestedFiles} ${requestedFiles === 1 ? ' file': ' files'}`
+          ? `Requesting ${requestedFiles} ${
+              requestedFiles === 1 ? " file" : " files"
+            }`
           : `Requesting files`;
       }
 

@@ -16,7 +16,7 @@ export const setFilePreviewPanel = () => {
 
 export const setDrawerCurrentlyActive = (
   panel: string,
-  currentlyActive: string
+  currentlyActive: string,
 ) => {
   return action(DrawerActionTypes.SET_CURRENTLY_ACTIVE, {
     panel,

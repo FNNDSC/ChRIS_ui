@@ -21,7 +21,7 @@ function* setPluginInstances(feed: Feed) {
     const boundFn = fn.bind(feed);
     const { resource: pluginInstances } = yield fetchResource<PluginInstance>(
       params,
-      boundFn
+      boundFn,
     );
 
     const selected = pluginInstances[pluginInstances.length - 1];
@@ -73,7 +73,7 @@ function* handleSplitNode(action: IActionTypeParam) {
       getPluginInstanceStatusRequest({
         selected,
         pluginInstances: newList,
-      })
+      }),
     ),
   ]);
 }
@@ -89,7 +89,7 @@ function* handleDeleteNode(action: IActionTypeParam) {
   try {
     if (
       !["finishedSuccessfully", "finishedWithError", "cancelled"].includes(
-        instance.data.status
+        instance.data.status,
       )
     ) {
       yield instance.put({
@@ -109,7 +109,7 @@ function* handleDeleteNode(action: IActionTypeParam) {
 function* watchGetPluginInstanceRequest() {
   yield takeEvery(
     PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST,
-    handleGetPluginInstances
+    handleGetPluginInstances,
   );
 }
 

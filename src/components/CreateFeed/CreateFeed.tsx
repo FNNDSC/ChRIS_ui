@@ -21,7 +21,7 @@ import PipelineContainer from "./PipelineContainter";
 import Review from "./Review";
 import withSelectionAlert from "./SelectionAlert";
 import { useTypedSelector } from "../../store/hooks";
-import { createFeed } from "./createFeed";
+import { createFeed } from "./createFeedHelper";
 import "./createFeed.css";
 
 export default function CreateFeed() {
@@ -219,7 +219,7 @@ export default function CreateFeed() {
           }
           height={500}
           width={"100%"}
-          title='Create a New Analysis'
+          title="Create a New Analysis"
         >
           <WizardStep
             id={1}

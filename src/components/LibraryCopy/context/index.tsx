@@ -56,7 +56,7 @@ const LibraryContext = createContext<{
 
 export const libraryReducer = (
   state: LibraryState,
-  action: LibraryActions
+  action: LibraryActions,
 ): LibraryState => {
   switch (action.type) {
     case Types.SET_SELECTED_PATHS: {

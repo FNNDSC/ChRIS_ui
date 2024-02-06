@@ -1,6 +1,9 @@
 import React from "react";
 import { connect, useDispatch } from "react-redux";
-import ForceGraph2D, {ForceGraphMethods, NodeObject} from "react-force-graph-2d";
+import ForceGraph2D, {
+  ForceGraphMethods,
+  NodeObject,
+} from "react-force-graph-2d";
 import { ApplicationState } from "../../store/root/applicationState";
 import { TreeModel } from "../../api/model";
 import { PluginInstance } from "@fnndsc/chrisapi";
@@ -12,7 +15,6 @@ import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import { useTypedSelector } from "../../store/hooks";
 import type { PluginInstancePayload } from "../../store/pluginInstance/types";
 import "./FeedTree.css";
-
 
 /*
 
@@ -53,7 +55,7 @@ const FeedGraph = (props: IFeedProps) => {
     const distance = 40;
     if (node && node.x && node.y && node.z && fgRef.current) {
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
- //@ts-ignore
+      //@ts-ignore
       fgRef.current.cameraPosition(
         {
           x: node.x * distRatio,
@@ -90,7 +92,6 @@ const FeedGraph = (props: IFeedProps) => {
   }, [controls, forceUpdate]);
 
   */
-
 
   /*
 
@@ -204,7 +205,6 @@ const FeedGraph = (props: IFeedProps) => {
               linkWidth={2}
               nodeRelSize={8}
             />
-           
           </>
         </ErrorBoundary>
       ) : (

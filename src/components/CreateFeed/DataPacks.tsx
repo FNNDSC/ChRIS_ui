@@ -59,7 +59,7 @@ const DataPacks = ({ next }: { next: () => any }) => {
             itemCount: pluginDetails.totalCount,
           }));
         }
-      }
+      },
     );
   }, [filter, perPage, currentPage, pluginMeta]);
 
@@ -121,7 +121,7 @@ const DataPacks = ({ next }: { next: () => any }) => {
       }
       next();
     },
-    [dispatch, next, nodeDispatch, state.selectedConfig]
+    [dispatch, next, nodeDispatch, state.selectedConfig],
   );
 
   const handleKeyDown = useCallback(
@@ -144,7 +144,7 @@ const DataPacks = ({ next }: { next: () => any }) => {
         onBack();
       }
     },
-    [pluginMeta, handleOnChange, onNext, onBack]
+    [pluginMeta, handleOnChange, onNext, onBack],
   );
 
   useEffect(() => {

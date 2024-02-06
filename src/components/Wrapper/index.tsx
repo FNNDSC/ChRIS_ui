@@ -29,7 +29,7 @@ const Wrapper: React.FC<AllProps> = (props: AllProps) => {
 
   const onPageResize = (
     _event: MouseEvent | TouchEvent | React.KeyboardEvent<Element>,
-    data: { mobileView: boolean; windowSize: number }
+    data: { mobileView: boolean; windowSize: number },
   ) => {
     if (data.mobileView) {
       props.setIsNavOpen(false);

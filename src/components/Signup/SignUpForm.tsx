@@ -113,13 +113,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           userURL,
           userState.username,
           passwordState.password,
-          emailState.email
+          emailState.email,
         );
 
         token = await ChrisApiClient.getAuthToken(
           authURL,
           userState.username,
-          passwordState.password
+          passwordState.password,
         );
       } catch (error) {
         if (has(error, "response")) {

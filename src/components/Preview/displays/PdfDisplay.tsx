@@ -8,7 +8,7 @@ type AllProps = {
 const PdfDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
   const url = fileItem.blob
     ? window.URL.createObjectURL(
-        new Blob([fileItem.blob], { type: "application/pdf" })
+        new Blob([fileItem.blob], { type: "application/pdf" }),
       )
     : "";
   return (

@@ -167,7 +167,6 @@ export const displayDicomImage = (
 
       // Add event listener for the cornerstoneimagerendered event
       element.addEventListener("cornerstoneimagerendered", () => {
-  
         // Access the current slice index from the stack tool state
         const stackToolState = cornerstoneTools.getToolState(element, "stack");
         if (
