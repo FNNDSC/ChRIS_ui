@@ -1,0 +1,38 @@
+name: test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.7
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+    - name: Unit tests
+      run: npm test
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: End-to-End tests
+      env:
+        TEST_SAFARI: yes
+      run: npm run test:e2e
+    - name: Upload E2E test coverage
+      if: ${{ always() }}
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage/clover.xml
+        flags: e2etests
+        fail_ci_if_error: true
