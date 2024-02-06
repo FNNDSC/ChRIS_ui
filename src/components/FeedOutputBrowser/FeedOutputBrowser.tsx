@@ -53,7 +53,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = ({
     >
       <DrawerActionButton
         content="Directory"
-     
         handleMaximize={() => {
           handleSidebarDrawer("maximized");
         }}
@@ -111,7 +110,7 @@ const SidebarTree = (props: {
   const [tree, setTreeData] = React.useState<DataNode[]>();
   React.useEffect(() => {
     const pluginSidebarTree = getFeedTree(plugins);
-    
+
     //@ts-ignore
     setTreeData(pluginSidebarTree);
   }, [plugins, selected]);

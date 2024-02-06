@@ -7,7 +7,6 @@ import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
 import { useTypedSelector } from "../../store/hooks";
 import "./FeedTree.css";
 
-
 interface ParentComponentProps {
   onNodeClickTs: (node: PluginInstance) => void;
   onNodeClick: (node: any) => void;
@@ -20,7 +19,7 @@ export type TSID = {
 const ParentComponent = (props: ParentComponentProps) => {
   const { onNodeClick, onNodeClickTs } = props;
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
+    (state) => state.instance.pluginInstances,
   );
   const { data: instances, error, loading } = pluginInstances;
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);

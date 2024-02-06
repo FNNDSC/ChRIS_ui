@@ -1,4 +1,3 @@
-
 import { Steps, Spin } from "antd";
 import usePluginInstanceResource from "./usePluginInstanceResource";
 
@@ -18,10 +17,10 @@ const Status = () => {
           label.wait === true
             ? "wait"
             : label.error === true
-            ? "error"
-            : label.finish === true
-            ? "finish"
-            : "process",
+              ? "error"
+              : label.finish === true
+                ? "finish"
+                : "process",
       };
     });
 

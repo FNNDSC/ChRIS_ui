@@ -1,33 +1,33 @@
-import { SimpleList, SimpleListItem } from '@patternfly/react-core'
-import { FeedFile } from '@fnndsc/chrisapi'
+import { SimpleList, SimpleListItem } from "@patternfly/react-core";
+import { FeedFile } from "@fnndsc/chrisapi";
 
 interface FsmFileSelectProps {
-  files: FeedFile[]
-  handleSelect: (file: FeedFile) => void
+  files: FeedFile[];
+  handleSelect: (file: FeedFile) => void;
 }
 
 const FsmFileSelect = (props: FsmFileSelectProps) => {
-  const { files, handleSelect } = props
+  const { files, handleSelect } = props;
 
   const fileList = (
     <SimpleList
       onSelect={(_: any, listItemProps: any) => {
         // data passing between item and handler is done through props
-        const file = (listItemProps as any)['x-file'] as FeedFile
-        handleSelect(file)
+        const file = (listItemProps as any)["x-file"] as FeedFile;
+        handleSelect(file);
       }}
       className="fsm-file-list"
     >
       {files.map((file) => {
-        const id = file.data.id
+        const id = file.data.id;
         return (
           <SimpleListItem key={id} x-file={file}>
             {file.data.fname}
           </SimpleListItem>
-        )
+        );
       })}
     </SimpleList>
-  )
+  );
 
   return (
     <div className="fsm-select-wrap">
@@ -36,7 +36,7 @@ const FsmFileSelect = (props: FsmFileSelectProps) => {
         {fileList}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default FsmFileSelect
+export default FsmFileSelect;

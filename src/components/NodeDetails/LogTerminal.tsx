@@ -1,4 +1,3 @@
-
 import { LogViewer } from "@patternfly/react-log-viewer";
 
 type LogTerminalProps = {

@@ -1,0 +1,6 @@
+# require formatting on commit. (note: lint is *not* required)
+pre-commit:
+  commands:
+    check:
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      run: npx biome format --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}

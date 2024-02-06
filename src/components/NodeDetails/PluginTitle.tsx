@@ -16,7 +16,7 @@ const PluginTitle = () => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState();
   const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin
+    (state) => state.instance.selectedPlugin,
   );
   const [value, setValue] = React.useState(getDefaultTitle(selectedPlugin));
 
@@ -33,7 +33,7 @@ const PluginTitle = () => {
 
     const handleOnChange = (
       _event: React.FormEvent<HTMLInputElement>,
-      value: string
+      value: string,
     ) => {
       setValue(value);
     };

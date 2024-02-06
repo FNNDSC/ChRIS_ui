@@ -1,4 +1,4 @@
-import  { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@patternfly/react-core";
 import AiOutlineExpand from "@patternfly/react-icons/dist/esm/icons/expand-alt-icon";
 import { FeedFile } from "@fnndsc/chrisapi";
@@ -59,10 +59,10 @@ const XtkViewer = () => {
     : undefined;
 
   const [primaryFile, setPrimaryFile] = useState<FeedFile | undefined>(
-    defaultPrimaryFile
+    defaultPrimaryFile,
   );
   const [viewerMode, setViewerMode] = useState<ViewerMode | undefined>(
-    defaultViewerMode
+    defaultViewerMode,
   );
   const [volumeMode, setVolumeMode] = useState<VolumeMode>("3D");
   const [crvFile, setCrvFile] = useState<FeedFile | undefined>(defaultCrvFile);

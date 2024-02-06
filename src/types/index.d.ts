@@ -13,4 +13,3 @@ declare module "dicom-parser";
 declare module "rusha";
 declare module "hammerjs";
 declare module "preval.macro";
-

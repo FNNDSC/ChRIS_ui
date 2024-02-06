@@ -11,7 +11,7 @@ import { CookiesProvider } from "react-cookie";
 import { RootState } from "./store/root/applicationState";
 import "@patternfly/react-core/dist/styles/base.css";
 import "./app.css";
-import "./components/Feeds/Feeds.css"
+import "./components/Feeds/Feeds.css";
 import { ThemeContext } from "./components/DarkTheme/useTheme";
 
 interface AllProps {
@@ -33,19 +33,15 @@ function App(props: AllProps) {
 
   const ackeeEnvironment = {
     server: import.meta.env.VITE_ACKEE_SERVER,
-    domainId: import.meta.env.VITE_ACKEE_DOMAIN_ID
+    domainId: import.meta.env.VITE_ACKEE_DOMAIN_ID,
   };
 
   if (ackeeEnvironment.server && ackeeEnvironment.domainId) {
-    useAckee(
-      "/",
-      ackeeEnvironment,
-      {
-        detailed: true,
-        ignoreLocalhost: true,
-        ignoreOwnVisits: true,
-      },
-    );
+    useAckee("/", ackeeEnvironment, {
+      detailed: true,
+      ignoreLocalhost: true,
+      ignoreOwnVisits: true,
+    });
   }
 
   return (
