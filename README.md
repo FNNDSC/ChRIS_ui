@@ -13,21 +13,18 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 
 ## Quickstart
 
-First, get the [ChRIS backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd)
-running. Assuming the backend is on `http://localhost:8000/api/v1/`:
-
 ```shell
-docker run --rm -d --name chris_ui -p 3000:5173 -e REACT_APP_CHRIS_UI_URL=http://localhost:8000/api/v1/ ghcr.io/fnndsc/chris_ui:latest
+git clone https://github.com/FNNDSC/ChRIS_ui.git
+cd ChRIS_ui
+npm ci
+npm run dev:public
 ```
-
-The *ChRIS_ui* is now running on http://localhost:3000/
 
 ## Development
 
 We support development on **Linux** only.
 
-
-#### 1. Have the [_ChRIS_ backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd) running.
+#### 0. Have the [_ChRIS_ backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd) running (Optional)
 
 For local development, use [Docker Compose](https://docs.docker.com/compose/) and [miniChRIS-docker](https://github.com/FNNDSC/miniChRIS-docker). Open a terminal and run
 
@@ -64,31 +61,17 @@ $ ./unmake.sh
 
 </details>
 
-#### 2. Configuring the backend URL
+If your backend is accessible from a host other than localhost, e.g. you are using a cloud or remote development
+server, run `cp .env .env.development.local` then edit `.env.development.local` with your backend API URL.
 
-For development, it is recommended that you create either a `.env.local`
-or `.env.development.local` environment variables file in the root of the project.
-Copy the existing `.env` file to this new file. Changes to these files will be ignored by git.
+#### 1. Install Dependencies
 
-**There are four (4) major environment variables that need to be set.**
-
-- Point `VITE_CHRIS_UI_URL` to your local backend instance. By default (or if you copied the `.env` file) this is set to `http://localhost:8000/api/v1/`.
-
-- Point `VITE_PFDCM_URL` to the URL of a running PFDCM instance. By default this is set to `http://localhost:4005/`.
-
-- Set `VITE_PFDCM_CUBEKEY` and `VITE_PFDCM_SWIFTKEY` to the aliases (or keys) given to CUBE and Swift while setting up PFDCM. By default these are both `local`. If you're unsure what to use, you can list CUBE and Swift keys using the PFDCM API, or ask for these keys.
-
-For details on how to set up PFDCM, refer to the [PFDCM readme](https://github.com/FNNDSC/pfdcm).
-
-#### 3. Start UI development server
-
-You can follow any of these steps to start UI development server
+You need Node version 20 or 21.
 
 ```shell
 git clone https://github.com/FNNDSC/ChRIS_ui.git
 cd ChRIS_ui
 npm i
-npm run dev
 ```
 
 <details>
@@ -112,6 +95,21 @@ docker run --rm -it -v $PWD:/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 </details>
+
+
+#### 2. Run the development server
+
+If you are running and have configured a backend in step 0, run
+
+```shell
+npm run dev
+```
+
+Otherwise, you can use our public testing backend instance. Run
+
+```shell
+npm run dev:public
+```
 
 ## Build for production
 
@@ -144,7 +142,10 @@ npm test
 
 ### End-to-End Tests
 
-E2E tests are located under `tests/`. Tests specific to http://fetalmri.org are found under `tests/fetalmri.org`.
+> [!IMPORTANT]
+> End-to-end (E2E) tests are configured to run against our public testing backend instance, which is prepopulated with data.
+
+E2E tests are located under `tests/`.
 
 Playwright requires some system dependencies. On first run, you will be prompted to install these dependencies.
 With Playwright installed, run
@@ -153,27 +154,8 @@ With Playwright installed, run
 npm run test:e2e
 ```
 
-Or, use a GUI to run tests one-by-one:
-
-```shell
-npm run test:ui
-```
-
-### Writing Tests
-
-E2E tests can be recorded from user interactions. See https://playwright.dev/docs/codegen-intro
-
-First, start the development server:
-
-```shell
-npm run dev
-```
-
-In another terminal, open the website and start recording tests:
-
-```shell
-npm run test:codegen
-```
+For more information, consult the wiki:
+https://github.com/FNNDSC/ChRIS_ui/wiki/E2E-Testing-with-Playwright
 
 <!-- Image Links -->
 
@@ -181,4 +163,3 @@ npm run test:codegen
 [last-commit-badge]: https://img.shields.io/github/last-commit/fnndsc/chris_ui.svg
 [repo-link]: https://github.com/FNNDSC/ChRIS_ui
 [code-size]: https://img.shields.io/github/languages/code-size/FNNDSC/ChRIS_ui
-

@@ -1,14 +1,21 @@
-import { test, expect } from "playwright-test-coverage-native";
+import { test, expect } from "./fixtures/notLoggedIn.ts";
+import createAccountHelper from "./helpers/createAccount.ts";
+import { faker } from "@faker-js/faker";
 
-test.describe("Create account page", () => {
-  test("has fields for username and password", async ({ page }) => {
-    await page.goto("/login");
-    await page.goto('http://localhost:5173/');
-    await page.getByRole('button', { name: 'Sign Up' }).click();
-    await page.getByLabel('signupform').fill('test-user');
-    await page.locator('#chris-email').fill('testuser@example.org');
-    await page.locator('#chris-password').fill('testuser1234');
-    await expect(page.getByRole('button', { name: 'Create Account' })).toBeInViewport();
-    // we don't actually click the button, TODO figure out how to reuse this test account
-  });
+test("Can create new user accounts", async ({ page }) => {
+
+  const username = faker.internet.userName();
+  const email = faker.internet.email();
+  const password = `testuser1234`;
+  await createAccountHelper('/', page, username, email, password);
+
+  // account options menu should appear after being logged in
+  await page.getByRole('button', { name: username }).click();
+  // account options menu should have a "Sign out" button
+  await page.getByRole('menuitem', { name: 'Sign out' }).click();
+  await expect(
+    page.getByRole('button', { name: 'Login' }),
+    "login button should reappear after signing out"
+    ).toBeInViewport();
+  // TODO make sure user's private data is no longer there
 });
