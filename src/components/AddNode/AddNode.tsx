@@ -16,7 +16,7 @@ import GuidedConfig from "./GuidedConfig";
 import BasicConfiguration from "./BasicConfiguration";
 import { addNodeRequest } from "../../store/pluginInstance/actions";
 import { getNodeOperations, getParams } from "../../store/plugin/actions";
-import { getRequiredObject } from "../CreateFeed/createFeed";
+import { getRequiredObject } from "../CreateFeed/createFeedHelper";
 import { useTypedSelector } from "../../store/hooks";
 import { useDispatch } from "react-redux";
 import { AddNodeContext } from "./context";
