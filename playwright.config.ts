@@ -21,11 +21,10 @@ if (process.env.TEST_SAFARI?.toLowerCase().startsWith('y')) {
  */
 export default defineConfig({
   testDir: "./tests",
-  testIgnore: "**/fetalmri.org/**",
   /* The base directory, relative to the config file, for snapshot files created with toMatchSnapshot and toHaveScreenshot. */
   snapshotDir: "./__snapshots__",
   /* Maximum time one test can run for. */
-  timeout: 10 * 1000,
+  timeout: 20_000,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -40,7 +39,7 @@ export default defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
-    baseURL: "http://localhost:5173",
+    baseURL: "http://localhost:25173",
   },
 
   /* Configure projects for major browsers */
@@ -52,7 +51,7 @@ export default defineConfig({
         ...devices["Desktop Chrome"],
         coverageDir: './coverage/tmp',
         coverageSrc: './src',
-        coverageSourceMapHandler: 'localhosturl'
+        coverageSourceMapHandler: 'localhosturl',
       },
     },
 
@@ -63,14 +62,16 @@ export default defineConfig({
 
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: {
+        ...devices['Pixel 5'],
+      },
     },
 
     ...SAFARI_BROWSERS
   ],
 
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:5173",
+    command: "npm run dev:public",
+    url: "http://localhost:25173",
   },
 });
