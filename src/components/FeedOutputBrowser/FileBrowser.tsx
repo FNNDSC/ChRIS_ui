@@ -166,7 +166,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     >
       <DrawerActionButton
         content="Preview"
-      
         handleMaximize={() => {
           handleMaximize("preview", dispatch);
         }}
@@ -200,7 +199,6 @@ const FileBrowser = (props: FileBrowserProps) => {
         >
           <DrawerActionButton
             content="Files"
-           
             handleMaximize={() => {
               handleMaximize("files", dispatch);
             }}

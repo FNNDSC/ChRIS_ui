@@ -21,7 +21,7 @@ const AddPipeline = () => {
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { selectedPlugin } = useTypedSelector((state) => state.instance);
   const { childPipeline } = useTypedSelector(
-    (state) => state.plugin.nodeOperations
+    (state) => state.plugin.nodeOperations,
   );
   const { state, dispatch: pipelineDispatch } =
     React.useContext(PipelineContext);
@@ -60,7 +60,7 @@ const AddPipeline = () => {
         try {
           const nodes_info = client.computeWorkflowNodesInfo(
             //@ts-ignore
-            pluginParameters.data
+            pluginParameters.data,
           );
           nodes_info.forEach((node) => {
             if (computeEnvs && computeEnvs[node["piping_id"]]) {

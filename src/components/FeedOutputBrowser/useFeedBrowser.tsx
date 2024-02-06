@@ -22,10 +22,10 @@ export const useFeedBrowser = () => {
   const [download, setDownload] = React.useState(getInitialDownloadState);
 
   const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances
+    (state) => state.instance.pluginInstances,
   );
   const { pluginFiles, loading: filesLoading } = useTypedSelector(
-    (state) => state.resource
+    (state) => state.resource,
   );
   const selected = useTypedSelector((state) => state.instance.selectedPlugin);
   const { data: plugins } = pluginInstances;
@@ -59,7 +59,7 @@ export const useFeedBrowser = () => {
           getPluginFilesRequest({
             id: selected.data.id,
             path: selected.data.output_path,
-          })
+          }),
         );
       }
 
@@ -84,7 +84,7 @@ export const useFeedBrowser = () => {
         getPluginFilesRequest({
           id: selected.data.id,
           path,
-        })
+        }),
       );
     }
   };

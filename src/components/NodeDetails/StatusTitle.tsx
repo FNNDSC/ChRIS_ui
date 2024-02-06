@@ -64,16 +64,16 @@ export function getFinishedTitle(pluginStatus: string) {
     pluginStatus === "finishedSuccessfully"
       ? "Finished Successfully"
       : pluginStatus === "cancelled"
-      ? "Cancelled"
-      : pluginStatus === "finishedWithError"
-      ? "FinishedWithError"
-      : "";
+        ? "Cancelled"
+        : pluginStatus === "finishedWithError"
+          ? "FinishedWithError"
+          : "";
   const icon =
     pluginStatus === "finishedSuccessfully"
       ? FillCheckIcon
       : pluginStatus === "cancelled" || pluginStatus === "finishedWithError"
-      ? ExclaimationIcon
-      : null;
+        ? ExclaimationIcon
+        : null;
 
   return {
     title,

@@ -36,7 +36,7 @@ const AddNode = ({
   const dispatch = useDispatch();
 
   const { childNode } = useTypedSelector(
-    (state) => state.plugin.nodeOperations
+    (state) => state.plugin.nodeOperations,
   );
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
 
@@ -119,7 +119,7 @@ const AddNode = ({
       requiredInput,
       plugin,
       errorCallback,
-      selectedPlugin
+      selectedPlugin,
     );
 
     parameterInput = {

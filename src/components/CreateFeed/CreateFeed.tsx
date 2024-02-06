@@ -219,7 +219,7 @@ export default function CreateFeed() {
           }
           height={500}
           width={"100%"}
-          title='Create a New Analysis'
+          title="Create a New Analysis"
         >
           <WizardStep
             id={1}

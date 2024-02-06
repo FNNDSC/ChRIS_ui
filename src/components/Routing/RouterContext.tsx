@@ -1,6 +1,5 @@
 import React from "react";
 
-
 interface RouterContextProps<S, A = any> {
   state: S;
   actions?: A;

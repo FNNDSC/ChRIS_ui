@@ -9,12 +9,12 @@ import GraphNode from "./ParentContainer";
 import type { Plugin } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { getNodeOperations } from "../../store/plugin/actions";
-import './graph-node.css'
+import "./graph-node.css";
 
 const GraphNodeContainer = () => {
   const dispatch = useDispatch();
   const { childGraph } = useTypedSelector(
-    (state) => state.plugin.nodeOperations
+    (state) => state.plugin.nodeOperations,
   );
   const [selectedTsPlugin, setTsPlugin] = React.useState<Plugin | undefined>();
   const { treeMode } = useTypedSelector((state) => state.tsPlugins);
