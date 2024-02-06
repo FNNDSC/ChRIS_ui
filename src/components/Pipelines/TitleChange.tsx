@@ -17,7 +17,7 @@ const TitleChange = ({
   handleSetCurrentNodeTitle: (
     currentPipelineId: number,
     currentNode: number,
-    title: string
+    title: string,
   ) => void;
   selectedPlugin?: PluginPiping;
 }) => {
@@ -38,7 +38,7 @@ const TitleChange = ({
       style={{
         display: "flex",
         alignItems: "center",
-        marginBottom:"1rem"
+        marginBottom: "1rem",
       }}
     >
       <TextInput
@@ -53,12 +53,12 @@ const TitleChange = ({
           edit
             ? value
             : title && currentNode && title[currentNode]
-            ? `${title[currentNode]} (id:${currentNode})`
-            : `${
-                selectedPlugin?.data
-                  ? selectedPlugin?.data.title
-                  : selectedPlugin?.data.plugin_name
-              } (id:${currentNode})`
+              ? `${title[currentNode]} (id:${currentNode})`
+              : `${
+                  selectedPlugin?.data
+                    ? selectedPlugin?.data.title
+                    : selectedPlugin?.data.plugin_name
+                } (id:${currentNode})`
         }
         onChange={(_event, value) => {
           setValue(value);
@@ -73,7 +73,7 @@ const TitleChange = ({
         <Edit
           style={{
             ...iconFontSize,
-            marginLeft:"0.25em"
+            marginLeft: "0.25em",
           }}
           onClick={() => {
             setEdit(true);

@@ -48,7 +48,7 @@ export const MainRouter: React.FC = () => {
       setState({ selectData });
       const type = isLoggedIn ? "private" : "public";
       navigate(
-        `/feeds?search=&searchType=&page=${1}&perPage=${14}&type=${type}`
+        `/feeds?search=&searchType=&page=${1}&perPage=${14}&type=${type}`,
       );
     },
 

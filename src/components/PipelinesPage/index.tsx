@@ -13,7 +13,7 @@ const PipelinePage = () => {
     dispatch(
       setSidebarActive({
         activeItem: "pipelines",
-      })
+      }),
     );
   });
   return (

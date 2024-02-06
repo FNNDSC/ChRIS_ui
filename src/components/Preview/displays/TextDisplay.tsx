@@ -23,7 +23,7 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           //@ts-ignore
           textDisplay.innerText = reader.result;
         },
-        false
+        false,
       );
 
       if (fileItem.blob) {
@@ -45,7 +45,7 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
         <span
           id="text-display"
           style={{
-            fontFamily: "monospace",   
+            fontFamily: "monospace",
             color: "white",
           }}
         ></span>

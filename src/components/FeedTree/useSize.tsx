@@ -2,7 +2,7 @@ import React, { MutableRefObject } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
 
 const useSize = (
-  target: MutableRefObject<HTMLDivElement | SVGSVGElement | null>
+  target: MutableRefObject<HTMLDivElement | SVGSVGElement | null>,
 ) => {
   const [size, setSize] = React.useState();
 

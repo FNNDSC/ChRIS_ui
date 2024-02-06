@@ -92,14 +92,14 @@ const Pipelines = ({
   const { page, perPage, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [dropdownValue, setDropdownValue] = React.useState<string>(
-    PIPELINEQueryTypes.NAME[0]
+    PIPELINEQueryTypes.NAME[0],
   );
 
   const handleDispatchWrap = React.useCallback(
     (registeredPipelines: any) => {
       handleDispatchPipelines(registeredPipelines);
     },
-    [handleDispatchPipelines]
+    [handleDispatchPipelines],
   );
 
   const handlePipelineSearch = (search: string) => {
@@ -116,7 +116,7 @@ const Pipelines = ({
         perPage,
         page,
         search,
-        dropdownValue.toLowerCase()
+        dropdownValue.toLowerCase(),
       );
 
       const { registeredPipelines, registeredPipelinesList, error } = data;
@@ -153,7 +153,7 @@ const Pipelines = ({
       if (pipeline) {
         try {
           const { resources } = await generatePipelineWithName(
-            pipeline.data.name
+            pipeline.data.name,
           );
 
           handleSetPipelineResources({
@@ -166,7 +166,7 @@ const Pipelines = ({
             const piping = pluginPipings[i];
             const computeEnvData = await fetchComputeInfo(
               piping.data.plugin_id,
-              piping.data.id
+              piping.data.id,
             );
 
             if (computeEnvData) {
@@ -226,7 +226,7 @@ const Pipelines = ({
       handlePipelineSecondaryResource,
       pipelineData,
       selectedPipeline,
-    ]
+    ],
   );
 
   const handleOnExpand = useCallback(
@@ -260,7 +260,7 @@ const Pipelines = ({
       handlePipelineSecondaryResource,
       selectedPipeline,
       state.pipelineData,
-    ]
+    ],
   );
 
   const handleKeyDown = useCallback(
@@ -270,7 +270,7 @@ const Pipelines = ({
         handleOnExpand(pipeline);
       }
     },
-    [handleOnExpand]
+    [handleOnExpand],
   );
 
   const handleBrowserKeyDown = useCallback(
@@ -281,7 +281,7 @@ const Pipelines = ({
         onNext();
       }
     },
-    [onBack, onNext]
+    [onBack, onNext],
   );
 
   useEffect(() => {
@@ -441,7 +441,7 @@ const Pipelines = ({
                               return (
                                 currentPipeline.data.id !== pipeline.data.id
                               );
-                            }
+                            },
                           );
                           handleDispatchPipelines(filteredPipelines);
                         } catch (error) {

@@ -18,7 +18,7 @@ export const initialState: IPluginInstanceState = {
 
 const reducer: Reducer<IPluginInstanceState> = (
   state = initialState,
-  action:typeof PluginInstanceTypes
+  action: typeof PluginInstanceTypes,
 ) => {
   switch (action.type) {
     case PluginInstanceTypes.GET_SELECTED_D3_NODE: {
@@ -83,7 +83,7 @@ const reducer: Reducer<IPluginInstanceState> = (
       if (state.pluginInstances.data) {
         const instances = state.pluginInstances.data;
         const foundIndex = instances.findIndex(
-          (instance) => instance.data.id === action.payload.data.id
+          (instance) => instance.data.id === action.payload.data.id,
         );
         cloneInstances = [...instances];
 

@@ -79,10 +79,10 @@ export const getTsNodes = async (items: PluginInstance[]) => {
       const boundFn = fn.bind(instance);
       const { resource: parameters } = await fetchResource<PluginParameter>(
         params,
-        boundFn
+        boundFn,
       );
       const filteredParameters = parameters.filter(
-        (param) => param.data.param_name === "plugininstances"
+        (param) => param.data.param_name === "plugininstances",
       );
       if (filteredParameters[0]) {
         parentIds[instance.data.id] = filteredParameters[0].data.value
@@ -96,7 +96,7 @@ export const getTsNodes = async (items: PluginInstance[]) => {
 
 export const getTsNodesWithPipings = async (
   items: PluginPiping[],
-  pluginParameters?: any[]
+  pluginParameters?: any[],
 ) => {
   const parentIds: {
     [key: string]: number[];
@@ -126,7 +126,7 @@ export function treeAlgorithm(
   event: any,
   selectedD3Node: any,
   instances: any[],
-  onNodeClick: (item: PluginInstance) => void
+  onNodeClick: (item: PluginInstance) => void,
 ) {
   if (event.keyCode === 40) {
     //Down
@@ -147,7 +147,7 @@ export function treeAlgorithm(
     //Up
     const parentId = selectedD3Node.parentId;
     const findItem = instances.find(
-      (instance) => instance.data.id === parentId
+      (instance) => instance.data.id === parentId,
     );
 
     if (findItem) {
@@ -163,12 +163,12 @@ export function treeAlgorithm(
 
     if (length === 0) {
       const findItem = instances.find(
-        (instance) => instance.data.id === selectedD3Node.parentId
+        (instance) => instance.data.id === selectedD3Node.parentId,
       );
       if (findItem) {
         const children = findItem.children;
         const findIndex = children.findIndex(
-          (child: any) => child.data.id === selectedD3Node.id
+          (child: any) => child.data.id === selectedD3Node.id,
         );
 
         if (findIndex) {
@@ -196,12 +196,12 @@ export function treeAlgorithm(
 
     if (length === 0) {
       const findItem = instances.find(
-        (instance) => instance.data.id === selectedD3Node.parentId
+        (instance) => instance.data.id === selectedD3Node.parentId,
       );
       if (findItem) {
         const children = findItem.children;
         const findIndex = children.findIndex(
-          (child: any) => child.data.id === selectedD3Node.id
+          (child: any) => child.data.id === selectedD3Node.id,
         );
 
         if (findIndex !== -1) {

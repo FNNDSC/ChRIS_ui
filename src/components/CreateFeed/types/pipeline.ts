@@ -165,7 +165,7 @@ export interface PipelinesProps {
   handleSetCurrentNodeTitle: (
     currentPipelineId: number,
     currentNode: number,
-    title: string
+    title: string,
   ) => void;
   handleSetPipelineEnvironments: (
     pipelineId: number,
@@ -174,11 +174,11 @@ export interface PipelinesProps {
         computeEnvs: any[];
         currentlySelected: any;
       };
-    }
+    },
   ) => void;
   handleSetGeneralCompute: (
     currentPipelineId: number,
-    computeEnv: string
+    computeEnv: string,
   ) => void;
 
   handleSetCurrentComputeEnv: (
@@ -188,13 +188,13 @@ export interface PipelinesProps {
     },
     currentNode: number,
     currentPipelineId: number,
-    computeEnvList: any[]
+    computeEnvList: any[],
   ) => void;
 
   handleFormParameters: (
     currentNode: number,
     currentPipelineId: number,
-    newParamDict: any[]
+    newParamDict: any[],
   ) => void;
   state: any;
 }
@@ -207,7 +207,7 @@ export interface ConfiguartionPageProps {
   handleSetCurrentNodeTitle: (
     currentPipelineId: number,
     currentNode: number,
-    title: string
+    title: string,
   ) => void;
   handleDispatchPipelines: (registeredPipelines: any) => void;
   handleSetCurrentComputeEnv: (
@@ -217,12 +217,12 @@ export interface ConfiguartionPageProps {
     },
     currentNode: number,
     currentPipelineId: number,
-    computeEnvList: any[]
+    computeEnvList: any[],
   ) => void;
   handleFormParameters: (
     currentNode: number,
     currentPipelineId: number,
-    newParamDict: any[]
+    newParamDict: any[],
   ) => void;
   justDisplay?: boolean;
 }
