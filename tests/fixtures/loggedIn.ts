@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { faker } from '@faker-js/faker';
 import createAccountHelper from "../helpers/createAccount";
-
 export * from '@playwright/test';
 
 // create new user account for each worker
