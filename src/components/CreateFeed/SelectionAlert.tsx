@@ -49,7 +49,7 @@ export const SelectionAlertWrap = ({
 
 export default function withSelectionAlert(
   stepComponent: React.ReactNode,
-  showAlert = true
+  showAlert = true,
 ) {
   return (
     <SelectionAlertWrap showAlert={showAlert} stepComponent={stepComponent} />

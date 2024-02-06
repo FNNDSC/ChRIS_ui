@@ -16,7 +16,7 @@ const ComputePage = () => {
     dispatch(
       setSidebarActive({
         activeItem: "compute",
-      })
+      }),
     );
   });
   return (

@@ -1,9 +1,5 @@
-import Client from '@fnndsc/chrisapi'
-import { Cookies } from 'react-cookie'
-
-
-
-
+import Client from "@fnndsc/chrisapi";
+import { Cookies } from "react-cookie";
 
 /**
  * This is a singleton to hold an instantiated, authenticated `Client` object,
@@ -12,29 +8,28 @@ import { Cookies } from 'react-cookie'
  */
 
 class ChrisAPIClient {
-  private static client: Client
-  private static isTokenAuthorized: boolean
- 
+  private static client: Client;
+  private static isTokenAuthorized: boolean;
 
   static getClient(): Client {
-    const cookie = new Cookies()
+    const cookie = new Cookies();
     if (!this.client || !this.isTokenAuthorized) {
-      const user= cookie.get('username');
-      const token: string = cookie.get(`${user}_token`)
+      const user = cookie.get("username");
+      const token: string = cookie.get(`${user}_token`);
       if (token) {
-        this.isTokenAuthorized = true
+        this.isTokenAuthorized = true;
       } else {
-        this.isTokenAuthorized = false
+        this.isTokenAuthorized = false;
       }
       this.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
         token,
-      })
+      });
     }
-    return this.client
+    return this.client;
   }
 
   static setIsTokenAuthorized(value: boolean) {
-    this.isTokenAuthorized = value
+    this.isTokenAuthorized = value;
   }
 }
-export default ChrisAPIClient
+export default ChrisAPIClient;

@@ -30,7 +30,7 @@ export const createFeed = async (
   setUploadFileCallback: (status: number) => void,
   setErrorCallback: (error: any) => void,
   selectedConfig: string[],
-  selectedPipeline?: number
+  selectedPipeline?: number,
 ) => {
   /**
    * Dircopy requires a path from the ChRIS object storage
@@ -49,14 +49,14 @@ export const createFeed = async (
       setUploadFileCallback,
       setErrorCallback,
       selectedConfig,
-      selectedPipeline
+      selectedPipeline,
     );
   } else if (selectedConfig.includes("fs_plugin")) {
     feed = await createFeedInstanceWithFS(
       dropdownInput,
       requiredInput,
       selectedPlugin,
-      setErrorCallback
+      setErrorCallback,
     );
   }
   return feed;
@@ -69,7 +69,7 @@ export const createFeedInstanceWithDircopy = async (
   setUploadFileCallback: (value: number) => void,
   errorCallback: (error: any) => void,
   selectedConfig: string[],
-  selectedPipeline?: number
+  selectedPipeline?: number,
 ) => {
   const { chrisFiles, localFiles } = data;
 
@@ -104,7 +104,7 @@ export const createFeedInstanceWithDircopy = async (
           {
             //@ts-ignore
             dir: dirpath.join(","),
-          }
+          },
         );
 
         if (createdInstance) {
@@ -120,7 +120,7 @@ export const createFeedInstanceWithDircopy = async (
 
               const nodes_info = client.computeWorkflowNodesInfo(
                 //@ts-ignore
-                pluginParameters.data
+                pluginParameters.data,
               );
 
               nodes_info.forEach((node) => {
@@ -171,7 +171,7 @@ export const createFeedInstanceWithFS = async (
   dropdownInput: InputType,
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
-  errorCallback: (error: any) => void
+  errorCallback: (error: any) => void,
 ) => {
   let feed;
   if (selectedPlugin) {
@@ -180,7 +180,7 @@ export const createFeedInstanceWithFS = async (
         dropdownInput,
         requiredInput,
         selectedPlugin,
-        errorCallback
+        errorCallback,
       );
       const pluginId = selectedPlugin.data.id;
       const client = ChrisAPIClient.getClient();
@@ -188,7 +188,7 @@ export const createFeedInstanceWithFS = async (
         const fsPluginInstance = await client.createPluginInstance(
           pluginId,
           //@ts-ignore
-          data
+          data,
         );
         feed = await fsPluginInstance.getFeed();
       } catch (error) {
@@ -203,20 +203,16 @@ export const createFeedInstanceWithFS = async (
 export const uploadLocalFiles = async (
   files: File[],
   directory: string,
-  statusCallback: (value: number) => void
+  statusCallback: (value: number) => void,
 ) => {
   const client = ChrisAPIClient.getClient();
   await client.setUrls();
 
-  const fileUploads = uploadWrapper(
-    files,
-    directory,
-    client.auth.token
-  );
+  const fileUploads = uploadWrapper(files, directory, client.auth.token);
   const promises = fileUploads.map(
     ({ promise }) =>
       () =>
-        promise
+        promise,
   );
 
   await limitConcurrency(4, promises, (progress: number) => {
@@ -241,7 +237,7 @@ export const getRequiredObject = async (
   requiredInput: InputType,
   plugin: Plugin,
   errorCallback: (error: any) => void,
-  selected?: PluginInstance
+  selected?: PluginInstance,
 ) => {
   let dropdownUnpacked;
   let requiredUnpacked;
@@ -271,7 +267,7 @@ export const getRequiredObject = async (
     const boundFn = fn.bind(plugin);
     const { resource: params } = await fetchResource<PluginParameter>(
       paginate,
-      boundFn
+      boundFn,
     );
 
     for (let i = 0; i < params.length; i++) {

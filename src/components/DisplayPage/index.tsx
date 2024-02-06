@@ -104,9 +104,7 @@ const DisplayPage = ({
   const isPlugin = title === "Plugins" ? true : false;
   const isCompute = title === "Compute" ? true : false;
   const [dropdownValue, setDropdownValue] = React.useState<string>(
-    isPlugin
-      ? PluginQueryTypes.NAME[0]
-      : ComputeQueryTypes.NAME[0]
+    isPlugin ? PluginQueryTypes.NAME[0] : ComputeQueryTypes.NAME[0],
   );
 
   const onToggle = () => {
@@ -221,7 +219,7 @@ const DisplayPage = ({
                     >
                       {format(
                         new Date(resource.data.modification_date),
-                        "do MMMM, yyyy"
+                        "do MMMM, yyyy",
                       )}
                     </p>
                   </div>

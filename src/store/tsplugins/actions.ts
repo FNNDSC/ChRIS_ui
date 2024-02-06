@@ -10,5 +10,4 @@ export const deleteTsNode = (node: PluginInstance) =>
 export const switchTreeMode = (mode: boolean) =>
   action(TSPluginTypes.SWITCH_TREE_MODE, mode);
 
-
 export const resetTsNodes = () => action(TSPluginTypes.RESET_TS_NODES);

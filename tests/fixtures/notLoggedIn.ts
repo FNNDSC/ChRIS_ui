@@ -1,6 +1,6 @@
-import { test as baseTest, expect } from 'playwright-test-coverage-native';
+import { test as baseTest, expect } from "playwright-test-coverage-native";
 
-export * from '@playwright/test';
+export * from "@playwright/test";
 
 export const test = baseTest.extend({
   page: async ({ page }, use) => {
@@ -8,5 +8,5 @@ export const test = baseTest.extend({
     page.on("pageerror", (error) => errors.push(error));
     await use(page);
     expect(errors).toHaveLength(0);
-  }
+  },
 });

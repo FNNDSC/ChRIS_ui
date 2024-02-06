@@ -38,7 +38,9 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   }
 
   async function handleSubmit(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent> | React.KeyboardEvent
+    event:
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+      | React.KeyboardEvent,
   ) {
     event.preventDefault();
 
@@ -57,7 +59,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         //@ts-ignore
         error.response
           ? LoginErrorMessage.invalidCredentials
-          : LoginErrorMessage.serverError
+          : LoginErrorMessage.serverError,
       );
     }
 
@@ -66,7 +68,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         setAuthTokenSuccess({
           token,
           username: username,
-        })
+        }),
       );
       const oneDayToSeconds = 24 * 60 * 60;
       setCookie(`${username}_token`, token, {
@@ -83,14 +85,14 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
   const handleUsernameChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    value: string
+    value: string,
   ) => {
     setUsername(value);
   };
 
   const handlePasswordChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    value: string
+    value: string,
   ) => {
     setPassword(value);
   };

@@ -6,11 +6,10 @@ import FillRightCircle from "@patternfly/react-icons/dist/esm/icons/caret-right-
 import FillLeftCircle from "@patternfly/react-icons/dist/esm/icons/caret-left-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 
-
 export function getStatusLabels(
   labels: PluginStatusLabels,
   pluginDetails: any,
-  previousStatus: string
+  previousStatus: string,
 ) {
   const status = [];
   const pluginStatus = pluginDetails.data.status;
