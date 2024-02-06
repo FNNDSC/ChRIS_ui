@@ -1,0 +1,26 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.1.2/schema.json",
+  "files": {
+    "include": ["src/**", "tests/**", "./*.{ts,json}"],
+    "ignore": ["package-lock.json"]
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "formatter": {
+    "indentWidth": 2,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "master"
+  }
+}
