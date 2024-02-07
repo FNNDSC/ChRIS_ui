@@ -41,14 +41,14 @@ export const usePaginate = () => {
   const debouncedFilterUpdate = debounce(
     (search: string, searchType: string) =>
       handleFilterChange(search, searchType),
-    500
+    500,
   );
 
   const run = useCallback(
     (action: any) => {
       dispatch(action(searchType, search, perPage, perPage * (page - 1)));
     },
-    [page, perPage, search, dispatch, searchType]
+    [page, perPage, search, dispatch, searchType],
   );
 
   return {

@@ -33,7 +33,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
   const dispatch = useDispatch();
   const feed = useTypedSelector((state) => state.feed.currentFeed);
   const { deleteNode: isModalOpen } = useTypedSelector(
-    (state) => state.plugin.nodeOperations
+    (state) => state.plugin.nodeOperations,
   );
   const { data } = feed;
   const handleModalToggle = React.useCallback(() => {
@@ -51,7 +51,7 @@ const DeleteNode: React.FC<DeleteNodeProps> = ({
       dispatch(
         deleteNodeError({
           error_message: "Please wait for the plugin to finish running",
-        })
+        }),
       );
     }
   };
@@ -109,7 +109,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 
 const DeleteNodeConnect = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(DeleteNode);
 
 export default DeleteNodeConnect;

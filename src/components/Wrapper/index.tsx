@@ -23,13 +23,13 @@ type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 const Wrapper: React.FC<AllProps> = (props: AllProps) => {
   const { children, user }: IOtherProps = props;
-  const  onNavToggle = () => {
+  const onNavToggle = () => {
     props.setIsNavOpen(!props.isNavOpen);
   };
 
   const onPageResize = (
     _event: MouseEvent | TouchEvent | React.KeyboardEvent<Element>,
-    data: { mobileView: boolean; windowSize: number }
+    data: { mobileView: boolean; windowSize: number },
   ) => {
     if (data.mobileView) {
       props.setIsNavOpen(false);

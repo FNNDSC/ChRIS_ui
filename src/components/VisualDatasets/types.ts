@@ -11,13 +11,12 @@ import React from "react";
  * In the future, we might want to consider feeds which contain multiple
  * public datasets.
  */
-type VisualDataset = { feed: Feed, plugininstance: PluginInstance };
-
+type VisualDataset = { feed: Feed; plugininstance: PluginInstance };
 
 type Problem = {
-  variant: "warning" | "success" | "danger" | "info"
-  title: string,
-  body?: React.ReactNode
+  variant: "warning" | "success" | "danger" | "info";
+  title: string;
+  body?: React.ReactNode;
 };
 
 export type { Problem, VisualDataset };

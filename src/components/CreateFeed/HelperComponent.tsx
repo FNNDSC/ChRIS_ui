@@ -78,7 +78,7 @@ export const LocalFileList = ({
           <span className="file-icon">
             {isFolder ? <FolderIcon /> : <FileIcon />}
           </span>
-          {fileName}
+          <div className="file-name-text">{fileName}</div>
         </FlexItem>
       </Flex>
 
@@ -91,7 +91,7 @@ export const LocalFileList = ({
                   handleDeleteDispatch &&
                     handleDeleteDispatch(
                       fileName,
-                      isFolder ? "folder" : "files"
+                      isFolder ? "folder" : "files",
                     );
                 }}
               />
@@ -105,7 +105,7 @@ export const LocalFileList = ({
 
 function generateLocalFileList(
   localFiles: File[],
-  handleDeleteDispatch: (file: string) => void
+  handleDeleteDispatch: (file: string) => void,
 ) {
   return localFiles.map((file: File, index: number) => {
     return (

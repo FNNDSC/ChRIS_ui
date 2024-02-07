@@ -1,5 +1,11 @@
 import React from "react";
-import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from "@patternfly/react-core";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  MenuToggleElement,
+} from "@patternfly/react-core";
 import { Niivue } from "@niivue/niivue";
 
 const _NIIVUE = new Niivue();
@@ -13,7 +19,10 @@ type ColormapDropdownProps = {
 /**
  * A dropdown menu for selecting colormap names supported by Niivue.
  */
-const ColormapDropdown: React.FC<ColormapDropdownProps> = ({ selectedColormap, onSelect }) => {
+const ColormapDropdown: React.FC<ColormapDropdownProps> = ({
+  selectedColormap,
+  onSelect,
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onToggleClick = () => {
@@ -28,10 +37,10 @@ const ColormapDropdown: React.FC<ColormapDropdownProps> = ({ selectedColormap, o
     if (value === undefined) {
       return;
     }
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       onSelect(value);
     } else {
-      throw new Error('unreachable code');
+      throw new Error("unreachable code");
     }
   };
 

@@ -5,7 +5,8 @@ import {
   Alert,
   Breadcrumb,
   BreadcrumbItem,
-  Button, Chip,
+  Button,
+  Chip,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -33,7 +34,10 @@ import { DEFAULT_OPTIONS } from "./defaults.ts";
 import preval from "preval.macro";
 import HeaderOptionBar from "./components/HeaderOptionBar.tsx";
 import FeedButton from "./components/FeedButton.tsx";
-import { CrosshairLocation, SizedNiivueCanvas } from "./components/SizedNiivueCanvas.tsx";
+import {
+  CrosshairLocation,
+  SizedNiivueCanvas,
+} from "./components/SizedNiivueCanvas.tsx";
 import { Problem, VisualDataset } from "./types.ts";
 import VisualDatasetsClient from "./client.tsx";
 import ProblemsManager from "./problems.ts";
@@ -54,15 +58,19 @@ import { nullUpdaterGuard } from "./helpers.ts";
  * is generally useful for other datasets of 3D medical images.
  */
 const VisualDatasets: React.FunctionComponent = () => {
-
   const client = ChrisAPIClient.getClient();
   const dispatch = useDispatch();
 
   const [datasets, setDatasets] = useState<VisualDataset[] | null>(null);
   const [dataset, setDataset] = useState<VisualDataset | null>(null);
-  const {feed, plugininstance} = dataset || { feed: null, plugininstance: null };
+  const { feed, plugininstance } = dataset || {
+    feed: null,
+    plugininstance: null,
+  };
   const [subjectNames, setSubjectNames] = useState<string[] | null>(null);
-  const [selectedSubjectName, setSelectedSubjectName] = useState<string | null>(null);
+  const [selectedSubjectName, setSelectedSubjectName] = useState<string | null>(
+    null,
+  );
   const [files, setFiles] = useImmer<VisualDatasetFile[] | null>(null);
 
   const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
@@ -70,7 +78,9 @@ const VisualDatasets: React.FunctionComponent = () => {
   const [sizeIsScaling, setSizeIsScaling] = useState(false);
 
   const [isSubjectDropdownOpen, setIsSubjectDropdownOpen] = useState(false);
-  const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>({string: ""});
+  const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>(
+    { string: "" },
+  );
 
   const buildVersion: string = preval`
     const { execSync } = require('child_process')
@@ -80,7 +90,10 @@ const VisualDatasets: React.FunctionComponent = () => {
   const problemsManger = new ProblemsManager(useState<Problem[]>([]));
   const visualDatasetsClient = new VisualDatasetsClient(client, problemsManger);
 
-  const onSubjectDropdownSelect = (_e: any, value: string | number | undefined) => {
+  const onSubjectDropdownSelect = (
+    _e: any,
+    value: string | number | undefined,
+  ) => {
     setIsSubjectDropdownOpen(false);
     setSelectedSubjectName(value as string);
   };
@@ -95,7 +108,7 @@ const VisualDatasets: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "niivue",
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -147,7 +160,9 @@ const VisualDatasets: React.FunctionComponent = () => {
       return;
     }
     if (plugininstance === null) {
-      throw new Error('Impossible for subject to be selected before plugin instance is known.');
+      throw new Error(
+        "Impossible for subject to be selected before plugin instance is known.",
+      );
     }
     visualDatasetsClient
       .getFiles(plugininstance, selectedSubjectName)
@@ -166,15 +181,26 @@ const VisualDatasets: React.FunctionComponent = () => {
             p1={
               <Typography>
                 <p>
-                  Datasets found in public feeds can be visualized here using{' '}
-                  <a href="https://github.com/niivue/niivue" target="_blank" rel="noreferrer nofollow">Niivue</a>.
+                  Datasets found in public feeds can be visualized here using{" "}
+                  <a
+                    href="https://github.com/niivue/niivue"
+                    target="_blank"
+                    rel="noreferrer nofollow"
+                  >
+                    Niivue
+                  </a>
+                  .
                 </p>
                 <p>
                   For how to add data here, see the documentation:
-                  <a href="https://chrisproject.org/docs/public_dataset_viewer" target="_blank"
-                     rel="noreferrer nofollow">
+                  <a
+                    href="https://chrisproject.org/docs/public_dataset_viewer"
+                    target="_blank"
+                    rel="noreferrer nofollow"
+                  >
                     https://chrisproject.org/docs/public_dataset_viewer
-                  </a>.
+                  </a>
+                  .
                 </p>
               </Typography>
             }
@@ -191,11 +217,11 @@ const VisualDatasets: React.FunctionComponent = () => {
          */
         problemsManger.problems.length === 0 || (
           <PageSection>
-            {
-              problemsManger.problems.map(({ variant, title, body }) => (
-                <Alert variant={variant} title={title} key={title}>{body}</Alert>
-              ))
-            }
+            {problemsManger.problems.map(({ variant, title, body }) => (
+              <Alert variant={variant} title={title} key={title}>
+                {body}
+              </Alert>
+            ))}
           </PageSection>
         )
       }
@@ -206,14 +232,16 @@ const VisualDatasets: React.FunctionComponent = () => {
             <Breadcrumb>
               <BreadcrumbItem>
                 <Popover
-                  bodyContent={<NiivueOptionsPanel
-                    options={nvOptions}
-                    setOptions={setNvOptions}
-                    size={nvSize}
-                    setSize={setNvSize}
-                    sizeIsScaling={sizeIsScaling}
-                    setSizeIsScaling={setSizeIsScaling}
-                  />}
+                  bodyContent={
+                    <NiivueOptionsPanel
+                      options={nvOptions}
+                      setOptions={setNvOptions}
+                      size={nvSize}
+                      setSize={setNvSize}
+                      sizeIsScaling={sizeIsScaling}
+                      setSizeIsScaling={setSizeIsScaling}
+                    />
+                  }
                   minWidth="20rem"
                   maxWidth="40rem"
                 >
@@ -224,22 +252,27 @@ const VisualDatasets: React.FunctionComponent = () => {
 
                 {/* feed selector */}
               </BreadcrumbItem>
-              {feed && <BreadcrumbItem>
-                {feed.data.name}
-                <FeedButton feedId={feed.data.id} />
-              </BreadcrumbItem>}
+              {feed && (
+                <BreadcrumbItem>
+                  {feed.data.name}
+                  <FeedButton feedId={feed.data.id} />
+                </BreadcrumbItem>
+              )}
 
               {/* subject selector */}
               <BreadcrumbItem>
                 <Dropdown
                   isOpen={isSubjectDropdownOpen}
                   onSelect={onSubjectDropdownSelect}
-                  onOpenChange={(isOpen: boolean) => setIsSubjectDropdownOpen(isOpen)}
-
+                  onOpenChange={(isOpen: boolean) =>
+                    setIsSubjectDropdownOpen(isOpen)
+                  }
                   toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
                     <MenuToggle
                       ref={toggleRef}
-                      onClick={() => setIsSubjectDropdownOpen(!isSubjectDropdownOpen)}
+                      onClick={() =>
+                        setIsSubjectDropdownOpen(!isSubjectDropdownOpen)
+                      }
                       isExpanded={isSubjectDropdownOpen}
                       isDisabled={
                         // subject selection menu disabled when list of subjects not yet loaded
@@ -252,19 +285,24 @@ const VisualDatasets: React.FunctionComponent = () => {
                   shouldFocusToggleOnSelect
                 >
                   <DropdownList>
-                    {
-                      (subjectNames || [])
-                        .map((name) => <DropdownItem key={name} value={name}>{name}</DropdownItem>)
-                    }
+                    {(subjectNames || []).map((name) => (
+                      <DropdownItem key={name} value={name}>
+                        {name}
+                      </DropdownItem>
+                    ))}
                   </DropdownList>
                 </Dropdown>
               </BreadcrumbItem>
 
-              { files &&
+              {files && (
                 <BreadcrumbItem>
                   <Popover
-                    bodyContent={<SelectedFilesOptionsPane
-                      files={files} setFiles={nullUpdaterGuard(setFiles)} />}
+                    bodyContent={
+                      <SelectedFilesOptionsPane
+                        files={files}
+                        setFiles={nullUpdaterGuard(setFiles)}
+                      />
+                    }
                     minWidth="20rem"
                     maxWidth="40rem"
                   >
@@ -273,7 +311,7 @@ const VisualDatasets: React.FunctionComponent = () => {
                     </Button>
                   </Popover>
                 </BreadcrumbItem>
-              }
+              )}
             </Breadcrumb>
           </PageBreadcrumb>
         </PageNavigation>
@@ -298,9 +336,7 @@ const VisualDatasets: React.FunctionComponent = () => {
           <div className={styles.leftAndRightContainer}>
             {/* LEFT FOOTER */}
             <div className={styles.footerItems}>
-              <div>
-                &copy;&nbsp;2024
-              </div>
+              <div>&copy;&nbsp;2024</div>
               <div>
                 <a href="https://www.fnndsc.org/" target="_blank">
                   Fetal-Neonatal Neuroimaging Developmental Science Center
@@ -318,17 +354,20 @@ const VisualDatasets: React.FunctionComponent = () => {
               <Popover
                 triggerAction="hover"
                 showClose={true}
-                headerContent={<div>We appreciate any comments and suggestions!</div>}
-                bodyContent={<div>
-                  Email{" "}
-                  <a href="mailto:dev@babyMRI.org">dev@babyMRI.org</a>{" "}
-                  or create an issue on{" "}
-                  <a href="https://github.com/FNNDSC/ChRIS_ui">
-                    GitHub
-                  </a>.
-                </div>}
+                headerContent={
+                  <div>We appreciate any comments and suggestions!</div>
+                }
+                bodyContent={
+                  <div>
+                    Email <a href="mailto:dev@babyMRI.org">dev@babyMRI.org</a>{" "}
+                    or create an issue on{" "}
+                    <a href="https://github.com/FNNDSC/ChRIS_ui">GitHub</a>.
+                  </div>
+                }
               >
-                <Chip isReadOnly={true} component="button"><b>Feedback</b></Chip>
+                <Chip isReadOnly={true} component="button">
+                  <b>Feedback</b>
+                </Chip>
               </Popover>
             </div>
           </div>
@@ -336,6 +375,6 @@ const VisualDatasets: React.FunctionComponent = () => {
       </PageSection>
     </WrapperConnect>
   );
-}
+};
 
 export default VisualDatasets;

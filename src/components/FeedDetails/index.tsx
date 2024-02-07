@@ -35,8 +35,6 @@ const FeedDetails = () => {
   const preview =
     drawerState["preview"].currentlyActive === "preview" ? true : false;
 
-  
-
   React.useEffect(() => {
     fetchNote(currentFeed).then((feedNote) => {
       feedNote && feedNote.data.content.length > 0 && !note
@@ -127,8 +125,7 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonWithTooltip
-           
-            className='button-style'
+            className="button-style large-button"
             position="bottom"
             content={!node && terminal ? "Node Details" : "Terminal"}
             onClick={() => {
@@ -154,8 +151,7 @@ const FeedDetails = () => {
         button={
           <Badge dot={showNoteBadge && !note ? true : false} offset={[-5, 0]}>
             <ButtonWithTooltip
-              
-              className='button-style'
+              className="button-style large-button"
               position="bottom"
               content={!note ? "Feed Note" : "Node Details"}
               onClick={() => {
@@ -183,7 +179,7 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonWithTooltip
-            className='button-style'
+            className="button-style large-button"
             position="bottom"
             content={preview ? "Xtk Viewer" : "Preview"}
             onClick={() => {
@@ -249,7 +245,7 @@ export const ButtonContainer = ({
   return (
     <ButtonWithTooltip
       position="bottom"
-      className="button-style"
+      className="button-style large-button"
       content={<span>{title}</span>}
       Icon={Icon}
       variant="primary"

@@ -8,7 +8,7 @@ export const initialState: ITSPluginState = {
 
 const reducer: Reducer<ITSPluginState> = (
   state = initialState,
-  action: typeof TSPluginTypes
+  action: typeof TSPluginTypes,
 ) => {
   switch (action.type) {
     case TSPluginTypes.ADD_TS_NODE: {
@@ -19,12 +19,12 @@ const reducer: Reducer<ITSPluginState> = (
         };
       } else {
         const node = state.tsNodes.find(
-          (node) => node.data.id === action.payload.data.id
+          (node) => node.data.id === action.payload.data.id,
         );
 
         if (node) {
           const filteredNodes = state.tsNodes.filter(
-            (node) => node.data.id !== action.payload.data.id
+            (node) => node.data.id !== action.payload.data.id,
           );
           return {
             ...state,
@@ -41,7 +41,7 @@ const reducer: Reducer<ITSPluginState> = (
     case TSPluginTypes.DELETE_TS_NODE: {
       if (state.tsNodes) {
         const filteredNodes = state.tsNodes.filter(
-          (node) => node.data.id !== action.payload.data.id
+          (node) => node.data.id !== action.payload.data.id,
         );
         return {
           ...state,
