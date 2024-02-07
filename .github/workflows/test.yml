@@ -28,11 +28,15 @@ jobs:
       env:
         TEST_SAFARI: yes
       run: npm run test:e2e
-    - name: Upload E2E test coverage
+    - name: Report coverage
+      id: report
       if: ${{ always() }}
+      run: npm run test:lcov
+    - name: Upload E2E test coverage
+      if: steps.report.outcome == 'success'
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage/clover.xml
+        files: coverage/lcov.info
         flags: e2etests
         fail_ci_if_error: true
