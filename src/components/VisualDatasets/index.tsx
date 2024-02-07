@@ -102,7 +102,7 @@ const VisualDatasets: React.FunctionComponent = () => {
   // --------------------------------------------------------------------------------
 
   // when the web app is ready, hide the sidebar and set the page title.
-  React.useEffect(() => {
+  useEffect(() => {
     document.title = "Fetal MRI Viewer";
     dispatch(setIsNavOpen(false));
     dispatch(
