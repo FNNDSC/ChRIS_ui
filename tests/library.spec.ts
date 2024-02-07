@@ -31,6 +31,8 @@ test("Tests File Uploads", async ({ page }) => {
     const SOME_FILE = path.join(__dirname, "..", "package-lock.json");
     await fileChooser.setFiles(SOME_FILE);
 
+    await page.waitForSelector("input[name='horizontal-form-name']");
+
     // Extract the file name from the file-name div
     const fileName = await page.$eval(
       ".file-name-text",
