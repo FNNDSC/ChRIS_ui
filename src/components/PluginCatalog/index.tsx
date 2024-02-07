@@ -17,7 +17,7 @@ const CatalogPage = () => {
     dispatch(
       setSidebarActive({
         activeItem: "catalog",
-      })
+      }),
     );
   });
   return (

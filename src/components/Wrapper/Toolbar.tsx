@@ -94,7 +94,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
           />
         </ToolbarItem>
 
-        {token ?  (
+        {token ? (
           <ToolbarItem>
             <Dropdown
               isPlain

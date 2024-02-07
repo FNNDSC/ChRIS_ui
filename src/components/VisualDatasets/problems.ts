@@ -10,7 +10,6 @@ type SetProblems = (problems: Problem[]) => void;
  * problems.
  */
 class ProblemsManager {
-
   public readonly problems: Problem[];
   private readonly setProblems: SetProblems;
 
@@ -43,7 +42,9 @@ class ProblemsManager {
    * Has this problem happened before?
    */
   private hasProblemWithSameTitle(problem: Problem) {
-    return this.problems.findIndex((other) => other.title === problem.title) === -1;
+    return (
+      this.problems.findIndex((other) => other.title === problem.title) === -1
+    );
   }
 }
 

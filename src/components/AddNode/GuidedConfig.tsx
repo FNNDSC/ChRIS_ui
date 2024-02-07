@@ -279,7 +279,7 @@ const CheckboxComponent = () => {
     const pluginInstanceList = await selectedPluginFromMeta?.getPluginInstances(
       {
         limit: 10,
-      }
+      },
     );
 
     const pluginInstances = pluginInstanceList?.getItems();
@@ -410,8 +410,8 @@ const ItalicsComponent = ({
         length && length > 0
           ? length
           : isRequiredParam
-          ? "No required"
-          : "No optional"
+            ? "No required"
+            : "No optional"
       }${length === 1 ? " parameter" : " parameters"}`}
       )
     </i>
@@ -532,7 +532,7 @@ const EditorValue = ({
                   setValidating(true);
                   const { optional, nonOptional } = handleGetTokens(
                     editorValue,
-                    params
+                    params,
                   );
 
                   if (Object.keys(optional).length > 0) {

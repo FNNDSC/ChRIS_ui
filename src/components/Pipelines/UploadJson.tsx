@@ -60,7 +60,7 @@ export const UploadJson = ({
             cleanUp(event);
           } else {
             setPipelineWarning(
-              `pipeline with the name ${result.name} already exists`
+              `pipeline with the name ${result.name} already exists`,
             );
             cleanUp(event);
           }

@@ -16,7 +16,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSetPipelineResources = React.useCallback(
@@ -32,7 +32,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSetCurrentComputeEnv = React.useCallback(
@@ -43,7 +43,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
       },
       currentNode: number,
       currentPipelineId: number,
-      computeEnvList: any[]
+      computeEnvList: any[],
     ) => {
       dispatch({
         type: PipelineTypes.SetCurrentComputeEnvironment,
@@ -57,7 +57,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSetCurrentNode = React.useCallback(
@@ -70,7 +70,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleUploadDispatch = React.useCallback(
@@ -84,7 +84,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
       });
       handleSetPipelineResources(result);
     },
-    [dispatch, handleSetPipelineResources]
+    [dispatch, handleSetPipelineResources],
   );
 
   const handleCleanResources = React.useCallback(() => {
@@ -110,7 +110,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSetPipelineEnvironments = React.useCallback(
@@ -121,7 +121,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
           computeEnvs: any[];
           currentlySelected: any;
         };
-      }
+      },
     ) => {
       dispatch({
         type: PipelineTypes.SetPipelineEnvironments,
@@ -131,7 +131,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSetCurrentNodeTitle = React.useCallback(
@@ -145,7 +145,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleSetGenerateCompute = React.useCallback(
@@ -158,7 +158,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleFormParameters = React.useCallback(
@@ -172,7 +172,7 @@ const PipelineContainer = ({ justDisplay }: { justDisplay?: boolean }) => {
         },
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   return (

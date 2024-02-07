@@ -41,7 +41,7 @@ class Link extends React.Component<LinkProps, LinkState> {
 
     done = () => {
       return null;
-    }
+    },
   ) {
     select(this.linkRef).style("opacity", opacity).on("end", done);
   }

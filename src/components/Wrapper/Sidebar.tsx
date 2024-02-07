@@ -75,10 +75,7 @@ const Sidebar: React.FC<AllProps> = ({
             <Link to="/pipelines">Pipelines</Link>
           </NavItem>
 
-          <NavItem
-            itemId="niivue"
-            isActive={sidebarActiveItem === "niivue"}
-          >
+          <NavItem itemId="niivue" isActive={sidebarActiveItem === "niivue"}>
             <Link to="/niivue">Fetal MRI Viewer</Link>
           </NavItem>
 
@@ -145,10 +142,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
             <Link to="/catalog">Plugins</Link>
           </NavItem>
-          <NavItem
-            itemId="niivue"
-            isActive={sidebarActiveItem === "niivue"}
-          >
+          <NavItem itemId="niivue" isActive={sidebarActiveItem === "niivue"}>
             <Link to="/niivue">Fetal MRI Viewer</Link>
           </NavItem>
         </NavGroup>

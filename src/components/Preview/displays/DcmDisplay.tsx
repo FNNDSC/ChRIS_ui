@@ -201,7 +201,8 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
               position: "absolute",
               top: "0",
               right: "0",
-              padding:'0.5em'
+              padding: "0.5em",
+              color: "white",
             }}
           >
             {sliceInfo.currentSliceIndex}/{sliceInfo.totalSlices}

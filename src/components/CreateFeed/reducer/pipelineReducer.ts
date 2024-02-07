@@ -16,7 +16,7 @@ export function getInitialPipelineState() {
 
 export const pipelineReducer = (
   state: PipelineState,
-  action: PipelineActions
+  action: PipelineActions,
 ) => {
   switch (action.type) {
     case PipelineTypes.DeselectPipeline: {
@@ -130,7 +130,7 @@ export const pipelineReducer = (
               ...state.pipelineData[pipelineId],
               computeEnvs: merge(
                 state.pipelineData[pipelineId].computeEnvs,
-                computeEnvData
+                computeEnvData,
               ),
             },
           },

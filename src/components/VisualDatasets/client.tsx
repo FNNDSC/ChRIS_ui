@@ -14,7 +14,7 @@ import { DEFAULT_VOLUME } from "./defaults.ts";
 /**
  * A file created by `pl-visual-dataset`.
  */
-const MAGIC_PUBLIC_DATASET_FILENAME = '.chrisvisualdataset.root.json';
+const MAGIC_PUBLIC_DATASET_FILENAME = ".chrisvisualdataset.root.json";
 /**
  * Maximum number of public visual datasets to search for.
  */
@@ -31,8 +31,7 @@ const FILES_PER_SUBJECT_LIMIT = 20;
 /**
  * Versions of `pl-visual-dataset` compatible with this viewer.
  */
-const COMPATIBLE_PL_VISUAL_DATASET_VERSIONS = ['0.0.5'];
-
+const COMPATIBLE_PL_VISUAL_DATASET_VERSIONS = ["0.0.5"];
 
 /**
  * Contacts CUBE to search for datasets conformant to the "Visual Dataset"
@@ -41,7 +40,6 @@ const COMPATIBLE_PL_VISUAL_DATASET_VERSIONS = ['0.0.5'];
  * https://chrisproject.org/docs/visual_dataset
  */
 class VisualDatasetsClient {
-
   private readonly client: Client;
   private readonly problems: ProblemsManager;
 
@@ -75,26 +73,28 @@ class VisualDatasetsClient {
   public async getVisualDatasetFeeds(): Promise<VisualDataset[]> {
     const searchParams = {
       files_fname_icontains: MAGIC_PUBLIC_DATASET_FILENAME,
-      limit: FEEDS_SEARCH_LIMIT
+      limit: FEEDS_SEARCH_LIMIT,
     };
 
     try {
       const feedsCollection = await this.client.getPublicFeeds(searchParams);
       if (feedsCollection.totalCount > 10) {
         this.problems.pushOnce({
-          variant: 'warning',
-          title: 'More than 10 feeds found.',
-          body: 'Since pagination is not implemented yet, not all of them are shown.'
+          variant: "warning",
+          title: "More than 10 feeds found.",
+          body: "Since pagination is not implemented yet, not all of them are shown.",
         });
       }
       const feeds = feedsCollection.getItems() as Feed[];
-      const plinstPromises = feeds.map((feed) => this.getVisualDatasetPluginInstances(feed));
+      const plinstPromises = feeds.map((feed) =>
+        this.getVisualDatasetPluginInstances(feed),
+      );
       const feedsAndVisualDatasets = await Promise.all(plinstPromises);
       return feedsAndVisualDatasets.filter(isNotNull);
     } catch (e) {
       this.problems.push({
         variant: "danger",
-        title: 'Could not load feeds.'
+        title: "Could not load feeds.",
       });
       throw e;
     }
@@ -104,12 +104,16 @@ class VisualDatasetsClient {
    * Find instances of `pl-public-dataset` in a feed.
    * @private
    */
-  private async getVisualDatasetPluginInstances(feed: Feed): Promise<VisualDataset | null> {
+  private async getVisualDatasetPluginInstances(
+    feed: Feed,
+  ): Promise<VisualDataset | null> {
     // N.B. it would be more efficient to hit api/v1/plugins/instances/search/
     // instead of api/v1/N/plugininstances/, however CUBE doesn't let
     // anonymous users do that.
     // See https://github.com/FNNDSC/ChRIS_ultron_backEnd/issues/530
-    const plinstCollection = await feed.getPluginInstances({limit: PLUGININSTANCES_LIMIT});
+    const plinstCollection = await feed.getPluginInstances({
+      limit: PLUGININSTANCES_LIMIT,
+    });
     const plinsts = plinstCollection.getItems() as PluginInstance[];
     const plugininstance = plinsts.find(isPlVisualDataset);
 
@@ -119,16 +123,17 @@ class VisualDatasetsClient {
 
     if (plinstCollection.totalCount > PLUGININSTANCES_LIMIT) {
       this.problems.push({
-        variant: 'warning',
+        variant: "warning",
         title: `Feed ${feed.data.id} not thoroughly checked`,
-        body: (<div>
-          No instance of plugin pl-visual-dataset with (supported versions
-          {COMPATIBLE_PL_VISUAL_DATASET_VERSIONS.join(',')}) was found in
-          the {PLUGININSTANCES_LIMIT} most recent plugin instances of the
-          feed titled "{feed.data.name}". Even though it might contain
-          a public visual dataset, the feed will not show up here because
-          I am lazy.
-        </div>)
+        body: (
+          <div>
+            No instance of plugin pl-visual-dataset with (supported versions
+            {COMPATIBLE_PL_VISUAL_DATASET_VERSIONS.join(",")}) was found in the{" "}
+            {PLUGININSTANCES_LIMIT} most recent plugin instances of the feed
+            titled "{feed.data.name}". Even though it might contain a public
+            visual dataset, the feed will not show up here because I am lazy.
+          </div>
+        ),
       });
     }
     return null;
@@ -142,13 +147,18 @@ class VisualDatasetsClient {
     if (datasets.length === 0) {
       this.problems.pushOnce({
         variant: "warning",
-        title: 'No public datasets found.',
-        body: (<span>
-          To add a public dataset, follow these instructions:{' '}
-          <a href="https://chrisproject.org/docs/public_dataset_browser" target="_blank">
-            https://chrisproject.org/docs/public_dataset_browser
-          </a>
-        </span>)
+        title: "No public datasets found.",
+        body: (
+          <span>
+            To add a public dataset, follow these instructions:{" "}
+            <a
+              href="https://chrisproject.org/docs/public_dataset_browser"
+              target="_blank"
+            >
+              https://chrisproject.org/docs/public_dataset_browser
+            </a>
+          </span>
+        ),
       });
       return null;
     }
@@ -156,11 +166,20 @@ class VisualDatasetsClient {
       this.problems.pushOnce({
         variant: "warning",
         title: "Multiple feeds found",
-        body: (<>
-          <p>Found public datasets in the following feeds:</p>
-          <pre>{JSON.stringify(datasets.map((dataset) => dataset.feed.data.name))}</pre>
-          <p>Currently it is not possible to show any other feed besides the first.</p>
-        </>)
+        body: (
+          <>
+            <p>Found public datasets in the following feeds:</p>
+            <pre>
+              {JSON.stringify(
+                datasets.map((dataset) => dataset.feed.data.name),
+              )}
+            </pre>
+            <p>
+              Currently it is not possible to show any other feed besides the
+              first.
+            </p>
+          </>
+        ),
       });
     }
     return datasets[0];
@@ -177,12 +196,12 @@ class VisualDatasetsClient {
       this.problems.pushOnce({
         variant: "danger",
         title: `Can't get subjects from plugininstance=${plinst.data.id}`,
-        body: (<>
-          <p>
-            filebrowser API request failed for whatever reason searching
-          </p>
-          <pre>{plinst.data.output_path}</pre>
-        </>)
+        body: (
+          <>
+            <p>filebrowser API request failed for whatever reason searching</p>
+            <pre>{plinst.data.output_path}</pre>
+          </>
+        ),
       });
       throw e;
     }
@@ -193,13 +212,17 @@ class VisualDatasetsClient {
    * default options (optionally specified in a `.chrisvisualdataset.volume.json`
    * sidecar file).
    */
-  public async getFiles(plinst: PluginInstance, subjectName: string): Promise<VisualDatasetFile[]> {
+  public async getFiles(
+    plinst: PluginInstance,
+    subjectName: string,
+  ): Promise<VisualDatasetFile[]> {
     const files = await this.getFilesFromFilebrowser(plinst, subjectName);
     const pairs = pairNiftisWithAssociatedOptions(files);
-    const getOptionsPromises = pairs.map(async ({nifti, sidecarFile}) => {
-      const sidecar = sidecarFile === null ? {} : await badlyFetchFileResource(sidecarFile);
+    const getOptionsPromises = pairs.map(async ({ nifti, sidecarFile }) => {
+      const sidecar =
+        sidecarFile === null ? {} : await badlyFetchFileResource(sidecarFile);
       const defaultSettings = { ...DEFAULT_VOLUME, ...sidecar.niivue_defaults };
-      const currentSettings = {...defaultSettings, url: nifti.file_resource};
+      const currentSettings = { ...defaultSettings, url: nifti.file_resource };
       return {
         name: sidecar.name || null,
         author: sidecar.author || null,
@@ -208,7 +231,7 @@ class VisualDatasetsClient {
         website: sidecar.website || null,
         file: nifti,
         defaultSettings,
-        currentSettings
+        currentSettings,
       };
     });
     const datasetFiles = await Promise.all(getOptionsPromises);
@@ -216,19 +239,26 @@ class VisualDatasetsClient {
     return datasetFiles;
   }
 
-  private async getFilesFromFilebrowser(plinst: PluginInstance, subjectName: string): Promise<FilebrowserFile[]> {
+  private async getFilesFromFilebrowser(
+    plinst: PluginInstance,
+    subjectName: string,
+  ): Promise<FilebrowserFile[]> {
     const subjectDir = `${plinst.data.output_path}/${subjectName}`;
     try {
       const fbp = await this.client.getFileBrowserPath(subjectDir);
-      const fileCollection = await fbp.getFiles({limit: FILES_PER_SUBJECT_LIMIT});
+      const fileCollection = await fbp.getFiles({
+        limit: FILES_PER_SUBJECT_LIMIT,
+      });
       if (fileCollection.totalCount > FILES_PER_SUBJECT_LIMIT) {
         this.problems.pushOnce({
           variant: "warning",
           title: `More than ${FILES_PER_SUBJECT_LIMIT} found for subject ${plinst.data.id}/${subjectName}`,
-          body: `The path ${subjectDir} contains ${fileCollection.totalCount} files, which is too many for me to handle.`
+          body: `The path ${subjectDir} contains ${fileCollection.totalCount} files, which is too many for me to handle.`,
         });
       }
-      return fileCollection.getItems()!.map(uncollectionifyFilebrowserFile);
+      return fileCollection
+        .getItems()!
+        .map(uncollectionifyFilebrowserFile);
     } catch (e) {
       this.problems.pushOnce({
         variant: "danger",
@@ -243,12 +273,17 @@ class VisualDatasetsClient {
  * @returns true if is a plugin instance of a compatible version of `pl-visual-dataset`
  */
 function isPlVisualDataset(p: PluginInstance): boolean {
-  return p.data.plugin_name === 'pl-visual-dataset'
-    && COMPATIBLE_PL_VISUAL_DATASET_VERSIONS
-      .findIndex((v) => v === p.data.plugin_version) !== -1;
+  return (
+    p.data.plugin_name === "pl-visual-dataset" &&
+    COMPATIBLE_PL_VISUAL_DATASET_VERSIONS.findIndex(
+      (v) => v === p.data.plugin_version,
+    ) !== -1
+  );
 }
 
-async function badlyFetchFileResource(option: FilebrowserFile): Promise<Sidecar> {
+async function badlyFetchFileResource(
+  option: FilebrowserFile,
+): Promise<Sidecar> {
   // Very bad smell: contacting CUBE without using the client.
   const res = await fetch(option.file_resource);
   return await res.json();
@@ -258,11 +293,13 @@ function isNotNull<T>(x: T | null): x is T {
   return x !== null;
 }
 
-
 function uncollectionifyFilebrowserFile(data: any): FilebrowserFile {
   return {
     ...Collection.getItemDescriptors(data.collection.items[0]),
-    file_resource: Collection.getLinkRelationUrls(data.collection.items[0], 'file_resource')[0]
+    file_resource: Collection.getLinkRelationUrls(
+      data.collection.items[0],
+      "file_resource",
+    )[0],
   };
 }
 
@@ -271,7 +308,10 @@ function uncollectionifyFilebrowserFile(data: any): FilebrowserFile {
  * put in the front of the list, so that Niivue renders them at the bottom
  * of the stack.
  */
-function compareVisualDatasetFile(a: VisualDatasetFile, b: VisualDatasetFile): number {
+function compareVisualDatasetFile(
+  a: VisualDatasetFile,
+  b: VisualDatasetFile,
+): number {
   if (a.name?.includes("T2 MRI")) {
     return -1;
   }

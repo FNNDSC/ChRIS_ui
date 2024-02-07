@@ -8,7 +8,7 @@ function nullUpdaterGuard<T>(updater: Updater<T | null>): Updater<T> {
     if (isDraftFunction(update)) {
       return updater((draft) => {
         if (draft === null) {
-          throw Error('draft is null');
+          throw Error("draft is null");
         }
         update(draft);
       });
@@ -18,7 +18,9 @@ function nullUpdaterGuard<T>(updater: Updater<T | null>): Updater<T> {
   };
 }
 
-function isDraftFunction<T>(update: T | DraftFunction<T>): update is DraftFunction<T> {
+function isDraftFunction<T>(
+  update: T | DraftFunction<T>,
+): update is DraftFunction<T> {
   return typeof update === "function";
 }
 

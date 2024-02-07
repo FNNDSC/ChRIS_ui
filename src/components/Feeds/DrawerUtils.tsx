@@ -12,7 +12,6 @@ import {
   ArrowsPointingOutIcon,
 } from "@heroicons/react/24/outline";
 
-
 interface ButtonProps {
   variant?: any;
   content?: any;

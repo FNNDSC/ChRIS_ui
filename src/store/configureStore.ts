@@ -4,7 +4,11 @@
  *                   It contains the createStore() => store, rootReducers, rootSagas, logger and other middleware
  *   Author:         ChRIS UI
  */
-import { Store, legacy_createStore as createStore, applyMiddleware } from "redux";
+import {
+  Store,
+  legacy_createStore as createStore,
+  applyMiddleware,
+} from "redux";
 import { createLogger } from "redux-logger";
 import createSagaMiddleware from "redux-saga";
 import { RootState } from "./root/applicationState";
@@ -22,7 +26,7 @@ function configureStore(): Store<RootState> {
 
   // Build Saga middleware
   const sagaMiddleware = createSagaMiddleware();
-  
+
   // Build ALL Middleware
   let middleware;
   if (import.meta.env.NODE_ENV !== "production") {
@@ -31,8 +35,6 @@ function configureStore(): Store<RootState> {
   } else {
     middleware = applyMiddleware(sagaMiddleware);
   }
-
-  
 
   // Create store
   const store = createStore(rootReducer, {}, composeWithDevTools(middleware));

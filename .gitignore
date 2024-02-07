@@ -7,6 +7,9 @@
 
 # testing
 /coverage
+/test-results
+/playwright-report
+/.nyc_output
 
 # production
 /build
@@ -32,5 +35,4 @@ yarn-error.log*
 .npm/
 .cache/
 .yarnrc
-.github/
 dist/
