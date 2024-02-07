@@ -1,0 +1,42 @@
+
+.headerOptionsBar {
+  display: flex;
+  flex-direction: row;
+  column-gap: 1em;
+}
+
+.conventionButton {
+  width: 6.5em;
+}
+
+.dragmodeDropdown {
+  width: 8em;
+}
+
+/* On narrow screen, description appears above widget */
+.headerOption {
+  display: flex;
+  flex-direction: column;
+}
+
+.headerOptionWidget {
+  display: flex;
+  height: 3em;
+  align-items: center;
+}
+
+/* On wide screen, description appears to the left of widget */
+@media only screen and (min-width: 800px) {
+  .headerOptionDescription {
+    margin-right: 0.5em;
+  }
+
+  .headerOptionDescription:after {
+    content: ":";
+  }
+
+  .headerOption {
+    flex-direction: row;
+    align-items: center;
+  }
+}
