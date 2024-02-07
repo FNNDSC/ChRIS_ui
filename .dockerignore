@@ -9,3 +9,5 @@ yarn-debug.log*
 yarn-error.log*
 test-results
 playwright-report
+.nyc_output
+coverage
