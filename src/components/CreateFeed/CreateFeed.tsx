@@ -35,7 +35,6 @@ export default function CreateFeed() {
     useContext(PipelineContext);
 
   const user = useTypedSelector((state) => state.user);
-  const params = useTypedSelector((state) => state.plugin.parameters);
   const { pluginMeta, selectedPluginFromMeta, dropdownInput, requiredInput } =
     addNodeState;
   const { wizardOpen, data, selectedConfig } = state;
@@ -74,7 +73,7 @@ export default function CreateFeed() {
         status: "Creating Feed",
       },
     });
-    const username = user && user.username;
+    const username = user?.username;
 
     const feed = await createFeed(
       state.data,
@@ -168,11 +167,13 @@ export default function CreateFeed() {
     [handleDispatch],
   );
 
-  const allRequiredFieldsNotEmpty: boolean = selectedConfig.includes(
-    "fs_plugin",
-  )
-    ? params?.required.length == Object.keys(requiredInput).length
-    : true;
+  const allRequiredFieldsNotEmpty: boolean =
+    selectedConfig.includes("fs_plugin") &&
+    Object.keys(requiredInput).length > 0
+      ? true
+      : false;
+
+  const filesChoosen = data.chrisFiles.length > 0 || data.localFiles.length > 0;
 
   const closeWizard = () => {
     dispatch({
@@ -235,13 +236,17 @@ export default function CreateFeed() {
             id={2}
             name="Analysis Data Selection"
             footer={{
-              isNextDisabled: allRequiredFieldsNotEmpty ? false : true,
+              isNextDisabled:
+                filesChoosen || allRequiredFieldsNotEmpty ? false : true,
             }}
           >
             {withSelectionAlert(
               <ChooseConfig
                 user={user}
                 handleFileUpload={handleChoseFilesClick}
+                showAlert={
+                  filesChoosen || allRequiredFieldsNotEmpty ? false : true
+                }
               />,
             )}
           </WizardStep>

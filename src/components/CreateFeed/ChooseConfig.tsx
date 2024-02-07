@@ -19,7 +19,7 @@ import {
   Flex,
   FlexItem,
 } from "@patternfly/react-core";
-import { Steps, notification } from "antd";
+import { Steps, notification, Alert } from "antd";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
 import SettingsIcon from "@patternfly/react-icons/dist/esm/icons/cogs-icon";
@@ -37,7 +37,11 @@ import { AddNodeContext } from "../AddNode/context";
 import { Types as AddNodeTypes } from "../AddNode/types";
 import { useTypedSelector } from "../../store/hooks";
 
-const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
+const ChooseConfig = ({
+  handleFileUpload,
+  user,
+  showAlert,
+}: chooseConfigProps) => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { dispatch: nodeDispatch } = useContext(AddNodeContext);
   const { state: addNodeState } = useContext(AddNodeContext);
@@ -54,11 +58,11 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   const handleClick = useCallback(
     (event: React.MouseEvent, selectedPluginId = "") => {
       const selectedCard =
-        selectedPluginId == "" ? event.currentTarget.id : selectedPluginId;
+        selectedPluginId === "" ? event.currentTarget.id : selectedPluginId;
       setSelectedCard(selectedCard);
-      if (selectedCard == "swift_storage" || selectedCard == "fs_plugin") {
+      if (selectedCard === "swift_storage" || selectedCard === "fs_plugin") {
         setRightDrawerExpand(true);
-      } else if (selectedCard == "local_select") {
+      } else if (selectedCard === "local_select") {
         setShowDragAndDrop(true);
       }
     },
@@ -171,7 +175,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
 
   const resetPlugin = () => {
     notification.info({
-      message: `Plugin unselected`,
+      message: "Plugin unselected",
       description: `${pluginMeta?.data.name} unselected`,
       duration: 1,
     });
@@ -222,7 +226,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   };
 
   const panelContent =
-    selectedCard == "swift_storage" ? (
+    selectedCard === "swift_storage" ? (
       <DrawerPanelContent
         widths={{ default: "width_50" }}
         className="drawer_panelContent"
@@ -232,7 +236,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             padding: "1em",
           }}
         >
-          <span tabIndex={isRightDrawerExpand ? 0 : -1}></span>
+          <span tabIndex={isRightDrawerExpand ? 0 : -1} />
           <DrawerActions>
             <Button
               onClick={resetChRisFiles}
@@ -252,13 +256,11 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             padding: "1em",
           }}
         >
-          {user && user.username && (
-            <ChrisFileSelect username={user.username} />
-          )}
-          <Grid style={navigationButtonStyle}></Grid>
+          {user?.username && <ChrisFileSelect username={user.username} />}
+          <Grid style={navigationButtonStyle} />
         </DrawerPanelBody>
       </DrawerPanelContent>
-    ) : selectedCard == "fs_plugin" ? (
+    ) : selectedCard === "fs_plugin" ? (
       <DrawerPanelContent
         widths={{ default: "width_50" }}
         className="drawer_panelContent"
@@ -268,7 +270,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             padding: "1em",
           }}
         >
-          <span tabIndex={isRightDrawerExpand ? 0 : -1}></span>
+          <span tabIndex={isRightDrawerExpand ? 0 : -1} />
           <DrawerActions>
             <Button
               onClick={resetPlugin}
@@ -301,10 +303,10 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
             {steps[currentStep].content}
           </Grid>
           <Grid style={navigationButtonStyle}>
-            {currentStep == 0 && (
+            {currentStep === 0 && (
               <Button
                 onClick={() => nextStep()}
-                isDisabled={pluginMeta == undefined}
+                isDisabled={pluginMeta === undefined}
               >
                 Next
               </Button>
@@ -334,7 +336,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
   }, [handleKeyDown]);
 
   useEffect(() => {
-    if (localFiles.length == 0) {
+    if (localFiles.length === 0) {
       setShowDragAndDrop(false);
     }
   }, [localFiles.length]);
@@ -379,7 +381,7 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
                             </Tooltip>
                           ),
                         }}
-                      ></CardHeader>
+                      />
                       <CardTitle>
                         <SettingsIcon />
                         <br />
@@ -495,6 +497,13 @@ const ChooseConfig = ({ handleFileUpload, user }: chooseConfigProps) => {
                 </Grid>
               </GridItem>
             </Grid>
+            {showAlert && (
+              <Alert
+                type="warning"
+                closable
+                description="Please select a data source to create a feed"
+              />
+            )}
           </div>
         </Flex>
       </DrawerContent>
