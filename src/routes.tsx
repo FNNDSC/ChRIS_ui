@@ -18,6 +18,7 @@ import ComputePage from "./components/ComputePage";
 import PrivateRoute from "./components/PrivateRoute";
 import LibrarySearch from "./components/LibrarySearch";
 import SinglePlugin from "./components/SinglePlugin";
+import VisualDatasets from "./components/VisualDatasets";
 import { useTypedSelector } from "./store/hooks";
 
 interface IState {
@@ -145,6 +146,10 @@ export const MainRouter: React.FC = () => {
     {
       path: "compute",
       element: <ComputePage />,
+    },
+    {
+      path: "niivue",
+      element: <VisualDatasets />,
     },
     {
       path: "*",
