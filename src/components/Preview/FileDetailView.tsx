@@ -55,13 +55,13 @@ const FileDetailView = (props: AllProps) => {
     switch (event.keyCode) {
       case 39: {
         event.preventDefault();
-        props.handleNext && props.handleNext();
+        props.handleNext?.();
         break;
       }
 
       case 37: {
         event.preventDefault();
-        props.handlePrevious && props.handlePrevious();
+        props.handlePrevious?.();
         break;
       }
 
@@ -137,7 +137,7 @@ const FileDetailView = (props: AllProps) => {
 
   let viewerName = "";
 
-  if (data && data.fileType) {
+  if (data?.fileType) {
     const { fileType } = data;
     if (!fileViewerMap[fileType]) {
       viewerName = "TextDisplay";
@@ -158,7 +158,6 @@ const FileDetailView = (props: AllProps) => {
 
   const handleModalToggle = (actionName: string, value: boolean) => {
     setActionState({
-      ...actionState,
       [actionName]: value,
     });
   };
@@ -181,7 +180,7 @@ const FileDetailView = (props: AllProps) => {
     </span>
   );
 
-  const fullScreen = drawerState["preview"].maximized === true;
+  const fullScreen = drawerState.preview.maximized === true;
 
   return (
     <Fragment>
@@ -214,7 +213,7 @@ const FileDetailView = (props: AllProps) => {
           </div>
           <TagInfoModal
             handleModalToggle={handleModalToggle}
-            isModalOpen={actionState["TagInfo"]}
+            isModalOpen={actionState.TagInfo}
             output={tagInfo}
           />
         </ErrorBoundary>
@@ -245,15 +244,15 @@ const actions = [
     ),
   },
   {
-    name: "Rotate",
+    name: "PlanarRotate",
     icon: <RotateIcon />,
   },
   {
-    name: "Wwwc",
+    name: "WindowLevel",
     icon: <LightBulbIcon className="pf-v5-svg" />,
   },
   {
-    name: "Reset View",
+    name: "Reset",
     icon: <ResetIcon />,
   },
   {

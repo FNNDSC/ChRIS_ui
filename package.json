@@ -24,7 +24,12 @@
     "print-version": "./print_version.sh"
   },
   "dependencies": {
+    "@cornerstonejs/core": "^1.57.0",
+    "@cornerstonejs/dicom-image-loader": "^1.57.0",
     "@cornerstonejs/nifti-image-loader": "^1.0.9",
+    "cornerstone-file-image-loader": "^0.3.0",
+    "cornerstone-math": "^0.1.10",
+    "@cornerstonejs/tools": "^1.57.0",
     "@fnndsc/chrisapi": "^1.15.0",
     "@heroicons/react": "^2.1.1",
     "@niivue/niivue": "^0.38.8",
@@ -37,12 +42,7 @@
     "@tanstack/react-query": "^5.17.15",
     "antd": "^5.13.2",
     "axios": "^1.6.5",
-    "chris-utility": "^1.1.6",
-    "cornerstone-core": "^2.6.1",
-    "cornerstone-file-image-loader": "^0.3.0",
-    "cornerstone-math": "^0.1.10",
-    "cornerstone-tools": "^6.0.8",
-    "cornerstone-wado-image-loader": "^4.2.1",
+    "chris-utility": "^1.1.6", 
     "d3-hierarchy": "^1.1.9",
     "d3-selection": "^1.4.2",
     "d3-shape": "^2.1.0",
@@ -55,9 +55,9 @@
     "keymirror": "^0.1.1",
     "lodash": "^4.17.21",
     "marked": "^11.1.1",
-    "niivue-react": "github:niivue/niivue-react",
     "micromark": "^4.0.0",
     "micromark-extension-gfm": "^3.0.0",
+    "niivue-react": "github:niivue/niivue-react",
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
     "rc-tree": "^5.8.0",
@@ -84,7 +84,7 @@
     "use-ackee": "^3.0.1",
     "use-immer": "^0.9.0",
     "uuid": "^9.0.1",
-    "vite-plugin-babel-macros": "^1.0.6"
+    
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
@@ -109,6 +109,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "vite-plugin-istanbul": "^5.0.0",
-    "vitest": "^1.2.2"
+    "vitest": "^1.2.2",
+    "vite-plugin-babel-macros": "^1.0.6"
   }
 }
