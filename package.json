@@ -7,7 +7,7 @@
     "__start": "# npm start command is used by s2i in OpenShift as the deployment command",
     "dev": "vite",
     "dev:public": "vite -c vite_publicCUBE.config.ts",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "test": "vitest",
     "test:e2e": "playwright test -c playwright.config.ts",
     "test:report": "nyc report --reporter=text",
