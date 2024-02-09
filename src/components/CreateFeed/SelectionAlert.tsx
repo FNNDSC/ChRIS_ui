@@ -25,14 +25,13 @@ export const SelectionAlertWrap = ({
           Creating analysis from {selectData.length}{" "}
           {pluralize("item", selectData.length)}&nbsp;
           <ChipGroup numChips={2}>
-            {selectData &&
-              selectData.map((path: string) => {
-                return (
-                  <Chip isReadOnly key={path}>
-                    {path.split("/").reverse().shift()}
-                  </Chip>
-                );
-              })}
+            {selectData?.map((path: string) => {
+              return (
+                <Chip isReadOnly key={path}>
+                  {path.split("/").reverse().shift()}
+                </Chip>
+              );
+            })}
           </ChipGroup>
         </div>
       );
