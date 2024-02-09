@@ -1,234 +1,213 @@
-import { TAG_DICT, uids } from "./dataDictionary";
-import Hammer from "hammerjs";
-import { Cookies } from "react-cookie";
-import * as dicomParser from "dicom-parser";
-import * as cornerstone from "cornerstone-core";
-import * as cornerstoneMath from "cornerstone-math";
-import * as cornerstoneTools from "cornerstone-tools";
-import * as cornerstoneNIFTIImageLoader from "cornerstone-nifti-image-loader";
+import { RenderingEngine, init, Types, Enums } from "@cornerstonejs/core";
+import {
+  init as csToolsInit,
+  Types as CornerstoneToolTypes,
+} from "@cornerstonejs/tools";
+
+import dicomParser from "dicom-parser";
+import * as cornerstone from "@cornerstonejs/core";
+import * as cornerstoneTools from "@cornerstonejs/tools";
 import * as cornerstoneFileImageLoader from "cornerstone-file-image-loader";
-import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
+import { TAG_DICT, uids } from "./dataDictionary";
 import Rusha from "rusha";
 
-const ZoomTool = cornerstoneTools.ZoomTool;
-const StackScrollMouseWheelTool = cornerstoneTools.StackScrollMouseWheelTool;
-const PanTool = cornerstoneTools.PanTool;
-const MagnifyTool = cornerstoneTools.MagnifyTool;
-const RotateTool = cornerstoneTools.RotateTool;
-const WwwcTool = cornerstoneTools.WwwcTool;
-const LengthTool = cornerstoneTools.LengthTool;
+//@ts-ignore
+window.cornerstone = cornerstone;
+//@ts-ignore
+window.cornerstoneTools = cornerstoneTools;
+const { preferSizeOverAccuracy, useNorm16Texture } =
+  cornerstone.getConfiguration().rendering;
 
-const viewportCache = {
-  scale: 0,
-  rotation: 0,
+const { ViewportType } = Enums;
+
+const { calibratedPixelSpacingMetadataProvider } = cornerstone.utilities;
+
+const {
+  PanTool,
+  WindowLevelTool,
+  StackScrollMouseWheelTool,
+  ZoomTool,
+  PlanarRotateTool,
+  MagnifyTool,
+  LengthTool,
+  ToolGroupManager,
+  Enums: csToolsEnums,
+} = cornerstoneTools;
+const { MouseBindings } = csToolsEnums;
+
+function initProviders() {
+  cornerstone.metaData.addProvider(
+    ptScalingMetaDataProvider.get.bind(ptScalingMetaDataProvider),
+    10000,
+  );
+  cornerstone.metaData.addProvider(
+    calibratedPixelSpacingMetadataProvider.get.bind(
+      calibratedPixelSpacingMetadataProvider,
+    ),
+    11000,
+  );
+}
+
+let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
+let alreadyAdded = false;
+const renderingEngineId = "myRenderingEngine";
+const viewportId = "CT_STACK";
+
+function setUpTooling() {
+  if (!alreadyAdded) {
+    // Add tools to Cornerstone3D
+    const toolGroupId = "STACK_TOOL_GROUP_ID";
+    cornerstoneTools.addTool(LengthTool);
+    cornerstoneTools.addTool(PanTool);
+    cornerstoneTools.addTool(WindowLevelTool);
+    cornerstoneTools.addTool(StackScrollMouseWheelTool);
+    cornerstoneTools.addTool(ZoomTool);
+    cornerstoneTools.addTool(MagnifyTool);
+    cornerstoneTools.addTool(PlanarRotateTool);
+
+    toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
+
+    if (toolGroup) {
+      // Add tools to the tool group
+
+      toolGroup.addTool(WindowLevelTool.toolName);
+      toolGroup.addTool(PanTool.toolName);
+      toolGroup.addTool(ZoomTool.toolName);
+      toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
+      toolGroup.addTool(PlanarRotateTool.toolName);
+      toolGroup.addTool(LengthTool.toolName);
+      toolGroup.addTool(MagnifyTool.toolName);
+    }
+    alreadyAdded = true;
+  }
+}
+
+export const initializeCornerstoneForDicoms = () => {
+  cornerstonejsDICOMImageLoader.external.cornerstone = cornerstone;
+  cornerstonejsDICOMImageLoader.external.dicomParser = dicomParser;
+  cornerstoneFileImageLoader.external.cornerstone = cornerstone;
+  cornerstonejsDICOMImageLoader.configure({
+    useWebWorkers: true,
+    decodeConfig: {
+      convertFloatPixelDataToInt: false,
+      use16BitDataType: preferSizeOverAccuracy || useNorm16Texture,
+    },
+  });
+
+  let maxWebWorkers = 1;
+
+  if (navigator.hardwareConcurrency) {
+    maxWebWorkers = Math.min(navigator.hardwareConcurrency, 7);
+  }
+
+  const config = {
+    maxWebWorkers,
+    startWebWorkersOnDemand: false,
+    taskConfiguration: {
+      decodeTask: {
+        initializeCodecsOnStartup: false,
+        strict: false,
+      },
+    },
+  };
+
+  cornerstonejsDICOMImageLoader.webWorkerManager.initialize(config);
 };
 
-const toolList = [
-  ZoomTool,
-  PanTool,
-  StackScrollMouseWheelTool,
-  MagnifyTool,
-  RotateTool,
-  WwwcTool,
-  LengthTool,
+export const basicInit = async () => {
+  initProviders();
+  initializeCornerstoneForDicoms();
+  await init();
+  csToolsInit();
+  setUpTooling();
+};
+
+const actionStateTools = [
+  "Zoom",
+  "Pan",
+  "WindowLevel",
+  "PlanarRotate",
+  "Length",
+  "Magnify",
+  "Reset",
 ];
 
-cornerstoneTools.external.cornerstone = cornerstone;
-cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
-cornerstoneTools.external.Hammer = Hammer;
-cornerstoneTools.init({
-  globalToolSyncEnabled: true,
-  showSVGCursors: true,
-});
+export type IStackViewport = Types.IStackViewport;
 
-cornerstoneNIFTIImageLoader.external.cornerstone = cornerstone;
-cornerstoneFileImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
+export const handleEvents = (
+  actionState: { [key: string]: boolean },
+  activeViewport?: IStackViewport,
+) => {
+  for (const toolName of actionStateTools) {
+    if (toolName === "Reset") {
+      activeViewport?.resetCamera(true, true);
+      continue;
+    }
 
-export const ImageId = cornerstoneNIFTIImageLoader.nifti.ImageId;
+    const isActive = actionState[toolName];
 
-export const prepareNifti = () => {
-  const cookie = new Cookies();
-  const user = cookie.get("username");
-  const token: string = cookie.get(`${user}_token`);
-
-  cornerstoneNIFTIImageLoader.nifti.configure({
-    headers: {
-      "Content-Type": "application/vnd.collection+json",
-      Authorization: "Token " + token,
-    },
-    method: "get",
-    responseType: "arrayBuffer",
-  });
-};
-
-const client = ChrisAPIClient.getClient();
-const token = client.auth.token;
-cornerstoneNIFTIImageLoader.nifti.configure({
-  headers: {
-    "Content-Type": "application/vnd.collection+json",
-    Authorization: "Token " + token,
-  },
-  method: "get",
-  responseType: "arrayBuffer",
-});
-
-toolList.forEach((tool) => {
-  if (tool.name === "StackScrollMouseWheelTool") {
-    cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
-  }
-  cornerstoneTools.addTool(tool);
-});
-
-export const handleEventState = (event: string, value: boolean) => {
-  if (value === true) {
-    cornerstoneTools.setToolActive(event, { mouseButtonMask: 1 });
+    if (isActive) {
+      // Set the current tool as active
+      toolGroup?.setToolActive(toolName, {
+        bindings: [{ mouseButton: MouseBindings.Primary }],
+      });
+    } else {
+      // Disable all other tools
+      toolGroup?.setToolDisabled(toolName);
+    }
   }
 };
 
-export const removeTool = () => {
-  toolList.forEach((tool) => {
-    cornerstoneTools.removeTool(tool.name);
-  });
+export const loadDicomImage = (blob: Blob) => {
+  return cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
 };
 
-export const enableDOMElement = (element: HTMLDivElement) => {
-  cornerstone.enable(element);
-};
-
-export const loadDicomImage = (blob: any) => {
-  return cornerstoneWADOImageLoader.wadouri.fileManager.add(blob);
-};
-
-export const loadJpgImage = (blob: any) => {
+export const loadJPGImage = (blob: Blob) => {
   return cornerstoneFileImageLoader.fileManager.add(blob);
 };
 
-export const getNiftiSlices = (url: string) => {
-  return cornerstone.metaData.get("multiFrameModule", url).numberOfFrames;
-};
-
-export const displayDicomImage = (
-  imageId: string | any,
+export const displayDicomImage = async (
   element: HTMLDivElement,
-  fileExtension: string,
-  onError?: () => void,
-  onSuccess?: () => void,
-  onSliceInfo?: (currentSliceIndex: number, totalSlices: number) => void,
+  imageId: string,
 ) => {
-  const isNifti = fileExtension === "nii" || fileExtension === "nii.gz";
-  const id = isNifti ? imageId.url : imageId;
-  cornerstone
-    .loadImage(id)
-    .then((image: any) => {
-      const imageIdArray = [];
-      const viewport = cornerstone.getViewport(element, image);
+  try {
+    const renderingEngine = new RenderingEngine(renderingEngineId);
 
-      if (viewport) {
-        if (viewportCache.scale > 0) {
-          viewport.scale = viewportCache.scale;
-        }
+    const viewportInput = {
+      viewportId,
+      element,
+      type: ViewportType.STACK,
+      defaultOptions: {
+        background: <Types.Point3>[0.2, 0, 0.2],
+      },
+    };
 
-        if (viewportCache.rotation > 0) {
-          viewport.rotation = viewportCache.rotation;
-        }
+    renderingEngine.enableElement(viewportInput);
 
-        cornerstone.setViewport(element, viewport);
-      }
+    toolGroup?.addViewport(viewportId, renderingEngineId);
 
-      let niftiSlices = 0;
-      if (isNifti) {
-        niftiSlices = getNiftiSlices(imageId.url) as number;
-        const centerSliceIndex = Math.floor(niftiSlices / 2); // Calculate the center slice index
+    const viewport = <Types.IStackViewport>(
+      renderingEngine.getViewport(viewportId)
+    );
 
-        imageIdArray.push(
-          ...Array.from(
-            Array(niftiSlices),
-            (_, i) =>
-              `nifti:${imageId.filePath}#${imageId.slice.dimension}-${i},t-0`,
-          ),
-        );
-        const stack = {
-          currentImageIdIndex: centerSliceIndex,
-          imageIds: imageIdArray,
-        };
+    // Define a stack containing a single image
+    const stack = [imageId];
 
-        cornerstoneTools.addStackStateManager(element, ["stack"]);
-        cornerstoneTools.addToolState(element, "stack", stack);
-        cornerstoneTools.setToolActive("StackScrollMouseWheel", {});
-      } else {
-        imageIdArray.push(imageId);
-      }
+    // Set the stack on the viewport
+    await viewport.setStack(stack);
 
-      cornerstone.displayImage(element, image, viewport);
-      onSuccess && onSuccess();
+    cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
 
-      // Add event listener for the cornerstoneimagerendered event
-      element.addEventListener("cornerstoneimagerendered", () => {
-        // Access the current slice index from the stack tool state
-        const stackToolState = cornerstoneTools.getToolState(element, "stack");
-        if (
-          stackToolState &&
-          stackToolState.data &&
-          stackToolState.data.length > 0
-        ) {
-          const currentSliceIndex = stackToolState.data[0].currentImageIdIndex;
-          onSliceInfo && onSliceInfo(currentSliceIndex, niftiSlices);
-        }
-      });
-    })
-    .catch(() => {
-      onError && onError();
-    });
-};
+    // Render the image
+    viewport.render();
 
-export const handleRotate = (element: Element) => {
-  const viewport = cornerstone.getViewport(element);
-  viewport.rotation += 90;
-  viewportCache.rotation = viewport.rotation;
-  cornerstone.setViewport(element, viewport);
-};
-
-export const handleScale = (element: Element, operation: string) => {
-  const viewport = cornerstone.getViewport(element);
-
-  if (operation === "+") {
-    viewport.scale += 0.5;
+    return viewport;
+  } catch (error) {
+    console.log("Error", error);
   }
-
-  if (operation === "-") {
-    viewport.scale -= 0.5;
-  }
-
-  viewportCache.scale = viewport.scale;
-  cornerstone.setViewport(element, viewport);
 };
-
-export const windowResize = (element: Element) => {
-  cornerstone.resize(element, true);
-};
-
-export const resetDicomSettings = (element: HTMLDivElement) => {
-  cornerstone.reset(element);
-  cornerstoneTools.clearToolState(element, "Length");
-  viewportCache.scale = 0;
-  viewportCache.rotation = 0;
-};
-
-export function isDicom(fileName: string) {
-  const fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
-  if (fileExt === "dcm" || fileExt === "dicom") return true;
-}
-
-export function isNifti(fileName: string) {
-  const fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
-  if (fileExt === "nii" || fileExt === "gz") {
-    return true;
-  }
-  return false;
-}
 
 function imageFrameLink(frameIndex: any) {
   let linkText = "<a class='imageFrameDownload' ";
