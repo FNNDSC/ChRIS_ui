@@ -87,7 +87,7 @@ export const createFeedReducer = (
         ...state,
         selectedConfig: [...action.payload.selectedConfig],
       };
-    case Types.AddChrisFile:
+    case Types.AddChrisFile: {
       const file = action.payload.file;
       const checkedKeysDict: {
         [key: string]: Key[];
@@ -105,6 +105,7 @@ export const createFeedReducer = (
           checkedKeys: checkedKeysDict,
         },
       };
+    }
     case Types.RemoveChrisFile: {
       let checkedKeysDict: {
         [key: string]: Key[];
@@ -172,7 +173,7 @@ export const createFeedReducer = (
         uploadProgress: 0,
         feedError: "",
         creatingFeedStatus: "",
-        wizardOpen: !state.wizardOpen,
+        wizardOpen: false,
         selectedConfig: [],
       };
     }
