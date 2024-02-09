@@ -35,7 +35,7 @@ const SinglePlugin = () => {
     const repo = currentPluginMeta.data.public_repo.split("github.com/")[1];
     const ghreadme = await fetch(`https://api.github.com/repos/${repo}/readme`);
     if (!ghreadme.ok) {
-      throw new Error("Failed to fetch repo.");
+      return;
     }
     const { download_url, content }: { download_url: string; content: string } =
       await ghreadme.json();
@@ -73,7 +73,7 @@ const SinglePlugin = () => {
       const readme = await fetchReadme(pluginMeta);
       return {
         currentPluginMeta: pluginMeta,
-        plugins: results["resource"],
+        plugins: results.resource,
         readme,
       };
     } catch (error: any) {
@@ -108,7 +108,7 @@ const SinglePlugin = () => {
         : [];
 
       if (parameters.length > 0) {
-        parameters.forEach((param) => {
+        for (const param of parameters) {
           const generateInput = {
             [param.data.id]: {
               flag: param.data.flag,
@@ -123,7 +123,7 @@ const SinglePlugin = () => {
             },
           };
           generatedCommand += unpackParametersIntoString(generateInput);
-        });
+        }
 
         setParameterPayload({
           generatedCommand,
@@ -154,10 +154,10 @@ const SinglePlugin = () => {
   };
 
   React.useEffect(() => {
-    if (data && data.plugins && data.plugins.length > 0) {
+    if (data?.plugins && data.plugins.length > 0) {
       setPluginParameters(data.plugins[0]);
     }
-  }, [data, setPluginParameters]);
+  }, [data?.plugins[0], setPluginParameters]);
 
   return (
     <WrapperConnect>
