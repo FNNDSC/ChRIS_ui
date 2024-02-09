@@ -27,8 +27,6 @@
     "@cornerstonejs/core": "^1.57.0",
     "@cornerstonejs/dicom-image-loader": "^1.57.0",
     "@cornerstonejs/nifti-image-loader": "^1.0.9",
-    "cornerstone-file-image-loader": "^0.3.0",
-    "cornerstone-math": "^0.1.10",
     "@cornerstonejs/tools": "^1.57.0",
     "@fnndsc/chrisapi": "^1.15.0",
     "@heroicons/react": "^2.1.1",
@@ -42,7 +40,12 @@
     "@tanstack/react-query": "^5.17.15",
     "antd": "^5.13.2",
     "axios": "^1.6.5",
-    "chris-utility": "^1.1.6", 
+    "chris-utility": "^1.1.6",
+    "cornerstone-core": "^2.6.1",
+    "cornerstone-file-image-loader": "^0.3.0",
+    "cornerstone-math": "^0.1.10",
+    "cornerstone-tools": "^6.0.10",
+    "cornerstone-wado-image-loader": "^4.13.2",
     "d3-hierarchy": "^1.1.9",
     "d3-selection": "^1.4.2",
     "d3-shape": "^2.1.0",
@@ -84,7 +87,7 @@
     "use-ackee": "^3.0.1",
     "use-immer": "^0.9.0",
     "uuid": "^9.0.1",
-    
+    "vite-plugin-babel-macros": "^1.0.6"
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
@@ -109,7 +112,6 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
     "vite-plugin-istanbul": "^5.0.0",
-    "vitest": "^1.2.2",
-    "vite-plugin-babel-macros": "^1.0.6"
+    "vitest": "^1.2.2"
   }
 }
