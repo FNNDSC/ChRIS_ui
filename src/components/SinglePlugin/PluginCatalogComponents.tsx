@@ -277,10 +277,7 @@ export const HeaderCardPlugin = ({
                   <div dangerouslySetInnerHTML={{ __html: readme }} />
                 ) : (
                   <div style={{ margin: "auto" }}>
-                    <Alert
-                      type="warning"
-                      description="Failed to fetch the github repo..."
-                    />
+                    <Alert type="info" description="No github repo found." />
                   </div>
                 )}
               </Tab>
