@@ -4,7 +4,7 @@ import {
   NiivueCanvasProps,
   NiivueCanvas,
 } from "niivue-react/src/NiivueCanvas.tsx";
-import styles from "./SizedNiivueCanvas.module.css";
+import styles from "./index.module.css";
 
 /**
  * Type emitted by Niivue.onLocationChange
@@ -132,4 +132,4 @@ function textHeightModel(canvasWidth: number, canvasHeight: number): number {
 }
 
 export type { CrosshairLocation };
-export { SizedNiivueCanvas };
+export default SizedNiivueCanvas;
