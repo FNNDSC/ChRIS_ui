@@ -16,8 +16,8 @@ type CrosshairLocation = {
 };
 
 type SizedNiivueCanvasProps = NiivueCanvasProps & {
-  size: number;
-  isScaling: boolean;
+  size?: number;
+  isScaling?: boolean;
   onLocationChange?: (location: CrosshairLocation) => void;
 };
 
@@ -69,7 +69,7 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
   const baseTextHeight = isScaling
     ? 0.06
     : textHeightModel(canvasWidth, canvasHeight);
-  const textHeight = (size / 10) * baseTextHeight;
+  const textHeight = ((size || 10) / 10) * baseTextHeight;
   const fullOptions = options ? { ...options, textHeight } : { textHeight };
 
   const fullOnStart = (nv: Niivue) => {
