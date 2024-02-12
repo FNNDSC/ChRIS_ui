@@ -14,6 +14,7 @@ import { DotsIndicator } from "../../Common";
 import FaQuestionCircle from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import EyeIcon from "@patternfly/react-icons/dist/esm/icons/eye-icon";
+import ThLargeIcon from "@patternfly/react-icons/dist/esm/icons/th-large-icon";
 import SeriesCard from "./SeriesCard";
 import { formatStudyDate } from "./utils";
 import { PacsQueryContext, Types } from "../context";
@@ -180,6 +181,24 @@ const StudyCard = ({ study }: { study: any }) => {
               )}
 
               <div className="flex-studies-item button-container">
+                {import.meta.env.VITE_OHIF_URL && (
+                  <Tooltip content="Open in OHIF">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      style={{ marginRight: "0.25em" }}
+                      icon={<ThLargeIcon />}
+                      component="a"
+                      href={`${
+                        import.meta.env.VITE_OHIF_URL
+                      }viewer?StudyInstanceUIDs=${
+                        study.StudyInstanceUID.value
+                      }`}
+                      target="_blank"
+                    ></Button>
+                  </Tooltip>
+                )}
+
                 <Tooltip
                   content={
                     preview === true ? "Hide All Previews" : "Show All Previews"
