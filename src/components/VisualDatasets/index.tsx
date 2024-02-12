@@ -25,6 +25,13 @@ import {
 import { Problem, VisualDataset } from "./types.ts";
 import VisualDatasetsClient from "./client";
 import { nullUpdaterGuard } from "./helpers.ts";
+import { css } from "@patternfly/react-styles";
+import {
+  flexRowSpaceBetween,
+  hideOnDesktop,
+  hideOnMobile,
+  hideOnMobileInline,
+} from "./cssUtils.ts";
 
 /**
  * The "Visual Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -157,8 +164,8 @@ const VisualDatasets: React.FunctionComponent = () => {
   return (
     <WrapperConnect>
       <PageSection>
-        <div className={styles.leftAndRightWhenWide}>
-          <div className={styles.hideOnMobile}>
+        <div className={hideOnMobile}>
+          <div>
             <InfoIcon
               title="Fetal MRI Atlas Viewer"
               p1={
@@ -224,27 +231,27 @@ const VisualDatasets: React.FunctionComponent = () => {
       </PageSection>
       <PageSection isFilled={false}>
         <footer>
-          <div className={styles.crosshairLocationText}>
+          <div className={css(styles.crosshairLocationText, hideOnMobile)}>
             Location: {crosshairLocation.string}
           </div>
-          <div className={styles.leftAndRight}>
+          <div className={flexRowSpaceBetween}>
             {/* LEFT FOOTER */}
             <div className={styles.footerItems}>
               <div>&copy;&nbsp;2024</div>
               <div>
                 <a href="https://www.fnndsc.org/" target="_blank">
-                  <span className={styles.hideOnMobile}>
+                  <span className={hideOnMobile}>
                     Fetal-Neonatal Neuroimaging Developmental Science Center
                   </span>
-                  <span className={styles.hideOnDesktop}>FNNDSC</span>
+                  <span className={hideOnDesktop}>FNNDSC</span>
                 </a>
               </div>
             </div>
             {/* RIGHT FOOTER */}
             <div className={styles.footerItems}>
-              <div className={styles.hideOnMobile}>
+              <div>
                 <em>ChRIS_ui</em>{" "}
-                <span className={styles.hideOnMobile}>
+                <span className={hideOnMobileInline}>
                   version {BUILD_VERSION}
                 </span>
               </div>
