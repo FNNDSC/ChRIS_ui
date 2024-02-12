@@ -1,5 +1,5 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { GetDatasetsResult, VisualDataset } from "./types.ts";
+import { GetDatasetsResult, VisualDataset } from "../types.ts";
 import { pipe } from "fp-ts/function";
 import {
   fromReadonlyArray,

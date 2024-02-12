@@ -1,8 +1,5 @@
 import { test, expect } from "vitest";
-import {
-  findVisualDatasetInstancePairs,
-  reduceListOfObjects,
-} from "./clientHelpers";
+import { findVisualDatasetInstancePairs, reduceListOfObjects } from "./helpers";
 import getPluginInstances from "./testData/feedplugininstancelist";
 
 test("reduceListOfObjects", () => {

@@ -23,7 +23,7 @@ import {
   SizedNiivueCanvas,
 } from "./components/SizedNiivueCanvas.tsx";
 import { Problem, VisualDataset } from "./types.ts";
-import VisualDatasetsClient from "./client";
+import { getPublicVisualDatasets } from "./client";
 import { nullUpdaterGuard } from "./helpers.ts";
 import { css } from "@patternfly/react-styles";
 import {
@@ -32,6 +32,7 @@ import {
   hideOnMobile,
   hideOnMobileInline,
 } from "./cssUtils.ts";
+import { FpClient } from "../../api/fp-chrisapi.ts";
 
 /**
  * The "Visual Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -62,7 +63,7 @@ const VisualDatasets: React.FunctionComponent = () => {
     { string: "" },
   );
 
-  const client = new VisualDatasetsClient(ChrisAPIClient.getClient());
+  const client = new FpClient(ChrisAPIClient.getClient());
 
   const [problems, setProblems] = useState<Problem[]>([]);
   const pushProblem = (p: Problem) => setProblems([...problems, p]);
@@ -84,12 +85,10 @@ const VisualDatasets: React.FunctionComponent = () => {
 
   // on first load, get all the public feeds containing public datasets.
   useEffect(() => {
-    client
-      .getPublicVisualDatasets()()
-      .then(({ datasets, errors }) => {
-        setDatasets(datasets);
-        pushProblems(errors);
-      });
+    getPublicVisualDatasets(client)().then(({ datasets, errors }) => {
+      setDatasets(datasets);
+      pushProblems(errors);
+    });
   }, []);
 
   // once datasets have been found, automatically select the first dataset.
