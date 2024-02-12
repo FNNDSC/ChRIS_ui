@@ -32,13 +32,13 @@ WORKDIR /app
 COPY . .
 
 
-RUN npm install
+RUN npm ci
 RUN npm run build 
 
 
 FROM node:20.7-alpine
 
-RUN yarn global add sirv-cli
+RUN npm i -g sirv-cli
 
 WORKDIR /app
 

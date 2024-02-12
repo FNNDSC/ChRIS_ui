@@ -3,12 +3,14 @@ import fs from "fs";
 import path from "path";
 import { faker } from "@faker-js/faker";
 import createAccountHelper from "../helpers/createAccount";
-
 export * from "@playwright/test";
 
 // create new user account for each worker
 // https://playwright.dev/docs/auth#moderate-one-account-per-parallel-worker
-export const test = baseTest.extend<{}, { workerStorageState: string }>({
+export const test = baseTest.extend<
+  Record<string, unknown>,
+  { workerStorageState: string }
+>({
   // Use the same storage state for all tests in this worker.
   storageState: ({ workerStorageState }, use) => use(workerStorageState),
 
@@ -34,7 +36,7 @@ export const test = baseTest.extend<{}, { workerStorageState: string }>({
       // create a new user account
       const username = faker.internet.userName();
       const email = faker.internet.email();
-      const password = `testuser1234`;
+      const password = "testuser1234";
       const baseURL = test.info().project.use.baseURL as string;
       await createAccountHelper(baseURL, page, username, email, password);
 

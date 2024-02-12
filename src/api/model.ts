@@ -326,14 +326,14 @@ export const fileViewerMap: any = {
   gif: "ImageDisplay",
   dcm: "DcmDisplay",
   default: "CatchallDisplay",
-  nii: "DcmDisplay",
+  nii: "NiiVueDisplay",
   gz: "CatchallDisplay",
-  mgz: "XtkDisplay",
+  mgz: "NiiVueDisplay",
   fsm: "XtkDisplay",
   crv: "XtkDisplay",
   smoothwm: "XtkDisplay",
   pial: "XtkDisplay",
-  "nii.gz": "DcmDisplay",
+  "nii.gz": "NiiVueDisplay",
 };
 
 // Description: get file type by file extension

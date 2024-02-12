@@ -1,4 +1,4 @@
-import { defineConfig, devices, PlaywrightTestConfig } from "playwright-test-coverage-native";
+import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
 
 
 const SAFARI_BROWSERS: PlaywrightTestConfig["projects"] = [];
@@ -20,6 +20,9 @@ if (process.env.TEST_SAFARI?.toLowerCase().startsWith('y')) {
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  /* A script which deletes the previous coverage data */
+  globalSetup: require.resolve('./deleteCoverageData'),
+
   testDir: "./tests",
   /* The base directory, relative to the config file, for snapshot files created with toMatchSnapshot and toHaveScreenshot. */
   snapshotDir: "./__snapshots__",
@@ -47,12 +50,7 @@ export default defineConfig({
     // NOTE: our goal here isn't to extensively test Niivue, all we need is a working WebGL2!
     {
       name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-        coverageDir: './coverage/tmp',
-        coverageSrc: './src',
-        coverageSourceMapHandler: 'localhosturl',
-      },
+      use: { ...devices["Desktop Chrome"] },
     },
 
     {
@@ -62,16 +60,15 @@ export default defineConfig({
 
     {
       name: 'Mobile Chrome',
-      use: {
-        ...devices['Pixel 5'],
-      },
+      use: { ...devices['Pixel 5'] },
     },
 
     ...SAFARI_BROWSERS
   ],
 
   webServer: {
-    command: "npm run dev:public",
+    command: "env USE_BABEL_PLUGIN_ISTANBUL=y npm run dev:public",
     url: "http://localhost:25173",
+    reuseExistingServer:true
   },
 });

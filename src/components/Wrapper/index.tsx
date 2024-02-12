@@ -14,6 +14,7 @@ import "./wrapper.css";
 interface IOtherProps {
   children: any;
   user: IUserState;
+  niivueActive: boolean;
 }
 interface IPropsFromDispatch {
   onSidebarToggle: typeof onSidebarToggle;
@@ -22,8 +23,8 @@ interface IPropsFromDispatch {
 type AllProps = IUiState & IOtherProps & IPropsFromDispatch;
 
 const Wrapper: React.FC<AllProps> = (props: AllProps) => {
-  const { children, user }: IOtherProps = props;
-  const  onNavToggle = () => {
+  const { children, user, niivueActive }: IOtherProps = props;
+  const onNavToggle = () => {
     props.setIsNavOpen(!props.isNavOpen);
   };
 
@@ -34,7 +35,9 @@ const Wrapper: React.FC<AllProps> = (props: AllProps) => {
     if (data.mobileView) {
       props.setIsNavOpen(false);
     }
-    if (!data.mobileView) {
+
+    // The default setting of the niivue viewer is without a sidebar active. It explicitly set's it to false in it's component.
+    if (!data.mobileView && !niivueActive) {
       props.setIsNavOpen(true);
     }
   };
@@ -66,6 +69,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
 const mapStateToProps = ({ ui, user }: ApplicationState) => ({
   isNavOpen: ui.isNavOpen,
   loading: ui.loading,
+  niivueActive: ui.sidebarActiveItem === "niivue",
   user,
 });
 

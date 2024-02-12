@@ -78,7 +78,7 @@ export const LocalFileList = ({
           <span className="file-icon">
             {isFolder ? <FolderIcon /> : <FileIcon />}
           </span>
-          {fileName}
+          <div className="file-name-text">{fileName}</div>
         </FlexItem>
       </Flex>
 

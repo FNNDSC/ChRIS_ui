@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 /**
  * Link to a feed.
  */
-const FeedButton: React.FC<{feedId: number}> = ({feedId}) => {
+const FeedButton: React.FC<{ feedId: number }> = ({ feedId }) => {
   const navigate = useNavigate();
   return (
     <Tooltip content={<>Go to feed</>}>
@@ -19,7 +19,6 @@ const FeedButton: React.FC<{feedId: number}> = ({feedId}) => {
         <MdCallSplit />
       </Button>
     </Tooltip>
-
   );
 };
 

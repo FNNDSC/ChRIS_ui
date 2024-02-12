@@ -275,7 +275,7 @@ class PfdcmClient {
           ? `Requesting ${requestedFiles} ${
               requestedFiles === 1 ? " file" : " files"
             }`
-          : `Requesting files`;
+          : "Requesting files";
       }
 
       if (imagestatus.request) {
