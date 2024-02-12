@@ -164,7 +164,7 @@ const VisualDatasets: React.FunctionComponent = () => {
     <WrapperConnect>
       <PageSection>
         <div className={hideOnMobile}>
-          <div>
+          <div className={flexRowSpaceBetween}>
             <InfoIcon
               title="Fetal MRI Atlas Viewer"
               p1={
@@ -194,9 +194,9 @@ const VisualDatasets: React.FunctionComponent = () => {
                 </Typography>
               }
             />
+            {/* RIGHT side of header bar */}
+            <HeaderOptionBar options={nvOptions} setOptions={setNvOptions} />
           </div>
-          {/* RIGHT side of header bar */}
-          <HeaderOptionBar options={nvOptions} setOptions={setNvOptions} />
         </div>
       </PageSection>
 
