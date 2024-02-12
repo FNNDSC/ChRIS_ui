@@ -1,4 +1,4 @@
-import { Problem } from "./types.ts";
+import { Problem } from "../types.ts";
 import { Feed, FeedPluginInstanceList, PublicFeedList } from "@fnndsc/chrisapi";
 import constants from "./constants.ts";
 
