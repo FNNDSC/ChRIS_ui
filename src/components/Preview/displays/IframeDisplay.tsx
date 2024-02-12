@@ -26,7 +26,7 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
       <div className="iframe-container">
         <iframe
           id="myframe"
-          key={fileItem.file && fileItem.file.data.fname}
+          key={fileItem?.file?.data.fname}
           src={url}
           width="100%"
           height="100%"

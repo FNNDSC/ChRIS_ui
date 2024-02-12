@@ -8,7 +8,6 @@ import {
   Tabs,
   TabTitleText,
   Tab,
-  Spinner,
   ClipboardCopy,
   CodeBlock,
   CodeBlockCode,
@@ -24,6 +23,7 @@ import {
   ListItem,
   DropdownList,
 } from "@patternfly/react-core";
+import { Alert } from "antd";
 import { UserAltIcon, CheckCircleIcon } from "@patternfly/react-icons";
 import { PluginMeta, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { useNavigate } from "react-router";
@@ -118,10 +118,8 @@ export const DropdownPluginVersions = ({
                 padding: "0",
               }}
               icon={
-                plugin.data.version === parameterPayload?.version ? (
+                plugin.data.version === parameterPayload?.version && (
                   <CheckCircleIcon style={{ color: "green" }} />
-                ) : (
-                  <span></span>
                 )
               }
               onKeyDown={(event) => {
@@ -150,7 +148,7 @@ export const DropdownPluginVersions = ({
 
   const onFocus = () => {
     const element = document.getElementById("toggle-basic");
-    element && element.focus();
+    element?.focus();
   };
 
   const onSelect = () => {
@@ -279,7 +277,7 @@ export const HeaderCardPlugin = ({
                   <div dangerouslySetInnerHTML={{ __html: readme }} />
                 ) : (
                   <div style={{ margin: "auto" }}>
-                    <Spinner diameter="80px" />
+                    <Alert type="info" description="No github repo found." />
                   </div>
                 )}
               </Tab>

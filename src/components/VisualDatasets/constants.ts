@@ -2,7 +2,7 @@ const CONSTANTS = {
   /**
    * A file created by `pl-visual-dataset`.
    */
-  MAGIC_PUBLIC_DATASET_FILENAME: '.chrisvisualdataset.tagmanifest.json',
+  MAGIC_PUBLIC_DATASET_FILENAME: ".chrisvisualdataset.tagmanifest.json",
   /**
    * Maximum number of public visual datasets to search for.
    */
@@ -19,8 +19,7 @@ const CONSTANTS = {
   /**
    * Versions of `pl-visual-dataset` compatible with this viewer.
    */
-  COMPATIBLE_PL_VISUAL_DATASET_VERSIONS: ['0.1.0']
+  COMPATIBLE_PL_VISUAL_DATASET_VERSIONS: ["0.1.0"],
 };
-
 
 export default CONSTANTS;

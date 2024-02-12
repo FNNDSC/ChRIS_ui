@@ -82,6 +82,7 @@ export interface GuidedConfigState {
 export interface chooseConfigProps {
   user?: IUserState;
   handleFileUpload: (files: any[]) => void;
+  showAlert?: boolean;
 }
 
 export interface EditorState {

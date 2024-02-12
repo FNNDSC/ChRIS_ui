@@ -1,5 +1,11 @@
 import React from "react";
-import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from "@patternfly/react-core";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  MenuToggleElement,
+} from "@patternfly/react-core";
 import { DRAG_MODE } from "@niivue/niivue";
 
 /**
@@ -9,7 +15,7 @@ const LIST_NAMES: [DRAG_MODE, string][] = [
   [DRAG_MODE.none, "None"],
   [DRAG_MODE.measurement, "Measurement tool"],
   [DRAG_MODE.contrast, "Adjust contrast"],
-  [DRAG_MODE.pan, "Pan view"]
+  [DRAG_MODE.pan, "Pan view"],
 ];
 
 /**
@@ -19,7 +25,7 @@ const SELECTED_NAMES: Map<DRAG_MODE, string> = new Map([
   [DRAG_MODE.none, "None"],
   [DRAG_MODE.measurement, "Measure"],
   [DRAG_MODE.contrast, "Contrast"],
-  [DRAG_MODE.pan, "Pan view"]
+  [DRAG_MODE.pan, "Pan view"],
 ]);
 
 type DragModeDropdownProps = {
@@ -30,7 +36,10 @@ type DragModeDropdownProps = {
 /**
  * A dropdown menu for selecting (right-click) drag modes supported by Niivue.
  */
-const DragModeDropdown: React.FC<DragModeDropdownProps> = ({ selectedMode, onSelect }) => {
+const DragModeDropdown: React.FC<DragModeDropdownProps> = ({
+  selectedMode,
+  onSelect,
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const onToggleClick = () => {
@@ -45,10 +54,10 @@ const DragModeDropdown: React.FC<DragModeDropdownProps> = ({ selectedMode, onSel
     if (value === undefined) {
       return;
     }
-    if (typeof value === 'number') {
+    if (typeof value === "number") {
       return onSelect(value);
     } else {
-      throw new Error('unreachable code');
+      throw new Error("unreachable code");
     }
   };
 

@@ -9,6 +9,7 @@ import {
   PdfDisplay,
   XtkDisplay,
   TextDisplay,
+  NiiVueDisplay,
 } from "./index";
 import { ActionState } from "../FileDetailView";
 
@@ -21,6 +22,7 @@ const components = {
   PdfDisplay,
   XtkDisplay,
   TextDisplay,
+  NiiVueDisplay,
 };
 
 interface ViewerDisplayProps {

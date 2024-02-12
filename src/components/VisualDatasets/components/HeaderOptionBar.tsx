@@ -8,9 +8,12 @@ import DragModeDropdown from "./DragModeDropdown.tsx";
 type HeaderOptionsBarProps = {
   options: ChNVROptions;
   setOptions: Updater<ChNVROptions>;
-}
+};
 
-const HeaderOptionBar: React.FC<HeaderOptionsBarProps> = ({options, setOptions}) => {
+const HeaderOptionBar: React.FC<HeaderOptionsBarProps> = ({
+  options,
+  setOptions,
+}) => {
   return (
     <div className={styles.headerOptionsBar}>
       <div className={styles.headerOption}>

@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { Niivue } from "@niivue/niivue";
-import { NiivueCanvasProps, NiivueCanvas } from "niivue-react/src/NiivueCanvas.tsx";
-import styles from "./SizedNiivueCanvas.module.css";
+import {
+  NiivueCanvasProps,
+  NiivueCanvas,
+} from "niivue-react/src/NiivueCanvas.tsx";
+import styles from "./index.module.css";
 
 /**
  * Type emitted by Niivue.onLocationChange
@@ -10,11 +13,11 @@ import styles from "./SizedNiivueCanvas.module.css";
  */
 type CrosshairLocation = {
   string: string;
-}
+};
 
 type SizedNiivueCanvasProps = NiivueCanvasProps & {
-  size: number,
-  isScaling: boolean,
+  size?: number;
+  isScaling?: boolean;
   onLocationChange?: (location: CrosshairLocation) => void;
 };
 
@@ -59,15 +62,20 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
   onLocationChange,
   ...props
 }) => {
-  const [[canvasWidth, canvasHeight], setCanvasDimensions] = useState<[number, number]>([400, 400]);
+  const [[canvasWidth, canvasHeight], setCanvasDimensions] = useState<
+    [number, number]
+  >([400, 400]);
 
-  const baseTextHeight = isScaling ? 0.06 : textHeightModel(canvasWidth, canvasHeight);
-  const textHeight = size / 10 * baseTextHeight;
-  const fullOptions = options ? {...options, textHeight} : {textHeight};
+  const baseTextHeight = isScaling
+    ? 0.06
+    : textHeightModel(canvasWidth, canvasHeight);
+  const textHeight = ((size || 10) / 10) * baseTextHeight;
+  const fullOptions = options ? { ...options, textHeight } : { textHeight };
 
   const fullOnStart = (nv: Niivue) => {
     if (onLocationChange) {
-      nv.onLocationChange = (location) => onLocationChange(location as CrosshairLocation);
+      nv.onLocationChange = (location) =>
+        onLocationChange(location as CrosshairLocation);
     }
 
     // Override nv.resizeListener, which updates the canvas' width and height.
@@ -75,12 +83,15 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     const canvas = nv.canvas as HTMLCanvasElement;
     const updateCanvasDimensions = () => {
       const devicePixelRatio = nv.uiData.dpr as number;
-      setCanvasDimensions([canvas.width / devicePixelRatio, canvas.height / devicePixelRatio]);
+      setCanvasDimensions([
+        canvas.width / devicePixelRatio,
+        canvas.height / devicePixelRatio,
+      ]);
     };
     nv.resizeListener = function () {
       superResizeListener();
       updateCanvasDimensions();
-    }
+    };
     updateCanvasDimensions();
 
     // workaround for https://github.com/niivue/niivue/issues/861
@@ -115,10 +126,10 @@ function textHeightModel(canvasWidth: number, canvasHeight: number): number {
     return -5e-5 * shortestDimension + 0.07;
   }
   if (shortestDimension < 1600) {
-    return -1.25e-05 * shortestDimension + 0.04;
+    return -1.25e-5 * shortestDimension + 0.04;
   }
   return 0.02;
 }
 
 export type { CrosshairLocation };
-export { SizedNiivueCanvas };
+export default SizedNiivueCanvas;

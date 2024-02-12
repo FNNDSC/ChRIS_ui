@@ -15,9 +15,9 @@ import React from "react";
  * - `feed` is the feed of `dataPlinst` and `indexPlinst`
  */
 type VisualDataset = {
-  feed: Feed,
-  dataPlinst: PluginInstance
-  indexPlinst: PluginInstance
+  feed: Feed;
+  dataPlinst: PluginInstance;
+  indexPlinst: PluginInstance;
 };
 
 /**
@@ -25,17 +25,17 @@ type VisualDataset = {
  * involves multiple HTTP requests and can return [0, n) datasets,
  */
 type GetDatasetsResult = {
-  errors: Problem[],
-  datasets: VisualDataset[]
+  errors: Problem[];
+  datasets: VisualDataset[];
 };
 
 /**
  * A UI-friendly message about abnormal happenings.
  */
 type Problem = {
-  variant: "warning" | "success" | "danger" | "info"
-  title: string,
-  body?: React.ReactNode
+  variant: "warning" | "success" | "danger" | "info";
+  title: string;
+  body?: React.ReactNode;
 };
 
 export type { Problem, VisualDataset, GetDatasetsResult };

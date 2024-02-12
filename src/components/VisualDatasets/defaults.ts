@@ -12,14 +12,14 @@ const DEFAULT_OPTIONS: ChNVROptions = {
   multiplanarForceRender: false,
   isRadiologicalConvention: true,
   show3Dcrosshair: true,
-  crosshairWidth: 1
+  crosshairWidth: 1,
 };
 
 const DEFAULT_VOLUME: Required<VolumeSettings> = {
   opacity: 0.0,
   colormap: "gray",
   cal_min: 0,
-  colorbarVisible: false
+  colorbarVisible: false,
 };
 
-export {DEFAULT_OPTIONS, DEFAULT_VOLUME};
+export { DEFAULT_OPTIONS, DEFAULT_VOLUME };

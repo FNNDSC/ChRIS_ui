@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
 import { useDispatch } from "react-redux";
-import {
-  Alert,
-  Chip,
-  PageSection,
-  Popover,
-} from "@patternfly/react-core";
+import { Alert, Chip, PageSection, Popover } from "@patternfly/react-core";
 import BUILD_VERSION from "../../getBuildVersion";
 import { BrainIcon, DesktopIcon } from "@patternfly/react-icons";
 import { Typography } from "antd";
@@ -23,7 +18,10 @@ import SelectedFilesOptionsPane from "./components/SelectedFilesOptionsPane.tsx"
 import { DEFAULT_OPTIONS } from "./defaults.ts";
 import HeaderOptionBar from "./components/HeaderOptionBar.tsx";
 import FeedButton from "./components/FeedButton.tsx";
-import { CrosshairLocation, SizedNiivueCanvas } from "./components/SizedNiivueCanvas.tsx";
+import {
+  CrosshairLocation,
+  SizedNiivueCanvas,
+} from "./components/SizedNiivueCanvas.tsx";
 import { Problem, VisualDataset } from "./types.ts";
 import VisualDatasetsClient from "./client";
 import { nullUpdaterGuard } from "./helpers.ts";
@@ -53,7 +51,9 @@ const VisualDatasets: React.FunctionComponent = () => {
   const [nvSize, setNvSize] = useState(10);
   const [sizeIsScaling, setSizeIsScaling] = useState(false);
 
-  const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>({string: ""});
+  const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>(
+    { string: "" },
+  );
 
   const client = new VisualDatasetsClient(ChrisAPIClient.getClient());
 
@@ -71,16 +71,18 @@ const VisualDatasets: React.FunctionComponent = () => {
     dispatch(
       setSidebarActive({
         activeItem: "niivue",
-      })
+      }),
     );
   }, [dispatch]);
 
   // on first load, get all the public feeds containing public datasets.
   useEffect(() => {
-    client.getPublicVisualDatasets()().then(({ datasets, errors }) => {
-      setDatasets(datasets);
-      pushProblems(errors);
-    });
+    client
+      .getPublicVisualDatasets()()
+      .then(({ datasets, errors }) => {
+        setDatasets(datasets);
+        pushProblems(errors);
+      });
   }, []);
 
   // once datasets have been found, automatically select the first dataset.
@@ -93,13 +95,18 @@ const VisualDatasets: React.FunctionComponent = () => {
       if (datasets.length === 0) {
         pushProblem({
           variant: "warning",
-          title: 'No public datasets found.',
-          body: (<span>
-            To add a public dataset, follow these instructions:{' '}
-              <a href="https://chrisproject.org/docs/public_dataset_browser" target="_blank">
-              https://chrisproject.org/docs/public_dataset_browser
-            </a>
-          </span>)
+          title: "No public datasets found.",
+          body: (
+            <span>
+              To add a public dataset, follow these instructions:{" "}
+              <a
+                href="https://chrisproject.org/docs/public_dataset_browser"
+                target="_blank"
+              >
+                https://chrisproject.org/docs/public_dataset_browser
+              </a>
+            </span>
+          ),
         });
       } else {
         setDataset(datasets[0]);
@@ -157,15 +164,26 @@ const VisualDatasets: React.FunctionComponent = () => {
               p1={
                 <Typography>
                   <p>
-                    Datasets found in public feeds can be visualized here using{' '}
-                    <a href="https://github.com/niivue/niivue" target="_blank" rel="noreferrer nofollow">Niivue</a>.
+                    Datasets found in public feeds can be visualized here using{" "}
+                    <a
+                      href="https://github.com/niivue/niivue"
+                      target="_blank"
+                      rel="noreferrer nofollow"
+                    >
+                      Niivue
+                    </a>
+                    .
                   </p>
                   <p>
                     For how to add data here, see the documentation:
-                    <a href="https://chrisproject.org/docs/public_dataset_viewer" target="_blank"
-                       rel="noreferrer nofollow">
+                    <a
+                      href="https://chrisproject.org/docs/public_dataset_viewer"
+                      target="_blank"
+                      rel="noreferrer nofollow"
+                    >
                       https://chrisproject.org/docs/public_dataset_viewer
-                    </a>.
+                    </a>
+                    .
                   </p>
                 </Typography>
               }
@@ -183,17 +201,17 @@ const VisualDatasets: React.FunctionComponent = () => {
          */
         problems.length === 0 || (
           <PageSection>
-            {
-              problems.map(({ variant, title, body }) => (
-                <Alert variant={variant} title={title} key={title}>{body}</Alert>
-              ))
-            }
+            {problems.map(({ variant, title, body }) => (
+              <Alert variant={variant} title={title} key={title}>
+                {body}
+              </Alert>
+            ))}
           </PageSection>
         )
       }
 
       <PageSection isFilled>
-        <div style={{backgroundColor: "darkgreen", height: "100%"}}>
+        <div style={{ backgroundColor: "darkgreen", height: "100%" }}>
           NIIVUE CANVAS GOES HERE
         </div>
         {/*<SizedNiivueCanvas*/}
@@ -218,9 +236,7 @@ const VisualDatasets: React.FunctionComponent = () => {
                   <span className={styles.hideOnMobile}>
                     Fetal-Neonatal Neuroimaging Developmental Science Center
                   </span>
-                  <span className={styles.hideOnDesktop}>
-                    FNNDSC
-                  </span>
+                  <span className={styles.hideOnDesktop}>FNNDSC</span>
                 </a>
               </div>
             </div>
@@ -235,17 +251,20 @@ const VisualDatasets: React.FunctionComponent = () => {
               <Popover
                 triggerAction="hover"
                 showClose={true}
-                headerContent={<div>We appreciate any comments and suggestions!</div>}
-                bodyContent={<div>
-                  Email{" "}
-                  <a href="mailto:dev@babyMRI.org">dev@babyMRI.org</a>{" "}
-                  or create an issue on{" "}
-                  <a href="https://github.com/FNNDSC/ChRIS_ui">
-                    GitHub
-                  </a>.
-                </div>}
+                headerContent={
+                  <div>We appreciate any comments and suggestions!</div>
+                }
+                bodyContent={
+                  <div>
+                    Email <a href="mailto:dev@babyMRI.org">dev@babyMRI.org</a>{" "}
+                    or create an issue on{" "}
+                    <a href="https://github.com/FNNDSC/ChRIS_ui">GitHub</a>.
+                  </div>
+                }
               >
-                <Chip isReadOnly={true} component="button"><b>Feedback</b></Chip>
+                <Chip isReadOnly={true} component="button">
+                  <b>Feedback</b>
+                </Chip>
               </Popover>
             </div>
           </div>
@@ -253,6 +272,6 @@ const VisualDatasets: React.FunctionComponent = () => {
       </PageSection>
     </WrapperConnect>
   );
-}
+};
 
 export default VisualDatasets;

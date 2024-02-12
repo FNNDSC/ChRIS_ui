@@ -1,14 +1,20 @@
 import React from "react";
-import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from "@patternfly/react-core";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  MenuToggleElement,
+} from "@patternfly/react-core";
 import { SLICE_TYPE } from "@niivue/niivue";
 
-const SLICE_NAMES: { [key: string]: [SLICE_TYPE, boolean]} = {
-  "Axial": [SLICE_TYPE.AXIAL, false],
-  "Coronal": [SLICE_TYPE.CORONAL, false],
-  "Sagittal": [SLICE_TYPE.SAGITTAL, false],
+const SLICE_NAMES: { [key: string]: [SLICE_TYPE, boolean] } = {
+  Axial: [SLICE_TYPE.AXIAL, false],
+  Coronal: [SLICE_TYPE.CORONAL, false],
+  Sagittal: [SLICE_TYPE.SAGITTAL, false],
   "3D render": [SLICE_TYPE.RENDER, false],
   "A+C+S": [SLICE_TYPE.MULTIPLANAR, false],
-  "A+C+S+3D": [SLICE_TYPE.MULTIPLANAR, true]
+  "A+C+S+3D": [SLICE_TYPE.MULTIPLANAR, true],
 };
 
 type SliceTypeDropdownProps = {
@@ -19,11 +25,17 @@ type SliceTypeDropdownProps = {
 /**
  * A dropdown menu for selecting slice types supported by Niivue.
  */
-const SliceTypeDropdown: React.FC<SliceTypeDropdownProps> = ({ selectedSliceType, onSelect }) => {
+const SliceTypeDropdown: React.FC<SliceTypeDropdownProps> = ({
+  selectedSliceType,
+  onSelect,
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
-  const selected = Object.entries(SLICE_NAMES)
-    .find(([_name, [sliceType, multiplanarForceRender]]) => sliceType === selectedSliceType[0] && multiplanarForceRender === selectedSliceType[1]);
-  const selectedName = selected ? selected[0] : 'unknown';
+  const selected = Object.entries(SLICE_NAMES).find(
+    ([_name, [sliceType, multiplanarForceRender]]) =>
+      sliceType === selectedSliceType[0] &&
+      multiplanarForceRender === selectedSliceType[1],
+  );
+  const selectedName = selected ? selected[0] : "unknown";
 
   const onToggleClick = () => {
     setIsOpen(!isOpen);
@@ -37,11 +49,11 @@ const SliceTypeDropdown: React.FC<SliceTypeDropdownProps> = ({ selectedSliceType
     if (value === undefined) {
       return;
     }
-    if (typeof value === 'string') {
+    if (typeof value === "string") {
       const [sliceType, multiplanarForceRender] = SLICE_NAMES[value];
       return onSelect(sliceType, multiplanarForceRender);
     } else {
-      throw new Error('unreachable code');
+      throw new Error("unreachable code");
     }
   };
 
