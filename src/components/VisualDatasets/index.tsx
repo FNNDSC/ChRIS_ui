@@ -34,10 +34,9 @@ import { DEFAULT_OPTIONS } from "./defaults.ts";
 import preval from "preval.macro";
 import HeaderOptionBar from "./components/HeaderOptionBar.tsx";
 import FeedButton from "./components/FeedButton.tsx";
-import {
+import SizedNiivueCanvas, {
   CrosshairLocation,
-  SizedNiivueCanvas,
-} from "./components/SizedNiivueCanvas.tsx";
+} from "../SizedNiivueCanvas/index";
 import { Problem, VisualDataset } from "./types.ts";
 import VisualDatasetsClient from "./client.tsx";
 import ProblemsManager from "./problems.ts";
