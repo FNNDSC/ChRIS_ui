@@ -6,8 +6,9 @@ import {
   PublicFeedList,
 } from "@fnndsc/chrisapi";
 import constants from "./constants.ts";
+import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
 
-function failedRequest(title: string): Problem {
+function failedRequest(title: React.ReactNode): Problem {
   return {
     variant: "danger",
     title,
@@ -81,6 +82,31 @@ const PROBLEMS = {
           The output of plugin instance id={indexPlinst.data.id} does not
           contain a file called <code>{constants.MAGIC_DATASET_FILE}</code>.
           Please check feed (id={feed.data.id}) "{feed.data.name}".
+        </>
+      ),
+    };
+  },
+
+  failedRequestForFile: (file: FpFileBrowserFile): Problem => {
+    return failedRequest(
+      <>
+        Failed to get file data: <code>{file.fname}</code>
+      </>,
+    );
+  },
+
+  invalidJson: (file: string): Problem => {
+    return {
+      variant: "danger",
+      title: (
+        <span>
+          File data could not be parsed as JSON: <code>{file}</code>
+        </span>
+      ),
+      body: (
+        <>
+          The dataset is malformed, which is probably a bug in
+          <code>pl-visual-dataset</code>.
         </>
       ),
     };

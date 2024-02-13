@@ -1,0 +1,978 @@
+{
+  "tags": {
+    "age": [
+      "33",
+      "22",
+      "38",
+      "27",
+      "25",
+      "26",
+      "28",
+      "21",
+      "31",
+      "35",
+      "37",
+      "32",
+      "34",
+      "30",
+      "23",
+      "36",
+      "29",
+      "24"
+    ],
+    "author": [
+      "Ali Gholipour et al., CRL",
+      "Kiho Im et al., FNNDSC",
+      "Ahmed Serag et al."
+    ],
+    "institution": ["Boston Children's Hospital", "Imperial College London"],
+    "type": ["T2 MRI", "ventricles", "labels"],
+    "labels": ["parcellation", "tissue"]
+  },
+  "files": [
+    {
+      "path": "Age 36/aliexp_tissue.nii.gz",
+      "tags": {
+        "age": "36",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 36/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "36",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 36/serag_template.nii.gz",
+      "tags": {
+        "age": "36",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 36/aliexp_regional.nii.gz",
+      "tags": {
+        "age": "36",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 36/aliexp_template.nii.gz",
+      "tags": {
+        "age": "36",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 23/ali_template.nii.gz",
+      "tags": {
+        "age": "23",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 23/ali_regional.nii.gz",
+      "tags": {
+        "age": "23",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 23/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "23",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 23/serag_template.nii.gz",
+      "tags": {
+        "age": "23",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 23/ali_tissue.nii.gz",
+      "tags": {
+        "age": "23",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 25/ali_template.nii.gz",
+      "tags": {
+        "age": "25",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 25/ali_regional.nii.gz",
+      "tags": {
+        "age": "25",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 25/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "25",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 25/serag_template.nii.gz",
+      "tags": {
+        "age": "25",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 25/ali_tissue.nii.gz",
+      "tags": {
+        "age": "25",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 22/kiho_template.nii.gz",
+      "tags": {
+        "age": "22",
+        "author": "Kiho Im et al., FNNDSC",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 22/ali_template.nii.gz",
+      "tags": {
+        "age": "22",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 22/ali_regional.nii.gz",
+      "tags": {
+        "age": "22",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 22/ali_tissue.nii.gz",
+      "tags": {
+        "age": "22",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 28/ali_template.nii.gz",
+      "tags": {
+        "age": "28",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 28/ali_regional.nii.gz",
+      "tags": {
+        "age": "28",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 28/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "28",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 28/serag_template.nii.gz",
+      "tags": {
+        "age": "28",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 28/ali_tissue.nii.gz",
+      "tags": {
+        "age": "28",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 24/ali_template.nii.gz",
+      "tags": {
+        "age": "24",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 24/ali_regional.nii.gz",
+      "tags": {
+        "age": "24",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 24/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "24",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 24/serag_template.nii.gz",
+      "tags": {
+        "age": "24",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 24/ali_tissue.nii.gz",
+      "tags": {
+        "age": "24",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 34/ali_template.nii.gz",
+      "tags": {
+        "age": "34",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 34/ali_regional.nii.gz",
+      "tags": {
+        "age": "34",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 34/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "34",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 34/serag_template.nii.gz",
+      "tags": {
+        "age": "34",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 34/ali_tissue.nii.gz",
+      "tags": {
+        "age": "34",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 29/ali_template.nii.gz",
+      "tags": {
+        "age": "29",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 29/ali_regional.nii.gz",
+      "tags": {
+        "age": "29",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 29/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "29",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 29/serag_template.nii.gz",
+      "tags": {
+        "age": "29",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 29/ali_tissue.nii.gz",
+      "tags": {
+        "age": "29",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 26/ali_template.nii.gz",
+      "tags": {
+        "age": "26",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 26/ali_regional.nii.gz",
+      "tags": {
+        "age": "26",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 26/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "26",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 26/serag_template.nii.gz",
+      "tags": {
+        "age": "26",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 26/ali_tissue.nii.gz",
+      "tags": {
+        "age": "26",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 35/ali_template.nii.gz",
+      "tags": {
+        "age": "35",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 35/ali_regional.nii.gz",
+      "tags": {
+        "age": "35",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 35/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "35",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 35/serag_template.nii.gz",
+      "tags": {
+        "age": "35",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 35/ali_tissue.nii.gz",
+      "tags": {
+        "age": "35",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 33/ali_template.nii.gz",
+      "tags": {
+        "age": "33",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 33/ali_regional.nii.gz",
+      "tags": {
+        "age": "33",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 33/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "33",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 33/serag_template.nii.gz",
+      "tags": {
+        "age": "33",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 33/ali_tissue.nii.gz",
+      "tags": {
+        "age": "33",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 31/ali_template.nii.gz",
+      "tags": {
+        "age": "31",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 31/ali_regional.nii.gz",
+      "tags": {
+        "age": "31",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 31/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "31",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 31/serag_template.nii.gz",
+      "tags": {
+        "age": "31",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 31/ali_tissue.nii.gz",
+      "tags": {
+        "age": "31",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 27/ali_template.nii.gz",
+      "tags": {
+        "age": "27",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 27/ali_regional.nii.gz",
+      "tags": {
+        "age": "27",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 27/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "27",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 27/serag_template.nii.gz",
+      "tags": {
+        "age": "27",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 27/ali_tissue.nii.gz",
+      "tags": {
+        "age": "27",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 32/ali_template.nii.gz",
+      "tags": {
+        "age": "32",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 32/ali_regional.nii.gz",
+      "tags": {
+        "age": "32",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 32/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "32",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 32/serag_template.nii.gz",
+      "tags": {
+        "age": "32",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 32/ali_tissue.nii.gz",
+      "tags": {
+        "age": "32",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 37/aliexp_tissue.nii.gz",
+      "tags": {
+        "age": "37",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 37/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "37",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 37/serag_template.nii.gz",
+      "tags": {
+        "age": "37",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 37/aliexp_regional.nii.gz",
+      "tags": {
+        "age": "37",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 37/aliexp_template.nii.gz",
+      "tags": {
+        "age": "37",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 21/ali_template.nii.gz",
+      "tags": {
+        "age": "21",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 21/ali_regional.nii.gz",
+      "tags": {
+        "age": "21",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 21/ali_tissue.nii.gz",
+      "tags": {
+        "age": "21",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 38/aliexp_tissue.nii.gz",
+      "tags": {
+        "age": "38",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 38/aliexp_regional.nii.gz",
+      "tags": {
+        "age": "38",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 38/aliexp_template.nii.gz",
+      "tags": {
+        "age": "38",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 30/ali_template.nii.gz",
+      "tags": {
+        "age": "30",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 30/ali_regional.nii.gz",
+      "tags": {
+        "age": "30",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "parcellation"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 30/serag_ventricles.nii.gz",
+      "tags": {
+        "age": "30",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "ventricles"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 30/serag_template.nii.gz",
+      "tags": {
+        "age": "30",
+        "author": "Ahmed Serag et al.",
+        "institution": "Imperial College London",
+        "type": "T2 MRI"
+      },
+      "has_sidecar": true
+    },
+    {
+      "path": "Age 30/ali_tissue.nii.gz",
+      "tags": {
+        "age": "30",
+        "author": "Ali Gholipour et al., CRL",
+        "institution": "Boston Children's Hospital",
+        "type": "labels",
+        "labels": "tissue"
+      },
+      "has_sidecar": true
+    }
+  ],
+  "options": [
+    {
+      "match": { "author": "Ali Gholipour et al., CRL" },
+      "options": {
+        "author": "Ali Gholipour et al., CRL",
+        "citation": [
+          "A Gholipour, CK Rollins, C Velasco-Annis, A Ouaalam, A Akhondi-Asl, O Afacan, C Ortinau, S Clancy, C Limperopoulos, E Yang, JA Estroff, and SK Warfield. A normative spatiotemporal MRI atlas of the fetal brain for automatic segmentation and analysis of early brain growth, Scientific Reports 7, Article number: 476 (2017). http://www.nature.com/articles/s41598-017-00525-w",
+          "A Gholipour, C Limperopoulos, S Clancy, C Clouchoux, A Akhondi-Asl, J A Estroff, and S K Warfield. Construction of a Deformable Spatiotemporal MRI Atlas of the Fetal Brain: Evaluation of Similarity Metrics and Deformation Models. MICCAI 2014.",
+          "S Khan, L Vasung, B Marami, CK Rollins, O Afacan, C Ortinau, E Yang, SK Warfield, and A Gholipour. Fetal Brain Growth Portrayed by a Spatiotemporal Diffusion Tensor MRI Atlas Computed From In Utero Images. NeuroImage 2018. https://doi.org/10.1016/j.neuroimage.2018.08.030"
+        ],
+        "website": "http://crl.med.harvard.edu/research/fetal_brain_atlas/"
+      }
+    },
+    {
+      "match": { "author": "Ahmed Serag et al." },
+      "options": {
+        "author": "Ahmed Serag et al.",
+        "citation": [
+          "A. Serag, P. Aljabar, G. Ball, S.J. Counsell, J.P. Boardman, M.A. Rutherford, A.D. Edwards, J.V. Hajnal, D. Rueckert. “Construction of a consistent high-definition spatio-temporal atlas of the developing brain using adaptive kernel regression”. NeuroImage, 59 (3), 2255-65, 2012. http://dx.doi.org/10.1016/j.neuroimage.2011.09.062",
+          "A. Serag, V. Kyriakopoulou, P. Aljabar, S.J. Counsell, J.P. Boardman, M.A. Rutherford, A.D. Edwards, J.V. Hajnal, D. Rueckert. “A Multi-channel 4D Probabilistic Atlas of the Developing Brain: Application to Fetuses and Neonates”. Special Issue of the Annals of the British Machine Vision Association, 2012."
+        ],
+        "website": "https://brain-development.org/brain-atlases/fetal-brain-atlases/fetal-brain-atlas-serag/"
+      }
+    },
+    {
+      "match": { "author": "Kiho Im et al., FNNDSC" },
+      "options": {
+        "author": "Kiho Im et al., FNNDSC",
+        "website": "https://research.childrenshospital.org/neuroim/"
+      }
+    },
+    {
+      "match": { "type": "T2 MRI" },
+      "options": { "name": "T2 MRI", "niivue_defaults": { "colormap": "gray" } }
+    },
+    {
+      "match": { "type": "labels" },
+      "options": { "niivue_defaults": { "colormap": "roi_i256" } }
+    },
+    {
+      "match": { "type": "ventricles" },
+      "options": { "niivue_defaults": { "colormap": "red" } }
+    },
+    {
+      "match": { "author": "Ali Gholipour et al., CRL", "labels": "tissue" },
+      "options": { "name": "Tissue segmentation (\"Olympic edition\")" }
+    },
+    {
+      "match": {
+        "author": "Ali Gholipour et al., CRL",
+        "labels": "parcellation"
+      },
+      "options": {
+        "name": "Regional cortex parcellation of the CRL fetal brain atlas."
+      }
+    }
+  ],
+  "first_run_files": [22]
+}

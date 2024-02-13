@@ -7,5 +7,15 @@
  * left many inline comments in plain English.
  */
 
+// HOW IT ALL WORKS
+
+// Step 1. Get list of datasets from CUBE.
 export { getPublicVisualDatasets } from "./getDatasets";
-export { getMetadataClient } from "./getMetadataClient.ts";
+
+// Step 2. For each dataset, get a "Pre" client, which gets the manifest
+//         and README.txt for each dataset.
+export { getPreClient } from "./getPreClient.ts";
+export { DatasetPreClient } from "./DatasetPreClient.ts";
+
+// Step 3. Use the "Pre" client to get the "Full" "Files" client which gets
+//         has methods for getting the files of its dataset.
