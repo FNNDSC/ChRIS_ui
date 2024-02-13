@@ -32,7 +32,7 @@ import {
   hideOnMobile,
   hideOnMobileInline,
 } from "./cssUtils.ts";
-import { FpClient } from "../../api/fp-chrisapi.ts";
+import { FpClient } from "../../api/fp/chrisapi.ts";
 
 /**
  * The "Visual Datasets Viewer" is a view of ChRIS_ui which implements a

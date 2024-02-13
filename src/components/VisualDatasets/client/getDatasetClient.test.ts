@@ -1,7 +1,7 @@
 import { test, expect } from "vitest";
 import { map, some } from "fp-ts/Option";
 import { match } from "fp-ts/Either";
-import { getReadmeAndManifestFiles } from "./getDatasetClient.ts";
+import { getReadmeAndManifestFiles } from "./getMetadataClient.ts";
 import { getSanePlVisualDatasetFiles } from "./testData/plVisualDatasetFilebrowserFiles.ts";
 import { pipe } from "fp-ts/function";
 import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";

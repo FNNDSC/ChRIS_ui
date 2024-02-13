@@ -3,7 +3,7 @@ import * as T from "fp-ts/Task";
 import { Lazy, pipe } from "fp-ts/function";
 
 import { Feed } from "@fnndsc/chrisapi";
-import { FpClient } from "../../../api/fp-chrisapi";
+import { FpClient } from "../../../api/fp/chrisapi";
 
 import constants from "./constants";
 import problems from "./problems";
