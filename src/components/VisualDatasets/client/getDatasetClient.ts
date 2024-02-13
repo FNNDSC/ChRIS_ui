@@ -4,11 +4,11 @@ import { none, some, Option, match } from "fp-ts/Option";
 import { findFirstMap } from "fp-ts/ReadonlyArray";
 import { Problem, VisualDataset } from "../types.ts";
 import VisualDatasetClient from "./VisualDatasetClient.ts";
-import { FpClient } from "../../../api/fp-chrisapi.ts";
-import { FilebrowserFile } from "../../../api/types.ts";
+import { FpClient } from "../../../api/fp/chrisapi.ts";
 import constants from "./constants.ts";
 import { Either, left, right, mapLeft } from "fp-ts/Either";
 import problems from "./problems.tsx";
+import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
 
 function getDatasetClient(
   client: FpClient,
@@ -53,7 +53,7 @@ type ReadmeAndManifestFileResource = {
 };
 
 function getReadmeAndManifestFileResources(
-  files: ReadonlyArray<FilebrowserFile>,
+  files: ReadonlyArray<FpFileBrowserFile>,
 ): Either<Error, ReadmeAndManifestFileResource> {
   const readmeFileResource = pipe(
     files,
@@ -77,7 +77,7 @@ function getReadmeAndManifestFileResources(
 }
 
 function fileResourceIfEndsWith(filename: string) {
-  return (file: FilebrowserFile): Option<string> => {
+  return (file: FpFileBrowserFile): Option<string> => {
     if (file.fname.endsWith(filename)) {
       return some(file.file_resource);
     }
