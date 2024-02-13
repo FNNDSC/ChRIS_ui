@@ -1,8 +1,9 @@
 const CONSTANTS = {
+  README_FILENAME: "/README.txt",
   /**
    * A file created by `pl-visual-dataset`.
    */
-  MAGIC_PUBLIC_DATASET_FILENAME: ".chrisvisualdataset.tagmanifest.json",
+  MAGIC_DATASET_FILE: "/.chrisvisualdataset.tagmanifest.json",
   /**
    * Maximum number of public visual datasets to search for.
    */

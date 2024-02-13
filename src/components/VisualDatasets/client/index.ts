@@ -8,3 +8,4 @@
  */
 
 export { getPublicVisualDatasets } from "./getDatasets";
+export { getDatasetClient } from "./getDatasetClient";
