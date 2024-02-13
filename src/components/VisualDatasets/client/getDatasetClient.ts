@@ -1,7 +1,7 @@
 import * as TE from "fp-ts/TaskEither";
 import { pipe, flow } from "fp-ts/function";
-import { none, some, Option, match } from "fp-ts/Option";
-import { findFirstMap } from "fp-ts/ReadonlyArray";
+import { Option, match } from "fp-ts/Option";
+import { findFirst } from "fp-ts/ReadonlyArray";
 import { Problem, VisualDataset } from "../types.ts";
 import VisualDatasetClient from "./VisualDatasetClient.ts";
 import { FpClient } from "../../../api/fp/chrisapi.ts";
@@ -19,19 +19,14 @@ function getDatasetClient(
     TE.mapLeft((_e) => problems.failedToGetFilesOf(dataset.indexPlinst)),
     TE.flatMap(
       flow(
-        getReadmeAndManifestFileResources,
+        getReadmeAndManifestFiles,
         errorBecauseManifestMissingFrom(dataset),
         TE.fromEither,
       ),
     ),
     TE.map(
-      ({ readmeFileResource, manifestFileResource }) =>
-        new VisualDatasetClient(
-          client,
-          dataset,
-          readmeFileResource,
-          manifestFileResource,
-        ),
+      ({ readmeFile, manifestFile }) =>
+        new VisualDatasetClient(client, dataset, readmeFile, manifestFile),
     ),
   );
 }
@@ -47,42 +42,31 @@ function errorBecauseManifestMissingFrom(
   };
 }
 
-type ReadmeAndManifestFileResource = {
-  readmeFileResource: Option<string>;
-  manifestFileResource: string;
-};
-
-function getReadmeAndManifestFileResources(
+function getReadmeAndManifestFiles(
   files: ReadonlyArray<FpFileBrowserFile>,
-): Either<Error, ReadmeAndManifestFileResource> {
-  const readmeFileResource = pipe(
+): Either<
+  Error,
+  { readmeFile: Option<FpFileBrowserFile>; manifestFile: FpFileBrowserFile }
+> {
+  const readmeFile = pipe(
     files,
-    findFirstMap(fileResourceIfEndsWith(constants.README_FILENAME)),
+    findFirst((f) => f.fname.endsWith(constants.README_FILENAME)),
   );
-  const manifestFileResource = pipe(
+  const manifestFileOption = pipe(
     files,
-    findFirstMap(fileResourceIfEndsWith(constants.MAGIC_DATASET_FILE)),
+    findFirst((f) => f.fname.endsWith(constants.MAGIC_DATASET_FILE)),
   );
   return pipe(
-    manifestFileResource,
+    manifestFileOption,
     match(
       () => left(new Error("manifest not found in files")),
-      (manifestFileResource) =>
+      (manifestFile) =>
         right({
-          readmeFileResource,
-          manifestFileResource,
+          readmeFile,
+          manifestFile,
         }),
     ),
   );
 }
 
-function fileResourceIfEndsWith(filename: string) {
-  return (file: FpFileBrowserFile): Option<string> => {
-    if (file.fname.endsWith(filename)) {
-      return some(file.file_resource);
-    }
-    return none;
-  };
-}
-
-export { getDatasetClient, getReadmeAndManifestFileResources };
+export { getDatasetClient, getReadmeAndManifestFiles };

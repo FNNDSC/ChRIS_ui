@@ -1,18 +1,27 @@
 import { test, expect } from "vitest";
-import { right } from "fp-ts/Either";
-import { some } from "fp-ts/Option";
-import { getReadmeAndManifestFileResources } from "./getDatasetClient.ts";
+import { map, some } from "fp-ts/Option";
+import { match } from "fp-ts/Either";
+import { getReadmeAndManifestFiles } from "./getDatasetClient.ts";
 import { getSanePlVisualDatasetFiles } from "./testData/plVisualDatasetFilebrowserFiles.ts";
+import { pipe } from "fp-ts/function";
+import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
 
 test("getReadmeAndManifestFileResources", () => {
   const data = getSanePlVisualDatasetFiles();
-  const actual = getReadmeAndManifestFileResources(data);
-  const expected = right({
-    readmeFileResource: some(
-      "https://example.org/api/v1/files/2148/README.txt",
+  pipe(
+    getReadmeAndManifestFiles(data),
+    match(
+      (e) => expect.fail(`Error: ${e}`),
+      ({ readmeFile, manifestFile }) => {
+        expect(manifestFile.file_resource).toBe(
+          "https://example.org/api/v1/files/2159/.chrisvisualdataset.tagmanifest.json",
+        );
+        expect(
+          map((f: FpFileBrowserFile) => f.file_resource)(readmeFile),
+        ).toStrictEqual(
+          some("https://example.org/api/v1/files/2148/README.txt"),
+        );
+      },
     ),
-    manifestFileResource:
-      "https://example.org/api/v1/files/2159/.chrisvisualdataset.tagmanifest.json",
-  });
-  expect(actual).toStrictEqual(expected);
+  );
 });
