@@ -23,7 +23,20 @@ test("DatasetFilesClient.listFiles", () => {
     indexPlinst,
     manifest,
   );
-  expect(filesClient.listFiles().length).toBeTruthy(); // dumb test
+  const files = filesClient.listFiles();
+  const seragAge28Template = files.find(
+    (file) => file.path === "Age 28/serag_template.nii.gz",
+  );
+  expect(seragAge28Template?.metadata).toStrictEqual({
+    name: "T2 MRI",
+    website:
+      "https://brain-development.org/brain-atlases/fetal-brain-atlases/fetal-brain-atlas-serag/",
+    author: "Ahmed Serag et al.",
+    citation: [
+      "A. Serag, P. Aljabar, G. Ball, S.J. Counsell, J.P. Boardman, M.A. Rutherford, A.D. Edwards, J.V. Hajnal, D. Rueckert. “Construction of a consistent high-definition spatio-temporal atlas of the developing brain using adaptive kernel regression”. NeuroImage, 59 (3), 2255-65, 2012. http://dx.doi.org/10.1016/j.neuroimage.2011.09.062",
+      "A. Serag, V. Kyriakopoulou, P. Aljabar, S.J. Counsell, J.P. Boardman, M.A. Rutherford, A.D. Edwards, J.V. Hajnal, D. Rueckert. “A Multi-channel 4D Probabilistic Atlas of the Developing Brain: Application to Fetuses and Neonates”. Special Issue of the Annals of the British Machine Vision Association, 2012.",
+    ],
+  });
 });
 
 test("matchOptionsTo", () => {

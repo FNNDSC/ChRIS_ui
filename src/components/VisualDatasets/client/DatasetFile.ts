@@ -63,14 +63,18 @@ class DatasetFile {
   > {}
 
   private get filePath(): string {
-    return `${this.dataRoot}/${this.info.path}`;
+    return `${this.dataRoot}/${this.path}`;
   }
 
   private get sidecarPath(): Option<string> {
     if (this.info.has_sidecar) {
-      return some(`${this.indexRoot}/${this.info.path}`);
+      return some(`${this.indexRoot}/${this.path}`);
     }
     return none;
+  }
+
+  get path(): string {
+    return this.info.path;
   }
 
   get metadata(): DatasetFileMetadata {
