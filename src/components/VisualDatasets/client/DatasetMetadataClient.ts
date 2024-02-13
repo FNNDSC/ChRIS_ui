@@ -1,10 +1,10 @@
 import { Option } from "fp-ts/Option";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { FpClient } from "../../../api/fp-chrisapi.ts";
+import { FpClient } from "../../../api/fp/chrisapi.ts";
 import { VisualDataset } from "../types.ts";
 import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
 
-class VisualDatasetClient {
+class DatasetMetadataClient {
   private readonly client: FpClient;
   private readonly indexPlinst: PluginInstance;
   private readonly dataPlinst: PluginInstance;
@@ -26,4 +26,4 @@ class VisualDatasetClient {
   }
 }
 
-export default VisualDatasetClient;
+export default DatasetMetadataClient;
