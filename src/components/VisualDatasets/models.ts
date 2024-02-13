@@ -4,6 +4,7 @@
  * but with non-optional keys.
  */
 
+import { FilebrowserFile } from "../../api/types.ts";
 import { NVROptions, NVRVolume } from "niivue-react/src/model.ts";
 
 /**
@@ -42,16 +43,6 @@ type VolumeSettings = Pick<
  * A subset of `NVRVolume` with non-optional keys.
  */
 type ChNVRVolume = { url: string } & Required<VolumeSettings>;
-
-/**
- * ChRIS file from filebrowser API (missing type from @fnndsc/chrisapi)
- */
-type FilebrowserFile = {
-  file_resource: string;
-  creation_date: string;
-  fname: string;
-  fsize: number;
-};
 
 /**
  * Data associated with a file from a visual dataset.

@@ -1,0 +1,56 @@
+{
+  "collection": {
+    "version": "1.0",
+    "href": "https://example.org/api/v1/filebrowser-files/chrisui/feed_307/pl-dircopy_307/pl-tsdircopy_311/pl-bulk-rename_321/pl-zerobg_331/pl-topologicalcopy_366/pl-topologicalcopy_368/pl-visual-dataset_369/data/",
+    "items": [
+      {
+        "data": [
+          {
+            "name": "creation_date",
+            "value": "2024-02-12T12:26:38.637459-05:00"
+          },
+          {
+            "name": "fname",
+            "value": "chrisui/feed_307/pl-dircopy_307/pl-tsdircopy_311/pl-bulk-rename_321/pl-zerobg_331/pl-topologicalcopy_366/pl-topologicalcopy_368/pl-visual-dataset_369/data/README.txt"
+          },
+          {
+            "name": "fsize",
+            "value": 158
+          }
+        ],
+        "href": "https://example.org/api/v1/files/2148/",
+        "links": [
+          {
+            "rel": "file_resource",
+            "href": "https://example.org/api/v1/files/2148/README.txt"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "creation_date",
+            "value": "2024-02-12T12:26:38.637566-05:00"
+          },
+          {
+            "name": "fname",
+            "value": "chrisui/feed_307/pl-dircopy_307/pl-tsdircopy_311/pl-bulk-rename_321/pl-zerobg_331/pl-topologicalcopy_366/pl-topologicalcopy_368/pl-visual-dataset_369/data/.chrisvisualdataset.tagmanifest.json"
+          },
+          {
+            "name": "fsize",
+            "value": 18295
+          }
+        ],
+        "href": "https://example.org/api/v1/files/2159/",
+        "links": [
+          {
+            "rel": "file_resource",
+            "href": "https://example.org/api/v1/files/2159/.chrisvisualdataset.tagmanifest.json"
+          }
+        ]
+      }
+    ],
+    "links": [],
+    "total": 2
+  }
+}

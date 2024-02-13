@@ -18,7 +18,7 @@ import * as helpers from "./helpers";
  */
 function getPublicVisualDatasets(client: FpClient): T.Task<GetDatasetsResult> {
   const searchParams = {
-    files_fname_icontains: constants.MAGIC_PUBLIC_DATASET_FILENAME,
+    files_fname_icontains: constants.MAGIC_DATASET_FILE,
     limit: constants.FEEDS_SEARCH_LIMIT,
   };
   return pipe(
