@@ -34,7 +34,7 @@ type GetDatasetsResult = {
  */
 type Problem = {
   variant: "warning" | "success" | "danger" | "info";
-  title: string;
+  title: React.ReactNode;
   body?: React.ReactNode;
 };
 

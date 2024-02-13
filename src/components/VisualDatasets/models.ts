@@ -4,7 +4,6 @@
  * but with non-optional keys.
  */
 
-import { FilebrowserFile } from "../../api/types.ts";
 import { NVROptions, NVRVolume } from "niivue-react/src/model.ts";
 
 /**
@@ -29,14 +28,15 @@ type ChNVROptions = Required<
 
 /**
  * Niivue options for volumes which can be customized in the Visual Dataset Browser.
+ *
+ * This is a subset of the options supported by pl-visual-dataset, meaning some
+ * configurations such as `trustCalMinCalMax` are ignored.
+ *
+ * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.1.0/visualdataset/options.py#L9-L22
  */
 type VolumeSettings = Pick<
   NVRVolume,
-  | "opacity"
-  | "colormap"
-  | "cal_min" // contrast can be increased by increasing cal_min
-  // cal_max is not listed here because changing it is usually pointless
-  | "colorbarVisible"
+  "opacity" | "colormap" | "cal_min" | "cal_max" | "colorbarVisible"
 >;
 
 /**
@@ -45,41 +45,11 @@ type VolumeSettings = Pick<
 type ChNVRVolume = { url: string } & Required<VolumeSettings>;
 
 /**
- * Data associated with a file from a visual dataset.
+ * A volume's state and its original default options.
  */
-type VisualDatasetFile = {
-  file: FilebrowserFile;
-  defaultSettings: Required<VolumeSettings>;
-  currentSettings: ChNVRVolume;
-
-  // metadata provided by a sidecar file.
-  // spec: https://github.com/FNNDSC/pl-visual-dataset/blob/8fdf598a84bba05511dd7aeab8a711f6098e83df/pubchrisvisual/types.py#L27-L50
-  name: string | null;
-  author: string | null;
-  description: string | null;
-  citation: string[];
-  website: string | null;
+type DatasetVolume = {
+  state: ChNVRVolume;
+  default: VolumeSettings;
 };
 
-/**
- * Contents of a `.chrisvisualdataset.volume.json` created by pl-visual-dataset.
- *
- * https://github.com/FNNDSC/pl-visual-dataset/blob/8fdf598a84bba05511dd7aeab8a711f6098e83df/pubchrisvisual/types.py#L27-L50
- */
-type Sidecar = {
-  name?: string;
-  author?: string;
-  description?: string;
-  citation?: string[];
-  website?: string;
-  niivue_defaults?: VolumeSettings;
-};
-
-export type {
-  VolumeSettings,
-  ChNVRVolume,
-  ChNVROptions,
-  FilebrowserFile,
-  VisualDatasetFile,
-  Sidecar,
-};
+export type { VolumeSettings, ChNVRVolume, ChNVROptions, DatasetVolume };

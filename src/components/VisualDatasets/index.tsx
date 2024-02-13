@@ -207,8 +207,8 @@ const VisualDatasets: React.FunctionComponent = () => {
          */
         problems.length === 0 || (
           <PageSection>
-            {problems.map(({ variant, title, body }) => (
-              <Alert variant={variant} title={title} key={title}>
+            {problems.map(({ variant, title, body }, i) => (
+              <Alert variant={variant} title={title} key={i}>
                 {body}
               </Alert>
             ))}

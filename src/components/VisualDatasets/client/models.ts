@@ -1,34 +1,23 @@
-import { NVRVolume } from "niivue-react/src/model.ts";
+import { VolumeSettings } from "../models.ts";
 
 /**
- * Options of NiiVue supported by pl-visual-dataset.
- *
- * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.1.0/visualdataset/options.py#L9-L22
+ * Description of a dataset file.
  */
-type NiivueVolumeSettings = Pick<
-  NVRVolume,
-  | "opacity"
-  | "colormap"
-  | "colormapNegative"
-  | "cal_min"
-  | "cal_max"
-  | "trustCalMinMax"
-  | "visible"
-  | "colorbarVisible"
->;
+type DatasetFileMetadata = {
+  name?: string;
+  author?: string;
+  description?: string;
+  citation?: string[];
+  website?: string;
+};
 
 /**
  * Options of a visual dataset file.
  *
  * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.1.0/visualdataset/options.py#L27-L54
  */
-type ChrisViewerFileOptions = {
-  name?: string;
-  author?: string;
-  description?: string;
-  citation?: string[];
-  website?: string;
-  niivue_defaults?: NiivueVolumeSettings;
+type ChrisViewerFileOptions = DatasetFileMetadata & {
+  niivue_defaults?: VolumeSettings;
 };
 
 /**
@@ -55,16 +44,17 @@ type OptionsLink = {
  *
  * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.1.0/visualdataset/manifest.py#L36-L55
  */
-type ManifestData = {
+type Manifest = {
   tags: { [key: string]: string[] };
   files: VisualDatasetFileInfo[];
   options: OptionsLink[];
 };
 
 export type {
-  ManifestData,
+  Manifest,
   VisualDatasetFileInfo,
   OptionsLink,
   TagSet,
-  NiivueVolumeSettings,
+  ChrisViewerFileOptions,
+  DatasetFileMetadata,
 };

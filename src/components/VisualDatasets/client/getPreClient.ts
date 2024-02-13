@@ -3,17 +3,17 @@ import { pipe, flow } from "fp-ts/function";
 import { Option, match } from "fp-ts/Option";
 import { findFirst } from "fp-ts/ReadonlyArray";
 import { Problem, VisualDataset } from "../types.ts";
-import DatasetMetadataClient from "./DatasetMetadataClient.ts";
+import { DatasetPreClient } from "./DatasetPreClient.ts";
 import { FpClient } from "../../../api/fp/chrisapi.ts";
 import constants from "./constants.ts";
 import { Either, left, right, mapLeft } from "fp-ts/Either";
 import problems from "./problems.tsx";
 import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
 
-function getMetadataClient(
+function getPreClient(
   client: FpClient,
   dataset: VisualDataset,
-): TE.TaskEither<Problem, DatasetMetadataClient> {
+): TE.TaskEither<Problem, DatasetPreClient> {
   return pipe(
     client.getFewFilesUnder(dataset.indexPlinst.data.output_path),
     TE.mapLeft((_e) => problems.failedToGetFilesOf(dataset.indexPlinst)),
@@ -26,7 +26,7 @@ function getMetadataClient(
     ),
     TE.map(
       ({ readmeFile, manifestFile }) =>
-        new DatasetMetadataClient(client, dataset, readmeFile, manifestFile),
+        new DatasetPreClient(client, dataset, readmeFile, manifestFile),
     ),
   );
 }
@@ -69,4 +69,4 @@ function getReadmeAndManifestFiles(
   );
 }
 
-export { getMetadataClient, getReadmeAndManifestFiles };
+export { getPreClient, getReadmeAndManifestFiles };
