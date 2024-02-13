@@ -1,5 +1,4 @@
 import Client, {
-  Collection,
   Feed,
   FeedPluginInstanceList,
   FileBrowserPath,
@@ -10,7 +9,7 @@ import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
 import * as Console from "fp-ts/Console";
 import { pipe } from "fp-ts/function";
-import { FilebrowserFile } from "./types.ts";
+import FpFileBrowserFile from "./fpFileBrowserFile.ts";
 
 /**
  * fp-ts friendly wrapper for @fnndsc/chrisapi
@@ -46,7 +45,7 @@ class FpClient {
    */
   public getFewFilesUnder(
     ...args: Parameters<Client["getFileBrowserPath"]>
-  ): TE.TaskEither<Error, ReadonlyArray<FilebrowserFile>> {
+  ): TE.TaskEither<Error, ReadonlyArray<FpFileBrowserFile>> {
     return pipe(
       this.getFileBrowserPath(...args),
       TE.flatMap(FpClient.filebrowserGetFiles),
@@ -82,18 +81,8 @@ class FpClient {
 
 function saneReturnOfFileBrowserPathFileList(
   fbpfl: FileBrowserPathFileList,
-): ReadonlyArray<FilebrowserFile> {
-  return fbpfl.getItems()!.map(uncollectionifyFilebrowserFile);
-}
-
-function uncollectionifyFilebrowserFile(data: any): FilebrowserFile {
-  return {
-    ...Collection.getItemDescriptors(data.collection.items[0]),
-    file_resource: Collection.getLinkRelationUrls(
-      data.collection.items[0],
-      "file_resource",
-    )[0],
-  };
+): ReadonlyArray<FpFileBrowserFile> {
+  return fbpfl.getItems()!.map((file) => new FpFileBrowserFile(file));
 }
 
 export { FpClient, saneReturnOfFileBrowserPathFileList };
