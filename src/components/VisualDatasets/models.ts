@@ -34,15 +34,30 @@ type ChNVROptions = Required<
  *
  * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.1.0/visualdataset/options.py#L9-L22
  */
-type VolumeSettings = Pick<
+type SupportedVolumeSettings = Pick<
   NVRVolume,
   "opacity" | "colormap" | "cal_min" | "cal_max" | "colorbarVisible"
 >;
 
 /**
- * A subset of `NVRVolume` with non-optional keys.
+ * Required `SupportedVolumeSettings` without `cal_max`.
+ *
+ * It is safe to use some default value for the properties of
+ * `UsualVolumeSettings`. The reason `cal_max` is excluded is
+ * that a default value for `cal_max` will make most volumes
+ * look off.
  */
-type ChNVRVolume = { url: string } & Required<VolumeSettings>;
+type UsualVolumeSettings = Required<Omit<SupportedVolumeSettings, "cal_max">>;
+
+/**
+ * Same as `SupportedVolumeSettings` but with most properties being required.
+ */
+type VolumeSettings = SupportedVolumeSettings & UsualVolumeSettings;
+
+/**
+ * A subset of `NVRVolume` with (mostly) non-optional keys.
+ */
+type ChNVRVolume = { url: string } & VolumeSettings;
 
 /**
  * A volume's state and its original default options.
@@ -52,4 +67,11 @@ type DatasetVolume = {
   default: VolumeSettings;
 };
 
-export type { VolumeSettings, ChNVRVolume, ChNVROptions, DatasetVolume };
+export type {
+  SupportedVolumeSettings,
+  UsualVolumeSettings,
+  VolumeSettings,
+  ChNVRVolume,
+  ChNVROptions,
+  DatasetVolume,
+};

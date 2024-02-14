@@ -1,4 +1,4 @@
-import { VolumeSettings } from "../models.ts";
+import { SupportedVolumeSettings } from "../models.ts";
 
 /**
  * Description of a dataset file.
@@ -17,7 +17,7 @@ type DatasetFileMetadata = {
  * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.1.0/visualdataset/options.py#L27-L54
  */
 type ChrisViewerFileOptions = DatasetFileMetadata & {
-  niivue_defaults?: VolumeSettings;
+  niivue_defaults?: SupportedVolumeSettings;
 };
 
 /**
