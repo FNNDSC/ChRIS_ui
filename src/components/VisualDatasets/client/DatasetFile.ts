@@ -13,7 +13,6 @@ import {
 import { Problem } from "../types.ts";
 import problems from "./problems.tsx";
 import { DatasetVolume, SupportedVolumeSettings } from "../models.ts";
-import { produce } from "immer";
 import { Option, none, some, match } from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
 import { parse as parseJson } from "fp-ts/Json";
@@ -165,9 +164,8 @@ class DatasetFile {
   }
 
   get metadata(): DatasetFileMetadata {
-    return produce(this.options, (draft) => {
-      delete draft.niivue_defaults;
-    });
+    const { niivue_defaults: _, ...rest } = this.options;
+    return rest;
   }
 
   get tags(): TagSet {

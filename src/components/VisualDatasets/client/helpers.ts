@@ -23,8 +23,7 @@ function findVisualDatasetInstancePairs(
       // contain all plugin instances of a feed, so we're going to badly
       // throw an Error here.
       throw new Error(
-        "Previous not found for pl-visual-dataset plugin instance " +
-          `id=${indexPlinst.data.id} previous_id=${prev}`,
+        `Previous not found for pl-visual-dataset plugin instance id=${indexPlinst.data.id} previous_id=${prev}`,
       );
     }
     return { indexPlinst, dataPlinst };

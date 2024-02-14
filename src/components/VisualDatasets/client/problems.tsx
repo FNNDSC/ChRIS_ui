@@ -143,7 +143,8 @@ const PROBLEMS = {
   },
 } satisfies Record<
   string,
-  Problem | ((...args: any[]) => Problem) | ((...args: any[]) => Problem[])
+  // biome-ignore lint/suspicious/noExplicitAny: it's fine to use any for rest arguments in satisfies operator
+  Problem | ((...args: any[]) => Problem | Problem[])
 >;
 
 export default PROBLEMS;

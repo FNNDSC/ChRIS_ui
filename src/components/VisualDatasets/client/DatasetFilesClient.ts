@@ -80,7 +80,7 @@ function isSubset(tags: TagSet, match: TagSet): boolean {
     if (!(key in tags)) {
       return false;
     }
-    if (tags[key] != value) {
+    if (tags[key] !== value) {
       return false;
     }
   }
