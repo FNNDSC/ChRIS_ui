@@ -1,38 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
 import { useDispatch } from "react-redux";
-import { Alert, Chip, PageSection, Popover } from "@patternfly/react-core";
-import BUILD_VERSION from "../../getBuildVersion";
-import { BrainIcon, DesktopIcon } from "@patternfly/react-icons";
-import { Typography } from "antd";
-
+import { PageSection } from "@patternfly/react-core";
 import WrapperConnect from "../Wrapper";
-import { InfoIcon } from "../Common";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions.ts";
 
-import styles from "./styles.module.css";
 import { ChNVROptions } from "./models.ts";
-import NiivueOptionsPanel from "./components/NiivueOptionsPanel.tsx";
-import SelectedFilesOptionsPane from "./components/SelectedFilesOptionsPane.tsx";
 import { DEFAULT_OPTIONS } from "./defaults.ts";
 import HeaderOptionBar from "./components/HeaderOptionBar.tsx";
-import FeedButton from "./components/FeedButton.tsx";
-import {
-  CrosshairLocation,
-  SizedNiivueCanvas,
-} from "./components/SizedNiivueCanvas.tsx";
+import SizedNiivueCanvas, { CrosshairLocation } from "../SizedNiivueCanvas";
 import { Problem, VisualDataset } from "./types.ts";
-import { getPublicVisualDatasets } from "./client";
-import { nullUpdaterGuard } from "./helpers.ts";
-import { css } from "@patternfly/react-styles";
 import {
-  flexRowSpaceBetween,
-  hideOnDesktop,
-  hideOnMobile,
-  hideOnMobileInline,
-} from "./cssUtils.ts";
+  DatasetFile,
+  DatasetFilesClient,
+  DatasetPreClient,
+  getPreClient,
+  getPublicVisualDatasets,
+} from "./client";
+import { flexRowSpaceBetween, hideOnMobile } from "./cssUtils.ts";
 import { FpClient } from "../../api/fp/chrisapi.ts";
+import { pipe } from "fp-ts/function";
+import * as TE from "fp-ts/TaskEither";
+import * as O from "fp-ts/Option";
+import DatasetPageDrawer from "./components/Drawer.tsx";
+import {
+  InfoForPageHeader,
+  ControlPanel,
+  DatasetDescriptionText,
+} from "./content";
 
 /**
  * The "Visual Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -53,7 +49,6 @@ const VisualDatasets: React.FunctionComponent = () => {
 
   const [datasets, setDatasets] = useState<VisualDataset[] | null>(null);
   const [dataset, setDataset] = useState<VisualDataset | null>(null);
-  const feed = dataset?.feed || null;
 
   const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
   const [nvSize, setNvSize] = useState(10);
@@ -120,161 +115,93 @@ const VisualDatasets: React.FunctionComponent = () => {
     }
   }, [datasets]);
 
-  // // when a dataset is selected, get its index from pl-visual-dataset
-  // useEffect(() => {
-  //   if (plugininstance === null) {
-  //     setSubjectNames(null);
-  //     return;
-  //   }
-  //   visualDatasetsClient.listSubjects(plugininstance).then(setSubjectNames);
-  // }, [plugininstance]);
-  //
-  // // when subjects become known, select a subject to display.
-  // useEffect(() => {
-  //   if (subjectNames === null) {
-  //     setSelectedSubjectName(null);
-  //     return;
-  //   }
-  //   // by default, select the last subject. For the fetal MRI atlases,
-  //   // the last subject is probably the oldest one, which has the most
-  //   // gyrification and looks the most similar to an adult brain.
-  //   setSelectedSubjectName(subjectNames[subjectNames.length - 1]);
-  // }, [subjectNames]);
-  //
-  // // whenever the selected subject is changed:
-  // // 1. unload the previous subject's files.
-  // // 2. load the current subject's files.
-  // useEffect(() => {
-  //   setFiles(null);
-  //   if (selectedSubjectName === null) {
-  //     return;
-  //   }
-  //   if (plugininstance === null) {
-  //     throw new Error('Impossible for subject to be selected before plugin instance is known.');
-  //   }
-  //   visualDatasetsClient
-  //     .getFiles(plugininstance, selectedSubjectName)
-  //     .then(setFiles);
-  // }, [selectedSubjectName]);
+  /**
+   * Dataset README.txt file content.
+   *
+   * - `null` represents README not loaded
+   * - empty represents README is empty OR dataset does not have a README
+   */
+  const [readme, setReadme] = React.useState<string | null>(null);
+  /**
+   * Viewable files of a dataset.
+   */
+  const [files, setFiles] = React.useState<ReadonlyArray<DatasetFile> | null>(
+    null,
+  );
+  /**
+   * All the tag keys and all of their possible values for a dataset.
+   */
+  const [tagsDictionary, setTagsDictionary] = React.useState<{
+    [key: string]: string[];
+  } | null>(null);
+
+  const fetchAndSetReadme = (preClient: DatasetPreClient) => {
+    const task = pipe(
+      preClient.getReadme(),
+      // if dataset does not have a README, set README as empty
+      O.getOrElse(() => TE.of("")),
+      TE.match(pushProblem, setReadme),
+    );
+    task();
+    return preClient;
+  };
+
+  const tapSetTagsDictionary = (filesClient: DatasetFilesClient) => {
+    setTagsDictionary(filesClient.tagsDictionary);
+    return filesClient;
+  };
+
+  // when a dataset is selected, get its readme, tags dictionary, and files
+  useEffect(() => {
+    if (dataset === null) {
+      setReadme(null);
+      setFiles(null);
+      setTagsDictionary(null);
+      return;
+    }
+    const task = pipe(
+      getPreClient(client, dataset),
+      TE.map(fetchAndSetReadme),
+      TE.flatMap((preClient) => preClient.getFilesClient()),
+      TE.map(tapSetTagsDictionary),
+      TE.map((filesClient) => filesClient.listFiles()),
+      TE.match(pushProblem, setFiles),
+    );
+    task();
+  }, [dataset]);
 
   // ELEMENT
   // --------------------------------------------------------------------------------
+
+  const controlPanel = (
+    <ControlPanel problems={problems} crosshairLocation={crosshairLocation} />
+  );
+
+  const datasetDescriptionText = (
+    <DatasetDescriptionText feed={dataset?.feed || null} readme={readme} />
+  );
 
   return (
     <WrapperConnect>
       <PageSection>
         <div className={hideOnMobile}>
           <div className={flexRowSpaceBetween}>
-            <InfoIcon
-              title="Fetal MRI Atlas Viewer"
-              p1={
-                <Typography>
-                  <p>
-                    Datasets found in public feeds can be visualized here using{" "}
-                    <a
-                      href="https://github.com/niivue/niivue"
-                      target="_blank"
-                      rel="noreferrer nofollow"
-                    >
-                      Niivue
-                    </a>
-                    .
-                  </p>
-                  <p>
-                    For how to add data here, see the documentation:
-                    <a
-                      href="https://chrisproject.org/docs/public_dataset_viewer"
-                      target="_blank"
-                      rel="noreferrer nofollow"
-                    >
-                      https://chrisproject.org/docs/public_dataset_viewer
-                    </a>
-                    .
-                  </p>
-                </Typography>
-              }
-            />
-            {/* RIGHT side of header bar */}
+            <InfoForPageHeader />
             <HeaderOptionBar options={nvOptions} setOptions={setNvOptions} />
           </div>
         </div>
       </PageSection>
 
-      {
-        /*
-         * An effortless and ugly display of any warnings and error messages
-         * which may have come up.
-         */
-        problems.length === 0 || (
-          <PageSection>
-            {problems.map(({ variant, title, body }, i) => (
-              <Alert variant={variant} title={title} key={i}>
-                {body}
-              </Alert>
-            ))}
-          </PageSection>
-        )
-      }
-
-      <PageSection isFilled>
-        <div style={{ backgroundColor: "darkgreen", height: "100%" }}>
-          NIIVUE CANVAS GOES HERE
-        </div>
-        {/*<SizedNiivueCanvas*/}
-        {/*  size={nvSize}*/}
-        {/*  isScaling={sizeIsScaling}*/}
-        {/*  onLocationChange={setCrosshairLocation}*/}
-        {/*  options={nvOptions}*/}
-        {/*  volumes={(files || []).map((file) => file.currentSettings)}*/}
-        {/*/>*/}
-      </PageSection>
-      <PageSection isFilled={false}>
-        <footer>
-          <div className={css(styles.crosshairLocationText, hideOnMobile)}>
-            Location: {crosshairLocation.string}
-          </div>
-          <div className={flexRowSpaceBetween}>
-            {/* LEFT FOOTER */}
-            <div className={styles.footerItems}>
-              <div>&copy;&nbsp;2024</div>
-              <div>
-                <a href="https://www.fnndsc.org/" target="_blank">
-                  <span className={hideOnMobile}>
-                    Fetal-Neonatal Neuroimaging Developmental Science Center
-                  </span>
-                  <span className={hideOnDesktop}>FNNDSC</span>
-                </a>
-              </div>
-            </div>
-            {/* RIGHT FOOTER */}
-            <div className={styles.footerItems}>
-              <div>
-                <em>ChRIS_ui</em>{" "}
-                <span className={hideOnMobileInline}>
-                  version {BUILD_VERSION}
-                </span>
-              </div>
-              <Popover
-                triggerAction="hover"
-                showClose={true}
-                headerContent={
-                  <div>We appreciate any comments and suggestions!</div>
-                }
-                bodyContent={
-                  <div>
-                    Email <a href="mailto:dev@babyMRI.org">dev@babyMRI.org</a>{" "}
-                    or create an issue on{" "}
-                    <a href="https://github.com/FNNDSC/ChRIS_ui">GitHub</a>.
-                  </div>
-                }
-              >
-                <Chip isReadOnly={true} component="button">
-                  <b>Feedback</b>
-                </Chip>
-              </Popover>
-            </div>
-          </div>
-        </footer>
+      <PageSection isFilled padding={{ default: "noPadding" }}>
+        <DatasetPageDrawer head={datasetDescriptionText} side={controlPanel}>
+          <SizedNiivueCanvas
+            size={nvSize}
+            isScaling={sizeIsScaling}
+            onLocationChange={setCrosshairLocation}
+            options={nvOptions}
+            volumes={[]}
+          />
+        </DatasetPageDrawer>
       </PageSection>
     </WrapperConnect>
   );

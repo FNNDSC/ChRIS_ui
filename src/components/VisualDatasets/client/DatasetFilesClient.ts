@@ -8,7 +8,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { FpClient } from "../../../api/fp/chrisapi.ts";
 import { filter, foldMap } from "fp-ts/ReadonlyArray";
 import { Monoid } from "fp-ts/Monoid";
-import DatasetFile from "./DatasetFile.ts";
+import { DatasetFile } from "./DatasetFile.ts";
 import { pipe } from "fp-ts/function";
 
 const optionsJoin: Monoid<ChrisViewerFileOptions> = {
@@ -52,6 +52,13 @@ class DatasetFilesClient {
         this.indexPlinst.data.output_path,
       );
     });
+  }
+
+  /**
+   * Get all tag keys and all of their possible values.
+   */
+  get tagsDictionary(): { [key: string]: string[] } {
+    return this.manifest.tags;
   }
 }
 
