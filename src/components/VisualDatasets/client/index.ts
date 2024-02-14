@@ -11,20 +11,13 @@
  * I highly recommend this dude on YouTube.
  *   --> https://www.youtube.com/watch?v=o91UKmLwBOk
  *
- * In JavaScript and TypeScript, runtime errors are handled using
- * the try/catch syntax. Unfortunately, error-handling tends to
- * become interleaved with business logic, reducing readability.
- * Thus, programmers are tempted to write code assuming no errors,
- * which is never a good idea. In `fp-ts`, type-checking handles
- * errors, so runtime errors simply never happen (in theory).
- *
  * The most common type you'll see is `TE.TaskEither`, which is the
  * return type of an async function that might fail. For example,
  * all HTTP requests should be represented by `TE.TaskEither` since
  * HTTP requests can fail for any number of reasons: internet offline,
  * no authorization, ... By wrapping async fallible function return
  * types with `TE.TaskEither`, we can safely use their values by
- * handling all possible errors, but without cluttering our code
+ * handling all possible errors, but without interleaving our code
  * with try/catch blocks.
  *
  * (Oversimplified) Within the context of `TE.map` and `TE.flatMap`
@@ -45,8 +38,13 @@ export { getPublicVisualDatasets } from "./getDatasets";
 
 // Step 2. For each dataset, get a "Pre" client, which gets the manifest
 //         and README.txt for each dataset.
-export { getPreClient } from "./getPreClient.ts";
-export { DatasetPreClient } from "./DatasetPreClient.ts";
+export { getPreClient } from "./getPreClient";
+export { DatasetPreClient } from "./DatasetPreClient";
 
-// Step 3. Use the "Pre" client to get the "Full" "Files" client which gets
+// Step 3. Use the "Pre" client to get the "Files" client which gets
 //         has methods for getting the files of its dataset.
+export { DatasetFilesClient } from "./DatasetFilesClient";
+
+// Step 4. The "DatasetFilesClient" produces DatasetFiles, which can
+//         obtain the information necessary to render files with NiiVue.
+export { DatasetFile } from "./DatasetFile";

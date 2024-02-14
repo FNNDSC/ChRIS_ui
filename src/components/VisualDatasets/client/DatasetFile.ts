@@ -201,4 +201,4 @@ function mustHaveFileResource<A, B, C, D>([fileResource, sidecar]: [
   );
 }
 
-export default DatasetFile;
+export { DatasetFile };
