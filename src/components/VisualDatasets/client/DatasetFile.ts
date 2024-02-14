@@ -54,28 +54,25 @@ class DatasetFile {
     return pipe(
       // get the volume file's URL and its sidecar data
       sequenceT(T.ApplyPar)(this.getFileResource(), this.getSidecar()),
-      T.map(([fileResourceEither, sidecarEither]) =>
-        pipe(
-          fileResourceEither,
-          E.map((fileResource) => {
-            // if the sidecar cannot be obtained, that's ok, just use empty
-            // defaults and produce a warning.
-            const [sidecar, problems] = useSidecarOrGiveWarning(
-              sidecarEither,
-              this.info.path,
-            );
-            const defaultSettings = { ...DEFAULT_VOLUME, ...sidecar };
-            const state = { ...defaultSettings, url: fileResource };
-            return {
-              problems,
-              volume: {
-                state,
-                default: defaultSettings,
-              },
-            };
-          }),
-        ),
-      ),
+      // must have file_resource, sidecar is optional and may fail
+      T.map(mustHaveFileResource),
+      TE.map(([fileResource, sidecarEither]) => {
+        // if the sidecar cannot be obtained, that's ok, just use empty
+        // defaults and produce a warning.
+        const [sidecar, problems] = useSidecarOrGiveWarning(
+          sidecarEither,
+          this.info.path,
+        );
+        const defaultSettings = { ...DEFAULT_VOLUME, ...sidecar };
+        const state = { ...defaultSettings, url: fileResource };
+        return {
+          problems,
+          volume: {
+            state,
+            default: defaultSettings,
+          },
+        };
+      }),
     );
   }
 
@@ -191,6 +188,16 @@ function useSidecarOrGiveWarning(
       (errorMsg) => [{}, [problems.invalidSidecar(path, errorMsg)]],
       (sidecar) => [sidecar, []],
     ),
+  );
+}
+
+function mustHaveFileResource<A, B, C, D>([fileResource, sidecar]: [
+  E.Either<A, B>,
+  E.Either<C, D>,
+]): E.Either<A, [B, E.Either<C, D>]> {
+  return pipe(
+    fileResource,
+    E.map((fileResource) => [fileResource, sidecar]),
   );
 }
 
