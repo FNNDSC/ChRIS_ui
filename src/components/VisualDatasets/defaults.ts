@@ -1,4 +1,4 @@
-import { ChNVROptions, VolumeSettings } from "./models.ts";
+import { ChNVROptions, UsualVolumeSettings } from "./models.ts";
 import { DRAG_MODE, SLICE_TYPE } from "@niivue/niivue";
 
 const DEFAULT_OPTIONS: ChNVROptions = {
@@ -15,7 +15,7 @@ const DEFAULT_OPTIONS: ChNVROptions = {
   crosshairWidth: 1,
 };
 
-const DEFAULT_VOLUME: Required<VolumeSettings> = {
+const DEFAULT_VOLUME: UsualVolumeSettings = {
   opacity: 0.0,
   colormap: "gray",
   cal_min: 0,

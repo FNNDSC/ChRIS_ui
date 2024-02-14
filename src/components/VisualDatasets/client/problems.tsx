@@ -31,7 +31,7 @@ function failedRequest(title: React.ReactNode): Problem {
 const PROBLEMS = {
   failedRequest,
 
-  checkFeedPageOverflow: (feedList: PublicFeedList): Problem[] => {
+  checkFeedPageOverflow(feedList: PublicFeedList): Problem[] {
     const notShown = feedList.totalCount - constants.FEEDS_SEARCH_LIMIT;
     if (notShown > 0) {
       return [
@@ -45,10 +45,10 @@ const PROBLEMS = {
     return [];
   },
 
-  checkPluginInstancesPageOverflow: (
+  checkPluginInstancesPageOverflow(
     feed: Feed,
     plinstList: FeedPluginInstanceList,
-  ): Problem[] => {
+  ): Problem[] {
     const notShown =
       plinstList.totalCount - constants.PLUGININSTANCES_PER_FEED_LIMIT;
     if (notShown > 0) {
@@ -68,12 +68,12 @@ const PROBLEMS = {
     return [];
   },
 
-  failedToGetFilesOf: (plinst: PluginInstance): Problem => {
+  failedToGetFilesOf(plinst: PluginInstance): Problem {
     const title = `Could not get files of plugin instance id=${plinst}`;
     return failedRequest(title);
   },
 
-  manifestNotFoundIn: ({ indexPlinst, feed }: VisualDataset): Problem => {
+  manifestNotFoundIn({ indexPlinst, feed }: VisualDataset): Problem {
     return {
       variant: "danger",
       title: `Dataset (id=${indexPlinst.data.id}) is malformed`,
@@ -87,15 +87,16 @@ const PROBLEMS = {
     };
   },
 
-  failedRequestForFile: (file: FpFileBrowserFile): Problem => {
+  failedRequestForFile(file: FpFileBrowserFile | string): Problem {
+    const fname = typeof file === "string" ? file : file.fname;
     return failedRequest(
       <>
-        Failed to get file data: <code>{file.fname}</code>
+        Failed to get file data: <code>{fname}</code>
       </>,
     );
   },
 
-  invalidJson: (file: string): Problem => {
+  invalidJson(file: string): Problem {
     return {
       variant: "danger",
       title: (
@@ -109,6 +110,35 @@ const PROBLEMS = {
           <code>pl-visual-dataset</code>.
         </>
       ),
+    };
+  },
+
+  fileNotFound(dirname: string, basename: string): Problem {
+    return {
+      variant: "danger",
+      title: (
+        <>
+          File <code>{basename}</code> not found in <code>{dirname}</code>.
+        </>
+      ),
+      body: (
+        <>
+          This app assumes each directory contains a small number of files, so
+          pagination is not implemented.
+        </>
+      ),
+    };
+  },
+
+  invalidSidecar(file: string, errorMsg: string): Problem {
+    return {
+      variant: "warning",
+      title: (
+        <>
+          Could not get sidecar file for <code>{file}</code>
+        </>
+      ),
+      body: errorMsg,
     };
   },
 } satisfies Record<

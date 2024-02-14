@@ -4,6 +4,12 @@ const CONSTANTS = {
    * A file created by `pl-visual-dataset`.
    */
   MAGIC_DATASET_FILE: "/.chrisvisualdataset.tagmanifest.json",
+
+  /**
+   * Volume sidecar JSON filename extension.
+   */
+  VOLUME_SIDECAR_EXTENSION: ".chrisvisualdataset.volume.json",
+
   /**
    * Maximum number of public visual datasets to search for.
    */

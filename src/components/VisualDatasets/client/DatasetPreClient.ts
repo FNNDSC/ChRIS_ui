@@ -1,6 +1,4 @@
 import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
-
 import { Option, map } from "fp-ts/Option";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { FpClient } from "../../../api/fp/chrisapi.ts";
@@ -62,8 +60,8 @@ class DatasetPreClient {
       TE.flatMap((data) => {
         return pipe(
           parseJson(data),
-          E.mapLeft(() => problems.invalidJson(this.manifestFile.fname)),
           TE.fromEither,
+          TE.mapLeft(() => problems.invalidJson(this.manifestFile.fname)),
         );
       }),
       // going to assume JSON matches schema without validation!
