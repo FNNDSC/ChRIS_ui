@@ -251,7 +251,7 @@ export default function CreateFeed() {
             )}
           </WizardStep>
           <WizardStep id={3} name="Pipelines">
-            <PipelineContainer />
+            <PipelineContainer justDisplay={true} />
           </WizardStep>
           <WizardStep
             id={4}

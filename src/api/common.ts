@@ -1,7 +1,13 @@
 import * as React from "react";
 import axios, { AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
-import { Pipeline, PipelineList, PluginPiping, Feed } from "@fnndsc/chrisapi";
+import {
+  Pipeline,
+  type PipelineList,
+  PluginPiping,
+  Feed,
+  PipelineInstance,
+} from "@fnndsc/chrisapi";
 
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
@@ -184,7 +190,8 @@ export const fetchPipelines = async (
   } = {
     error_message: "",
   };
-  let registeredPipelinesList, registeredPipelines;
+  let registeredPipelinesList: PipelineList;
+  let registeredPipelines: PipelineInstance[];
   const offset = perPage * (page - 1);
   const client = ChrisAPIClient.getClient();
   const params = {
@@ -194,17 +201,17 @@ export const fetchPipelines = async (
   };
   try {
     registeredPipelinesList = await client.getPipelines(params);
-    registeredPipelines = registeredPipelinesList.getItems();
+    registeredPipelines =
+      (registeredPipelinesList.getItems() as PipelineInstance[]) || [];
+    return {
+      registeredPipelines,
+      registeredPipelinesList,
+      error: errorPayload,
+    };
   } catch (error) {
     const errorObj = catchError(error);
     errorPayload = errorObj;
   }
-
-  return {
-    registeredPipelines,
-    registeredPipelinesList,
-    error: errorPayload,
-  };
 };
 
 export async function fetchResources(pipelineInstance: Pipeline) {
