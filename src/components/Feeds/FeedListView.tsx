@@ -139,10 +139,9 @@ const TableSelectable: React.FunctionComponent = () => {
   }, [dispatch]);
 
   React.useEffect(() => {
-    if (!type) {
-      const feedType = isLoggedIn ? "private" : "public";
+    if (!type || (!isLoggedIn && type === "private")) {
       navigate(
-        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=${feedType}`,
+        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=public`,
       );
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
