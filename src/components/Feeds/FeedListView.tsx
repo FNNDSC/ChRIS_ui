@@ -1,5 +1,4 @@
 import React, { useContext, useMemo } from "react";
-
 import { useLocation, useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { format } from "date-fns";
@@ -452,7 +451,6 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
             return selectedFeed.data.id !== feed.data.id;
           });
           const selectAllToggle = filteredBulkSelect.length === allFeeds.length;
-
           dispatch(removeBulkSelect(filteredBulkSelect, selectAllToggle));
         }
       }}
