@@ -34,8 +34,12 @@ import WrapperConnect from "../Wrapper";
 import { resetActiveResources } from "../../store/resources/actions";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import { fetchAuthenticatedFeed, fetchPublicFeed } from "./utilties";
+import { useSearchQueryParams } from "./usePaginate";
 
 export default function FeedView() {
+  const query = useSearchQueryParams();
+  const type = query.get("type");
+
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -61,38 +65,36 @@ export default function FeedView() {
   const { data: publicFeed } = useQuery({
     queryKey: ["publicFeed", id],
     queryFn: () => fetchPublicFeed(id),
-    enabled: !isLoggedIn,
+    enabled: type === "public",
   });
 
-  const { data: feed } = useQuery({
+  const { data: privateFeed } = useQuery({
     queryKey: ["authenticatedFeed", id],
     queryFn: () => fetchAuthenticatedFeed(id),
-    enabled: isLoggedIn,
+    enabled: type === "private",
   });
 
   React.useEffect(() => {
-    if (isLoggedIn && feed) {
+    if (!type) {
+      navigate("/feeds?type=public");
+    }
+  }, [type, navigate]);
+
+  React.useEffect(() => {
+    const feed: Feed | undefined = privateFeed || publicFeed;
+    if (feed) {
       dispatch(getFeedSuccess(feed as Feed));
       dispatch(getPluginInstancesRequest(feed));
-    }
-
-    if (!isLoggedIn && publicFeed && Object.keys(publicFeed).length > 0) {
-      dispatch(getFeedSuccess(publicFeed as any as Feed));
-      dispatch(getPluginInstancesRequest(publicFeed as Feed));
     }
 
     if (!isLoggedIn && publicFeed && Object.keys(publicFeed).length === 0) {
       navigate("/feeds?type=public");
     }
-  }, [isLoggedIn, feed, publicFeed, dispatch, navigate]);
+  }, [isLoggedIn, privateFeed, publicFeed, dispatch, navigate]);
 
   React.useEffect(() => {
     return () => {
-      if (
-        dataRef.current &&
-        dataRef.current.selectedPlugin &&
-        dataRef.current.data
-      ) {
+      if (dataRef.current?.selectedPlugin && dataRef.current.data) {
         dispatch(resetActiveResources(dataRef.current));
       }
       dispatch(resetFeed());

@@ -8,10 +8,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import FaFolder from "@patternfly/react-icons/dist/esm/icons/folder-icon";
-import ChrisAPIClient from "../../api/chrisapiclient";
 
 import ExternalLinkSquareIcon from "@patternfly/react-icons/dist/esm/icons/external-link-square-alt-icon";
 import useLongPress, { elipses } from "./utils";
+import { fetchAuthenticatedFeed, fetchPublicFeed } from "../Feeds/utilties";
 
 function FolderCard({
   folder,
@@ -31,18 +31,30 @@ function FolderCard({
 
   const isRoot = folder.startsWith("feed");
 
-  const fetchFeedDetails = async (id: number) => {
+  const fetchFeedDetails = async (id: string) => {
     if (!id) return;
-    const client = ChrisAPIClient.getClient();
-    const feed = await client.getFeed(id);
-    return feed;
+
+    const publicFeed = await fetchPublicFeed(id);
+
+    if (publicFeed) {
+      return {
+        feed: publicFeed,
+        type: "public",
+      };
+    }
+    const authenticatedFeed = await fetchAuthenticatedFeed(id);
+
+    return {
+      feed: authenticatedFeed,
+      type: "private",
+    };
   };
 
   const id = folder.split("_")[1];
 
-  const { data: feed } = useQuery({
+  const { data } = useQuery({
     queryKey: ["feed", id],
-    queryFn: () => fetchFeedDetails(+id),
+    queryFn: () => fetchFeedDetails(id),
     enabled: !!folder.startsWith("feed"),
   });
 
@@ -58,15 +70,14 @@ function FolderCard({
     >
       <CardHeader
         actions={{
-          actions:
-            feed && feed.data.id ? (
-              <span>
-                <Link to={`/feeds/${feed.data.id}`}>
-                  {" "}
-                  <ExternalLinkSquareIcon />
-                </Link>
-              </span>
-            ) : null,
+          actions: data?.feed?.data.id ? (
+            <span>
+              <Link to={`/feeds/${data?.feed?.data.id}?type=${data?.type}`}>
+                {" "}
+                <ExternalLinkSquareIcon />
+              </Link>
+            </span>
+          ) : null,
         }}
       >
         <Split style={{ overflow: "hidden" }}>
@@ -83,10 +94,10 @@ function FolderCard({
                 }
               }}
             >
-              {feed ? elipses(feed.data.name, 40) : elipses(folder, 40)}
+              {data ? elipses(data?.feed?.data.name, 40) : elipses(folder, 40)}
             </Button>
             <div>
-              {feed && new Date(feed.data.creation_date).toDateString()}
+              {data && new Date(data?.feed?.data.creation_date).toDateString()}
             </div>
           </SplitItem>
         </Split>

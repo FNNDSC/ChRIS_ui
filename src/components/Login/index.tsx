@@ -19,6 +19,7 @@ import {
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import { setAuthTokenSuccess } from "../../store/user/actions";
 import "./Login.css";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
   const dispatch = useDispatch();
@@ -33,8 +34,8 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   const navigate = useNavigate();
 
   enum LoginErrorMessage {
-    invalidCredentials = `Invalid Credentials`,
-    serverError = `There was a problem connecting to the server!`,
+    invalidCredentials = "Invalid Credentials",
+    serverError = "There was a problem connecting to the server!",
   }
 
   async function handleSubmit(
@@ -45,10 +46,34 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
     event.preventDefault();
 
     const authURL = import.meta.env.VITE_CHRIS_UI_AUTH_URL;
-    let token;
+    let token: string;
 
     try {
       token = await ChrisApiClient.getAuthToken(authURL, username, password);
+      if (token && username) {
+        const oneDayToSeconds = 24 * 60 * 60;
+        setCookie(`${username}_token`, token, {
+          path: "/",
+          maxAge: oneDayToSeconds,
+        });
+        setCookie("username", username, {
+          path: "/",
+          maxAge: oneDayToSeconds,
+        });
+
+        const client = ChrisAPIClient.getClient();
+        const user = await client.getUser();
+
+        dispatch(
+          setAuthTokenSuccess({
+            token,
+            username: username,
+            isStaff: user.data.is_staff,
+          }),
+        );
+
+        navigate("/");
+      }
     } catch (error: unknown) {
       setShowHelperText(true);
       // Allows error message to be displayed in red
@@ -61,25 +86,6 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           ? LoginErrorMessage.invalidCredentials
           : LoginErrorMessage.serverError,
       );
-    }
-
-    if (token && username) {
-      dispatch(
-        setAuthTokenSuccess({
-          token,
-          username: username,
-        }),
-      );
-      const oneDayToSeconds = 24 * 60 * 60;
-      setCookie(`${username}_token`, token, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
-      setCookie("username", username, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
-      navigate("/");
     }
   }
 
