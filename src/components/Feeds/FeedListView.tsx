@@ -1,5 +1,5 @@
-import React, { useContext, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +25,7 @@ import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { Typography } from "antd";
 import { cujs } from "chris-utility";
 import { useTypedSelector } from "../../store/hooks";
-import { usePaginate } from "./usePaginate";
+import { usePaginate, useSearchQueryParams } from "./usePaginate";
 import {
   setBulkSelect,
   removeBulkSelect,
@@ -45,12 +45,6 @@ import { ThemeContext } from "../DarkTheme/useTheme";
 import { fetchPublicFeeds, fetchFeeds } from "./utilties";
 
 const { Paragraph } = Typography;
-
-function useSearchQueryParams() {
-  const { search } = useLocation();
-
-  return useMemo(() => new URLSearchParams(search), [search]);
-}
 
 function useSearchQuery(query: URLSearchParams) {
   const page = query.get("page") || 1;
@@ -79,7 +73,7 @@ const TableSelectable: React.FunctionComponent = () => {
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["feeds", searchFolderData],
     queryFn: () => fetchFeeds(searchFolderData),
-    enabled: isLoggedIn && type === "private",
+    enabled: type === "private",
   });
 
   const {
@@ -139,16 +133,15 @@ const TableSelectable: React.FunctionComponent = () => {
         activeItem: "analyses",
       }),
     );
-    if (bulkData && bulkData.current) {
+    if (bulkData?.current) {
       dispatch(removeAllSelect(bulkData.current));
     }
   }, [dispatch]);
 
   React.useEffect(() => {
-    if (!type) {
-      const feedType = isLoggedIn ? "private" : "public";
+    if (!type || (!isLoggedIn && type === "private")) {
       navigate(
-        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=${feedType}`,
+        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=public`,
       );
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
@@ -187,7 +180,7 @@ const TableSelectable: React.FunctionComponent = () => {
             title={`New and Existing Analyses (${
               type === "private" && data && data.totalFeedsCount
                 ? data.totalFeedsCount
-                : publicFeeds && publicFeeds.totalFeedsCount
+                : publicFeeds?.totalFeedsCount
                   ? publicFeeds.totalFeedsCount
                   : 0
             })`}
@@ -286,6 +279,7 @@ const TableSelectable: React.FunctionComponent = () => {
                       bulkSelect={bulkSelect}
                       columnNames={columnNames}
                       allFeeds={feedsToDisplay}
+                      type={type}
                     />
                   );
                 })}
@@ -316,9 +310,16 @@ interface TableRowProps {
     size: string;
     status: string;
   };
+  type: string;
 }
 
-function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
+function TableRow({
+  feed,
+  allFeeds,
+  bulkSelect,
+  columnNames,
+  type,
+}: TableRowProps) {
   const navigate = useNavigate();
   const [intervalMs, setIntervalMs] = React.useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
@@ -352,20 +353,19 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
   const { id, name: feedName, creation_date, creator_username } = feed.data;
 
   const { dispatch } = usePaginate();
-  const progress = feedResources[id] && feedResources[id].details.progress;
+  const progress = feedResources[id]?.details.progress;
 
-  const size = feedResources[id] && feedResources[id].details.size;
-  const feedError = feedResources[id] && feedResources[id].details.error;
-  const runtime = feedResources[id] && feedResources[id].details.time;
+  const size = feedResources[id]?.details.size;
+  const feedError = feedResources[id]?.details.error;
+  const runtime = feedResources[id]?.details.time;
 
-  const feedProgressText =
-    feedResources[id] && feedResources[id].details.feedProgressText;
+  const feedProgressText = feedResources[id]?.details.feedProgressText;
 
   let threshold = Infinity;
 
   // If error in a feed => reflect in progres
 
-  let title = (progress ? progress : 0) + "%";
+  let title = `${progress ? progress : 0}%`;
   let color = "blue";
 
   if (feedError) {
@@ -374,7 +374,7 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
   }
 
   // If initial node in a feed fails
-  if (progress == 0 && feedError) {
+  if (progress === 0 && feedError) {
     color = "#00ff00";
     title = "❌";
   }
@@ -384,7 +384,7 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
     color = "#00ff00";
     threshold = progress;
   }
-  if (progress == 100) {
+  if (progress === 100) {
     title = "✔️";
   }
 
@@ -413,7 +413,7 @@ function TableRow({ feed, allFeeds, bulkSelect, columnNames }: TableRowProps) {
       <Button
         variant="link"
         onClick={() => {
-          navigate(`/feeds/${id}`);
+          navigate(`/feeds/${id}?type=${type}`);
         }}
       >
         {feedName}

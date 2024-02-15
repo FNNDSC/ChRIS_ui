@@ -116,7 +116,5 @@ export async function fetchPublicFeed(id?: string) {
   if (publicFeed && publicFeed.getItems().length > 0) {
     //@ts-ignore
     return publicFeed.getItems()[0] as any as Feed;
-  } else {
-    return {};
   }
 }
