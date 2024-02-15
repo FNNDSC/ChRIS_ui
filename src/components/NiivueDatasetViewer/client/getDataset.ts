@@ -2,14 +2,53 @@ import * as TE from "fp-ts/TaskEither";
 import { pipe, flow } from "fp-ts/function";
 import { Option, match } from "fp-ts/Option";
 import { findFirst } from "fp-ts/ReadonlyArray";
-import { Problem, VisualDataset } from "../types.ts";
-import { DatasetPreClient } from "./DatasetPreClient.ts";
-import { FpClient } from "../../../api/fp/chrisapi.ts";
-import constants from "./constants.ts";
+import { constants } from "../../../datasets";
+import { DatasetPreClient } from "./DatasetPreClient";
+import { FpClient, FpFileBrowserFile } from "../../../api/fp/chrisapi";
 import { Either, left, right, mapLeft } from "fp-ts/Either";
-import problems from "./problems.tsx";
-import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
+import problems from "./problems";
+import { Problem, VisualDataset } from "../types";
+import { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
+/**
+ * Get the plugin instance and its previous plugin instance.
+ */
+function getDataset(
+  client: FpClient,
+  plinstId: number,
+): TE.TaskEither<Problem, VisualDataset> {
+  return pipe(
+    client.getPluginInstance(plinstId),
+    TE.mapLeft(problems.failedRequestForPluginInstance(plinstId)),
+    TE.flatMap((indexPlinst) =>
+      pipe(
+        FpClient.getPreviousPluginInstance(indexPlinst),
+        TE.mapLeft(problems.failedRequestForPreviousOf(indexPlinst)),
+        TE.flatMap((dataPlinst) => {
+          if (dataPlinst === null) {
+            const problem = problems.hasNoPrevious(indexPlinst);
+            return TE.fromEither(left(problem));
+          }
+          return TE.fromEither(right({ dataPlinst, indexPlinst }));
+        }),
+      ),
+    ),
+  );
+}
+
+/**
+ * Get the feed of the visual dataset.
+ */
+function getFeedOf(plinst: PluginInstance): TE.TaskEither<Problem, Feed> {
+  return pipe(
+    FpClient.getFeedOf(plinst),
+    TE.mapLeft(() => problems.failedRequestForFeedOf(plinst)),
+  );
+}
+
+/**
+ * Creates a `DatasetPreClient` by finding the README and manifest files.
+ */
 function getPreClient(
   client: FpClient,
   dataset: VisualDataset,
@@ -69,4 +108,4 @@ function getReadmeAndManifestFiles(
   );
 }
 
-export { getPreClient, getReadmeAndManifestFiles };
+export { getDataset, getFeedOf, getPreClient, getReadmeAndManifestFiles };

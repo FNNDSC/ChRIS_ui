@@ -3,13 +3,14 @@ import Client, {
   FeedPluginInstanceList,
   FileBrowserPath,
   FileBrowserPathFileList,
+  PluginInstance,
   PublicFeedList,
 } from "@fnndsc/chrisapi";
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
 import * as Console from "fp-ts/Console";
 import { pipe } from "fp-ts/function";
-import FpFileBrowserFile from "./fpFileBrowserFile.ts";
+import FpFileBrowserFile from "./fpFileBrowserFile";
 
 /**
  * fp-ts friendly wrapper for @fnndsc/chrisapi
@@ -19,6 +20,43 @@ class FpClient {
 
   constructor(client: Client) {
     this.client = client;
+  }
+
+  public getPluginInstance(
+    ...params: Parameters<Client["getPluginInstance"]>
+  ): TE.TaskEither<Error, PluginInstance> {
+    return TE.tryCatch(
+      () => this.client.getPluginInstance(...params),
+      E.toError,
+    );
+  }
+
+  public static getFeedOf(
+    pluginInstance: PluginInstance,
+    ...params: Parameters<PluginInstance["getFeed"]>
+  ): TE.TaskEither<Error, Feed> {
+    return pipe(
+      TE.tryCatch(() => pluginInstance.getFeed(...params), E.toError),
+      // getFeed's return type is null, but it probably shouldn't be.
+      // https://github.com/FNNDSC/fnndsc/issues/102
+      TE.flatMapNullable(
+        (feed) => feed,
+        (_) =>
+          new Error(
+            `feed of plugin instance ${pluginInstance.data.id} is null`,
+          ),
+      ),
+    );
+  }
+
+  public static getPreviousPluginInstance(
+    pluginInstance: PluginInstance,
+    ...params: Parameters<PluginInstance["getPreviousPluginInstance"]>
+  ): TE.TaskEither<Error, PluginInstance | null> {
+    return TE.tryCatch(
+      () => pluginInstance.getPreviousPluginInstance(...params),
+      E.toError,
+    );
   }
 
   public getPublicFeeds(
@@ -85,4 +123,4 @@ function saneReturnOfFileBrowserPathFileList(
   return fbpfl.getItems()!.map((file) => new FpFileBrowserFile(file));
 }
 
-export { FpClient, saneReturnOfFileBrowserPathFileList };
+export { FpClient, saneReturnOfFileBrowserPathFileList, FpFileBrowserFile };

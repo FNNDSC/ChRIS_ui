@@ -1,11 +1,10 @@
-import { Problem, VisualDataset } from "../types.ts";
+import { Problem, VisualDataset, constants } from "../../../datasets";
 import {
   Feed,
   FeedPluginInstanceList,
   PluginInstance,
   PublicFeedList,
 } from "@fnndsc/chrisapi";
-import constants from "./constants.ts";
 import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
 
 function failedRequest(title: React.ReactNode): Problem {
@@ -30,6 +29,49 @@ function failedRequest(title: React.ReactNode): Problem {
 
 const PROBLEMS = {
   failedRequest,
+
+  failedRequestForPluginInstance(plinstId: number | string): Problem {
+    return failedRequest(`Could not get plugin instance id=${plinstId}`);
+  },
+
+  failedRequestForPreviousOf(plinst: PluginInstance): Problem {
+    return failedRequest(
+      `Could not get previous of plugin instance id=${plinst.data.id}`,
+    );
+  },
+
+  failedRequestForFeedOf(plinst: PluginInstance): Problem {
+    return failedRequest(
+      `Could not get the feed of plugin instance id=${plinst.data.id}`,
+    );
+  },
+
+  hasNoPrevious(plinst: PluginInstance): Problem {
+    return {
+      variant: "danger",
+      title: `Plugin instance id=${plinst.data.id} does not have a previous.`,
+      body: (
+        <>
+          A visual dataset is comprised of two plugin instances. See
+          documentation:{" "}
+          <a
+            href="https://chrisproject.org/docs/visual_dataset/for_dataset_publishers"
+            target="_blank"
+          >
+            https://chrisproject.org/docs/visual_dataset/for_dataset_publishers
+          </a>
+        </>
+      ),
+    };
+  },
+
+  invalidPluginInstanceId(plinstId: string): Problem {
+    return {
+      variant: "danger",
+      title: `"${plinstId}" is not a valid plugin instance ID.`,
+      body: "Please double-check that the URL of this page.",
+    };
+  },
 
   checkFeedPageOverflow(feedList: PublicFeedList): Problem[] {
     const notShown = feedList.totalCount - constants.FEEDS_SEARCH_LIMIT;
