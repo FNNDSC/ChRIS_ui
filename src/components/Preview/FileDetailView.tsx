@@ -10,7 +10,6 @@ import {
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
-
 import ZoomIcon from "@patternfly/react-icons/dist/esm/icons/search-plus-icon";
 import PanIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import RotateIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
@@ -28,7 +27,7 @@ import { getFileExtension } from "../../api/model";
 import { IFileBlob, fileViewerMap } from "../../api/model";
 import { SpinContainer } from "../Common";
 import { TagInfoModal } from "./HelperComponent";
-import { dumpDataSet } from "./utils";
+import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 

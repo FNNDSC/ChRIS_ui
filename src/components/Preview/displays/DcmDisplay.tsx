@@ -1,15 +1,19 @@
 import * as React from "react";
-import { IFileBlob, getFileExtension } from "../../../api/model";
+import {
+  FileViewerModel,
+  IFileBlob,
+  getFileExtension,
+} from "../../../api/model";
 import {
   displayDicomImage,
   loadDicomImage,
-  loadJPGImage,
   basicInit,
   handleEvents,
   type IStackViewport,
-} from "../utils";
+} from "./dicomUtils/utils";
 import useSize from "../../FeedTree/useSize";
 import { type ActionState } from "../FileDetailView";
+import { _loadImageIntoBuffer } from "./dicomUtils/webImageLoader";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -37,7 +41,8 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         if (extension === "dcm") {
           imageID = await loadDicomImage(blob);
         } else {
-          imageID = loadJPGImage(blob);
+          const fileName = FileViewerModel.getFileName(file);
+          imageID = `web:${file.url}${fileName}`;
         }
         const activeViewport = await displayDicomImage(element, imageID);
         setActiveViewport(activeViewport);

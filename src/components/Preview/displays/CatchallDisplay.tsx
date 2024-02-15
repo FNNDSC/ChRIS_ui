@@ -14,8 +14,6 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
     const ext = fileItem.fileType ? fileItem.fileType : "";
     const alertText = (
       <React.Fragment>
-        <label></label>
-        <br></br>
         <label>
           <b>File Type:</b> {ext}
         </label>
