@@ -1,10 +1,12 @@
 import React from "react";
+import { Alert } from "antd";
 import { useDispatch } from "react-redux";
-import { setFeedTreeProp } from "../../store/feed/actions";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { setFeedTreeProp } from "../../store/feed/actions";
 import FeedTree from "./FeedTree";
 import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
 import { useTypedSelector } from "../../store/hooks";
+import { SpinContainer } from "../Common";
 import "./FeedTree.css";
 
 interface ParentComponentProps {
@@ -60,11 +62,9 @@ const ParentComponent = (props: ParentComponentProps) => {
       changeOrientation={changeOrientation}
     />
   ) : loading ? (
-    <div>Loading...</div>
+    <SpinContainer title="Loading the tree" />
   ) : error ? (
-    <div className="feed-tree">
-      <div>There was an error</div>
-    </div>
+    <Alert type="error" description={error} />
   ) : null;
 };
 
