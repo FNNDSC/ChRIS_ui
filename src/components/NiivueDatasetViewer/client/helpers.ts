@@ -1,12 +1,17 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { GetDatasetsResult, VisualDataset } from "../types.ts";
-import { pipe } from "fp-ts/function";
-import {
-  fromReadonlyArray,
-  ReadonlyNonEmptyArray,
-} from "fp-ts/ReadonlyNonEmptyArray";
-import { match as OptionMatch } from "fp-ts/Option";
-import constants from "./constants";
+import { constants } from "../../../datasets";
+import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
+import { Problem, VisualDataset } from "../types";
+import { Either, left, right } from "fp-ts/Either";
+import problems from "./problems.tsx";
+
+function parsePluginInstanceId(s: string): Either<Problem, number> {
+  const num = parseInt(s);
+  if (isNaN(num)) {
+    return left(problems.invalidPluginInstanceId(s));
+  }
+  return right(num);
+}
 
 /**
  * Find plugin instances of `pl-visual-dataset` and return them along with their
@@ -45,17 +50,6 @@ function isCompatibleVersion(pluginVersion: string): boolean {
   );
 }
 
-function flattenVisualDatasetsReturn(
-  x: readonly GetDatasetsResult[],
-): GetDatasetsResult {
-  return pipe(
-    fromReadonlyArray(x),
-    OptionMatch(() => {
-      return { errors: [], datasets: [] };
-    }, reduceListOfObjects),
-  );
-}
-
 /**
  * Reduce list of objects into one object.
  */
@@ -75,9 +69,8 @@ function reduceListOfObjects<T extends { [key: string]: object[] }>(
   return acc as T;
 }
 
-export type { GetDatasetsResult };
 export {
   findVisualDatasetInstancePairs,
   reduceListOfObjects,
-  flattenVisualDatasetsReturn,
+  parsePluginInstanceId,
 };

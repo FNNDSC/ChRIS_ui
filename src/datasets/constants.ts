@@ -1,4 +1,4 @@
-const CONSTANTS = {
+const constants = {
   README_FILENAME: "/README.txt",
   /**
    * A file created by `pl-visual-dataset`.
@@ -29,4 +29,5 @@ const CONSTANTS = {
   COMPATIBLE_PL_VISUAL_DATASET_VERSIONS: ["0.1.0"],
 };
 
-export default CONSTANTS;
+export default constants;
+export { constants };

@@ -1,10 +1,10 @@
 import { test, expect } from "vitest";
 import { map, some } from "fp-ts/Option";
 import { match } from "fp-ts/Either";
-import { getReadmeAndManifestFiles } from "./getPreClient.ts";
-import { getSanePlVisualDatasetFiles } from "./testData/plVisualDatasetFilebrowserFiles.ts";
 import { pipe } from "fp-ts/function";
-import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
+import { getReadmeAndManifestFiles } from "./getDataset";
+import { getSanePlVisualDatasetFiles } from "./testData/plVisualDatasetFilebrowserFiles";
+import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile";
 
 test("getReadmeAndManifestFileResources", () => {
   const data = getSanePlVisualDatasetFiles();

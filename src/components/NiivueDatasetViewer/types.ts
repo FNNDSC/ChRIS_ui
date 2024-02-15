@@ -10,12 +10,10 @@ import React from "react";
  *
  * INVARIANTS:
  *
- * - `dataPlinst` is the previous plugin instance of `manifestPlinst`
+ * - `dataPlinst` is the previous plugin instance of `indexPlinst`
  * - `indexPlinst` is a plugin instance of `pl-visual-dataset`
- * - `feed` is the feed of `dataPlinst` and `indexPlinst`
  */
 type VisualDataset = {
-  feed: Feed;
   dataPlinst: PluginInstance;
   indexPlinst: PluginInstance;
 };

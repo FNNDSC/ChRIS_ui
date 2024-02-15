@@ -33,12 +33,10 @@
 
 // HOW IT ALL WORKS
 
-// Step 1. Get list of datasets from CUBE.
-export { getPublicVisualDatasets } from "./getDatasets";
-
-// Step 2. For each dataset, get a "Pre" client, which gets the manifest
-//         and README.txt for each dataset.
-export { getPreClient } from "./getPreClient";
+// Step 0. Given a plugin instance ID (plinstId)
+// Step 1. Get the plugin instance, its previous, and its feed
+// Step 2. Get the "Pre" client, which gets the manifest and README.txt
+export { getDataset, getPreClient } from "./getDataset";
 export { DatasetPreClient } from "./DatasetPreClient";
 
 // Step 3. Use the "Pre" client to get the "Files" client which gets

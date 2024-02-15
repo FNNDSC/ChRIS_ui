@@ -9,16 +9,15 @@ import {
   DatasetFileMetadata,
   TagSet,
   VisualDatasetFileInfo,
-} from "./models.ts";
-import { Problem } from "../types.ts";
-import problems from "./problems.tsx";
-import { DatasetVolume, SupportedVolumeSettings } from "../models.ts";
+} from "./models";
+import { constants } from "../../../datasets";
+import problems from "./problems";
+import { DatasetVolume, SupportedVolumeSettings } from "../models";
 import { Option, none, some, match } from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
 import { parse as parseJson } from "fp-ts/Json";
-import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
-import constants from "./constants.ts";
-import { DEFAULT_VOLUME } from "../defaults.ts";
+import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile";
+import { DEFAULT_VOLUME } from "../defaults";
 
 /**
  * A file from a visual dataset.

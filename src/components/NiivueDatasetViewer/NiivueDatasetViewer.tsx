@@ -4,34 +4,37 @@ import { useDispatch } from "react-redux";
 import { PageSection } from "@patternfly/react-core";
 import WrapperConnect from "../Wrapper";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions.ts";
+import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
 
-import { ChNVROptions } from "./models.ts";
-import { DEFAULT_OPTIONS } from "./defaults.ts";
-import HeaderOptionBar from "./components/HeaderOptionBar.tsx";
+import { ChNVROptions } from "./models";
+import { DEFAULT_OPTIONS } from "./defaults";
+import HeaderOptionBar from "./components/HeaderOptionBar";
 import SizedNiivueCanvas, { CrosshairLocation } from "../SizedNiivueCanvas";
-import { Problem, VisualDataset } from "./types.ts";
+import { Problem, VisualDataset } from "./types";
 import {
   DatasetFile,
   DatasetFilesClient,
   DatasetPreClient,
+  getDataset,
   getPreClient,
-  getPublicVisualDatasets,
 } from "./client";
-import { flexRowSpaceBetween, hideOnMobile } from "./cssUtils.ts";
-import { FpClient } from "../../api/fp/chrisapi.ts";
+import { flexRowSpaceBetween, hideOnMobile } from "./cssUtils";
+import { FpClient } from "../../api/fp/chrisapi";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
 import * as O from "fp-ts/Option";
-import DatasetPageDrawer from "./components/Drawer.tsx";
+import DatasetPageDrawer from "./components/Drawer";
 import {
   InfoForPageHeader,
   ControlPanel,
   DatasetDescriptionText,
 } from "./content";
+import { parsePluginInstanceId } from "./client/helpers";
+import { getFeedOf } from "./client/getDataset.ts";
+import { Feed } from "@fnndsc/chrisapi";
 
 /**
- * The "Visual Datasets Viewer" is a view of ChRIS_ui which implements a
+ * The "Niivue Datasets Viewer" is a view of ChRIS_ui which implements a
  * visualizer component for feeds containing datasets conforming to the
  * "visual dataset" specification described here:
  *
@@ -44,16 +47,31 @@ import {
  * http://fetalmri.org. Nonetheless, the "Visual Datasets Browser"
  * is generally useful for other datasets of 3D medical images.
  */
-const VisualDatasets: React.FunctionComponent = () => {
+const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   const dispatch = useDispatch();
-
-  const [datasets, setDatasets] = useState<VisualDataset[] | null>(null);
   const [dataset, setDataset] = useState<VisualDataset | null>(null);
+  const [feed, setFeed] = useState<Feed | null>(null);
+  /**
+   * Dataset README.txt file content.
+   *
+   * - `null` represents README not loaded
+   * - empty represents README is empty OR dataset does not have a README
+   */
+  const [readme, setReadme] = useState<string | null>(null);
+  /**
+   * Viewable files of a dataset.
+   */
+  const [files, setFiles] = useState<ReadonlyArray<DatasetFile> | null>(null);
+  /**
+   * All the tag keys and all of their possible values for a dataset.
+   */
+  const [tagsDictionary, setTagsDictionary] = useState<{
+    [key: string]: string[];
+  } | null>(null);
 
   const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
   const [nvSize, setNvSize] = useState(10);
   const [sizeIsScaling, setSizeIsScaling] = useState(false);
-
   const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>(
     { string: "" },
   );
@@ -73,67 +91,22 @@ const VisualDatasets: React.FunctionComponent = () => {
     dispatch(setIsNavOpen(false));
     dispatch(
       setSidebarActive({
-        activeItem: "niivue",
+        activeItem: "dataset",
       }),
     );
   }, [dispatch]);
 
-  // on first load, get all the public feeds containing public datasets.
+  // on first load, get the dataset's plugin instances.
   useEffect(() => {
-    getPublicVisualDatasets(client)().then(({ datasets, errors }) => {
-      setDatasets(datasets);
-      pushProblems(errors);
-    });
-  }, []);
-
-  // once datasets have been found, automatically select the first dataset.
-  useEffect(() => {
-    if (datasets === null) {
-      setDataset(null);
-      return;
-    }
-    if (dataset === null) {
-      if (datasets.length === 0) {
-        pushProblem({
-          variant: "warning",
-          title: "No public datasets found.",
-          body: (
-            <span>
-              To add a public dataset, follow these instructions:{" "}
-              <a
-                href="https://chrisproject.org/docs/public_dataset_browser"
-                target="_blank"
-              >
-                https://chrisproject.org/docs/public_dataset_browser
-              </a>
-            </span>
-          ),
-        });
-      } else {
-        setDataset(datasets[0]);
-      }
-    }
-  }, [datasets]);
-
-  /**
-   * Dataset README.txt file content.
-   *
-   * - `null` represents README not loaded
-   * - empty represents README is empty OR dataset does not have a README
-   */
-  const [readme, setReadme] = React.useState<string | null>(null);
-  /**
-   * Viewable files of a dataset.
-   */
-  const [files, setFiles] = React.useState<ReadonlyArray<DatasetFile> | null>(
-    null,
-  );
-  /**
-   * All the tag keys and all of their possible values for a dataset.
-   */
-  const [tagsDictionary, setTagsDictionary] = React.useState<{
-    [key: string]: string[];
-  } | null>(null);
+    const task = pipe(
+      plinstId,
+      parsePluginInstanceId,
+      TE.fromEither,
+      TE.flatMap((id) => getDataset(client, id)),
+      TE.match(pushProblem, setDataset),
+    );
+    task();
+  }, [plinstId]);
 
   const fetchAndSetReadme = (preClient: DatasetPreClient) => {
     const task = pipe(
@@ -151,7 +124,7 @@ const VisualDatasets: React.FunctionComponent = () => {
     return filesClient;
   };
 
-  // when a dataset is selected, get its readme, tags dictionary, and files
+  // when a dataset is selected, get its feed, readme, tags dictionary, and files
   useEffect(() => {
     if (dataset === null) {
       setReadme(null);
@@ -159,7 +132,7 @@ const VisualDatasets: React.FunctionComponent = () => {
       setTagsDictionary(null);
       return;
     }
-    const task = pipe(
+    const preclientTask = pipe(
       getPreClient(client, dataset),
       TE.map(fetchAndSetReadme),
       TE.flatMap((preClient) => preClient.getFilesClient()),
@@ -167,7 +140,12 @@ const VisualDatasets: React.FunctionComponent = () => {
       TE.map((filesClient) => filesClient.listFiles()),
       TE.match(pushProblem, setFiles),
     );
-    task();
+    const feedTask = pipe(
+      getFeedOf(dataset.indexPlinst),
+      TE.match(pushProblem, setFeed),
+    );
+    preclientTask();
+    feedTask();
   }, [dataset]);
 
   // ELEMENT
@@ -178,7 +156,8 @@ const VisualDatasets: React.FunctionComponent = () => {
   );
 
   const datasetDescriptionText = (
-    <DatasetDescriptionText feed={dataset?.feed || null} readme={readme} />
+    // TODO feed state
+    <DatasetDescriptionText feed={feed} readme={readme} />
   );
 
   return (
@@ -207,4 +186,4 @@ const VisualDatasets: React.FunctionComponent = () => {
   );
 };
 
-export default VisualDatasets;
+export default NiivueDatasetViewer;
