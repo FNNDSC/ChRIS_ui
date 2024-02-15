@@ -75,10 +75,10 @@ export default function FeedView() {
   });
 
   React.useEffect(() => {
-    if (!type) {
+    if (!type || (type === "private" && !isLoggedIn)) {
       navigate("/feeds?type=public");
     }
-  }, [type, navigate]);
+  }, [type, navigate, isLoggedIn]);
 
   React.useEffect(() => {
     const feed: Feed | undefined = privateFeed || publicFeed;
