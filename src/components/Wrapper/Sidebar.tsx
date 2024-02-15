@@ -137,7 +137,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
-            <Link to="/feeds">New and Existing Analyses</Link>
+            <Link to="/feeds?type=public">New and Existing Analyses</Link>
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
             <Link to="/catalog">Plugins</Link>

@@ -14,6 +14,7 @@ export interface IUserState {
   token?: string | null;
   isRememberMe?: boolean;
   isLoggedIn?: boolean;
+  isStaff: boolean;
 }
 
 export const UserActionTypes = keyMirror({

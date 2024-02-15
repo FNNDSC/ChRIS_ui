@@ -67,15 +67,14 @@ const reducer: Reducer<IFeedState> = (
             orientation: "vertical",
           },
         };
-      else {
-        return {
-          ...state,
-          feedTreeProp: {
-            ...state.feedTreeProp,
-            orientation: "horizontal",
-          },
-        };
-      }
+
+      return {
+        ...state,
+        feedTreeProp: {
+          ...state.feedTreeProp,
+          orientation: "horizontal",
+        },
+      };
     }
 
     case FeedActionTypes.SET_ALL_SELECT: {
