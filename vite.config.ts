@@ -19,8 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "cornerstone-nifti-image-loader":
-        "@cornerstonejs/nifti-image-loader/dist/cornerstoneNIFTIImageLoader.min.js",
+      
 
       // workaround for "Cornerstone3D tools does not build with vite"
       // https://github.com/cornerstonejs/cornerstone3D/issues/1071
