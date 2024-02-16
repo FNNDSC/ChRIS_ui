@@ -14,7 +14,7 @@ const PdfDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
   return (
     <div className="iframe-container">
       <iframe
-        key={fileItem.file && fileItem.file.data.fname}
+        key={fileItem.file?.data.fname}
         src={url}
         width="100%"
         height="100%"

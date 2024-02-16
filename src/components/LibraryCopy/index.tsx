@@ -45,7 +45,7 @@ import {
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "../../store/ui/actions";
 import { fetchResource } from "../../api/common";
-import "./LibraryCopy.css";
+import styles from "./LibraryCopy.module.css";
 
 export const fetchFilesUnderThisPath = async (path?: string) => {
   if (!path) return;
@@ -78,10 +78,9 @@ export const fetchFoldersUnderThisPath = async (path?: string) => {
     path,
   });
 
-  const parsedUpload =
-    uploads.data && uploads.data[0].subfolders
-      ? JSON.parse(uploads.data[0].subfolders)
-      : [];
+  const parsedUpload = uploads?.data[0].subfolders
+    ? JSON.parse(uploads.data[0].subfolders)
+    : [];
 
   return parsedUpload;
 };
@@ -442,14 +441,14 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
   useEffect(() => {
     const d = getTimestamp();
     setDirectoryName(`${d}`);
-  }, [uploadFileModal]);
+  }, []);
 
   // Handle server upload
   const handleUpload = async () => {
     const client = ChrisAPIClient.getClient();
     await client.setUrls();
     const onUploadProgress = (file: any, progressEvent: AxiosProgressEvent) => {
-      if (progressEvent && progressEvent.total) {
+      if (progressEvent?.total) {
         const percentCompleted = `${Math.round(
           (progressEvent.loaded * 100) / progressEvent.total,
         )}%`;
@@ -514,10 +513,10 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
       onClose={() => handleReset()}
       isOpen={uploadFileModal}
       aria-labelledby="file-upload"
-      className="custom-modal" // Add a custom class for styling
+      className={styles.customModal} // Add a custom class for styling
     >
       {/* Upload Buttons Section */}
-      <div className="upload-buttons">
+      <div className={styles.uploadButtons}>
         <input
           ref={folderInput}
           style={{ display: "none" }}
@@ -534,22 +533,16 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
           onChange={handleFileChange}
           multiple
         />
-        <Button
-          onClick={() => folderInput.current && folderInput.current.click()}
-          variant="primary"
-        >
+        <Button onClick={() => folderInput.current?.click()} variant="primary">
           Upload Folder
         </Button>
-        <Button
-          onClick={() => fileInput.current && fileInput.current.click()}
-          variant="primary"
-        >
+        <Button onClick={() => fileInput.current?.click()} variant="primary">
           Upload Files
         </Button>
       </div>
 
       {/* Local Files Section */}
-      <div className="local-files-section">
+      <div className={styles.localFilesSection}>
         {progress > 0 ? (
           <Progress
             aria-labelledby="file-upload"
@@ -591,7 +584,7 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
       {/* Directory Name Section */}
       <Form
         onSubmit={(event) => event.preventDefault()}
-        className="directory-form"
+        className={styles.directoryForm}
       >
         <FormGroup fieldId="directory name" isRequired label="Directory Name">
           <TextInput
@@ -606,7 +599,7 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
       </Form>
 
       {/* Upload Button Section */}
-      <div className="upload-button-section">
+      <div className={styles.uploadButtonSection}>
         <Button
           isDisabled={
             localFiles.length === 0 ||
@@ -623,7 +616,7 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
       </div>
 
       {/* Code Display Section */}
-      <div className="code-display-section">
+      <div className={styles.codeDisplaySection}>
         <CodeBlock style={{ height: "200px", overflow: "scroll" }}>
           <CodeBlockCode>
             {Object.keys(currentFile).length === 0 ? (

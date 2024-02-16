@@ -14,7 +14,7 @@ import {
   HelperText,
   HelperTextItem,
 } from "@patternfly/react-core";
-import ChrisApiClient from "@fnndsc/chrisapi";
+import ChrisApiClient, { User } from "@fnndsc/chrisapi";
 import { Link } from "react-router-dom";
 import { has } from "lodash";
 import { validate } from "email-validator";
@@ -27,7 +27,11 @@ type Validated = {
 };
 
 interface SignUpFormProps {
-  setAuthTokenSuccess: (auth: { token: string; username: string }) => void;
+  setAuthTokenSuccess: (auth: {
+    token: string;
+    username: string;
+    isStaff: boolean;
+  }) => void;
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
   hidePasswordAriaLabel?: string;
@@ -104,8 +108,8 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     setLoading(true);
     const userURL = import.meta.env.VITE_CHRIS_UI_USERS_URL;
     const authURL = import.meta.env.VITE_CHRIS_UI_AUTH_URL;
-    let user;
-    let token;
+    let user: User;
+    let token: string;
 
     if (userURL) {
       try {
@@ -121,6 +125,26 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           userState.username,
           passwordState.password,
         );
+
+        if (user && token) {
+          const oneDayToSeconds = 24 * 60 * 60;
+          setCookie("username", user.data.username, {
+            path: "/",
+            maxAge: oneDayToSeconds,
+          });
+          setCookie(`${user.data.username}_token`, token, {
+            path: "/",
+            maxAge: oneDayToSeconds,
+          });
+          setAuthTokenSuccess({
+            token,
+            username: user.data.username,
+            isStaff: user.data.is_staff,
+          });
+          const then = new URLSearchParams(location.search).get("then");
+          if (then) navigate(then);
+          else navigate("/");
+        }
       } catch (error) {
         if (has(error, "response")) {
           if (has(error, "response.data.username")) {
@@ -156,25 +180,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
           setLoading(false);
         }
       }
-    }
-
-    if (user && token) {
-      const oneDayToSeconds = 24 * 60 * 60;
-      setCookie("username", user.data.username, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
-      setCookie(`${user.data.username}_token`, token, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
-      setAuthTokenSuccess({
-        token,
-        username: user.data.username,
-      });
-      const then = new URLSearchParams(location.search).get("then");
-      if (then) navigate(then);
-      else navigate("/");
     }
   };
 
@@ -225,7 +230,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
               username: value,
             })
           }
-        ></TextInput>
+        />
         <HelperText>
           <HelperTextItem variant="error">
             {userState.invalidText}
@@ -302,8 +307,11 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setAuthTokenSuccess: (auth: { token: string; username: string }) =>
-    dispatch(setAuthTokenSuccess(auth)),
+  setAuthTokenSuccess: (auth: {
+    token: string;
+    username: string;
+    isStaff: boolean;
+  }) => dispatch(setAuthTokenSuccess(auth)),
 });
 
 export default connect(null, mapDispatchToProps)(SignUpForm);
