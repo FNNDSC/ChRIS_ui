@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer, type Dispatch } from "react";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -133,13 +133,13 @@ export function getIndex(value: string) {
   return -1; // Return -1 if the value is not found in the object.
 }
 
-const PacsQueryContext = createContext<{
-  state: any;
-  dispatch: any;
-}>({
-  state: initialState,
-  dispatch: () => null,
-});
+const PacsQueryContext = createContext<
+  | {
+      state: PacsQueryState;
+      dispatch: Dispatch<PacsQueryActions>;
+    }
+  | undefined
+>(undefined);
 
 const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
   switch (action.type) {
