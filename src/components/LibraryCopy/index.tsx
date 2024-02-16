@@ -78,7 +78,7 @@ export const fetchFoldersUnderThisPath = async (path?: string) => {
     path,
   });
 
-  const parsedUpload = uploads?.uploads.data[0].subfolders
+  const parsedUpload = uploads?.data[0].subfolders
     ? JSON.parse(uploads.data[0].subfolders)
     : [];
 
