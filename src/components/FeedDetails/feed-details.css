@@ -23,5 +23,5 @@
 .ant-badge-dot {
   width: 8px !important;
   height: 8px !important;
-  minwidth: 8px !important;
+  min-width: 8px !important;
 }
