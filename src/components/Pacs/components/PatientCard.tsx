@@ -16,10 +16,10 @@ import useSettings from "../useSettings";
 
 function getPatientDetails(patientDetails: any) {
   return {
-    PatientName: patientDetails["PatientName"].value,
-    PatientID: patientDetails["PatientID"].value,
-    PatientBirthDate: patientDetails["PatientBirthDate"].value,
-    PatientSex: patientDetails["PatientSex"].value,
+    PatientName: patientDetails.PatientName.value,
+    PatientID: patientDetails.PatientID.value,
+    PatientBirthDate: patientDetails.PatientBirthDate.value,
+    PatientSex: patientDetails.PatientSex.value,
   };
 }
 
@@ -52,7 +52,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
     return latestStudy;
   };
 
-  const userPreferences = data && data["patient"];
+  const userPreferences = data?.patient;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
 
   return (
