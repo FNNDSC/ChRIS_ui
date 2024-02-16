@@ -1,5 +1,5 @@
 /* Custom Modal Styling */
-.custom-modal {
+.customModal {
   border-radius: 2px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
   padding: 20px;
@@ -7,18 +7,18 @@
 }
 
 /* Style for the Upload Buttons section */
-.upload-buttons {
+.uploadButtons {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.upload-buttons button {
+.uploadButtons button {
   font-size: 16px;
 }
 
 /* Style for the Local Files Section */
-.local-files-section {
+.localFilesSection {
   height: 200px;
   margin-top: 1rem;
   overflow: auto;
@@ -28,15 +28,15 @@
 }
 
 /* Style for the Directory Name Section */
-.directory-form {
+.directoryForm {
   margin-top: 1rem;
 }
 
-.directory-form label {
+.directoryForm label {
   font-weight: bold;
 }
 
-.directory-form input {
+.directoryForm input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
@@ -44,18 +44,18 @@
 }
 
 /* Style for the Upload Button Section */
-.upload-button-section {
+.uploadButtonSection {
   margin-top: 1.5rem;
   text-align: center;
 }
 
-.upload-button-section button {
+.uploadButtonSection button {
   font-size: 1.15rem;
   padding: 12px 20px;
 }
 
 /* Style for the Code Display Section */
-.code-display-section {
+.codeDisplaySection {
   margin-top: 1rem;
   height: 200px;
   overflow: auto;
@@ -64,30 +64,6 @@
   border-radius: 5px;
 }
 
-/* Style for the Progress Bar Section */
-.progress-bar-section {
-  margin-top: 1rem;
-}
 
-/* Style for the Countdown Alert Section */
-.countdown-alert-section {
-  margin-top: 1rem;
-  font-size: 16px;
-  color: #4caf50;
-}
-
-/* Button Styling */
-button {
-  cursor: pointer;
-  background-color: #3498db;
-  color: #fff;
-  border-radius: 5px;
-  padding: 10px 20px;
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: #2980b9;
-}
 
 
