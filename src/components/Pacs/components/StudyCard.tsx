@@ -57,6 +57,7 @@ const StudyCard = ({ study }: { study: any }) => {
           setFetchNextStatus(!fetchNextStatus);
           dispatch({
             type: Types.SET_PULL_STUDY,
+            payload: null,
           });
         }
       }
@@ -229,6 +230,7 @@ const StudyCard = ({ study }: { study: any }) => {
                       onClick={() => {
                         dispatch({
                           type: Types.SET_PULL_STUDY,
+                          payload: null,
                         });
 
                         setFetchNextStatus(!fetchNextStatus);

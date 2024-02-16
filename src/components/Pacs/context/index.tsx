@@ -102,7 +102,7 @@ type PacsQueryPayload = {
     clearSeriesPreview: boolean;
   };
 
-  [Types.SET_PULL_STUDY]: Record<any, any>;
+  [Types.SET_PULL_STUDY]: null;
 
   [Types.SET_SERIES_UPDATE]: {
     currentStep: string;

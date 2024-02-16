@@ -69,7 +69,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
   const items = files && folders ? [...files, ...folders] : [];
   const { id, plugin_name } = selected.data;
-  const pathSplit = path && path.split(`/${plugin_name}_${id}/`);
+  const pathSplit = path?.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
   const handleDownloadClick = async (item: FeedFile) => {
@@ -93,17 +93,16 @@ const FileBrowser = (props: FileBrowserProps) => {
       dispatch(clearSelectedFile());
       if (index === breadcrumb.length - 1) {
         return;
-      } else {
-        const findIndex = breadcrumb.findIndex((path) => path === value);
-        if (findIndex !== -1) {
-          const newPathList = breadcrumb.slice(0, findIndex + 1);
-          const combinedPathList = [
-            ...pathSplit[0].split("/"),
-            `${plugin_name}_${id}`,
-            ...newPathList,
-          ];
-          handleFileClick(combinedPathList.join("/"));
-        }
+      }
+      const findIndex = breadcrumb.findIndex((path) => path === value);
+      if (findIndex !== -1) {
+        const newPathList = breadcrumb.slice(0, findIndex + 1);
+        const combinedPathList = [
+          ...pathSplit[0].split("/"),
+          `${plugin_name}_${id}`,
+          ...newPathList,
+        ];
+        handleFileClick(combinedPathList.join("/"));
       }
     };
 
@@ -172,20 +171,19 @@ const FileBrowser = (props: FileBrowserProps) => {
         handleMinimize={() => {
           handleMinimize("preview", dispatch);
         }}
-        maximized={drawerState["preview"].maximized}
+        maximized={drawerState.preview.maximized}
       />
       <DrawerPanelBody className="file-browser__drawerbody">
-        {drawerState["preview"].currentlyActive === "preview" &&
-          selectedFile && (
-            <FileDetailView
-              gallery={true}
-              handleNext={handleNext}
-              handlePrevious={handlePrevious}
-              selectedFile={selectedFile}
-              preview="large"
-            />
-          )}
-        {drawerState["preview"].currentlyActive === "xtk" && <XtkViewer />}
+        {drawerState.preview.currentlyActive === "preview" && selectedFile && (
+          <FileDetailView
+            gallery={true}
+            handleNext={handleNext}
+            handlePrevious={handlePrevious}
+            selectedFile={selectedFile}
+            preview="large"
+          />
+        )}
+        {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
@@ -235,13 +233,16 @@ const FileBrowser = (props: FileBrowserProps) => {
                   </Tr>
                 </Thead>
                 {filesLoading ? (
-                  <SpinContainer title="Waiting on Node..." />
+                  <SpinContainer title="Fetching Files for this path..." />
                 ) : !filesLoading && items.length === 0 ? (
                   <EmptyStateLoader title="Empty Data set" />
                 ) : (
                   <Tbody>
                     {items.map((item: string | FeedFile, index) => {
-                      let type, icon, fsize, fileName;
+                      let type;
+                      let icon;
+                      let fsize;
+                      let fileName;
                       type = "UNKNOWN FORMAT";
                       const isPreviewing = selectedFile === item;
                       let currentStatus = 0;
@@ -269,7 +270,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
                       const fileNameComponent = (
                         <div
-                          className={`file-browser__table--fileName`}
+                          className={"file-browser__table--fileName"}
                           style={{
                             background: isPreviewing ? backgroundColor : "",
                           }}
