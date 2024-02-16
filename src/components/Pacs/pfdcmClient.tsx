@@ -10,6 +10,12 @@ export interface ImageStatusType {
   icon?: React.ReactNode;
 }
 
+export interface DataFetchQuery {
+  SeriesInstanceUID: string;
+  StudyInstanceUID: string;
+  AccessionNumber: string;
+}
+
 class PfdcmClient {
   private readonly url: string;
   private readonly cube: string;
@@ -58,7 +64,7 @@ class PfdcmClient {
     }
   }
 
-  async findRetrieve(query = {}, pacsService: string) {
+  async findRetrieve(pacsService: string, query: DataFetchQuery) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
@@ -86,7 +92,7 @@ class PfdcmClient {
     }
   }
 
-  async findPush(query = {}, pacsService: string) {
+  async findPush(pacsService: string, query: DataFetchQuery) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
@@ -120,7 +126,7 @@ class PfdcmClient {
     }
   }
 
-  async findRegister(query = {}, pacsService: string) {
+  async findRegister(pacsService: string, query: DataFetchQuery) {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
@@ -155,7 +161,7 @@ class PfdcmClient {
   }
 
   async stepperStatus(
-    query: any,
+    query: DataFetchQuery,
     selectedPacsService: string,
     seriesInstanceUID: string,
     requestedFiles?: number,

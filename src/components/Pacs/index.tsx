@@ -24,7 +24,6 @@ import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { Alert } from "antd";
 import { pluralize } from "../../api/common";
-
 import "./pacs-copy.css";
 
 const dropdownMatch: { [key: string]: string } = {
@@ -83,7 +82,7 @@ const QueryBuilder = () => {
       navigateToDifferentRoute: boolean,
       currentQueryType: string,
       value: string,
-      selectedPacsService: string = "default",
+      selectedPacsService = "default",
     ) => {
       if (value.length > 0 && currentQueryType) {
         const csv = value.trim().split(/[,\s]+/);
@@ -124,7 +123,6 @@ const QueryBuilder = () => {
                 text: `Completed ${responses.length} of ${csv.length} searches. Found an error for value ${value}`,
               },
             });
-            continue;
           }
         }
 
@@ -141,7 +139,7 @@ const QueryBuilder = () => {
           type: Types.SET_LOADING_SPINNER,
           payload: {
             status: false,
-            text: `Search Complete`,
+            text: "Search Complete",
           },
         });
 
@@ -418,7 +416,8 @@ const Results = () => {
                 <PatientCard queryResult={result.data} />
               </div>
             );
-          } else <EmptyStateComponent />;
+          }
+          return <EmptyStateComponent />;
         })
       ) : (
         <EmptyStateComponent />
