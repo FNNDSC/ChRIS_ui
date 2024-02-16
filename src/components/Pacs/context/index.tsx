@@ -133,13 +133,13 @@ export function getIndex(value: string) {
   return -1; // Return -1 if the value is not found in the object.
 }
 
-const PacsQueryContext = createContext<
-  | {
-      state: PacsQueryState;
-      dispatch: Dispatch<PacsQueryActions>;
-    }
-  | undefined
->(undefined);
+const PacsQueryContext = createContext<{
+  state: PacsQueryState;
+  dispatch: Dispatch<PacsQueryActions>;
+}>({
+  state: initialState,
+  dispatch: () => null,
+});
 
 const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
   switch (action.type) {
