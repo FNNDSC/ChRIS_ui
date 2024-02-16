@@ -25,6 +25,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview, actionState } = props;
   const { file, blob } = fileItem;
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
+  const element = dicomImageRef.current;
   const [activeViewport, setActiveViewport] = React.useState<
     IStackViewport | undefined
   >();
@@ -33,7 +34,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   React.useEffect(() => {
     async function setupCornerstone() {
-      const element = dicomImageRef.current;
       if (file && blob && element) {
         let imageID: string;
         const extension = getFileExtension(file.data.fname);
@@ -50,13 +50,13 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
 
     setupCornerstone();
-  }, [file, blob]);
+  }, [file, blob, element]);
 
   React.useEffect(() => {
-    if (actionState) {
+    if (actionState && element) {
       handleEvents(actionState, activeViewport);
     }
-  }, [actionState, activeViewport]);
+  }, [actionState, activeViewport, element]);
 
   const style = {
     height: "100%",
