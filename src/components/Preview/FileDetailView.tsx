@@ -8,9 +8,9 @@ import {
   Toolbar,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { Alert } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
-
 import ZoomIcon from "@patternfly/react-icons/dist/esm/icons/search-plus-icon";
 import PanIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import RotateIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
@@ -21,14 +21,13 @@ import {
   LightBulbIcon,
   MagnifyingGlassCircleIcon,
 } from "@heroicons/react/24/solid";
-
 import { useTypedSelector } from "../../store/hooks";
 import type { FeedFile } from "@fnndsc/chrisapi";
 import { getFileExtension } from "../../api/model";
 import { IFileBlob, fileViewerMap } from "../../api/model";
 import { SpinContainer } from "../Common";
 import { TagInfoModal } from "./HelperComponent";
-import { dumpDataSet } from "./utils";
+import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
@@ -42,13 +41,16 @@ interface AllProps {
 }
 
 export interface ActionState {
-  [key: string]: boolean;
+  [key: string]: boolean | string;
 }
 
 const FileDetailView = (props: AllProps) => {
   const [tagInfo, setTagInfo] = React.useState<any>();
-  const [actionState, setActionState] = React.useState<ActionState>({});
-  const [error, setError] = React.useState(false);
+  const [actionState, setActionState] = React.useState<ActionState>({
+    Zoom: false,
+    previouslyActive: "",
+  });
+  const [error, setError] = React.useState("");
   const drawerState = useTypedSelector((state) => state.drawers);
 
   const handleKeyboardEvents = (event: any) => {
@@ -95,6 +97,7 @@ const FileDetailView = (props: AllProps) => {
           setTagInfo(merged);
         }
       } catch (error) {
+        setError("Failed to parse the file for dicom tags");
         return {
           blob: undefined,
           file: undefined,
@@ -111,6 +114,7 @@ const FileDetailView = (props: AllProps) => {
   const { selectedFile, preview } = props;
 
   const fetchData = async (selectedFile: FeedFile) => {
+    setError("");
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
 
@@ -122,9 +126,8 @@ const FileDetailView = (props: AllProps) => {
         fileType,
       };
     } catch (error: any) {
-      const errorMessage = error.response || error.message;
-      setError(errorMessage);
-      return {};
+      setError("Failed to fetch the data for preview");
+      throw error;
     }
   };
 
@@ -146,25 +149,31 @@ const FileDetailView = (props: AllProps) => {
     }
   }
 
-  const handleEvents = (action: string) => {
+  const handleEvents = (action: string, previouslyActive: string) => {
     if (action === "TagInfo" && data) {
       displayTagInfo(data.blob);
     }
     const currentAction = actionState[action];
     setActionState({
       [action]: !currentAction,
+      previouslyActive,
     });
   };
 
-  const handleModalToggle = (actionName: string, value: boolean) => {
+  const handleModalToggle = (
+    actionName: string,
+    value: boolean,
+    previouslyActive: string,
+  ) => {
     setActionState({
       [actionName]: value,
+      previouslyActive,
     });
   };
 
   const previewType = preview === "large" ? "large-preview" : "small-preview";
 
-  const errorComponent = (error?: any) => (
+  const errorComponent = (error?: string) => (
     <span>
       <Label
         icon={<InfoIcon className="pf-v5-svg" />}
@@ -200,7 +209,7 @@ const FileDetailView = (props: AllProps) => {
               <SpinContainer title="Please wait as the file is being fetched..." />
             )}
 
-            {error && <span style={{ color: "red" }}>{error}</span>}
+            {error && <Alert closable type="error" description={error} />}
 
             {data && (
               <ViewerDisplay
@@ -211,10 +220,15 @@ const FileDetailView = (props: AllProps) => {
               />
             )}
           </div>
+
           <TagInfoModal
-            handleModalToggle={handleModalToggle}
-            isModalOpen={actionState.TagInfo}
+            handleModalToggle={(actionState, toolState) => {
+              const previouslyActive = Object.keys(actionState)[0];
+              handleModalToggle(actionState, toolState, previouslyActive);
+            }}
+            isModalOpen={actionState.TagInfo as boolean}
             output={tagInfo}
+            parsingError={error}
           />
         </ErrorBoundary>
       </React.Suspense>
@@ -281,7 +295,7 @@ export const DicomHeader = ({
   actionState,
 }: {
   viewerName: string;
-  handleEvents: (action: string) => void;
+  handleEvents: (action: string, previouslyActive: string) => void;
   fullScreen: boolean;
   actionState: ActionState;
 }) => {
@@ -314,8 +328,9 @@ export const DicomHeader = ({
               }
               icon={action.icon}
               onClick={(ev) => {
+                const previouslyActive = Object.keys(actionState)[0];
                 ev.preventDefault();
-                handleEvents(action.name);
+                handleEvents(action.name, previouslyActive);
               }}
             />
           </Tooltip>

@@ -12,6 +12,7 @@ const initialState: IUserState = {
   token: token,
   isRememberMe: false,
   isLoggedIn: token ? true : false,
+  isStaff: false,
 };
 
 // ***** NOTE: Working *****
@@ -26,6 +27,7 @@ const reducer: Reducer<IUserState> = (
         username: action.payload.username,
         token: action.payload.token,
         isLoggedIn: true,
+        isStaff: action.payload.isStaff,
       };
     }
     case UserActionTypes.SET_TOKEN_ERROR: {

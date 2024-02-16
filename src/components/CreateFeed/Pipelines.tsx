@@ -20,6 +20,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { ErrorAlert } from "../Common";
 import type { Pipeline } from "@fnndsc/chrisapi";
+import { EmptyStateComponent } from "../Common";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 
 import {
@@ -37,6 +38,7 @@ import {
 } from "../../api/common";
 import type { PipelinesProps } from "./types/pipeline";
 import { Alert } from "antd";
+import { useTypedSelector } from "../../store/hooks";
 
 export const PIPELINEQueryTypes = {
   NAME: ["Name", "Match plugin name containing this string"],
@@ -75,6 +77,7 @@ const Pipelines = ({
   handleSetCurrentComputeEnv,
   handleFormParameters,
 }: PipelinesProps) => {
+  const showDelete = useTypedSelector((state) => state.user.isStaff);
   const { pipelineData, selectedPipeline, pipelines } = state;
   const [errors, setErrors] = React.useState({});
   const { goToNextStep: onNext, goToPrevStep: onBack } =
@@ -119,23 +122,21 @@ const Pipelines = ({
         dropdownValue.toLowerCase(),
       );
 
-      const { registeredPipelines, registeredPipelinesList, error } = data;
-
-      if (registeredPipelines) {
-        handleDispatchWrap(registeredPipelines);
+      if (data?.registeredPipelines) {
+        handleDispatchWrap(data?.registeredPipelines);
       }
 
-      if (registeredPipelinesList) {
+      if (data?.registeredPipelinesList) {
         setPageState((pageState) => {
           return {
             ...pageState,
-            itemCount: registeredPipelinesList.totalCount,
+            itemCount: data?.registeredPipelinesList.totalCount,
           };
         });
       }
 
-      if (error.error_message) {
-        throw new Error(error.error_message);
+      if (data?.error.error_message) {
+        throw new Error(data?.error.error_message);
       }
       return data;
     },
@@ -188,7 +189,7 @@ const Pipelines = ({
 
     if (el) {
       //@ts-ignore
-      el!.scrollIntoView({ block: "center", behavior: "smooth" });
+      el?.scrollIntoView({ block: "center", behavior: "smooth" });
     }
   });
 
@@ -238,7 +239,7 @@ const Pipelines = ({
       }
       //Not already expanded or not previous fetched and cached in state
       if (
-        !(expanded && expanded[pipeline.data.id]) ||
+        !expanded?.[pipeline.data.id] ||
         !state.pipelineData[pipeline.data.id]
       ) {
         setPipeline(pipeline);
@@ -265,7 +266,10 @@ const Pipelines = ({
 
   const handleKeyDown = useCallback(
     (e: any, pipeline: Pipeline) => {
-      if (e.code == "Enter" && e.target.closest("DIV.pf-c-data-list__toggle")) {
+      if (
+        e.code === "Enter" &&
+        e.target.closest("DIV.pf-c-data-list__toggle")
+      ) {
         e.preventDefaut();
         handleOnExpand(pipeline);
       }
@@ -275,9 +279,9 @@ const Pipelines = ({
 
   const handleBrowserKeyDown = useCallback(
     (e: any) => {
-      if (e.code == "ArrowLeft") {
+      if (e.code === "ArrowLeft") {
         onBack();
-      } else if (e.code == "ArrowRight") {
+      } else if (e.code === "ArrowRight") {
         onNext();
       }
     },
@@ -356,7 +360,7 @@ const Pipelines = ({
             customIcon={<SearchIcon />}
             aria-label="search"
             onChange={(_event, value: string) => {
-              handlePipelineSearch && handlePipelineSearch(value.toLowerCase());
+              handlePipelineSearch?.(value.toLowerCase());
             }}
           />
         </div>
@@ -368,69 +372,64 @@ const Pipelines = ({
           onPerPageSelect={onPerPageSelect}
         />
       </div>
-
       <DataList aria-label="pipeline list">
         {isError && (
           <Alert type="error" description={<div>{error.message}</div>} />
         )}
-
         {isLoading ? (
           <SpinContainer title="Fetching Pipelines" />
-        ) : (
-          pipelines.length > 0 &&
-          pipelines.map((pipeline: any) => {
-            return (
-              <DataListItem
-                isExpanded={
-                  expanded && expanded[pipeline.data.id] ? true : false
-                }
-                key={pipeline.data.id}
-              >
-                <DataListItemRow>
-                  <DataListToggle
-                    id={pipeline.data.id}
-                    aria-controls="expand"
-                    onKeyDown={(e) => handleKeyDown(e, pipeline)}
-                    onClick={() => handleOnExpand(pipeline)}
-                  />
-                  <DataListItemCells
-                    dataListCells={[
-                      <DataListCell key={pipeline.data.name}>
-                        <div
-                          className="plugin-table-row"
-                          key={pipeline.data.name}
-                        >
-                          <span className="plugin-table-row__plugin-name">
-                            {pipeline.data.name}
-                          </span>
-                          <span
-                            className="plugin-table-row__plugin-description"
-                            id={`${pipeline.data.description}`}
-                          >
-                            <em>{pipeline.data.description}</em>
-                          </span>
-                        </div>
-                      </DataListCell>,
-                    ]}
-                  />
-                  <DataListAction
-                    aria-labelledby="select a pipeline"
-                    id={pipeline.data.id}
-                    aria-label="actions"
-                    className="pipelines"
-                  >
-                    {!justDisplay && (
-                      <Button
-                        variant="primary"
-                        key="select-action"
-                        onClick={() => handleOnButtonClick(pipeline)}
+        ) : pipelines.length > 0 ? (
+          pipelines.map((pipeline: any) => (
+            <DataListItem
+              isExpanded={expanded?.[pipeline.data.id] ? true : false}
+              key={pipeline.data.id}
+            >
+              <DataListItemRow>
+                <DataListToggle
+                  id={pipeline.data.id}
+                  aria-controls="expand"
+                  onKeyDown={(e) => handleKeyDown(e, pipeline)}
+                  onClick={() => handleOnExpand(pipeline)}
+                />
+                <DataListItemCells
+                  dataListCells={[
+                    <DataListCell key={pipeline.data.name}>
+                      <div
+                        className="plugin-table-row"
+                        key={pipeline.data.name}
                       >
-                        {selectedPipeline === pipeline.data.id
-                          ? "Deselect"
-                          : "Select"}
-                      </Button>
-                    )}
-
+                        <span className="plugin-table-row__plugin-name">
+                          {pipeline.data.name}
+                        </span>
+                        <span
+                          className="plugin-table-row__plugin-description"
+                          id={`${pipeline.data.description}`}
+                        >
+                          <em>{pipeline.data.description}</em>
+                        </span>
+                      </div>
+                    </DataListCell>,
+                  ]}
+                />
+                <DataListAction
+                  aria-labelledby="select a pipeline"
+                  id={pipeline.data.id}
+                  aria-label="actions"
+                  className="pipelines"
+                >
+                  {!justDisplay && (
+                    <Button
+                      variant="primary"
+                      key="select-action"
+                      onClick={() => handleOnButtonClick(pipeline)}
+                    >
+                      {selectedPipeline === pipeline.data.id
+                        ? "Deselect"
+                        : "Select"}
+                    </Button>
+                  )}
+                  {/*Hardcode to only allow the user 'chris' to delete the pipelines*/}
+                  {showDelete && (
                     <Button
                       key="delete-action"
                       onClick={async () => {
@@ -453,61 +452,65 @@ const Pipelines = ({
                     >
                       Delete
                     </Button>
-                  </DataListAction>
-                </DataListItemRow>
-                <DataListContent
-                  id={pipeline.data.id}
-                  aria-label="PrimaryContent"
-                  isHidden={!(expanded && expanded[pipeline.data.id])}
-                >
-                  {((expanded && expanded[pipeline.data.id]) ||
-                    state.pipelineData[pipeline.data.id]) &&
-                  !isResourcesLoading &&
-                  !isResourceError ? (
-                    <>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                        }}
-                      >
-                        <Tree
-                          state={state.pipelineData[pipeline.data.id]}
-                          currentPipelineId={pipeline.data.id}
-                          handleNodeClick={handleNodeClick}
-                          handleSetCurrentNode={handleSetCurrentNode}
-                          handleSetPipelineEnvironments={
-                            handleSetPipelineEnvironments
-                          }
-                          handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
-                        />
-                        <GeneralCompute
-                          handleSetGeneralCompute={handleSetGeneralCompute}
-                          currentPipelineId={pipeline.data.id}
-                        />
-                      </div>
-
-                      <ConfigurationPage
-                        justDisplay={justDisplay}
-                        pipelines={pipelines}
-                        pipeline={pipeline}
-                        currentPipelineId={pipeline.data.id}
-                        state={state.pipelineData[pipeline.data.id]}
-                        handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
-                        handleDispatchPipelines={handleDispatchPipelines}
-                        handleSetCurrentComputeEnv={handleSetCurrentComputeEnv}
-                        handleFormParameters={handleFormParameters}
-                      />
-                    </>
-                  ) : (
-                    <SpinContainer title="Fetching Pipeline Resources" />
                   )}
-                </DataListContent>
-              </DataListItem>
-            );
-          })
+                </DataListAction>
+              </DataListItemRow>
+
+              <DataListContent
+                id={pipeline.data.id}
+                aria-label="PrimaryContent"
+                isHidden={!expanded?.[pipeline.data.id]}
+              >
+                {(expanded?.[pipeline.data.id] ||
+                  state.pipelineData[pipeline.data.id]) &&
+                !isResourcesLoading &&
+                !isResourceError ? (
+                  <>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Tree
+                        state={state.pipelineData[pipeline.data.id]}
+                        currentPipelineId={pipeline.data.id}
+                        handleNodeClick={handleNodeClick}
+                        handleSetCurrentNode={handleSetCurrentNode}
+                        handleSetPipelineEnvironments={
+                          handleSetPipelineEnvironments
+                        }
+                        handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
+                      />
+                      <GeneralCompute
+                        handleSetGeneralCompute={handleSetGeneralCompute}
+                        currentPipelineId={pipeline.data.id}
+                      />
+                    </div>
+
+                    <ConfigurationPage
+                      justDisplay={justDisplay}
+                      pipelines={pipelines}
+                      pipeline={pipeline}
+                      currentPipelineId={pipeline.data.id}
+                      state={state.pipelineData[pipeline.data.id]}
+                      handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
+                      handleDispatchPipelines={handleDispatchPipelines}
+                      handleSetCurrentComputeEnv={handleSetCurrentComputeEnv}
+                      handleFormParameters={handleFormParameters}
+                    />
+                  </>
+                ) : (
+                  <SpinContainer title="Fetching Pipeline Resources" />
+                )}
+              </DataListContent>
+            </DataListItem>
+          ))
+        ) : (
+          <EmptyStateComponent title="No Pipelines were found registered to your ChRIS instance" />
         )}
       </DataList>
+
       <div id="error">
         {Object.keys(errors).length > 0 && (
           <ErrorAlert errors={errors} cleanUpErrors={() => setErrors({})} />

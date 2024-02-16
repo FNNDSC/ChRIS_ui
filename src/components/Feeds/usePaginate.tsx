@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
+import { useLocation } from "react-router";
 import { useDispatch } from "react-redux";
 import { debounce } from "lodash";
 
@@ -61,3 +62,9 @@ export const usePaginate = () => {
     dispatch,
   };
 };
+
+export function useSearchQueryParams() {
+  const { search } = useLocation();
+
+  return useMemo(() => new URLSearchParams(search), [search]);
+}

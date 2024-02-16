@@ -1,15 +1,19 @@
 import * as React from "react";
-import { IFileBlob, getFileExtension } from "../../../api/model";
+import {
+  FileViewerModel,
+  IFileBlob,
+  getFileExtension,
+} from "../../../api/model";
 import {
   displayDicomImage,
   loadDicomImage,
-  loadJPGImage,
   basicInit,
   handleEvents,
   type IStackViewport,
-} from "../utils";
+} from "./dicomUtils/utils";
 import useSize from "../../FeedTree/useSize";
 import { type ActionState } from "../FileDetailView";
+import { _loadImageIntoBuffer } from "./dicomUtils/webImageLoader";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -21,6 +25,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview, actionState } = props;
   const { file, blob } = fileItem;
   const dicomImageRef = React.useRef<HTMLDivElement>(null);
+  const element = dicomImageRef.current;
   const [activeViewport, setActiveViewport] = React.useState<
     IStackViewport | undefined
   >();
@@ -29,7 +34,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   React.useEffect(() => {
     async function setupCornerstone() {
-      const element = dicomImageRef.current;
       if (file && blob && element) {
         let imageID: string;
         const extension = getFileExtension(file.data.fname);
@@ -37,7 +41,8 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         if (extension === "dcm") {
           imageID = await loadDicomImage(blob);
         } else {
-          imageID = loadJPGImage(blob);
+          const fileName = FileViewerModel.getFileName(file);
+          imageID = `web:${file.url}${fileName}`;
         }
         const activeViewport = await displayDicomImage(element, imageID);
         setActiveViewport(activeViewport);
@@ -45,13 +50,13 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
 
     setupCornerstone();
-  }, [file, blob]);
+  }, [file, blob, element]);
 
   React.useEffect(() => {
-    if (actionState) {
+    if (actionState && element) {
       handleEvents(actionState, activeViewport);
     }
-  }, [actionState, activeViewport]);
+  }, [actionState, activeViewport, element]);
 
   const style = {
     height: "100%",

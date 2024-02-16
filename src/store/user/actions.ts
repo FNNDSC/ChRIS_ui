@@ -4,6 +4,7 @@ import { UserActionTypes } from "./types";
 export const setAuthTokenSuccess = (auth: {
   token: string;
   username: string;
+  isStaff: boolean;
 }) => action(UserActionTypes.SET_TOKEN_SUCCESS, auth); // NOTE: To be done: Save user token to cookie or session
 export const setUserLogout = (username: string) =>
   action(UserActionTypes.LOGOUT_USER, username);
