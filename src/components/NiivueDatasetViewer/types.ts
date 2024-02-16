@@ -19,15 +19,6 @@ type VisualDataset = {
 };
 
 /**
- * The result of trying to get datasets from CUBE. Getting datasets
- * involves multiple HTTP requests and can return [0, n) datasets,
- */
-type GetDatasetsResult = {
-  errors: Problem[];
-  datasets: VisualDataset[];
-};
-
-/**
  * A UI-friendly message about abnormal happenings.
  */
 type Problem = {
@@ -36,4 +27,4 @@ type Problem = {
   body?: React.ReactNode;
 };
 
-export type { Problem, VisualDataset, GetDatasetsResult };
+export type { Problem, VisualDataset };

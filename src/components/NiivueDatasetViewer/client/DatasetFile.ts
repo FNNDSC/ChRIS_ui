@@ -12,12 +12,13 @@ import {
 } from "./models";
 import { constants } from "../../../datasets";
 import problems from "./problems";
-import { DatasetVolume, SupportedVolumeSettings } from "../models";
+import { ChNVRVolume, SupportedVolumeSettings } from "../models";
 import { Option, none, some, match } from "fp-ts/Option";
 import { pipe } from "fp-ts/function";
 import { parse as parseJson } from "fp-ts/Json";
 import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile";
 import { DEFAULT_VOLUME } from "../defaults";
+import { Problem } from "../types.ts";
 
 /**
  * A file from a visual dataset.
@@ -44,11 +45,11 @@ class DatasetFile {
   }
 
   /**
-   * Get the volume state and its default options.
+   * Get the default volume state of this file.
    */
   public getVolume(): TE.TaskEither<
     Problem,
-    { problems: Problem[]; volume: DatasetVolume }
+    { problems: Problem[]; volume: ChNVRVolume }
   > {
     return pipe(
       // get the volume file's URL and its sidecar data
@@ -62,15 +63,8 @@ class DatasetFile {
           sidecarEither,
           this.info.path,
         );
-        const defaultSettings = { ...DEFAULT_VOLUME, ...sidecar };
-        const state = { ...defaultSettings, url: fileResource };
-        return {
-          problems,
-          volume: {
-            state,
-            default: defaultSettings,
-          },
-        };
+        const volume = { ...DEFAULT_VOLUME, ...sidecar, url: fileResource };
+        return { problems, volume };
       }),
     );
   }

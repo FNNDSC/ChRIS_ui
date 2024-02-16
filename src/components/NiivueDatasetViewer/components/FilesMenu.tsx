@@ -6,20 +6,20 @@ import {
   MenuItemAction,
   MenuGroup,
   MenuList,
-  Divider,
   LabelGroup,
   Label,
 } from "@patternfly/react-core";
 import { PlusIcon, PlusCircleIcon } from "@patternfly/react-icons";
 import { TagSet } from "../client/models.ts";
 import React from "react";
+import { DatasetFileState } from "../statefulTypes";
 
-type FileCardProps = {
-  files: ReadonlyArray<DatasetFile>;
+type FilesMenuProps = {
+  fileStates: ReadonlyArray<DatasetFileState>;
   onSelect: (file: DatasetFile) => void;
 };
 
-const FileMenuList: React.FC<FileCardProps> = ({ files, onSelect }) => {
+const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, onSelect }) => {
   const onMenuSelect = (
     _event: React.MouseEvent<Element, MouseEvent> | undefined,
     itemId: number | string | undefined,
@@ -54,7 +54,7 @@ const FileMenuList: React.FC<FileCardProps> = ({ files, onSelect }) => {
       <MenuContent>
         <MenuGroup label="Dataset Files" labelHeadingLevel="h2">
           <MenuList>
-            {files.map((file) => {
+            {fileStates.map(({ file }) => {
               return (
                 <MenuItem
                   key={file.path}
@@ -86,4 +86,4 @@ const FileMenuList: React.FC<FileCardProps> = ({ files, onSelect }) => {
   );
 };
 
-export default FileMenuList;
+export default FilesMenu;
