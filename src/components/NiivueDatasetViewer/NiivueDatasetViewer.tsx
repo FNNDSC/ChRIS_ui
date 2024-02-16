@@ -32,6 +32,7 @@ import {
 import { parsePluginInstanceId } from "./client/helpers";
 import { getFeedOf } from "./client/getDataset.ts";
 import { Feed } from "@fnndsc/chrisapi";
+import { DatasetFileState, files2states } from "./statefulTypes.ts";
 
 /**
  * The "Niivue Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -61,7 +62,8 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   /**
    * Viewable files of a dataset.
    */
-  const [files, setFiles] = useState<ReadonlyArray<DatasetFile> | null>(null);
+  const [fileStates, setFileStates] =
+    useState<ReadonlyArray<DatasetFileState> | null>(null);
   /**
    * All the tag keys and all of their possible values for a dataset.
    */
@@ -128,7 +130,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   useEffect(() => {
     if (dataset === null) {
       setReadme(null);
-      setFiles(null);
+      setFileStates(null);
       setTagsDictionary(null);
       return;
     }
@@ -138,7 +140,8 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       TE.flatMap((preClient) => preClient.getFilesClient()),
       TE.map(tapSetTagsDictionary),
       TE.map((filesClient) => filesClient.listFiles()),
-      TE.match(pushProblem, setFiles),
+      TE.map(files2states),
+      TE.match(pushProblem, setFileStates),
     );
     const feedTask = pipe(
       getFeedOf(dataset.indexPlinst),
@@ -155,7 +158,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     <ControlPanel
       problems={problems}
       crosshairLocation={crosshairLocation}
-      files={files}
+      fileStates={fileStates}
       onFileSelect={() => {
         /*TODO*/
       }}

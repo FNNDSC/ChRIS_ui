@@ -59,19 +59,10 @@ type VolumeSettings = SupportedVolumeSettings & UsualVolumeSettings;
  */
 type ChNVRVolume = { url: string } & VolumeSettings;
 
-/**
- * A volume's state and its original default options.
- */
-type DatasetVolume = {
-  state: ChNVRVolume;
-  default: VolumeSettings;
-};
-
 export type {
   SupportedVolumeSettings,
   UsualVolumeSettings,
   VolumeSettings,
   ChNVRVolume,
   ChNVROptions,
-  DatasetVolume,
 };

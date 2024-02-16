@@ -1,3 +1,3 @@
 export { InfoForPageHeader } from "./infoForPageHeader";
-export { ControlPanel } from "./controlPanel";
+export { ControlPanel } from "./ControlPanel";
 export { DatasetDescriptionText } from "./DatasetDescriptionText";
