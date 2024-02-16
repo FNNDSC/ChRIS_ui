@@ -150,12 +150,16 @@ const FeedTree = (props: AllProps) => {
         const newLinksToAdd: any[] = [];
 
         if (tsIds) {
-          links.forEach((link) => {
+          for (const link of links) {
+            // Extract target and source IDs from the link
             const targetId = link.target.data.id;
-            const sourceId = link.target.data.id;
+            const sourceId = link.target.data.id; // Corrected to use link.target.data.id
 
+            // Check if targetId and sourceId exist and if at least one of them is in 'tsIds'
             if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
-              // tsPlugin found
+              // 'tsPlugin' found
+
+              // Determine the topological link based on 'tsIds'
               let topologicalLink: any;
 
               if (tsIds[targetId]) {
@@ -164,27 +168,33 @@ const FeedTree = (props: AllProps) => {
                 topologicalLink = link.source;
               }
 
+              // Get the parents from 'tsIds'
               const parents = tsIds[topologicalLink.data.id];
-              const dict: any = {};
-              links &&
-                links.forEach((link) => {
-                  for (let i = 0; i < parents.length; i++) {
-                    if (
-                      link.source.data.id === parents[i] &&
-                      !dict[link.source.data.id]
-                    ) {
-                      dict[link.source.data.id] = link.source;
-                    } else if (
-                      link.target.data.id === parents[i] &&
-                      !dict[link.target.data.id]
-                    ) {
-                      dict[link.target.data.id] = link.target;
-                    }
+
+              // Create a dictionary to store unique source and target nodes
+              const dict: { [key: string]: any } = {};
+
+              // Iterate over all links to find nodes related to parents
+              for (const innerLink of links) {
+                for (let i = 0; i < parents.length; i++) {
+                  // Check if the source ID matches any parent and it is not already in the dictionary
+                  if (
+                    innerLink.source.data.id === parents[i] &&
+                    !dict[innerLink.source.data.id]
+                  ) {
+                    dict[innerLink.source.data.id] = innerLink.source;
                   }
+                  // Check if the target ID matches any parent and it is not already in the dictionary
+                  else if (
+                    innerLink.target.data.id === parents[i] &&
+                    !dict[innerLink.target.data.id]
+                  ) {
+                    dict[innerLink.target.data.id] = innerLink.target;
+                  }
+                }
+              }
 
-                  return dict;
-                });
-
+              // Add new links to the array based on the dictionary
               for (const i in dict) {
                 newLinksToAdd.push({
                   source: dict[i],
@@ -192,7 +202,7 @@ const FeedTree = (props: AllProps) => {
                 });
               }
             }
-          });
+          }
         }
 
         newLinks = [...links, ...newLinksToAdd];
@@ -212,7 +222,7 @@ const FeedTree = (props: AllProps) => {
 
   React.useEffect(() => {
     //@ts-ignore
-    if (size && size.width) {
+    if (size?.width) {
       //@ts-ignore
       dispatch(setTranslate({ x: size.width / 2, y: 90 }));
     }
@@ -294,7 +304,7 @@ const FeedTree = (props: AllProps) => {
         };
       });
     }
-  }, [props.data, props.tsIds, generateTree]);
+  }, [props.data, generateTree]);
 
   const handleChange = (feature: string, data?: any) => {
     if (feature === "scale_enabled") {
@@ -439,8 +449,8 @@ const FeedTree = (props: AllProps) => {
           className={`${svgClassName}`}
           width="100%"
           height="100%"
-          tabIndex={0}
         >
+          <title>Feed Tree</title>
           <TransitionGroupWrapper
             component="g"
             className={graphClassName}
@@ -450,7 +460,7 @@ const FeedTree = (props: AllProps) => {
               return (
                 <Link
                   orientation={orientation}
-                  key={"link" + i}
+                  key={`link${i}`}
                   linkData={linkData}
                   isDarkTheme={isDarkTheme}
                 />
@@ -460,7 +470,7 @@ const FeedTree = (props: AllProps) => {
             {nodes?.map(({ data, x, y, parent }, i) => {
               return (
                 <NodeWrapper
-                  key={`node + ${i}`}
+                  key={`node + ${data.id}`}
                   data={data}
                   position={{ x, y }}
                   parent={parent}

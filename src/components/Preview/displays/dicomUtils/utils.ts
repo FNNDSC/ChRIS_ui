@@ -163,29 +163,22 @@ const actionStateTools = [
 export type IStackViewport = Types.IStackViewport;
 
 export const handleEvents = (
-  actionState: { [key: string]: boolean },
+  actionState: { [key: string]: boolean | string },
   activeViewport?: IStackViewport,
 ) => {
-  for (const toolName of actionStateTools) {
-    if (toolName === "Reset") {
-      activeViewport?.resetCamera(true, true);
-      activeViewport?.resetProperties();
-      activeViewport?.render();
-      continue;
-    }
+  const activeTool = Object.keys(actionState)[0];
+  const previousTool = actionState.previouslyActive as string;
+  toolGroup?.setToolPassive(previousTool);
 
-    const isActive = actionState[toolName];
-
-    if (isActive) {
-      // Set the current tool as active
-      toolGroup?.setToolActive(toolName, {
-        bindings: [{ mouseButton: MouseBindings.Primary }],
-      });
-    } else {
-      // Disable all other tools
-      toolGroup?.setToolDisabled(toolName);
-    }
+  if (activeTool === "Reset") {
+    activeViewport?.resetCamera(true, true);
+    activeViewport?.resetProperties();
+    activeViewport?.render();
   }
+
+  toolGroup?.setToolActive(activeTool, {
+    bindings: [{ mouseButton: MouseBindings.Primary }],
+  });
 };
 
 export const loadDicomImage = (blob: Blob) => {
@@ -269,6 +262,7 @@ export const displayDicomImage = async (
     viewport.setProperties(displayArea);
 
     await viewport.setStack(imageIds);
+    //cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
 
     return viewport;

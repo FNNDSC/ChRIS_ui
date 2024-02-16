@@ -3,6 +3,7 @@ import { Button, Modal, ModalVariant, Tooltip } from "@patternfly/react-core";
 import { FeedFile } from "@fnndsc/chrisapi";
 import ReactJson from "react-json-view";
 import { SpinContainer } from "../Common";
+import { Alert } from "antd";
 
 export const GalleryButtonContainer = ({
   handleClick,
@@ -46,13 +47,16 @@ export const ButtonContainer = ({
 export const TagInfoModal = ({
   isModalOpen,
   handleModalToggle,
+  parsingError,
   output,
 }: {
   isModalOpen: boolean;
   handleModalToggle: (event: string, value: boolean) => void;
+  parsingError: string;
   output?: any[];
   file?: FeedFile;
 }) => {
+  console.log("Parsing Error", parsingError);
   return (
     <Modal
       aria-label="tag info"
@@ -64,7 +68,9 @@ export const TagInfoModal = ({
       isOpen={isModalOpen}
       onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
     >
-      {output && Object.keys(output).length > 0 ? (
+      {parsingError ? (
+        <Alert closable type="error" description={parsingError} />
+      ) : output && Object.keys(output).length > 0 ? (
         <ReactJson
           collapsed={false}
           shouldCollapse={false}
