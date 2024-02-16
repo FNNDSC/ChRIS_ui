@@ -75,11 +75,10 @@ class Link extends React.Component<LinkProps, LinkState> {
             source: [sourceX, sourceY],
             target: [targetX, targetY],
           });
-    } else {
-      return orientation === "horizontal"
-        ? `M${sourceY} ${sourceX} L${targetY} ${targetX}`
-        : `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
     }
+    return orientation === "horizontal"
+      ? `M${sourceY} ${sourceX} L${targetY} ${targetX}`
+      : `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
   };
 
   render() {
