@@ -20,7 +20,6 @@ import {
 } from "@patternfly/react-core";
 import { BrainIcon, DesktopIcon } from "@patternfly/react-icons";
 import { Typography } from "antd";
-
 import WrapperConnect from "../Wrapper";
 import { InfoIcon } from "../Common";
 import ChrisAPIClient from "../../api/chrisapiclient";
