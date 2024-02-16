@@ -8,15 +8,21 @@ import Flex from "@patternfly/react-styles/css/utilities/Flex/flex";
 import { css } from "@patternfly/react-styles";
 import { CrosshairLocation } from "../../SizedNiivueCanvas";
 import { FooterContent } from "./footer.tsx";
+import { DatasetFile } from "../client";
+import FileMenuList from "../components/FileMenuList.tsx";
 
 type ControlPanelProps = {
   problems: Problem[];
   crosshairLocation: CrosshairLocation;
+  files: ReadonlyArray<DatasetFile> | null;
+  onFileSelect: (file: DatasetFile) => void;
 };
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
   problems,
   crosshairLocation,
+  files,
+  onFileSelect,
 }) => {
   return (
     <div
@@ -33,7 +39,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         </div>
       )}
       <div className={css(Flex.flexGrow_1, Sizing.h_100)}>
-        hello i am content
+        {files === null || (
+          <FileMenuList files={files} onSelect={onFileSelect} />
+        )}
       </div>
       <div className={css(Flex.flexGrow_0, Spacing.pSm)}>
         <FooterContent crosshairLocation={crosshairLocation} />

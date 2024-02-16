@@ -152,7 +152,14 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   // --------------------------------------------------------------------------------
 
   const controlPanel = (
-    <ControlPanel problems={problems} crosshairLocation={crosshairLocation} />
+    <ControlPanel
+      problems={problems}
+      crosshairLocation={crosshairLocation}
+      files={files}
+      onFileSelect={() => {
+        /*TODO*/
+      }}
+    />
   );
 
   const datasetDescriptionText = (
