@@ -60,7 +60,7 @@ export default function Cart() {
         if (path.startsWith(`${username}/uploads`)) {
           setProgress({
             ...progress,
-            currentStep: `Fetching Files for the path ${path}`,
+            currentStep: `Fetching Files for this path ${path}`,
           });
 
           try {
@@ -104,7 +104,7 @@ export default function Cart() {
 
               setProgress({
                 ...progress,
-                currentStep: `Fetching Files for the path ${path}`,
+                currentStep: `Fetching Files for this path ${path}`,
                 totalFilesToDelete: data.totalCount,
               });
 
