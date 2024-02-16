@@ -156,7 +156,6 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   );
 
   const datasetDescriptionText = (
-    // TODO feed state
     <DatasetDescriptionText feed={feed} readme={readme} />
   );
 
