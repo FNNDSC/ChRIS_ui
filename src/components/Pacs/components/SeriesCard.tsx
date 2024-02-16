@@ -17,11 +17,13 @@ import { DotsIndicator } from "../../Common";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { PacsQueryContext, Types } from "../context";
 import { CardHeaderComponent } from "./SettingsComponents";
-import PFDCMClient, { ImageStatusType } from "../pfdcmClient";
+import PFDCMClient, {
+  type DataFetchQuery,
+  type ImageStatusType,
+} from "../pfdcmClient";
 import { QueryStages, getIndex } from "../context";
 import FaEye from "@patternfly/react-icons/dist/esm/icons/eye-icon";
 import FaBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-
 import { pluralize } from "../../../api/common";
 import LibraryIcon from "@patternfly/react-icons/dist/esm/icons/database-icon";
 import { MainRouterContext } from "../../../routes";
@@ -59,7 +61,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     pullStudy,
   } = state;
 
-  const userPreferences = data && data["series"];
+  const userPreferences = data?.series;
 
   const { currentStep, currentProgress } = currentProgressStep;
 
@@ -75,7 +77,7 @@ const SeriesCard = ({ series }: { series: any }) => {
       seriesUpdate[StudyInstanceUID.value][SeriesInstanceUID.value]) ||
     "none";
 
-  const pullQuery = useMemo(() => {
+  const pullQuery: DataFetchQuery = useMemo(() => {
     return {
       SeriesInstanceUID: SeriesInstanceUID.value,
       StudyInstanceUID: StudyInstanceUID.value,
@@ -186,14 +188,14 @@ const SeriesCard = ({ series }: { series: any }) => {
   const executeNextStepForTheSeries = async (nextStep: string) => {
     try {
       if (nextStep === "retrieve") {
-        await client.findRetrieve(pullQuery, selectedPacsService);
+        await client.findRetrieve(selectedPacsService, pullQuery);
       }
 
       if (nextStep === "push") {
-        await client.findPush(pullQuery, selectedPacsService);
+        await client.findPush(selectedPacsService, pullQuery);
       }
       if (nextStep === "register") {
-        await client.findRegister(pullQuery, selectedPacsService);
+        await client.findRegister(selectedPacsService, pullQuery);
       }
     } catch (error: any) {
       setError(error.message);
@@ -271,7 +273,7 @@ const SeriesCard = ({ series }: { series: any }) => {
     fetchNextStatus && pullStudy ? 5000 : fetchNextStatus ? 3000 : null,
   );
 
-  let nextQueryStage;
+  let nextQueryStage = "";
   if (queryStage) {
     const index = getIndex(queryStage);
     nextQueryStage = QueryStages[index + 1];
@@ -334,7 +336,7 @@ const SeriesCard = ({ series }: { series: any }) => {
             }
           }}
           variant="tertiary"
-        ></Button>
+        />
       </Tooltip>
 
       <Tooltip content="See a Preview">
@@ -344,7 +346,7 @@ const SeriesCard = ({ series }: { series: any }) => {
           icon={<FaEye />}
           onClick={() => setOpenSeriesPreview(true)}
           variant="tertiary"
-        ></Button>
+        />
       </Tooltip>
 
       <Tooltip content="Review the dataset">
@@ -357,7 +359,7 @@ const SeriesCard = ({ series }: { series: any }) => {
             const url = pathSplit.slice(0, pathSplit.length - 1).join("/");
             navigate(`/library/${url}`);
           }}
-        ></Button>
+        />
       </Tooltip>
     </>
   );
@@ -464,7 +466,7 @@ const SeriesCard = ({ series }: { series: any }) => {
           description={error}
           closable
           onClose={() => setError("")}
-        ></Alert>
+        />
       )}
 
       <Card isRounded>
