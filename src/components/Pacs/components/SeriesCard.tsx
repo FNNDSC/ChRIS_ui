@@ -93,18 +93,20 @@ const SeriesCard = ({ series }: { series: any }) => {
 
       const cubeClient = ChrisAPIClient.getClient();
 
-      const files = await cubeClient.getPACSFiles({
-        ...pullQuery,
-        limit: 1,
-        offset: middleValue,
-      });
+      try {
+        const files = await cubeClient.getPACSFiles({
+          ...pullQuery,
+          limit: 1,
+          offset: middleValue,
+        });
 
-      const fileItems = files.getItems();
+        const fileItems = files.getItems();
 
-      if (fileItems && fileItems.length > 0) {
-        setCubeFilePreview(fileItems[0]);
-      } else {
-        setError("Files are not available in storage");
+        if (fileItems && fileItems.length > 0) {
+          setCubeFilePreview(fileItems[0]);
+        }
+      } catch {
+        setError("Could not fetch this file from storage");
       }
     },
     [pullQuery, NumberOfSeriesRelatedInstances.value],
