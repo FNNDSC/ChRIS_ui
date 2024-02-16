@@ -28,7 +28,7 @@ const useSettings = () => {
 
           // Use a Promise to wait for the reader.onload to complete
           const readPromise = new Promise((resolve, reject) => {
-            reader.onload = function (e) {
+            reader.onload = (e) => {
               try {
                 const value = e.target ? e.target.result : ("{}" as any);
                 const contents = JSON.parse(value);
