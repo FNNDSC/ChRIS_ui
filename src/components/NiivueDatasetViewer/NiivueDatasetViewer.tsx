@@ -12,7 +12,6 @@ import HeaderOptionBar from "./components/HeaderOptionBar";
 import SizedNiivueCanvas, { CrosshairLocation } from "../SizedNiivueCanvas";
 import { Problem, VisualDataset } from "./types";
 import {
-  DatasetFile,
   DatasetFilesClient,
   DatasetPreClient,
   getDataset,
@@ -32,7 +31,11 @@ import {
 import { parsePluginInstanceId } from "./client/helpers";
 import { getFeedOf } from "./client/getDataset.ts";
 import { Feed } from "@fnndsc/chrisapi";
-import { DatasetFileState, files2states } from "./statefulTypes.ts";
+import {
+  DatasetFileState,
+  DatasetVolume,
+  files2states,
+} from "./statefulTypes.ts";
 
 /**
  * The "Niivue Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -157,17 +160,26 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   const controlPanel = (
     <ControlPanel
       problems={problems}
+      pushProblems={pushProblems}
       crosshairLocation={crosshairLocation}
       fileStates={fileStates}
-      onFileSelect={() => {
-        /*TODO*/
-      }}
+      setFileStates={setFileStates}
     />
   );
 
   const datasetDescriptionText = (
     <DatasetDescriptionText feed={feed} readme={readme} />
   );
+
+  const volumes =
+    fileStates === null
+      ? []
+      : fileStates
+          .map(({ volume }) => volume)
+          .filter(
+            (v): v is DatasetVolume => v !== null && typeof v === "object",
+          )
+          .map(({ state }) => state);
 
   return (
     <WrapperConnect>
@@ -187,7 +199,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
             isScaling={sizeIsScaling}
             onLocationChange={setCrosshairLocation}
             options={nvOptions}
-            volumes={[]}
+            volumes={volumes}
           />
         </DatasetPageDrawer>
       </PageSection>

@@ -5,6 +5,8 @@ import {
   NiivueCanvas,
 } from "niivue-react/src/NiivueCanvas.tsx";
 import styles from "./index.module.css";
+import { useTypedSelector } from "../../store/hooks.ts";
+import ChrisAPIClient from "../../api/chrisapiclient.ts";
 
 /**
  * Type emitted by Niivue.onLocationChange
@@ -60,6 +62,7 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
   options,
   onStart,
   onLocationChange,
+  volumes,
   ...props
 }) => {
   const [[canvasWidth, canvasHeight], setCanvasDimensions] = useState<
@@ -105,9 +108,30 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     badlyResizeCanvasEveryHalfSecond();
   };
 
+  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const client = ChrisAPIClient.getClient();
+  let authedVolumes =
+    isLoggedIn && volumes !== undefined
+      ? volumes.map((v) => {
+          return {
+            ...v,
+            headers: {
+              Authorization: `Token ${client.auth.token}`,
+            },
+          };
+        })
+      : volumes;
+
+  console.dir(authedVolumes);
+
   return (
     <div className={styles.niivueContainer}>
-      <NiivueCanvas {...props} onStart={fullOnStart} options={fullOptions} />
+      <NiivueCanvas
+        {...props}
+        volumes={authedVolumes}
+        onStart={fullOnStart}
+        options={fullOptions}
+      />
     </div>
   );
 };
