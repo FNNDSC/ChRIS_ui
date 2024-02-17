@@ -1,4 +1,5 @@
 import Client, {
+  AllPluginInstanceList,
   Feed,
   FeedPluginInstanceList,
   FileBrowserPath,
@@ -28,6 +29,40 @@ class FpClient {
     return TE.tryCatch(
       () => this.client.getPluginInstance(...params),
       E.toError,
+    );
+  }
+
+  /**
+   * Alternative to {@link Client.getPluginInstance } that works for
+   * plugin instances which are part of public feeds.
+   *
+   * Upstream bug: https://github.com/FNNDSC/fnndsc/issues/103
+   */
+  public getPublicInstanceDirectly(
+    id: number,
+  ): TE.TaskEither<Error, PluginInstance> {
+    const url = `${this.client.url}plugins/instances/${id}/`;
+    const options = {
+      headers: {
+        Accept: "application/vnd.collection+json",
+      },
+    };
+    if (this.client.auth.token) {
+      options.headers.Authorization = `Token ${this.client.auth.token}`;
+    }
+    return pipe(
+      TE.tryCatch(
+        () => fetch(url, options).then((res) => res.json()),
+        E.toError,
+      ),
+      TE.map((data) => {
+        const list = new AllPluginInstanceList(
+          this.client.url,
+          this.client.auth,
+        );
+        list.collection = data.collection;
+        return list.getItem(id);
+      }),
     );
   }
 
