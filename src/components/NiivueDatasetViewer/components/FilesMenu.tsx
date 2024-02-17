@@ -150,7 +150,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     return (
       <LabelGroup numLabels={8}>
         {Object.entries(tags).map(([key, value]) => (
-          <Label isCompact>
+          <Label isCompact key={JSON.stringify([key, value])}>
             {key}: {value}
           </Label>
         ))}
@@ -174,9 +174,8 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
           <MenuList>
             {fileStates.map(({ file, volume }) => {
               return (
-                <Tooltip content={clickHint}>
+                <Tooltip content={clickHint} key={file.path}>
                   <MenuItem
-                    key={file.path}
                     description={tagSetToLabelGroup(file.tags)}
                     itemId={file.path}
                     actions={
