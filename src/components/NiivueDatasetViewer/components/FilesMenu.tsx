@@ -162,20 +162,21 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     <span>
       Click to display volume.
       <br />
-      <kbd>CTRL</kbd>/<kbd>&#8984;</kbd>click or tap the <PlusIcon /> icon to
+      <kbd>CTRL</kbd>/<kbd>&#8984;</kbd>-click or tap the <PlusIcon /> icon to
       add the volume as an overlay.
     </span>
   );
 
   return (
-    <Menu onSelect={onMenuSelect} onActionClick={onActionClick} isScrollable>
-      <MenuContent>
-        <MenuGroup label="Dataset Files" labelHeadingLevel="h2">
-          <MenuList>
-            {fileStates.map(({ file, volume }) => {
-              return (
-                <Tooltip content={clickHint} key={file.path}>
+    <Tooltip content={clickHint}>
+      <Menu onSelect={onMenuSelect} onActionClick={onActionClick} isScrollable>
+        <MenuContent>
+          <MenuGroup label="Dataset Files" labelHeadingLevel="h2">
+            <MenuList>
+              {fileStates.map(({ file, volume }) => {
+                return (
                   <MenuItem
+                    key={file.path}
                     description={tagSetToLabelGroup(file.tags)}
                     itemId={file.path}
                     actions={
@@ -190,13 +191,13 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
                   >
                     {file.path}
                   </MenuItem>
-                </Tooltip>
-              );
-            })}
-          </MenuList>
-        </MenuGroup>
-      </MenuContent>
-    </Menu>
+                );
+              })}
+            </MenuList>
+          </MenuGroup>
+        </MenuContent>
+      </Menu>
+    </Tooltip>
   );
 };
 
