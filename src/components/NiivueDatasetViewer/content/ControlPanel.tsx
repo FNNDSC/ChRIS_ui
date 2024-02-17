@@ -8,7 +8,6 @@ import Flex from "@patternfly/react-styles/css/utilities/Flex/flex";
 import { css } from "@patternfly/react-styles";
 import { CrosshairLocation } from "../../SizedNiivueCanvas";
 import { FooterContent } from "./footer.tsx";
-import { DatasetFile } from "../client";
 import FilesMenu from "../components/FilesMenu.tsx";
 import { DatasetFileState } from "../statefulTypes.ts";
 
@@ -16,14 +15,19 @@ type ControlPanelProps = {
   problems: Problem[];
   crosshairLocation: CrosshairLocation;
   fileStates: ReadonlyArray<DatasetFileState> | null;
-  onFileSelect: (file: DatasetFile) => void;
+  setFileStates: (fileStates: ReadonlyArray<DatasetFileState>) => void;
+  pushProblems: (problems: Problem[]) => void;
 };
 
+/**
+ * Displays information and controls for a visual dataset.
+ */
 const ControlPanel: React.FC<ControlPanelProps> = ({
   problems,
   crosshairLocation,
   fileStates,
-  onFileSelect,
+  setFileStates,
+  pushProblems,
 }) => {
   return (
     <div
@@ -41,7 +45,11 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       )}
       <div className={css(Flex.flexGrow_1, Sizing.h_100)}>
         {fileStates === null || (
-          <FilesMenu fileStates={fileStates} onSelect={onFileSelect} />
+          <FilesMenu
+            fileStates={fileStates}
+            setFileStates={setFileStates}
+            pushProblems={pushProblems}
+          />
         )}
       </div>
       <div className={css(Flex.flexGrow_0, Spacing.pSm)}>
