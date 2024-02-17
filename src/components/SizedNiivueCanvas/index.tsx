@@ -122,8 +122,6 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
         })
       : volumes;
 
-  console.dir(authedVolumes);
-
   return (
     <div className={styles.niivueContainer}>
       <NiivueCanvas

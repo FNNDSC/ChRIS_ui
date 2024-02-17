@@ -18,7 +18,7 @@ function getDataset(
   plinstId: number,
 ): TE.TaskEither<Problem, VisualDataset> {
   return pipe(
-    client.getPluginInstance(plinstId),
+    client.getPublicInstanceDirectly(plinstId),
     TE.mapLeft(problems.failedRequestForPluginInstance(plinstId)),
     TE.flatMap((indexPlinst) =>
       pipe(
