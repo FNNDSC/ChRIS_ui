@@ -16,7 +16,7 @@ const DEFAULT_OPTIONS: ChNVROptions = {
 };
 
 const DEFAULT_VOLUME: UsualVolumeSettings = {
-  opacity: 0.0,
+  opacity: 1.0,
   colormap: "gray",
   cal_min: 0,
   colorbarVisible: false,
