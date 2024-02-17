@@ -2,7 +2,6 @@ import {
   Panel,
   PanelMain,
   PanelMainBody,
-  Skeleton,
   Text,
   TextContent,
   TextVariants,
