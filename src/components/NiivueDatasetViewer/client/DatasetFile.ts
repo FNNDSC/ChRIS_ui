@@ -119,7 +119,7 @@ class DatasetFile {
   private getSingleFile(
     fname: string,
   ): TE.TaskEither<Problem, FpFileBrowserFile> {
-    const [dirname, basename] = unsafeSplitPath(this.filePath);
+    const [dirname, basename] = unsafeSplitPath(fname);
     return pipe(
       this.client.getFewFilesUnder(dirname),
       TE.mapLeft(() => problems.failedRequestForFile(fname)),
