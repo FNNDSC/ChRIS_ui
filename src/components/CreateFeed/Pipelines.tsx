@@ -482,10 +482,13 @@ const Pipelines = ({
                         }
                         handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
                       />
+                      {/*
                       <GeneralCompute
                         handleSetGeneralCompute={handleSetGeneralCompute}
                         currentPipelineId={pipeline.data.id}
                       />
+
+                      */}
                     </div>
 
                     <ConfigurationPage

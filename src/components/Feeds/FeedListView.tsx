@@ -96,13 +96,20 @@ const TableSelectable: React.FunctionComponent = () => {
     (state) => state.feed,
   );
 
-  const onSetPage = (_e: any, newPage: number) => {
+  const onSetPage = (
+    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    newPage: number,
+  ) => {
     navigate(
       `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}&type=${type}`,
     );
   };
 
-  const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
+  const onPerPageSelect = (
+    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    newPerPage: number,
+    newPage: number,
+  ) => {
     navigate(
       `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`,
     );
