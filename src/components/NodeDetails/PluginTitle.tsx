@@ -25,7 +25,7 @@ const PluginTitle = () => {
     setValue(title);
   }, [selectedPlugin]);
 
-  if (selectedPlugin && selectedPlugin.data) {
+  if (selectedPlugin?.data) {
     const { title, plugin_version, plugin_name } = selectedPlugin.data;
     const pluginName = `${
       title ? title : `${plugin_name} v.${plugin_version}`
@@ -97,9 +97,8 @@ const PluginTitle = () => {
         )}
       </>
     );
-  } else {
-    return <span>No Plugin was selected</span>;
   }
+  return <span>No Plugin was selected</span>;
 };
 
 export default PluginTitle;

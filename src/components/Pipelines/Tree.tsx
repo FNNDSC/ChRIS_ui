@@ -132,11 +132,12 @@ const Tree = (props: TreeProps) => {
     pluginParameters,
     currentPipelineId,
     handleSetCurrentNodeCallback,
+    pipelinePlugins?.[0],
   ]);
 
   React.useEffect(() => {
     //@ts-ignore
-    if (size && size.width) {
+    if (size?.width) {
       setTranslate({
         //@ts-ignore
         x: size.width / 2.5,
@@ -158,7 +159,7 @@ const Tree = (props: TreeProps) => {
       const newLinksToAdd: any[] = [];
 
       if (tsIds) {
-        links.forEach((link) => {
+        for (const link of links) {
           const targetId = link.target.data.id;
           const sourceId = link.target.data.id;
 
@@ -174,24 +175,22 @@ const Tree = (props: TreeProps) => {
 
             const parents = tsIds[topologicalLink.data.id];
             const dict: any = {};
-            links &&
-              links.forEach((link) => {
-                for (let i = 0; i < parents.length; i++) {
-                  if (
-                    link.source.data.id === parents[i] &&
-                    !dict[link.source.data.id]
-                  ) {
-                    dict[link.source.data.id] = link.source;
-                  } else if (
-                    link.target.data.id === parents[i] &&
-                    !dict[link.target.data.id]
-                  ) {
-                    dict[link.target.data.id] = link.target;
-                  }
-                }
 
-                return dict;
-              });
+            for (const link of links) {
+              for (let i = 0; i < parents.length; i++) {
+                if (
+                  link.source.data.id === parents[i] &&
+                  !dict[link.source.data.id]
+                ) {
+                  dict[link.source.data.id] = link.source;
+                } else if (
+                  link.target.data.id === parents[i] &&
+                  !dict[link.target.data.id]
+                ) {
+                  dict[link.target.data.id] = link.target;
+                }
+              }
+            }
 
             for (const i in dict) {
               newLinksToAdd.push({
@@ -200,7 +199,7 @@ const Tree = (props: TreeProps) => {
               });
             }
           }
-        });
+        }
       }
       newLinks = [...links, ...newLinksToAdd];
     }
@@ -211,11 +210,16 @@ const Tree = (props: TreeProps) => {
 
   return (
     <>
-      <div ref={divRef} style={{ width: "50%" }} className="pipelines__tree">
+      <div
+        ref={divRef}
+        style={{ width: "50%", height: "100%" }}
+        className="pipelines__tree"
+      >
         {loading ? (
           <span>Fetching Pipeline.....</span>
         ) : translate.x > 0 && translate.y > 0 ? (
           <svg className={`${svgClassName}`} width="100%" height="100%">
+            <title>Feed Tree </title>
             <TransitionGroupWrapper
               component="g"
               className={graphClassName}
@@ -225,7 +229,7 @@ const Tree = (props: TreeProps) => {
                 return (
                   <LinkData
                     orientation="vertical"
-                    key={"link" + i}
+                    key={`link${i}`}
                     linkData={linkData}
                   />
                 );
@@ -291,26 +295,25 @@ const LinkData: React.FC<LinkProps> = ({ linkData }) => {
   const { source, target } = linkData;
 
   const drawPath = (ts: boolean) => {
-    const deltaX = target.x - source.x,
-      deltaY = target.y - source.y,
-      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-      normX = deltaX / dist,
-      normY = deltaY / dist,
-      sourcePadding = nodeRadius,
-      targetPadding = nodeRadius + 4,
-      sourceX = source.x + sourcePadding * normX,
-      sourceY = source.y + sourcePadding * normY,
-      targetX = target.x - targetPadding * normX,
-      targetY = target.y - targetPadding * normY;
+    const deltaX = target.x - source.x;
+    const deltaY = target.y - source.y;
+    const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const normX = deltaX / dist;
+    const normY = deltaY / dist;
+    const sourcePadding = nodeRadius;
+    const targetPadding = nodeRadius + 4;
+    const sourceX = source.x + sourcePadding * normX;
+    const sourceY = source.y + sourcePadding * normY;
+    const targetX = target.x - targetPadding * normX;
+    const targetY = target.y - targetPadding * normY;
 
     if (ts) {
       return linkVertical()({
         source: [sourceX, sourceY],
         target: [targetX, targetY],
       });
-    } else {
-      return `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
     }
+    return `M${sourceX} ${sourceY} L${targetX} ${targetY}`;
   };
 
   const ts = target.data.plugin_name === "pl-topologicalcopy";

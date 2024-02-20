@@ -131,9 +131,9 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
     });
   };
 
-  const handleDelete = (bulkSelect: Feed[]) => {
+  const handleDelete = async (bulkSelect: Feed[]) => {
     if (bulkSelect && allFeeds) {
-      bulkSelect.forEach(async (feed: Feed) => {
+      for (const feed of bulkSelect) {
         try {
           await feed.delete();
         } catch (error: any) {
@@ -142,13 +142,13 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
             : error.message;
           handleError(errorMessage);
         }
-      });
+      }
 
       dispatch(setBulkSelect([], false));
-      handleModalToggle(false);
       queryClient.invalidateQueries({
         queryKey: ["feeds"],
       });
+      handleModalToggle(false);
     }
   };
 
@@ -240,8 +240,8 @@ const IconContainer = ({ allFeeds }: { allFeeds: Feed[] }) => {
       const feedIdList = [];
       const data = feedList[i].data;
       const newFeedName = feedName
-        ? feedName + "-" + data.name
-        : "duplicate-" + data.name;
+        ? `${feedName}-${data.name}`
+        : `duplicate-${data.name}`;
       feedIdList.push(data.id);
       try {
         const createdFeed: Feed = await cujs.mergeMultipleFeeds(

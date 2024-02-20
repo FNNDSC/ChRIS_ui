@@ -14,13 +14,11 @@ const ClipboardCopyCommand = ({ state }: { state: SinglePipeline }) => {
   const { currentNode, parameterList } = state;
 
   const params = parameterList && currentNode && parameterList[currentNode];
-  const pluginPiping =
-    state.pluginPipings &&
-    state.pluginPipings.filter((piping) => {
-      if (currentNode && piping.data.id === currentNode) {
-        return piping;
-      }
-    });
+  const pluginPiping = state?.pluginPipings?.filter((piping) => {
+    if (currentNode && piping.data.id === currentNode) {
+      return piping;
+    }
+  });
 
   let generatedCommand = "";
 

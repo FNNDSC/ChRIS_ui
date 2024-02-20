@@ -1,12 +1,13 @@
 import React from "react";
 import { useDispatch } from "react-redux";
+import preval from "preval.macro";
 import WrapperConnect from "../Wrapper";
 import { PageSection, Grid, GridItem } from "@patternfly/react-core";
 import { Typography } from "antd";
 import { setSidebarActive } from "../../store/ui/actions";
-import "./dashboard.css";
 import { InfoIcon } from "../Common";
 import { CatalogTile } from "@patternfly/react-catalog-view-extension";
+import "./dashboard.css";
 
 const { Paragraph } = Typography;
 
@@ -28,14 +29,10 @@ const DashboardPage = (props: DashboardProps) => {
     );
   }, [dispatch]);
 
-  /*
-
   const buildVersion = preval`
     const { execSync } = require('child_process')
     module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
   `;
-
-  */
 
   return (
     <WrapperConnect>
@@ -50,7 +47,7 @@ const DashboardPage = (props: DashboardProps) => {
                 <b> Let&apos;s get started.</b>
               </p>
               <p>
-                Build: <code className="build-version"></code>
+                Build: <code className="build-version">{buildVersion}</code>
               </p>
             </Paragraph>
           }
@@ -69,7 +66,7 @@ const DashboardPage = (props: DashboardProps) => {
               description={
                 'Visit the "Library" in the main navigation to review your data collection'
               }
-            ></CatalogTile>
+            />{" "}
           </GridItem>
 
           <GridItem lg={4}>
@@ -80,7 +77,7 @@ const DashboardPage = (props: DashboardProps) => {
               description={
                 'Visit "New and Existing Analyses" in the main navigation to review your data analyses'
               }
-            ></CatalogTile>
+            />
           </GridItem>
 
           <GridItem lg={4}>
@@ -91,7 +88,7 @@ const DashboardPage = (props: DashboardProps) => {
               description={
                 'Visit "PACS Query/Retrieve" in the main navigation to pull medical data and save it your library'
               }
-            ></CatalogTile>
+            />
           </GridItem>
 
           <GridItem lg={4}>
@@ -102,7 +99,7 @@ const DashboardPage = (props: DashboardProps) => {
               description={
                 'Visit "Run a Quick Workflow" to choose from existing analysis templates that allow for detailed analysis'
               }
-            ></CatalogTile>
+            />
           </GridItem>
         </Grid>
       </PageSection>
