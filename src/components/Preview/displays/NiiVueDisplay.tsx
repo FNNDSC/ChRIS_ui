@@ -1,6 +1,6 @@
 import React from "react";
 import { IFileBlob } from "../../../api/model.ts";
-import { NVROptions, NVRVolume } from "niivue-react/src/model.ts";
+import { NVROptions, NVRVolume, FreeSurferColorLUT } from "niivue-react/src";
 import SizedNiivueCanvas from "../../SizedNiivueCanvas";
 import { SLICE_TYPE } from "@niivue/niivue";
 import styles from "./NiiVueDisplay.module.css";
@@ -28,7 +28,7 @@ const SLICE_TYPES = {
 };
 
 const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
-  const [colormap, setColormap] = React.useState("gray");
+  const [freesurferLut, setFreesurferLut] = React.useState(false);
   const [sliceTypeName, setSliceTypeName] =
     React.useState<keyof typeof SLICE_TYPES>("M");
 
@@ -47,13 +47,10 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
       // NiiVue gets the file extension from name
       name: fileItem.file.data.fname,
       url: window.URL.createObjectURL(fileItem.blob),
-      colormap: colormap,
+      colormap: "gray",
+      colormapLabel: freesurferLut ? FreeSurferColorLUT : null,
     });
   }
-
-  const toggleColormap = () => {
-    setColormap(colormap === "gray" ? "freesurfer" : "gray");
-  };
 
   const rotateSliceType = () => {
     const names = Object.keys(SLICE_TYPES) as (keyof typeof SLICE_TYPES)[];
@@ -69,7 +66,9 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
       ) : (
         <div className={styles.container}>
           <div className={styles.controlBar}>
-            <button onClick={toggleColormap}>{colormap}</button>
+            <button onClick={() => setFreesurferLut(!freesurferLut)}>
+              {freesurferLut ? "FreeSurfer" : "gray"}
+            </button>
             <button onClick={rotateSliceType}>{sliceTypeName}</button>
           </div>
           <SizedNiivueCanvas size={8} volumes={volumes} options={options} />
