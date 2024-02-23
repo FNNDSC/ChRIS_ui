@@ -18,19 +18,19 @@ export const formatStudyDate = (studyDateString: string) => {
 
 const getDayWithSuffix = (day: number) => {
   if (day >= 11 && day <= 13) {
-    return day + "th";
+    return `${day}th`;
   }
 
   const lastDigit = day % 10;
 
   switch (lastDigit) {
     case 1:
-      return day + "st";
+      return `${day}st`;
     case 2:
-      return day + "nd";
+      return `${day}nd`;
     case 3:
-      return day + "rd";
+      return `${day}rd`;
     default:
-      return day + "th";
+      return `${day}th`;
   }
 };

@@ -7,7 +7,7 @@ import usePluginInstanceResource from "./usePluginInstanceResource";
 
 const PluginLog = ({ text }: NodeDetailsProps) => {
   const pluginInstanceResource = usePluginInstanceResource();
-  const log = pluginInstanceResource && pluginInstanceResource.pluginLog;
+  const log = pluginInstanceResource?.pluginLog;
 
   let terminalOutput = text ? text : "";
   terminalOutput +=
