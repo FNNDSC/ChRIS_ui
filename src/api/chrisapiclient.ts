@@ -7,29 +7,31 @@ import { Cookies } from "react-cookie";
  * passed the token, declare process.env variables, etc.
  */
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 class ChrisAPIClient {
   private static client: Client;
   private static isTokenAuthorized: boolean;
 
   static getClient(): Client {
     const cookie = new Cookies();
-    if (!this.client || !this.isTokenAuthorized) {
+    if (!ChrisAPIClient.client || !ChrisAPIClient.isTokenAuthorized) {
       const user = cookie.get("username");
       const token: string = cookie.get(`${user}_token`);
       if (token) {
-        this.isTokenAuthorized = true;
+        ChrisAPIClient.isTokenAuthorized = true;
       } else {
-        this.isTokenAuthorized = false;
+        ChrisAPIClient.isTokenAuthorized = false;
       }
-      this.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
+      ChrisAPIClient.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
         token,
       });
     }
-    return this.client;
+    return ChrisAPIClient.client;
   }
 
   static setIsTokenAuthorized(value: boolean) {
-    this.isTokenAuthorized = value;
+    ChrisAPIClient.isTokenAuthorized = value;
   }
 }
+
 export default ChrisAPIClient;

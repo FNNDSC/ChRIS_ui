@@ -6,7 +6,6 @@ import { Checkbox, Button } from "@patternfly/react-core";
 import ChrisApiClient from "../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../store/hooks";
 import SettingsIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
-import "@patternfly/react-core/dist/styles/base.css";
 
 export const CardHeaderComponent = ({
   resource,
@@ -42,7 +41,7 @@ export const CardHeaderComponent = ({
           }}
           variant="link"
           icon={<SettingsIcon />}
-        ></Button>
+        />
       </Popover>
     </div>
   );
@@ -103,9 +102,8 @@ export const SettingsComponent = ({
 
               // Use a Promise to wait for the reader.onload to complete
               const readPromise = new Promise((resolve) => {
-                reader.onload = function (e) {
-                  const contents =
-                    ((e.target && e.target.result) as string) || "{}";
+                reader.onload = (e) => {
+                  const contents = (e?.target?.result as string) || "{}";
                   resolve(JSON.parse(contents));
                 };
               });
@@ -145,7 +143,7 @@ export const SettingsComponent = ({
 
       const config = {
         headers: {
-          Authorization: "Token " + client.auth.token,
+          Authorization: `Token ${client.auth.token}`,
         },
       };
 

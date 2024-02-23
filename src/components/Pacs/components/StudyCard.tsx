@@ -31,7 +31,7 @@ const StudyCard = ({ study }: { study: any }) => {
 
   const { seriesPreviews, preview, seriesUpdate } = state;
 
-  const userPreferences = data && data["study"];
+  const userPreferences = data?.study;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
 
   useInterval(
@@ -57,6 +57,7 @@ const StudyCard = ({ study }: { study: any }) => {
           setFetchNextStatus(!fetchNextStatus);
           dispatch({
             type: Types.SET_PULL_STUDY,
+            payload: null,
           });
         }
       }
@@ -140,23 +141,21 @@ const StudyCard = ({ study }: { study: any }) => {
                       Modalities in Study
                     </div>
                     <div>
-                      {study.ModalitiesInStudy.value &&
-                        study.ModalitiesInStudy.value
-                          .split("\\")
-                          .map((m: string, index: number) => (
-                            <Badge
-                              style={{ margin: "auto 0.125em" }}
-                              key={`${m} _${index}`}
-                            >
-                              {m}
-                            </Badge>
-                          ))}
+                      {study.ModalitiesInStudy.value
+                        ?.split("\\")
+                        .map((m: string, index: number) => (
+                          <Badge
+                            style={{ margin: "auto 0.125em" }}
+                            key={`${m} _${index}`}
+                          >
+                            {m}
+                          </Badge>
+                        ))}
                     </div>
                   </div>
                   <div className="flex-studies-item">
                     <div className="study-detail-title">Accession Number</div>
-                    {study.AccessionNumber.value &&
-                    study.AccessionNumber.value.startsWith("no value") ? (
+                    {study.AccessionNumber.value?.startsWith("no value") ? (
                       <Tooltip content={study.AccessionNumber}>
                         <FaQuestionCircle />
                       </Tooltip>
@@ -166,8 +165,7 @@ const StudyCard = ({ study }: { study: any }) => {
                   </div>
                   <div className="flex-studies-item">
                     <div className="study-detail-title">Station</div>
-                    {study.PerformedStationAETitle.value &&
-                    study.PerformedStationAETitle.value.startsWith(
+                    {study.PerformedStationAETitle.value?.startsWith(
                       "no value",
                     ) ? (
                       <Tooltip content={study.PerformedStationAETitle.value}>
@@ -195,7 +193,7 @@ const StudyCard = ({ study }: { study: any }) => {
                         study.StudyInstanceUID.value
                       }`}
                       target="_blank"
-                    ></Button>
+                    />
                   </Tooltip>
                 )}
 
@@ -221,7 +219,7 @@ const StudyCard = ({ study }: { study: any }) => {
                       }
                     }}
                     icon={<EyeIcon />}
-                  ></Button>
+                  />
                 </Tooltip>
 
                 {fetchNextStatus ? (
@@ -232,6 +230,7 @@ const StudyCard = ({ study }: { study: any }) => {
                       onClick={() => {
                         dispatch({
                           type: Types.SET_PULL_STUDY,
+                          payload: null,
                         });
 
                         setFetchNextStatus(!fetchNextStatus);
@@ -241,7 +240,7 @@ const StudyCard = ({ study }: { study: any }) => {
                       className="button-with-margin"
                       size="sm"
                       icon={<DownloadIcon />}
-                    ></Button>
+                    />
                   </Tooltip>
                 )}
               </div>
@@ -254,15 +253,11 @@ const StudyCard = ({ study }: { study: any }) => {
           <Grid hasGutter>
             {study.series.map((series: any) => {
               const seriesID = series.SeriesInstanceUID.value;
-              const seriesPreview = seriesPreviews && seriesPreviews[seriesID];
+              const seriesPreview = seriesPreviews?.[seriesID];
               return (
                 <GridItem
                   key={series.SeriesInstanceUID.value}
-                  className={
-                    seriesPreviews && seriesPreviews[seriesID]
-                      ? "series-grid"
-                      : ""
-                  }
+                  className={seriesPreviews?.[seriesID] ? "series-grid" : ""}
                   rowSpan={1}
                   lg={seriesPreview ? 4 : 12}
                   md={seriesPreview ? 4 : 12}

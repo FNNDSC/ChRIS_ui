@@ -11,6 +11,7 @@ import {
   PluginInstanceDescendantList,
   PluginParameterList,
 } from "@fnndsc/chrisapi";
+import { useNavigate } from "react-router";
 import { ErrorBoundary } from "react-error-boundary";
 import CalendarAlt from "@patternfly/react-icons/dist/esm/icons/calendar-alt-icon";
 import AddNodeConnect from "../AddNode/AddNode";
@@ -28,7 +29,6 @@ import { SpinContainer } from "../Common";
 import { PipelineProvider } from "../CreateFeed/context";
 import { AddNodeProvider } from "../AddNode/context";
 import "./NodeDetails.css";
-import { useNavigate } from "react-router";
 
 interface INodeState {
   plugin?: Plugin;
@@ -82,18 +82,14 @@ const NodeDetails: React.FC = () => {
     fetchData();
   }, [selectedPlugin]);
 
-  const command = React.useCallback(getCommand, [
-    plugin,
-    instanceParameters,
-    pluginParameters,
-  ]);
+  const command = React.useCallback(getCommand, []);
 
   const text =
     plugin && instanceParameters && pluginParameters
       ? command(plugin, instanceParameters, pluginParameters)
       : "";
 
-  const runTime = React.useCallback(getRuntimeString, [selectedPlugin]);
+  const runTime = React.useCallback(getRuntimeString, []);
 
   const cancelled =
     selectedPlugin?.data.status === "cancelled" ||
@@ -119,156 +115,148 @@ const NodeDetails: React.FC = () => {
 
   if (!selectedPlugin) {
     return <SpinContainer title="Loading Node Details" />;
-  } else {
-    const Time = (
-      <>
-        <CalendarAlt style={{ marginRight: "0.5em" }} />
+  }
+  const Time = (
+    <>
+      <CalendarAlt style={{ marginRight: "0.5em" }} />
 
-        {selectedPlugin.data.start_date}
-      </>
-    );
-    return (
-      <ErrorBoundary
-        fallback={
-          <Button
-            onClick={() => {
-              feed && navigate(`/feeds/${feed.data.id}`);
-            }}
-            variant="link"
-          >
-            Refresh
-          </Button>
-        }
-      >
-        <div className="node-details">
-          {drawerState["node"].currentlyActive === "terminal" ? (
-            <PluginLog text={text} />
-          ) : drawerState["node"].currentlyActive === "note" ? (
-            <FeedNote />
-          ) : (
-            <>
-              <div className="node-details__title">
-                <PluginTitle />
-              </div>
+      {selectedPlugin.data.start_date}
+    </>
+  );
+  return (
+    <ErrorBoundary
+      fallback={
+        <Button
+          onClick={() => {
+            feed && navigate(`/feeds/${feed.data.id}`);
+          }}
+          variant="link"
+        >
+          Refresh
+        </Button>
+      }
+    >
+      <div className="node-details">
+        {drawerState.node.currentlyActive === "terminal" ? (
+          <PluginLog text={text} />
+        ) : drawerState.node.currentlyActive === "note" ? (
+          <FeedNote />
+        ) : (
+          <>
+            <div className="node-details__title">
+              <PluginTitle />
+            </div>
 
+            <Grid className="node-details__grid">
+              {renderGridItem("Status", <StatusTitle />)}
+            </Grid>
+            <Status />
+
+            <ExpandableSection
+              toggleText={
+                isExpanded ? "Show Less Details" : "Show More Details"
+              }
+              onToggle={() => setIsExpanded(!isExpanded)}
+              isExpanded={isExpanded}
+              className="node-details__expandable"
+            >
               <Grid className="node-details__grid">
-                {renderGridItem("Status", <StatusTitle />)}
-              </Grid>
-              <Status />
-
-              <ExpandableSection
-                toggleText={
-                  isExpanded ? "Show Less Details" : "Show More Details"
-                }
-                onToggle={() => setIsExpanded(!isExpanded)}
-                isExpanded={isExpanded}
-                className="node-details__expandable"
-              >
-                <Grid className="node-details__grid">
-                  {renderGridItem("Feed Name", <>{feed && feed.data.name}</>)}
-                  {renderGridItem(
-                    "Feed Author",
-                    <>{feed && feed.data.creator_username}</>,
+                {renderGridItem("Feed Name", feed?.data?.name)}
+                {renderGridItem("Feed Author", feed?.data.creator_username)}
+                {selectedPlugin.data.previous_id &&
+                  renderGridItem(
+                    "Parent Node ID",
+                    <span>{selectedPlugin.data.previous_id}</span>,
                   )}
-                  {selectedPlugin.data.previous_id &&
-                    renderGridItem(
-                      "Parent Node ID",
-                      <span>{selectedPlugin.data.previous_id}</span>,
-                    )}
-                  {renderGridItem(
-                    "Selected Node ID",
-                    <span>{selectedPlugin.data.id}</span>,
-                  )}
-                  {renderGridItem(
-                    "Plugin",
-                    <span style={{ fontFamily: "monospace" }}>
-                      {selectedPlugin.data.plugin_name}, ver{" "}
-                      {selectedPlugin.data.plugin_version}
-                    </span>,
-                  )}
-                  {renderGridItem("Created", Time)}
-                  {renderGridItem(
-                    "Compute Environment",
-                    <span>{compute_env}</span>,
-                  )}
-                  {runTime && (
-                    <Fragment>
-                      {renderGridItem(
-                        "Total Runtime",
-                        <span>
-                          {selectedPlugin &&
-                            selectedPlugin.data &&
-                            runTime(selectedPlugin)}
-                        </span>,
-                      )}
-                    </Fragment>
-                  )}
-                  {cancelled &&
-                    renderGridItem(
-                      "Error Code",
+                {renderGridItem(
+                  "Selected Node ID",
+                  <span>{selectedPlugin.data.id}</span>,
+                )}
+                {renderGridItem(
+                  "Plugin",
+                  <span style={{ fontFamily: "monospace" }}>
+                    {selectedPlugin.data.plugin_name}, ver{" "}
+                    {selectedPlugin.data.plugin_version}
+                  </span>,
+                )}
+                {renderGridItem("Created", Time)}
+                {renderGridItem(
+                  "Compute Environment",
+                  <span>{compute_env}</span>,
+                )}
+                {runTime && (
+                  <Fragment>
+                    {renderGridItem(
+                      "Total Runtime",
                       <span>
-                        {error_code ? (
-                          <span>
-                            {error_code}&nbsp;
-                            {isErrorExpanded && (
-                              <span className="node-details__error-message">
-                                {getErrorCodeMessage(error_code)}&nbsp;
-                              </span>
-                            )}
-                            <Button
-                              variant="link"
-                              isInline
-                              className="node-details__error-show-more"
-                              onClick={() =>
-                                setisErrorExpanded(!isErrorExpanded)
-                              }
-                            >
-                              (show {isErrorExpanded ? "less" : "more"})
-                            </Button>
-                          </span>
-                        ) : (
-                          "None"
-                        )}
+                        {selectedPlugin?.data && runTime(selectedPlugin)}
                       </span>,
                     )}
-                </Grid>
-              </ExpandableSection>
-
-              <Grid className="node-details__grid" hasGutter={true}>
-                <Grid className="node-details__grid" hasGutter={true}>
-                  {cancelled ? null : (
-                    <AddNodeProvider>
-                      <RenderButtonGridItem>
-                        {" "}
-                        <AddNodeConnect />
-                      </RenderButtonGridItem>
-                    </AddNodeProvider>
+                  </Fragment>
+                )}
+                {cancelled &&
+                  renderGridItem(
+                    "Error Code",
+                    <span>
+                      {error_code ? (
+                        <span>
+                          {error_code}&nbsp;
+                          {isErrorExpanded && (
+                            <span className="node-details__error-message">
+                              {getErrorCodeMessage(error_code)}&nbsp;
+                            </span>
+                          )}
+                          <Button
+                            variant="link"
+                            isInline
+                            className="node-details__error-show-more"
+                            onClick={() => setisErrorExpanded(!isErrorExpanded)}
+                          >
+                            (show {isErrorExpanded ? "less" : "more"})
+                          </Button>
+                        </span>
+                      ) : (
+                        "None"
+                      )}
+                    </span>,
                   )}
-                  <RenderButtonGridItem>
-                    <PipelineProvider>
-                      <AddPipeline />
-                    </PipelineProvider>
-                  </RenderButtonGridItem>
-                </Grid>
-
-                <Grid hasGutter={true}>
-                  <RenderButtonGridItem>
-                    <GraphNodeContainer />
-                  </RenderButtonGridItem>
-
-                  {selectedPlugin.data.previous_id !== undefined && (
-                    <RenderButtonGridItem>
-                      <DeleteNode />
-                    </RenderButtonGridItem>
-                  )}
-                </Grid>
               </Grid>
-            </>
-          )}
-        </div>
-      </ErrorBoundary>
-    );
-  }
+            </ExpandableSection>
+
+            <Grid className="node-details__grid" hasGutter={true}>
+              <Grid className="node-details__grid" hasGutter={true}>
+                {cancelled ? null : (
+                  <AddNodeProvider>
+                    <RenderButtonGridItem>
+                      {" "}
+                      <AddNodeConnect />
+                    </RenderButtonGridItem>
+                  </AddNodeProvider>
+                )}
+                <RenderButtonGridItem>
+                  <PipelineProvider>
+                    <AddPipeline />
+                  </PipelineProvider>
+                </RenderButtonGridItem>
+              </Grid>
+
+              <Grid hasGutter={true}>
+                <RenderButtonGridItem>
+                  <GraphNodeContainer />
+                </RenderButtonGridItem>
+
+                {selectedPlugin.data.previous_id !== undefined && (
+                  <RenderButtonGridItem>
+                    <DeleteNode />
+                  </RenderButtonGridItem>
+                )}
+              </Grid>
+            </Grid>
+          </>
+        )}
+      </div>
+    </ErrorBoundary>
+  );
 };
 
 export default NodeDetails;
@@ -340,7 +328,7 @@ function getCommand(
       (param) => `${param.name} ${param.value}`,
     );
     if (parameterCommand.length > 0) {
-      command += parameterCommand.join(" ") + " \\\n";
+      command += `${parameterCommand.join(" ")} \\\n`;
     }
   }
   command = `${command}/incoming /outgoing \n \n`;
@@ -354,5 +342,4 @@ const RenderButtonGridItem = ({ children }: { children: ReactNode }) => {
       {children}
     </GridItem>
   );
-  4;
 };

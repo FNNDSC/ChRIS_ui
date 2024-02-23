@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer, type Dispatch } from "react";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -102,7 +102,7 @@ type PacsQueryPayload = {
     clearSeriesPreview: boolean;
   };
 
-  [Types.SET_PULL_STUDY]: Record<any, any>;
+  [Types.SET_PULL_STUDY]: null;
 
   [Types.SET_SERIES_UPDATE]: {
     currentStep: string;
@@ -134,8 +134,8 @@ export function getIndex(value: string) {
 }
 
 const PacsQueryContext = createContext<{
-  state: any;
-  dispatch: any;
+  state: PacsQueryState;
+  dispatch: Dispatch<PacsQueryActions>;
 }>({
   state: initialState,
   dispatch: () => null,

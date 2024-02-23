@@ -56,7 +56,6 @@ export const TagInfoModal = ({
   output?: any[];
   file?: FeedFile;
 }) => {
-  console.log("Parsing Error", parsingError);
   return (
     <Modal
       aria-label="tag info"
