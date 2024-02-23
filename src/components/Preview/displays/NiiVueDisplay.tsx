@@ -32,6 +32,7 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
   const [freesurferLut, setFreesurferLut] = React.useState(false);
   const [sliceTypeName, setSliceTypeName] =
     React.useState<keyof typeof SLICE_TYPES>("M");
+  const [crosshairText, setCrosshairText] = React.useState("");
 
   const volumes: NVRVolume[] = [];
 
@@ -71,8 +72,14 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
               {freesurferLut ? "FreeSurfer" : "gray"}
             </button>
             <button onClick={rotateSliceType}>{sliceTypeName}</button>
+            {freesurferLut && <span>{crosshairText}</span>}
           </div>
-          <SizedNiivueCanvas size={8} volumes={volumes} options={options} />
+          <SizedNiivueCanvas
+            size={8}
+            volumes={volumes}
+            options={options}
+            onLocationChange={(c) => setCrosshairText(c.string)}
+          />
         </div>
       )}
     </>
