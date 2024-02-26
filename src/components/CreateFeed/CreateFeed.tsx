@@ -17,7 +17,7 @@ import { Types } from "./types/feed";
 import { PipelineTypes } from "./types/pipeline";
 import BasicInformation from "./BasicInformation";
 import ChooseConfig from "./ChooseConfig";
-import PipelineContainer from "./PipelineContainter";
+import PipelinesCopy from "../PipelinesCopy";
 import Review from "./Review";
 import withSelectionAlert from "./SelectionAlert";
 import { useTypedSelector } from "../../store/hooks";
@@ -167,11 +167,11 @@ export default function CreateFeed() {
     [handleDispatch],
   );
 
-  const allRequiredFieldsNotEmpty: boolean =
-    selectedConfig.includes("fs_plugin") &&
-    Object.keys(requiredInput).length > 0
-      ? true
-      : false;
+  const allRequiredFieldsNotEmpty: boolean = selectedConfig.includes(
+    "fs_plugin",
+  )
+    ? true
+    : false;
 
   const filesChoosen = data.chrisFiles.length > 0 || data.localFiles.length > 0;
 
@@ -251,7 +251,7 @@ export default function CreateFeed() {
             )}
           </WizardStep>
           <WizardStep id={3} name="Pipelines">
-            <PipelineContainer justDisplay={true} />
+            <PipelinesCopy />
           </WizardStep>
           <WizardStep
             id={4}

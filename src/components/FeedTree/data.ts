@@ -1,9 +1,11 @@
 import {
+  PipelinePipingDefaultParameterList,
   PluginInstance,
   PluginParameter,
   PluginPiping,
 } from "@fnndsc/chrisapi";
 import { fetchResource } from "../../api/common";
+import { TSID } from "./ParentComponent";
 
 export interface Datum {
   id?: number;
@@ -18,7 +20,7 @@ export interface Point {
   y: number;
 }
 
-export interface TreeNodeDatum extends Datum {
+export default interface TreeNodeDatum extends Datum {
   children: TreeNodeDatum[];
   __rd3t: {
     id: string;
@@ -27,13 +29,38 @@ export interface TreeNodeDatum extends Datum {
   };
 }
 
-export const getFeedTree = (items: PluginInstance[]) => {
-  const tree = [],
-    mappedArr: {
-      [key: string]: TreeNodeDatum;
-    } = {};
+export interface Separation {
+  siblings: number;
+  nonSiblings: number;
+}
 
-  items.forEach((item) => {
+export interface OwnProps {
+  tsIds?: TSID;
+  data: TreeNodeDatum[];
+  onNodeClick: (node: any) => void;
+  onNodeClickTs: (node: PluginInstance) => void;
+  translate?: Point;
+  scaleExtent: {
+    min: number;
+    max: number;
+  };
+  zoom: number;
+  nodeSize: {
+    x: number;
+    y: number;
+  };
+  separation: Separation;
+  orientation: "horizontal" | "vertical";
+  changeOrientation: (orientation: string) => void;
+}
+
+export const getFeedTree = (items: PluginInstance[]) => {
+  const tree = [];
+  const mappedArr: {
+    [key: string]: TreeNodeDatum;
+  } = {};
+
+  for (const item of items) {
     const id = item.data.id;
 
     mappedArr[id] = {
@@ -48,7 +75,7 @@ export const getFeedTree = (items: PluginInstance[]) => {
         collapsed: false,
       },
     };
-  });
+  }
 
   for (const id in mappedArr) {
     const mappedElem = mappedArr[id];
@@ -96,7 +123,7 @@ export const getTsNodes = async (items: PluginInstance[]) => {
 
 export const getTsNodesWithPipings = async (
   items: PluginPiping[],
-  pluginParameters?: any[],
+  pluginParameters?: PipelinePipingDefaultParameterList,
 ) => {
   const parentIds: {
     [key: string]: number[];

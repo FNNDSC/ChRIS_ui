@@ -1,10 +1,9 @@
-import React, { useRef, useContext } from "react";
-
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
+import React, { useContext, useRef } from "react";
 import { TreeNode } from "../../api/common";
-import { fetchComputeInfo, stringToColour } from "../CreateFeed/utils";
 import { SinglePipeline } from "../CreateFeed/types/pipeline";
+import { fetchComputeInfo, stringToColour } from "../CreateFeed/utils";
 import { ThemeContext } from "../DarkTheme/useTheme";
 
 export interface Point {
@@ -62,7 +61,7 @@ const NodeData = (props: NodeProps) => {
   } = props;
   const { computeEnvs, title, currentNode, pluginPipings } = state;
 
-  const root = pluginPipings && pluginPipings[0];
+  const root = pluginPipings?.[0];
 
   let currentId = NaN;
   if (data.previous_id && root) {
@@ -72,17 +71,24 @@ const NodeData = (props: NodeProps) => {
   }
 
   let currentComputeEnv = "";
-  if (computeEnvs && computeEnvs[data.id]) {
+  if (computeEnvs?.[data.id]) {
     currentComputeEnv = computeEnvs[data.id].currentlySelected;
   }
 
-  const titleName = title && title[data.id];
+  const titleName = title?.[data.id];
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
       .style("opacity", opacity);
+
+    select(textRef.current).attr("transform", "translate(-30, 30)");
   };
+
+  React.useEffect(() => {
+    const nodeTransform = setNodeTransform(orientation, position);
+    applyNodeTransform(nodeTransform);
+  }, [orientation, position, applyNodeTransform]);
 
   const handleSetComputeEnvironmentsWrap = React.useCallback(
     (computeEnvData: {
@@ -107,13 +113,8 @@ const NodeData = (props: NodeProps) => {
     fetchComputeEnvironments();
   }, [data, handleSetComputeEnvironmentsWrap]);
 
-  React.useEffect(() => {
-    const nodeTransform = setNodeTransform(orientation, position);
-    applyNodeTransform(nodeTransform);
-  }, [orientation, position]);
-
   const textLabel = (
-    <g id={`text_${data.id}`} transform={`translate(-30,30)`}>
+    <g id={`text_${data.id}`}>
       <text
         style={{
           fill: isDarkTheme ? "white" : "black",
@@ -130,9 +131,6 @@ const NodeData = (props: NodeProps) => {
 
   return (
     <g
-      style={{
-        cursor: "pointer",
-      }}
       id={`${data.id}`}
       ref={nodeRef}
       onClick={() => {
@@ -147,7 +145,7 @@ const NodeData = (props: NodeProps) => {
         }}
         id={`node_${data.id}`}
         r={DEFAULT_NODE_CIRCLE_RADIUS}
-      ></circle>
+      />
       {textLabel}
     </g>
   );

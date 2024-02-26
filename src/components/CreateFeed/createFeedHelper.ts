@@ -1,9 +1,9 @@
 import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { InputType } from "../AddNode/types";
 import { unpackParametersIntoObject } from "../AddNode/utils";
 import { CreateFeedData } from "./types/feed";
 import { PipelineData } from "./types/pipeline";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { InputType } from "../AddNode/types";
 
 import {
   catchError,
@@ -15,9 +15,11 @@ import {
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
     return "Analysis Creation using an FS Plugin";
-  } else if (selectedConfig === "file_select") {
+  }
+  if (selectedConfig === "file_select") {
     return "Analysis Creation using File Select";
-  } else return "Analysis Creation";
+  }
+  return "Analysis Creation";
 }
 
 export const createFeed = async (

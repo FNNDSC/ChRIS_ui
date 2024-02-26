@@ -1,7 +1,7 @@
 import {
-  PluginPiping,
   Pipeline,
   PipelinePipingDefaultParameterList,
+  PluginPiping,
 } from "@fnndsc/chrisapi";
 
 type ActionMap<M extends { [index: string]: any }> = {
@@ -223,6 +223,10 @@ export interface ConfiguartionPageProps {
     currentNode: number,
     currentPipelineId: number,
     newParamDict: any[],
+  ) => void;
+  handleSetGeneralCompute: (
+    currentPipelineId: number,
+    computeEnv: string,
   ) => void;
   justDisplay?: boolean;
 }

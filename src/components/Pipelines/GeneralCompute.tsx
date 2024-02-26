@@ -1,18 +1,18 @@
 import React, { useContext } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { PipelineContext } from "../CreateFeed/context";
-import ListCompute from "./ListCompute";
 import { PipelineTypes } from "../CreateFeed/types/pipeline";
+import ListCompute from "./ListCompute";
 
-const GeneralCompute = ({
-  currentPipelineId,
-}: {
+type NewType = {
   currentPipelineId: number;
   handleSetGeneralCompute: (
     currentPipelineId: number,
     computeEnv: string,
   ) => void;
-}) => {
+};
+
+function GeneralCompute({ currentPipelineId }: NewType) {
   const { state, dispatch } = useContext(PipelineContext);
   const [computes, setComputes] = React.useState<any[]>([]);
 
@@ -47,6 +47,6 @@ const GeneralCompute = ({
       />
     </div>
   );
-};
+}
 
 export default GeneralCompute;
