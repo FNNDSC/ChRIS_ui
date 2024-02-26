@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { setFeedTreeProp } from "../../store/feed/actions";
 import FeedTree from "./FeedTree";
-import { getFeedTree, TreeNodeDatum, getTsNodes } from "./data";
+import TreeNodeDatum, { getFeedTree, getTsNodes } from "./data";
 import { useTypedSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import "./FeedTree.css";

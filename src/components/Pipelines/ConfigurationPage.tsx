@@ -1,35 +1,29 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import { PluginPiping } from "@fnndsc/chrisapi";
 import {
+  ActionGroup,
+  Button,
+  ExpandableSection,
+  Form,
+  FormGroup,
   Grid,
   GridItem,
-  ExpandableSection,
-  Button,
-  Form,
   TextInput,
-  FormGroup,
-  ActionGroup,
 } from "@patternfly/react-core";
-import { PluginPiping } from "@fnndsc/chrisapi";
-import TitleChange from "./TitleChange";
-import ClipboardCopyCommand from "./ClipboardCopyCommand";
-import CreatingPipeline from "./CreatePipeline";
-import ListCompute from "./ListCompute";
+import React from "react";
 import { PipelineContext } from "../CreateFeed/context";
 import type { ConfiguartionPageProps } from "../CreateFeed/types/pipeline";
+import ClipboardCopyCommand from "./ClipboardCopyCommand";
+import ListCompute from "./ListCompute";
+import TitleChange from "./TitleChange";
 
 const ConfigurationPage = (props: ConfiguartionPageProps) => {
-  const dispatchStore = useDispatch();
   const [isExpanded, setIsExpanded] = React.useState(false);
   const {
     currentPipelineId,
-    pipeline,
     state,
-    pipelines,
     handleSetCurrentNodeTitle,
-    handleDispatchPipelines,
-    handleFormParameters,
     handleSetCurrentComputeEnv,
+    handleFormParameters,
     justDisplay,
   } = props;
 
@@ -62,20 +56,22 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
           [key: string]: string;
         } = {};
         //@ts-ignore
-        pluginParameters.data
-          .filter((param: any) => {
+        const filteredParameters = pluginParameters?.data.filter(
+          (param: any) => {
             return param.plugin_piping_id === pluginPiping[0].data.id;
-          })
-          .forEach((param: any) => {
-            paramDict[param.param_name] = param;
-          });
+          },
+        );
+
+        for (const param of filteredParameters) {
+          paramDict[param.param_name] = param;
+        }
 
         const paramItems = params.getItems();
 
         if (paramItems) {
           const newParamDict: any[] = [];
 
-          paramItems.forEach((param: any) => {
+          for (const param of paramItems) {
             if (paramDict[param.data.name]) {
               const defaultParam = paramDict[param.data.name];
               //@ts-ignore
@@ -84,10 +80,10 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
                 default: param.data.default,
               };
               //@ts-ignore
-              newParam["default"] = defaultParam.value;
+              newParam.default = defaultParam.value;
               newParamDict.push(newParam);
             }
-          });
+          }
 
           handleFormParameters(currentNode, currentPipelineId, newParamDict);
         }
@@ -98,7 +94,6 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
   }, [
     currentNode,
     pluginPipings,
-    dispatchStore,
     pluginParameters,
     handleFormParameters,
     currentPipelineId,
@@ -122,24 +117,33 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
 
   return (
     <>
-      {!justDisplay && (
-        <>
-          <TitleChange
-            currentPipelineId={currentPipelineId}
-            state={state}
-            handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
-            selectedPlugin={selectedPlugin}
-          />
-
-          <CreatingPipeline
-            pipelines={pipelines}
-            pipeline={pipeline}
-            state={state}
-            handleDispatchPipelines={handleDispatchPipelines}
-          />
-        </>
-      )}
       <ClipboardCopyCommand state={state} />
+      {!justDisplay && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <div style={{ flex: 1, width: "50%" }}>
+            <TitleChange
+              currentPipelineId={currentPipelineId}
+              state={state}
+              handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
+              selectedPlugin={selectedPlugin}
+            />
+          </div>
+          <div style={{ flex: 1, width: "50%" }}>
+            <ListCompute
+              computeList={computeEnvList}
+              generalCompute={generalCompute}
+              dispatchFn={dispatchFn}
+            />
+          </div>
+        </div>
+      )}
+
       {!justDisplay && (
         <ExpandableSection
           isExpanded={isExpanded}
@@ -155,14 +159,6 @@ const ConfigurationPage = (props: ConfiguartionPageProps) => {
               <ConfigurePipelineParameters
                 currentPipelineId={currentPipelineId}
                 handleFormParameters={handleFormParameters}
-              />
-            </GridItem>
-            <GridItem span={6}>
-              <h4>Configure Compute Environment</h4>
-              <ListCompute
-                computeList={computeEnvList}
-                generalCompute={generalCompute}
-                dispatchFn={dispatchFn}
               />
             </GridItem>
           </Grid>

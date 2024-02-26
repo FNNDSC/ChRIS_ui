@@ -1,119 +1,117 @@
-import React from "react";
-import { useDispatch } from "react-redux";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
-import { PlusButtonIcon } from "../../icons";
-import PipelineContainer from "../CreateFeed/PipelineContainter";
-import { PipelineContext } from "../CreateFeed/context";
-import { ErrorAlert } from "../Common";
+import { useMutation } from "@tanstack/react-query";
+import { Alert } from "antd";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { PlusButtonIcon } from "../../icons";
 import { useTypedSelector } from "../../store/hooks";
+import { getNodeOperations } from "../../store/plugin/actions";
 import {
-  getSelectedPlugin,
   getPluginInstancesSuccess,
+  getSelectedPlugin,
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
-import { PipelineTypes } from "../CreateFeed/types/pipeline";
-import { getNodeOperations } from "../../store/plugin/actions";
+import { SpinContainer } from "../Common";
+import Pipelines from "../PipelinesCopy";
+import { PipelineContext, Types } from "../PipelinesCopy/context";
 
 const AddPipeline = () => {
+  const { state, dispatch } = useContext(PipelineContext);
+  const { pipelineToAdd, selectedPipeline, computeInfo, titleInfo } = state;
   const reactDispatch = useDispatch();
-
-  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
-  const { selectedPlugin } = useTypedSelector((state) => state.instance);
   const { childPipeline } = useTypedSelector(
     (state) => state.plugin.nodeOperations,
   );
-  const { state, dispatch: pipelineDispatch } =
-    React.useContext(PipelineContext);
-  const { pipelineData, selectedPipeline } = state;
-  const [error, setError] = React.useState({});
+
+  const alreadyAvailableInstances = useTypedSelector(
+    (state) => state.instance.pluginInstances.data,
+  );
 
   const handleToggle = () => {
-    setError({});
+    if (childPipeline) {
+      dispatch({
+        type: Types.ResetState,
+      });
+      mutation.reset();
+    }
     reactDispatch(getNodeOperations("childPipeline"));
   };
 
-  React.useEffect(() => {
-    const el = document.querySelector(".react-json-view");
-
-    if (el) {
-      //@ts-ignore
-      el!.scrollIntoView({ block: "center", behavior: "smooth" });
-    }
-  });
+  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
+  const { selectedPlugin } = useTypedSelector((state) => state.instance);
 
   const addPipeline = async () => {
-    setError({});
-    if (selectedPlugin && selectedPipeline && feed) {
-      setError({});
-      const {
-        pluginPipings,
-        pipelinePlugins,
-        pluginParameters,
-        computeEnvs,
-        parameterList,
-        title,
-      } = pipelineData[selectedPipeline];
+    const id = pipelineToAdd?.data.id;
+    const resources = selectedPipeline?.[id];
 
-      if (pluginPipings && pluginParameters && pipelinePlugins) {
-        const client = ChrisAPIClient.getClient();
-        try {
-          const nodes_info = client.computeWorkflowNodesInfo(
-            //@ts-ignore
-            pluginParameters.data,
-          );
-          nodes_info.forEach((node) => {
-            if (computeEnvs && computeEnvs[node["piping_id"]]) {
-              const compute_node =
-                computeEnvs[node["piping_id"]]["currentlySelected"];
+    if (selectedPlugin && feed && resources) {
+      const { parameters } = resources;
+      const client = ChrisAPIClient.getClient();
 
-              const titleChange = title && title[node["piping_id"]];
-              if (titleChange) {
-                node.title = titleChange;
-              }
-              if (compute_node) {
-                node.compute_resource_name = compute_node;
-              }
-            }
+      try {
+        const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
 
-            if (parameterList && parameterList[node["piping_id"]]) {
-              const params = parameterList[node["piping_id"]];
-              node["plugin_parameter_defaults"] = params;
-            }
-          });
-          await client.createWorkflow(selectedPipeline, {
-            previous_plugin_inst_id: selectedPlugin.data.id,
-            nodes_info: JSON.stringify(nodes_info),
-          });
+        for (const node of nodes_info) {
+          // Set compute info
+          const activeNode = computeInfo?.[id][node.piping_id];
+          // Set Title
+          const titleSet = titleInfo?.[id][node.piping_id];
 
-          pipelineDispatch({
-            type: PipelineTypes.ResetState,
-          });
-
-          const data = await feed.getPluginInstances({
-            limit: 1000,
-          });
-          if (data.getItems()) {
-            const instanceList = data.getItems();
-            const firstInstance = instanceList && instanceList[0];
-            reactDispatch(getSelectedPlugin(firstInstance));
-            if (instanceList) {
-              const pluginInstanceObj = {
-                selected: firstInstance,
-                pluginInstances: instanceList,
-              };
-              reactDispatch(getPluginInstancesSuccess(pluginInstanceObj));
-              reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
-            }
+          if (activeNode) {
+            const compute_node = activeNode.currentlySelected;
+            node.compute_resource_name = compute_node;
           }
-          handleToggle();
-        } catch (error: any) {
-          const errorMessage = error.response.data || error.message;
-          setError(errorMessage);
+
+          if (titleSet) {
+            node.title = titleSet;
+          }
         }
+
+        const workflow = await client.createWorkflow(id, {
+          previous_plugin_inst_id: selectedPlugin.data.id,
+          nodes_info: JSON.stringify(nodes_info),
+        });
+
+        const pluginInstances = await workflow.getPluginInstances({
+          limit: 1000,
+        });
+        const instanceItems = pluginInstances.getItems();
+        if (instanceItems && alreadyAvailableInstances) {
+          const firstInstance = instanceItems[instanceItems.length - 1];
+          const completeList = [...alreadyAvailableInstances, ...instanceItems];
+          reactDispatch(getSelectedPlugin(firstInstance));
+          const pluginInstanceObj = {
+            selected: firstInstance,
+            pluginInstances: completeList,
+          };
+          reactDispatch(getPluginInstancesSuccess(pluginInstanceObj));
+          reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
+        }
+
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+      } catch (e: any) {
+        throw new Error(e.message ? e.message : e);
       }
     }
   };
+
+  const mutation = useMutation({
+    mutationFn: () => addPipeline(),
+  });
+
+  React.useEffect(() => {
+    const el = document.querySelector("#indicators");
+
+    if (el) {
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+  });
+
+  const isButtonDisabled =
+    pipelineToAdd && computeInfo?.[pipelineToAdd.data.id] && !mutation.isPending
+      ? false
+      : true;
 
   return (
     <React.Fragment>
@@ -128,10 +126,10 @@ const AddPipeline = () => {
         description="Add a Pipeline to the plugin instance"
         actions={[
           <Button
-            isDisabled={!state.selectedPipeline}
             key="confirm"
             variant="primary"
-            onClick={addPipeline}
+            onClick={() => mutation.mutate()}
+            isDisabled={isButtonDisabled}
           >
             Confirm
           </Button>,
@@ -140,12 +138,19 @@ const AddPipeline = () => {
           </Button>,
         ]}
       >
-        <PipelineContainer />
-        <div id="error">
-          {Object.keys(error).length > 0 && (
-            <ErrorAlert cleanUpErrors={() => setError({})} errors={error} />
-          )}
-        </div>
+        <Pipelines />
+
+        {mutation.isError || mutation.isSuccess || mutation.isPending ? (
+          <div id="indicators">
+            {mutation.isError && (
+              <Alert type="error" description={mutation.error.message} />
+            )}
+            {mutation.isSuccess && (
+              <Alert type="success" description="Pipeline Added" />
+            )}
+            {mutation.isPending && <SpinContainer title="Adding Pipeline..." />}
+          </div>
+        ) : null}
       </Modal>
     </React.Fragment>
   );

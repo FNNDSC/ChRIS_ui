@@ -1,24 +1,27 @@
-import { Spin } from "antd";
+import { Pipeline } from "@fnndsc/chrisapi";
 import { hierarchy, tree } from "d3-hierarchy";
 import { event, select } from "d3-selection";
 import { linkVertical } from "d3-shape";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import React, {
   Fragment,
-  useEffect,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from "react";
 import { TreeNode, getFeedTree } from "../../api/common";
-import { SpinContainer } from "../Common";
-import { SinglePipeline } from "../CreateFeed/types/pipeline";
+import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
-import { getTsNodesWithPipings } from "../FeedTree/data";
-import { type Point, type Separation } from "../FeedTree/data";
+import {
+  getTsNodesWithPipings,
+  type Point,
+  type Separation,
+} from "../FeedTree/data";
 import useSize from "../FeedTree/useSize";
 import NodeData from "./NodeData";
+import { PipelineContext } from "./context";
 
 const nodeSize = { x: 200, y: 80 };
 const svgClassName = "feed-tree__svg";
@@ -26,29 +29,6 @@ const graphClassName = "feed-tree__graph";
 const scale = 1;
 
 export interface TreeProps {
-  state: SinglePipeline;
-  currentPipelineId: number;
-  handleSetCurrentNode: (pipelineId: number, currentNode: number) => void;
-  handleNodeClick: (
-    nodeName: number,
-    pipelineId: number,
-    plugin_id: number,
-  ) => void;
-  handleSetCurrentNodeTitle: (
-    currentPipelineId: number,
-    currentNode: number,
-    title: string,
-  ) => void;
-  handleSetPipelineEnvironments: (
-    pipelineId: number,
-    computeEnvData: {
-      [x: number]: {
-        computeEnvs: any[];
-        currentlySelected: any;
-      };
-    },
-  ) => void;
-
   translate?: Point;
   scaleExtent: {
     min: number;
@@ -61,24 +41,20 @@ export interface TreeProps {
   };
   separation?: Separation;
   orientation?: "horizontal" | "vertical";
+  currentPipeline: Pipeline;
 }
 
 const Tree = (props: TreeProps) => {
-  const divRef = useRef(null);
+  const { currentPipeline } = props;
+  const { state } = React.useContext(PipelineContext);
+  const { selectedPipeline } = state;
+  const divRef = useRef<HTMLDivElement>(null);
   const [translate, setTranslate] = React.useState({
     x: 0,
     y: 0,
   });
   const size = useSize(divRef);
-  const { currentPipelineId, state, handleSetCurrentNode } = props;
-  const { pluginPipings, pipelinePlugins, pluginParameters } = state;
   const [loading, setLoading] = React.useState(false);
-  const {
-    handleNodeClick,
-    handleSetCurrentNodeTitle,
-    handleSetPipelineEnvironments,
-  } = props;
-
   const [data, setData] = React.useState<TreeNode[]>();
   const [tsIds, setTsIds] = React.useState<any>();
   const { zoom, scaleExtent } = props;
@@ -106,43 +82,19 @@ const Tree = (props: TreeProps) => {
     bindZoomListener();
   }, [bindZoomListener]);
 
-  const handleSetCurrentNodeCallback = React.useCallback(
-    (id: number) => {
-      handleSetCurrentNode(currentPipelineId, id);
-    },
-    [currentPipelineId, handleSetCurrentNode],
-  );
-
   React.useEffect(() => {
-    if (pluginPipings) {
+    if (selectedPipeline) {
+      const { pluginPipings, parameters } =
+        selectedPipeline[currentPipeline.data.id];
       setLoading(true);
       const tree = getFeedTree(pluginPipings);
-      getTsNodesWithPipings(pluginPipings, pluginParameters).then((tsIds) => {
+      getTsNodesWithPipings(pluginPipings, parameters).then((tsIds) => {
         setTsIds(tsIds);
       });
       setData(tree);
+      setLoading(false);
     }
-    if (pipelinePlugins) {
-      const defaultPlugin = pipelinePlugins[0];
-      const defaultPluginId = pluginPipings?.filter((piping: any) => {
-        if (piping.data.plugin_id === defaultPlugin.data.id) {
-          return piping.data.id;
-        }
-      });
-
-      if (defaultPluginId) {
-        handleSetCurrentNodeCallback(defaultPluginId[0].data.id);
-      }
-    }
-    setLoading(false);
-  }, [
-    pluginPipings,
-    pipelinePlugins,
-    pluginParameters,
-    currentPipelineId,
-    handleSetCurrentNodeCallback,
-    pipelinePlugins?.[0],
-  ]);
+  }, [selectedPipeline?.[currentPipeline.data.id]]);
 
   React.useEffect(() => {
     //@ts-ignore
@@ -155,6 +107,15 @@ const Tree = (props: TreeProps) => {
       });
     }
   }, [size]);
+
+  React.useEffect(() => {
+    const svgElement = document.querySelector(".feed-tree__svg");
+
+    if (svgElement && divRef.current) {
+      const svgHeight = svgElement.getBoundingClientRect().height;
+      divRef.current.style.height = `${svgHeight}px`;
+    }
+  }, []);
 
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
@@ -219,13 +180,7 @@ const Tree = (props: TreeProps) => {
 
   return (
     <>
-      <div
-        style={{
-          height: "400px",
-        }}
-        ref={divRef}
-        className="feed-tree grabbable mode_tree"
-      >
+      <div ref={divRef} className="feed-tree grabbable mode_tree">
         {loading ? (
           <SpinContainer title="Constructing the tree..." />
         ) : translate.x > 0 && translate.y > 0 ? (
@@ -253,25 +208,25 @@ const Tree = (props: TreeProps) => {
               {nodes?.map(({ data, x, y, parent }, i) => {
                 return (
                   <NodeData
-                    state={state}
                     key={`node + ${i}`}
                     data={data}
                     position={{ x, y }}
                     parent={parent}
                     orientation="vertical"
-                    handleNodeClick={handleNodeClick}
-                    currentPipelineId={currentPipelineId}
-                    handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
-                    handleSetPipelineEnvironments={
-                      handleSetPipelineEnvironments
-                    }
+                    handleNodeClick={(
+                      _pluginName: number,
+                      _pipelineId: number,
+                    ): void => {
+                      throw new Error("Function not implemented.");
+                    }}
+                    currentPipelineId={currentPipeline.data.id}
                   />
                 );
               })}
             </TransitionGroupWrapper>
           </svg>
         ) : (
-          <Spin>Drawing out the pipelines tree</Spin>
+          <EmptyStateComponent />
         )}
       </div>
     </>

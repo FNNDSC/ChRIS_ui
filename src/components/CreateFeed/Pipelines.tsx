@@ -1,44 +1,32 @@
-import React, { useCallback, useContext, useEffect } from "react";
+import type { Pipeline } from "@fnndsc/chrisapi";
 import {
   Button,
-  DataList,
-  DataListItem,
-  DataListCell,
-  DataListItemRow,
-  DataListItemCells,
-  DataListToggle,
-  Pagination,
-  DataListAction,
-  DataListContent,
-  WizardContext,
-  TextInput,
   Dropdown,
   DropdownItem,
-  MenuToggle,
   DropdownList,
+  MenuToggle,
+  Pagination,
+  TextInput,
 } from "@patternfly/react-core";
-import { useQuery } from "@tanstack/react-query";
-import { ErrorAlert } from "../Common";
-import type { Pipeline } from "@fnndsc/chrisapi";
-import { EmptyStateComponent } from "../Common";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-
-import {
-  Tree,
-  ConfigurationPage,
-  UploadJson,
-  GeneralCompute,
-} from "../Pipelines/";
-import { SpinContainer } from "../Common";
+import { useQuery } from "@tanstack/react-query";
+import { Alert, Collapse } from "antd";
+import React, { useCallback } from "react";
 import {
   catchError,
   fetchComputeInfo,
   fetchPipelines,
   generatePipelineWithName,
 } from "../../api/common";
-import type { PipelinesProps } from "./types/pipeline";
-import { Alert } from "antd";
 import { useTypedSelector } from "../../store/hooks";
+import { EmptyStateComponent, ErrorAlert, SpinContainer } from "../Common";
+import {
+  ConfigurationPage,
+  GeneralCompute,
+  Tree,
+  UploadJson,
+} from "../Pipelines/";
+import type { PipelinesProps } from "./types/pipeline";
 
 export const PIPELINEQueryTypes = {
   NAME: ["Name", "Match plugin name containing this string"],
@@ -80,8 +68,6 @@ const Pipelines = ({
   const showDelete = useTypedSelector((state) => state.user.isStaff);
   const { pipelineData, selectedPipeline, pipelines } = state;
   const [errors, setErrors] = React.useState({});
-  const { goToNextStep: onNext, goToPrevStep: onBack } =
-    useContext(WizardContext);
 
   const [pageState, setPageState] = React.useState({
     page: 1,
@@ -135,9 +121,6 @@ const Pipelines = ({
         });
       }
 
-      if (data?.error.error_message) {
-        throw new Error(data?.error.error_message);
-      }
       return data;
     },
     enabled: true,
@@ -227,11 +210,13 @@ const Pipelines = ({
       handlePipelineSecondaryResource,
       pipelineData,
       selectedPipeline,
+      pipelineData[pipeline?.data.id],
     ],
   );
 
   const handleOnExpand = useCallback(
-    async (pipeline: Pipeline) => {
+    (pipeline: Pipeline) => {
+      console.log("Pipeline", pipeline, selectedPipeline);
       if (!(selectedPipeline === pipeline.data.id)) {
         handlePipelineSecondaryResource(pipeline);
       } else {
@@ -260,40 +245,9 @@ const Pipelines = ({
       handleCleanResources,
       handlePipelineSecondaryResource,
       selectedPipeline,
-      state.pipelineData,
+      state.pipelineData[pipeline?.data.id],
     ],
   );
-
-  const handleKeyDown = useCallback(
-    (e: any, pipeline: Pipeline) => {
-      if (
-        e.code === "Enter" &&
-        e.target.closest("DIV.pf-c-data-list__toggle")
-      ) {
-        e.preventDefaut();
-        handleOnExpand(pipeline);
-      }
-    },
-    [handleOnExpand],
-  );
-
-  const handleBrowserKeyDown = useCallback(
-    (e: any) => {
-      if (e.code === "ArrowLeft") {
-        onBack();
-      } else if (e.code === "ArrowRight") {
-        onNext();
-      }
-    },
-    [onBack, onNext],
-  );
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleBrowserKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleBrowserKeyDown);
-    };
-  }, [handleBrowserKeyDown]);
 
   const onToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -372,6 +326,135 @@ const Pipelines = ({
           onPerPageSelect={onPerPageSelect}
         />
       </div>
+
+      {isError && (
+        <Alert type="error" description={<div>{error.message}</div>} />
+      )}
+
+      {isLoading ? (
+        <SpinContainer title="Fetching Pipelines" />
+      ) : pipelines.length > 0 ? (
+        pipelines.map((pipeline: Pipeline) => {
+          return (
+            <Collapse
+              onChange={() => {
+                handleOnExpand(pipeline);
+              }}
+              key={pipeline.data.id}
+              items={[
+                {
+                  key: pipeline.data.id,
+                  label: (
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <span>{pipeline.data.name}</span>
+                      </div>
+
+                      <div>
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          key="select-action"
+                          onClick={() => handleOnButtonClick(pipeline)}
+                        >
+                          {selectedPipeline === pipeline.data.id
+                            ? "Deselect"
+                            : "Select"}
+                        </Button>
+                        {showDelete && (
+                          <Button
+                            size="sm"
+                            key="delete-action"
+                            onClick={async () => {
+                              try {
+                                await pipeline.delete();
+                                const filteredPipelines = pipelines.filter(
+                                  (currentPipeline: Pipeline) => {
+                                    return (
+                                      currentPipeline.data.id !==
+                                      pipeline.data.id
+                                    );
+                                  },
+                                );
+                                handleDispatchPipelines(filteredPipelines);
+                              } catch (error) {
+                                const err = catchError(error);
+                                setErrors(err);
+                              }
+                            }}
+                            variant="danger"
+                          >
+                            Delete
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ),
+                  children:
+                    (expanded?.[pipeline.data.id] ||
+                      state.pipelineData[pipeline.data.id]) &&
+                    !isResourcesLoading &&
+                    !isResourceError ? (
+                      <>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Tree
+                            state={state.pipelineData[pipeline.data.id]}
+                            currentPipelineId={pipeline.data.id}
+                            handleNodeClick={handleNodeClick}
+                            handleSetCurrentNode={handleSetCurrentNode}
+                            handleSetPipelineEnvironments={
+                              handleSetPipelineEnvironments
+                            }
+                            handleSetCurrentNodeTitle={
+                              handleSetCurrentNodeTitle
+                            }
+                          />
+
+                          <GeneralCompute
+                            handleSetGeneralCompute={handleSetGeneralCompute}
+                            currentPipelineId={pipeline.data.id}
+                          />
+                        </div>
+
+                        <ConfigurationPage
+                          justDisplay={justDisplay}
+                          pipelines={pipelines}
+                          pipeline={pipeline}
+                          currentPipelineId={pipeline.data.id}
+                          state={state.pipelineData[pipeline.data.id]}
+                          handleSetCurrentNodeTitle={handleSetCurrentNodeTitle}
+                          handleDispatchPipelines={handleDispatchPipelines}
+                          handleSetCurrentComputeEnv={
+                            handleSetCurrentComputeEnv
+                          }
+                          handleFormParameters={handleFormParameters}
+                          handleSetGeneralCompute={handleSetGeneralCompute}
+                        />
+                      </>
+                    ) : (
+                      <SpinContainer title="Fetching Pipeline Resources" />
+                    ),
+                },
+              ]}
+            />
+          );
+        })
+      ) : (
+        <EmptyStateComponent title="No Pipelines were found registered to your ChRIS instance" />
+      )}
+
+      {/*
+
       <DataList aria-label="pipeline list">
         {isError && (
           <Alert type="error" description={<div>{error.message}</div>} />
@@ -428,7 +511,7 @@ const Pipelines = ({
                         : "Select"}
                     </Button>
                   )}
-                  {/*Hardcode to only allow the user 'chris' to delete the pipelines*/}
+                  {/*Hardcode to only allow the user 'chris' to delete the pipelines}
                   {showDelete && (
                     <Button
                       key="delete-action"
@@ -488,7 +571,7 @@ const Pipelines = ({
                         currentPipelineId={pipeline.data.id}
                       />
 
-                      */}
+                      }
                     </div>
 
                     <ConfigurationPage
@@ -513,6 +596,7 @@ const Pipelines = ({
           <EmptyStateComponent title="No Pipelines were found registered to your ChRIS instance" />
         )}
       </DataList>
+  */}
 
       <div id="error">
         {Object.keys(errors).length > 0 && (

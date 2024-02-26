@@ -39,14 +39,11 @@ const TitleChange = ({
         display: "flex",
         alignItems: "center",
         marginBottom: "1rem",
+        marginRight: "1rem",
       }}
     >
       <TextInput
         aria-label="Configure Title"
-        style={{
-          margin: "1rem 0.5rem 0 0",
-          width: "30%",
-        }}
         type="text"
         placeholder={edit ? "Add a title to the node" : ""}
         value={
