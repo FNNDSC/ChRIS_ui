@@ -30,7 +30,7 @@
     "@cornerstonejs/tools": "^1.61.1",
     "@fnndsc/chrisapi": "^1.15.0",
     "@heroicons/react": "^2.1.1",
-    "@niivue/niivue": "^0.38.8",
+    "@niivue/niivue": "^0.39.0",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.1.2",
     "@patternfly/react-core": "^5.2.0",
