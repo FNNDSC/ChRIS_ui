@@ -76,10 +76,12 @@ export const createFeedInstanceWithDircopy = async (
   state: PipelineState,
 ) => {
   const { chrisFiles, localFiles } = data;
-  const dirpath: string[] = [];
+
+  let dirpath: string[] = [];
+  let feed: Feed;
 
   if (selectedConfig.includes("swift_storage")) {
-    dirpath.push(...chrisFiles);
+    dirpath = chrisFiles.map((path: string) => path);
   }
 
   if (selectedConfig.includes("local_select")) {
@@ -90,8 +92,8 @@ export const createFeedInstanceWithDircopy = async (
     try {
       await uploadLocalFiles(localFiles, path, setUploadFileCallback);
     } catch (error) {
-      errorCallback(catchError(error));
-      return null;
+      const errObj = catchError(error);
+      errorCallback(errObj);
     }
   }
 
@@ -99,48 +101,61 @@ export const createFeedInstanceWithDircopy = async (
     const client = ChrisAPIClient.getClient();
     const dircopy = await getPlugin("pl-dircopy");
 
-    if (!(dircopy instanceof Plugin)) {
-      return null;
-    }
+    if (dircopy instanceof Plugin) {
+      try {
+        const createdInstance = await client.createPluginInstance(
+          dircopy.data.id,
+          {
+            //@ts-ignore
+            dir: dirpath.join(","),
+          },
+        );
+        const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } =
+          state;
 
-    const createdInstance = await client.createPluginInstance(dircopy.data.id, {
-      //@ts-ignore
-      dir: dirpath.join(","),
-    });
+        const id = pipelineToAdd?.data.id;
+        const resources = selectedPipeline?.[id];
+        if (createdInstance) {
+          if (resources) {
+            const { parameters } = resources;
 
-    const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
-    const id = pipelineToAdd?.data.id;
-    const resources = selectedPipeline?.[id];
+            const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
 
-    if (createdInstance && resources) {
-      const { parameters } = resources;
-      const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
+            for (const node of nodes_info) {
+              // Set compute info
+              const activeNode = computeInfo?.[id][node.piping_id];
+              // Set Title
+              const titleSet = titleInfo?.[id][node.piping_id];
 
-      for (const node of nodes_info) {
-        const activeNode = computeInfo?.[id][node.piping_id];
-        const titleSet = titleInfo?.[id][node.piping_id];
+              if (activeNode) {
+                const compute_node = activeNode.currentlySelected;
+                node.compute_resource_name = compute_node;
+              }
 
-        if (activeNode) {
-          node.compute_resource_name = activeNode.currentlySelected;
+              if (titleSet) {
+                node.title = titleSet;
+              }
+            }
+
+            await client.createWorkflow(id, {
+              previous_plugin_inst_id: createdInstance.data.id,
+              nodes_info: JSON.stringify(nodes_info),
+            });
+          }
+
+          feed = (await createdInstance.getFeed()) as Feed;
+          return feed;
         }
-
-        if (titleSet) {
-          node.title = titleSet;
-        }
+      } catch (error) {
+        console.log("Error", error);
       }
+      return null;
 
-      await client.createWorkflow(id, {
-        previous_plugin_inst_id: createdInstance.data.id,
-        nodes_info: JSON.stringify(nodes_info),
-      });
-
-      return (await createdInstance.getFeed()) as Feed;
+      //when the `post` finishes, the dircopyInstances's internal collection is updated
     }
-
-    return null;
   } catch (error) {
-    errorCallback(catchError(error));
-    return null;
+    const errorObj = catchError(error);
+    errorCallback(errorObj);
   }
 };
 
