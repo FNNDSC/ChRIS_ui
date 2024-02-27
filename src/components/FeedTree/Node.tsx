@@ -1,13 +1,13 @@
-import React, { Fragment, useRef, useContext } from "react";
-import { ThemeContext } from "../DarkTheme/useTheme";
-import { select } from "d3-selection";
-import { HierarchyPointNode } from "d3-hierarchy";
-import { Datum, TreeNodeDatum, Point } from "./data";
 import { PluginInstance } from "@fnndsc/chrisapi";
-import { useTypedSelector } from "../../store/hooks";
-import { FeedTreeScaleType } from "./Controls";
+import { HierarchyPointNode } from "d3-hierarchy";
+import { select } from "d3-selection";
+import React, { Fragment, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
+import { useTypedSelector } from "../../store/hooks";
 import { getSelectedD3Node } from "../../store/pluginInstance/actions";
+import { ThemeContext } from "../DarkTheme/useTheme";
+import { FeedTreeScaleType } from "./Controls";
+import TreeNodeDatum, { Datum, Point } from "./data";
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[];
@@ -76,7 +76,7 @@ const Node = (props: NodeProps) => {
   React.useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
-  }, [orientation, position]);
+  }, [orientation, position, applyNodeTransform]);
 
   let statusClass = "";
   let tsClass = "";
@@ -171,7 +171,7 @@ const Node = (props: NodeProps) => {
             strokeWidth: currentId ? "3px" : "1px",
           }}
           r={DEFAULT_NODE_CIRCLE_RADIUS}
-        ></circle>
+        />
         {overlaySize && (
           <circle
             id={`node_overlay_${data.id}`}
@@ -199,14 +199,14 @@ const NodeWrapper = (props: NodeWrapperProps) => {
 
   const currentId = useTypedSelector((state) => {
     if (state.instance.selectedPlugin?.data.id === data.id) return true;
-    else return false;
+    return false;
   });
 
   React.useEffect(() => {
     if (currentId) dispatch(getSelectedD3Node(data));
   }, [currentId, data, dispatch]);
 
-  let scale; // undefined scale is treated as no indvidual scaling
+  let scale: number | undefined; // undefined scale is treated as no indvidual scaling
   if (overlayScale === "time") {
     const instanceData = props.data.item?.data;
     if (instanceData) {
@@ -214,8 +214,6 @@ const NodeWrapper = (props: NodeWrapperProps) => {
       const end = new Date(instanceData?.end_date);
       scale = Math.log10(end.getTime() - start.getTime()) / 2;
     }
-  } else if (overlayScale === "size") {
-    // props.data.item?.
   }
 
   return (

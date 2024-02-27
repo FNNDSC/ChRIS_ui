@@ -1,9 +1,13 @@
-import { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
-import { unpackParametersIntoObject } from "../AddNode/utils";
-import { CreateFeedData } from "./types/feed";
-import { PipelineData } from "./types/pipeline";
+import {
+  Plugin,
+  PluginInstance,
+  PluginParameter,
+  Feed,
+} from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { InputType } from "../AddNode/types";
+import { unpackParametersIntoObject } from "../AddNode/utils";
+import { CreateFeedData } from "./types/feed";
 
 import {
   catchError,
@@ -11,13 +15,16 @@ import {
   limitConcurrency,
   uploadWrapper,
 } from "../../api/common";
+import { PipelineState } from "../PipelinesCopy/context";
 
 export function getName(selectedConfig: string) {
   if (selectedConfig === "fs_plugin") {
     return "Analysis Creation using an FS Plugin";
-  } else if (selectedConfig === "file_select") {
+  }
+  if (selectedConfig === "file_select") {
     return "Analysis Creation using File Select";
-  } else return "Analysis Creation";
+  }
+  return "Analysis Creation";
 }
 
 export const createFeed = async (
@@ -26,17 +33,16 @@ export const createFeed = async (
   requiredInput: InputType,
   selectedPlugin: Plugin | undefined,
   username: string | null | undefined,
-  pipelineData: PipelineData,
   setUploadFileCallback: (status: number) => void,
   setErrorCallback: (error: any) => void,
   selectedConfig: string[],
-  selectedPipeline?: number,
+  state: PipelineState,
 ) => {
   /**
    * Dircopy requires a path from the ChRIS object storage
    * as in input
    */
-  let feed;
+  let feed: Feed | undefined | null;
 
   if (
     selectedConfig.includes("local_select") ||
@@ -45,11 +51,10 @@ export const createFeed = async (
     feed = await createFeedInstanceWithDircopy(
       data,
       username,
-      pipelineData,
       setUploadFileCallback,
       setErrorCallback,
       selectedConfig,
-      selectedPipeline,
+      state,
     );
   } else if (selectedConfig.includes("fs_plugin")) {
     feed = await createFeedInstanceWithFS(
@@ -65,16 +70,15 @@ export const createFeed = async (
 export const createFeedInstanceWithDircopy = async (
   data: CreateFeedData,
   username: string | null | undefined,
-  pipelineData: PipelineData,
   setUploadFileCallback: (value: number) => void,
   errorCallback: (error: any) => void,
   selectedConfig: string[],
-  selectedPipeline?: number,
+  state: PipelineState,
 ) => {
   const { chrisFiles, localFiles } = data;
 
   let dirpath: string[] = [];
-  let feed;
+  let feed: Feed;
 
   if (selectedConfig.includes("swift_storage")) {
     dirpath = chrisFiles.map((path: string) => path);
@@ -106,56 +110,46 @@ export const createFeedInstanceWithDircopy = async (
             dir: dirpath.join(","),
           },
         );
+        const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } =
+          state;
 
+        const id = pipelineToAdd?.data.id;
+        const resources = selectedPipeline?.[id];
         if (createdInstance) {
-          if (selectedPipeline) {
-            const pipeline = pipelineData[selectedPipeline];
-            if (
-              pipeline.pluginPipings &&
-              pipeline.pluginParameters &&
-              pipeline.pipelinePlugins &&
-              pipeline.pluginPipings.length > 0
-            ) {
-              const { pluginParameters, computeEnvs, parameterList } = pipeline;
+          if (resources) {
+            const { parameters } = resources;
 
-              const nodes_info = client.computeWorkflowNodesInfo(
-                //@ts-ignore
-                pluginParameters.data,
-              );
+            const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
 
-              nodes_info.forEach((node) => {
-                if (computeEnvs && computeEnvs[node["piping_id"]]) {
-                  const compute_node =
-                    computeEnvs[node["piping_id"]]["currentlySelected"];
+            for (const node of nodes_info) {
+              // Set compute info
+              const activeNode = computeInfo?.[id][node.piping_id];
+              // Set Title
+              const titleSet = titleInfo?.[id][node.piping_id];
 
-                  const title =
-                    pipeline.title && pipeline.title[node["piping_id"]];
-                  if (title) {
-                    node.title = title;
-                  }
-                  if (compute_node) {
-                    node.compute_resource_name = compute_node;
-                  }
-                }
+              if (activeNode) {
+                const compute_node = activeNode.currentlySelected;
+                node.compute_resource_name = compute_node;
+              }
 
-                if (parameterList && parameterList[node["piping_id"]]) {
-                  const params = parameterList[node["piping_id"]];
-                  node["plugin_parameter_defaults"] = params;
-                }
-              });
-
-              await client.createWorkflow(selectedPipeline, {
-                previous_plugin_inst_id: createdInstance.data.id,
-                nodes_info: JSON.stringify(nodes_info),
-              });
+              if (titleSet) {
+                node.title = titleSet;
+              }
             }
+
+            await client.createWorkflow(id, {
+              previous_plugin_inst_id: createdInstance.data.id,
+              nodes_info: JSON.stringify(nodes_info),
+            });
           }
 
-          feed = await createdInstance.getFeed();
+          feed = (await createdInstance.getFeed()) as Feed;
+          return feed;
         }
       } catch (error) {
         console.log("Error", error);
       }
+      return null;
 
       //when the `post` finishes, the dircopyInstances's internal collection is updated
     }
@@ -163,8 +157,6 @@ export const createFeedInstanceWithDircopy = async (
     const errorObj = catchError(error);
     errorCallback(errorObj);
   }
-
-  return feed;
 };
 
 export const createFeedInstanceWithFS = async (
@@ -173,7 +165,7 @@ export const createFeedInstanceWithFS = async (
   selectedPlugin: Plugin | undefined,
   errorCallback: (error: any) => void,
 ) => {
-  let feed;
+  let feed: Feed | null = null;
   if (selectedPlugin) {
     if (selectedPlugin instanceof Plugin) {
       const data = await getRequiredObject(
