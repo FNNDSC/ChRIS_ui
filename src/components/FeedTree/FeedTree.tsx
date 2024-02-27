@@ -1,57 +1,29 @@
-import React, { useRef, useContext } from "react";
-import { useDispatch } from "react-redux";
-import { isEqual } from "lodash";
-import { Switch, Alert, TextInput } from "@patternfly/react-core";
-import { tree, hierarchy, HierarchyPointLink } from "d3-hierarchy";
-import { select, event } from "d3-selection";
-import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { Alert, Switch, TextInput } from "@patternfly/react-core";
 import RotateLeft from "@patternfly/react-icons/dist/esm/icons/angle-double-left-icon";
 import RotateRight from "@patternfly/react-icons/dist/esm/icons/angle-double-right-icon";
-import useSize from "./useSize";
-import Link from "./Link";
-import NodeWrapper from "./Node";
-import { ThemeContext } from "../DarkTheme/useTheme";
-import { TreeNodeDatum, Point, treeAlgorithm } from "./data";
-import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import { TSID } from "./ParentComponent";
-import { useTypedSelector } from "../../store/hooks";
+import { HierarchyPointLink, hierarchy, tree } from "d3-hierarchy";
+import { event, select } from "d3-selection";
+import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
+import { isEqual } from "lodash";
+import React, { useRef, useContext } from "react";
+import { useDispatch } from "react-redux";
 import {
   setFeedLayout,
   setSearchFilter,
   setTranslate,
 } from "../../store/feed/actions";
-import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
+import type { FeedTreeProp } from "../../store/feed/types";
+import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";
 import { switchTreeMode } from "../../store/tsplugins/actions";
-import type { FeedTreeProp } from "../../store/feed/types";
-
-interface Separation {
-  siblings: number;
-  nonSiblings: number;
-}
-
-interface OwnProps {
-  tsIds?: TSID;
-  data: TreeNodeDatum[];
-  onNodeClick: (node: any) => void;
-  onNodeClickTs: (node: PluginInstance) => void;
-  translate?: Point;
-  scaleExtent: {
-    min: number;
-    max: number;
-  };
-  zoom: number;
-  nodeSize: {
-    x: number;
-    y: number;
-  };
-  separation: Separation;
-  orientation: "horizontal" | "vertical";
-  changeOrientation: (orientation: string) => void;
-}
-
-type AllProps = OwnProps;
+import { ThemeContext } from "../DarkTheme/useTheme";
+import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
+import Link from "./Link";
+import NodeWrapper from "./Node";
+import TransitionGroupWrapper from "./TransitionGroupWrapper";
+import TreeNodeDatum, { Point, treeAlgorithm, OwnProps } from "./data";
+import useSize from "./useSize";
 
 type FeedTreeState = {
   d3: {
@@ -68,7 +40,7 @@ type FeedTreeState = {
   search: boolean;
 };
 
-function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
+function calculateD3Geometry(nextProps: OwnProps, feedTreeProp: FeedTreeProp) {
   let scale;
   if (nextProps.zoom > nextProps.scaleExtent.max) {
     scale = nextProps.scaleExtent.max;
@@ -84,7 +56,7 @@ function calculateD3Geometry(nextProps: AllProps, feedTreeProp: FeedTreeProp) {
 }
 
 function getInitialState(
-  props: AllProps,
+  props: OwnProps,
   feedTreeProp: FeedTreeProp,
 ): FeedTreeState {
   return {
@@ -102,7 +74,7 @@ function getInitialState(
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 
-const FeedTree = (props: AllProps) => {
+const FeedTree = (props: OwnProps) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const dispatch = useDispatch();
 
@@ -232,6 +204,7 @@ const FeedTree = (props: AllProps) => {
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
     getInitialState(props, feedTreeProp),
   );
+
   const { scale } = feedState.d3;
   const { changeOrientation, zoom, scaleExtent } = props;
 
@@ -495,7 +468,7 @@ const FeedTree = (props: AllProps) => {
 
 const FeedTreeMemoed = React.memo(
   FeedTree,
-  (prevProps: AllProps, nextProps: AllProps) => {
+  (prevProps: OwnProps, nextProps: OwnProps) => {
     if (
       !isEqual(prevProps.data, nextProps.data) ||
       prevProps.zoom !== nextProps.zoom ||

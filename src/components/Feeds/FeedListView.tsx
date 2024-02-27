@@ -1,48 +1,49 @@
-import React, { useContext } from "react";
-import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
-import { format } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import type { Feed } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
-import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
 import {
-  Tooltip,
+  Bullseye,
+  Button,
   Checkbox,
+  EmptyState,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateVariant,
   PageSection,
   Pagination,
-  Bullseye,
-  EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
-  EmptyStateHeader,
   Skeleton,
   ToggleGroup,
   ToggleGroupItem,
   ToggleGroupItemProps,
-  Button,
+  Tooltip,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import { useQuery } from "@tanstack/react-query";
 import { Typography } from "antd";
 import { cujs } from "chris-utility";
-import { useTypedSelector } from "../../store/hooks";
-import { usePaginate, useSearchQueryParams } from "./usePaginate";
+import { format } from "date-fns";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 import {
-  setBulkSelect,
-  removeBulkSelect,
   removeAllSelect,
-  toggleSelectAll,
+  removeBulkSelect,
   setAllSelect,
+  setBulkSelect,
+  toggleSelectAll,
 } from "../../store/feed/actions";
+import { useTypedSelector } from "../../store/hooks";
 import { setSidebarActive } from "../../store/ui/actions";
-import type { Feed } from "@fnndsc/chrisapi";
+import { AddNodeProvider } from "../AddNode/context";
+import { DataTableToolbar, InfoIcon } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
+import { CreateFeedProvider } from "../CreateFeed/context";
+import { PipelineProvider } from "../PipelinesCopy/context";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import IconContainer from "../IconContainer";
 import WrapperConnect from "../Wrapper";
-import { InfoIcon, DataTableToolbar } from "../Common";
-import { CreateFeedProvider, PipelineProvider } from "../CreateFeed/context";
-import { AddNodeProvider } from "../AddNode/context";
-import { ThemeContext } from "../DarkTheme/useTheme";
-import { fetchPublicFeeds, fetchFeeds } from "./utilties";
+import { usePaginate, useSearchQueryParams } from "./usePaginate";
+import { fetchFeeds, fetchPublicFeeds } from "./utilties";
 
 const { Paragraph } = Typography;
 
@@ -96,13 +97,20 @@ const TableSelectable: React.FunctionComponent = () => {
     (state) => state.feed,
   );
 
-  const onSetPage = (_e: any, newPage: number) => {
+  const onSetPage = (
+    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    newPage: number,
+  ) => {
     navigate(
       `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}&type=${type}`,
     );
   };
 
-  const onPerPageSelect = (_e: any, newPerPage: number, newPage: number) => {
+  const onPerPageSelect = (
+    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    newPerPage: number,
+    newPage: number,
+  ) => {
     navigate(
       `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`,
     );
