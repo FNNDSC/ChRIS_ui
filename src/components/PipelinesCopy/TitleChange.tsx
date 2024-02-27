@@ -1,8 +1,7 @@
 import { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
-import { Alert, Button, Input, Space, Form } from "antd";
+import { Alert, Button, Form, Input, Space } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { PipelineContext, Types } from "./context";
-import styles from "./Pipelines.module.css";
 
 type OwnProps = {
   currentPipeline: Pipeline;
@@ -59,10 +58,7 @@ function TitleChange({ currentPipeline }: OwnProps) {
 
   return (
     <>
-      <Form.Item
-        className={styles.label}
-        label="Set a Title for the selected node"
-      >
+      <Form.Item label="Set a Title for the selected node">
         <Space.Compact>
           <Input onChange={(e) => setValue(e.target.value)} value={value} />
           <Button type="primary" onClick={handleSaveTitle}>

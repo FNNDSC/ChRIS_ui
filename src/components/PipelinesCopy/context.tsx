@@ -230,3 +230,26 @@ const PipelineContext = createContext<{
 });
 
 export { PipelineContext, PipelineProvider };
+
+export const PIPELINEQueryTypes = {
+  NAME: ["Name", "Match plugin name containing this string"],
+  ID: ["Id", "Match plugin id exactly with this number"],
+  OWNER_USERNAME: [
+    "Owner_Username",
+    "Match pipeline's owner username exactly with this string",
+  ],
+  CATEGORY: ["Category", "Match plugin category containing this string"],
+  DESCRIPTION: [
+    "Description",
+    "Match plugin description containing this string",
+  ],
+  AUTHORS: ["Authors", "Match plugin authors containing this string"],
+  MIN_CREATION_DATE: [
+    "Min_creation_date",
+    "Match plugin creation date greater than this date",
+  ],
+  MAX_CREATION_DATE: [
+    "Max_creation_date",
+    "Match plugin creation date lte this date",
+  ],
+};

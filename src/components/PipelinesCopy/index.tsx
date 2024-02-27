@@ -1,11 +1,26 @@
-import { Button, Pagination } from "@patternfly/react-core";
+import {
+  Button,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  Pagination,
+  TextInput,
+} from "@patternfly/react-core";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Collapse } from "antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
+import "./Pipelines.css";
 import PipelinesComponent from "./PipelinesComponent";
-import { PerPipelinePayload, PipelineContext, Types } from "./context";
+import {
+  PIPELINEQueryTypes,
+  PerPipelinePayload,
+  PipelineContext,
+  Types,
+} from "./context";
 
 type PaginationEvent = React.MouseEvent | React.KeyboardEvent | MouseEvent;
 type LoadingResources = {
@@ -23,22 +38,31 @@ const PipelinesCopy = () => {
     page: 1,
     perPage: 10,
     search: "",
-    itemCount: 0,
   });
   const { perPage, page, search } = pageState;
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [dropdownValue, setDropdownValue] = useState<string>(
+    PIPELINEQueryTypes.NAME[0],
+  );
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["pipelines", pageState],
+    queryKey: ["pipelines", perPage, page, search, dropdownValue],
     queryFn: async () => {
-      const fetchedData = await fetchPipelines(perPage, page, search, "");
-      setPageState({
-        ...pageState,
-        itemCount: fetchedData.totalCount,
-      });
+      const fetchedData = await fetchPipelines(
+        perPage,
+        page,
+        search,
+        dropdownValue,
+      );
+
       return fetchedData;
     },
     refetchOnMount: true,
   });
+
+  const onToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
   const onSetPage = (_event: PaginationEvent, page: number) => {
     setPageState({
@@ -64,10 +88,7 @@ const PipelinesCopy = () => {
         const { id } = pipeline.data;
         if (!state.selectedPipeline?.[id]) {
           try {
-            setLoadingResources({
-              ...loadingResources,
-              [pipeline.data.id]: true,
-            });
+            setLoadingResources((prev) => ({ ...prev, [id]: true }));
             const data: PerPipelinePayload = await fetchResources(pipeline);
             dispatch({
               type: Types.SetPipelines,
@@ -76,34 +97,97 @@ const PipelinesCopy = () => {
                 ...data,
               },
             });
-            setLoadingResources({
-              ...loadingResources,
-              [id]: false,
-            });
+            setLoadingResources((prev) => ({ ...prev, [id]: false }));
           } catch {
-            setResourceError({
-              ...resourceError,
-              [id]: "Error in Fetching the Resources for this Pipeline",
-            });
-            setLoadingResources({
-              ...loadingResources,
-              [id]: false,
-            });
+            setResourceError((prev) => ({
+              ...prev,
+              [id]: "Error fetching resources for this pipeline",
+            }));
+            setLoadingResources((prev) => ({ ...prev, [id]: false }));
           }
         }
       }
     }
   };
 
+  const dropdownItems = [
+    Object.values(PIPELINEQueryTypes).map((pipeline) => {
+      return (
+        <DropdownItem
+          key={pipeline[0]}
+          description={pipeline[1]}
+          component="button"
+          onClick={() => updateDropdownValue(pipeline[0])}
+        >
+          {pipeline[0]}
+        </DropdownItem>
+      );
+    }),
+  ];
+
+  const onFocus = () => {
+    const element = document.getElementById("toggle-basic");
+    element?.focus();
+  };
+
+  const onSelect = () => {
+    setIsDropdownOpen(false);
+    onFocus();
+  };
+
+  const handlePipelineSearch = (search: string) => {
+    setPageState({
+      ...pageState,
+      search,
+    });
+  };
+
+  const updateDropdownValue = (type: string) => {
+    setDropdownValue(type);
+    handlePipelineSearch("");
+  };
+
   return (
     <div>
-      <Pagination
-        itemCount={pageState.itemCount === 0 ? 0 : pageState.itemCount}
-        perPage={pageState.perPage}
-        page={pageState.page}
-        onSetPage={onSetPage}
-        onPerPageSelect={onPerPageSelect}
-      />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <Dropdown
+            onSelect={onSelect}
+            toggle={(toggleRef) => {
+              return (
+                <MenuToggle ref={toggleRef} onClick={onToggle}>
+                  {dropdownValue}
+                </MenuToggle>
+              );
+            }}
+            isOpen={isDropdownOpen}
+          >
+            <DropdownList>{dropdownItems}</DropdownList>
+          </Dropdown>
+          <TextInput
+            value={pageState.search}
+            type="text"
+            placeholder={dropdownValue}
+            customIcon={<SearchIcon />}
+            aria-label="search"
+            onChange={(_event, value: string) => {
+              handlePipelineSearch(value.toLowerCase());
+            }}
+          />
+        </div>
+        <Pagination
+          itemCount={data?.totalCount ? data.totalCount : 0}
+          perPage={pageState.perPage}
+          page={pageState.page}
+          onSetPage={onSetPage}
+          onPerPageSelect={onPerPageSelect}
+        />
+      </div>
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />

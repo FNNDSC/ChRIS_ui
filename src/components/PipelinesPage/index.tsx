@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { PipelineProvider } from "../CreateFeed/context";
-import PipelineContainer from "../CreateFeed/PipelineContainter";
+import { PipelineProvider } from "../PipelinesCopy/context";
+import Pipelines from "../PipelinesCopy";
 import WrapperConnect from "../Wrapper";
 import { setSidebarActive } from "../../store/ui/actions";
 import { PageSection } from "@patternfly/react-core";
@@ -20,7 +20,7 @@ const PipelinePage = () => {
     <WrapperConnect>
       <PageSection>
         <PipelineProvider>
-          <PipelineContainer justDisplay={true} />
+          <Pipelines />
         </PipelineProvider>
       </PageSection>
     </WrapperConnect>

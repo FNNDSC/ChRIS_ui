@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Alert } from "antd";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import React, { useContext, useEffect, useRef } from "react";
@@ -129,7 +130,7 @@ const NodeData = (props: NodeProps) => {
 
   return (
     <>
-      {isError && <span>{error.message}</span>}
+      {isError && <Alert type="error" description={error.message} />}
       {isLoading && (
         <span>Fetching the compute environments for this node...</span>
       )}

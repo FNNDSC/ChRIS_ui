@@ -1,28 +1,28 @@
-import * as React from "react";
-import { useContext } from "react";
 import {
   Button,
   Modal,
   ModalVariant,
   Wizard,
-  WizardStep,
   WizardHeader,
+  WizardStep,
 } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
 import { notification } from "antd";
-import { CreateFeedContext, PipelineContext } from "./context";
-import { AddNodeContext } from "../AddNode/context";
+import * as React from "react";
+import { useContext } from "react";
 import { MainRouterContext } from "../../routes";
-import { Types } from "./types/feed";
-import { PipelineTypes } from "./types/pipeline";
+import { useTypedSelector } from "../../store/hooks";
+import { AddNodeContext } from "../AddNode/context";
+import PipelinesCopy from "../PipelinesCopy";
+import { PipelineContext } from "../PipelinesCopy/context";
 import BasicInformation from "./BasicInformation";
 import ChooseConfig from "./ChooseConfig";
-import PipelinesCopy from "../PipelinesCopy";
 import Review from "./Review";
 import withSelectionAlert from "./SelectionAlert";
-import { useTypedSelector } from "../../store/hooks";
-import { createFeed } from "./createFeedHelper";
+import { CreateFeedContext } from "./context";
 import "./createFeed.css";
+import { createFeed } from "./createFeedHelper";
+import { Types } from "./types/feed";
 
 export default function CreateFeed() {
   const queryClient = useQueryClient();
@@ -38,7 +38,6 @@ export default function CreateFeed() {
   const { pluginMeta, selectedPluginFromMeta, dropdownInput, requiredInput } =
     addNodeState;
   const { wizardOpen, data, selectedConfig } = state;
-  const { pipelineData, selectedPipeline } = pipelineState;
 
   const getUploadFileCount = (value: number) => {
     dispatch({
@@ -81,11 +80,10 @@ export default function CreateFeed() {
       requiredInput,
       selectedPluginFromMeta,
       username,
-      pipelineData,
       getUploadFileCount,
       getFeedError,
       selectedConfig,
-      selectedPipeline,
+      pipelineState,
     );
 
     if (feed) {
@@ -209,9 +207,12 @@ export default function CreateFeed() {
 
                   router.actions.clearFeedData();
 
+                  /*
+                  // Pipelines to Dispatch
                   pipelineDispatch({
                     type: PipelineTypes.ResetState,
                   });
+                  */
                 }
               }}
               title="Create a New Analysis"
