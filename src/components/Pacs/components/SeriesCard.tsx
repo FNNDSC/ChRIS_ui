@@ -81,9 +81,8 @@ const SeriesCard = ({ series }: { series: any }) => {
     return {
       SeriesInstanceUID: SeriesInstanceUID.value,
       StudyInstanceUID: StudyInstanceUID.value,
-      AccessionNumber: AccessionNumber.value,
     };
-  }, [AccessionNumber.value, SeriesInstanceUID.value, StudyInstanceUID.value]);
+  }, [SeriesInstanceUID.value, StudyInstanceUID.value]);
 
   const fetchCubeFilePreview = useCallback(
     async function fetchCubeSeries() {
