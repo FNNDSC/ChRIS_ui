@@ -50,7 +50,9 @@ function GeneralCompute() {
           isExpanded={isExpanded}
           onToggle={onToggle}
           toggleText={
-            isExpanded ? "Hide All Compute" : "Show All the registered to ChRIS"
+            isExpanded
+              ? "Hide All Compute"
+              : "Show all the compute registered to ChRIS"
           }
         >
           <ListCompute computeResources={data.resource} />

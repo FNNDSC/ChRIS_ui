@@ -65,7 +65,10 @@ const Tree = (props: TreeProps) => {
     svg.call(
       ///@ts-ignore
       d3Zoom().transform,
-      zoomIdentity.translate(translate.x, translate.y).scale(zoom),
+      ///@ts-ignore
+      zoomIdentity
+        .translate(translate.x, translate.y)
+        .scale(zoom),
     );
 
     svg.call(
@@ -103,17 +106,17 @@ const Tree = (props: TreeProps) => {
         //@ts-ignore
         x: size.width / 2.5,
         //@ts-ignore
-        y: size.height / 3,
+        y: size.height / 6.5,
       });
     }
   }, [size]);
 
   React.useEffect(() => {
     const svgElement = document.querySelector(".feed-tree__svg");
-
     if (svgElement && divRef.current) {
       const svgHeight = svgElement.getBoundingClientRect().height;
-      divRef.current.style.height = `${svgHeight}px`;
+      divRef.current.style.height =
+        svgHeight < 430 ? "430px" : `${svgHeight}px`;
     }
   }, []);
 
