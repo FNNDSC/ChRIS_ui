@@ -115,10 +115,10 @@ const Tree = (props: TreeProps) => {
     const svgElement = document.querySelector(".feed-tree__svg");
     if (svgElement && divRef.current) {
       const svgHeight = svgElement.getBoundingClientRect().height;
-      divRef.current.style.height =
-        svgHeight < 430 ? "430px" : `${svgHeight}px`;
+      const computeHeight = svgHeight < 430 ? "430px" : `${svgHeight}px`;
+      divRef.current.style.height = computeHeight;
     }
-  }, []);
+  });
 
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);

@@ -139,7 +139,6 @@ const AddPipeline = () => {
         ]}
       >
         <Pipelines />
-
         {mutation.isError || mutation.isSuccess || mutation.isPending ? (
           <div id="indicators">
             {mutation.isError && (
