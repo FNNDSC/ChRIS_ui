@@ -24,7 +24,6 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { ShareButtonIcon } from "../../icons";
 import { setBulkSelect } from "../../store/feed/actions";
 import { useTypedSelector } from "../../store/hooks";
-import { catchError } from "../../api/common";
 
 function capitalizeFirstLetter(stringLetter: string) {
   return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1);
@@ -166,7 +165,7 @@ const IconContainer = () => {
             owner: sharePublically ? undefined : feedName,
           });
         } catch (error: any) {
-          throw new Error(error.message);
+          throw new Error(error);
         }
       }
     },
@@ -174,39 +173,47 @@ const IconContainer = () => {
       dispatch(setBulkSelect([], false));
       handleModalToggle(false);
     },
-    onError: (error: { message: string }) => {
+    onError: (error) => {
       handleError(error.message);
     },
   });
 
-  const handleDownloadMutation = async (data: {
-    feedList: Feed[];
-    feedName: string;
-    operation: string;
-  }) => {
-    const { feedList, feedName, operation } = data;
-    const client = ChrisAPIClient.getClient();
-    cujs.setClient(client);
-    const feedIdList = [];
-    const feedNames = [];
+  const handleDownloadMutation = useMutation({
+    mutationFn: async (data: {
+      feedList: Feed[];
+      feedName: string;
+      operation: string;
+    }) => {
+      const { feedList, feedName, operation } = data;
 
-    for (let i = 0; i < feedList.length; i++) {
-      const data = feedList[i].data;
-      feedIdList.push(data.id);
-      feedNames.push(data.name);
-    }
+      const client = ChrisAPIClient.getClient();
+      cujs.setClient(client);
+      const feedIdList = [];
+      const feedNames = [];
+      for (let i = 0; i < feedList.length; i++) {
+        const data = feedList[i].data;
+        feedIdList.push(data.id);
+        feedNames.push(data.name);
+      }
 
-    // Truncate the name of the merged feed (limit=100)
-    let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
+      // Truncate the name of the merged feed (limit=100)
+      let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
+      let createdFeed: Feed | null = null;
 
-    try {
       if (operation === "download") {
         newFeedName = `archive-${newFeedName}`;
         newFeedName = newFeedName.substring(0, 100);
         newFeedName = feedName === "" ? newFeedName : feedName;
-        console.log("newFeedName", newFeedName, feedIdList, data.operation);
-        // Call the downloadMultipleFeeds function
-        await cujs.downloadMultipleFeeds(feedIdList, newFeedName);
+
+        try {
+          createdFeed = await cujs.downloadMultipleFeeds(
+            feedIdList,
+            newFeedName,
+          );
+        } catch (e: any) {
+          throw new Error(e);
+          // Not throwing the error here to allow handling in the onError callback
+        }
       }
 
       if (operation === "merge") {
@@ -214,24 +221,26 @@ const IconContainer = () => {
         newFeedName = newFeedName.substring(0, 100);
         newFeedName = feedName === "" ? newFeedName : feedName;
 
-        // Call the mergeMultipleFeeds function
-        await cujs.mergeMultipleFeeds(feedIdList, newFeedName);
+        try {
+          createdFeed = await cujs.mergeMultipleFeeds(feedIdList, newFeedName);
+        } catch (e: any) {
+          throw new Error(e);
+        }
       }
 
+      return createdFeed; // Return null if operation is neither "download" nor "merge"
+    },
+    onSuccess: () => {
       // Handle success actions if needed
       queryClient.invalidateQueries({
         queryKey: ["feeds"],
       });
-
-      // Close the modal
       handleModalToggle(false);
-    } catch (error) {
-      // Handle errors here
-      console.error("Error", error);
-      //handleError(error.message);
-    }
-  };
-
+    },
+    onError: (error: Error) => {
+      handleError(error.message);
+    },
+  });
   const handleDuplicateFeedMutation = useMutation({
     mutationFn: async (data: { feedList: Feed[]; feedName: string }) => {
       const { feedList, feedName } = data;
@@ -247,8 +256,7 @@ const IconContainer = () => {
         try {
           await cujs.mergeMultipleFeeds(feedIdList, newFeedName);
         } catch (error: any) {
-          const errorMessage = error.message;
-          throw new Error(errorMessage);
+          throw new Error(error);
         }
       }
     },
@@ -258,7 +266,7 @@ const IconContainer = () => {
       });
       handleModalToggle(false);
     },
-    onError: (error: { message: string }) => {
+    onError: (error) => {
       handleError(error.message);
     },
   });
@@ -275,13 +283,13 @@ const IconContainer = () => {
       shareFeedMutation.mutate({ bulkSelect, sharePublically, feedName });
     currentAction === "delete" && deleteFeedMutation.mutate(bulkSelect);
     currentAction === "download" &&
-      handleDownloadMutation({
+      handleDownloadMutation.mutate({
         feedList: bulkSelect,
         feedName,
         operation: "download",
       });
     currentAction === "merge" &&
-      handleDownloadMutation({
+      handleDownloadMutation.mutate({
         feedList: bulkSelect,
         feedName,
         operation: "merge",
