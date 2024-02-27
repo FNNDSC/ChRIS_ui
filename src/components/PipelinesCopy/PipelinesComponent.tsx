@@ -15,7 +15,6 @@ function PipelinesComponent(props: OwnProps) {
   return (
     <>
       <Tree currentPipeline={pipeline} />
-
       <Grid
         style={{
           marginTop: "3em",
@@ -34,7 +33,6 @@ function PipelinesComponent(props: OwnProps) {
           <TitleChange currentPipeline={pipeline} />
         </GridItem>
       </Grid>
-
       <CodeBlockComponent currentPipeline={pipeline} />
     </>
   );

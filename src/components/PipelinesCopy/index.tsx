@@ -212,7 +212,10 @@ const PipelinesCopy = () => {
                   <div>
                     <Button
                       size="sm"
-                      onClick={() => {
+                      onClick={(e) => {
+                        if (state.selectedPipeline?.[id]) {
+                          e.stopPropagation();
+                        }
                         dispatch({
                           type: Types.PipelineToAdd,
                           payload: {
