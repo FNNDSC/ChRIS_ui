@@ -76,12 +76,10 @@ export const createFeedInstanceWithDircopy = async (
   state: PipelineState,
 ) => {
   const { chrisFiles, localFiles } = data;
-
-  let dirpath: string[] = [];
-  let feed: Feed;
+  const dirpath: string[] = [];
 
   if (selectedConfig.includes("swift_storage")) {
-    dirpath = chrisFiles.map((path: string) => path);
+    dirpath.push(...chrisFiles);
   }
 
   if (selectedConfig.includes("local_select")) {
@@ -92,8 +90,8 @@ export const createFeedInstanceWithDircopy = async (
     try {
       await uploadLocalFiles(localFiles, path, setUploadFileCallback);
     } catch (error) {
-      const errObj = catchError(error);
-      errorCallback(errObj);
+      errorCallback(catchError(error));
+      return null;
     }
   }
 
@@ -101,61 +99,48 @@ export const createFeedInstanceWithDircopy = async (
     const client = ChrisAPIClient.getClient();
     const dircopy = await getPlugin("pl-dircopy");
 
-    if (dircopy instanceof Plugin) {
-      try {
-        const createdInstance = await client.createPluginInstance(
-          dircopy.data.id,
-          {
-            //@ts-ignore
-            dir: dirpath.join(","),
-          },
-        );
-        const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } =
-          state;
-
-        const id = pipelineToAdd?.data.id;
-        const resources = selectedPipeline?.[id];
-        if (createdInstance) {
-          if (resources) {
-            const { parameters } = resources;
-
-            const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
-
-            for (const node of nodes_info) {
-              // Set compute info
-              const activeNode = computeInfo?.[id][node.piping_id];
-              // Set Title
-              const titleSet = titleInfo?.[id][node.piping_id];
-
-              if (activeNode) {
-                const compute_node = activeNode.currentlySelected;
-                node.compute_resource_name = compute_node;
-              }
-
-              if (titleSet) {
-                node.title = titleSet;
-              }
-            }
-
-            await client.createWorkflow(id, {
-              previous_plugin_inst_id: createdInstance.data.id,
-              nodes_info: JSON.stringify(nodes_info),
-            });
-          }
-
-          feed = (await createdInstance.getFeed()) as Feed;
-          return feed;
-        }
-      } catch (error) {
-        console.log("Error", error);
-      }
+    if (!(dircopy instanceof Plugin)) {
       return null;
-
-      //when the `post` finishes, the dircopyInstances's internal collection is updated
     }
+
+    const createdInstance = await client.createPluginInstance(dircopy.data.id, {
+      //@ts-ignore
+      dir: dirpath.join(","),
+    });
+
+    const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
+    const id = pipelineToAdd?.data.id;
+    const resources = selectedPipeline?.[id];
+
+    if (createdInstance && resources) {
+      const { parameters } = resources;
+      const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
+
+      for (const node of nodes_info) {
+        const activeNode = computeInfo?.[id][node.piping_id];
+        const titleSet = titleInfo?.[id][node.piping_id];
+
+        if (activeNode) {
+          node.compute_resource_name = activeNode.currentlySelected;
+        }
+
+        if (titleSet) {
+          node.title = titleSet;
+        }
+      }
+
+      await client.createWorkflow(id, {
+        previous_plugin_inst_id: createdInstance.data.id,
+        nodes_info: JSON.stringify(nodes_info),
+      });
+
+      return (await createdInstance.getFeed()) as Feed;
+    }
+
+    return null;
   } catch (error) {
-    const errorObj = catchError(error);
-    errorCallback(errorObj);
+    errorCallback(catchError(error));
+    return null;
   }
 };
 
@@ -165,7 +150,7 @@ export const createFeedInstanceWithFS = async (
   selectedPlugin: Plugin | undefined,
   errorCallback: (error: any) => void,
 ) => {
-  let feed;
+  let feed: Feed | null = null;
   if (selectedPlugin) {
     if (selectedPlugin instanceof Plugin) {
       const data = await getRequiredObject(
