@@ -1,40 +1,44 @@
-import * as React from "react";
-import { useNavigate, useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import {
   Drawer,
-  DrawerPanelContent,
   DrawerContent,
   DrawerContentBody,
+  DrawerPanelContent,
 } from "@patternfly/react-core";
+import { useQuery } from "@tanstack/react-query";
+import * as React from "react";
 import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../store/hooks";
-import { DrawerActionButton } from "./DrawerUtils";
-import { handleMaximize, handleMinimize } from "./utilties";
-import type { DestroyActiveResources } from "../../store/resources/types";
-import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
+import { useNavigate, useParams } from "react-router";
+import { clearSelectedFile } from "../../store/explorer/actions";
 import {
   getFeedSuccess,
   resetFeed,
   setShowToolbar,
 } from "../../store/feed/actions";
+import { useTypedSelector } from "../../store/hooks";
 import {
   getPluginInstancesRequest,
   getSelectedD3Node,
   getSelectedPlugin,
   resetPluginInstances,
 } from "../../store/pluginInstance/actions";
-import { clearSelectedFile } from "../../store/explorer/actions";
+import { resetActiveResources } from "../../store/resources/actions";
+import type { DestroyActiveResources } from "../../store/resources/types";
 import { addTSNodes, resetTsNodes } from "../../store/tsplugins/actions";
-import ParentComponent from "../FeedTree/ParentComponent";
-import type { PluginInstance, Feed } from "@fnndsc/chrisapi";
+import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
+import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
+import ParentComponent from "../FeedTree/ParentComponent";
 import NodeDetails from "../NodeDetails/NodeDetails";
 import WrapperConnect from "../Wrapper";
-import { resetActiveResources } from "../../store/resources/actions";
-import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
-import { fetchAuthenticatedFeed, fetchPublicFeed } from "./utilties";
+import { DrawerActionButton } from "./DrawerUtils";
 import { useSearchQueryParams } from "./usePaginate";
+import {
+  fetchAuthenticatedFeed,
+  fetchPublicFeed,
+  handleMaximize,
+  handleMinimize,
+} from "./utilties";
 
 export default function FeedView() {
   const query = useSearchQueryParams();

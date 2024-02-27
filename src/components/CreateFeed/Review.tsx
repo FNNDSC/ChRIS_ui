@@ -1,7 +1,8 @@
 import { useCallback, useContext, useEffect } from "react";
 import { Grid, WizardContext, Split, SplitItem } from "@patternfly/react-core";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
-import { CreateFeedContext, PipelineContext } from "./context";
+import { CreateFeedContext } from "./context";
+import { PipelineContext } from "../PipelinesCopy/context";
 import { unpackParametersIntoString } from "../AddNode/utils";
 import { PluginDetails } from "../AddNode/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./HelperComponent";
@@ -23,6 +24,8 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     selectedPluginFromMeta,
     selectedComputeEnv,
   } = addNodeState;
+
+  const { pipelineToAdd } = pipelineState;
 
   // the installed version of @patternfly/react-core doesn't support read-only chips
   const tagList = tags.map((tag: any) => (
@@ -125,7 +128,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     );
   };
 
-  const feedErrorMessage = (feedError && feedError["error_message"]) || "";
+  const feedErrorMessage = feedError?.error_message || "";
 
   return (
     <div className="review">
@@ -161,9 +164,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         title={<span className="review__title">Selected Pipeline:</span>}
         subTitle={
           <span className="review__value">
-            {pipelineState.pipelineName
-              ? pipelineState.pipelineName
-              : "None Selected"}
+            {pipelineToAdd ? pipelineToAdd.data.name : "None Selected"}
           </span>
         }
       />

@@ -6,7 +6,9 @@ import {
   type PipelineList,
   PluginPiping,
   Feed,
-  PipelineInstance,
+  Plugin,
+  PipelinePipingDefaultParameterList,
+  ComputeResource,
 } from "@fnndsc/chrisapi";
 
 export function useSafeDispatch(dispatch: any) {
@@ -119,7 +121,7 @@ async function fetchResource<T>(
   }
   return {
     resource,
-    totalCount: resourceList.totalCount,
+    totalCount: resourceList.totalCount as number,
   };
 }
 
@@ -185,13 +187,6 @@ export const fetchPipelines = async (
   search: string,
   searchType: string,
 ) => {
-  let errorPayload: {
-    error_message: string;
-  } = {
-    error_message: "",
-  };
-  let registeredPipelinesList: PipelineList;
-  let registeredPipelines: PipelineInstance[];
   const offset = perPage * (page - 1);
   const client = ChrisAPIClient.getClient();
   const params = {
@@ -200,17 +195,17 @@ export const fetchPipelines = async (
     [`${searchType}`]: search,
   };
   try {
-    registeredPipelinesList = await client.getPipelines(params);
-    registeredPipelines =
-      (registeredPipelinesList.getItems() as PipelineInstance[]) || [];
+    const registeredPipelinesList: PipelineList =
+      await client.getPipelines(params);
+    const registeredPipelines =
+      (registeredPipelinesList.getItems() as Pipeline[]) || [];
     return {
       registeredPipelines,
-      registeredPipelinesList,
-      error: errorPayload,
+      totalCount: registeredPipelinesList.totalCount,
     };
   } catch (error) {
     const errorObj = catchError(error);
-    errorPayload = errorObj;
+    throw new Error(errorObj.error_message);
   }
 };
 
@@ -228,13 +223,12 @@ export async function fetchResources(pipelineInstance: Pipeline) {
     params,
     boundPipelineFn,
   );
-  const { resource: pipelinePlugins } = await fetchResource(
-    params,
-    boundPipelinePluginFn,
-  );
-  const parameters = await pipelineInstance.getDefaultParameters({
-    limit: 1000,
-  });
+  const { resource: pipelinePlugins }: { resource: Plugin[] } =
+    await fetchResource(params, boundPipelinePluginFn);
+  const parameters: PipelinePipingDefaultParameterList =
+    await pipelineInstance.getDefaultParameters({
+      limit: 1000,
+    });
 
   return {
     parameters,
@@ -271,33 +265,37 @@ export const generatePipelineWithData = async (data: any) => {
 
 export async function fetchComputeInfo(
   plugin_id: number,
-  dictionary_id: number,
+  dictionary_id: string,
 ) {
-  const client = ChrisAPIClient.getClient();
-  const computeEnvs = await client.getComputeResources({
-    plugin_id: `${plugin_id}`,
-  });
+  try {
+    const client = ChrisAPIClient.getClient();
+    const computeEnvs = await client.getComputeResources({
+      plugin_id: `${plugin_id}`,
+    });
 
-  if (computeEnvs.getItems()) {
-    const computeEnvData = {
-      [dictionary_id]: {
-        computeEnvs: computeEnvs.data,
-        currentlySelected: computeEnvs.data[0].name,
-      },
-    };
-    return computeEnvData;
+    if (computeEnvs.getItems()) {
+      const computeEnvData = {
+        [dictionary_id]: {
+          computeEnvs: computeEnvs.getItems() as ComputeResource[],
+          currentlySelected: computeEnvs.data[0].name as string,
+        },
+      };
+      return computeEnvData;
+    }
+  } catch (e) {
+    throw new Error("Error fetching the compoute Environment");
   }
-  return undefined;
 }
 
 export function catchError(errorRequest: any) {
   if (errorRequest.response) {
     return { error_message: errorRequest.response.data as string };
-  } else if (errorRequest.message) {
-    return { error_message: errorRequest.message as string };
-  } else {
-    return { error_message: errorRequest as string };
   }
+
+  if (errorRequest.message) {
+    return { error_message: errorRequest.message as string };
+  }
+  return { error_message: errorRequest as string };
 }
 
 // A function to limit concurrency using Promise.allSettled.
@@ -386,7 +384,7 @@ export const uploadWrapper = (
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
   return localFiles.map((file) => {
     const onUploadProgressWrap = (progressEvent: AxiosProgressEvent) => {
-      onUploadProgress && onUploadProgress(file, progressEvent);
+      onUploadProgress?.(file, progressEvent);
     };
 
     const promise = uploadFile(

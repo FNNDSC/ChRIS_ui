@@ -1,34 +1,34 @@
-import React, { Fragment, ReactNode } from "react";
-import {
-  Button,
-  Grid,
-  GridItem,
-  ExpandableSection,
-} from "@patternfly/react-core";
 import {
   Plugin,
   PluginInstance,
   PluginInstanceDescendantList,
   PluginParameterList,
 } from "@fnndsc/chrisapi";
-import { useNavigate } from "react-router";
-import { ErrorBoundary } from "react-error-boundary";
+import {
+  Button,
+  ExpandableSection,
+  Grid,
+  GridItem,
+} from "@patternfly/react-core";
 import CalendarAlt from "@patternfly/react-icons/dist/esm/icons/calendar-alt-icon";
+import React, { Fragment, ReactNode } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { useNavigate } from "react-router";
+import { useTypedSelector } from "../../store/hooks";
 import AddNodeConnect from "../AddNode/AddNode";
+import { AddNodeProvider } from "../AddNode/context";
+import AddPipeline from "../AddPipeline/AddPipeline";
+import GraphNodeContainer from "../AddTsNode";
+import { SpinContainer } from "../Common";
+import { PipelineProvider } from "../PipelinesCopy/context";
 import DeleteNode from "../DeleteNode";
+import FeedNote from "../FeedDetails/FeedNote";
+import "./NodeDetails.css";
 import PluginLog from "./PluginLog";
+import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
-import PluginTitle from "./PluginTitle";
-import GraphNodeContainer from "../AddTsNode";
-import AddPipeline from "../AddPipeline/AddPipeline";
-import FeedNote from "../FeedDetails/FeedNote";
-import { useTypedSelector } from "../../store/hooks";
 import { getErrorCodeMessage } from "./utils";
-import { SpinContainer } from "../Common";
-import { PipelineProvider } from "../CreateFeed/context";
-import { AddNodeProvider } from "../AddNode/context";
-import "./NodeDetails.css";
 
 interface INodeState {
   plugin?: Plugin;
@@ -128,7 +128,7 @@ const NodeDetails: React.FC = () => {
       fallback={
         <Button
           onClick={() => {
-            feed && navigate(`/feeds/${feed.data.id}`);
+            feed && navigate(`/feeds/${feed.data.id}?type='private'`);
           }}
           variant="link"
         >

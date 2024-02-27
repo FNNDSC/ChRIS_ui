@@ -1,41 +1,39 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
+  Button,
   Card,
   CardBody,
   CardHeader,
-  Drawer,
   CardTitle,
   Chip,
+  Drawer,
   DrawerActions,
   DrawerContent,
   DrawerHead,
   DrawerPanelBody,
   DrawerPanelContent,
+  Flex,
+  FlexItem,
   Grid,
   GridItem,
   Tooltip,
-  Button,
   useWizardContext,
-  Flex,
-  FlexItem,
 } from "@patternfly/react-core";
-import { Steps, notification, Alert } from "antd";
+import SettingsIcon from "@patternfly/react-icons/dist/esm/icons/cogs-icon";
 import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
-import SettingsIcon from "@patternfly/react-icons/dist/esm/icons/cogs-icon";
-
-import { CreateFeedContext } from "./context";
-import LocalFileUpload from "./LocalFileUpload";
+import { Alert, Steps, notification } from "antd";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useTypedSelector } from "../../store/hooks";
+import GuidedConfig from "../AddNode/GuidedConfig";
+import { AddNodeContext } from "../AddNode/context";
+import { Types as AddNodeTypes, chooseConfigProps } from "../AddNode/types";
 import DragAndUpload from "../DragFileUpload";
 import ChrisFileSelect from "./ChrisFileSelect";
 import DataPacks from "./DataPacks";
-import GuidedConfig from "../AddNode/GuidedConfig";
-import { chooseConfigProps } from "../AddNode/types";
 import { FileList } from "./HelperComponent";
+import LocalFileUpload from "./LocalFileUpload";
+import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
-import { AddNodeContext } from "../AddNode/context";
-import { Types as AddNodeTypes } from "../AddNode/types";
-import { useTypedSelector } from "../../store/hooks";
 
 const ChooseConfig = ({
   handleFileUpload,
@@ -86,11 +84,11 @@ const ChooseConfig = ({
           if (
             selectedConfig.includes("fs_plugin") &&
             params?.required.length != Object.keys(requiredInput).length
-          )
+          ) {
             return;
-          else {
-            onNext();
           }
+
+          onNext();
           break;
         case "ArrowLeft":
           onBack();

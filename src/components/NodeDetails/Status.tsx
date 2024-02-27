@@ -4,8 +4,7 @@ import usePluginInstanceResource from "./usePluginInstanceResource";
 const Status = () => {
   const pluginInstanceResource = usePluginInstanceResource();
 
-  const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
+  const pluginStatus = pluginInstanceResource?.pluginStatus;
 
   if (pluginStatus && pluginStatus.length > 0) {
     const items = pluginStatus.map((label: any, index: number) => {
@@ -31,7 +30,9 @@ const Status = () => {
         items={items}
       />
     );
-  } else return null;
+  }
+
+  return null;
 };
 
 export default Status;

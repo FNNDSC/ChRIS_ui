@@ -64,7 +64,13 @@ export const getNewTreeData = (
 export const generateTreeNodes = async (
   treeNode: EventDataNode<any>,
 ): Promise<DataBreadcrumb[]> => {
-  const arr: any[] = [];
+  const arr: {
+    breadcrumb: string;
+    title: string;
+    key: string;
+    isLeaf: boolean;
+    checkable: boolean;
+  }[] = [];
   //@ts-ignore
   const { files, folders } = await fetchFilesFromAPath(treeNode.breadcrumb);
   const items = [...files, ...folders];
@@ -74,20 +80,20 @@ export const generateTreeNodes = async (
       const filePath = items[i].data.fname.split("/");
       const fileName = filePath[filePath.length - 1];
       arr.push({
-        //@ts-ignore
         breadcrumb: `${treeNode.breadcrumb}/${fileName}`,
         title: fileName,
         key: `${treeNode.key}-${i}`,
         isLeaf: true,
+        checkable: false,
       });
     } else {
       const checkList = ["uploads", "SERVICES", "PACS"];
       const isCheckable = !checkList.includes(items[i]);
       arr.push({
-        //@ts-ignore
         breadcrumb: `${treeNode.breadcrumb}/${items[i]}`,
         title: items[i],
         key: `${treeNode.key}-${i}`,
+        isLeaf: false,
         checkable: isCheckable,
       });
     }
