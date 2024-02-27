@@ -13,7 +13,6 @@ export interface ImageStatusType {
 export interface DataFetchQuery {
   SeriesInstanceUID: string;
   StudyInstanceUID: string;
-  AccessionNumber: string;
 }
 
 class PfdcmClient {
