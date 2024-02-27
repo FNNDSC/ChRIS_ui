@@ -1,10 +1,6 @@
 import React, { createContext, useContext, useReducer } from "react";
 import { MainRouterContext } from "../../../routes";
 import { createFeedReducer, getInitialState } from "../reducer/feedReducer";
-import {
-  pipelineReducer,
-  getInitialPipelineState,
-} from "../reducer/pipelineReducer";
 import { CreateFeedState } from "../types/feed";
 
 const CreateFeedContext = createContext<{
@@ -12,14 +8,6 @@ const CreateFeedContext = createContext<{
   dispatch: React.Dispatch<any>;
 }>({
   state: getInitialState(),
-  dispatch: () => null,
-});
-
-const PipelineContext = createContext<{
-  state: any;
-  dispatch: any;
-}>({
-  state: getInitialPipelineState(),
   dispatch: () => null,
 });
 
@@ -40,19 +28,4 @@ const CreateFeedProvider: React.FC<CreateFeedProviderProps> = ({
   );
 };
 
-const PipelineProvider = ({ children }: CreateFeedProviderProps) => {
-  const initialpipelineState = getInitialPipelineState();
-  const [state, dispatch] = useReducer(pipelineReducer, initialpipelineState);
-  return (
-    <PipelineContext.Provider value={{ state, dispatch }}>
-      {children}
-    </PipelineContext.Provider>
-  );
-};
-
-export {
-  CreateFeedContext,
-  CreateFeedProvider,
-  PipelineProvider,
-  PipelineContext,
-};
+export { CreateFeedContext, CreateFeedProvider };

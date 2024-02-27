@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from "react";
 import { select } from "d3-selection";
+import React, { useRef, useEffect } from "react";
 
 const Marker = () => {
   const markerRef = useRef<SVGMarkerElement>(null);
@@ -18,7 +18,7 @@ const Marker = () => {
 
   return (
     <defs>
-      <marker ref={markerRef} id="end-arrow"></marker>
+      <marker ref={markerRef} id="end-arrow" />
     </defs>
   );
 };
