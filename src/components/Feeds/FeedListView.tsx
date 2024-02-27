@@ -237,7 +237,7 @@ const TableSelectable: React.FunctionComponent = () => {
               search={search}
             />
 
-            {feedsToDisplay && <IconContainer allFeeds={feedsToDisplay} />}
+            {feedsToDisplay && <IconContainer />}
           </div>
           {isLoading ||
           isFetching ||
