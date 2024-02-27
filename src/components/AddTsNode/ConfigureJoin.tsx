@@ -68,40 +68,36 @@ const ConfigureJoin = ({
           marginTop: "1em",
         }}
       >
-        {tsParams &&
-          tsParams.map((param) => {
-            if (param.data.name !== "plugininstances") {
-              if (param.data.name === "groupByInstance") {
-                return (
-                  <Checkbox
-                    key={param.data.id}
-                    checked={joinInput[param.data.name] as boolean}
-                    onChange={(event: any) => {
-                      handleCheckboxChange(
-                        event.target.checked,
-                        param.data.name,
-                      );
-                    }}
-                  >
-                    {param.data.name}
-                  </Checkbox>
-                );
-              } else
-                return (
-                  <Form.Item key={param.data.id} label={param.data.name}>
-                    <Input
-                      className="input"
-                      value={joinInput[param.data.name] as string}
-                      onChange={(
-                        event: React.ChangeEvent<HTMLInputElement>,
-                      ) => {
-                        handleValueChange(event.target.value, param.data.name);
-                      }}
-                    />
-                  </Form.Item>
-                );
-            } else return null;
-          })}
+        {tsParams?.map((param) => {
+          if (param.data.name !== "plugininstances") {
+            if (param.data.name === "groupByInstance") {
+              return (
+                <Checkbox
+                  key={param.data.id}
+                  checked={joinInput[param.data.name] as boolean}
+                  onChange={(event: any) => {
+                    handleCheckboxChange(event.target.checked, param.data.name);
+                  }}
+                >
+                  {param.data.name}
+                </Checkbox>
+              );
+            }
+            return (
+              <Form.Item key={param.data.id} label={param.data.name}>
+                <Input
+                  className="input"
+                  value={joinInput[param.data.name] as string}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    handleValueChange(event.target.value, param.data.name);
+                  }}
+                />
+              </Form.Item>
+            );
+          }
+
+          return null;
+        })}
       </Form>
     </div>
   );
