@@ -197,6 +197,7 @@ const PipelinesCopy = () => {
         <SpinContainer title="Fetching the Pipelines" />
       ) : data?.registeredPipelines && data.registeredPipelines.length > 0 ? (
         <Collapse
+          style={{ marginTop: "1em" }}
           onChange={handleChange}
           items={data.registeredPipelines.map((pipeline) => {
             const { name, id } = pipeline.data;
