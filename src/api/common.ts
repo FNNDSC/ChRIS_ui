@@ -273,11 +273,14 @@ export async function fetchComputeInfo(
       plugin_id: `${plugin_id}`,
     });
 
+    const length = computeEnvs.data.length;
+    const currentlySelected = computeEnvs.data[length - 1].name as string;
+
     if (computeEnvs.getItems()) {
       const computeEnvData = {
         [dictionary_id]: {
           computeEnvs: computeEnvs.getItems() as ComputeResource[],
-          currentlySelected: computeEnvs.data[0].name as string,
+          currentlySelected,
         },
       };
       return computeEnvData;
@@ -367,7 +370,7 @@ export const uploadFile = async (
   formData.append("fname", file, name);
 
   const config = {
-    headers: { Authorization: "Token " + token },
+    headers: { Authorization: `Token ${token}` },
     onUploadProgress,
   };
 
