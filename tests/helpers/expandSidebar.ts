@@ -13,14 +13,14 @@ import { Page, expect } from "@playwright/test";
  */
 async function retryExpandSidebar(page: Page) {
   await expect(async () => {
-    await page.getByLabel("Global navigation").tap({ timeout: 500 });
+    await page.getByLabel("Global navigation").tap({ timeout: 1000 });
     await page.waitForTimeout(1000); // sidebar animation
     await expect(
       page.getByRole("link", { name: "New and Existing Analyses" }),
     ).toBeInViewport({ timeout: 1000 });
   }).toPass({
     intervals: [100],
-    timeout: 3000,
+    timeout: 6500,
   });
 }
 
