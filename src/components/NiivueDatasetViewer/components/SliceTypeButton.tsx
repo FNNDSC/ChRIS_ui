@@ -37,11 +37,9 @@ const SliceTypeButton: React.FC<SliceTypeDropdownProps> = ({
   };
 
   return (
-    <div style={{ width: "8em" }}>
-      <Button isBlock variant="tertiary" onClick={nextSliceType}>
-        {selectedName}
-      </Button>
-    </div>
+    <Button isBlock variant="tertiary" onClick={nextSliceType}>
+      {selectedName}
+    </Button>
   );
 };
 
