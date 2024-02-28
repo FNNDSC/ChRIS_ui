@@ -9,10 +9,36 @@ type DatasetVolume = {
   default: VolumeSettings & Pick<SupportedVolumeSettings, "colormapLabelFile">;
 };
 
+/**
+ * Dataset file state.
+ */
 type DatasetFileState = {
+  /**
+   * Dataset file object.
+   */
   file: DatasetFile;
-  volume: null | "loading" | DatasetVolume;
+  /**
+   * State of the volume.
+   *
+   * - `null`: the volume is not loaded.
+   * - `"pleaseLoadMe"`: volume should be loaded.
+   * - `"loading"`: the volume is being loaded asynchronously.
+   * - `DatasetVolume`: the volume is loaded.
+   */
+  volume: null | "pleaseLoadMe" | "loading" | DatasetVolume;
 };
+
+function volumeIsLoaded(
+  fileState: DatasetFileState,
+): fileState is Pick<DatasetFileState, "file"> & { volume: DatasetVolume } {
+  return volumeIsVolume(fileState.volume);
+}
+
+function volumeIsVolume(
+  volume: DatasetFileState["volume"],
+): volume is DatasetVolume {
+  return volume !== null && typeof volume !== "string";
+}
 
 /**
  * Convert file objects to state objects with no volumes.
@@ -26,4 +52,4 @@ function files2states(
 }
 
 export type { DatasetVolume, DatasetFileState };
-export { files2states };
+export { files2states, volumeIsLoaded };

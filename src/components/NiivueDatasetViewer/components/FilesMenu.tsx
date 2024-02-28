@@ -32,12 +32,8 @@ import {
 } from "@patternfly/react-icons";
 import { TagSet } from "../client/models";
 import React from "react";
-import { DatasetFileState, DatasetVolume } from "../statefulTypes";
-import { pipe } from "fp-ts/function";
-import * as TE from "fp-ts/TaskEither";
-import { Problem } from "../types";
+import { DatasetFileState, volumeIsLoaded } from "../statefulTypes";
 import { ChNVRVolume } from "../models";
-import { DatasetFile } from "../client";
 import VolumeOptionsForm from "./VolumeOptionsForm";
 import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
 
@@ -46,8 +42,6 @@ type FilesMenuProps = {
   setFileStates: React.Dispatch<
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
-  pushProblems: (problems: Problem[]) => void;
-  firstRunFiles: number[] | null;
 };
 
 // It would be nice to use DragDropSort from @patternfly/react-drag-drop
@@ -84,8 +78,7 @@ const FileSelectHelpText = () => {
 
 /**
  * The `FilesMenu` component displays a list of all the files of a dataset.
- * It is responsible for getting the URL to the volume data and controlling
- * the properties for each volume currently being displayed.
+ * It also controls the properties for each volume currently being displayed.
  *
  * @param fileStates the files of the dataset and their current state,
  *                   which includes whether they are currently being displayed
@@ -93,62 +86,7 @@ const FileSelectHelpText = () => {
  * @param setFileStates update the file states
  * @param pushProblems notify parent component of any problems
  */
-const FilesMenu: React.FC<FilesMenuProps> = ({
-  fileStates,
-  setFileStates,
-  pushProblems,
-  firstRunFiles,
-}) => {
-  const pushProblem = (problem: Problem) => pushProblems([problem]);
-
-  /**
-   * Update the state of a file with the given path.
-   */
-  const updateStateAt = (
-    path: string,
-    updater: (fileState: DatasetFileState) => DatasetFileState,
-  ) => {
-    setFileStates((prev) =>
-      prev.map((fileState) =>
-        fileState.file.path === path ? updater(fileState) : fileState,
-      ),
-    );
-  };
-
-  /**
-   * Request the file volume's URL asynchronously.
-   */
-  const startLoadingVolume = (file: DatasetFile) => {
-    const task = pipe(
-      file.getVolume(),
-      TE.match(pushProblem, setFreshVolumeOf(file.path)),
-    );
-    task();
-  };
-
-  /**
-   * Curried function for setting the volume state of a file.
-   */
-  const setFreshVolumeOf = (
-    path: string,
-  ): ((x: {
-    problems: Problem[];
-    volume: ChNVRVolume;
-    colormapLabelFile?: string;
-  }) => void) => {
-    return ({ problems, volume, colormapLabelFile }) => {
-      if (problems.length > 0) {
-        pushProblems(problems);
-      }
-      updateStateAt(path, (fileState) => {
-        return {
-          ...fileState,
-          volume: copyPropertiesToDefault(volume, colormapLabelFile),
-        };
-      });
-    };
-  };
-
+const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, setFileStates }) => {
   /**
    * Unload all currently displayed volumes, then load the selected file.
    */
@@ -164,9 +102,8 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
         if (volume !== null) {
           return fileState;
         }
-        // start loading
-        startLoadingVolume(file);
-        return { file, volume: "loading" };
+        // kindly ask parent element to load volume
+        return { file, volume: "pleaseLoadMe" };
       }),
     );
   };
@@ -178,8 +115,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     return setFileStates((prev) =>
       prev.map((fileState) => {
         if (fileState.file.path === path && fileState.volume === null) {
-          startLoadingVolume(fileState.file);
-          return { ...fileState, volume: "loading" };
+          return { ...fileState, volume: "pleaseLoadMe" };
         }
         return fileState;
       }),
@@ -316,30 +252,6 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     </List>
   );
 
-  const [handledFirstRun, setHandledFirstRun] = React.useState(false);
-  React.useEffect(() => {
-    if (handledFirstRun) {
-      return;
-    }
-    setHandledFirstRun(true);
-    if (loadedVolumes.length > 0) {
-      return;
-    }
-    if (firstRunFiles === null) {
-      return;
-    }
-    fileStates
-      .filter((_, i) => firstRunFiles.findIndex((j) => i === j) !== -1)
-      .map((fileState) => fileState.file.path)
-      .forEach((path) => addItemToSelection(path));
-  }, [
-    firstRunFiles,
-    handledFirstRun,
-    loadedVolumes,
-    fileStates,
-    addItemToSelection,
-  ]);
-
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(
     "File Selection",
   );
@@ -402,37 +314,16 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   );
 };
 
-function iconFor<T>(volume: null | "loading" | T): React.ReactNode {
+function iconFor<T>(
+  volume: null | "loading" | "pleaseLoadMe" | T,
+): React.ReactNode {
   if (volume === null) {
     return <PlusIcon />;
   }
-  if (volume === "loading") {
+  if (volume === "loading" || volume === "pleaseLoadMe") {
     return <Spinner isInline />;
   }
   return <PlusCircleIcon />;
-}
-
-function volumeIsLoaded(
-  fileState: DatasetFileState,
-): fileState is Pick<DatasetFileState, "file"> & { volume: DatasetVolume } {
-  return volumeIsVolume(fileState.volume);
-}
-
-function volumeIsVolume(
-  volume: DatasetFileState["volume"],
-): volume is DatasetVolume {
-  return volume !== null && volume !== "loading";
-}
-
-/**
- * Copy the properties of the given volume over to an object called "default".
- */
-function copyPropertiesToDefault(
-  volume: ChNVRVolume,
-  colormapLabelFile: string | undefined,
-): DatasetVolume {
-  const { url: _url, ...rest } = volume;
-  return { state: volume, default: { ...rest, colormapLabelFile } };
 }
 
 function isTouchDevice() {
