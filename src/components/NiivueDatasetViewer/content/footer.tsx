@@ -1,12 +1,6 @@
-import {
-  hideOnDesktop,
-  hideOnMobile,
-  hideOnMobileInline,
-} from "../cssUtils.ts";
-import { Chip, Popover, TextContent, Truncate } from "@patternfly/react-core";
+import { hideOnDesktop, hideOnMobileInline } from "../cssUtils.ts";
+import { Chip, Popover, TextContent } from "@patternfly/react-core";
 import BUILD_VERSION from "../../../getBuildVersion.ts";
-import React from "react";
-import { CrosshairLocation } from "../../SizedNiivueCanvas";
 import { css } from "@patternfly/react-styles";
 import Display from "@patternfly/react-styles/css/utilities/Display/display.js";
 import Flex from "@patternfly/react-styles/css/utilities/Flex/flex.js";

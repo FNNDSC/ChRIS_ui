@@ -1,11 +1,12 @@
-import { Problem, VisualDataset, constants } from "../../../datasets";
+import { constants } from "../../../datasets";
 import {
   Feed,
   FeedPluginInstanceList,
   PluginInstance,
   PublicFeedList,
 } from "@fnndsc/chrisapi";
-import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile.ts";
+import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile";
+import { Problem, VisualDataset } from "../types";
 
 function failedRequest(title: React.ReactNode): Problem {
   return {
@@ -115,7 +116,7 @@ const PROBLEMS = {
     return failedRequest(title);
   },
 
-  manifestNotFoundIn({ indexPlinst, feed }: VisualDataset): Problem {
+  manifestNotFoundIn({ indexPlinst }: VisualDataset): Problem {
     return {
       variant: "danger",
       title: `Dataset (id=${indexPlinst.data.id}) is malformed`,
@@ -123,7 +124,6 @@ const PROBLEMS = {
         <>
           The output of plugin instance id={indexPlinst.data.id} does not
           contain a file called <code>{constants.MAGIC_DATASET_FILE}</code>.
-          Please check feed (id={feed.data.id}) "{feed.data.name}".
         </>
       ),
     };
