@@ -185,6 +185,7 @@ const TableSelectable: React.FunctionComponent = () => {
       <WrapperConnect>
         <PageSection className="feed-header">
           <InfoIcon
+            data-test-id="analysis-count"
             title={`New and Existing Analyses (${
               type === "private" && data && data.totalFeedsCount
                 ? data.totalFeedsCount
@@ -245,7 +246,7 @@ const TableSelectable: React.FunctionComponent = () => {
           publicFeedFetching ? (
             <LoadingTable />
           ) : feedsToDisplay.length > 0 ? (
-            <Table variant="compact" aria-label="Selectable table">
+            <Table variant="compact" aria-label="Feed Table">
               <Thead>
                 <Tr>
                   <Th>
@@ -448,7 +449,8 @@ function TableRow({
     <Checkbox
       isChecked={isSelected(bulkSelect, feed)}
       id="check"
-      aria-label="toggle icon bar"
+      className={`${feed.data.name}-checkbox`}
+      aria-label={`${feed.data.name}-checkbox`}
       onChange={() => {
         if (!isSelected(bulkSelect, feed)) {
           const newBulkSelect = [...bulkSelect, feed];
@@ -480,6 +482,7 @@ function TableRow({
       style={{
         backgroundColor: selectedBgRow,
       }}
+      data-test-id={`${feed.data.name}-test`}
     >
       <Td>{bulkCheckbox}</Td>
       <Td dataLabel={columnNames.id}>{id}</Td>
