@@ -76,7 +76,7 @@ const Sidebar: React.FC<AllProps> = ({
           </NavItem>
 
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
-            <Link to="/dataset">Fetal MRI Viewer</Link>
+            <Link to="/dataset">Volume View</Link>
           </NavItem>
 
           {import.meta.env.REACT_APP_ALPHA_FEATURES === "development" && (
@@ -143,7 +143,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
             <Link to="/catalog">Plugins</Link>
           </NavItem>
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
-            <Link to="/dataset">Fetal MRI Viewer</Link>
+            <Link to="/dataset">Volume View</Link>
           </NavItem>
         </NavGroup>
       </NavList>

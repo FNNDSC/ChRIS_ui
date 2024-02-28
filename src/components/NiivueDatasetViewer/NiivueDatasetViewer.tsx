@@ -95,7 +95,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
 
   // when the web app is ready, hide the sidebar and set the page title.
   React.useEffect(() => {
-    document.title = "Fetal MRI Viewer";
+    document.title = "Volume View";
     dispatch(setIsNavOpen(false));
     dispatch(
       setSidebarActive({
