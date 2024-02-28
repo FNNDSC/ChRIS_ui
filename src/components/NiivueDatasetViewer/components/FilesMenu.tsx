@@ -47,6 +47,7 @@ type FilesMenuProps = {
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
   pushProblems: (problems: Problem[]) => void;
+  firstRunFiles: number[] | null;
 };
 
 // It would be nice to use DragDropSort from @patternfly/react-drag-drop
@@ -96,6 +97,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   fileStates,
   setFileStates,
   pushProblems,
+  firstRunFiles,
 }) => {
   const pushProblem = (problem: Problem) => pushProblems([problem]);
 
@@ -301,6 +303,35 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
       ))}
     </List>
   );
+
+  const [handledFirstRun, setHandledFirstRun] = React.useState(false);
+  React.useEffect(() => {
+    if (handledFirstRun) {
+      return;
+    }
+    if (loadedVolumes.length > 0) {
+      setHandledFirstRun(true);
+      return;
+    }
+    if (firstRunFiles === null) {
+      return;
+    }
+
+    console.log(firstRunFiles);
+    console.dir(firstRunFiles);
+
+    fileStates
+      .filter((_, i) => firstRunFiles.findIndex((j) => i === j) !== -1)
+      .map((fileState) => fileState.file.path)
+      .forEach((path) => addItemToSelection(path));
+    setHandledFirstRun(true);
+  }, [
+    firstRunFiles,
+    handledFirstRun,
+    loadedVolumes,
+    fileStates,
+    addItemToSelection,
+  ]);
 
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(
     "File Selection",

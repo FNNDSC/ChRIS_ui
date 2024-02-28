@@ -14,6 +14,7 @@ type ControlPanelProps = {
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
   pushProblems: (problems: Problem[]) => void;
+  firstRunFiles: number[] | null;
 };
 
 /**
@@ -24,6 +25,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   fileStates,
   setFileStates,
   pushProblems,
+  firstRunFiles,
 }) => {
   return (
     <Flex direction={{ default: "column" }} className={Sizing.h_100}>
@@ -42,6 +44,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             fileStates={fileStates}
             setFileStates={setFileStates}
             pushProblems={pushProblems}
+            firstRunFiles={firstRunFiles}
           />
         )}
       </FlexItem>

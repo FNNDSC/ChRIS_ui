@@ -42,12 +42,13 @@ type OptionsLink = {
 /**
  * Schema of a manifest file.
  *
- * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.1.0/visualdataset/manifest.py#L36-L55
+ * https://github.com/FNNDSC/pl-visual-dataset/blob/v0.2.0/visualdataset/manifest.py#L36-L55
  */
 type Manifest = {
   tags: { [key: string]: string[] };
   files: VisualDatasetFileInfo[];
   options: OptionsLink[];
+  first_run_files: number[];
 };
 
 export type {

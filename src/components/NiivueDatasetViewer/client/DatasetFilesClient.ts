@@ -60,6 +60,13 @@ class DatasetFilesClient {
   get tagsDictionary(): { [key: string]: string[] } {
     return this.manifest.tags;
   }
+
+  /**
+   * Get the indices of which files should be shown on first run.
+   */
+  get firstRunFiles(): number[] {
+    return this.manifest.first_run_files;
+  }
 }
 
 /**

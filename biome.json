@@ -17,6 +17,9 @@
       "recommended": true,
       "style": {
         "noNonNullAssertion": "off"
+      },
+      "complexity": {
+        "noForEach": "off"
       }
     }
   },
