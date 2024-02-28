@@ -75,6 +75,8 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     [key: string]: string[];
   } | null>(null);
 
+  const [firstRunFiles, setFirstRunFiles] = useState<number[] | null>(null);
+
   const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
   const [nvSize, setNvSize] = useState(10);
   const [sizeIsScaling, setSizeIsScaling] = useState(false);
@@ -130,6 +132,11 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     return filesClient;
   };
 
+  const tapSetFirstRunFiles = (filesClient: DatasetFilesClient) => {
+    setFirstRunFiles(filesClient.firstRunFiles);
+    return filesClient;
+  };
+
   // when a dataset is selected, get its feed, readme, tags dictionary, and files
   useEffect(() => {
     if (dataset === null) {
@@ -143,6 +150,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       TE.map(fetchAndSetReadme),
       TE.flatMap((preClient) => preClient.getFilesClient()),
       TE.map(tapSetTagsDictionary),
+      TE.map(tapSetFirstRunFiles),
       TE.map((filesClient) => filesClient.listFiles()),
       TE.map(files2states),
       TE.match(pushProblem, setFileStates),
@@ -164,6 +172,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       pushProblems={pushProblems}
       fileStates={fileStates}
       setFileStates={notNullSetState(setFileStates)}
+      firstRunFiles={firstRunFiles}
     />
   );
 
