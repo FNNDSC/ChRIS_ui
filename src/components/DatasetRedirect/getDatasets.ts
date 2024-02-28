@@ -86,5 +86,5 @@ function isCompatibleVersion(pluginVersion: string): boolean {
   );
 }
 
-export { getDatasets };
+export { getDatasets, isPlVisualDataset };
 export type { DatasetSearchResult };
