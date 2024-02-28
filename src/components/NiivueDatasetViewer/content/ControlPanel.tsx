@@ -13,8 +13,6 @@ type ControlPanelProps = {
   setFileStates: React.Dispatch<
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
-  pushProblems: (problems: Problem[]) => void;
-  firstRunFiles: number[] | null;
 };
 
 /**
@@ -24,8 +22,6 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   problems,
   fileStates,
   setFileStates,
-  pushProblems,
-  firstRunFiles,
 }) => {
   return (
     <Flex direction={{ default: "column" }} className={Sizing.h_100}>
@@ -40,12 +36,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       )}
       <FlexItem grow={{ default: "grow" }}>
         {fileStates === null || (
-          <FilesMenu
-            fileStates={fileStates}
-            setFileStates={setFileStates}
-            pushProblems={pushProblems}
-            firstRunFiles={firstRunFiles}
-          />
+          <FilesMenu fileStates={fileStates} setFileStates={setFileStates} />
         )}
       </FlexItem>
       <FlexItem className={Spacing.pSm}>
