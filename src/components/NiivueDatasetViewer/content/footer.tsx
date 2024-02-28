@@ -48,13 +48,8 @@ const displayAsRowOnMobile = css(
   Flex.justifyContentSpaceBetween,
 );
 
-const FooterContent: React.FC<{ crosshairLocation: CrosshairLocation }> = ({
-  crosshairLocation,
-}) => (
+const FooterContent = () => (
   <TextContent>
-    <div className={hideOnMobile}>
-      <Truncate content={`Location: ${crosshairLocation.string}`} />
-    </div>
     <div className={displayAsRowOnMobile}>
       <div>
         <FnndscCopyright />
