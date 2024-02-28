@@ -183,6 +183,17 @@ const PROBLEMS = {
       body: errorMsg,
     };
   },
+
+  couldNotGetColormaplabel(colormapLabelFile: string): Problem {
+    return {
+      variant: "warning",
+      title: (
+        <>
+          Could not get colormap <code>{colormapLabelFile}</code>
+        </>
+      ),
+    };
+  },
 } satisfies Record<
   string,
   // biome-ignore lint/suspicious/noExplicitAny: it's fine to use any for rest arguments in satisfies operator

@@ -11,14 +11,20 @@ import {
   VisualDatasetFileInfo,
 } from "./models";
 import { constants } from "../../../datasets";
-import problems from "./problems";
-import { ChNVRVolume, SupportedVolumeSettings } from "../models";
+import PROBLEMS from "./problems";
+import {
+  ChNVRVolume,
+  PreChNVRVolume,
+  SupportedVolumeSettings,
+} from "../models";
+import { ColorMap } from "niivue-react/src/reexport";
 import { Option, none, some, match } from "fp-ts/Option";
-import { pipe } from "fp-ts/function";
+import { pipe, flow } from "fp-ts/function";
 import { parse as parseJson } from "fp-ts/Json";
 import FpFileBrowserFile from "../../../api/fp/fpFileBrowserFile";
 import { DEFAULT_VOLUME } from "../defaults";
 import { Problem } from "../types.ts";
+import { right } from "fp-ts/Either";
 
 /**
  * A file from a visual dataset.
@@ -63,8 +69,25 @@ class DatasetFile {
           sidecarEither,
           this.info.path,
         );
-        const volume = { ...DEFAULT_VOLUME, ...sidecar, url: fileResource };
+        const volume: PreChNVRVolume = {
+          ...DEFAULT_VOLUME,
+          ...this.options.niivue_defaults,
+          ...sidecar,
+          url: fileResource,
+        };
         return { problems, volume };
+      }),
+      // for label volumes, get colormapLabelFile
+      TE.flatMap(({ problems, volume }) => {
+        if (volume.colormapLabelFile === undefined) {
+          return TE.fromEither(right({ problems, volume }));
+        }
+        return TE.fromTask(
+          this.getColormapLabelFile(
+            { problems, volume },
+            volume.colormapLabelFile,
+          ),
+        );
       }),
     );
   }
@@ -113,6 +136,37 @@ class DatasetFile {
     );
   }
 
+  private getColormapLabelFile(
+    { problems, volume }: { problems: Problem[]; volume: PreChNVRVolume },
+    colormapLabelFile: string,
+  ): T.Task<{ problems: Problem[]; volume: ChNVRVolume }> {
+    return pipe(
+      this.getSingleFile(`${this.indexRoot}/${colormapLabelFile}`),
+      TE.flatMap((data) => data.getAsText()),
+      TE.flatMap(flow(parseJson, TE.fromEither)),
+      TE.map((data) => data as ColorMap),
+      TE.match(
+        // I wonder what _error's type is?
+        (_error) => {
+          const problem = PROBLEMS.couldNotGetColormaplabel(colormapLabelFile);
+          return {
+            problems: problems.concat([problem]),
+            volume,
+          };
+        },
+        (colormapLabel) => {
+          return {
+            problems,
+            volume: {
+              ...volume,
+              colormapLabel,
+            },
+          };
+        },
+      ),
+    );
+  }
+
   /**
    * Get the file resource object of a single file using the CUBE filebrowser API.
    */
@@ -122,13 +176,13 @@ class DatasetFile {
     const [dirname, basename] = unsafeSplitPath(fname);
     return pipe(
       this.client.getFewFilesUnder(dirname),
-      TE.mapLeft(() => problems.failedRequestForFile(fname)),
+      TE.mapLeft(() => PROBLEMS.failedRequestForFile(fname)),
       TE.flatMap((firstFewFiles) =>
         pipe(
           firstFewFiles,
           findFirst((file) => file.fname === fname),
           match(
-            () => TE.left(problems.fileNotFound(dirname, basename)),
+            () => TE.left(PROBLEMS.fileNotFound(dirname, basename)),
             (file) => TE.of(file),
           ),
         ),
@@ -178,7 +232,7 @@ function useSidecarOrGiveWarning(
   return pipe(
     e,
     E.match(
-      (errorMsg) => [{}, [problems.invalidSidecar(path, errorMsg)]],
+      (errorMsg) => [{}, [PROBLEMS.invalidSidecar(path, errorMsg)]],
       (sidecar) => [sidecar, []],
     ),
   );
