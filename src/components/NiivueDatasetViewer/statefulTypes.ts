@@ -1,12 +1,12 @@
 import { DatasetFile } from "./client";
-import { ChNVRVolume, VolumeSettings } from "./models.ts";
+import { ChNVRVolume, SupportedVolumeSettings, VolumeSettings } from "./models";
 
 /**
  * A volume's state and its original default options.
  */
 type DatasetVolume = {
   state: ChNVRVolume;
-  default: VolumeSettings;
+  default: VolumeSettings & Pick<SupportedVolumeSettings, "colormapLabelFile">;
 };
 
 type DatasetFileState = {
