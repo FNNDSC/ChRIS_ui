@@ -37,22 +37,46 @@ type ChNVROptions = Required<
 type SupportedVolumeSettings = Pick<
   NVRVolume,
   "opacity" | "colormap" | "cal_min" | "cal_max" | "colorbarVisible"
+> & {
+  /**
+   * Name of a file which contains the data to use for `colormapLabel`.
+   */
+  colormapLabelFile?: string;
+};
+
+/**
+ * Required {@link SupportedVolumeSettings} without `cal_max` and `colormapLabel`.
+ *
+ * It is safe to use some default value for the properties of
+ * `UsualVolumeSettings`.
+ *
+ * - `cal_max` is excluded because a default value for `cal_max` will make most
+ *   volumes look off.
+ * - `colormapLabelFile` is excluded because it's complicated.
+ */
+type UsualVolumeSettings = Required<
+  Omit<SupportedVolumeSettings, "cal_max" | "colormapLabelFile">
 >;
 
 /**
- * Required `SupportedVolumeSettings` without `cal_max`.
- *
- * It is safe to use some default value for the properties of
- * `UsualVolumeSettings`. The reason `cal_max` is excluded is
- * that a default value for `cal_max` will make most volumes
- * look off.
+ * Same as {@link SupportedVolumeSettings} but with some fields required.
  */
-type UsualVolumeSettings = Required<Omit<SupportedVolumeSettings, "cal_max">>;
+type PreVolumeSettings = SupportedVolumeSettings & UsualVolumeSettings;
 
 /**
- * Same as `SupportedVolumeSettings` but with most properties being required.
+ * Settings of a volume and its URL, but with `colormapLabelFile` instead of `colormapLabel`.
+ *
+ * Same as {@link PreVolumeSettings} but with `url`.
  */
-type VolumeSettings = SupportedVolumeSettings & UsualVolumeSettings;
+type PreChNVRVolume = PreVolumeSettings & { url: string };
+
+/**
+ * Settings of a volume.
+ *
+ * Same as {@link PreVolumeSettings} but with `colormapLabel` instead of `colormapLabelFile`.
+ */
+type VolumeSettings = Omit<PreVolumeSettings, "colormapLabelFile"> &
+  Pick<NVRVolume, "colormapLabel">;
 
 /**
  * A subset of `NVRVolume` with (mostly) non-optional keys.
@@ -63,6 +87,8 @@ export type {
   SupportedVolumeSettings,
   UsualVolumeSettings,
   VolumeSettings,
+  PreVolumeSettings,
+  PreChNVRVolume,
   ChNVRVolume,
   ChNVROptions,
 };
