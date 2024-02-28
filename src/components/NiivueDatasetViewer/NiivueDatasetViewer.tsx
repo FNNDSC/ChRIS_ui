@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useImmer } from "use-immer";
 import { useDispatch } from "react-redux";
 import { PageSection } from "@patternfly/react-core";
@@ -90,7 +90,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     { string: "" },
   );
 
-  const client = new FpClient(ChrisAPIClient.getClient());
+  const client = useMemo(() => new FpClient(ChrisAPIClient.getClient()), []);
 
   const [problems, setProblems] = useState<Problem[]>([]);
   const pushProblem = (p: Problem) => setProblems([...problems, p]);
@@ -171,7 +171,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       TE.match(pushProblem, setDataset),
     );
     task();
-  }, [plinstId, client, pushProblem]);
+  }, [plinstId]);
 
   // when a dataset is selected, get its feed, readme, tags dictionary, and files
   useEffect(() => {
@@ -203,34 +203,33 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       return filesClient;
     };
 
-    const preclientTask = pipe(
-      getPreClient(client, dataset),
-      TE.map(fetchAndSetReadme),
-      TE.flatMap((preClient) => preClient.getFilesClient()),
-      TE.map(tapSetTagsDictionary),
-      TE.map(tapSetFirstRunFiles),
-      TE.map((filesClient) => filesClient.listFiles()),
-      TE.map(files2states),
-      TE.match(pushProblem, setFileStates),
-    );
-    const feedTask = pipe(
-      getFeedOf(dataset.indexPlinst),
-      TE.match(pushProblem, setFeed),
-    );
-    preclientTask();
-    feedTask();
-  }, [client, dataset, pushProblem]);
+    if (fileStates === null) {
+      const task = pipe(
+        getPreClient(client, dataset),
+        TE.map(fetchAndSetReadme),
+        TE.flatMap((preClient) => preClient.getFilesClient()),
+        TE.map(tapSetTagsDictionary),
+        TE.map(tapSetFirstRunFiles),
+        TE.map((filesClient) => filesClient.listFiles()),
+        TE.map(files2states),
+        TE.match(pushProblem, setFileStates),
+      );
+      task();
+    }
+    if (feed === null) {
+      const task = pipe(
+        getFeedOf(dataset.indexPlinst),
+        TE.match(pushProblem, setFeed),
+      );
+      task();
+    }
+  }, [dataset]);
 
   // Show pre-selected volumes.
-  const [handledFirstRun, setHandledFirstRun] = useState(false);
   useEffect(() => {
-    if (handledFirstRun) {
-      return;
-    }
     if (fileStates === null) {
       return;
     }
-    setHandledFirstRun(true);
     if (fileStates.filter(volumeIsLoaded).length > 0) {
       return;
     }
@@ -253,7 +252,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
         return { ...fileState, volume: "pleaseLoadMe" };
       });
     });
-  }, [firstRunFiles, handledFirstRun, fileStates]);
+  }, [firstRunFiles]);
 
   // Load files whose volume have the value "pleaseLoadMe".
   React.useEffect(() => {
@@ -272,7 +271,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     if (needsLoad) {
       setFileStates(nextState);
     }
-  }, [fileStates, startLoadingVolume]);
+  }, [fileStates]);
 
   // ELEMENT
   // --------------------------------------------------------------------------------
