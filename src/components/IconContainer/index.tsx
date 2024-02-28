@@ -169,7 +169,7 @@ const IconContainer = () => {
         try {
           await feed.put({
             //@ts-ignore
-            public: sharePublically,
+            public: sharePublically ? sharePublically : feed.data.public,
             owner: sharePublically ? feed.data.creator_username : feedName,
           });
         } catch (error: any) {
