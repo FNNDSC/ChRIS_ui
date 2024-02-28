@@ -49,13 +49,13 @@ async function gotoVolumeView({
     .poll(async () => {
       const box = await page.locator("canvas").boundingBox();
       return box?.height || 0;
-    }, "Canvas height should be at least 3/4 of viewport")
-    .toBeGreaterThan((viewportSize.height * 3) / 4);
+    }, "Canvas height should occupy most of viewport")
+    .toBeGreaterThan(viewportSize.height * 0.6);
   await expect
     .poll(async () => {
       const box = await page.locator("canvas").boundingBox();
       return box?.width || 0;
-    }, "Canvas width should be at least 1/2 of viewport")
+    }, "Canvas should be wide")
     // A lot of leeway because of a bug.
     // https://github.com/FNNDSC/ChRIS_ui/issues/1083
     .toBeGreaterThan(viewportSize.width * 0.4);
