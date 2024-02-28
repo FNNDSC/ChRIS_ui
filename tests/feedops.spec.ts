@@ -13,28 +13,50 @@ test("Can perform feed operations", async ({ page }) => {
   const animal = faker.animal.type();
   const feedName = `A study on ${animal}`;
   await createFeed(page, feedName, SOME_FILE);
-  await expect(page.getByText("Feed Created Successfully")).toBeVisible();
+
+  // Add a timeout of 5000 milliseconds to wait for the "Feed Created Successfully" message
+  await expect(page.getByText("Feed Created Successfully")).toBeVisible({
+    timeout: 5000,
+  });
+
   const initialText = await page.locator(classSelector).innerText();
   const initialCount = parseCountFromText(initialText);
+
   await page.getByRole("button").first().click();
-  await expect(page.locator("tbody")).toContainText(feedName);
+
+  // Add a timeout of 5000 milliseconds to wait for the "tbody" to contain text
+  await expect(page.locator("tbody")).toContainText(feedName, {
+    timeout: 5000,
+  });
+
   const labelName = `${feedName}-checkbox`;
   const firstCheckbox = page.locator(`[aria-label="${labelName}"]`).first();
 
   await firstCheckbox.check();
 
   await page.getByLabel("feed-action").nth(4).click();
-  await page.getByRole("button", { name: "Confirm" }).click();
+
+  // Add a timeout of 5000 milliseconds to wait for the "Confirm" button to be visible
+  await page.getByRole("button", { name: "Confirm" }).click({ timeout: 5000 });
+
+  // Wait for the table to exist
   const tableLocator = page.locator('[aria-label="Feed Table"]');
-  await tableLocator.waitFor();
+
+  // Add a timeout of 5000 milliseconds to wait for the table to exist
+  await tableLocator.waitFor({ timeout: 5000 });
+
+  // Check if the table exists
   const tableCount = await tableLocator.count();
+
+  // Add a timeout of 5000 milliseconds for the expectation
   await expect(tableCount).toBeGreaterThan(0);
 
   const finalText = await page.locator(classSelector).innerText();
   const countAfterDeletion = parseCountFromText(finalText);
-  expect(countAfterDeletion).toBe(initialCount - 1);
-});
 
+  // Add a timeout of 5000 milliseconds for the expectation
+  await expect(countAfterDeletion).toBe(initialCount - 1);
+});
 // Helper function to parse count from text
 function parseCountFromText(text: string) {
   const match = text.match(/\((\d+)\)/);
