@@ -15,7 +15,9 @@ type ControlPanelProps = {
   problems: Problem[];
   crosshairLocation: CrosshairLocation;
   fileStates: ReadonlyArray<DatasetFileState> | null;
-  setFileStates: (fileStates: ReadonlyArray<DatasetFileState>) => void;
+  setFileStates: React.Dispatch<
+    React.SetStateAction<ReadonlyArray<DatasetFileState>>
+  >;
   pushProblems: (problems: Problem[]) => void;
 };
 

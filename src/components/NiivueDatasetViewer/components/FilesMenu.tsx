@@ -22,7 +22,9 @@ import { DatasetFile } from "../client";
 
 type FilesMenuProps = {
   fileStates: ReadonlyArray<DatasetFileState>;
-  setFileStates: (fileStates: ReadonlyArray<DatasetFileState>) => void;
+  setFileStates: React.Dispatch<
+    React.SetStateAction<ReadonlyArray<DatasetFileState>>
+  >;
   pushProblems: (problems: Problem[]) => void;
 };
 
@@ -55,13 +57,11 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     path: string,
     updater: (fileState: DatasetFileState) => DatasetFileState,
   ) => {
-    const nextFileStates = fileStates.map((fileState) => {
-      if (fileState.file.path === path) {
-        return updater(fileState);
-      }
-      return fileState;
-    });
-    setFileStates(nextFileStates);
+    setFileStates((prev) =>
+      prev.map((fileState) =>
+        fileState.file.path === path ? updater(fileState) : fileState,
+      ),
+    );
   };
 
   /**
