@@ -4,7 +4,13 @@ import { Updater } from "use-immer";
 
 import DragModeDropdown from "./DragModeDropdown";
 import SliceTypeButton from "./SliceTypeButton";
-import { Flex, FlexItem } from "@patternfly/react-core";
+import {
+  Button,
+  Flex,
+  FlexItem,
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@patternfly/react-core";
 
 type HeaderOptionsBarProps = {
   options: ChNVROptions;
@@ -18,16 +24,26 @@ const HeaderOptionBar: React.FC<HeaderOptionsBarProps> = ({
   return (
     <Flex>
       <FlexItem>
-        <div style={{ width: "8em" }}>
-          <DragModeDropdown
-            selectedMode={options.dragMode}
-            onSelect={(dragMode) => {
+        <ToggleGroup>
+          <ToggleGroupItem
+            text="Neurological"
+            isSelected={!options.isRadiologicalConvention}
+            onChange={() =>
               setOptions((draft) => {
-                draft.dragMode = dragMode;
-              });
-            }}
+                draft.isRadiologicalConvention = false;
+              })
+            }
           />
-        </div>
+          <ToggleGroupItem
+            text="Radiological"
+            isSelected={options.isRadiologicalConvention}
+            onChange={() =>
+              setOptions((draft) => {
+                draft.isRadiologicalConvention = true;
+              })
+            }
+          />
+        </ToggleGroup>
       </FlexItem>
       <FlexItem>
         <div style={{ width: "8em" }}>
@@ -42,6 +58,18 @@ const HeaderOptionBar: React.FC<HeaderOptionsBarProps> = ({
                 draft.multiplanarForceRender = multiplanarForceRender;
               })
             }
+          />
+        </div>
+      </FlexItem>
+      <FlexItem>
+        <div style={{ width: "8em" }}>
+          <DragModeDropdown
+            selectedMode={options.dragMode}
+            onSelect={(dragMode) => {
+              setOptions((draft) => {
+                draft.dragMode = dragMode;
+              });
+            }}
           />
         </div>
       </FlexItem>
