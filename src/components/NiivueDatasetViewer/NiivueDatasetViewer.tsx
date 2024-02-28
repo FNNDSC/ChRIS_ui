@@ -6,12 +6,13 @@ import WrapperConnect from "../Wrapper";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
 
-import { ChNVROptions } from "./models";
+import { ChNVROptions, ChNVRVolume } from "./models";
 import { DEFAULT_OPTIONS } from "./defaults";
 import HeaderOptionBar from "./components/HeaderOptionBar";
 import SizedNiivueCanvas, { CrosshairLocation } from "../SizedNiivueCanvas";
 import { Problem, VisualDataset } from "./types";
 import {
+  DatasetFile,
   DatasetFilesClient,
   DatasetPreClient,
   getDataset,
@@ -31,7 +32,12 @@ import {
 import { parsePluginInstanceId } from "./client/helpers";
 import { getFeedOf } from "./client/getDataset";
 import { Feed } from "@fnndsc/chrisapi";
-import { DatasetFileState, DatasetVolume, files2states } from "./statefulTypes";
+import {
+  DatasetFileState,
+  DatasetVolume,
+  files2states,
+  volumeIsLoaded,
+} from "./statefulTypes";
 import { notNullSetState } from "./helpers";
 import styles from "./NiivueDatasetViewer.module.css";
 import { css } from "@patternfly/react-styles";
@@ -90,6 +96,57 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   const pushProblem = (p: Problem) => setProblems([...problems, p]);
   const pushProblems = (p: Problem[]) => setProblems(problems.concat(p));
 
+  // VOLUME LOADING HELPER FUNCTIONS
+  // --------------------------------------------------------------------------------
+
+  /**
+   * Update the state of a file with the given path.
+   */
+  const updateStateAt = (
+    path: string,
+    updater: (fileState: DatasetFileState) => DatasetFileState,
+  ) => {
+    notNullSetState(setFileStates)((prev) =>
+      prev.map((fileState) =>
+        fileState.file.path === path ? updater(fileState) : fileState,
+      ),
+    );
+  };
+
+  /**
+   * Curried function for setting the volume state of a dataset file.
+   */
+  const setFreshVolumeOf = (
+    path: string,
+  ): ((x: {
+    problems: Problem[];
+    volume: ChNVRVolume;
+    colormapLabelFile?: string;
+  }) => void) => {
+    return ({ problems, volume, colormapLabelFile }) => {
+      if (problems.length > 0) {
+        pushProblems(problems);
+      }
+      updateStateAt(path, (fileState) => {
+        return {
+          ...fileState,
+          volume: copyPropertiesToDefault(volume, colormapLabelFile),
+        };
+      });
+    };
+  };
+
+  /**
+   * Request then set the file volume's URL asynchronously.
+   */
+  const startLoadingVolume = (file: DatasetFile) => {
+    const task = pipe(
+      file.getVolume(),
+      TE.match(pushProblem, setFreshVolumeOf(file.path)),
+    );
+    task();
+  };
+
   // EFFECTS
   // --------------------------------------------------------------------------------
 
@@ -114,28 +171,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       TE.match(pushProblem, setDataset),
     );
     task();
-  }, [plinstId]);
-
-  const fetchAndSetReadme = (preClient: DatasetPreClient) => {
-    const task = pipe(
-      preClient.getReadme(),
-      // if dataset does not have a README, set README as empty
-      O.getOrElse(() => TE.of("")),
-      TE.match(pushProblem, setReadme),
-    );
-    task();
-    return preClient;
-  };
-
-  const tapSetTagsDictionary = (filesClient: DatasetFilesClient) => {
-    setTagsDictionary(filesClient.tagsDictionary);
-    return filesClient;
-  };
-
-  const tapSetFirstRunFiles = (filesClient: DatasetFilesClient) => {
-    setFirstRunFiles(filesClient.firstRunFiles);
-    return filesClient;
-  };
+  }, [plinstId, client, pushProblem]);
 
   // when a dataset is selected, get its feed, readme, tags dictionary, and files
   useEffect(() => {
@@ -145,6 +181,28 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       setTagsDictionary(null);
       return;
     }
+
+    const fetchAndSetReadme = (preClient: DatasetPreClient) => {
+      const task = pipe(
+        preClient.getReadme(),
+        // if dataset does not have a README, set README as empty
+        O.getOrElse(() => TE.of("")),
+        TE.match(pushProblem, setReadme),
+      );
+      task();
+      return preClient;
+    };
+
+    const tapSetTagsDictionary = (filesClient: DatasetFilesClient) => {
+      setTagsDictionary(filesClient.tagsDictionary);
+      return filesClient;
+    };
+
+    const tapSetFirstRunFiles = (filesClient: DatasetFilesClient) => {
+      setFirstRunFiles(filesClient.firstRunFiles);
+      return filesClient;
+    };
+
     const preclientTask = pipe(
       getPreClient(client, dataset),
       TE.map(fetchAndSetReadme),
@@ -161,7 +219,60 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     );
     preclientTask();
     feedTask();
-  }, [dataset]);
+  }, [client, dataset, pushProblem]);
+
+  // Show pre-selected volumes.
+  const [handledFirstRun, setHandledFirstRun] = useState(false);
+  useEffect(() => {
+    if (handledFirstRun) {
+      return;
+    }
+    if (fileStates === null) {
+      return;
+    }
+    setHandledFirstRun(true);
+    if (fileStates.filter(volumeIsLoaded).length > 0) {
+      return;
+    }
+    if (firstRunFiles === null) {
+      return;
+    }
+    setFileStates((prev) => {
+      if (prev === null) {
+        return null;
+      }
+      return prev.map((fileState, i) => {
+        if (firstRunFiles.findIndex((j) => i === j) === -1) {
+          return fileState;
+        }
+        if (fileState.volume !== null) {
+          return fileState;
+        }
+        // by setting volume to "pleaseLoadMe", <FilesMenu> is notified
+        // to start loading its file.
+        return { ...fileState, volume: "pleaseLoadMe" };
+      });
+    });
+  }, [firstRunFiles, handledFirstRun, fileStates]);
+
+  // Load files whose volume have the value "pleaseLoadMe".
+  React.useEffect(() => {
+    if (fileStates === null) {
+      return;
+    }
+    let needsLoad = false;
+    const nextState = fileStates.map((fileState): DatasetFileState => {
+      if (fileState.volume === "pleaseLoadMe") {
+        needsLoad = true;
+        startLoadingVolume(fileState.file);
+        return { ...fileState, volume: "loading" };
+      }
+      return fileState;
+    });
+    if (needsLoad) {
+      setFileStates(nextState);
+    }
+  }, [fileStates, startLoadingVolume]);
 
   // ELEMENT
   // --------------------------------------------------------------------------------
@@ -169,10 +280,8 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   const controlPanel = (
     <ControlPanel
       problems={problems}
-      pushProblems={pushProblems}
       fileStates={fileStates}
       setFileStates={notNullSetState(setFileStates)}
-      firstRunFiles={firstRunFiles}
     />
   );
 
@@ -184,10 +293,8 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     fileStates === null
       ? []
       : fileStates
-          .map(({ volume }) => volume)
-          .filter(
-            (v): v is DatasetVolume => v !== null && typeof v === "object",
-          )
+          .filter(volumeIsLoaded)
+          .map((fileState) => fileState.volume)
           .map(({ state }) => state);
 
   return (
@@ -224,5 +331,16 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     </WrapperConnect>
   );
 };
+
+/**
+ * Copy the properties of the given volume over to an object called "default".
+ */
+function copyPropertiesToDefault(
+  volume: ChNVRVolume,
+  colormapLabelFile: string | undefined,
+): DatasetVolume {
+  const { url: _url, ...rest } = volume;
+  return { state: volume, default: { ...rest, colormapLabelFile } };
+}
 
 export default NiivueDatasetViewer;
