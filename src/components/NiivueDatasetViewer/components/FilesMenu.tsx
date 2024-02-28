@@ -118,13 +118,12 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   /**
    * Request the file volume's URL asynchronously.
    */
-  const startLoadingVolume = (file: DatasetFile): DatasetFileState => {
+  const startLoadingVolume = (file: DatasetFile) => {
     const task = pipe(
       file.getVolume(),
       TE.match(pushProblem, setFreshVolumeOf(file.path)),
     );
     task();
-    return { file, volume: "loading" };
   };
 
   /**
@@ -154,24 +153,37 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
    * Unload all currently displayed volumes, then load the selected file.
    */
   const selectOnlyItem = (path: string) => {
-    const nextFileStates = fileStates.map((fileState) => {
-      const { volume, file } = fileState;
-      if (path !== file.path) {
-        return { file, volume: null };
-      }
-      if (volume !== null) {
-        return fileState;
-      }
-      return startLoadingVolume(file);
-    });
-    setFileStates(nextFileStates);
+    setFileStates((prev) =>
+      prev.map((fileState) => {
+        const { volume, file } = fileState;
+        // unload all others
+        if (path !== file.path) {
+          return { file, volume: null };
+        }
+        // do nothing if already loading or loaded
+        if (volume !== null) {
+          return fileState;
+        }
+        // start loading
+        startLoadingVolume(file);
+        return { file, volume: "loading" };
+      }),
+    );
   };
 
   /**
    * Load the selected file (without unloading others).
    */
   const addItemToSelection = (path: string) => {
-    updateStateAt(path, ({ file }) => startLoadingVolume(file));
+    return setFileStates((prev) =>
+      prev.map((fileState) => {
+        if (fileState.file.path === path && fileState.volume === null) {
+          startLoadingVolume(fileState.file);
+          return { ...fileState, volume: "loading" };
+        }
+        return fileState;
+      }),
+    );
   };
 
   const onMenuSelect = (
@@ -309,19 +321,17 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     if (handledFirstRun) {
       return;
     }
+    setHandledFirstRun(true);
     if (loadedVolumes.length > 0) {
-      setHandledFirstRun(true);
       return;
     }
     if (firstRunFiles === null) {
       return;
     }
-
     fileStates
       .filter((_, i) => firstRunFiles.findIndex((j) => i === j) !== -1)
       .map((fileState) => fileState.file.path)
       .forEach((path) => addItemToSelection(path));
-    setHandledFirstRun(true);
   }, [
     firstRunFiles,
     handledFirstRun,
