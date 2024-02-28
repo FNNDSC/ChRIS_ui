@@ -128,6 +128,16 @@ const IconContainer = () => {
     });
   };
 
+  function invalidateQueries() {
+    queryClient.invalidateQueries({
+      queryKey: ["feeds"],
+    });
+
+    queryClient.invalidateQueries({
+      queryKey: ["publicFeeds"],
+    });
+  }
+
   const deleteFeedMutation = useMutation({
     mutationFn: async (bulkSelect: Feed[]) => {
       for (const feed of bulkSelect) {
@@ -140,9 +150,7 @@ const IconContainer = () => {
     },
     onSuccess: () => {
       dispatch(setBulkSelect([], false));
-      queryClient.invalidateQueries({
-        queryKey: ["feeds"],
-      });
+      invalidateQueries();
       handleModalToggle(false);
     },
     onError: (error: { message: string }) => {
@@ -162,7 +170,7 @@ const IconContainer = () => {
           await feed.put({
             //@ts-ignore
             public: sharePublically,
-            owner: sharePublically ? undefined : feedName,
+            owner: sharePublically ? feed.data.creator_username : feedName,
           });
         } catch (error: any) {
           throw new Error(error);
@@ -232,9 +240,7 @@ const IconContainer = () => {
     },
     onSuccess: () => {
       // Handle success actions if needed
-      queryClient.invalidateQueries({
-        queryKey: ["feeds"],
-      });
+      invalidateQueries();
       handleModalToggle(false);
     },
     onError: (error: Error) => {
@@ -261,9 +267,7 @@ const IconContainer = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["feeds"],
-      });
+      invalidateQueries();
       handleModalToggle(false);
     },
     onError: (error) => {
@@ -374,9 +378,6 @@ const IconContainer = () => {
                   <Checkbox
                     isChecked={modalState.sharePublically}
                     id="checked"
-                    style={{
-                      marginTop: "1em",
-                    }}
                     label="Share this feed publically"
                     onChange={(_event, checked: boolean) => {
                       setModalState({
