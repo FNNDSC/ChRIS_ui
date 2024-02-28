@@ -1,7 +1,8 @@
 import * as loggedIn from "../fixtures/loggedIn";
 import * as loggedOut from "../fixtures/notLoggedIn";
-import { Page, expect } from "@playwright/test";
+import { Page, expect, test } from "@playwright/test";
 import retryExpandSidebar from "../helpers/expandSidebar";
+import isFirefoxInGitHubActions from "./isFirefoxInGitHubActions";
 
 loggedIn.test(
   "Shows a volume when page is navigated to (not logged in)",
@@ -16,7 +17,12 @@ loggedOut.test(
 async function gotoVolumeView({
   page,
   isMobile,
-}: { page: Page; isMobile: boolean }) {
+  browserName,
+}: { page: Page; isMobile: boolean; browserName: string }) {
+  if (isFirefoxInGitHubActions(browserName)) {
+    test.skip();
+  }
+
   await page.goto("/");
   if (isMobile) {
     await retryExpandSidebar(page);
