@@ -29,14 +29,14 @@ import {
   DatasetDescriptionText,
 } from "./content";
 import { parsePluginInstanceId } from "./client/helpers";
-import { getFeedOf } from "./client/getDataset.ts";
+import { getFeedOf } from "./client/getDataset";
 import { Feed } from "@fnndsc/chrisapi";
-import {
-  DatasetFileState,
-  DatasetVolume,
-  files2states,
-} from "./statefulTypes.ts";
-import { notNullSetState } from "./helpers.ts";
+import { DatasetFileState, DatasetVolume, files2states } from "./statefulTypes";
+import { notNullSetState } from "./helpers";
+import styles from "./NiivueDatasetViewer.module.css";
+import { css } from "@patternfly/react-styles";
+import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
+import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 /**
  * The "Niivue Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -162,7 +162,6 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     <ControlPanel
       problems={problems}
       pushProblems={pushProblems}
-      crosshairLocation={crosshairLocation}
       fileStates={fileStates}
       setFileStates={notNullSetState(setFileStates)}
     />
@@ -202,6 +201,15 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
             options={nvOptions}
             volumes={volumes}
           />
+          <div
+            className={css(
+              styles.bottomFooter,
+              BackgroundColor.backgroundColor_200,
+              Spacing.pSm,
+            )}
+          >
+            Location: {crosshairLocation.string}
+          </div>
         </DatasetPageDrawer>
       </PageSection>
     </WrapperConnect>

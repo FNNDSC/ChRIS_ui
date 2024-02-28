@@ -6,14 +6,12 @@ import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
 import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import Flex from "@patternfly/react-styles/css/utilities/Flex/flex";
 import { css } from "@patternfly/react-styles";
-import { CrosshairLocation } from "../../SizedNiivueCanvas";
 import { FooterContent } from "./footer.tsx";
 import FilesMenu from "../components/FilesMenu.tsx";
 import { DatasetFileState } from "../statefulTypes.ts";
 
 type ControlPanelProps = {
   problems: Problem[];
-  crosshairLocation: CrosshairLocation;
   fileStates: ReadonlyArray<DatasetFileState> | null;
   setFileStates: React.Dispatch<
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
@@ -26,7 +24,6 @@ type ControlPanelProps = {
  */
 const ControlPanel: React.FC<ControlPanelProps> = ({
   problems,
-  crosshairLocation,
   fileStates,
   setFileStates,
   pushProblems,
@@ -55,7 +52,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         )}
       </div>
       <div className={css(Flex.flexGrow_0, Spacing.pSm)}>
-        <FooterContent crosshairLocation={crosshairLocation} />
+        <FooterContent />
       </div>
     </div>
   );
