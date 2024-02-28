@@ -6,7 +6,7 @@ import {
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
-import FeedButton from "../components/FeedButton.tsx";
+import FeedButton from "../components/FeedButton";
 import React from "react";
 import { Feed } from "@fnndsc/chrisapi";
 
@@ -21,7 +21,7 @@ const DatasetDescriptionText: React.FC<{
           {feed === null || (
             <Text component={TextVariants.h2}>
               {feed.data.name}
-              <FeedButton feedId={feed.data.id} />
+              <FeedButton feed={feed} />
             </Text>
           )}
           {readme === null || <Text component={TextVariants.p}>{readme}</Text>}
