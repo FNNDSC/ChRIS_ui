@@ -2,9 +2,9 @@ import React from "react";
 import { ChNVROptions } from "../models";
 import { Updater } from "use-immer";
 
-import styles from "./HeaderOptionBar.module.css";
 import DragModeDropdown from "./DragModeDropdown";
 import SliceTypeButton from "./SliceTypeButton";
+import { Flex, FlexItem } from "@patternfly/react-core";
 
 type HeaderOptionsBarProps = {
   options: ChNVROptions;
@@ -16,37 +16,36 @@ const HeaderOptionBar: React.FC<HeaderOptionsBarProps> = ({
   setOptions,
 }) => {
   return (
-    <div className={styles.headerOptionsBar}>
-      <div className={styles.headerOption}>
-        <div className={styles.headerOptionDescription}>Right-click drag</div>
-        <div className={styles.headerOptionWidget}>
-          <div className={styles.dragmodeDropdown}>
-            <DragModeDropdown
-              selectedMode={options.dragMode}
-              onSelect={(dragMode) => {
-                setOptions((draft) => {
-                  draft.dragMode = dragMode;
-                });
-              }}
-            />
-          </div>
+    <Flex>
+      <FlexItem>
+        <div style={{ width: "8em" }}>
+          <DragModeDropdown
+            selectedMode={options.dragMode}
+            onSelect={(dragMode) => {
+              setOptions((draft) => {
+                draft.dragMode = dragMode;
+              });
+            }}
+          />
         </div>
-      </div>
-      <div className={styles.headerOption}>
-        <SliceTypeButton
-          selectedSliceType={[
-            options.sliceType,
-            options.multiplanarForceRender,
-          ]}
-          onSelect={(sliceType, multiplanarForceRender) =>
-            setOptions((draft) => {
-              draft.sliceType = sliceType;
-              draft.multiplanarForceRender = multiplanarForceRender;
-            })
-          }
-        />
-      </div>
-    </div>
+      </FlexItem>
+      <FlexItem>
+        <div style={{ width: "8em" }}>
+          <SliceTypeButton
+            selectedSliceType={[
+              options.sliceType,
+              options.multiplanarForceRender,
+            ]}
+            onSelect={(sliceType, multiplanarForceRender) =>
+              setOptions((draft) => {
+                draft.sliceType = sliceType;
+                draft.multiplanarForceRender = multiplanarForceRender;
+              })
+            }
+          />
+        </div>
+      </FlexItem>
+    </Flex>
   );
 };
 
