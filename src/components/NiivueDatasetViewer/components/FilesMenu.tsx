@@ -16,8 +16,16 @@ import {
   Panel,
   PanelMain,
   PanelMainBody,
+  TabTitleText,
+  TabTitleIcon,
 } from "@patternfly/react-core";
-import { PlusIcon, PlusCircleIcon } from "@patternfly/react-icons";
+import {
+  PlusIcon,
+  PlusCircleIcon,
+  FolderOpenIcon,
+  FolderCloseIcon,
+  BrainIcon,
+} from "@patternfly/react-icons";
 import { TagSet } from "../client/models.ts";
 import React from "react";
 import { DatasetFileState, DatasetVolume } from "../statefulTypes";
@@ -84,9 +92,6 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   pushProblems,
 }) => {
   const pushProblem = (problem: Problem) => pushProblems([problem]);
-  const [activeTabKey, setActiveTabKey] = React.useState<string | number>(
-    "File Selection",
-  );
 
   /**
    * Update the state of a file with the given path.
@@ -200,7 +205,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   };
 
   const selectionMenu = (
-    <Menu onSelect={onMenuSelect} onActionClick={onActionClick} isScrollable>
+    <Menu onSelect={onMenuSelect} onActionClick={onActionClick}>
       <MenuContent>
         <MenuGroup>
           <MenuList>
@@ -230,12 +235,64 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     </Menu>
   );
 
+  const volumeOptionsMenu = (
+    <div>
+      <h1>hello, world!</h1>
+    </div>
+  );
+
+  const [activeTabKey, setActiveTabKey] = React.useState<string | number>(
+    "File Selection",
+  );
+
+  const tabs: {
+    title: string;
+    icon: React.ReactNode;
+    body: React.ReactNode;
+  }[] = [
+    {
+      title: "File Selection",
+      icon:
+        activeTabKey === "File Selection" ? (
+          <FolderOpenIcon />
+        ) : (
+          <FolderCloseIcon />
+        ),
+      body: (
+        <>
+          <FileSelectHelpText />
+          {selectionMenu}
+        </>
+      ),
+    },
+    {
+      title: "Volume Options",
+      icon: <BrainIcon />,
+      body: volumeOptionsMenu,
+    },
+  ];
+
   return (
-    <Tabs activeKey={activeTabKey} onSelect={(_e, t) => setActiveTabKey(t)}>
-      <Tab title="File Selection" eventKey="File Selection">
-        <FileSelectHelpText />
-        {selectionMenu}
-      </Tab>
+    <Tabs
+      isFilled
+      activeKey={activeTabKey}
+      onSelect={(_e, t) => setActiveTabKey(t)}
+    >
+      {tabs.map(({ title, icon, body }) => (
+        <Tab
+          key={title}
+          eventKey={title}
+          title={
+            <>
+              <TabTitleIcon>{icon}</TabTitleIcon>{" "}
+              <TabTitleText>{title}</TabTitleText>
+            </>
+          }
+        >
+          {/* TODO set height to be 70% and scrollable */}
+          <div style={{ height: "500px", overflowY: "scroll" }}>{body}</div>
+        </Tab>
+      ))}
     </Tabs>
   );
 };
