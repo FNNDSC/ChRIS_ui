@@ -11,7 +11,6 @@ const NiivueDatasetViewerPage = () => {
   const { plinstId } = useParams();
 
   if (plinstId === undefined) {
-    console.dir(useParams());
     throw new Error("plinstId of NiivueDatasetViewerPage is undefined");
   }
 

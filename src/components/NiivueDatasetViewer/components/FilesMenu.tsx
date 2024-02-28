@@ -317,9 +317,6 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
       return;
     }
 
-    console.log(firstRunFiles);
-    console.dir(firstRunFiles);
-
     fileStates
       .filter((_, i) => firstRunFiles.findIndex((j) => i === j) !== -1)
       .map((fileState) => fileState.file.path)
