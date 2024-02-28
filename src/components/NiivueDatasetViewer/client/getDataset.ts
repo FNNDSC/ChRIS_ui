@@ -19,11 +19,11 @@ function getDataset(
 ): TE.TaskEither<Problem, VisualDataset> {
   return pipe(
     client.getPublicInstanceDirectly(plinstId),
-    TE.mapLeft(problems.failedRequestForPluginInstance(plinstId)),
+    TE.mapLeft(() => problems.failedRequestForPluginInstance(plinstId)),
     TE.flatMap((indexPlinst) =>
       pipe(
         FpClient.getPreviousPluginInstance(indexPlinst),
-        TE.mapLeft(problems.failedRequestForPreviousOf(indexPlinst)),
+        TE.mapLeft(() => problems.failedRequestForPreviousOf(indexPlinst)),
         TE.flatMap((dataPlinst) => {
           if (dataPlinst === null) {
             const problem = problems.hasNoPrevious(indexPlinst);
