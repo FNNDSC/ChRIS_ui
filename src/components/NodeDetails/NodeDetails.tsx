@@ -10,7 +10,7 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-import CalendarAlt from "@patternfly/react-icons/dist/esm/icons/calendar-alt-icon";
+import { EyeIcon, CalendarAltIcon } from "@patternfly/react-icons";
 import React, { Fragment, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
@@ -29,6 +29,7 @@ import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import { getErrorCodeMessage } from "./utils";
+import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
 
 interface INodeState {
   plugin?: Plugin;
@@ -118,7 +119,7 @@ const NodeDetails: React.FC = () => {
   }
   const Time = (
     <>
-      <CalendarAlt style={{ marginRight: "0.5em" }} />
+      <CalendarAltIcon style={{ marginRight: "0.5em" }} />
 
       {selectedPlugin.data.start_date}
     </>
@@ -251,6 +252,29 @@ const NodeDetails: React.FC = () => {
                   </RenderButtonGridItem>
                 )}
               </Grid>
+
+              {
+                // Jennings: hastily adding an extra button here.
+                // IMO the Node Details pane should be cleaned up.
+                isPlVisualDataset(selectedPlugin) && (
+                  <Grid hasGutter={true}>
+                    <RenderButtonGridItem>
+                      <Button
+                        icon={<EyeIcon />}
+                        onClick={() =>
+                          navigate(`/niivue/${selectedPlugin.data.id}`)
+                        }
+                      >
+                        View Volumes{" "}
+                        {/* I didn't make this shortcut work, since none of them currently work in caae85dd1cb337c11179724eedf3b81ac6373aaa */}
+                        <span style={{ padding: "2px", color: "#F5F5DC" }}>
+                          ( V )
+                        </span>
+                      </Button>
+                    </RenderButtonGridItem>
+                  </Grid>
+                )
+              }
             </Grid>
           </>
         )}
