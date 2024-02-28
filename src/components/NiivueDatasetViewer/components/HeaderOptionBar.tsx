@@ -1,9 +1,10 @@
 import React from "react";
-import { ChNVROptions } from "../models.ts";
+import { ChNVROptions } from "../models";
 import { Updater } from "use-immer";
 
 import styles from "./HeaderOptionBar.module.css";
-import DragModeDropdown from "./DragModeDropdown.tsx";
+import DragModeDropdown from "./DragModeDropdown";
+import SliceTypeButton from "./SliceTypeButton";
 
 type HeaderOptionsBarProps = {
   options: ChNVROptions;
@@ -30,6 +31,20 @@ const HeaderOptionBar: React.FC<HeaderOptionsBarProps> = ({
             />
           </div>
         </div>
+      </div>
+      <div className={styles.headerOption}>
+        <SliceTypeButton
+          selectedSliceType={[
+            options.sliceType,
+            options.multiplanarForceRender,
+          ]}
+          onSelect={(sliceType, multiplanarForceRender) =>
+            setOptions((draft) => {
+              draft.sliceType = sliceType;
+              draft.multiplanarForceRender = multiplanarForceRender;
+            })
+          }
+        />
       </div>
     </div>
   );
