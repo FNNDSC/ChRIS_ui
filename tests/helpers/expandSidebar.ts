@@ -17,10 +17,10 @@ async function retryExpandSidebar(page: Page) {
     await page.waitForTimeout(1000); // sidebar animation
     await expect(
       page.getByRole("link", { name: "New and Existing Analyses" }),
-    ).toBeInViewport({ timeout: 10 });
+    ).toBeInViewport({ timeout: 1000 });
   }).toPass({
     intervals: [100],
-    timeout: 2500,
+    timeout: 3000,
   });
 }
 
