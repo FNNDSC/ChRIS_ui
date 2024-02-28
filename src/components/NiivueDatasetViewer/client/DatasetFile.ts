@@ -55,7 +55,7 @@ class DatasetFile {
    */
   public getVolume(): TE.TaskEither<
     Problem,
-    { problems: Problem[]; volume: ChNVRVolume }
+    { problems: Problem[]; volume: ChNVRVolume; colormapLabelFile?: string }
   > {
     return pipe(
       // get the volume file's URL and its sidecar data
@@ -139,7 +139,11 @@ class DatasetFile {
   private getColormapLabelFile(
     { problems, volume }: { problems: Problem[]; volume: PreChNVRVolume },
     colormapLabelFile: string,
-  ): T.Task<{ problems: Problem[]; volume: ChNVRVolume }> {
+  ): T.Task<{
+    problems: Problem[];
+    volume: ChNVRVolume;
+    colormapLabelFile?: string;
+  }> {
     return pipe(
       this.getSingleFile(`${this.indexRoot}/${colormapLabelFile}`),
       TE.flatMap((data) => data.getAsText()),
@@ -161,6 +165,7 @@ class DatasetFile {
               ...volume,
               colormapLabel,
             },
+            colormapLabelFile,
           };
         },
       ),

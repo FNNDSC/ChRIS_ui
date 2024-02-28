@@ -8,7 +8,6 @@ import {
   LabelGroup,
   Label,
   Spinner,
-  Tooltip,
   Tabs,
   Tab,
   HelperText,
@@ -18,6 +17,11 @@ import {
   PanelMainBody,
   TabTitleText,
   TabTitleIcon,
+  List,
+  ListItem,
+  HintTitle,
+  HintBody,
+  Hint,
 } from "@patternfly/react-core";
 import {
   PlusIcon,
@@ -26,14 +30,15 @@ import {
   FolderCloseIcon,
   BrainIcon,
 } from "@patternfly/react-icons";
-import { TagSet } from "../client/models.ts";
+import { TagSet } from "../client/models";
 import React from "react";
 import { DatasetFileState, DatasetVolume } from "../statefulTypes";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
 import { Problem } from "../types";
-import { ChNVRVolume } from "../models.ts";
+import { ChNVRVolume } from "../models";
 import { DatasetFile } from "../client";
+import VolumeOptionsForm from "./VolumeOptionsForm";
 
 type FilesMenuProps = {
   fileStates: ReadonlyArray<DatasetFileState>;
@@ -124,15 +129,19 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
    */
   const setFreshVolumeOf = (
     path: string,
-  ): ((x: { problems: Problem[]; volume: ChNVRVolume }) => void) => {
-    return ({ problems, volume }) => {
+  ): ((x: {
+    problems: Problem[];
+    volume: ChNVRVolume;
+    colormapLabelFile?: string;
+  }) => void) => {
+    return ({ problems, volume, colormapLabelFile }) => {
       if (problems.length > 0) {
         pushProblems(problems);
       }
       updateStateAt(path, (fileState) => {
         return {
           ...fileState,
-          volume: copyPropertiesToDefault(volume),
+          volume: copyPropertiesToDefault(volume, colormapLabelFile),
         };
       });
     };
@@ -235,10 +244,59 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     </Menu>
   );
 
+  const loadedVolumes = fileStates.filter(volumeIsLoaded).map((fileState) => {
+    return { path: fileState.file.path, ...fileState.volume };
+  });
+
+  const noVolumesSelectedHint = (
+    <Hint>
+      <HintTitle>No files selected.</HintTitle>
+      <HintBody>
+        Go back to the "File Selection" tab and click on a file, then come back
+        here to edit the file's options.
+      </HintBody>
+    </Hint>
+  );
+
+  /**
+   * Curried function for changing the state of a loaded volume.
+   */
+  const changeLoadedStateOf = (
+    path: string,
+  ): ((nextState: ChNVRVolume) => void) => {
+    return (nextState) => {
+      setFileStates((prev) =>
+        prev.map((fileState) => {
+          if (fileState.file.path !== path) {
+            return fileState;
+          }
+          if (!volumeIsLoaded(fileState)) {
+            throw new Error(
+              `Cannot change state of volume "${path}", it is not yet loaded.`,
+            );
+          }
+          return {
+            ...fileState,
+            volume: { ...fileState.volume, state: nextState },
+          };
+        }),
+      );
+    };
+  };
+
   const volumeOptionsMenu = (
-    <div>
-      <h1>hello, world!</h1>
-    </div>
+    <List isPlain isBordered>
+      {loadedVolumes.map(({ path, state, default: defaultOptions }) => (
+        <ListItem key={path}>
+          <VolumeOptionsForm
+            name={path}
+            state={state}
+            defaultOptions={defaultOptions}
+            onChange={changeLoadedStateOf(path)}
+          />
+        </ListItem>
+      ))}
+    </List>
   );
 
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(
@@ -268,7 +326,8 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     {
       title: "Volume Options",
       icon: <BrainIcon />,
-      body: volumeOptionsMenu,
+      body:
+        loadedVolumes.length === 0 ? noVolumesSelectedHint : volumeOptionsMenu,
     },
   ];
 
@@ -307,12 +366,27 @@ function iconFor<T>(volume: null | "loading" | T): React.ReactNode {
   return <PlusCircleIcon />;
 }
 
+function volumeIsLoaded(
+  fileState: DatasetFileState,
+): fileState is Pick<DatasetFileState, "file"> & { volume: DatasetVolume } {
+  return volumeIsVolume(fileState.volume);
+}
+
+function volumeIsVolume(
+  volume: DatasetFileState["volume"],
+): volume is DatasetVolume {
+  return volume !== null && volume !== "loading";
+}
+
 /**
  * Copy the properties of the given volume over to an object called "default".
  */
-function copyPropertiesToDefault(volume: ChNVRVolume): DatasetVolume {
+function copyPropertiesToDefault(
+  volume: ChNVRVolume,
+  colormapLabelFile: string | undefined,
+): DatasetVolume {
   const { url: _url, ...rest } = volume;
-  return { state: volume, default: rest };
+  return { state: volume, default: { ...rest, colormapLabelFile } };
 }
 
 function isTouchDevice() {
