@@ -121,7 +121,7 @@ class FpClient {
   ): TE.TaskEither<Error, ReadonlyArray<FpFileBrowserFile>> {
     return pipe(
       this.getFileBrowserPath(...args),
-      TE.flatMap(FpClient.filebrowserGetFiles),
+      TE.flatMap((fb) => FpClient.filebrowserGetFiles(fb, { limit: 100 })),
       TE.tapIO((list) => {
         if (list.hasNextPage) {
           return Console.warn(
