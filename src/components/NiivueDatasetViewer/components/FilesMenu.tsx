@@ -143,7 +143,10 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     itemId: string,
     actionId: string,
   ) => {
-    console.log(`clicked ${itemId} - ${actionId}`);
+    if (actionId !== "display") {
+      throw new Error(`unknown action "${actionId}" for item ${itemId}`);
+    }
+    addItemToSelection(itemId);
   };
 
   const tagSetToLabelGroup = (tags: TagSet): React.ReactNode => {
