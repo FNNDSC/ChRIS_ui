@@ -1,4 +1,4 @@
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import React from "react";
 
 /**

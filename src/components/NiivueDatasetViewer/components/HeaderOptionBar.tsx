@@ -5,7 +5,6 @@ import { Updater } from "use-immer";
 import DragModeDropdown from "./DragModeDropdown";
 import SliceTypeButton from "./SliceTypeButton";
 import {
-  Button,
   Flex,
   FlexItem,
   ToggleGroup,
