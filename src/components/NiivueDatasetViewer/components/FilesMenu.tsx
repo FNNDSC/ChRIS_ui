@@ -39,6 +39,7 @@ import { Problem } from "../types";
 import { ChNVRVolume } from "../models";
 import { DatasetFile } from "../client";
 import VolumeOptionsForm from "./VolumeOptionsForm";
+import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
 
 type FilesMenuProps = {
   fileStates: ReadonlyArray<DatasetFileState>;
@@ -284,6 +285,8 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     };
   };
 
+  // TODO add functionality for reordering volumes.
+
   const volumeOptionsMenu = (
     <List isPlain isBordered>
       {loadedVolumes.map(({ path, state, default: defaultOptions }) => (
@@ -349,7 +352,12 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
           }
         >
           {/* TODO set height to be 70% and scrollable */}
-          <div style={{ height: "500px", overflowY: "scroll" }}>{body}</div>
+          <div
+            style={{ height: "500px", overflowY: "scroll" }}
+            className={BackgroundColor.backgroundColor_200}
+          >
+            {body}
+          </div>
         </Tab>
       ))}
     </Tabs>
