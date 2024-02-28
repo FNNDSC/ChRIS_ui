@@ -36,15 +36,25 @@ async function getDatasets(
   // when the user is not logged in. They can only be searched
   // for by listing the plugin instances of feeds.
   // https://github.com/FNNDSC/ChRIS_ultron_backEnd/issues/530
-  const feedCollection = isLoggedIn
-    ? await client.getFeeds(searchParams)
-    : await client.getPublicFeeds(searchParams);
-  const feeds = feedCollection.getItems();
+  const publicFeedCollection = await client.getPublicFeeds(searchParams);
+  const feeds = publicFeedCollection.getItems();
   if (feeds === null) {
     warnings.push(
-      "This is a bug which I thought never happens, see https://github.com/FNNDSC/fnndsc/issues/101",
+      "Public feeds are null. This is a bug which I thought never happens, see https://github.com/FNNDSC/fnndsc/issues/101",
     );
     return { warnings, plinsts: [] };
+  }
+
+  if (isLoggedIn) {
+    const privateFeedCollection = await client.getFeeds();
+    const privateFeeds = privateFeedCollection.getItems();
+    if (privateFeeds === null) {
+      warnings.push(
+        "Private feeds are null. This is a bug which I thought never happens, see https://github.com/FNNDSC/fnndsc/issues/101",
+      );
+    } else {
+      feeds.push(...privateFeeds);
+    }
   }
 
   const plinstPromises = feeds.map((feed: Feed) =>
