@@ -9,6 +9,13 @@ import {
   Label,
   Spinner,
   Tooltip,
+  Tabs,
+  Tab,
+  HelperText,
+  HelperTextItem,
+  Panel,
+  PanelMain,
+  PanelMainBody,
 } from "@patternfly/react-core";
 import { PlusIcon, PlusCircleIcon } from "@patternfly/react-icons";
 import { TagSet } from "../client/models.ts";
@@ -32,6 +39,34 @@ type FilesMenuProps = {
 // to let the user reorder the volumes, however currently there is a bug:
 // https://github.com/patternfly/patternfly-react/issues/10090
 
+const FileSelectHelpText = () => {
+  return (
+    <Panel>
+      <PanelMain>
+        <PanelMainBody>
+          <HelperText>
+            <HelperTextItem variant="indeterminate">
+              Click to display volume.
+            </HelperTextItem>
+            <HelperTextItem variant="indeterminate">
+              {isTouchDevice() ? (
+                <>
+                  Tap the <PlusIcon /> icon
+                </>
+              ) : (
+                <>
+                  <kbd>CTRL</kbd>/&#8984;-click
+                </>
+              )}{" "}
+              to add the volume as an overlay.
+            </HelperTextItem>
+          </HelperText>
+        </PanelMainBody>
+      </PanelMain>
+    </Panel>
+  );
+};
+
 /**
  * The `FilesMenu` component displays a list of all the files of a dataset.
  * It is responsible for getting the URL to the volume data and controlling
@@ -49,6 +84,9 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   pushProblems,
 }) => {
   const pushProblem = (problem: Problem) => pushProblems([problem]);
+  const [activeTabKey, setActiveTabKey] = React.useState<string | number>(
+    "File Selection",
+  );
 
   /**
    * Update the state of a file with the given path.
@@ -161,46 +199,44 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     );
   };
 
-  const clickHint = (
-    <span>
-      Click to display volume.
-      <br />
-      <kbd>CTRL</kbd>/<kbd>&#8984;</kbd>-click or tap the <PlusIcon /> icon to
-      add the volume as an overlay.
-    </span>
+  const selectionMenu = (
+    <Menu onSelect={onMenuSelect} onActionClick={onActionClick} isScrollable>
+      <MenuContent>
+        <MenuGroup>
+          <MenuList>
+            {fileStates.map(({ file, volume }) => {
+              return (
+                <MenuItem
+                  key={file.path}
+                  description={tagSetToLabelGroup(file.tags)}
+                  itemId={file.path}
+                  actions={
+                    <>
+                      <MenuItemAction
+                        actionId="display"
+                        icon={iconFor(volume)}
+                        aria-label="display"
+                      />
+                    </>
+                  }
+                >
+                  {file.path}
+                </MenuItem>
+              );
+            })}
+          </MenuList>
+        </MenuGroup>
+      </MenuContent>
+    </Menu>
   );
 
   return (
-    <Tooltip content={clickHint}>
-      <Menu onSelect={onMenuSelect} onActionClick={onActionClick} isScrollable>
-        <MenuContent>
-          <MenuGroup label="Dataset Files" labelHeadingLevel="h2">
-            <MenuList>
-              {fileStates.map(({ file, volume }) => {
-                return (
-                  <MenuItem
-                    key={file.path}
-                    description={tagSetToLabelGroup(file.tags)}
-                    itemId={file.path}
-                    actions={
-                      <>
-                        <MenuItemAction
-                          actionId="display"
-                          icon={iconFor(volume)}
-                          aria-label="display"
-                        />
-                      </>
-                    }
-                  >
-                    {file.path}
-                  </MenuItem>
-                );
-              })}
-            </MenuList>
-          </MenuGroup>
-        </MenuContent>
-      </Menu>
-    </Tooltip>
+    <Tabs activeKey={activeTabKey} onSelect={(_e, t) => setActiveTabKey(t)}>
+      <Tab title="File Selection" eventKey="File Selection">
+        <FileSelectHelpText />
+        {selectionMenu}
+      </Tab>
+    </Tabs>
   );
 };
 
@@ -220,6 +256,10 @@ function iconFor<T>(volume: null | "loading" | T): React.ReactNode {
 function copyPropertiesToDefault(volume: ChNVRVolume): DatasetVolume {
   const { url: _url, ...rest } = volume;
   return { state: volume, default: rest };
+}
+
+function isTouchDevice() {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
 }
 
 export default FilesMenu;
