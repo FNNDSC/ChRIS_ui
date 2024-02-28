@@ -21,6 +21,13 @@ async function gotoVolumeView({
   if (isMobile) {
     await retryExpandSidebar(page);
   }
+
+  const expectedUrls = [
+    "**/api/v1/files/2100/serag_template.nii.gz",
+    "**/api/v1/files/2157/serag_template.nii.gz.chrisvisualdataset.volume.json",
+  ];
+  const expectedRes = expectedUrls.map((url) => page.waitForResponse(url));
+
   await page.getByRole("link", { name: "Volume View" }).click();
   await expect(
     page,
@@ -46,4 +53,15 @@ async function gotoVolumeView({
     // A lot of leeway because of a bug.
     // https://github.com/FNNDSC/ChRIS_ui/issues/1083
     .toBeGreaterThan(viewportSize.width * 0.4);
+
+  const responses = await Promise.all(expectedRes);
+  const responseResults = await Promise.all(
+    responses.map((res) => res.finished()),
+  );
+  responseResults.forEach((result, i) =>
+    expect(
+      result,
+      `Page should successfully GET ${expectedUrls[i]}`,
+    ).toBeNull(),
+  );
 }
