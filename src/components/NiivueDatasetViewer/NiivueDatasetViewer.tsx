@@ -36,6 +36,7 @@ import {
   DatasetVolume,
   files2states,
 } from "./statefulTypes.ts";
+import { notNullSetState } from "./helpers.ts";
 
 /**
  * The "Niivue Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -163,7 +164,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       pushProblems={pushProblems}
       crosshairLocation={crosshairLocation}
       fileStates={fileStates}
-      setFileStates={setFileStates}
+      setFileStates={notNullSetState(setFileStates)}
     />
   );
 
