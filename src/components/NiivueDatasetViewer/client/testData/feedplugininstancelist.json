@@ -1,0 +1,1658 @@
+{
+  "collection": {
+    "version": "1.0",
+    "href": "https://example.org/api/v1/12/plugininstances/?limit=20",
+    "items": [
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 38
+          },
+          {
+            "name": "title",
+            "value": "Visual Dataset Index"
+          },
+          {
+            "name": "previous_id",
+            "value": 37
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 13
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-visual-dataset"
+          },
+          {
+            "name": "plugin_version",
+            "value": "0.1.0"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ds"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-02-04T15:59:12.375022-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-02-04T15:59:39.062773-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_19/pl-bulk-rename_20/pl-topologicalcopy_37/pl-visual-dataset_38/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"__/|_|        \\\\_/ |_|___/\\\\__,_|\\\\__,_|_|      \\\\__,_|\\\\__,_|\\\\__\\\\__,_|___/\\\\___|\\\\__|\\n| |\\n|_|\\n\\n\\rScanning input directory...: 0it [00:00, ?it/s]\\rScanning input directory...: 0it [00:00, ?it/s]\\n\\rWriting outputs:   0%|          | 0/70 [00:00<?, ?it/s]\\rWriting outputs:   3%|\\u258e         | 2/70 [00:00<00:03, 19.41it/s]\\rWriting outputs:   7%|\\u258b         | 5/70 [00:00<00:02, 24.52it/s]\\rWriting outputs:  11%|\\u2588\\u258f        | 8/70 [00:00<00:02, 26.07it/s]\\rWriting outputs:  16%|\\u2588\\u258c        | 11/70 [00:00<00:02, 25.02it/s]\\rWriting outputs:  20%|\\u2588\\u2588        | 14/70 [00:00<00:02, 26.26it/s]\\rWriting outputs:  24%|\\u2588\\u2588\\u258d       | 17/70 [00:00<00:02, 26.23it/s]\\rWriting outputs:  29%|\\u2588\\u2588\\u258a       | 20/70 [00:00<00:01, 25.53it/s]\\rWriting outputs:  33%|\\u2588\\u2588\\u2588\\u258e      | 23/70 [00:00<00:01, 26.08it/s]\\rWriting outputs:  37%|\\u2588\\u2588\\u2588\\u258b      | 26/70 [00:01<00:01, 24.78it/s]\\rWriting outputs:  41%|\\u2588\\u2588\\u2588\\u2588\\u258f     | 29/70 [00:01<00:01, 24.00it/s]\\rWriting outputs:  46%|\\u2588\\u2588\\u2588\\u2588\\u258c     | 32/70 [00:01<00:01, 22.97it/s]\\rWriting outputs:  51%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u258f    | 36/70 [00:01<00:01, 24.07it/s]\\rWriting outputs:  57%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u258b    | 40/70 [00:01<00:01, 24.62it/s]\\rWriting outputs:  61%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258f   | 43/70 [00:01<00:01, 25.75it/s]\\rWriting outputs:  66%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258c   | 46/70 [00:01<00:00, 25.65it/s]\\rWriting outputs:  70%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588   | 49/70 [00:01<00:00, 23.40it/s]\\rWriting outputs:  74%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258d  | 52/70 [00:02<00:00, 23.98it/s]\\rWriting outputs:  79%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258a  | 55/70 [00:02<00:00, 23.47it/s]\\rWriting outputs:  83%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258e | 58/70 [00:02<00:00, 24.88it/s]\\rWriting outputs:  87%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258b | 61/70 [00:02<00:00, 25.71it/s]\\rWriting outputs:  91%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258f| 64/70 [00:02<00:00, 25.50it/s]\\rWriting outputs:  96%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u258c| 67/70 [00:02<00:00, 24.39it/s]\\rWriting outputs: 100%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588| 70/70 [00:02<00:00, 25.00it/s]\\rWriting outputs: 100%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588| 70/70 [00:02<00:00, 24.78it/s]\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJy1lWuPozYUhv+KhbTarRqMuQUSVVptt6raD90PnVX7YVlRB5zgLTERNjOaTua/9xhIIFl7ZkdqQTG+nPO8vryQB6do9odOMWeNHpwvvISnU3Qb5m6ZovW+5W7T7lwYcMPUWSCH7+lOBzu7qmgxb7ytEKUsvEPt3nLZ0dotqaKSqTXBPiY6pdj3VK85KK9oREm9DRfe4V5VjQixH6CrkYEzYpDrSnrLuIBJ7mFKY7vp1NSxp6qoWCtRUbVc5t2hbmgp87951eS05rlkLd3lVNUAlDmI8UZI75nhExR/kY0AkbH/P9UYnyeJLW+lcttOQK1mEn3KnHc7hoLU69Ox4Bzv/smczxexiu4kesgcdX9gGWx05nwM0G+//5rB3mcO7WCb26H/XbVnJbrRLAQ7S2ucOY/Aahkt9wz9rE8cbVrKBRoQqJ8wGo8C1t61VAFic49UNSa4H1gjqM78wLq20f7gYod+Yresbg57JvTQTcGZKBh6D03WLtCPjVSw5PcVr8uWidcS/dLIA4dQjCqlDnLteXd3d3gwFwYLesiTFW2ZxwU4ViuMbXDCroG2dppUVHVSm23LBZcVK2+6omBSbru6vtcRe2iMBj6F6G7FYUDR/UEPBCSIXBK4JPoYkHW8Wger7wlZk97MdbPrBTKBhitHF9dV86ont0edgEe4Z9eb/LuryHnAqX6VNPQAMUd5rqv5eGmhPB9+wzR07RwALU069fWVPlgXuicTR/Q6R1l2TskyaCGvv4dsuKH61yQ7tMa+sdkHQ6GToaa5R1jptA7o/wN5R3jmfdCxZ78ZFYYVvpn3DZVTeK8zzBdDVWefwf2InpunoxegPjxOMZe9+nEKGFOGzmHSUOga3O1NQYXQzuw/VqjkLStU095jjNeIcIU+9S5aoLdcefLzyxNA48+WK50xfP/kGqZLXh3nx068hIyJP7ydtAyJ4atj1gVxymbZwSxbl+EC+Ssc+XZKMlI2M0p8RQkWKIhwHFgpvj9S0r7cTqjUgFpikthRywtUMaF838CKMbFPKyAXrHTGiozzCpZ2VnTJ6styAiZmYGgHrgxAOp0kuQL6/WpjOzAMDcB0bhGghgYqnEdqpyZW6uZMXZ6p/pka4cROjXwrdW4hQK+MaELs6OUz6GJEh4EBHeCV3Zvxc7OezR345l15wvuxfa+/2vcjioiRv7S/D8tvm/+0ChAJDSIxTmK7yHP7f30WIHK9U6QXWdpFEvICkXQQuXaSFglxZHdSYnrlny7L/vM5GSuYKa3sr0Ni+hY8XdJeKTYqRXaLpfaPxNMl03KpQS7CqX1h6bc52uTxI9jVIAfes/+brV5icIPlQTMyasZ2l6xe4nfDGwCaiXFbw5VN0ycvsv/X5RFeIOM67d/V/0tz+psQzuPjv+H3ULI="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 1024
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 17871
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/38/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/37/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/13/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/38/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/38/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/38/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/38/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 37
+          },
+          {
+            "name": "title",
+            "value": "Join datasets and settings files"
+          },
+          {
+            "name": "previous_id",
+            "value": 20
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 3
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-topologicalcopy"
+          },
+          {
+            "name": "plugin_version",
+            "value": "0.2"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ts"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-02-04T15:56:04.799184-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-02-04T15:56:18.691001-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_19/pl-bulk-rename_20/pl-topologicalcopy_37/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n _                    _             _           _                       \\n| |                  | |           (_)         | |                      \\n| |_ ___  _ __   ___ | | ___   __ _ _  ___ __ _| | ___ ___  _ __  _   _ \\n| __/ _ \\\\| '_ \\\\ / _ \\\\| |/ _ \\\\ / _` | |/ __/ _` | |/ __/ _ \\\\| '_ \\\\| | | |\\n| || (_) | |_) | (_) | | (_) | (_| | | (_| (_| | | (_| (_) | |_) | |_| |\\n \\\\__\\\\___/| .__/ \\\\___/|_|\\\\___/ \\\\__, |_|\\\\___\\\\__,_|_|\\\\___\\\\___/| .__/ \\\\__, |\\n         | |                   __/ |                       | |     __/ |\\n         |_|                  |___/                        |_|    |___/ \\n\\nVersion: 0.2\\nPlugin instance ids: 23,20,22,36\\nFilter: \\nGroup by instance: False\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJx9U9FunDAQ/JUVL01UHFwuTSV/QPpaKVGfkLYc5+NcGRthE+kU59/rNZC7kLsisHd2Z8ZrI79mje360ctMwGv2V+3inDXjVrK99LXuBsXs0LJYYJsfWQ6Z6uqWyNnemJ1ril4zb3urbauaWje2Pwp+VxKz6ZJZMbqh0DYWi60yRX/0B2tglV1ZAGOufpHKxM662MeM7ehPiV6PrTLKOF+bRjooN3nJ87LMNw9QuEM9yCLyW6tMS91Emh9dajyq3EHunsYm6tx+1PpIjC6CZW8zhdJexYKvu54KJS/vGS8Zv38uufj+IL7xr5wLzokZN5AWqAwgXHjwKrpIj09lAoTP6Y/JG7y9Ulk7ISAirUZjiomPM6L8lKV3qZwpEi05IRYUVQG+0AQLClNA+A9MEFfxSRXS6iF1FtIuqEUa53iebzDMaB2fFAGTU3RFpA+LAHe03gwwTEHCOSw4ITxHH4R58vz/2RL3ypm/KxLn3Akv/dTU3zWnSTFxKlOZ33JwyhoB8bJV5le6C7BcBlA7J84vRGUelfZyEFH7c7BjD9vjO1vAY62drEz29vYPtSwcPQ=="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 44960633
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/37/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/20/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/3/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/37/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/37/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/37/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/37/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 36
+          },
+          {
+            "name": "title",
+            "value": "Copy datasets metadata and Niivue configuration files"
+          },
+          {
+            "name": "previous_id",
+            "value": 16
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 2
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-tsdircopy"
+          },
+          {
+            "name": "plugin_version",
+            "value": "1.2.1"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ts"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-02-04T15:55:41.983737-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-02-04T15:55:48.606370-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_36/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n _           _ _                           \\n| |         | (_)                          \\n| |_ ___  __| |_ _ __ ___ ___  _ __  _   _ \\n| __/ __|/ _` | | '__/ __/ _ \\\\| '_ \\\\| | | |\\n| |_\\\\__ \\\\ (_| | | | | (_| (_) | |_) | |_| |\\n \\\\__|___/\\\\__,_|_|_|  \\\\___\\\\___/| .__/ \\\\__, |\\n                              | |     __/ |\\n                              |_|    |___/ \\n\\nVersion: 1.2.1\\nDir: /share/incoming\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJyFUstuwyAQ/BXEpa0aAnGTqPK5f9CqJyTqYOJQ2WAZXCmK8+/dhTzUHBosw87s7M7a4kC17/oxGlqSA/22NZxUjxvDtiZWbTdY5oeGQYK9rOmMUNtVDYrp1rk6aN63LIbaDtr3+3IxL+YLVOkuNeJjGHjrddXyjXW838edd+SGvZQTxkL1Y6yDeTpwP2E/xisBUsLDrhoMtw5Gt645Y9A1HjD6h1jFMaQxrbNhZ+r3UWsTwnZs2z0qOgDnLzlJkI4WErHqekwUolgyUTCx/ChEuVqVy9dnIUohUNn6JhlIRxS5LvUH3S7pJjJd0EQe1dMdMfRT0FGpHEOQiEySvOOLYqU4CmH7IujzkAmOaYkwHenJvaVUyMEYJzqNlMfCfN6TnKB2AluOwQxCTCQ2tVF8InP0SulU8e86/wcsuS9WUz6SgZPu0wzBeleSdOOke7NDeXsvpKPH4y/+m9Ev"
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 4880
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/36/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/16/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/2/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/36/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/36/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/36/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/36/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 35
+          },
+          {
+            "name": "title",
+            "value": "[OLD]"
+          },
+          {
+            "name": "previous_id",
+            "value": 34
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 12
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-visual-dataset"
+          },
+          {
+            "name": "plugin_version",
+            "value": "0.0.5"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ds"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-02-02T00:28:08.895328-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-02-02T00:28:21.074620-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_19/pl-bulk-rename_20/pl-topologicalcopy_34/pl-visual-dataset_35/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n       _              _                 _           _       _                 _\\n      | |            (_)               | |         | |     | |               | |\\n _ __ | |________   ___ ___ _   _  __ _| |______ __| | __ _| |_ __ _ ___  ___| |_\\n| '_ \\\\| |______\\\\ \\\\ / / / __| | | |/ _` | |______/ _` |/ _` | __/ _` / __|/ _ \\\\ __|\\n| |_) | |       \\\\ V /| \\\\__ \\\\ |_| | (_| | |     | (_| | (_| | || (_| \\\\__ \\\\  __/ |_\\n| .__/|_|        \\\\_/ |_|___/\\\\__,_|\\\\__,_|_|      \\\\__,_|\\\\__,_|\\\\__\\\\__,_|___/\\\\___|\\\\__|\\n| |\\n|_|\\n\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJylUsGO0zAQ/ZVRLhTRxKFQadUrCIkDe2BXnCIZN3ETL4kd2U5L2e6/M2M7bbcSJ+zWnvfmzXjsyXNWm2GcvMw28Jw9qQb3rJ62Mt9JL/rBqtzYNkdH/mGdLSFTg2hJnLVdbQtl2E7rxtVs7PO9cpPo80Z44aTflEVZhJB6CFnZ5CzrTS16tlWajUffGQ237LQ1WkKeO7GXSmNlA9aRsJn8hTC2kRZ+qc4UWqmi/bN00op2BqJXV6b8PSZEkaNXRjuoO6scn8beiMZxysRRykMaLnyPt3A8idl/uYsnh1fNcytFM0j4Qk8LWyuUhscVfPv+FUIApKfD0iYrvGxgewTfpYD8XhotKPJeTtZQI5Ru4bPcy96Mg9TkeqiV1LWETwilLaDzfnQbxg6HQxE7VWA/GTDXCSuZ0th+ypIwvnBrEFPbnBd+ctS5ndLKdbJ5mOpaOreb+v5IigFB+hpmCdFeocOLYSTHqlx9zMsV/h7L9WZ1t3m/fleWm7IkZW/acEClIQ4Or8YNvGH4v1VzwhPOq7Hgb2+U14LZvgmKDGbkwDmZPA06iPP4j2WQdRYgokwzF4wgpoWYSp/gDYeqOodUFSJgYcZonGj+vBwbUeISDGJcKBgtynvCm17ugfwPYCfceRCdQu5FOiHecHHNRWOWh3NivQWaFH1OHDxUGyP1Ek+P26x5zdI2C1JIJGPRuJBV6ezl5S9eQG4B"
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 200
+          },
+          {
+            "name": "memory_limit",
+            "value": 256
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 45027060
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/35/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/34/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/12/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/35/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/35/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/35/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/35/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 34
+          },
+          {
+            "name": "title",
+            "value": "[OLD]"
+          },
+          {
+            "name": "previous_id",
+            "value": 20
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 3
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-topologicalcopy"
+          },
+          {
+            "name": "plugin_version",
+            "value": "0.2"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ts"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-02-02T00:27:22.109278-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-02-02T00:27:30.825249-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_19/pl-bulk-rename_20/pl-topologicalcopy_34/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n _                    _             _           _                       \\n| |                  | |           (_)         | |                      \\n| |_ ___  _ __   ___ | | ___   __ _ _  ___ __ _| | ___ ___  _ __  _   _ \\n| __/ _ \\\\| '_ \\\\ / _ \\\\| |/ _ \\\\ / _` | |/ __/ _` | |/ __/ _ \\\\| '_ \\\\| | | |\\n| || (_) | |_) | (_) | | (_) | (_| | | (_| (_| | | (_| (_) | |_) | |_| |\\n \\\\__\\\\___/| .__/ \\\\___/|_|\\\\___/ \\\\__, |_|\\\\___\\\\__,_|_|\\\\___\\\\___/| .__/ \\\\__, |\\n         | |                   __/ |                       | |     __/ |\\n         |_|                  |___/                        |_|    |___/ \\n\\nVersion: 0.2\\nPlugin instance ids: 23,20,22,33\\nFilter: \\nGroup by instance: False\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJx9U9FunDAQ/JUVL01UCJYvVSs+IHmN1ChPSFuO83GujI2wXekU59/jNZC7kLtaBu/szozXIL9mrekH70RWwWv2V+7imrV+K4q9cI3qR1mYsStiodjcZzlksm86Imd7rXe2LQdVODMYZTrZNqo1w7Fid5yYbZ/MSm/HUplYLLdSl8PRHYyGVXZlAUVhm39C6thZH/uYsfHulBiU76SW2rpGt8IC3+Sc5Zznmw2U9tCMooz8zkjdUTeR5rxNjUeVPYjdb99Gnd17pY7E6CNYzjZTKO1kLLimH6jAGb8vGI/zmf2o+M+K//rOWMUYMeMB0ga1BoQLA6+ii/Q4ah0gfE1/Tt7g7ZXK2gkBEWk3eqeY+Dgjyk9ZmkvlTJFoyQmxpKgO8I0WWFCYAsJ/YIK4ik+qkHYPqbOQTkEt0nuO5/UGw4zW8UkRMDlFV0R6sAxwR/vNAMMUJJzDghPCc/RJmCfP/39b4l755h+KxDl3wks/NfV3zWlSTJxa1/pFjFYaXUG8bLV+SncBlssAcmer8wtR6wepnBirqH0cjR9ge/xgV/DQKCtqnb29vQO1uhw8"
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 44964696
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/34/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/20/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/3/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/34/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/34/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/34/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/34/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 33
+          },
+          {
+            "name": "title",
+            "value": "[OLD]"
+          },
+          {
+            "name": "previous_id",
+            "value": 16
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 2
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-tsdircopy"
+          },
+          {
+            "name": "plugin_version",
+            "value": "1.2.1"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ts"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-02-02T00:26:28.311746-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-02-02T00:26:40.954071-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_33/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n _           _ _                           \\n| |         | (_)                          \\n| |_ ___  __| |_ _ __ ___ ___  _ __  _   _ \\n| __/ __|/ _` | | '__/ __/ _ \\\\| '_ \\\\| | | |\\n| |_\\\\__ \\\\ (_| | | | | (_| (_) | |_) | |_| |\\n \\\\__|___/\\\\__,_|_|_|  \\\\___\\\\___/| .__/ \\\\__, |\\n                              | |     __/ |\\n                              |_|    |___/ \\n\\nVersion: 1.2.1\\nDir: /share/incoming\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJyFUs1uwyAMfhXEZZtWSpp2O+S8N9i0ExJLKU2ZEhMFMqlq+u6zoT9aDytJwN8Ptok4cOO7foyWV+zAv90GV27GtRVbG+u2G5zwQyNQEMslnzHuurohM98CbIKRfSti2LjB+H5fLeblfEEu06VEcgyDbL2pW7l2IPt93HlgN+xlOxMi1D/WAfbTYfUT9mO8EmhlMuzqwUoH2LqD5ozR13jEVD/EOo4htenAhZ3dvI/G2BC2Y9vuydEhOJ/kZCE6OhRi3fUklEW5EkWJ70fxUpWv1XL1XBRVUZCz9U0qoIBpdh36D7odCiY2XdDEHvXTHTPm05hR6xxjkIhMsjzTR2atJRlx+mJU5yETkmRFMC3pybmV0sRhGyc6tZTbIj3Pyc7IO2FZScEMQxISm9JoObE51Upy2vHvOP8H2nLfrKe8pAKg4NMOwXmoWLpxCt7cUN3eCwX8ePwF7E3RJg=="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 8943
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/33/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/16/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/2/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/33/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/33/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/33/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/33/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 23
+          },
+          {
+            "name": "title",
+            "value": "Zero background intensity"
+          },
+          {
+            "name": "previous_id",
+            "value": 17
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 5
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-zerobg"
+          },
+          {
+            "name": "plugin_version",
+            "value": "1.0.0"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ds"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-01-30T12:03:09.199183-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-01-30T12:03:24.803392-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-bulk-rename_17/pl-zerobg_23/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n       _                          _           \\n      | |                        | |          \\n _ __ | |______ _______ _ __ ___ | |__   __ _ \\n| '_ \\\\| |______|_  / _ \\\\ '__/ _ \\\\| '_ \\\\ / _` |\\n| |_) | |       / /  __/ | | (_) | |_) | (_| |\\n| .__/|_|      /___\\\\___|_|  \\\\___/|_.__/ \\\\__, |\\n| |                                      __/ |\\n|_|                                     |___/ \\n\\n\\r  0%|          | 0/15 [00:00<?, ?it/s]\\r  7%|\\u258b         | 1/15 [00:00<00:04,  3.19it/s]\\r 13%|\\u2588\\u258e        | 2/15 [00:00<00:03,  3.93it/s]\\r100%|\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588\\u2588| 15/15 [00:00<00:00, 25.99it/s]\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJyVkuGKnDAUhV/lIizdUmOiruyOFPYh2n+1pOo4ToomYmJhd913771RW2dgoE0g8d7znTmJzltQm36YXBPk8Bb8VEfcg3qqGnZqXNn1o2JmbBkKLEmDEALVly3BQXuux0gZftL6aGs+dOy1GU3V5nEkIkFo3ftf42ZwvDb6WPJKaT68uLPRaRQncKW8VsCYLX81SuOJesxfazO5rcHtuRwbrjQeW+l2q5FoDdYUa13pJkvJJ6WVPTfHL1NdN9aepq57IaLHYr3FhlDbKRRc2Q8kJCJ5YCJmqfgaP+YizePskxC58DfrTOsDCg3LkHBz7KWNn3HeGBcS8hKkpKb0A+S2w1IsEsVQr9AzfMCt+GOYUeOkFCjI5WllqP8DZvLM8uMumOMEgql1v0h+vZfzwkeoznLlOcYUhc/Cjn9CkRBfhGvE7Td08bYoFnn5bzzdEmM0zhFA3O1cMwgeZ/DNf7TPzyE8K8ftd+Ie7+ZiSrKnagfHO5jWhxAA/6SHzRSnq+nJr81fZ3LlTL3zkK7OWIgL53+veLbsKkKEkGTRYT2cDt7ffwMaSgAQ"
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 4000
+          },
+          {
+            "name": "memory_limit",
+            "value": 4096
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 24271808
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/23/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/17/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/5/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/23/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/23/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/23/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/23/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 22
+          },
+          {
+            "name": "title",
+            "value": "Filter and rename"
+          },
+          {
+            "name": "previous_id",
+            "value": 21
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 6
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-bulk-rename"
+          },
+          {
+            "name": "plugin_version",
+            "value": "0.1.2"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ds"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-01-30T12:02:22.236676-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-01-30T12:02:34.840480-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_21/pl-bulk-rename_22/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"iexp_regional.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA33.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 33/ali.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA26.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 26/ali.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA38exp.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 38/aliexp.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA26_tissue.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 26/ali_tissue.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA38exp_regional.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 38/aliexp_regional.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA34_tissue.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 34/ali_tissue.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA35_regional.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 35/ali_regional.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA25.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 25/ali.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA32.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 32/ali.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA29_regional.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 29/ali_regional.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA37exp_regional.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 37/aliexp_regional.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA33_tissue.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 33/ali_tissue.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA30_regional.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 30/ali_regional.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_ali/ali/STA35.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 35/ali.nii.gz\\u001b[39m\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJy1Wd1umzAYfRWEctFmA4xNgORiUp+hvRtS5IBDvNoGYZjWVX332VnSTpW6i+r4JsH4wxwff/88x+2gx2UW8S56jn/Izv3H7XIQyVHMXOlJJsPUJ24ioTT+GsVS894Lx0djOttmo0oOi3pMJmG4FjuS5ulZrtXnpbJuaB/FlAgzT0/jIM2c2lOULXbK1NBylR2kyfwCf5+PksTyn0IaB0k7AJfxsMxvN45SzWKK7h/u0nXTpEZK99v/Xrkp8WuchLVyMFG6zpzETdN069ubdH37j6QTnMSoeCuiu15EqzzjSq6on/ezmT3xSWTSOGak6a9jh6F3+Hu/OTvzebFnFqSR9iS6+6Vt3ZuPi1JPXkK7wZWoi4i/PUs3MXM9+glKaJGQPGHkIa92hO5o/YWQHSFeUg39+QXv0GTNQkh++M5K3Z4maffLqAbe2b3bgt+G3zSrHA/7WVq7iMumrk9tdXS5pDr5drkk+v0eX99CtWeIVX7p/yzamE/ApBskRrrx62IB5vtJ9E6ZuMJAPCvax2t+DmQFZbHCs8igABkeYAEFWMABshJtz2UIe2Y1GmYdxO0woCKCIG0xkLZASAXQGlAsQe10i7dTaEBjAQJajaGuxh0qy6Gc5XjOKFTrKF7rCJRBggdIsWkUoyHSKAo8X1jihE0/WQjeSjDIMgTIGgyyDqKBYJAhzIRBvSHDe0MKjScUH0/OyTw2iwcBK8Buugihf2CfyIL4xApYi4N4q2BaV2G1DtxjYSF6LAxTDDFkMbQBR4tNCEPIgV4YpW9ANYP1n7BHGcTxEmB5Aet8YnmrwqSeyHykDtRcxPrg1/YiOvgDYz6q/AFWPcA2LLb/CisVkaZQ4k2hxptCHcgUoN8sWIBvFuD8hAXJTzbA3AlVYAMra1jfHRtntyHykwpvu1WoMAa1XfwHUUbARJIQB46xXfaR7cYvL38AUpvRvg=="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 17369914
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/22/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/21/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/6/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/22/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/22/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/22/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/22/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 21
+          },
+          {
+            "name": "title",
+            "value": "Copy Ali's STA dataset"
+          },
+          {
+            "name": "previous_id",
+            "value": 16
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 2
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-tsdircopy"
+          },
+          {
+            "name": "plugin_version",
+            "value": "1.2.1"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ts"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-01-30T11:56:40.985559-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-01-30T11:56:54.260931-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_21/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n _           _ _                           \\n| |         | (_)                          \\n| |_ ___  __| |_ _ __ ___ ___  _ __  _   _ \\n| __/ __|/ _` | | '__/ __/ _ \\\\| '_ \\\\| | | |\\n| |_\\\\__ \\\\ (_| | | | | (_| (_) | |_) | |_| |\\n \\\\__|___/\\\\__,_|_|_|  \\\\___\\\\___/| .__/ \\\\__, |\\n                              | |     __/ |\\n                              |_|    |___/ \\n\\nVersion: 1.2.1\\nDir: /share/incoming\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJyFUstuwyAQ/BXEpa1agu0mOfjcP2jVExJ1MHGobLAMVIri/Ht3IQ81hwbLsDM7u7O2OFDlhjEGTWtyoN+mhZOquNFsq0PTD5NhbuoYJFhV0hdCzdB0KKZba1uv+Niz4FszKTfu63JRLZJKDakRj37ivVNNzzfG8nEfds6SG/ZSThjzzY82FuYZwP2EXQxXAqSE+10zaW4sjG5sd8ag6xxg9PehCdGnMY01fqfb96iU9n4b+36PigHA+UtOEqSDgURohhETVVEtWVGy1+KjXNerdb1cPRdFXRSo7F2XDIQlklyX/INul7AzmS9oJo/y6Y4Y+knoKGWOIUhEJkne8UWxlByFsH0R9HnIBMe0QJiO9OTeQkjkYIwTnUbKY2E+70lOUDuDLcfgBUJMJDa1kXwmC/RK6VTx7zr/Byy5L5ZzPpKBFfZTT944W5N044R9M1N9ey+EpcfjL/Ah0So="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 17391612
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/21/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/16/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/2/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/21/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/21/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/21/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/21/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 20
+          },
+          {
+            "name": "title",
+            "value": "Rename"
+          },
+          {
+            "name": "previous_id",
+            "value": 19
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 6
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-bulk-rename"
+          },
+          {
+            "name": "plugin_version",
+            "value": "0.1.2"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ds"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-01-30T11:55:03.104619-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-01-30T11:55:13.749185-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_19/pl-bulk-rename_20/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"/share/incoming/\\u001b[36mchris_uploads_kiho/kiho/template-22.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 22/kiho.nii.gz\\u001b[39m\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJxdUMtOwzAQ/BUr6qEtOHZdikQOSHwD3IiEXGebLPUj8gPxEP+OHVIqerG9O+PdmfmqlDNjilA15Kt6xS7flUp7oAeIUhuP1PmeZoAKXl2TCo3sC7k6WNsFxUZN90kfqQcrDTS83tSi8JSZRrHOqSN4Cjb6j9GhjXUYCEvBM+2U1GyPlpUBv/8JpUG+AdosyWQBc+1SPDcOqCN4Uq8jmFHLCPU6d+F99BACOkuW9XrFTiBdtm23XrVtbRHz2X8uMttDBhWQhx7IQrAjDq7gGSUsDNIDQ5uDQduf6iyhz/L74i1EGVOYQkCLYYDuMSmVtx+S1h+FYXJxymmmlHbEDERpxgIILm4o39Atf9rcNrtdw++uOG/4FLN2/bTgQg1rE+eb/fP21qjBY3hJo3ayCy/FwWTjbFyI2dLpz50h81MYej8/ubl0+LdDmBKP+BfPeVZrq+/vH0kcvaU="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 3314028
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/20/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/19/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/6/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/20/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/20/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/20/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/20/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 19
+          },
+          {
+            "name": "title",
+            "value": "Copy the 22 GA template from Kiho"
+          },
+          {
+            "name": "previous_id",
+            "value": 16
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 2
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-tsdircopy"
+          },
+          {
+            "name": "plugin_version",
+            "value": "1.2.1"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ts"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-01-30T11:53:22.282147-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-01-30T11:53:33.958418-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-tsdircopy_19/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n _           _ _                           \\n| |         | (_)                          \\n| |_ ___  __| |_ _ __ ___ ___  _ __  _   _ \\n| __/ __|/ _` | | '__/ __/ _ \\\\| '_ \\\\| | | |\\n| |_\\\\__ \\\\ (_| | | | | (_| (_) | |_) | |_| |\\n \\\\__|___/\\\\__,_|_|_|  \\\\___\\\\___/| .__/ \\\\__, |\\n                              | |     __/ |\\n                              |_|    |___/ \\n\\nVersion: 1.2.1\\nDir: /share/incoming\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJyFUttOxCAQ/RXCixplabtqtM/+gcYnEmQp28W00BRqstnuvzsDe4n74NIU5pw5M2fasKPa98MUDa3Jjn7bBk6qp5VhaxNV14+W+bFlkGDlK30g1PaqRTFdO9cEzYeOxdDYUfthW5eLalGiSvepEZ/CyDuvVcdX1vFhGzfekQv2VE4YC+rHWAfz9OB+wH6KZwKkhIeNGg23Dka3rj1i0LUeMPqHqOIU0pjW2bAxzfuktQlhPXXdFhU9gOOXHCRIRwuJqPoBE1VRPbKiZMvio3yun5Z19XJfFHVRoLLzbTIQjkhyXvIPulzCzWQ+oZncyrsrYugnoaOUOYYgEZkkeccXxVJyFML2RdDnJhMc0wJhOtKTewshkYMxDnQaKY+F+bwnOUHtDLYcgwcIMZHY1EbymSzQK6VTxb/r+B+w5LpYzvlIBk64TzMG611N0o0T7s2O9eW9EI7u97//n9Ev"
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 3314297
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/19/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/16/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/2/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/19/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/19/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/19/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/19/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 17
+          },
+          {
+            "name": "title",
+            "value": "Filter and rename"
+          },
+          {
+            "name": "previous_id",
+            "value": 16
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 6
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-bulk-rename"
+          },
+          {
+            "name": "plugin_version",
+            "value": "0.1.2"
+          },
+          {
+            "name": "plugin_type",
+            "value": "ds"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-01-30T11:48:45.137793-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-01-30T11:48:52.752835-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/pl-bulk-rename_17/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-27.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 27/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-29.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 29/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-24.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 24/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-35.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 35/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-25.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 25/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-34.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 34/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-31.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 31/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-26.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 26/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-37.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 37/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-28.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 28/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-32.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 32/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-33.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 33/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-23.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 23/serag.nii.gz\\u001b[39m\\n/share/incoming/\\u001b[36mchris_uploads_serag/serag/template-30.nii.gz\\u001b[39m \\u001b[2m->\\u001b[0m /share/outgoing/\\u001b[32mAge 30/serag.nii.gz\\u001b[39m\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJy1lMtu3CAUhl8FWVkk02IwzNWLSn2GdldLEYMZhgawxaVqGuXdCxNPR43UVWFjLucHvvMf67w0fDJzDKLpwUvzXY1pbHg8CngSgWnjFJychCkAu13zETTKMJnFzcna0XM0a3iM+gk6YZkRPW67lmQdN5er0DjxJ+GgsME9z5OyofVngKJ3SE+caXRUFuUL3s4DCD37IZRNSCYBLOsphtvGSekgHGhXQZhZsyDaVdoVP2cnvFeTBfft6gFdg/B+GMbVwzC0Vqn0lb/uktqJFOQCfJYC3BHkhWMyC1IYIH9mTiBlkzPKyus6McjEL3NyPrAQ/cUFZZU/i/FL5Dw9f4paP2eFSYurUYskbweVAoGZOQcIJmuIO0jx127br/f9pvuAcY9xVupJXh54R4OGiHF3/Ea3hp+d8o9x1hMb/eMlhbdEbrnT7ZLU9dTBgGVKDPy0TLF5n+OfV4jJDtHtXw7dLhvsf+GRXRE8squEdyiDd6iEty6Dt66DRzdl/r1NJffK4JFKeLRMcWmt4nZl8LpKxS3T90ilvkfL9D1aq+/ty7i3r+QeKeMeqYRHy+DRSsUtg0cq4VFcxj38T7zm9fU3nJuxJQ=="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 1000
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 48017000
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/17/",
+        "links": [
+          {
+            "rel": "previous",
+            "href": "https://example.org/api/v1/plugins/instances/16/"
+          },
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/6/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/17/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/17/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/17/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/17/splits/"
+          }
+        ]
+      },
+      {
+        "data": [
+          {
+            "name": "id",
+            "value": 16
+          },
+          {
+            "name": "title",
+            "value": "Copy the Serag et. al. dataset"
+          },
+          {
+            "name": "compute_resource_name",
+            "value": "nerc"
+          },
+          {
+            "name": "plugin_id",
+            "value": 1
+          },
+          {
+            "name": "plugin_name",
+            "value": "pl-dircopy"
+          },
+          {
+            "name": "plugin_version",
+            "value": "2.1.2"
+          },
+          {
+            "name": "plugin_type",
+            "value": "fs"
+          },
+          {
+            "name": "feed_id",
+            "value": 12
+          },
+          {
+            "name": "start_date",
+            "value": "2024-01-30T11:47:37.787860-05:00"
+          },
+          {
+            "name": "end_date",
+            "value": "2024-01-30T11:47:53.712777-05:00"
+          },
+          {
+            "name": "output_path",
+            "value": "chris/feed_12/pl-dircopy_16/data"
+          },
+          {
+            "name": "status",
+            "value": "finishedSuccessfully"
+          },
+          {
+            "name": "summary",
+            "value": "{\"pushPath\": {\"status\": true}, \"pullPath\": {\"status\": true}, \"compute\": {\"submit\": {\"status\": true}, \"return\": {\"status\": true, \"job_status\": \"finishedSuccessfully\", \"job_logs\": \"\\n     _ _                           \\n    | (_)                          \\n  __| |_ _ __ ___ ___  _ __  _   _ \\n / _` | | '__/ __/ _ \\\\| '_ \\\\| | | |\\n| (_| | | | | (_| (_) | |_) | |_| |\\n \\\\__,_|_|_|  \\\\___\\\\___/| .__/ \\\\__, |\\n                      | |     __/ |\\n                      |_|    |___/ \\n\\nVersion: 2.1.2\\nDir: /share/incoming\\n\"}}}"
+          },
+          {
+            "name": "raw",
+            "value": "eJx9ktFugyAUhl/lhJttWRF1Tbd4vTfYsisTZhGVRcEALjG17z4O2ixp1oGAP+fjP4foiQgzjJOXpIAT+VJ1WImYjpI20lf9YBU1tqUhQLMD2QFRQ9UiTNpO2EQZ1mhdO8HGntbKCjPORZ5kSY6sGKIdm5xlvRFVz45Ks3H2ndFwtbsdBkpd9S2VDjUNoYJNm8n/bgQUmOsqK5nSoXyl24sOXGuCxuzOV35yWECjtHKdrN8mIaRzzdT3MxJDENttLghuexUCvhpGDORpvqdpRp/S9+xQ7J+L/ctjmhZpimRv2pig1ICNh367rdAC9/zhf4jzBRb04visY1XRnyPEgH8GrwXuOA/vOKAsUcYl9lJjsk3A+o7J0X2dIxQOcL7jC3aIgseJLZCgcQxH8M+GzvHyAb0N8WVdoqEu9Ye0ThldQPxZSv2qbHH9UUtNzucfirfBSQ=="
+          },
+          {
+            "name": "owner_username",
+            "value": "chris"
+          },
+          {
+            "name": "cpu_limit",
+            "value": 50
+          },
+          {
+            "name": "memory_limit",
+            "value": 200
+          },
+          {
+            "name": "number_of_workers",
+            "value": 1
+          },
+          {
+            "name": "gpu_limit",
+            "value": 0
+          },
+          {
+            "name": "size",
+            "value": 141994786
+          },
+          {
+            "name": "error_code",
+            "value": ""
+          }
+        ],
+        "href": "https://example.org/api/v1/plugins/instances/16/",
+        "links": [
+          {
+            "rel": "feed",
+            "href": "https://example.org/api/v1/12/"
+          },
+          {
+            "rel": "plugin",
+            "href": "https://example.org/api/v1/plugins/1/"
+          },
+          {
+            "rel": "compute_resource",
+            "href": "https://example.org/api/v1/computeresources/1/"
+          },
+          {
+            "rel": "descendants",
+            "href": "https://example.org/api/v1/plugins/instances/16/descendants/"
+          },
+          {
+            "rel": "files",
+            "href": "https://example.org/api/v1/plugins/instances/16/files/"
+          },
+          {
+            "rel": "parameters",
+            "href": "https://example.org/api/v1/plugins/instances/16/parameters/"
+          },
+          {
+            "rel": "splits",
+            "href": "https://example.org/api/v1/plugins/instances/16/splits/"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "rel": "feed",
+        "href": "https://example.org/api/v1/12/"
+      }
+    ],
+    "total": 13
+  }
+}

@@ -18,8 +18,9 @@ import ComputePage from "./components/ComputePage";
 import PrivateRoute from "./components/PrivateRoute";
 import LibrarySearch from "./components/LibrarySearch";
 import SinglePlugin from "./components/SinglePlugin";
-import VisualDatasets from "./components/VisualDatasets";
+import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import { useTypedSelector } from "./store/hooks";
+import DatasetRedirect from "./components/DatasetRedirect";
 
 interface IState {
   selectData?: Series;
@@ -148,8 +149,12 @@ export const MainRouter: React.FC = () => {
       element: <ComputePage />,
     },
     {
-      path: "niivue",
-      element: <VisualDatasets />,
+      path: "dataset/:feedName?",
+      element: <DatasetRedirect />,
+    },
+    {
+      path: "niivue/:plinstId",
+      element: <NiivueDatasetViewerPage />,
     },
     {
       path: "*",
