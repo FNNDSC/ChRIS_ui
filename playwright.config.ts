@@ -55,7 +55,22 @@ export default defineConfig({
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        ...(
+          // Firefox in GitHub Actions ubuntu-22.04 throws the following error:
+          // AllowWebgl2:false restricts context creation on this system
+          process.env.CI === 'true' && process.env.GITHUB_ACTION ?
+            {
+              launchOptions: {
+                firefoxUserPrefs: {
+                  "webgl.force-enabled": true,
+                  "webgl.force-software": true
+                }
+              }
+            } : {}
+        )
+      },
     },
 
     {
