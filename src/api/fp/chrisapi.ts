@@ -52,7 +52,15 @@ class FpClient {
     }
     return pipe(
       TE.tryCatch(
-        () => fetch(url, options).then((res) => res.json()),
+        () =>
+          fetch(url, options).then((res) => {
+            if (res.ok) {
+              return res.json();
+            }
+            throw new Error(
+              `Response from ${url} was ${res.status} - ${res.statusText}`,
+            );
+          }),
         E.toError,
       ),
       TE.map((data) => {
