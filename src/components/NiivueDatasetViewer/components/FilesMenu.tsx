@@ -38,6 +38,7 @@ import VolumeOptionsForm from "./VolumeOptionsForm";
 import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
 import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
 import { css } from "@patternfly/react-styles";
+import tabStyle from "./pfTabHeight.module.css";
 
 type FilesMenuProps = {
   fileStates: ReadonlyArray<DatasetFileState>;
@@ -322,9 +323,16 @@ const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, setFileStates }) => {
               <TabTitleText>{title}</TabTitleText>
             </>
           }
-          className={css(Sizing.h_100, BackgroundColor.backgroundColor_200)}
+          className={tabStyle.tab}
         >
-          <ScrollContainer>{body}</ScrollContainer>
+          <div
+            className={css(
+              tabStyle.tabBody,
+              BackgroundColor.backgroundColor_200,
+            )}
+          >
+            <ScrollContainer>{body}</ScrollContainer>
+          </div>
         </Tab>
       ))}
     </Tabs>
