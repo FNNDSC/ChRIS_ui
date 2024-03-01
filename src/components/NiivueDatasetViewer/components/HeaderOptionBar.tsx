@@ -4,12 +4,8 @@ import { Updater } from "use-immer";
 
 import DragModeDropdown from "./DragModeDropdown";
 import SliceTypeButton from "./SliceTypeButton";
-import {
-  Flex,
-  FlexItem,
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@patternfly/react-core";
+import { Flex, FlexItem } from "@patternfly/react-core";
+import RadiologcalConventionToggle from "./RadiologcalConventionToggle.tsx";
 
 type HeaderOptionsBarProps = {
   options: ChNVROptions;
@@ -23,30 +19,15 @@ const HeaderOptionBar: React.FC<HeaderOptionsBarProps> = ({
   return (
     <Flex>
       <FlexItem>
-        <ToggleGroup>
-          <ToggleGroupItem
-            text="Neurological"
-            isSelected={!options.isRadiologicalConvention}
-            onChange={() =>
-              setOptions((draft) => {
-                draft.isRadiologicalConvention = false;
-              })
-            }
-          />
-          <ToggleGroupItem
-            text="Radiological"
-            isSelected={options.isRadiologicalConvention}
-            onChange={() =>
-              setOptions((draft) => {
-                draft.isRadiologicalConvention = true;
-              })
-            }
-          />
-        </ToggleGroup>
+        <RadiologcalConventionToggle
+          options={options}
+          setOptions={setOptions}
+        />
       </FlexItem>
       <FlexItem>
         <div style={{ width: "8em" }}>
           <SliceTypeButton
+            isBlock
             selectedSliceType={[
               options.sliceType,
               options.multiplanarForceRender,
