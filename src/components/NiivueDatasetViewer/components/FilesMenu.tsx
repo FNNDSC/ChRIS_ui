@@ -36,6 +36,8 @@ import { DatasetFileState, volumeIsLoaded } from "../statefulTypes";
 import { ChNVRVolume } from "../models";
 import VolumeOptionsForm from "./VolumeOptionsForm";
 import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
+import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
+import { css } from "@patternfly/react-styles";
 
 type FilesMenuProps = {
   fileStates: ReadonlyArray<DatasetFileState>;
@@ -75,6 +77,26 @@ const FileSelectHelpText = () => {
     </Panel>
   );
 };
+
+/**
+ * A container for vertical scrolling.
+ */
+const ScrollContainer: React.FC<React.PropsWithChildren<{}>> = ({
+  children,
+}) => (
+  <div
+    style={{
+      position: "relative",
+      overflowY: "scroll",
+      height: "100%",
+      width: "100%",
+    }}
+  >
+    <div style={{ position: "absolute", left: 0, top: 0, width: "100%" }}>
+      {children}
+    </div>
+  </div>
+);
 
 /**
  * The `FilesMenu` component displays a list of all the files of a dataset.
@@ -300,14 +322,9 @@ const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, setFileStates }) => {
               <TabTitleText>{title}</TabTitleText>
             </>
           }
+          className={css(Sizing.h_100, BackgroundColor.backgroundColor_200)}
         >
-          {/* TODO set height to be 70% and scrollable */}
-          <div
-            style={{ height: "500px", overflowY: "scroll" }}
-            className={BackgroundColor.backgroundColor_200}
-          >
-            {body}
-          </div>
+          <ScrollContainer>{body}</ScrollContainer>
         </Tab>
       ))}
     </Tabs>
