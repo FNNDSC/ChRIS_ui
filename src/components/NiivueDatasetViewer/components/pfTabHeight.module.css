@@ -1,0 +1,19 @@
+/*
+ * Workarounds for sizing the content of Patternfly tabs.
+ */
+
+.tab {
+  height: 100%;
+}
+
+.tabBody {
+  /*
+   * The tab content is a sibling to the tab buttons, so we need
+   * to subtract the height of the tab buttons.
+   */
+  height: calc(
+          100%
+          - 2 * var(--pf-v5-global--spacer--sm)
+          - 1em * var(--pf-v5-global--LineHeight--md)
+  );
+}
