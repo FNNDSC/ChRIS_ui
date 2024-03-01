@@ -10,7 +10,7 @@ import { ChNVROptions, ChNVRVolume } from "./models";
 import { DEFAULT_OPTIONS } from "./defaults";
 import HeaderOptionBar from "./components/HeaderOptionBar";
 import SizedNiivueCanvas, { CrosshairLocation } from "../SizedNiivueCanvas";
-import { Problem, VisualDataset } from "./types";
+import { Problem, TagsDictionary, VisualDataset } from "./types";
 import {
   DatasetFile,
   DatasetFilesClient,
@@ -77,9 +77,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   /**
    * All the tag keys and all of their possible values for a dataset.
    */
-  const [tagsDictionary, setTagsDictionary] = useState<{
-    [key: string]: string[];
-  } | null>(null);
+  const [tagsDictionary, setTagsDictionary] = useState<TagsDictionary>({});
 
   const [firstRunFiles, setFirstRunFiles] = useState<number[] | null>(null);
 
@@ -281,6 +279,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       problems={problems}
       fileStates={fileStates}
       setFileStates={notNullSetState(setFileStates)}
+      tagsDictionary={tagsDictionary}
     />
   );
 

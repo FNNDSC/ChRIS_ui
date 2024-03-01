@@ -27,4 +27,9 @@ type Problem = {
   body?: React.ReactNode;
 };
 
-export type { Problem, VisualDataset };
+/**
+ * Tag keys and all their possible values.
+ */
+type TagsDictionary = { [key: string]: string[] };
+
+export type { Problem, VisualDataset, TagsDictionary };
