@@ -14,6 +14,7 @@ const SLICE_NAMES: { [key: string]: [SLICE_TYPE, boolean] } = {
 type SliceTypeDropdownProps = {
   selectedSliceType: [SLICE_TYPE, boolean];
   onSelect: (sliceType: SLICE_TYPE, multiplanarForceRender: boolean) => void;
+  isBlock?: boolean;
 };
 
 /**
@@ -22,6 +23,7 @@ type SliceTypeDropdownProps = {
 const SliceTypeButton: React.FC<SliceTypeDropdownProps> = ({
   selectedSliceType,
   onSelect,
+  isBlock,
 }) => {
   const selected = Object.entries(SLICE_NAMES).find(
     ([_name, [sliceType, multiplanarForceRender]]) =>
@@ -37,7 +39,7 @@ const SliceTypeButton: React.FC<SliceTypeDropdownProps> = ({
   };
 
   return (
-    <Button isBlock variant="tertiary" onClick={nextSliceType}>
+    <Button isBlock={isBlock} variant="tertiary" onClick={nextSliceType}>
       {selectedName}
     </Button>
   );
