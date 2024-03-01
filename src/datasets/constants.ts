@@ -26,7 +26,7 @@ const constants = {
   /**
    * Versions of `pl-visual-dataset` compatible with this viewer.
    */
-  COMPATIBLE_PL_VISUAL_DATASET_VERSIONS: ["0.1.0", "0.2.0"],
+  COMPATIBLE_PL_VISUAL_DATASET_VERSIONS: ["0.1.0", "0.2.0", "0.2.1"],
 };
 
 export default constants;
