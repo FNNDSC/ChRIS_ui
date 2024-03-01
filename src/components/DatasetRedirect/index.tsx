@@ -50,7 +50,7 @@ const DatasetRedirect = () => {
       </>
     );
   }
-  return <>nothing</>;
+  return <>Redirecting to dataset viewer</>;
 };
 
 /**
