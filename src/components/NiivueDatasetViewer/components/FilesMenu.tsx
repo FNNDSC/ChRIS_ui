@@ -22,6 +22,7 @@ import {
   HintTitle,
   HintBody,
   Hint,
+  SearchInput,
 } from "@patternfly/react-core";
 import {
   PlusIcon,
@@ -116,6 +117,8 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   setFileStates,
   tagsDictionary,
 }) => {
+  const [searchValue, setSearchValue] = React.useState("");
+
   /**
    * Unload all currently displayed volumes, then load the selected file.
    */
@@ -202,43 +205,75 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     );
   };
 
-  const selectionMenu = (
-    <Menu onSelect={onMenuSelect} onActionClick={onActionClick}>
-      <MenuContent>
-        <MenuGroup>
-          <MenuList>
-            {fileStates.map((fileState) => {
-              const { file, volume } = fileState;
-              const style = volumeIsLoaded(fileState)
-                ? {
-                    className: BackgroundColor.backgroundColor_100,
-                  }
-                : {};
+  /**
+   * Files should be filtered if:
+   *
+   * - search input is a substring of file's path
+   * - search input is a substring of any of the file's tag values
+   */
+  const filteredFileStates = React.useMemo(
+    () =>
+      fileStates.filter(({ file }) => {
+        const searchLowerCase = searchValue.toLowerCase();
+        if (file.path.toLowerCase().includes(searchLowerCase)) {
+          return true;
+        }
+        for (const value of Object.values(file.tags)) {
+          if (value.toLowerCase().includes(searchLowerCase)) {
+            return true;
+          }
+        }
+        return false;
+      }),
+    [fileStates, searchValue],
+  );
 
-              return (
-                <MenuItem
-                  key={file.path}
-                  description={tagSetToLabelGroup(file.tags)}
-                  itemId={file.path}
-                  actions={
-                    <>
-                      <MenuItemAction
-                        actionId="display"
-                        icon={iconFor(volume)}
-                        aria-label="display"
-                      />
-                    </>
-                  }
-                  {...style}
-                >
-                  {file.path}
-                </MenuItem>
-              );
-            })}
-          </MenuList>
-        </MenuGroup>
-      </MenuContent>
-    </Menu>
+  const menuItems = filteredFileStates.map((fileState) => {
+    const { file, volume } = fileState;
+    const style = volumeIsLoaded(fileState)
+      ? {
+          className: BackgroundColor.backgroundColor_100,
+        }
+      : {};
+
+    return (
+      <MenuItem
+        key={file.path}
+        description={tagSetToLabelGroup(file.tags)}
+        itemId={file.path}
+        actions={
+          <>
+            <MenuItemAction
+              actionId="display"
+              icon={iconFor(volume)}
+              aria-label="display"
+            />
+          </>
+        }
+        {...style}
+      >
+        {file.path}
+      </MenuItem>
+    );
+  });
+
+  const selectionMenu = (
+    <>
+      <SearchInput
+        placeholder="Filter"
+        value={searchValue}
+        onChange={(_e, v) => setSearchValue(v)}
+        onClear={() => setSearchValue("")}
+        resultsCount={filteredFileStates.length}
+      />
+      <Menu onSelect={onMenuSelect} onActionClick={onActionClick}>
+        <MenuContent>
+          <MenuGroup>
+            <MenuList>{menuItems}</MenuList>
+          </MenuGroup>
+        </MenuContent>
+      </Menu>
+    </>
   );
 
   const loadedVolumes = fileStates.filter(volumeIsLoaded).map((fileState) => {
