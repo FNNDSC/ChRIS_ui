@@ -35,28 +35,21 @@ import { TagSet } from "../client/models";
 import { TagsDictionary } from "../types";
 import React from "react";
 import { DatasetFileState, volumeIsLoaded } from "../statefulTypes";
-import { ChNVROptions, ChNVRVolume } from "../models";
+import { ChNVRVolume } from "../models";
 import VolumeOptionsForm from "./VolumeOptionsForm";
 import TagColors from "./TagColors";
 import { css } from "@patternfly/react-styles";
 import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import tabStyle from "./pfTabHeight.module.css";
 import styles from "./FilesMenu.module.css";
-import { Updater } from "use-immer";
+import SettingsTab, { SettingsTabProps } from "./SettingsTab.tsx";
 
-type FilesMenuProps = {
+type FilesMenuProps = SettingsTabProps & {
   fileStates: ReadonlyArray<DatasetFileState>;
   setFileStates: React.Dispatch<
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
   tagsDictionary: TagsDictionary;
-
-  options: ChNVROptions;
-  setOptions: Updater<ChNVROptions>;
-  size: number;
-  setSize: (size: number) => void;
-  sizeIsScaling: boolean;
-  setSizeIsScaling: (sizeIsScaling: boolean) => void;
 };
 
 // It would be nice to use DragDropSort from @patternfly/react-drag-drop
@@ -145,6 +138,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   fileStates,
   setFileStates,
   tagsDictionary,
+  ...settingsTabProps
 }) => {
   const [searchValue, setSearchValue] = React.useState("");
   const [filterTags, setFilterTags] = React.useState<
@@ -431,7 +425,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
       title: "Settings",
       longTitle: "Viewer Settings",
       icon: <DesktopIcon />,
-      body: <h1>hello, world!</h1>,
+      body: <SettingsTab {...settingsTabProps} />,
     },
   ];
 
@@ -480,4 +474,5 @@ function isTouchDevice() {
   return "ontouchstart" in window || navigator.maxTouchPoints > 0;
 }
 
+export type { FilesMenuProps };
 export default FilesMenu;
