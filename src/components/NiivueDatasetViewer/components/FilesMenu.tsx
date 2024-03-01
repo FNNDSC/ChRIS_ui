@@ -3,7 +3,6 @@ import {
   MenuContent,
   MenuItem,
   MenuItemAction,
-  MenuGroup,
   MenuList,
   LabelGroup,
   Label,
@@ -41,6 +40,7 @@ import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundCo
 import { css } from "@patternfly/react-styles";
 import TagColors from "./TagColors";
 import tabStyle from "./pfTabHeight.module.css";
+import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 
 type FilesMenuProps = {
   fileStates: ReadonlyArray<DatasetFileState>;
@@ -102,6 +102,26 @@ const ScrollContainer: React.FC<React.PropsWithChildren<{}>> = ({
   </div>
 );
 
+const TagSetLabelGroup: React.FC<{
+  tags: TagSet;
+  onClick: (k: string, v: string) => void;
+  numLabels: number;
+  tagColors: TagColors;
+}> = ({ tags, onClick, numLabels, tagColors }) => (
+  <LabelGroup numLabels={numLabels}>
+    {Object.entries(tags).map(([key, value]) => (
+      <Label
+        key={JSON.stringify([key, value])}
+        color={tagColors.getColor(key, value)}
+        onClick={() => onClick(key, value)}
+        isCompact
+      >
+        {key}: {value}
+      </Label>
+    ))}
+  </LabelGroup>
+);
+
 /**
  * The `FilesMenu` component displays a list of all the files of a dataset.
  * It also controls the properties for each volume currently being displayed.
@@ -118,6 +138,9 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   tagsDictionary,
 }) => {
   const [searchValue, setSearchValue] = React.useState("");
+  const [filterTags, setFilterTags] = React.useState<
+    ReadonlyArray<[string, string]>
+  >([]);
 
   /**
    * Unload all currently displayed volumes, then load the selected file.
@@ -189,20 +212,22 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
     [tagsDictionary],
   );
 
-  const tagSetToLabelGroup = (tags: TagSet): React.ReactNode => {
-    return (
-      <LabelGroup numLabels={8}>
-        {Object.entries(tags).map(([key, value]) => (
-          <Label
-            key={JSON.stringify([key, value])}
-            color={tagColors.getColor(key, value)}
-            isCompact
-          >
-            {key}: {value}
-          </Label>
-        ))}
-      </LabelGroup>
+  /**
+   * Add a tag to the set of tag filters.
+   */
+  const pushTagFilter = (key: string, value: string) => {
+    setFilterTags((prev) =>
+      prev.findIndex(([k, v]) => k === key && v === value) === -1
+        ? prev.concat([[key, value]])
+        : prev,
     );
+  };
+
+  /**
+   * Remove a tag from the set of tag filters.
+   */
+  const removeTagFilter = (key: string, value: string) => {
+    setFilterTags((prev) => prev.filter(([k, v]) => k !== key && v !== value));
   };
 
   /**
@@ -214,6 +239,14 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   const filteredFileStates = React.useMemo(
     () =>
       fileStates.filter(({ file }) => {
+        if (filterTags.length > 0) {
+          for (const [key, value] of filterTags) {
+            if (file.tags[key] !== value) {
+              return false;
+            }
+          }
+        }
+
         const searchLowerCase = searchValue.toLowerCase();
         if (file.path.toLowerCase().includes(searchLowerCase)) {
           return true;
@@ -225,7 +258,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
         }
         return false;
       }),
-    [fileStates, searchValue],
+    [fileStates, searchValue, filterTags],
   );
 
   const menuItems = filteredFileStates.map((fileState) => {
@@ -236,10 +269,19 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
         }
       : {};
 
+    const tagsElement = (
+      <TagSetLabelGroup
+        tags={file.tags}
+        tagColors={tagColors}
+        numLabels={8}
+        onClick={pushTagFilter}
+      />
+    );
+
     return (
       <MenuItem
         key={file.path}
-        description={tagSetToLabelGroup(file.tags)}
+        description={tagsElement}
         itemId={file.path}
         actions={
           <>
@@ -266,11 +308,22 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
         onClear={() => setSearchValue("")}
         resultsCount={filteredFileStates.length}
       />
+      {filterTags.length > 0 && (
+        <div className={css(Spacing.pSm)}>
+          <small style={{ color: "var(--pf-v5-global--Color--100)" }}>
+            Filters:&nbsp;&nbsp;
+          </small>
+          <TagSetLabelGroup
+            tags={Object.fromEntries(filterTags)}
+            tagColors={tagColors}
+            numLabels={100}
+            onClick={removeTagFilter}
+          />
+        </div>
+      )}
       <Menu onSelect={onMenuSelect} onActionClick={onActionClick}>
         <MenuContent>
-          <MenuGroup>
-            <MenuList>{menuItems}</MenuList>
-          </MenuGroup>
+          <MenuList>{menuItems}</MenuList>
         </MenuContent>
       </Menu>
     </>
@@ -315,8 +368,6 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
       );
     };
   };
-
-  // TODO add functionality for reordering volumes.
 
   const volumeOptionsMenu = (
     <List isPlain isBordered>
@@ -383,12 +434,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
           }
           className={tabStyle.tab}
         >
-          <div
-            className={css(
-              tabStyle.tabBody,
-              BackgroundColor.backgroundColor_200,
-            )}
-          >
+          <div className={tabStyle.tabBody}>
             <ScrollContainer>{body}</ScrollContainer>
           </div>
         </Tab>
