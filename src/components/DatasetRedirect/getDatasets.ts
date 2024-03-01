@@ -74,7 +74,8 @@ async function getDatasets(
   warnings.push(...plinstNotPaginatedWarnings);
   const plinsts = plinstLists
     .flatMap((plinstList) => plinstList.getItems())
-    .filter(isPlVisualDataset);
+    .filter(isPlVisualDataset)
+    .reduce(dedupPluginInstances, []);
   return {
     warnings,
     plinsts,
@@ -94,6 +95,15 @@ function isCompatibleVersion(pluginVersion: string): boolean {
       (v) => v === pluginVersion,
     ) !== -1
   );
+}
+
+function dedupPluginInstances(
+  acc: PluginInstance[],
+  plinst: PluginInstance,
+): PluginInstance[] {
+  return acc.findIndex((p) => p.data.id === plinst.data.id) === -1
+    ? acc.concat([plinst])
+    : acc;
 }
 
 export { getDatasets, isPlVisualDataset };
