@@ -36,7 +36,6 @@ import { DatasetFileState, volumeIsLoaded } from "../statefulTypes";
 import { ChNVRVolume } from "../models";
 import VolumeOptionsForm from "./VolumeOptionsForm";
 import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
-import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
 import { css } from "@patternfly/react-styles";
 import tabStyle from "./pfTabHeight.module.css";
 
@@ -192,7 +191,14 @@ const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, setFileStates }) => {
       <MenuContent>
         <MenuGroup>
           <MenuList>
-            {fileStates.map(({ file, volume }) => {
+            {fileStates.map((fileState) => {
+              const { file, volume } = fileState;
+              const style = volumeIsLoaded(fileState)
+                ? {
+                    className: BackgroundColor.backgroundColor_100,
+                  }
+                : {};
+
               return (
                 <MenuItem
                   key={file.path}
@@ -207,6 +213,7 @@ const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, setFileStates }) => {
                       />
                     </>
                   }
+                  {...style}
                 >
                   {file.path}
                 </MenuItem>
