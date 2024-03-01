@@ -29,18 +29,20 @@ import {
   FolderOpenIcon,
   FolderCloseIcon,
   BrainIcon,
+  DesktopIcon,
 } from "@patternfly/react-icons";
 import { TagSet } from "../client/models";
 import { TagsDictionary } from "../types";
 import React from "react";
 import { DatasetFileState, volumeIsLoaded } from "../statefulTypes";
-import { ChNVRVolume } from "../models";
+import { ChNVROptions, ChNVRVolume } from "../models";
 import VolumeOptionsForm from "./VolumeOptionsForm";
 import TagColors from "./TagColors";
 import { css } from "@patternfly/react-styles";
 import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import tabStyle from "./pfTabHeight.module.css";
 import styles from "./FilesMenu.module.css";
+import { Updater } from "use-immer";
 
 type FilesMenuProps = {
   fileStates: ReadonlyArray<DatasetFileState>;
@@ -48,6 +50,13 @@ type FilesMenuProps = {
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
   tagsDictionary: TagsDictionary;
+
+  options: ChNVROptions;
+  setOptions: Updater<ChNVROptions>;
+  size: number;
+  setSize: (size: number) => void;
+  sizeIsScaling: boolean;
+  setSizeIsScaling: (sizeIsScaling: boolean) => void;
 };
 
 // It would be nice to use DragDropSort from @patternfly/react-drag-drop
@@ -382,16 +391,20 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
   );
 
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(
-    "File Selection",
+    "files",
   );
 
   const tabs: {
+    key: string;
     title: string;
+    longTitle: string;
     icon: React.ReactNode;
     body: React.ReactNode;
   }[] = [
     {
-      title: "File Selection",
+      key: "files",
+      title: "Files",
+      longTitle: "Files Selection",
       icon:
         activeTabKey === "File Selection" ? (
           <FolderOpenIcon />
@@ -406,10 +419,19 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
       ),
     },
     {
-      title: "Volume Options",
+      key: "volumes",
+      title: "Volumes",
+      longTitle: "Volume Options",
       icon: <BrainIcon />,
       body:
         loadedVolumes.length === 0 ? noVolumesSelectedHint : volumeOptionsMenu,
+    },
+    {
+      key: "settings",
+      title: "Settings",
+      longTitle: "Viewer Settings",
+      icon: <DesktopIcon />,
+      body: <h1>hello, world!</h1>,
     },
   ];
 
@@ -419,14 +441,16 @@ const FilesMenu: React.FC<FilesMenuProps> = ({
       activeKey={activeTabKey}
       onSelect={(_e, t) => setActiveTabKey(t)}
     >
-      {tabs.map(({ title, icon, body }) => (
+      {tabs.map(({ key, title, longTitle, icon, body }) => (
         <Tab
-          key={title}
-          eventKey={title}
+          key={key}
+          eventKey={key}
           title={
             <>
               <TabTitleIcon>{icon}</TabTitleIcon>{" "}
-              <TabTitleText>{title}</TabTitleText>
+              <TabTitleText>
+                {activeTabKey === key ? longTitle : title}
+              </TabTitleText>
             </>
           }
           className={tabStyle.tab}

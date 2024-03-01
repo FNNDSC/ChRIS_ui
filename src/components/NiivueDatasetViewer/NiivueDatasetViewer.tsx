@@ -280,6 +280,12 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
       fileStates={fileStates}
       setFileStates={notNullSetState(setFileStates)}
       tagsDictionary={tagsDictionary}
+      options={nvOptions}
+      setOptions={setNvOptions}
+      size={nvSize}
+      setSize={setNvSize}
+      sizeIsScaling={sizeIsScaling}
+      setSizeIsScaling={setSizeIsScaling}
     />
   );
 
