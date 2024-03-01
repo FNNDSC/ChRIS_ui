@@ -6,6 +6,8 @@ import { Problem, TagsDictionary } from "../types";
 import { FooterContent } from "./footer";
 import FilesMenu from "../components/FilesMenu";
 import { DatasetFileState } from "../statefulTypes";
+import { ChNVROptions } from "../models.ts";
+import { Updater } from "use-immer";
 
 type ControlPanelProps = {
   problems: Problem[];
@@ -14,6 +16,13 @@ type ControlPanelProps = {
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
   tagsDictionary: TagsDictionary;
+
+  options: ChNVROptions;
+  setOptions: Updater<ChNVROptions>;
+  size: number;
+  setSize: (size: number) => void;
+  sizeIsScaling: boolean;
+  setSizeIsScaling: (sizeIsScaling: boolean) => void;
 };
 
 /**
@@ -24,6 +33,13 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   fileStates,
   setFileStates,
   tagsDictionary,
+
+  options,
+  setOptions,
+  size,
+  setSize,
+  sizeIsScaling,
+  setSizeIsScaling,
 }) => {
   return (
     <Flex direction={{ default: "column" }} className={Sizing.h_100}>
@@ -42,6 +58,12 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
             fileStates={fileStates}
             setFileStates={setFileStates}
             tagsDictionary={tagsDictionary}
+            options={options}
+            setOptions={setOptions}
+            size={size}
+            setSize={setSize}
+            sizeIsScaling={sizeIsScaling}
+            setSizeIsScaling={setSizeIsScaling}
           />
         )}
       </FlexItem>
