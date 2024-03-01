@@ -31,12 +31,14 @@ import {
   BrainIcon,
 } from "@patternfly/react-icons";
 import { TagSet } from "../client/models";
+import { TagsDictionary } from "../types";
 import React from "react";
 import { DatasetFileState, volumeIsLoaded } from "../statefulTypes";
 import { ChNVRVolume } from "../models";
 import VolumeOptionsForm from "./VolumeOptionsForm";
 import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
 import { css } from "@patternfly/react-styles";
+import TagColors from "./TagColors";
 import tabStyle from "./pfTabHeight.module.css";
 
 type FilesMenuProps = {
@@ -44,6 +46,7 @@ type FilesMenuProps = {
   setFileStates: React.Dispatch<
     React.SetStateAction<ReadonlyArray<DatasetFileState>>
   >;
+  tagsDictionary: TagsDictionary;
 };
 
 // It would be nice to use DragDropSort from @patternfly/react-drag-drop
@@ -108,7 +111,11 @@ const ScrollContainer: React.FC<React.PropsWithChildren<{}>> = ({
  * @param setFileStates update the file states
  * @param pushProblems notify parent component of any problems
  */
-const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, setFileStates }) => {
+const FilesMenu: React.FC<FilesMenuProps> = ({
+  fileStates,
+  setFileStates,
+  tagsDictionary,
+}) => {
   /**
    * Unload all currently displayed volumes, then load the selected file.
    */
@@ -174,11 +181,20 @@ const FilesMenu: React.FC<FilesMenuProps> = ({ fileStates, setFileStates }) => {
     addItemToSelection(itemId);
   };
 
+  const tagColors = React.useMemo(
+    () => new TagColors(tagsDictionary),
+    [tagsDictionary],
+  );
+
   const tagSetToLabelGroup = (tags: TagSet): React.ReactNode => {
     return (
       <LabelGroup numLabels={8}>
         {Object.entries(tags).map(([key, value]) => (
-          <Label isCompact key={JSON.stringify([key, value])}>
+          <Label
+            key={JSON.stringify([key, value])}
+            color={tagColors.getColor(key, value)}
+            isCompact
+          >
             {key}: {value}
           </Label>
         ))}
