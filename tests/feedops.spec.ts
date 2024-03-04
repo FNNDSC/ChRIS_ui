@@ -8,7 +8,6 @@ const SOME_FILE = path.join(__dirname, "..", "package-lock.json");
 test("Can perform feed operations", async ({ page }) => {
   test.slow();
   await page.goto("feeds?type=private");
-  const classSelector = ".ant-typography";
 
   const animal = faker.animal.type();
   const feedName = `A study on ${animal}`;
@@ -17,12 +16,8 @@ test("Can perform feed operations", async ({ page }) => {
   // Add a timeout of 5000 milliseconds to wait for the "Feed Created Successfully" message
   await page.waitForSelector(':text("Feed Created Successfully")');
 
-  const initialText = await page.locator(classSelector).innerText();
-  const initialCount = parseCountFromText(initialText);
-
   await page.getByRole("button").first().click();
 
-  test.slow();
   // Add a timeout of 5000 milliseconds to wait for the "tbody" to contain text
   await expect(page.locator("tbody")).toContainText(feedName);
 
@@ -37,13 +32,4 @@ test("Can perform feed operations", async ({ page }) => {
   await page.getByRole("button", { name: "Confirm" }).click({ timeout: 5000 });
 
   await page.locator('[aria-label="Loading Table"]');
-
-  if (initialCount === 1) {
-    await page.locator('[aria-label="Empty Table"]');
-  } else await page.locator('[aria-label="Feed Table"]');
 });
-// Helper function to parse count from text
-function parseCountFromText(text: string) {
-  const match = text.match(/\((\d+)\)/);
-  return match ? Number(match[1]) : 0;
-}

@@ -20,9 +20,6 @@ function ListCompute(props: OwnProps) {
   return (
     <>
       <List
-        style={{
-          marginLeft: showCheckbox ? "1rem" : "",
-        }}
         itemLayout="horizontal"
         dataSource={computeResources}
         renderItem={(item: ComputeResource, index: number) => {
