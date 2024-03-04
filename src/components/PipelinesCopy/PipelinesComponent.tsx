@@ -21,7 +21,7 @@ function PipelinesComponent(props: OwnProps) {
         }}
         hasGutter={true}
       >
-        <GridItem span={12} md={4} lg={5} xl={4}>
+        <GridItem span={12} md={6} lg={5} xl={4}>
           <GeneralCompute />
         </GridItem>
 
@@ -29,7 +29,7 @@ function PipelinesComponent(props: OwnProps) {
           <ComputeListForSingleCompute currentPipeline={pipeline} />
         </GridItem>
 
-        <GridItem span={12} md={2} lg={2} xl={4}>
+        <GridItem span={12} md={12} lg={2} xl={4}>
           <TitleChange currentPipeline={pipeline} />
         </GridItem>
       </Grid>

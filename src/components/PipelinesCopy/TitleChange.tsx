@@ -58,14 +58,17 @@ function TitleChange({ currentPipeline }: OwnProps) {
 
   return (
     <>
-      <Form.Item label="Set a Title for the selected node">
-        <Space.Compact>
-          <Input onChange={(e) => setValue(e.target.value)} value={value} />
-          <Button type="primary" onClick={handleSaveTitle}>
-            Save Title
-          </Button>
-        </Space.Compact>
-      </Form.Item>
+      <Form layout="vertical">
+        <Form.Item label="Set a Title for the selected node">
+          <Space.Compact>
+            <Input onChange={(e) => setValue(e.target.value)} value={value} />
+            <Button type="primary" onClick={handleSaveTitle}>
+              Save Title
+            </Button>
+          </Space.Compact>
+        </Form.Item>
+      </Form>
+
       {error && <Alert closable type="error" description={error} />}
     </>
   );
