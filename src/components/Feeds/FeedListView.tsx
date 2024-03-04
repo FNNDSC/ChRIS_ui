@@ -38,9 +38,9 @@ import { AddNodeProvider } from "../AddNode/context";
 import { DataTableToolbar, InfoIcon } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
-import { PipelineProvider } from "../PipelinesCopy/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import IconContainer from "../IconContainer";
+import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import { usePaginate, useSearchQueryParams } from "./usePaginate";
 import { fetchFeeds, fetchPublicFeeds } from "./utilties";
@@ -439,7 +439,7 @@ function TableRow({
   );
   const isSelected = (bulkSelect: any, feed: Feed) => {
     for (const selectedFeed of bulkSelect) {
-      if (selectedFeed.data.id == feed.data.id) {
+      if (selectedFeed.data.id === feed.data.id) {
         return true;
       }
     }
@@ -498,7 +498,7 @@ function TableRow({
 
 function EmptyStateTable() {
   return (
-    <Table variant="compact" aria-label="Empty state table">
+    <Table variant="compact" aria-label="Empty Table">
       <Thead>
         <Tr>
           <Th>ID</Th>
@@ -533,6 +533,7 @@ function LoadingTable() {
   return (
     <div style={{ height: "100%" }}>
       <Skeleton
+        aria-label="Loading Feed Table"
         height="100%"
         screenreaderText="Loading large rectangle contents"
       />
