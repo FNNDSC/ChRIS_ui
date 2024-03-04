@@ -189,11 +189,14 @@ export const fetchPipelines = async (
 ) => {
   const offset = perPage * (page - 1);
   const client = ChrisAPIClient.getClient();
+
   const params = {
     limit: perPage,
     offset: offset,
     [`${searchType}`]: search,
   };
+
+  console.log("Params", params);
   try {
     const registeredPipelinesList: PipelineList =
       await client.getPipelines(params);

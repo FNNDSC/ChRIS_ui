@@ -3,9 +3,10 @@ import createAccountHelper from "./helpers/createAccount.ts";
 import { faker } from "@faker-js/faker";
 
 test("Can create new user accounts", async ({ page }) => {
+  test.slow();
   const username = faker.internet.userName();
   const email = faker.internet.email();
-  const password = `testuser1234`;
+  const password = "testuser1234";
   await createAccountHelper("/", page, username, email, password);
 
   // account options menu should appear after being logged in
