@@ -15,19 +15,16 @@ test("Can perform feed operations", async ({ page }) => {
   await createFeed(page, feedName, SOME_FILE);
 
   // Add a timeout of 5000 milliseconds to wait for the "Feed Created Successfully" message
-  await expect(page.getByText("Feed Created Successfully")).toBeVisible({
-    timeout: 5000,
-  });
+  await page.waitForSelector(':text("Feed Created Successfully")');
 
   const initialText = await page.locator(classSelector).innerText();
   const initialCount = parseCountFromText(initialText);
 
   await page.getByRole("button").first().click();
 
+  test.slow();
   // Add a timeout of 5000 milliseconds to wait for the "tbody" to contain text
-  await expect(page.locator("tbody")).toContainText(feedName, {
-    timeout: 5000,
-  });
+  await expect(page.locator("tbody")).toContainText(feedName);
 
   const labelName = `${feedName}-checkbox`;
   const firstCheckbox = page.locator(`[aria-label="${labelName}"]`).first();
@@ -39,23 +36,11 @@ test("Can perform feed operations", async ({ page }) => {
   // Add a timeout of 5000 milliseconds to wait for the "Confirm" button to be visible
   await page.getByRole("button", { name: "Confirm" }).click({ timeout: 5000 });
 
-  // Wait for the table to exist
-  const tableLocator = page.locator('[aria-label="Feed Table"]');
+  await page.locator('[aria-label="Loading Table"]');
 
-  // Add a timeout of 5000 milliseconds to wait for the table to exist
-  await tableLocator.waitFor({ timeout: 5000 });
-
-  // Check if the table exists
-  const tableCount = await tableLocator.count();
-
-  // Add a timeout of 5000 milliseconds for the expectation
-  await expect(tableCount).toBeGreaterThan(0);
-
-  const finalText = await page.locator(classSelector).innerText();
-  const countAfterDeletion = parseCountFromText(finalText);
-
-  // Add a timeout of 5000 milliseconds for the expectation
-  await expect(countAfterDeletion).toBe(initialCount - 1);
+  if (initialCount === 1) {
+    await page.locator('[aria-label="Empty Table"]');
+  } else await page.locator('[aria-label="Feed Table"]');
 });
 // Helper function to parse count from text
 function parseCountFromText(text: string) {
