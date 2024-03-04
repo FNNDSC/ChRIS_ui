@@ -164,14 +164,19 @@ const TableSelectable: React.FunctionComponent = () => {
     status: "Status",
   };
 
-  const generatePagination = (type: string) => {
+  const feedCount =
+    type === "private"
+      ? data?.totalFeedsCount === -1
+        ? 0
+        : data?.totalFeedsCount || "Fetching..."
+      : publicFeeds?.totalFeedsCount === -1
+        ? 0
+        : publicFeeds?.totalFeedsCount || "Fetching...";
+
+  const generatePagination = () => {
     return (
       <Pagination
-        itemCount={
-          type === "private"
-            ? data?.totalFeedsCount
-            : publicFeeds?.totalFeedsCount
-        }
+        itemCount={feedCount}
         perPage={+perPage}
         page={+page}
         onSetPage={onSetPage}
@@ -186,13 +191,7 @@ const TableSelectable: React.FunctionComponent = () => {
         <PageSection className="feed-header">
           <InfoIcon
             data-test-id="analysis-count"
-            title={`New and Existing Analyses (${
-              type === "private" && data && data.totalFeedsCount
-                ? data.totalFeedsCount
-                : publicFeeds?.totalFeedsCount
-                  ? publicFeeds.totalFeedsCount
-                  : 0
-            })`}
+            title={`New and Existing Analyses (${feedCount})`}
             p1={
               <Paragraph>
                 Analyses (aka ChRIS feeds) are computational experiments where
@@ -228,7 +227,7 @@ const TableSelectable: React.FunctionComponent = () => {
                 />
               </ToggleGroup>
             </div>
-            {generatePagination(type)}
+            {generatePagination()}
           </div>
           <div className="feed-list__split">
             <DataTableToolbar
