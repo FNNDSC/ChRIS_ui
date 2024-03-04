@@ -119,7 +119,7 @@ const Tree = (props: TreeProps) => {
         const rect = graphRef.current.getBoundingClientRect();
         if (rect) {
           const height = rect.height;
-          divRef.current.style.height = `${height + 30}px`;
+          divRef.current.style.height = `${height + 50}px`;
         }
       }
     };
