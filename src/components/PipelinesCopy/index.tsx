@@ -13,8 +13,10 @@ import { Alert, Collapse } from "antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import "./Pipelines.css";
 import PipelinesComponent from "./PipelinesComponent";
+import SelectAllCompute from "./SelectAllCompute";
 import {
   PIPELINEQueryTypes,
   PerPipelinePayload,
@@ -32,6 +34,7 @@ type LoadingResourceError = {
 
 const PipelinesCopy = () => {
   const { state, dispatch } = useContext(PipelineContext);
+  const { isDarkTheme } = useContext(ThemeContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
   const [resourceError, setResourceError] = useState<LoadingResourceError>();
   const [pageState, setPageState] = useState({
@@ -200,17 +203,26 @@ const PipelinesCopy = () => {
           style={{ marginTop: "1em" }}
           onChange={handleChange}
           items={data.registeredPipelines.map((pipeline) => {
-            const { name, id } = pipeline.data;
+            const { name, id, description } = pipeline.data;
             return {
               key: id,
               label: (
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
-                  <div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
                     <span>{name}</span>
+                    <span
+                      style={{
+                        fontSize: "0.9rem",
+                        color: isDarkTheme ? "#B8BBBE" : "#4F5255",
+                      }}
+                    >
+                      {description}
+                    </span>
                   </div>
                   <div>
+                    <SelectAllCompute />
                     <Button
                       size="sm"
                       onClick={(e) => {
