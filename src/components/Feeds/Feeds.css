@@ -21,3 +21,17 @@
   cursor: pointer;
   outline: none;
 }
+
+
+.chart {
+   text-align: right;
+  height: 50px;
+  width: 50px;
+  display: block;
+}
+   
+ 
+
+  .chart.dark tspan {
+    fill: white !important;
+  }
