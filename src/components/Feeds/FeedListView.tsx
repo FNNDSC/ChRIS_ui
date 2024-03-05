@@ -396,15 +396,9 @@ function TableRow({
     title = "✔️";
   }
 
+  const mode = isDarkTheme ? "dark" : "light";
   const circularProgress = (
-    <div
-      style={{
-        textAlign: "right",
-        height: "50px",
-        width: "50px",
-        display: "block",
-      }}
-    >
+    <div className={`chart ${mode}`}>
       <ChartDonutUtilization
         ariaTitle={feedProgressText}
         data={{ x: "Analysis Progress", y: progress }}
