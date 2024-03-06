@@ -7,9 +7,11 @@ import {
   SelectOption,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
+import { Avatar } from "antd";
 import React, { useContext } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
+import { stringToColour } from "../CreateFeed/utils";
 import { PipelineContext, Types } from "./context";
 
 type OwnProps = {
@@ -101,19 +103,25 @@ function SelectAllCompute({ pipeline }: OwnProps) {
       toggle={toggle}
     >
       <SelectList>
-        {data?.resource ? (
+        {data?.resource && !isLoading && !isError ? (
           data.resource.map((resource) => {
             return (
               <SelectOption
                 isSelected={resource.data.name === selectedItem}
                 value={resource.data.name}
               >
-                {resource.data.name}
+                <Avatar
+                  style={{
+                    background: `${stringToColour(resource.data.name)}`,
+                    marginRight: "0.5em",
+                  }}
+                />
+                <span>{resource.data.name}</span>
               </SelectOption>
             );
           })
         ) : (
-          <span>No Compute Registered</span>
+          <SelectOption>No Compute Registered</SelectOption>
         )}
         {isLoading && <span>Fetching compute...</span>}
         {isError && <span>{error.message}</span>}

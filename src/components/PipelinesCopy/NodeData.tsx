@@ -31,20 +31,27 @@ const DEFAULT_NODE_CIRCLE_RADIUS = 12;
 
 const NodeData = (props: NodeProps) => {
   const { state, dispatch } = useContext(PipelineContext);
-  const { computeInfo, currentlyActiveNode, selectedPipeline, titleInfo } =
-    state;
+  const {
+    generalCompute,
+    computeInfo,
+    currentlyActiveNode,
+    selectedPipeline,
+    titleInfo,
+  } = state;
   const { data, position, orientation, currentPipelineId } = props;
   const { isDarkTheme } = useContext(ThemeContext);
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
 
   let title: string | undefined = "";
-
   const activeNode = currentlyActiveNode?.[currentPipelineId];
 
   if (activeNode) {
     title = titleInfo?.[currentPipelineId]?.[data.id];
   }
+
+  // If Global Compute is Setup, use that as a default
+  const globalCompute = generalCompute?.[currentPipelineId];
 
   let currentComputeEnv = "";
   if (computeInfo?.[currentPipelineId]?.[data.id]) {
@@ -79,7 +86,7 @@ const NodeData = (props: NodeProps) => {
   async function fetchComputeDataForNode() {
     try {
       const computeEnvPayload: ComputeInfoPayload | undefined =
-        await fetchComputeInfo(data.plugin_id, `${data.id}`);
+        await fetchComputeInfo(data.plugin_id, `${data.id}`, globalCompute);
 
       if (computeEnvPayload) {
         dispatch({

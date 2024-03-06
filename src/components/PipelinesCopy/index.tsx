@@ -183,6 +183,27 @@ const PipelinesCopy = () => {
             }}
           />
         </div>
+
+        {state.pipelineToAdd && (
+          <div>
+            <Form.Item style={{ marginBottom: "0" }} label="Currently Selected">
+              <Tag
+                bordered
+                color="#004080"
+                closeIcon
+                onClose={(e) => {
+                  e.preventDefault();
+                  dispatch({
+                    type: Types.PipelineToDelete,
+                  });
+                }}
+              >
+                {state.pipelineToAdd.data.name}
+              </Tag>
+            </Form.Item>
+          </div>
+        )}
+
         <Pagination
           itemCount={data?.totalCount ? data.totalCount : 0}
           perPage={pageState.perPage}
@@ -191,26 +212,6 @@ const PipelinesCopy = () => {
           onPerPageSelect={onPerPageSelect}
         />
       </div>
-
-      {state.pipelineToAdd && (
-        <div style={{ marginTop: "1rem" }}>
-          <Form.Item label="Currently Selected">
-            <Tag
-              bordered
-              color="#004080"
-              closeIcon
-              onClose={(e) => {
-                e.preventDefault();
-                dispatch({
-                  type: Types.PipelineToDelete,
-                });
-              }}
-            >
-              {state.pipelineToAdd.data.name}
-            </Tag>
-          </Form.Item>
-        </div>
-      )}
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />
@@ -241,7 +242,7 @@ const PipelinesCopy = () => {
                       {description}
                     </span>
                   </div>
-                  <div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
                     <SelectAllCompute pipeline={pipeline} />
                     <Button
                       size="sm"
@@ -258,6 +259,7 @@ const PipelinesCopy = () => {
                       }}
                       variant="primary"
                       key="select-action"
+                      style={{ marginLeft: "1em", width: "80px" }} // Set a fixed width
                     >
                       {pipeline.data.id === state.pipelineToAdd?.data.id
                         ? "Selected"
