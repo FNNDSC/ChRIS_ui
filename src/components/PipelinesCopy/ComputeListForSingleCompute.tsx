@@ -23,7 +23,7 @@ function ComputeListForSingleCompute({ currentPipeline }: OwnProps) {
 
   return (
     <Form layout="vertical">
-      <Form.Item label="Compute registered for the selected node">
+      <Form.Item label="Compute for the selected node">
         {computeResources ? (
           <ListCompute
             currentlyActive={currentCompute?.currentlySelected}
