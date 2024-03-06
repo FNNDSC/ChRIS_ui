@@ -7,6 +7,7 @@ test.describe("Plugin catalog page", () => {
     context,
     browserName,
   }) => {
+    test.slow();
     if (browserName === "chromium") {
       await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     }

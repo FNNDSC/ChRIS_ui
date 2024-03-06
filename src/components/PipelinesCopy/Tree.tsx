@@ -49,11 +49,13 @@ const Tree = (props: TreeProps) => {
   const { state } = React.useContext(PipelineContext);
   const { selectedPipeline } = state;
   const divRef = useRef<HTMLDivElement>(null);
+  const graphRef = useRef<SVGGElement>(null);
   const [translate, setTranslate] = React.useState({
     x: 0,
     y: 0,
   });
   const size = useSize(divRef);
+  //const graphSize = useSize(graphRef);
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<TreeNode[]>();
   const [tsIds, setTsIds] = React.useState<any>();
@@ -112,13 +114,19 @@ const Tree = (props: TreeProps) => {
   }, [size]);
 
   React.useEffect(() => {
-    const svgElement = document.querySelector(".feed-tree__svg");
-    if (svgElement && divRef.current) {
-      const svgHeight = svgElement.getBoundingClientRect().height;
-      const computeHeight = svgHeight < 430 ? "430px" : `${svgHeight}px`;
-      divRef.current.style.height = computeHeight;
-    }
-  });
+    const updateHeight = () => {
+      if (graphRef.current && divRef.current) {
+        const rect = graphRef.current.getBoundingClientRect();
+        if (rect) {
+          const height = rect.height;
+          divRef.current.style.height = `${height + 50}px`;
+        }
+      }
+    };
+
+    // Run the update on mount
+    updateHeight();
+  }, [graphRef.current, divRef.current]);
 
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
@@ -195,6 +203,7 @@ const Tree = (props: TreeProps) => {
           >
             <title>Pipeline Tree</title>
             <TransitionGroupWrapper
+              ref={graphRef}
               component="g"
               className={graphClassName}
               transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
@@ -216,12 +225,6 @@ const Tree = (props: TreeProps) => {
                     position={{ x, y }}
                     parent={parent}
                     orientation="vertical"
-                    handleNodeClick={(
-                      _pluginName: number,
-                      _pipelineId: number,
-                    ): void => {
-                      throw new Error("Function not implemented.");
-                    }}
                     currentPipelineId={currentPipeline.data.id}
                   />
                 );

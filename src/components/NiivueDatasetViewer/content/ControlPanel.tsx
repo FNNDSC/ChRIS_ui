@@ -1,18 +1,15 @@
-import { Problem } from "../types.ts";
 import { Alert, Flex, FlexItem } from "@patternfly/react-core";
 import React from "react";
 import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
 import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { FooterContent } from "./footer.tsx";
-import FilesMenu from "../components/FilesMenu.tsx";
-import { DatasetFileState } from "../statefulTypes.ts";
+import { Problem } from "../types";
+import { FooterContent } from "./footer";
+import FilesMenu, { FilesMenuProps } from "../components/FilesMenu";
+import { DatasetFileState } from "../statefulTypes";
 
-type ControlPanelProps = {
+type ControlPanelProps = Omit<FilesMenuProps, "fileStates"> & {
   problems: Problem[];
   fileStates: ReadonlyArray<DatasetFileState> | null;
-  setFileStates: React.Dispatch<
-    React.SetStateAction<ReadonlyArray<DatasetFileState>>
-  >;
 };
 
 /**
@@ -21,7 +18,7 @@ type ControlPanelProps = {
 const ControlPanel: React.FC<ControlPanelProps> = ({
   problems,
   fileStates,
-  setFileStates,
+  ...filesMenuProps
 }) => {
   return (
     <Flex direction={{ default: "column" }} className={Sizing.h_100}>
@@ -36,7 +33,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
       )}
       <FlexItem grow={{ default: "grow" }}>
         {fileStates === null || (
-          <FilesMenu fileStates={fileStates} setFileStates={setFileStates} />
+          <FilesMenu fileStates={fileStates} {...filesMenuProps} />
         )}
       </FlexItem>
       <FlexItem className={Spacing.pSm}>

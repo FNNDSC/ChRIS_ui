@@ -1,3 +1,6 @@
 import { test } from "./fixtures/notLoggedIn.ts";
 
-test.describe("Pipelines Page", () => {});
+test("Pipelines Page", async ({ page }) => {
+  test.slow();
+  await page.goto("/pipelines");
+});
