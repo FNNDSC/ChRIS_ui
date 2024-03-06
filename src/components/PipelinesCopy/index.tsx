@@ -21,8 +21,8 @@ import {
   PipelineContext,
   Types,
 } from "./context";
+import { usePaginate } from "../Feeds/usePaginate";
 
-type PaginationEvent = React.MouseEvent | React.KeyboardEvent | MouseEvent;
 type LoadingResources = {
   [key: string]: boolean;
 };
@@ -34,11 +34,14 @@ const PipelinesCopy = () => {
   const { state, dispatch } = useContext(PipelineContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
   const [resourceError, setResourceError] = useState<LoadingResourceError>();
-  const [pageState, setPageState] = useState({
-    page: 1,
-    perPage: 10,
-    search: "",
-  });
+
+  const {
+    filterState: pageState,
+    handlePageSet,
+    handlePerPageSet,
+    handleFilterChange,
+  } = usePaginate();
+
   const { perPage, page, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState<string>(
@@ -62,20 +65,6 @@ const PipelinesCopy = () => {
 
   const onToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const onSetPage = (_event: PaginationEvent, page: number) => {
-    setPageState({
-      ...pageState,
-      page,
-    });
-  };
-
-  const onPerPageSelect = (_event: PaginationEvent, perPage: number) => {
-    setPageState({
-      ...pageState,
-      perPage,
-    });
   };
 
   const handleChange = async (key: string | string[]) => {
@@ -136,10 +125,7 @@ const PipelinesCopy = () => {
   };
 
   const handlePipelineSearch = (search: string) => {
-    setPageState({
-      ...pageState,
-      search,
-    });
+    handleFilterChange(search, dropdownValue);
   };
 
   const updateDropdownValue = (type: string) => {
@@ -176,7 +162,7 @@ const PipelinesCopy = () => {
             customIcon={<SearchIcon />}
             aria-label="search"
             onChange={(_event, value: string) => {
-              handlePipelineSearch(value.toLowerCase());
+              handlePipelineSearch(value);
             }}
           />
         </div>
@@ -184,8 +170,8 @@ const PipelinesCopy = () => {
           itemCount={data?.totalCount ? data.totalCount : 0}
           perPage={pageState.perPage}
           page={pageState.page}
-          onSetPage={onSetPage}
-          onPerPageSelect={onPerPageSelect}
+          onSetPage={handlePageSet}
+          onPerPageSelect={handlePerPageSet}
         />
       </div>
 
