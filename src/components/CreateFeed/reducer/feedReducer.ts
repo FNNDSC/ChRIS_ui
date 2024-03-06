@@ -43,7 +43,7 @@ export function getInitialState(
     data: getDefaultCreateFeedData(selectedData),
     selectedConfig: isInitDataSelected ? ["swift_storage"] : [],
     uploadProgress: 0,
-    feedError: "",
+    feedError: {},
     creatingFeedStatus: "",
   };
 }
@@ -171,7 +171,7 @@ export const createFeedReducer = (
         data: getDefaultCreateFeedData(),
         step: 1,
         uploadProgress: 0,
-        feedError: "",
+        feedError: {},
         creatingFeedStatus: "",
         wizardOpen: false,
         selectedConfig: [],

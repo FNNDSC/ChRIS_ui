@@ -36,7 +36,12 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
     patientDetails;
 
   const parsedDate = parse(PatientBirthDate, "yyyyMMdd", new Date());
-  const formattedDate = format(parsedDate, "MMMM d, yyyy");
+
+  const formattedDate = Number.isNaN(
+    parsedDate.getTime(),
+  ) /* Check if parsedDate is a valid date */
+    ? PatientBirthDate
+    : format(parsedDate, "MMMM d, yyyy");
 
   const LatestDate = (dateStrings: string[]) => {
     let latestStudy = parse(dateStrings[0], "yyyyMMdd", new Date());
