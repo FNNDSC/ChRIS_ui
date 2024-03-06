@@ -18,8 +18,6 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { selectedConfig, uploadProgress, feedError, creatingFeedStatus } =
     state;
 
-  console.log("State", state);
-
   const {
     dropdownInput,
     requiredInput,
