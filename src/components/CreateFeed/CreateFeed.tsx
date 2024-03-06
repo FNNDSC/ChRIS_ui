@@ -1,3 +1,4 @@
+import { Feed } from "@fnndsc/chrisapi";
 import {
   Button,
   Modal,
@@ -10,6 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { notification } from "antd";
 import * as React from "react";
 import { useContext } from "react";
+import { catchError } from "../../api/common";
 import { MainRouterContext } from "../../routes";
 import { useTypedSelector } from "../../store/hooks";
 import { AddNodeContext } from "../AddNode/context";
@@ -21,10 +23,11 @@ import Review from "./Review";
 import withSelectionAlert from "./SelectionAlert";
 import { CreateFeedContext } from "./context";
 import "./createFeed.css";
-import { createFeed } from "./createFeedHelper";
+import { createFeed, createFeedInstanceWithFS } from "./createFeedHelper";
 import { Types } from "./types/feed";
 
 export default function CreateFeed() {
+  const [feedProcessing, setFeedProcessing] = React.useState(false);
   const queryClient = useQueryClient();
   const router = useContext(MainRouterContext);
 
@@ -66,6 +69,7 @@ export default function CreateFeed() {
       : false;
 
   const handleSave = async () => {
+    setFeedProcessing(true);
     dispatch({
       type: Types.SetFeedCreationState,
       payload: {
@@ -74,50 +78,71 @@ export default function CreateFeed() {
     });
     const username = user?.username;
 
-    const feed = await createFeed(
-      state.data,
-      dropdownInput,
-      requiredInput,
-      selectedPluginFromMeta,
-      username,
-      getUploadFileCount,
-      getFeedError,
-      selectedConfig,
-      pipelineState,
-    );
+    try {
+      let feed: Feed | undefined | null = undefined;
 
-    if (feed) {
-      // Set analysis name
-      await feed.put({
-        name: state.data.feedName,
-      });
-
-      // Set analysis tags
-      for (const tag of state.data.tags) {
-        feed.tagFeed(tag.data.id);
+      if (
+        selectedConfig.includes("local_select") ||
+        selectedConfig.includes("swift_storage")
+      ) {
+        feed = await createFeed(
+          data,
+          username,
+          getUploadFileCount,
+          selectedConfig,
+          pipelineState,
+        );
       }
 
-      // Set analysis description
-      const note = await feed.getNote();
-      await note.put({
-        title: "Description",
-        content: state.data.feedDescription,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["feeds"],
-      });
-      dispatch({
-        type: Types.SetFeedCreationState,
-        payload: {
-          status: "Feed Created Successfully",
-        },
-      });
+      if (selectedConfig.includes("fs_plugin")) {
+        feed = await createFeedInstanceWithFS(
+          dropdownInput,
+          requiredInput,
+          selectedPluginFromMeta,
+        );
+      }
 
-      setTimeout(() => {
-        dispatch({
-          type: Types.ResetState,
+      if (feed) {
+        // Set analysis name
+        await feed.put({
+          name: state.data.feedName,
         });
-      }, 2000);
+
+        // Set analysis tags
+        for (const tag of state.data.tags) {
+          feed.tagFeed(tag.data.id);
+        }
+
+        // Set analysis description
+        const note = await feed.getNote();
+
+        await note.put({
+          title: "Description",
+          content: state.data.feedDescription,
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["feeds"],
+        });
+
+        dispatch({
+          type: Types.SetFeedCreationState,
+          payload: {
+            status: "Feed Created Successfully",
+          },
+        });
+
+        setTimeout(() => {
+          setFeedProcessing(false);
+          dispatch({
+            type: Types.ResetState,
+          });
+        }, 1500);
+      }
+    } catch (error) {
+      const errorObj = catchError(error);
+      getFeedError(errorObj);
+      setFeedProcessing(false);
     }
   };
 
@@ -204,15 +229,10 @@ export default function CreateFeed() {
                   dispatch({
                     type: Types.ResetState,
                   });
-
-                  router.actions.clearFeedData();
-
-                  /*
-                  // Pipelines to Dispatch
                   pipelineDispatch({
-                    type: PipelineTypes.ResetState,
+                    type: Types.ResetState,
                   });
-                  */
+                  router.actions.clearFeedData();
                 }
               }}
               title="Create a New Analysis"
@@ -260,7 +280,7 @@ export default function CreateFeed() {
             footer={{
               onNext: handleSave,
               nextButtonText: "Create Analysis",
-              isNextDisabled: enableSave ? false : true,
+              isNextDisabled: !enableSave || feedProcessing ? true : false,
             }}
           >
             <Review handleSave={handleSave} />

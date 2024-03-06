@@ -1,77 +1,24 @@
 import {
+  Feed,
   Plugin,
   PluginInstance,
   PluginParameter,
-  Feed,
 } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { InputType } from "../AddNode/types";
-import { unpackParametersIntoObject } from "../AddNode/utils";
-import { CreateFeedData } from "./types/feed";
-
 import {
-  catchError,
   fetchResource,
   limitConcurrency,
   uploadWrapper,
 } from "../../api/common";
+import { InputType } from "../AddNode/types";
+import { unpackParametersIntoObject } from "../AddNode/utils";
 import { PipelineState } from "../PipelinesCopy/context";
-
-export function getName(selectedConfig: string) {
-  if (selectedConfig === "fs_plugin") {
-    return "Analysis Creation using an FS Plugin";
-  }
-  if (selectedConfig === "file_select") {
-    return "Analysis Creation using File Select";
-  }
-  return "Analysis Creation";
-}
+import { CreateFeedData } from "./types/feed";
 
 export const createFeed = async (
   data: CreateFeedData,
-  dropdownInput: InputType,
-  requiredInput: InputType,
-  selectedPlugin: Plugin | undefined,
   username: string | null | undefined,
   setUploadFileCallback: (status: number) => void,
-  setErrorCallback: (error: any) => void,
-  selectedConfig: string[],
-  state: PipelineState,
-) => {
-  /**
-   * Dircopy requires a path from the ChRIS object storage
-   * as in input
-   */
-  let feed: Feed | undefined | null;
-
-  if (
-    selectedConfig.includes("local_select") ||
-    selectedConfig.includes("swift_storage")
-  ) {
-    feed = await createFeedInstanceWithDircopy(
-      data,
-      username,
-      setUploadFileCallback,
-      setErrorCallback,
-      selectedConfig,
-      state,
-    );
-  } else if (selectedConfig.includes("fs_plugin")) {
-    feed = await createFeedInstanceWithFS(
-      dropdownInput,
-      requiredInput,
-      selectedPlugin,
-      setErrorCallback,
-    );
-  }
-  return feed;
-};
-
-export const createFeedInstanceWithDircopy = async (
-  data: CreateFeedData,
-  username: string | null | undefined,
-  setUploadFileCallback: (value: number) => void,
-  errorCallback: (error: any) => void,
   selectedConfig: string[],
   state: PipelineState,
 ) => {
@@ -91,9 +38,9 @@ export const createFeedInstanceWithDircopy = async (
 
     try {
       await uploadLocalFiles(localFiles, path, setUploadFileCallback);
-    } catch (error) {
-      const errObj = catchError(error);
-      errorCallback(errObj);
+    } catch (error: any) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
+      throw error;
     }
   }
 
@@ -101,95 +48,55 @@ export const createFeedInstanceWithDircopy = async (
     const client = ChrisAPIClient.getClient();
     const dircopy = await getPlugin("pl-dircopy");
 
-    if (dircopy instanceof Plugin) {
-      try {
-        const createdInstance = await client.createPluginInstance(
-          dircopy.data.id,
-          {
-            //@ts-ignore
-            dir: dirpath.join(","),
-          },
-        );
-        const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } =
-          state;
+    if (dircopy) {
+      const createdInstance = await client.createPluginInstance(
+        dircopy.data.id,
+        {
+          //@ts-ignore
+          dir: dirpath.join(","),
+        },
+      );
+      const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
+      const id = pipelineToAdd?.data.id;
+      const resources = selectedPipeline?.[id];
+      if (createdInstance) {
+        if (resources) {
+          const { parameters } = resources;
 
-        const id = pipelineToAdd?.data.id;
-        const resources = selectedPipeline?.[id];
-        if (createdInstance) {
-          if (resources) {
-            const { parameters } = resources;
+          const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
 
-            const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
+          for (const node of nodes_info) {
+            // Set compute info
+            const activeNode = computeInfo?.[id][node.piping_id];
+            // Set Title
+            const titleSet = titleInfo?.[id][node.piping_id];
 
-            for (const node of nodes_info) {
-              // Set compute info
-              const activeNode = computeInfo?.[id][node.piping_id];
-              // Set Title
-              const titleSet = titleInfo?.[id][node.piping_id];
-
-              if (activeNode) {
-                const compute_node = activeNode.currentlySelected;
-                node.compute_resource_name = compute_node;
-              }
-
-              if (titleSet) {
-                node.title = titleSet;
-              }
+            if (activeNode) {
+              const compute_node = activeNode.currentlySelected;
+              node.compute_resource_name = compute_node;
             }
 
-            await client.createWorkflow(id, {
-              previous_plugin_inst_id: createdInstance.data.id,
-              nodes_info: JSON.stringify(nodes_info),
-            });
+            if (titleSet) {
+              node.title = titleSet;
+            }
           }
 
-          feed = (await createdInstance.getFeed()) as Feed;
-          return feed;
+          await client.createWorkflow(id, {
+            previous_plugin_inst_id: createdInstance.data.id,
+            nodes_info: JSON.stringify(nodes_info),
+          });
         }
-      } catch (error) {
-        console.log("Error", error);
-      }
-      return null;
 
-      //when the `post` finishes, the dircopyInstances's internal collection is updated
-    }
-  } catch (error) {
-    const errorObj = catchError(error);
-    errorCallback(errorObj);
-  }
-};
-
-export const createFeedInstanceWithFS = async (
-  dropdownInput: InputType,
-  requiredInput: InputType,
-  selectedPlugin: Plugin | undefined,
-  errorCallback: (error: any) => void,
-) => {
-  let feed: Feed | null = null;
-  if (selectedPlugin) {
-    if (selectedPlugin instanceof Plugin) {
-      const data = await getRequiredObject(
-        dropdownInput,
-        requiredInput,
-        selectedPlugin,
-        errorCallback,
-      );
-      const pluginId = selectedPlugin.data.id;
-      const client = ChrisAPIClient.getClient();
-      try {
-        const fsPluginInstance = await client.createPluginInstance(
-          pluginId,
-          //@ts-ignore
-          data,
-        );
-        feed = await fsPluginInstance.getFeed();
-      } catch (error) {
-        const errorObj = catchError(error);
-        errorCallback(errorObj);
+        feed = (await createdInstance.getFeed()) as Feed;
+        return feed;
       }
+      throw new Error("Failed to create a dircopy instance");
     }
+    return undefined;
+  } catch (e: any) {
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
+    throw e;
   }
-  return feed;
 };
 
 export const uploadLocalFiles = async (
@@ -212,27 +119,72 @@ export const uploadLocalFiles = async (
   });
 };
 
+function generatePathForLocalFile(data: CreateFeedData) {
+  const randomCode = Math.floor(Math.random() * 100);
+  const normalizedFeedName = data.feedName
+    .toLowerCase()
+    .replace(/,/g, "")
+    .replace(/ /g, "-")
+    .replace(/\//g, "");
+  return `${normalizedFeedName}-upload-${randomCode}`;
+}
+
 export const getPlugin = async (pluginName: string) => {
   const client = ChrisAPIClient.getClient();
-  const pluginList = await client.getPlugins({
-    name_exact: pluginName,
-  });
-  let plugin: Plugin[] = [];
-  if (pluginList.getItems()) {
-    plugin = pluginList.getItems() as Plugin[];
-    return plugin[0];
-  } else return [];
+
+  try {
+    const pluginList = await client.getPlugins({
+      name_exact: pluginName,
+    });
+    let plugin: Plugin[] = [];
+    if (pluginList.getItems()) {
+      plugin = pluginList.getItems() as Plugin[];
+      return plugin[0];
+    }
+    return undefined;
+  } catch (e) {
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
+    throw e;
+  }
+};
+
+export const createFeedInstanceWithFS = async (
+  dropdownInput: InputType,
+  requiredInput: InputType,
+  selectedPlugin: Plugin | undefined,
+) => {
+  try {
+    if (selectedPlugin) {
+      const data = await getRequiredObject(
+        dropdownInput,
+        requiredInput,
+        selectedPlugin,
+      );
+      const pluginId = selectedPlugin.data.id;
+      const client = ChrisAPIClient.getClient();
+      const fsPluginInstance = await client.createPluginInstance(
+        pluginId,
+        //@ts-ignore
+        data,
+      );
+      const feed = await fsPluginInstance.getFeed();
+      return feed;
+    }
+    return undefined;
+  } catch (e: any) {
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
+    throw e;
+  }
 };
 
 export const getRequiredObject = async (
   dropdownInput: InputType,
   requiredInput: InputType,
   plugin: Plugin,
-  errorCallback: (error: any) => void,
   selected?: PluginInstance,
 ) => {
-  let dropdownUnpacked;
-  let requiredUnpacked;
+  let dropdownUnpacked = {};
+  let requiredUnpacked = {};
   const mappedParameter: {
     [key: string]: string | boolean;
   } = {};
@@ -253,6 +205,7 @@ export const getRequiredObject = async (
     ...dropdownUnpacked,
     ...requiredUnpacked,
   };
+
   try {
     const paginate = { limit: 30, offset: 0 };
     const fn = plugin.getPluginParameters;
@@ -282,7 +235,7 @@ export const getRequiredObject = async (
       }
     }
 
-    let parameterInput;
+    let parameterInput = {};
     if (selected) {
       parameterInput = {
         ...mappedParameter,
@@ -295,18 +248,8 @@ export const getRequiredObject = async (
     }
 
     return parameterInput;
-  } catch (error) {
-    const errorObj = catchError(error);
-    errorCallback(errorObj);
+  } catch (error: any) {
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
+    throw error;
   }
 };
-
-function generatePathForLocalFile(data: CreateFeedData) {
-  const randomCode = Math.floor(Math.random() * 100);
-  const normalizedFeedName = data.feedName
-    .toLowerCase()
-    .replace(/,/g, "")
-    .replace(/ /g, "-")
-    .replace(/\//g, "");
-  return `${normalizedFeedName}-upload-${randomCode}`;
-}

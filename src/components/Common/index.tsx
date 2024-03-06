@@ -1,28 +1,28 @@
-import React, { ReactNode, useState } from "react";
-import { Cookies } from "react-cookie";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { Popover, Typography, Spin, Alert } from "antd";
 import {
-  Flex,
-  FlexItem,
   ClipboardCopyButton,
-  Hint,
-  MenuToggle,
-  DropdownList,
-  TextInput,
   Dropdown,
   DropdownItem,
-  EmptyStateVariant,
+  DropdownList,
   EmptyState,
   EmptyStateBody,
-  EmptyStateIcon,
   EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateVariant,
+  Flex,
+  FlexItem,
+  Hint,
+  MenuToggle,
+  TextInput,
 } from "@patternfly/react-core";
-import ReactJson from "react-json-view";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { Alert, Popover, Spin, Typography } from "antd";
+import React, { ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
 import "react-activity/dist/library.css";
+import { Cookies } from "react-cookie";
+import ReactJson from "react-json-view";
 import "./common.css";
 
 export const EmptyStateComponent = ({ title }: { title?: string }) => {
@@ -38,7 +38,7 @@ export const SpinContainer = ({ title }: { title: string }) => {
   return (
     <div className="example">
       <Spin tip={title}>
-        <div className="content"></div>
+        <div className="content" />
       </Spin>
     </div>
   );
@@ -292,14 +292,22 @@ export const ErrorAlert = ({
   cleanUpErrors,
 }: {
   errors: any;
-  cleanUpErrors: () => void;
+  cleanUpErrors?: () => void;
 }) => {
   return (
     <Alert
-      type="warning"
+      type="error"
       closable
       onClose={cleanUpErrors}
-      description={<ReactJson src={errors} />}
+      description={
+        <ReactJson
+          name="error"
+          enableClipboard
+          displayDataTypes={false}
+          src={errors}
+          theme={"monokai"}
+        />
+      }
     />
   );
 };
