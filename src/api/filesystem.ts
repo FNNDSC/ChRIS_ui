@@ -12,10 +12,9 @@ export const ls = async (path?: string) => {
       path,
     });
 
-    folders =
-      uploads.data && uploads.data[0].subfolders
-        ? JSON.parse(uploads.data[0].subfolders)
-        : [];
+    folders = uploads.data?.[0].subfolders
+      ? JSON.parse(uploads.data[0].subfolders)
+      : [];
     const pathList = await client.getFileBrowserPath(path);
 
     if (pathList) {
