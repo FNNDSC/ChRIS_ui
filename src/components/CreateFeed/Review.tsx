@@ -18,6 +18,8 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { selectedConfig, uploadProgress, feedError, creatingFeedStatus } =
     state;
 
+  console.log("State", state);
+
   const {
     dropdownInput,
     requiredInput,
@@ -171,7 +173,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         title={<span className="review__title">Feed Status:</span>}
         subTitle={
           <span className="review__value">
-            {creatingFeedStatus && !feedError ? (
+            {creatingFeedStatus ? (
               <span>
                 {creatingFeedStatus}
                 {creatingFeedStatus === "Creating Feed" && <span>...</span>}
