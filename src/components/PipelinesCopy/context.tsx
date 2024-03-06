@@ -16,6 +16,7 @@ export type PerPipelinePayload = {
 export enum Types {
   SetPipelines = "SET_PIPELINES",
   SetComputeInfo = "SET_COMPUTE_INFO",
+  SetAllCompute = "SET_ALL_COMPUTE",
   SetCurrentlyActiveNode = "SET_CURRENTLY_ACTIVE_NODE",
   SetChangeCompute = "SET_CHANGE_COMPUTE",
   SetChangeTitle = "SET_CHANGE_TITLE",
@@ -58,6 +59,11 @@ type PipelinePayload = {
     compute: string;
   };
 
+  [Types.SetAllCompute]: {
+    pipelineId: string;
+    compute: string;
+  };
+
   [Types.SetChangeTitle]: {
     pipelineId: string;
     nodeId: string;
@@ -75,11 +81,16 @@ type CurrentlyActiveNode = {
   [key: string]: string;
 };
 
+type GeneralCompute = {
+  [key: string]: string;
+};
+
 export interface PipelineState {
   selectedPipeline?: {
     [key: string]: PerPipelinePayload;
   };
   computeInfo?: ComputeInfoState;
+  generalCompute?: GeneralCompute;
   titleInfo?: TitleInfoState;
   currentlyActiveNode?: CurrentlyActiveNode;
   pipelineToAdd?: Pipeline;
@@ -89,6 +100,7 @@ export function getInitialPipelineState(): PipelineState {
   return {
     selectedPipeline: undefined,
     computeInfo: undefined,
+    generalCompute: undefined,
     currentlyActiveNode: undefined,
     pipelineToAdd: undefined,
     titleInfo: undefined,
@@ -157,6 +169,44 @@ export const pipelineReducer = (
             ...state.titleInfo?.[pipelineId],
             [nodeId]: title,
           },
+        },
+      };
+    }
+
+    case Types.SetAllCompute: {
+      const { pipelineId, compute } = action.payload;
+      const computeInfo = state.computeInfo?.[pipelineId];
+
+      if (!computeInfo) {
+        return {
+          ...state,
+          generalCompute: {
+            ...state.generalCompute,
+            [pipelineId]: compute,
+          },
+        };
+      }
+
+      const newComputeInfo = { ...computeInfo };
+
+      for (const id in newComputeInfo) {
+        const envs = newComputeInfo[id].computeEnvs;
+        const isValuePresent = envs.some((env) => env.data.name === compute);
+
+        if (isValuePresent) {
+          newComputeInfo[id].currentlySelected = compute;
+        }
+      }
+
+      return {
+        ...state,
+        generalCompute: {
+          ...state.generalCompute,
+          [pipelineId]: compute,
+        },
+        computeInfo: {
+          ...state.computeInfo,
+          [pipelineId]: newComputeInfo,
         },
       };
     }
