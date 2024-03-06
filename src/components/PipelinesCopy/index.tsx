@@ -13,16 +13,18 @@ import { Alert, Collapse, Form, Tag } from "antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import "./Pipelines.css";
 import PipelinesComponent from "./PipelinesComponent";
+import SelectAllCompute from "./SelectAllCompute";
 import {
   PIPELINEQueryTypes,
   PerPipelinePayload,
   PipelineContext,
   Types,
 } from "./context";
+import { usePaginate } from "../Feeds/usePaginate";
 
-type PaginationEvent = React.MouseEvent | React.KeyboardEvent | MouseEvent;
 type LoadingResources = {
   [key: string]: boolean;
 };
@@ -32,13 +34,17 @@ type LoadingResourceError = {
 
 const PipelinesCopy = () => {
   const { state, dispatch } = useContext(PipelineContext);
+  const { isDarkTheme } = useContext(ThemeContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
   const [resourceError, setResourceError] = useState<LoadingResourceError>();
-  const [pageState, setPageState] = useState({
-    page: 1,
-    perPage: 10,
-    search: "",
-  });
+
+  const {
+    filterState: pageState,
+    handlePageSet,
+    handlePerPageSet,
+    handleFilterChange,
+  } = usePaginate();
+
   const { perPage, page, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState<string>(
@@ -62,20 +68,6 @@ const PipelinesCopy = () => {
 
   const onToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const onSetPage = (_event: PaginationEvent, page: number) => {
-    setPageState({
-      ...pageState,
-      page,
-    });
-  };
-
-  const onPerPageSelect = (_event: PaginationEvent, perPage: number) => {
-    setPageState({
-      ...pageState,
-      perPage,
-    });
   };
 
   const handleChange = async (key: string | string[]) => {
@@ -136,10 +128,7 @@ const PipelinesCopy = () => {
   };
 
   const handlePipelineSearch = (search: string) => {
-    setPageState({
-      ...pageState,
-      search,
-    });
+    handleFilterChange(search, dropdownValue);
   };
 
   const updateDropdownValue = (type: string) => {
@@ -176,38 +165,39 @@ const PipelinesCopy = () => {
             customIcon={<SearchIcon />}
             aria-label="search"
             onChange={(_event, value: string) => {
-              handlePipelineSearch(value.toLowerCase());
+              handlePipelineSearch(value);
             }}
           />
         </div>
+
+        {state.pipelineToAdd && (
+          <div>
+            <Form.Item style={{ marginBottom: "0" }} label="Currently Selected">
+              <Tag
+                bordered
+                color="#004080"
+                closeIcon
+                onClose={(e) => {
+                  e.preventDefault();
+                  dispatch({
+                    type: Types.PipelineToDelete,
+                  });
+                }}
+              >
+                {state.pipelineToAdd.data.name}
+              </Tag>
+            </Form.Item>
+          </div>
+        )}
+
         <Pagination
           itemCount={data?.totalCount ? data.totalCount : 0}
           perPage={pageState.perPage}
           page={pageState.page}
-          onSetPage={onSetPage}
-          onPerPageSelect={onPerPageSelect}
+          onSetPage={handlePageSet}
+          onPerPageSelect={handlePerPageSet}
         />
       </div>
-
-      {state.pipelineToAdd && (
-        <div style={{ marginTop: "1rem" }}>
-          <Form.Item label="Currently Selected">
-            <Tag
-              bordered
-              color="#004080"
-              closeIcon
-              onClose={(e) => {
-                e.preventDefault();
-                dispatch({
-                  type: Types.PipelineToDelete,
-                });
-              }}
-            >
-              {state.pipelineToAdd.data.name}
-            </Tag>
-          </Form.Item>
-        </div>
-      )}
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />
@@ -220,17 +210,26 @@ const PipelinesCopy = () => {
           style={{ marginTop: "1em" }}
           onChange={handleChange}
           items={data.registeredPipelines.map((pipeline) => {
-            const { name, id } = pipeline.data;
+            const { name, id, description } = pipeline.data;
             return {
               key: id,
               label: (
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
-                  <div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
                     <span>{name}</span>
+                    <span
+                      style={{
+                        fontSize: "0.9rem",
+                        color: isDarkTheme ? "#B8BBBE" : "#4F5255",
+                      }}
+                    >
+                      {description}
+                    </span>
                   </div>
-                  <div>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <SelectAllCompute pipeline={pipeline} />
                     <Button
                       size="sm"
                       onClick={(e) => {
@@ -246,6 +245,7 @@ const PipelinesCopy = () => {
                       }}
                       variant="primary"
                       key="select-action"
+                      style={{ marginLeft: "1em", width: "80px" }} // Set a fixed width
                     >
                       {pipeline.data.id === state.pipelineToAdd?.data.id
                         ? "Selected"

@@ -197,11 +197,13 @@ export const fetchPipelines = async (
   };
 
   console.log("Params", params);
+
   try {
     const registeredPipelinesList: PipelineList =
       await client.getPipelines(params);
     const registeredPipelines =
       (registeredPipelinesList.getItems() as Pipeline[]) || [];
+
     return {
       registeredPipelines,
       totalCount: registeredPipelinesList.totalCount,
@@ -269,6 +271,7 @@ export const generatePipelineWithData = async (data: any) => {
 export async function fetchComputeInfo(
   plugin_id: number,
   dictionary_id: string,
+  globalCompute?: string,
 ) {
   try {
     const client = ChrisAPIClient.getClient();
@@ -276,13 +279,22 @@ export async function fetchComputeInfo(
       plugin_id: `${plugin_id}`,
     });
 
-    const length = computeEnvs.data.length;
-    const currentlySelected = computeEnvs.data[length - 1].name as string;
+    const computeItems = computeEnvs.getItems();
 
-    if (computeEnvs.getItems()) {
+    if (computeItems) {
+      const activeCompute =
+        globalCompute &&
+        computeItems.some((env) => env.data.name === globalCompute)
+          ? globalCompute
+          : undefined;
+
+      const length = computeEnvs.data.length;
+      const currentlySelected = activeCompute
+        ? activeCompute
+        : (computeEnvs.data[length - 1].name as string);
       const computeEnvData = {
         [dictionary_id]: {
-          computeEnvs: computeEnvs.getItems() as ComputeResource[],
+          computeEnvs: computeItems as ComputeResource[],
           currentlySelected,
         },
       };
