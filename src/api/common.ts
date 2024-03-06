@@ -197,11 +197,13 @@ export const fetchPipelines = async (
   };
 
   console.log("Params", params);
+
   try {
     const registeredPipelinesList: PipelineList =
       await client.getPipelines(params);
     const registeredPipelines =
       (registeredPipelinesList.getItems() as Pipeline[]) || [];
+
     return {
       registeredPipelines,
       totalCount: registeredPipelinesList.totalCount,
