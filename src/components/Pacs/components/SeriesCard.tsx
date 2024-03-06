@@ -37,7 +37,6 @@ const SeriesCard = ({ series }: { series: any }) => {
     SeriesInstanceUID,
     StudyInstanceUID,
     NumberOfSeriesRelatedInstances,
-    AccessionNumber,
   } = series;
   const { data, isLoading, error: queryError } = useSettings();
   const navigate = useNavigate();

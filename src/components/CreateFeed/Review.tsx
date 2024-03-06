@@ -7,7 +7,7 @@ import { unpackParametersIntoString } from "../AddNode/utils";
 import { PluginDetails } from "../AddNode/ReviewGrid";
 import { ChrisFileDetails, LocalFileDetails } from "./HelperComponent";
 import { AddNodeContext } from "../AddNode/context";
-import { RenderFlexItem } from "../../components/Common";
+import { ErrorAlert, RenderFlexItem } from "../../components/Common";
 
 const Review = ({ handleSave }: { handleSave: () => void }) => {
   const { state } = useContext(CreateFeedContext);
@@ -38,11 +38,11 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
 
   const handleKeyDown = useCallback(
     (e: any) => {
-      if (e.code == "Enter" || e.code == "ArrowRight") {
+      if (e.code === "Enter" || e.code === "ArrowRight") {
         e.preventDefault();
         handleSave();
         onNext();
-      } else if (e.code == "ArrowLeft") {
+      } else if (e.code === "ArrowLeft") {
         e.preventDefault();
         onBack();
       }
@@ -56,6 +56,8 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
+
+  console.log("Feed Error", state);
 
   const getReviewDetails = () => {
     let generatedCommand = "";
@@ -128,8 +130,6 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     );
   };
 
-  const feedErrorMessage = feedError?.error_message || "";
-
   return (
     <div className="review">
       <h1>
@@ -185,26 +185,12 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         }
       />
 
-      <RenderFlexItem
-        title={
-          <span
-            style={{
-              color: `${feedErrorMessage ? "red" : "inherit"}`,
-            }}
-            className="review__title"
-          >
-            Feed Error Status:
-          </span>
-        }
-        subTitle={
-          <span style={{ color: "red" }} className="review__value">
-            {feedErrorMessage}
-          </span>
-        }
-      />
-
       {getReviewDetails()}
       <br />
+
+      <div style={{ marginTop: "1rem" }}>
+        {Object.keys(feedError).length > 0 && <ErrorAlert errors={feedError} />}
+      </div>
     </div>
   );
 };
