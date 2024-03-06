@@ -57,8 +57,6 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     };
   }, [handleKeyDown]);
 
-  console.log("Feed Error", state);
-
   const getReviewDetails = () => {
     let generatedCommand = "";
     if (requiredInput) {

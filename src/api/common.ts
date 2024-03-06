@@ -196,8 +196,6 @@ export const fetchPipelines = async (
     [`${searchType}`]: search,
   };
 
-  console.log("Params", params);
-
   try {
     const registeredPipelinesList: PipelineList =
       await client.getPipelines(params);
