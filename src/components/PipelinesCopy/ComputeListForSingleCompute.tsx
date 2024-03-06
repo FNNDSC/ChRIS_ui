@@ -22,27 +22,29 @@ function ComputeListForSingleCompute({ currentPipeline }: OwnProps) {
   const computeResources = currentCompute?.computeEnvs || [];
 
   return (
-    <Form.Item label="Compute registered for the selected node">
-      {computeResources ? (
-        <ListCompute
-          currentlyActive={currentCompute?.currentlySelected}
-          computeResources={computeResources}
-          showCheckbox={true}
-          handleComputeChange={(compute: string) => {
-            dispatch({
-              type: Types.SetChangeCompute,
-              payload: {
-                pipelineId: id,
-                nodeId: currentlyActiveNode?.[id],
-                compute,
-              },
-            });
-          }}
-        />
-      ) : (
-        <EmptyStateComponent />
-      )}
-    </Form.Item>
+    <Form layout="vertical">
+      <Form.Item label="Compute registered for the selected node">
+        {computeResources ? (
+          <ListCompute
+            currentlyActive={currentCompute?.currentlySelected}
+            computeResources={computeResources}
+            showCheckbox={true}
+            handleComputeChange={(compute: string) => {
+              dispatch({
+                type: Types.SetChangeCompute,
+                payload: {
+                  pipelineId: id,
+                  nodeId: currentlyActiveNode?.[id],
+                  compute,
+                },
+              });
+            }}
+          />
+        ) : (
+          <EmptyStateComponent />
+        )}
+      </Form.Item>
+    </Form>
   );
 }
 

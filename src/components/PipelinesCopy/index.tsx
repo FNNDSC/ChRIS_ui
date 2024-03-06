@@ -9,7 +9,7 @@ import {
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Collapse } from "antd";
+import { Alert, Collapse, Form, Tag } from "antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
@@ -55,7 +55,7 @@ const PipelinesCopy = () => {
         perPage,
         page,
         search,
-        dropdownValue,
+        dropdownValue.toLowerCase(),
       );
 
       return fetchedData;
@@ -191,6 +191,26 @@ const PipelinesCopy = () => {
           onPerPageSelect={onPerPageSelect}
         />
       </div>
+
+      {state.pipelineToAdd && (
+        <div style={{ marginTop: "1rem" }}>
+          <Form.Item label="Currently Selected">
+            <Tag
+              bordered
+              color="#004080"
+              closeIcon
+              onClose={(e) => {
+                e.preventDefault();
+                dispatch({
+                  type: Types.PipelineToDelete,
+                });
+              }}
+            >
+              {state.pipelineToAdd.data.name}
+            </Tag>
+          </Form.Item>
+        </div>
+      )}
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />

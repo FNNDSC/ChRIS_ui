@@ -38,9 +38,9 @@ import { AddNodeProvider } from "../AddNode/context";
 import { DataTableToolbar, InfoIcon } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
-import { PipelineProvider } from "../PipelinesCopy/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import IconContainer from "../IconContainer";
+import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import { usePaginate, useSearchQueryParams } from "./usePaginate";
 import { fetchFeeds, fetchPublicFeeds } from "./utilties";
@@ -164,14 +164,19 @@ const TableSelectable: React.FunctionComponent = () => {
     status: "Status",
   };
 
-  const generatePagination = (type: string) => {
+  const feedCount =
+    type === "private"
+      ? data?.totalFeedsCount === -1
+        ? 0
+        : data?.totalFeedsCount || "Fetching..."
+      : publicFeeds?.totalFeedsCount === -1
+        ? 0
+        : publicFeeds?.totalFeedsCount || "Fetching...";
+
+  const generatePagination = () => {
     return (
       <Pagination
-        itemCount={
-          type === "private"
-            ? data?.totalFeedsCount
-            : publicFeeds?.totalFeedsCount
-        }
+        itemCount={feedCount}
         perPage={+perPage}
         page={+page}
         onSetPage={onSetPage}
@@ -185,13 +190,8 @@ const TableSelectable: React.FunctionComponent = () => {
       <WrapperConnect>
         <PageSection className="feed-header">
           <InfoIcon
-            title={`New and Existing Analyses (${
-              type === "private" && data && data.totalFeedsCount
-                ? data.totalFeedsCount
-                : publicFeeds?.totalFeedsCount
-                  ? publicFeeds.totalFeedsCount
-                  : 0
-            })`}
+            data-test-id="analysis-count"
+            title={`New and Existing Analyses (${feedCount})`}
             p1={
               <Paragraph>
                 Analyses (aka ChRIS feeds) are computational experiments where
@@ -227,7 +227,7 @@ const TableSelectable: React.FunctionComponent = () => {
                 />
               </ToggleGroup>
             </div>
-            {generatePagination(type)}
+            {generatePagination()}
           </div>
           <div className="feed-list__split">
             <DataTableToolbar
@@ -245,7 +245,7 @@ const TableSelectable: React.FunctionComponent = () => {
           publicFeedFetching ? (
             <LoadingTable />
           ) : feedsToDisplay.length > 0 ? (
-            <Table variant="compact" aria-label="Selectable table">
+            <Table variant="compact" aria-label="Feed Table">
               <Thead>
                 <Tr>
                   <Th>
@@ -432,7 +432,7 @@ function TableRow({
   );
   const isSelected = (bulkSelect: any, feed: Feed) => {
     for (const selectedFeed of bulkSelect) {
-      if (selectedFeed.data.id == feed.data.id) {
+      if (selectedFeed.data.id === feed.data.id) {
         return true;
       }
     }
@@ -442,7 +442,8 @@ function TableRow({
     <Checkbox
       isChecked={isSelected(bulkSelect, feed)}
       id="check"
-      aria-label="toggle icon bar"
+      className={`${feed.data.name}-checkbox`}
+      aria-label={`${feed.data.name}-checkbox`}
       onChange={() => {
         if (!isSelected(bulkSelect, feed)) {
           const newBulkSelect = [...bulkSelect, feed];
@@ -474,6 +475,7 @@ function TableRow({
       style={{
         backgroundColor: selectedBgRow,
       }}
+      data-test-id={`${feed.data.name}-test`}
     >
       <Td>{bulkCheckbox}</Td>
       <Td dataLabel={columnNames.id}>{id}</Td>
@@ -489,7 +491,7 @@ function TableRow({
 
 function EmptyStateTable() {
   return (
-    <Table variant="compact" aria-label="Empty state table">
+    <Table variant="compact" aria-label="Empty Table">
       <Thead>
         <Tr>
           <Th>ID</Th>
@@ -524,6 +526,7 @@ function LoadingTable() {
   return (
     <div style={{ height: "100%" }}>
       <Skeleton
+        aria-label="Loading Feed Table"
         height="100%"
         screenreaderText="Loading large rectangle contents"
       />

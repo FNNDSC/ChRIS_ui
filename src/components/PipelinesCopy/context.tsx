@@ -20,7 +20,8 @@ export enum Types {
   SetCurrentlyActiveNode = "SET_CURRENTLY_ACTIVE_NODE",
   SetChangeCompute = "SET_CHANGE_COMPUTE",
   SetChangeTitle = "SET_CHANGE_TITLE",
-  PipelineToAdd = "PIPELINES_TO_ADD",
+  PipelineToAdd = "PIPELINE_TO_ADD",
+  PipelineToDelete = "PIPELINE_TO_DELETE",
   ResetState = "RESET_STATE",
 }
 
@@ -73,6 +74,8 @@ type PipelinePayload = {
   [Types.PipelineToAdd]: {
     pipeline: Pipeline;
   };
+
+  [Types.PipelineToDelete]: null;
 
   [Types.ResetState]: null;
 };
@@ -248,6 +251,13 @@ export const pipelineReducer = (
       return {
         ...state,
         pipelineToAdd: action.payload.pipeline,
+      };
+    }
+
+    case Types.PipelineToDelete: {
+      return {
+        ...state,
+        pipelineToAdd: undefined,
       };
     }
 

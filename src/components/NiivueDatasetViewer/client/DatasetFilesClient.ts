@@ -10,6 +10,7 @@ import { filter, foldMap } from "fp-ts/ReadonlyArray";
 import { Monoid } from "fp-ts/Monoid";
 import { DatasetFile } from "./DatasetFile.ts";
 import { pipe } from "fp-ts/function";
+import { TagsDictionary } from "../types.ts";
 
 const optionsJoin: Monoid<ChrisViewerFileOptions> = {
   concat: (a, b) => {
@@ -57,7 +58,7 @@ class DatasetFilesClient {
   /**
    * Get all tag keys and all of their possible values.
    */
-  get tagsDictionary(): { [key: string]: string[] } {
+  get tagsDictionary(): TagsDictionary {
     return this.manifest.tags;
   }
 

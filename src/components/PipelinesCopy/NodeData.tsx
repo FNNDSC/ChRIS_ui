@@ -18,11 +18,7 @@ type NodeProps = {
   parent: HierarchyPointNode<TreeNode> | null;
   position: Point;
   orientation: string;
-  handleNodeClick: (
-    pluginName: number,
-    pipelineId: number,
-    plugin_id: number,
-  ) => void;
+
   currentPipelineId: number;
 };
 

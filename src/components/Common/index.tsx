@@ -300,6 +300,6 @@ export const ErrorAlert = ({
       closable
       onClose={cleanUpErrors}
       description={<ReactJson src={errors} />}
-    ></Alert>
+    />
   );
 };
