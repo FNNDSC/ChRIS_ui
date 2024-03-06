@@ -222,7 +222,7 @@ const PipelinesCopy = () => {
                     </span>
                   </div>
                   <div>
-                    <SelectAllCompute />
+                    <SelectAllCompute pipeline={pipeline} />
                     <Button
                       size="sm"
                       onClick={(e) => {

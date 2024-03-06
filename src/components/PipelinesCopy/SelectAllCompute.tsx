@@ -1,19 +1,28 @@
-import { ComputeResource } from "@fnndsc/chrisapi";
+import { ComputeResource, Pipeline } from "@fnndsc/chrisapi";
 import {
-  Select,
-  SelectList,
   MenuToggle,
   MenuToggleElement,
+  Select,
+  SelectList,
   SelectOption,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { useContext } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
+import { PipelineContext, Types } from "./context";
 
-function SelectAllCompute() {
+type OwnProps = {
+  pipeline: Pipeline;
+};
+
+function SelectAllCompute({ pipeline }: OwnProps) {
+  const { id } = pipeline.data;
+  const { state, dispatch } = useContext(PipelineContext);
   const [isOpen, setIsOpen] = React.useState(false);
-  const [selectedItem, setSelectedItem] = React.useState("");
+
+  const selectedItem = state.generalCompute?.[id] || "";
+
   const fetchCompute = async () => {
     const client = ChrisAPIClient.getClient();
     const fn = client.getComputeResources;
@@ -46,12 +55,25 @@ function SelectAllCompute() {
     event?.stopPropagation();
 
     if (value === "none") {
-      setSelectedItem("");
-    } else setSelectedItem(value as string);
+      dispatch({
+        type: Types.SetAllCompute,
+        payload: {
+          pipelineId: id,
+          compute: "",
+        },
+      });
+    } else
+      dispatch({
+        type: Types.SetAllCompute,
+        payload: {
+          pipelineId: id,
+          compute: value as string,
+        },
+      });
   };
 
-  const onToggleClick = (e) => {
-    e.stopPropagation();
+  const onToggleClick = (e: any) => {
+    e?.stopPropagation();
     setIsOpen(!isOpen);
   };
 
@@ -66,7 +88,7 @@ function SelectAllCompute() {
         } as React.CSSProperties
       }
     >
-      {selectedItem ? "Compute Selected" : "Select a Compute"}
+      {selectedItem ? selectedItem : "Select a Compute"}
     </MenuToggle>
   );
 
