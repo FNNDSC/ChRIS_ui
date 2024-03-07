@@ -220,6 +220,7 @@ class PfdcmClient {
         };
       }
     >();
+
     const progressMap = new Map<string, { imagestatus: any; images: any }>();
 
     for (const study of studies) {
@@ -266,7 +267,6 @@ class PfdcmClient {
       let currentStep = "none";
       let currentProgress = 0;
       const newImageStatus: ImageStatusType[] = [
-        { title: "Request", description: "", status: "wait" },
         { title: "Retrieve", description: "", status: "wait" },
         { title: "Push", description: "", status: "wait" },
         { title: "Register", description: "", status: "wait" },
@@ -274,65 +274,81 @@ class PfdcmClient {
 
       const { imagestatus, images } = seriesData;
 
-      if (!imagestatus.request && retrieve) {
+      const pluralize = requestedFiles === 1 ? " files" : " files";
+
+      if (retrieve) {
+        // retrieving for the first time
         newImageStatus[0].icon = <Spin />;
         newImageStatus[0].description = requestedFiles
-          ? `Requesting ${requestedFiles} ${
-              requestedFiles === 1 ? " file" : " files"
-            }`
-          : "Requesting files";
-      }
-
-      if (imagestatus.request) {
-        currentStep = "request";
-        newImageStatus[0].description = `${images.requested} of ${
-          requestedFiles ? requestedFiles : images.requested
-        }`;
-        newImageStatus[0].status = "finish";
+          ? `Retrieving ${requestedFiles} ${pluralize}`
+          : "Retrieving files";
       }
 
       if (imagestatus.pack) {
         currentStep = "retrieve";
-        newImageStatus[1].description = `${images.packed} of ${images.requested}`;
-        newImageStatus[1].status =
+        newImageStatus[0].description = `${images.packed} of ${images.requested}`;
+        newImageStatus[0].status =
           images.packed < images.requested
             ? "process"
             : images.packed === images.requested
               ? "finish"
               : "wait";
         currentProgress = images.packed / images.requested;
-        newImageStatus[1].icon = newImageStatus[1].status === "process" && (
+        newImageStatus[0].icon = newImageStatus[0].status === "process" && (
           <Spin />
         );
       }
 
+      const showPushDetails =
+        !imagestatus.push &&
+        images.pushed === 0 &&
+        requestedFiles &&
+        images.packed === +requestedFiles;
+
+      newImageStatus[1].icon = showPushDetails && <Spin />;
+      newImageStatus[1].description = showPushDetails
+        ? `Pushing ${requestedFiles} ${pluralize}`
+        : "";
+
       if (imagestatus.push) {
         currentStep = "push";
-        newImageStatus[2].description = `${images.pushed} of ${images.requested}`;
-        newImageStatus[2].status =
+        newImageStatus[1].description = `${images.pushed} of ${images.requested}`;
+        newImageStatus[1].status =
           images.pushed < images.requested
             ? "process"
             : images.pushed === images.requested
               ? "finish"
               : "wait";
         currentProgress = images.pushed / images.requested;
-        newImageStatus[2].icon = imagestatus.pack &&
-          !imagestatus.push &&
-          !imagestatus.register && <Spin />;
+        newImageStatus[1].icon = newImageStatus[1].status === "process" && (
+          <Spin />
+        );
       }
+
+      const showRegisterDetails =
+        requestedFiles &&
+        images.pushed === +requestedFiles &&
+        !imagestatus.register &&
+        images.registered === 0;
+
+      newImageStatus[2].icon = showRegisterDetails && <Spin />;
+      newImageStatus[2].description = showRegisterDetails
+        ? `Registering ${requestedFiles} ${pluralize}`
+        : "";
 
       if (imagestatus.register) {
         if (images.registered === images.requested) {
           currentStep = "completed";
-          newImageStatus[3].description = `${images.registered} of ${images.requested}`;
-          newImageStatus[3].status = "finish";
+          newImageStatus[2].description = `${images.registered} of ${images.requested}`;
+          newImageStatus[2].status = "finish";
           currentProgress = 1;
         } else {
           currentStep = "register";
-          newImageStatus[3].description = `${images.registered} of ${images.requested}`;
-          newImageStatus[3].status = "process";
+          newImageStatus[2].description = `${images.registered} of ${images.requested}`;
+          newImageStatus[2].status =
+            images.registered < images.requested ? "process" : "wait";
           currentProgress = images.registered / images.requested;
-          newImageStatus[3].icon = newImageStatus[3].status === "process" && (
+          newImageStatus[2].icon = newImageStatus[2].status === "process" && (
             <Spin />
           );
         }
