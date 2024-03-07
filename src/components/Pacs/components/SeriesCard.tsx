@@ -102,6 +102,8 @@ const SeriesCard = ({ series }: { series: any }) => {
 
         if (fileItems && fileItems.length > 0) {
           setCubeFilePreview(fileItems[0]);
+        } else {
+          setError("Failed to locate the dataset in the cube backend");
         }
       } catch {
         setError("Could not fetch this file from storage");
@@ -241,6 +243,11 @@ const SeriesCard = ({ series }: { series: any }) => {
                 ...requestCounter,
                 [currentStep]: 1,
               });
+            } else if (requestCounter[currentStep] === 1) {
+              setRequestCounter({
+                ...requestCounter,
+                [currentStep]: requestCounter[currentStep] + 1,
+              });
             }
 
             if (
@@ -270,7 +277,7 @@ const SeriesCard = ({ series }: { series: any }) => {
         }
       }
     },
-    fetchNextStatus && pullStudy ? 5000 : fetchNextStatus ? 3000 : null,
+    fetchNextStatus && pullStudy ? 5000 : fetchNextStatus ? 1000 : null,
   );
 
   let nextQueryStage = "";
@@ -462,8 +469,7 @@ const SeriesCard = ({ series }: { series: any }) => {
       {error && (
         <Alert
           type="error"
-          message="An Error was found"
-          description={error}
+          message={error}
           closable
           onClose={() => setError("")}
         />

@@ -1,30 +1,30 @@
-import * as React from "react";
 import {
-  Split,
-  SplitItem,
-  TextInput,
+  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
-  MenuToggle,
-  Button,
   Grid,
   GridItem,
+  MenuToggle,
   PageSection,
+  Split,
+  SplitItem,
+  TextInput,
 } from "@patternfly/react-core";
-import { useDispatch } from "react-redux";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import WrapperConnect from "../Wrapper";
-import { EmptyStateComponent, SpinContainer } from "../Common";
-import PatientCard from "./components/PatientCard";
-import { setSidebarActive } from "../../store/ui/actions";
-import { PacsQueryContext, PacsQueryProvider, Types } from "./context";
-import PfdcmClient from "./pfdcmClient";
+import { Alert } from "antd";
+import * as React from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import { Alert } from "antd";
 import { pluralize } from "../../api/common";
+import { setSidebarActive } from "../../store/ui/actions";
+import { EmptyStateComponent, SpinContainer } from "../Common";
+import WrapperConnect from "../Wrapper";
+import PatientCard from "./components/PatientCard";
+import { PacsQueryContext, PacsQueryProvider, Types } from "./context";
 import "./pacs-copy.css";
+import PfdcmClient from "./pfdcmClient";
 
 const dropdownMatch: { [key: string]: string } = {
   PatientID: "Patient MRN",
