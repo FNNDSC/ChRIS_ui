@@ -12,7 +12,7 @@ const DEFAULT_OPTIONS: ChNVROptions = {
   multiplanarForceRender: false,
   isRadiologicalConvention: true,
   show3Dcrosshair: true,
-  crosshairWidth: 1,
+  crosshairWidth: 0.5,
 };
 
 const DEFAULT_VOLUME: UsualVolumeSettings = {
