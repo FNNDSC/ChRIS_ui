@@ -30,8 +30,6 @@
   display: block;
 }
    
- 
-
-  .chart.dark tspan {
+ .chart.dark tspan {
     fill: white !important;
   }
