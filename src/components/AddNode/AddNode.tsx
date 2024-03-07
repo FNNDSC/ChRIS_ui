@@ -94,7 +94,7 @@ const AddNode = ({
     for (const i in advancedConfig) {
       const inputValue = advancedConfig[i];
       //@ts-ignore
-      if (isNaN(1 * inputValue)) {
+      if (Number.isNaN(1 * inputValue)) {
         advancedConfigErrors[i] = "A valid integer is required";
       } else {
         if (i === "cpu_limit") {
@@ -118,7 +118,6 @@ const AddNode = ({
       dropdownInput,
       requiredInput,
       plugin,
-      errorCallback,
       selectedPlugin,
     );
 
