@@ -17,6 +17,7 @@ import { css } from "@patternfly/react-styles";
 import SliceTypeButton from "./SliceTypeButton";
 import React from "react";
 import { SLICE_TYPE } from "@niivue/niivue";
+import { DEFAULT_OPTIONS } from "../defaults.ts";
 
 type SettingsTabProps = {
   options: ChNVROptions;
@@ -88,6 +89,12 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
     </>
   );
 
+  const setCrosshairShown = (visible: boolean) => {
+    setOptions((draft) => {
+      draft.crosshairWidth = visible ? DEFAULT_OPTIONS.crosshairWidth : 0;
+    });
+  };
+
   const form = (
     <Form>
       <FormGroup label="Text Size">
@@ -106,6 +113,15 @@ const SettingsTab: React.FC<SettingsTabProps> = ({
           labelOff="Text size does not scale"
           isChecked={sizeIsScaling}
           onChange={(_e, checked) => setSizeIsScaling(checked)}
+        />
+      </FormGroup>
+      <FormGroup>
+        <Switch
+          id="show-crosshairs"
+          label="Crosshairs shown"
+          labelOff="Crosshairs hidden"
+          isChecked={options.crosshairWidth > 0}
+          onChange={(_e, checked) => setCrosshairShown(checked)}
         />
       </FormGroup>
       {(options.multiplanarForceRender ||
