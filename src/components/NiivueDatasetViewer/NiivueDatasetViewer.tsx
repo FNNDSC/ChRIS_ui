@@ -271,6 +271,17 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     }
   }, [fileStates]);
 
+  const loadingText = React.useMemo(() => {
+    if (fileStates === null) {
+      return "Waiting for images...";
+    }
+    if (fileStates.findIndex(volumeIsLoaded) === -1) {
+      return "Select an image in the sidebar.";
+    } else {
+      return "Loading images...";
+    }
+  }, [fileStates]);
+
   // ELEMENT
   // --------------------------------------------------------------------------------
 
@@ -318,7 +329,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
             size={nvSize}
             isScaling={sizeIsScaling}
             onLocationChange={setCrosshairLocation}
-            options={nvOptions}
+            options={{ ...nvOptions, loadingText }}
             volumes={volumes}
           />
           <div
