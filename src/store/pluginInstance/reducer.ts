@@ -96,7 +96,8 @@ const reducer: Reducer<IPluginInstanceState> = (
           },
           selectedPlugin: action.payload,
         };
-      } else return { ...state };
+      }
+      return { ...state };
     }
 
     case PluginInstanceTypes.ADD_NODE_REQUEST: {
@@ -118,16 +119,16 @@ const reducer: Reducer<IPluginInstanceState> = (
           },
           loadingAddNode: false,
         };
-      } else
-        return {
-          ...state,
-          pluginInstances: {
-            data: action.payload,
-            error: "",
-            loading: false,
-          },
-          loadingAddNode: false,
-        };
+      }
+      return {
+        ...state,
+        pluginInstances: {
+          data: action.payload,
+          error: "",
+          loading: false,
+        },
+        loadingAddNode: false,
+      };
     }
 
     case PluginInstanceTypes.ADD_SPLIT_NODES_SUCCESS: {
@@ -145,7 +146,8 @@ const reducer: Reducer<IPluginInstanceState> = (
             loading: false,
           },
         };
-      } else return state;
+      }
+      return state;
     }
 
     case PluginInstanceTypes.DELETE_NODE_SUCCESS: {

@@ -133,7 +133,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     } else {
       toggleAnimation();
       dispatch(setSelectedFile(item));
-      !drawerState["preview"].open && dispatch(setFilePreviewPanel());
+      !drawerState.preview.open && dispatch(setFilePreviewPanel());
     }
   };
 
@@ -239,10 +239,10 @@ const FileBrowser = (props: FileBrowserProps) => {
                 ) : (
                   <Tbody>
                     {items.map((item: string | FeedFile, index) => {
-                      let type;
-                      let icon;
-                      let fsize;
-                      let fileName;
+                      let type: string;
+                      let icon: React.ReactNode;
+                      let fsize: string;
+                      let fileName: string;
                       type = "UNKNOWN FORMAT";
                       const isPreviewing = selectedFile === item;
                       let currentStatus = 0;

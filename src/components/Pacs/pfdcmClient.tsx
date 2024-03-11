@@ -303,6 +303,7 @@ class PfdcmClient {
         !imagestatus.push &&
         images.pushed === 0 &&
         requestedFiles &&
+        requestedFiles > 0 &&
         images.packed === +requestedFiles;
 
       newImageStatus[1].icon = showPushDetails && <Spin />;
@@ -327,6 +328,7 @@ class PfdcmClient {
 
       const showRegisterDetails =
         requestedFiles &&
+        requestedFiles > 0 &&
         images.pushed === +requestedFiles &&
         !imagestatus.register &&
         images.registered === 0;
