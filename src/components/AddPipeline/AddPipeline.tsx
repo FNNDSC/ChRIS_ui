@@ -24,9 +24,11 @@ const AddPipeline = () => {
     (state) => state.plugin.nodeOperations,
   );
 
-  const alreadyAvailableInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances.data,
+  const { pluginInstances, selectedPlugin } = useTypedSelector(
+    (state) => state.instance,
   );
+
+  const alreadyAvailableInstances = pluginInstances.data;
 
   const handleToggle = () => {
     if (childPipeline) {
@@ -38,14 +40,11 @@ const AddPipeline = () => {
     reactDispatch(getNodeOperations("childPipeline"));
   };
 
-  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
-  const { selectedPlugin } = useTypedSelector((state) => state.instance);
-
   const addPipeline = async () => {
     const id = pipelineToAdd?.data.id;
     const resources = selectedPipeline?.[id];
 
-    if (selectedPlugin && feed && resources) {
+    if (selectedPlugin && resources) {
       const { parameters } = resources;
       const client = ChrisAPIClient.getClient();
 
@@ -73,6 +72,7 @@ const AddPipeline = () => {
           nodes_info: JSON.stringify(nodes_info),
         });
 
+        // Use the pagination helper here
         const pluginInstances = await workflow.getPluginInstances({
           limit: 1000,
         });
@@ -99,6 +99,14 @@ const AddPipeline = () => {
   const mutation = useMutation({
     mutationFn: () => addPipeline(),
   });
+
+  React.useEffect(() => {
+    if (mutation.isSuccess) {
+      setTimeout(() => {
+        handleToggle();
+      }, 1000);
+    }
+  }, [mutation.isSuccess]);
 
   React.useEffect(() => {
     const el = document.querySelector("#indicators");

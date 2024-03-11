@@ -71,7 +71,7 @@ const IconContainer = () => {
       let prefix = "";
       if (action === "merge") {
         prefix = "Merge of ";
-      } else if (action === "download") {
+      } else if (action === "") {
         prefix = "archive-";
       } else {
         prefix = "";
@@ -208,7 +208,7 @@ const IconContainer = () => {
       let newFeedName = feedNames.toString().replace(/[, ]+/g, "_");
       let createdFeed: Feed | null = null;
 
-      if (operation === "download") {
+      if (operation === "archive") {
         newFeedName = `archive-${newFeedName}`;
         newFeedName = newFeedName.substring(0, 100);
         newFeedName = feedName === "" ? newFeedName : feedName;
@@ -286,11 +286,11 @@ const IconContainer = () => {
     currentAction === "share" &&
       shareFeedMutation.mutate({ bulkSelect, sharePublically, feedName });
     currentAction === "delete" && deleteFeedMutation.mutate(bulkSelect);
-    currentAction === "download" &&
+    currentAction === "archive" &&
       handleDownloadMutation.mutate({
         feedList: bulkSelect,
         feedName,
-        operation: "download",
+        operation: "archive",
       });
     currentAction === "merge" &&
       handleDownloadMutation.mutate({
@@ -304,7 +304,7 @@ const IconContainer = () => {
 
   return (
     <ToggleGroup aria-label="Feed Action Bar">
-      {["download", "merge", "duplicate", "share", "delete"].map((action) => {
+      {["archive", "merge", "duplicate", "share", "delete"].map((action) => {
         return (
           <React.Fragment key={action}>
             <ToolGroupContainer
@@ -413,7 +413,7 @@ export default IconContainer;
 const actionMap: {
   [key: string]: ReactElement;
 } = {
-  download: <FaDownload />,
+  archive: <FaDownload />,
   merge: <ShareButtonIcon />,
   duplicate: <MdCallSplit />,
   share: <MdIosShare />,
