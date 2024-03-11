@@ -10,7 +10,7 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-import { EyeIcon, CalendarAltIcon } from "@patternfly/react-icons";
+import { CalendarAltIcon, EyeIcon } from "@patternfly/react-icons";
 import React, { Fragment, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
@@ -20,16 +20,17 @@ import { AddNodeProvider } from "../AddNode/context";
 import AddPipeline from "../AddPipeline/AddPipeline";
 import GraphNodeContainer from "../AddTsNode";
 import { SpinContainer } from "../Common";
-import { PipelineProvider } from "../PipelinesCopy/context";
+import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
 import DeleteNode from "../DeleteNode";
+import DownloadNode from "../DownloadNode";
 import FeedNote from "../FeedDetails/FeedNote";
+import { PipelineProvider } from "../PipelinesCopy/context";
 import "./NodeDetails.css";
 import PluginLog from "./PluginLog";
 import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import { getErrorCodeMessage } from "./utils";
-import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
 
 interface INodeState {
   plugin?: Plugin;
@@ -55,7 +56,7 @@ const NodeDetails: React.FC = () => {
   const drawerState = useTypedSelector((state) => state.drawers);
 
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const [isExpanded, setIsExpanded] = React.useState(true);
+  const [isExpanded, setIsExpanded] = React.useState(false);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
   React.useEffect(() => {
@@ -251,6 +252,14 @@ const NodeDetails: React.FC = () => {
                     <DeleteNode />
                   </RenderButtonGridItem>
                 )}
+              </Grid>
+
+              <Grid hasGutter={true}>
+                <RenderButtonGridItem>
+                  <PipelineProvider>
+                    <DownloadNode />
+                  </PipelineProvider>
+                </RenderButtonGridItem>
               </Grid>
 
               {
