@@ -97,7 +97,7 @@ const DeleteNode = () => {
         variant="primary"
         type="button"
       >
-        Delete Node{" "}
+        Delete Node <span style={{ padding: "2px" }}>( D )</span>
       </Button>
       <Modal
         variant={ModalVariant.small}

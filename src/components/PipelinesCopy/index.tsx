@@ -7,6 +7,7 @@ import {
   Pagination,
   TextInput,
 } from "@patternfly/react-core";
+import { useLocation } from "react-router";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Collapse, Form, Tag } from "antd";
@@ -33,10 +34,13 @@ type LoadingResourceError = {
 };
 
 const PipelinesCopy = () => {
+  const location = useLocation();
   const { state, dispatch } = useContext(PipelineContext);
   const { isDarkTheme } = useContext(ThemeContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
   const [resourceError, setResourceError] = useState<LoadingResourceError>();
+
+  const browseOnly = location.pathname === "/pipelines";
 
   const {
     filterState: pageState,
@@ -230,27 +234,29 @@ const PipelinesCopy = () => {
                   </div>
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <SelectAllCompute pipeline={pipeline} />
-                    <Button
-                      size="sm"
-                      onClick={(e) => {
-                        if (state.selectedPipeline?.[id]) {
-                          e.stopPropagation();
-                        }
-                        dispatch({
-                          type: Types.PipelineToAdd,
-                          payload: {
-                            pipeline,
-                          },
-                        });
-                      }}
-                      variant="primary"
-                      key="select-action"
-                      style={{ marginLeft: "1em", width: "80px" }} // Set a fixed width
-                    >
-                      {pipeline.data.id === state.pipelineToAdd?.data.id
-                        ? "Selected"
-                        : "Select"}
-                    </Button>{" "}
+                    {!browseOnly && (
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          if (state.selectedPipeline?.[id]) {
+                            e.stopPropagation();
+                          }
+                          dispatch({
+                            type: Types.PipelineToAdd,
+                            payload: {
+                              pipeline,
+                            },
+                          });
+                        }}
+                        variant="primary"
+                        key="select-action"
+                        style={{ marginLeft: "1em", width: "80px" }} // Set a fixed width
+                      >
+                        {pipeline.data.id === state.pipelineToAdd?.data.id
+                          ? "Selected"
+                          : "Select"}
+                      </Button>
+                    )}
                   </div>
                 </div>
               ),
