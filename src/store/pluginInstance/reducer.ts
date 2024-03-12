@@ -9,10 +9,6 @@ export const initialState: IPluginInstanceState = {
     error: "",
     loading: false,
   },
-  deleteNode: {
-    error: "",
-    success: false,
-  },
   selectedD3Node: undefined,
 };
 
@@ -57,16 +53,6 @@ const reducer: Reducer<IPluginInstanceState> = (
           data: undefined,
           error: action.payload,
           loading: false,
-        },
-      };
-    }
-
-    case PluginInstanceTypes.CLEAR_DELETE: {
-      return {
-        ...state,
-        deleteNode: {
-          success: false,
-          error: "",
         },
       };
     }
@@ -148,27 +134,6 @@ const reducer: Reducer<IPluginInstanceState> = (
         };
       }
       return state;
-    }
-
-    case PluginInstanceTypes.DELETE_NODE_SUCCESS: {
-      return {
-        ...state,
-
-        deleteNode: {
-          ...state.deleteNode,
-          success: true,
-        },
-      };
-    }
-
-    case PluginInstanceTypes.DELETE_NODE_ERROR: {
-      return {
-        ...state,
-        deleteNode: {
-          success: false,
-          error: action.payload.error_message,
-        },
-      };
     }
 
     case PluginInstanceTypes.RESET_PLUGIN_INSTANCES: {
