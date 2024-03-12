@@ -51,7 +51,7 @@ export default function Header(props: IHeaderProps) {
           {brand}
         </MastheadBrand>
       </MastheadMain>
-      <MastheadContent className="mastheadContent">
+      <MastheadContent>
         {pageToolbar}
       </MastheadContent>
     </Masthead>

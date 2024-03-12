@@ -73,7 +73,17 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
     setLogoutSuccess();
   };
 
+  const copyLoginCommand = () => {
+    let url = `${window.location.protocol}://${window.location.host}`;
+    let command = `chrs login --ui "${url}" --cube "${import.meta.env.VITE_CHRIS_UI_URL}" --username "${username}" --token "${token}"`;
+    navigator.clipboard.writeText(command);
+    onDropdownToggle();
+  };
+
   const userDropdownItems = [
+    <DropdownItem key="copy-chrs-login" onClick={copyLoginCommand}>
+      CLI login
+    </DropdownItem>,
     <DropdownItem key="dd5" component="a" onClick={onLogout}>
       Sign out
     </DropdownItem>,
