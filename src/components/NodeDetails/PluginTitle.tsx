@@ -1,104 +1,125 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { TextInput, Button, Title, Alert } from "@patternfly/react-core";
-import { useTypedSelector } from "../../store/hooks";
+import {
+  Button,
+  Modal,
+  ModalVariant,
+  TextInput,
+  Title,
+} from "@patternfly/react-core";
 import EditIcon from "@patternfly/react-icons/dist/esm/icons/edit-icon";
+import { useMutation } from "@tanstack/react-query";
+import { Alert } from "antd";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useTypedSelector } from "../../store/hooks";
 import { setPluginTitle } from "../../store/pluginInstance/actions";
-import type { PluginInstance } from "@fnndsc/chrisapi";
-
-function getDefaultTitle(selectedPlugin?: PluginInstance) {
-  return selectedPlugin?.data.title || selectedPlugin?.data.plugin_name;
-}
+import { SpinContainer } from "../Common";
 
 const PluginTitle = () => {
   const dispatch = useDispatch();
-  const [showInput, setShowInput] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState();
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin,
-  );
-  const [value, setValue] = React.useState(getDefaultTitle(selectedPlugin));
+  const { selectedPlugin } = useTypedSelector((state) => state.instance);
+  const [isOpen, setIsOpen] = useState(false);
+  const [value, setValue] = useState("");
 
-  React.useEffect(() => {
-    const title = getDefaultTitle(selectedPlugin);
-    setValue(title);
+  const handleSubmit = async () => {
+    try {
+      const pluginItem = await selectedPlugin?.put({
+        title: value,
+      });
+
+      if (!pluginItem) throw new Error("Failed to set title...");
+      dispatch(setPluginTitle(pluginItem));
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  const mutation = useMutation({
+    mutationFn: () => handleSubmit(),
+  });
+
+  useEffect(() => {
+    if (mutation.isSuccess) {
+      setTimeout(() => {
+        mutation.reset();
+        setIsOpen(!isOpen);
+      }, 500);
+    }
+  }, [mutation.isSuccess]);
+
+  useEffect(() => {
+    const pluginName =
+      selectedPlugin?.data.title.length > 0
+        ? selectedPlugin?.data.title
+        : `${selectedPlugin?.data.plugin_name} v.${selectedPlugin?.data.plugin_version}`;
+    setValue(pluginName);
   }, [selectedPlugin]);
 
-  if (selectedPlugin?.data) {
-    const { title, plugin_version, plugin_name } = selectedPlugin.data;
-    const pluginName = `${
-      title ? title : `${plugin_name} v.${plugin_version}`
-    } `;
+  return (
+    <>
+      <Title headingLevel="h3" size="xl">
+        <span>{value}</span>
+      </Title>
+      <EditIcon
+        style={{ cursor: "pointer", marginLeft: "0.25em" }}
+        onClick={() => setIsOpen(!isOpen)}
+      />
 
-    const handleOnChange = (
-      _event: React.FormEvent<HTMLInputElement>,
-      value: string,
-    ) => {
-      setValue(value);
-    };
-
-    const handleSubmit = async () => {
-      try {
-        setLoading(true);
-        //@ts-ignore
-        const pluginItem = await selectedPlugin?.put({
-          title: value,
-        });
-        if (pluginItem) {
-          dispatch(setPluginTitle(pluginItem));
-        }
-
-        setLoading(false);
-        setShowInput(false);
-      } catch (error) {
-        //@ts-ignore
-        setError(error);
-      }
-    };
-
-    return (
-      <>
-        {showInput ? (
+      <Modal
+        title="Edit the Selected Node's Name"
+        isOpen={isOpen}
+        variant={ModalVariant.small}
+        onClose={() => setIsOpen(!isOpen)}
+        actions={[
           <>
-            <TextInput
-              type="text"
-              aria-label="Setting Plugin's Title"
-              onChange={handleOnChange}
-              value={value}
-              className="node-details__title--formInput"
-            />
             <Button
-              onClick={handleSubmit}
-              className="node-details__title--formButton"
+              key="confirm"
+              onClick={() => {
+                //mutate
+                mutation.mutate();
+              }}
+              variant="primary"
             >
-              {loading ? "Confirming" : "Confirm"}
+              Confirm
             </Button>
             <Button
-              onClick={() => {
-                setShowInput(!showInput);
-              }}
+              key="cancel"
+              onClick={() => setIsOpen(!isOpen)}
+              variant="link"
             >
               Cancel
             </Button>
-          </>
-        ) : (
-          <>
-            <Title headingLevel="h3" size="xl">
-              <span>{pluginName}</span>
-            </Title>
-            <EditIcon
-              onClick={() => {
-                setShowInput(!showInput);
-              }}
-            />
-            {error && <Alert variant="success" isInline title={error} />}
-          </>
-        )}
-      </>
-    );
-  }
-  return <span>No Plugin was selected</span>;
+          </>,
+        ]}
+      >
+        <TextInput
+          type="text"
+          aria-label="Setting Plugin's Title"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              mutation.mutate();
+            }
+          }}
+          onChange={(_e, value) => setValue(value)}
+          value={value}
+          className="node-details__title--formInput"
+        />
+
+        <div
+          style={{
+            marginTop: "1rem",
+          }}
+        >
+          {mutation.isPending && <SpinContainer title="Editing the title..." />}
+          {mutation.isError && (
+            <Alert type="error" description={mutation.error.message} />
+          )}
+          {mutation.isSuccess && (
+            <Alert type="success" description="Title changed successfully" />
+          )}
+        </div>
+      </Modal>
+    </>
+  );
 };
 
 export default PluginTitle;

@@ -37,7 +37,7 @@ export const useFeedBrowser = () => {
       const id = selected.data.id;
       if (selected.data.id && state.resource.pluginInstanceStatus[id]) {
         return state.resource.pluginInstanceStatus[id].status;
-      } else return;
+      }
     }
   });
 
