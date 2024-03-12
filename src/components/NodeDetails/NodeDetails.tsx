@@ -27,7 +27,7 @@ import FeedNote from "../FeedDetails/FeedNote";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import "./NodeDetails.css";
 import PluginLog from "./PluginLog";
-import PluginTitle from "./PluginTitleCopy";
+import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import { getErrorCodeMessage } from "./utils";
