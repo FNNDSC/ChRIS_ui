@@ -89,8 +89,8 @@ const DeleteNode = () => {
     <>
       <Button
         isDisabled={
-          selectedPlugin.data.plugin_type === "fs" &&
-          selectedPlugin.data.plugin_name === "pl-dircopy"
+          selectedPlugin?.data.plugin_type === "fs" &&
+          selectedPlugin?.data.plugin_name === "pl-dircopy"
         }
         onClick={handleModalToggle}
         icon={<TrashIcon />}
