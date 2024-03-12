@@ -247,11 +247,9 @@ const NodeDetails: React.FC = () => {
                   <GraphNodeContainer />
                 </RenderButtonGridItem>
 
-                {selectedPlugin.data.previous_id !== undefined && (
-                  <RenderButtonGridItem>
-                    <DeleteNode />
-                  </RenderButtonGridItem>
-                )}
+                <RenderButtonGridItem>
+                  <DeleteNode />
+                </RenderButtonGridItem>
               </Grid>
 
               <Grid hasGutter={true}>

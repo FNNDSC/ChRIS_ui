@@ -1,18 +1,16 @@
-import { all, takeEvery, fork, put } from "@redux-saga/core/effects";
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
-import { PluginInstanceTypes } from "./types";
+import { all, fork, put, takeEvery } from "@redux-saga/core/effects";
+import { catchError, fetchResource } from "../../api/common";
 import { IActionTypeParam } from "../../api/model";
+import { getPluginInstanceStatusRequest } from "../resources/actions";
 import {
-  getPluginInstancesSuccess,
-  getPluginInstancesError,
   addNodeSuccess,
   addSplitNodesSuccess,
-  deleteNodeSuccess,
-  deleteNodeError,
+  getPluginInstancesError,
+  getPluginInstancesSuccess,
   getSelectedPlugin,
 } from "./actions";
-import { getPluginInstanceStatusRequest } from "../resources/actions";
-import { catchError, fetchResource } from "../../api/common";
+import { PluginInstanceTypes } from "./types";
 
 function* setPluginInstances(feed: Feed) {
   try {
@@ -82,30 +80,6 @@ function* handleSplitNode(action: IActionTypeParam) {
 // Description: Delete a node
 // ------------------------------------------------------------------------
 
-function* handleDeleteNode(action: IActionTypeParam) {
-  const instance = action.payload.instance;
-  const feed = action.payload.feed;
-
-  try {
-    if (
-      !["finishedSuccessfully", "finishedWithError", "cancelled"].includes(
-        instance.data.status,
-      )
-    ) {
-      yield instance.put({
-        status: "cancelled",
-      });
-    }
-    yield instance.delete();
-    yield setPluginInstances(feed);
-    yield put(deleteNodeSuccess());
-  } catch (error) {
-    //@ts-ignore
-    const errObj = catchError(error);
-    yield put(deleteNodeError(errObj));
-  }
-}
-
 function* watchGetPluginInstanceRequest() {
   yield takeEvery(
     PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST,
@@ -121,16 +95,10 @@ function* watchAddSplitNode() {
   yield takeEvery(PluginInstanceTypes.ADD_SPLIT_NODES, handleSplitNode);
 }
 
-function* watchDeleteNode() {
-  yield takeEvery(PluginInstanceTypes.DELETE_NODE, handleDeleteNode);
-}
-
 export function* pluginInstanceSaga() {
   yield all([
     fork(watchGetPluginInstanceRequest),
     fork(watchAddNode),
-    fork(watchDeleteNode),
-    fork(watchDeleteNode),
     fork(watchAddSplitNode),
   ]);
 }

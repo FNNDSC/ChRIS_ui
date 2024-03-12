@@ -33,10 +33,6 @@ export interface SplitNodesPayload {
 export interface IPluginInstanceState {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
-  deleteNode: {
-    error: string;
-    success: boolean;
-  };
   selectedD3Node?: any;
 }
 
@@ -48,10 +44,6 @@ export const PluginInstanceTypes = keyMirror({
   GET_PLUGIN_INSTANCES_ERROR: null,
   ADD_NODE_REQUEST: null,
   ADD_NODE_SUCCESS: null,
-  DELETE_NODE: null,
-  DELETE_NODE_SUCCESS: null,
-  DELETE_NODE_ERROR: null,
-  CLEAR_DELETE: null,
   SET_PLUGIN_TITLE: null,
   SWITCH_TREE_MODE: null,
   ADD_TS_NODE: null,
