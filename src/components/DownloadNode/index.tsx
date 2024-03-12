@@ -104,12 +104,12 @@ function DownloadNode() {
   });
 
   useEffect(() => {
-    if (mutation.isSuccess) {
+    if (mutation.isSuccess || mutation.isError) {
       setTimeout(() => {
         mutation.reset();
       }, 1000);
     }
-  }, [mutation.isSuccess]);
+  }, [mutation.isSuccess, mutation.isError]);
 
   return (
     <>

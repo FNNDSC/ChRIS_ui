@@ -1,18 +1,16 @@
-import React from "react";
-import { Dispatch } from "redux";
-import { useDispatch } from "react-redux";
-import { ErrorBoundary } from "react-error-boundary";
-import { Button, Modal, ModalVariant } from "@patternfly/react-core";
-import { connect } from "react-redux";
-import { ApplicationState } from "../../store/root/applicationState";
 import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { Button, Modal, ModalVariant } from "@patternfly/react-core";
+import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
+import React from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { connect, useDispatch } from "react-redux";
+import { Dispatch } from "redux";
 import {
   clearDeleteState,
   deleteNode,
   deleteNodeError,
 } from "../../store/pluginInstance/actions";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-
+import { ApplicationState } from "../../store/root/applicationState";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";
 
