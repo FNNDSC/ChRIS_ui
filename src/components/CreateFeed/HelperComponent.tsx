@@ -73,32 +73,27 @@ export const LocalFileList = ({
 
   return (
     <Flex className="file-preview" key={fileName}>
-      <Flex flex={{ default: "flex_1" }} direction={{ default: "column" }}>
-        <FlexItem className="file-name">
-          <span className="file-icon">
-            {isFolder ? <FolderIcon /> : <FileIcon />}
-          </span>
+      <Flex flex={{ default: "flex_1" }} direction={{ default: "row" }}>
+        <FlexItem className="file-icon">
+          <span>{isFolder ? <FolderIcon /> : <FileIcon />}</span>
+        </FlexItem>
+        <FlexItem>
           <div className="file-name-text">{fileName}</div>
         </FlexItem>
       </Flex>
 
-      <Flex direction={{ default: "column" }}>
-        <FlexItem>
-          {showIcon && (
-            <span style={{ cursor: "pointer" }} className="file-icon">
-              <TrashIcon
-                onClick={() => {
-                  handleDeleteDispatch &&
-                    handleDeleteDispatch(
-                      fileName,
-                      isFolder ? "folder" : "files",
-                    );
-                }}
-              />
-            </span>
-          )}
-        </FlexItem>
-      </Flex>
+      <FlexItem>
+        {showIcon && (
+          <span style={{ cursor: "pointer" }}>
+            <TrashIcon
+              className="file-icon"
+              onClick={() => {
+                handleDeleteDispatch?.(fileName, isFolder ? "folder" : "files");
+              }}
+            />
+          </span>
+        )}
+      </FlexItem>
     </Flex>
   );
 };

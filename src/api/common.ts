@@ -383,7 +383,10 @@ export const uploadFile = async (
   formData.append("fname", file, name);
 
   const config = {
-    headers: { Authorization: `Token ${token}` },
+    headers: {
+      Authorization: `Token ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
     onUploadProgress,
   };
 
