@@ -68,28 +68,22 @@ const FileBrowser = (props: FileBrowserProps) => {
         const url = item.url;
         const client = ChrisAPIClient.getClient();
         const token = client.auth.token;
-        const requestUrl = `${url}${fileName}`;
+        const authorizedUrl = `${url}${fileName}?token=${token}`; // Add token as a query parameter
 
-        const response = await fetch(requestUrl, {
-          headers: {
-            Authorization: `Token ${token}`, // Added a space after Token
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to download file. Status: ${response.status}`,
-          );
-        }
-
-        const blob = await response.blob(); // Corrected this line
-
+        // Create an anchor element
         const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
+        link.href = authorizedUrl;
+        link.download = fileName; // Set the download attribute to specify the filename
+
+        // Append the anchor element to the document body
         document.body.appendChild(link);
+
+        // Programmatically trigger the download
         link.click();
+
+        // Remove the anchor element from the document body after the download is initiated
         document.body.removeChild(link);
+
         return item;
       } catch (e) {
         throw e;
