@@ -65,12 +65,27 @@ const FileBrowser = (props: FileBrowserProps) => {
     if (item) {
       try {
         const fileName = getFileName(item.data.fname);
-        const url = item.data.url;
+        const url = item.url;
         const client = ChrisAPIClient.getClient();
         const token = client.auth.token;
-        const authorizedUrl = `${url}${fileName}?token=${token}`; // Add token as a query parameter
+        const requestUrl = `${url}${fileName}`;
+
+        const response = await fetch(requestUrl, {
+          headers: {
+            Authorization: `Token ${token}`, // Added a space after Token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to download file. Status: ${response.status}`,
+          );
+        }
+
+        const blob = await response.blob(); // Corrected this line
+
         const link = document.createElement("a");
-        link.href = authorizedUrl;
+        link.href = window.URL.createObjectURL(blob);
         link.download = fileName;
         document.body.appendChild(link);
         link.click();
