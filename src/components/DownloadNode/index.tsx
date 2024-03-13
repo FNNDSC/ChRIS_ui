@@ -5,7 +5,6 @@ import { Alert } from "antd";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { fetchComputeInfo, fetchResources } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import {
   getPluginInstancesSuccess,
@@ -13,14 +12,12 @@ import {
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
-import { PerPipelinePayload } from "../PipelinesCopy/context";
 
 function DownloadNode() {
   const { pluginInstances, selectedPlugin } = useTypedSelector(
     (state) => state.instance,
   );
   const reactDispatch = useDispatch();
-
   const alreadyAvailableInstances = pluginInstances.data;
 
   async function fetchPipelines() {
@@ -37,30 +34,11 @@ function DownloadNode() {
         const pipeline = pipelines[0];
         const { id } = pipeline.data;
 
-        const data: PerPipelinePayload = await fetchResources(pipeline);
-        const { parameters, pluginPipings } = data;
-
-        const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
-
-        // This is an assumption as I know the zip file will only have on pluginPiping
-        const piping = pluginPipings[0];
-        const computeEnvPayload = await fetchComputeInfo(
-          piping.data.plugin_id,
-          `${piping.data.id}`,
-        );
-
-        for (const node of nodes_info) {
-          const activeNode = computeEnvPayload?.[node.piping_id];
-
-          if (activeNode) {
-            const compute_node = activeNode.currentlySelected;
-            node.compute_resource_name = compute_node;
-          }
-        }
-
+        //@ts-ignore
+        // We do not need to explicitly provide the nodes_info property. This change needs to be made
+        // in the js client
         const workflow = await client.createWorkflow(id, {
           previous_plugin_inst_id: selectedPlugin?.data.id, // Ensure selectedPlugin is defined
-          nodes_info: JSON.stringify(nodes_info),
         });
 
         const pluginInstances = await workflow.getPluginInstances({
@@ -107,7 +85,7 @@ function DownloadNode() {
     if (mutation.isSuccess || mutation.isError) {
       setTimeout(() => {
         mutation.reset();
-      }, 1000);
+      }, 2000);
     }
   }, [mutation.isSuccess, mutation.isError]);
 
