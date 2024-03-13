@@ -13,12 +13,14 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 import { stringToColour } from "../CreateFeed/utils";
 import { PipelineContext, Types } from "./context";
+import { useLocation } from "react-router";
 
 type OwnProps = {
   pipeline: Pipeline;
 };
 
 function SelectAllCompute({ pipeline }: OwnProps) {
+  const location = useLocation();
   const { id } = pipeline.data;
   const { state, dispatch } = useContext(PipelineContext);
   const [isOpen, setIsOpen] = React.useState(false);
@@ -79,6 +81,7 @@ function SelectAllCompute({ pipeline }: OwnProps) {
     setIsOpen(!isOpen);
   };
 
+  const browseOnly = location.pathname === "/pipelines";
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
@@ -90,7 +93,11 @@ function SelectAllCompute({ pipeline }: OwnProps) {
         } as React.CSSProperties
       }
     >
-      {selectedItem ? selectedItem : "Select a Compute"}
+      {browseOnly
+        ? "List of Compute"
+        : selectedItem
+          ? selectedItem
+          : "Select a Compute"}
     </MenuToggle>
   );
 
@@ -109,6 +116,7 @@ function SelectAllCompute({ pipeline }: OwnProps) {
               <SelectOption
                 isSelected={resource.data.name === selectedItem}
                 value={resource.data.name}
+                key={resource.data.name}
               >
                 <Avatar
                   style={{
