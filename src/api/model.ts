@@ -292,7 +292,7 @@ export class FileViewerModel {
 
     const response = await downloadPromise;
 
-    if (response && response.data) {
+    if (response?.data) {
       const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");

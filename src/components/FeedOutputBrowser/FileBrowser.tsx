@@ -1,47 +1,43 @@
-import React, { useContext } from "react";
-import { useDispatch } from "react-redux";
+import type { FeedFile } from "@fnndsc/chrisapi";
+import {
+  ArrowDownTrayIcon,
+  DocumentTextIcon,
+  FolderIcon,
+  PhotoIcon,
+} from "@heroicons/react/24/outline";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  Grid,
+  Button,
   Drawer,
   DrawerContent,
   DrawerContentBody,
-  DrawerPanelContent,
   DrawerPanelBody,
-  Button,
+  DrawerPanelContent,
+  Grid,
 } from "@patternfly/react-core";
-import { Progress, notification } from "antd";
-import { Table, Thead, Tbody, Th, Tr, Td } from "@patternfly/react-table";
-import { DrawerActionButton } from "../Feeds/DrawerUtils";
-import { handleMaximize, handleMinimize } from "../Feeds/utilties";
-import { ThemeContext } from "../DarkTheme/useTheme";
-
-import {
-  FolderIcon,
-  ArrowDownTrayIcon,
-  PhotoIcon,
-  DocumentTextIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
 import FaFileIcon from "@patternfly/react-icons/dist/esm/icons/file-icon";
-
-import FileDetailView from "../Preview/FileDetailView";
-import { FileViewerModel } from "../../api/model";
-import { bytesToSize } from "./utilities";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import { useMutation } from "@tanstack/react-query";
+import { notification } from "antd";
+import React, { useContext } from "react";
+import { useDispatch } from "react-redux";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { setFilePreviewPanel } from "../../store/drawer/actions";
 import {
   clearSelectedFile,
   setSelectedFile,
 } from "../../store/explorer/actions";
 import { useTypedSelector } from "../../store/hooks";
-import { setFilePreviewPanel } from "../../store/drawer/actions";
-import { SpinContainer } from "../Common";
-import { EmptyStateLoader } from "./FeedOutputBrowser";
-import { ClipboardCopyContainer } from "../Common";
+import { ClipboardCopyContainer, SpinContainer } from "../Common";
+import { ThemeContext } from "../DarkTheme/useTheme";
+import { DrawerActionButton } from "../Feeds/DrawerUtils";
+import { handleMaximize, handleMinimize } from "../Feeds/utilties";
+import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
-import { DotsIndicator } from "../Common";
-import type { FeedFile } from "@fnndsc/chrisapi";
+import { EmptyStateLoader } from "./FeedOutputBrowser";
 import type { FileBrowserProps } from "./types";
+import { bytesToSize } from "./utilities";
 
 const getFileName = (name: any) => {
   return name.split("/").slice(-1);
@@ -50,22 +46,15 @@ const getFileName = (name: any) => {
 const FileBrowser = (props: FileBrowserProps) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
-  const [status, setDownloadStatus] = React.useState<{
-    [key: string]: number;
-  }>({});
-
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const dispatch = useDispatch();
   const [currentRowIndex, setCurrentRowIndex] = React.useState(0);
-
   const { files, folders, path } = pluginFilesPayload;
-
   const columnNames = {
     name: "Name",
     size: "Size",
     download: "",
-    statusRow: "",
   };
   const items = files && folders ? [...files, ...folders] : [];
   const { id, plugin_name } = selected.data;
@@ -74,12 +63,68 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
-      FileViewerModel.startDownload(item, notification, (newStatus: any) => {
-        const updatedStatus = { ...newStatus };
-        setDownloadStatus(updatedStatus);
-      });
+      try {
+        const fileName = getFileName(item.data.fname);
+        const url = item.data.url;
+        const client = ChrisAPIClient.getClient();
+        const token = client.auth.token;
+        const requestUrl = `${url}${fileName}`;
+        const response = await fetch(requestUrl, {
+          headers: {
+            Authorization: `Token ${token}`, // Added a space after Token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to download file. Status: ${response.status}`,
+          );
+        }
+
+        const blob = await response.blob(); // Corrected this line
+
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return item;
+      } catch (e) {
+        throw e;
+      }
     }
   };
+
+  const downloadMutation = useMutation({
+    mutationFn: (item: FeedFile) => handleDownloadClick(item),
+  });
+
+  const { isSuccess, isError, error: downloadError, data } = downloadMutation;
+  const [api, contextHolder] = notification.useNotification();
+  React.useEffect(() => {
+    if (data) {
+      const fileName = getFileName(data.data.fname);
+      if (isSuccess) {
+        console.log("Data", data);
+        api.success({
+          message: `Download ${fileName} Successfully`,
+        });
+      }
+
+      if (isError) {
+        api.error({
+          message: `Download Error: ${fileName}`,
+          //@ts-ignore
+          description: downloadError.message,
+        });
+      }
+
+      setTimeout(() => {
+        downloadMutation.reset();
+      }, 1000);
+    }
+  }, [isSuccess, isError, downloadError]);
 
   const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -203,7 +248,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             handleMinimize={() => {
               handleMinimize("files", dispatch);
             }}
-            maximized={drawerState["files"].maximized}
+            maximized={drawerState.files.maximized}
           />
           {drawerState.files.open && (
             <DrawerContentBody>
@@ -229,7 +274,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                     <Th>{columnNames.name}</Th>
                     <Th>{columnNames.size}</Th>
                     <Th>{columnNames.download}</Th>
-                    <Th>{columnNames.statusRow}</Th>
                   </Tr>
                 </Thead>
                 {filesLoading ? (
@@ -238,6 +282,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                   <EmptyStateLoader title="Empty Data set" />
                 ) : (
                   <Tbody>
+                    {contextHolder}
                     {items.map((item: string | FeedFile, index) => {
                       let type: string;
                       let icon: React.ReactNode;
@@ -245,17 +290,12 @@ const FileBrowser = (props: FileBrowserProps) => {
                       let fileName: string;
                       type = "UNKNOWN FORMAT";
                       const isPreviewing = selectedFile === item;
-                      let currentStatus = 0;
-                      let isBuffering = false;
 
                       if (typeof item === "string") {
                         type = "dir";
                         icon = getIcon(type);
                         fileName = item;
                       } else {
-                        currentStatus = status[item.data.fname];
-                        isBuffering = currentStatus >= 0 ? true : false;
-
                         fileName = getFileName(item.data.fname);
                         if (fileName.indexOf(".") > -1) {
                           type = getFileName(fileName)[0].toUpperCase();
@@ -286,57 +326,11 @@ const FileBrowser = (props: FileBrowserProps) => {
                             variant="link"
                             onClick={(e: any) => {
                               e.stopPropagation();
-                              handleDownloadClick(item);
+                              downloadMutation.mutate(item);
                             }}
-                            icon={
-                              <ArrowDownTrayIcon
-                                className="pf-v5-svg"
-                                onClick={(e: any) => {
-                                  e.stopPropagation();
-                                  handleDownloadClick(item);
-                                }}
-                              />
-                            }
+                            icon={<ArrowDownTrayIcon className="pf-v5-svg" />}
                           />
                         );
-
-                      const statusComponent =
-                        typeof item !== "string" &&
-                        item &&
-                        currentStatus > 0 ? (
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                            }}
-                          >
-                            <Progress size="small" percent={currentStatus} />
-                            <Button
-                              variant="link"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                FileViewerModel.abortControllers[
-                                  item.data.fname
-                                ].abort();
-
-                                const newDownloadStatus = { ...status };
-                                delete newDownloadStatus[item.data.fname];
-                                setDownloadStatus(newDownloadStatus);
-                              }}
-                              icon={
-                                <XMarkIcon
-                                  className="pf-v5-svg"
-                                  style={{
-                                    color: "red",
-                                  }}
-                                />
-                              }
-                            />
-                          </div>
-                        ) : isBuffering ? (
-                          <DotsIndicator title="Please wait for a status to appear for larger files..." />
-                        ) : undefined;
 
                       return (
                         <Tr
@@ -351,9 +345,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                           <Td dataLabel={columnNames.size}>{fsize}</Td>
                           <Td dataLabel={columnNames.download}>
                             {downloadComponent}
-                          </Td>
-                          <Td dataLabel={columnNames.statusRow}>
-                            {statusComponent}
                           </Td>
                         </Tr>
                       );
