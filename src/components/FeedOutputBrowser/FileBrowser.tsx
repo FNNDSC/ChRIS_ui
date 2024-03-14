@@ -38,9 +38,10 @@ import XtkViewer from "../XtkViewer/XtkViewer";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
+import { getFileExtension } from "../../api/model";
 
 const getFileName = (name: string) => {
-  return name.split("/").slice(-1);
+  return name.split("/").slice(-1).join("");
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
@@ -76,11 +77,15 @@ const FileBrowser = (props: FileBrowserProps) => {
     if (item) {
       try {
         const fileName = getFileName(item.data.fname);
+
         const url = item.url;
         const client = ChrisAPIClient.getClient();
         const token = client.auth.token;
         // This is highly inconsistent and needs to be investigated further
         const authorizedUrl = `${url}${fileName}?token=${token}`; // Add token as a query parameter
+        const privateFeed = feed?.data.public === false;
+        // Make the data source public
+        privateFeed && (await makeDataSourcePublic());
 
         // Create an anchor element
         const link = document.createElement("a");
@@ -90,9 +95,6 @@ const FileBrowser = (props: FileBrowserProps) => {
         // Append the anchor element to the document body
         document.body.appendChild(link);
 
-        // Make the data source public
-        await makeDataSourcePublic();
-
         // Programmatically trigger the download
         link.click();
 
@@ -100,7 +102,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         document.body.removeChild(link);
 
         // Make the data source private again after the download is done
-        await makeDataSourcePrivate();
+        privateFeed && (await makeDataSourcePrivate());
 
         return item;
       } catch (e) {
