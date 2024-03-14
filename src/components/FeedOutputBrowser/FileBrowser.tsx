@@ -39,7 +39,7 @@ import { EmptyStateLoader } from "./FeedOutputBrowser";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
 
-const getFileName = (name: any) => {
+const getFileName = (name: string) => {
   return name.split("/").slice(-1);
 };
 
@@ -79,6 +79,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         const url = item.url;
         const client = ChrisAPIClient.getClient();
         const token = client.auth.token;
+        // This is highly inconsistent and needs to be investigated further
         const authorizedUrl = `${url}${fileName}?token=${token}`; // Add token as a query parameter
 
         // Create an anchor element
@@ -335,7 +336,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         typeof item === "string" ? undefined : (
                           <Button
                             variant="link"
-                            onClick={(e: any) => {
+                            onClick={(e) => {
                               e.stopPropagation();
                               downloadMutation.mutate(item);
                             }}
