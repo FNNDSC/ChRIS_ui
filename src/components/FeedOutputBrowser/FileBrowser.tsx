@@ -77,12 +77,17 @@ const FileBrowser = (props: FileBrowserProps) => {
     if (item) {
       try {
         const fileName = getFileName(item.data.fname);
+        const url = item.collection.items[0].links[0].href;
 
-        const url = item.url;
+        if (!url) {
+          throw new Error("Failed to construct the url");
+        }
+
         const client = ChrisAPIClient.getClient();
         const token = client.auth.token;
         // This is highly inconsistent and needs to be investigated further
-        const authorizedUrl = `${url}${fileName}?token=${token}`; // Add token as a query parameter
+        const authorizedUrl = `${url}?token=${token}`; // Add token as a query parameter
+
         const privateFeed = feed?.data.public === false;
         // Make the data source public
         privateFeed && (await makeDataSourcePublic());
