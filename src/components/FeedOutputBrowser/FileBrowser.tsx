@@ -62,6 +62,16 @@ const FileBrowser = (props: FileBrowserProps) => {
   const pathSplit = path?.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
+  const makeDataSourcePublic = async () => {
+    // Implement logic to make the data source public
+    await feed?.put({ public: true });
+  };
+
+  const makeDataSourcePrivate = async () => {
+    // Implement logic to make the data source private again
+    await feed?.put({ public: false });
+  };
+
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
       try {
@@ -79,24 +89,17 @@ const FileBrowser = (props: FileBrowserProps) => {
         // Append the anchor element to the document body
         document.body.appendChild(link);
 
-        // A temporary hack to avoid having this feature break in prod
-
-        await feed?.put({
-          //@ts-ignore
-          //js client needs to be updated
-          public: true,
-        });
+        // Make the data source public
+        await makeDataSourcePublic();
 
         // Programmatically trigger the download
         link.click();
 
-        await feed?.put({
-          //@ts-ignore
-          public: false,
-        });
-
         // Remove the anchor element from the document body after the download is initiated
         document.body.removeChild(link);
+
+        // Make the data source private again after the download is done
+        await makeDataSourcePrivate();
 
         return item;
       } catch (e) {
