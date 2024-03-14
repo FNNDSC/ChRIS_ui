@@ -48,6 +48,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
+  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const dispatch = useDispatch();
   const [currentRowIndex, setCurrentRowIndex] = React.useState(0);
   const { files, folders, path } = pluginFilesPayload;
@@ -78,8 +79,21 @@ const FileBrowser = (props: FileBrowserProps) => {
         // Append the anchor element to the document body
         document.body.appendChild(link);
 
+        // A temporary hack to avoid having this feature break in prod
+
+        await feed?.put({
+          //@ts-ignore
+          //js client needs to be updated
+          public: true,
+        });
+
         // Programmatically trigger the download
         link.click();
+
+        await feed?.put({
+          //@ts-ignore
+          public: false,
+        });
 
         // Remove the anchor element from the document body after the download is initiated
         document.body.removeChild(link);
