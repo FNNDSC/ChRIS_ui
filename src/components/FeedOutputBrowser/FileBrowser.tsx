@@ -38,9 +38,10 @@ import XtkViewer from "../XtkViewer/XtkViewer";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
+import { getFileExtension } from "../../api/model";
 
-const getFileName = (name: any) => {
-  return name.split("/").slice(-1);
+const getFileName = (name: string) => {
+  return name.split("/").slice(-1).join("");
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
@@ -62,14 +63,34 @@ const FileBrowser = (props: FileBrowserProps) => {
   const pathSplit = path?.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
+  const makeDataSourcePublic = async () => {
+    // Implement logic to make the data source public
+    await feed?.put({ public: true });
+  };
+
+  const makeDataSourcePrivate = async () => {
+    // Implement logic to make the data source private again
+    await feed?.put({ public: false });
+  };
+
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
       try {
         const fileName = getFileName(item.data.fname);
-        const url = item.url;
+        const url = item.collection.items[0].links[0].href;
+
+        if (!url) {
+          throw new Error("Failed to construct the url");
+        }
+
         const client = ChrisAPIClient.getClient();
         const token = client.auth.token;
-        const authorizedUrl = `${url}${fileName}?token=${token}`; // Add token as a query parameter
+        // This is highly inconsistent and needs to be investigated further
+        const authorizedUrl = `${url}?token=${token}`; // Add token as a query parameter
+
+        const privateFeed = feed?.data.public === false;
+        // Make the data source public
+        privateFeed && (await makeDataSourcePublic());
 
         // Create an anchor element
         const link = document.createElement("a");
@@ -79,24 +100,14 @@ const FileBrowser = (props: FileBrowserProps) => {
         // Append the anchor element to the document body
         document.body.appendChild(link);
 
-        // A temporary hack to avoid having this feature break in prod
-
-        await feed?.put({
-          //@ts-ignore
-          //js client needs to be updated
-          public: true,
-        });
-
         // Programmatically trigger the download
         link.click();
 
-        await feed?.put({
-          //@ts-ignore
-          public: false,
-        });
-
         // Remove the anchor element from the document body after the download is initiated
         document.body.removeChild(link);
+
+        // Make the data source private again after the download is done
+        privateFeed && (await makeDataSourcePrivate());
 
         return item;
       } catch (e) {
@@ -332,7 +343,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         typeof item === "string" ? undefined : (
                           <Button
                             variant="link"
-                            onClick={(e: any) => {
+                            onClick={(e) => {
                               e.stopPropagation();
                               downloadMutation.mutate(item);
                             }}
