@@ -76,40 +76,54 @@ const FileBrowser = (props: FileBrowserProps) => {
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
       try {
+        const extension = getFileExtension(item.data.fname);
         const fileName = getFileName(item.data.fname);
-        const url = item.collection.items[0].links[0].href;
-
-        if (!url) {
-          throw new Error("Failed to construct the url");
-        }
-
-        const client = ChrisAPIClient.getClient();
-        const token = client.auth.token;
-        // This is highly inconsistent and needs to be investigated further
-        const authorizedUrl = `${url}?token=${token}`; // Add token as a query parameter
-
-        const privateFeed = feed?.data.public === false;
-        // Make the data source public
-        privateFeed && (await makeDataSourcePublic());
-
-        // Create an anchor element
         const link = document.createElement("a");
-        link.href = authorizedUrl;
-        link.download = fileName; // Set the download attribute to specify the filename
+        if (["dcm", "png", "jpg", "json"].includes(extension)) {
+          // Triggering a browser download for these files can be inconsistent
+          try {
+            const blob = await item.getFileBlob();
+            if (!blob) {
+              throw new Error("Failed to fetch the file");
+            }
+            link.href = window.URL.createObjectURL(blob);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return item;
+          } catch (e) {
+            throw e;
+          }
+        } else {
+          const url = item.collection.items[0].links[0].href;
+          if (!url) {
+            throw new Error("Failed to construct the url");
+          }
 
-        // Append the anchor element to the document body
-        document.body.appendChild(link);
+          const client = ChrisAPIClient.getClient();
+          const token = client.auth.token;
+          // This is highly inconsistent and needs to be investigated further
+          const authorizedUrl = `${url}?token=${token}`; // Add token as a query parameter
+          const privateFeed = feed?.data.public === false;
+          // Make the data source public
+          privateFeed && (await makeDataSourcePublic());
 
-        // Programmatically trigger the download
-        link.click();
+          // Create an anchor element
 
-        // Remove the anchor element from the document body after the download is initiated
-        document.body.removeChild(link);
+          link.href = authorizedUrl;
+          link.download = fileName; // Set the download attribute to specify the filename
+          // Append the anchor element to the document body
+          document.body.appendChild(link);
+          // Programmatically trigger the download
+          link.click();
+          // Remove the anchor element from the document body after the download is initiated
+          document.body.removeChild(link);
 
-        // Make the data source private again after the download is done
-        privateFeed && (await makeDataSourcePrivate());
-
-        return item;
+          // Make the data source private again after the download is done
+          privateFeed && (await makeDataSourcePrivate());
+          return item;
+        }
       } catch (e) {
         throw e;
       }
@@ -120,7 +134,13 @@ const FileBrowser = (props: FileBrowserProps) => {
     mutationFn: (item: FeedFile) => handleDownloadClick(item),
   });
 
-  const { isSuccess, isError, error: downloadError, data } = downloadMutation;
+  const {
+    isSuccess,
+    isPending,
+    isError,
+    error: downloadError,
+    data,
+  } = downloadMutation;
   const [api, contextHolder] = notification.useNotification();
   React.useEffect(() => {
     if (data) {
@@ -139,11 +159,17 @@ const FileBrowser = (props: FileBrowserProps) => {
         });
       }
 
+      if (isPending) {
+        api.info({
+          message: `Processing the download for ${fileName}`,
+        });
+      }
+
       setTimeout(() => {
         downloadMutation.reset();
       }, 1000);
     }
-  }, [isSuccess, isError, downloadError]);
+  }, [isSuccess, isError, isPending, downloadError]);
 
   const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
