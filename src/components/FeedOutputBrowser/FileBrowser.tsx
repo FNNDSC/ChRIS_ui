@@ -369,7 +369,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                       const downloadComponent =
                         typeof item === "string" ? undefined : (
                           <Button
-                            variant="link"
+                            variant="plain"
                             onClick={(e) => {
                               e.stopPropagation();
                               downloadMutation.mutate(item);

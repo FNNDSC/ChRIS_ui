@@ -9,6 +9,9 @@ import {
   FileIcon,
   FolderIcon,
   DownloadIcon,
+  SearchPlusIcon,
+  SearchIcon,
+  InfoIcon,
 } from "@patternfly/react-icons";
 
 const MergeIcon = () => {
@@ -151,6 +154,48 @@ const FilePdfIcon = () => {
   );
 };
 
+const RotateIcon = () => {
+  return (
+    <svg
+      fill="currentColor"
+      className="pf-v5-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+    >
+      <path d="M142.9 142.9c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8H463.5c0 0 0 0 0 0H472c13.3 0 24-10.7 24-24V72c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1C73.2 122 55.6 150.7 44.8 181.4c-5.9 16.7 2.9 34.9 19.5 40.8s34.9-2.9 40.8-19.5c7.7-21.8 20.2-42.3 37.8-59.8zM16 312v7.6 .7V440c0 9.7 5.8 18.5 14.8 22.2s19.3 1.7 26.2-5.2l41.6-41.6c87.6 86.5 228.7 86.2 315.8-1c24.4-24.4 42.1-53.1 52.9-83.7c5.9-16.7-2.9-34.9-19.5-40.8s-34.9 2.9-40.8 19.5c-7.7 21.8-20.2 42.3-37.8 59.8c-62.2 62.2-162.7 62.5-225.3 1L185 329c6.9-6.9 8.9-17.2 5.2-26.2s-12.5-14.8-22.2-14.8H48.4h-.7H40c-13.3 0-24 10.7-24 24z" />
+      <title>Rotate</title>
+    </svg>
+  );
+};
+
+const RulerIcon = () => {
+  return (
+    <svg
+      fill="currentColor"
+      className="pf-v5-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+    >
+      <title>Ruler Icon </title>
+      <path d="M177.9 494.1c-18.7 18.7-49.1 18.7-67.9 0L17.9 401.9c-18.7-18.7-18.7-49.1 0-67.9l50.7-50.7 48 48c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-48-48 41.4-41.4 48 48c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-48-48 41.4-41.4 48 48c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-48-48 41.4-41.4 48 48c6.2 6.2 16.4 6.2 22.6 0s6.2-16.4 0-22.6l-48-48 50.7-50.7c18.7-18.7 49.1-18.7 67.9 0l92.1 92.1c18.7 18.7 18.7 49.1 0 67.9L177.9 494.1z" />
+    </svg>
+  );
+};
+
+const BrightnessIcon = () => {
+  return (
+    <svg
+      fill="currentColor"
+      className="pf-v5-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+    >
+      <title>Brightness Icon</title>
+      <path d="M8 256c0 137 111 248 248 248s248-111 248-248S393 8 256 8 8 119 8 256zm248 184V72c101.7 0 184 82.3 184 184 0 101.7-82.3 184-184 184z" />
+    </svg>
+  );
+};
+
 export {
   TrashIcon as DeleteIcon,
   ArchiveIcon,
@@ -172,4 +217,10 @@ export {
   FileImageIcon,
   FileTxtIcon,
   FilePdfIcon,
+  SearchPlusIcon as ZoomIcon,
+  SearchIcon,
+  RotateIcon,
+  InfoIcon,
+  RulerIcon,
+  BrightnessIcon,
 };
