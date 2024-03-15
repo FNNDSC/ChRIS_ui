@@ -10,7 +10,7 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-import { CalendarAltIcon, EyeIcon } from "@patternfly/react-icons";
+
 import React, { Fragment, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
@@ -24,6 +24,7 @@ import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
 import DeleteNode from "../DeleteNode";
 import DownloadNode from "../DownloadNode";
 import FeedNote from "../FeedDetails/FeedNote";
+import { CalendarAltIcon, PreviewIcon } from "../Icons";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import "./NodeDetails.css";
 import PluginLog from "./PluginLog";
@@ -121,7 +122,6 @@ const NodeDetails: React.FC = () => {
   const Time = (
     <>
       <CalendarAltIcon style={{ marginRight: "0.5em" }} />
-
       {selectedPlugin.data.start_date}
     </>
   );
@@ -267,7 +267,7 @@ const NodeDetails: React.FC = () => {
                   <Grid hasGutter={true}>
                     <RenderButtonGridItem>
                       <Button
-                        icon={<EyeIcon />}
+                        icon={<PreviewIcon />}
                         onClick={() =>
                           navigate(`/niivue/${selectedPlugin.data.id}`)
                         }

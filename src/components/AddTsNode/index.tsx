@@ -1,14 +1,14 @@
-import React from "react";
-import { Button } from "@patternfly/react-core";
-import { useDispatch } from "react-redux";
-import { Popover } from "antd";
-import FaCodeBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import { useTypedSelector } from "../../store/hooks";
-import { switchTreeMode } from "../../store/tsplugins/actions";
-import GraphNode from "./ParentContainer";
 import type { Plugin } from "@fnndsc/chrisapi";
+import { Button } from "@patternfly/react-core";
+import { Popover } from "antd";
+import React from "react";
+import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";
+import { switchTreeMode } from "../../store/tsplugins/actions";
+import { CodeBranchIcon } from "../Icons";
+import GraphNode from "./ParentContainer";
 import "./graph-node.css";
 
 const GraphNodeContainer = () => {
@@ -60,7 +60,7 @@ const GraphNodeContainer = () => {
       onOpenChange={handleVisibleChange}
       trigger="click"
     >
-      <Button type="button" icon={<FaCodeBranch />}>
+      <Button type="button" icon={<CodeBranchIcon />}>
         Add a Graph Node{" "}
         <span style={{ padding: "2px", fontSize: "11px" }}>( G )</span>
       </Button>

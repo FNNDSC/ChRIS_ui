@@ -11,19 +11,21 @@ import {
   ToggleGroupItem,
   Tooltip,
 } from "@patternfly/react-core";
-import MdCallSplit from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import FaDownload from "@patternfly/react-icons/dist/esm/icons/download-icon";
-import MdIosShare from "@patternfly/react-icons/dist/esm/icons/share-icon";
-import FaTrash from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { cujs } from "chris-utility";
 import React, { ReactElement } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { ShareButtonIcon } from "../../icons";
 import { setBulkSelect } from "../../store/feed/actions";
 import { useTypedSelector } from "../../store/hooks";
+import {
+  ArchiveIcon,
+  DeleteIcon,
+  DuplicateIcon,
+  MergeIcon,
+  ShareIcon,
+} from "../Icons";
 
 function capitalizeFirstLetter(stringLetter: string) {
   return stringLetter.charAt(0).toUpperCase() + stringLetter.slice(1);
@@ -413,11 +415,11 @@ export default IconContainer;
 const actionMap: {
   [key: string]: ReactElement;
 } = {
-  archive: <FaDownload />,
-  merge: <ShareButtonIcon />,
-  duplicate: <MdCallSplit />,
-  share: <MdIosShare />,
-  delete: <FaTrash />,
+  archive: <ArchiveIcon />,
+  merge: <MergeIcon />,
+  duplicate: <DuplicateIcon />,
+  share: <ShareIcon />,
+  delete: <DeleteIcon />,
 };
 
 const ToolGroupContainer = ({
