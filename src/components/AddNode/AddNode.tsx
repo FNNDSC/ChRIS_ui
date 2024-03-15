@@ -1,31 +1,29 @@
-import React, { useContext, useEffect } from "react";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
-
+import type { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import {
-  Wizard,
   Button,
-  ModalVariant,
   Modal,
+  ModalVariant,
+  Wizard,
   WizardHeader,
   WizardStep,
   useWizardContext,
 } from "@patternfly/react-core";
-import { PlusButtonIcon } from "../../icons";
-import GuidedConfig from "./GuidedConfig";
-import BasicConfiguration from "./BasicConfiguration";
-import { addNodeRequest } from "../../store/pluginInstance/actions";
-import { getNodeOperations, getParams } from "../../store/plugin/actions";
-import { getRequiredObject } from "../CreateFeed/createFeedHelper";
-import { useTypedSelector } from "../../store/hooks";
-import { useDispatch } from "react-redux";
-import { AddNodeContext } from "./context";
-import { Types } from "./types";
-import type { AddNodeProps } from "./types";
-import type { Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import type { ApplicationState } from "../../store/root/applicationState";
+import React, { useContext, useEffect } from "react";
+import { connect, useDispatch } from "react-redux";
+import { Dispatch } from "redux";
 import { catchError } from "../../api/common";
+import { useTypedSelector } from "../../store/hooks";
+import { getNodeOperations, getParams } from "../../store/plugin/actions";
+import { addNodeRequest } from "../../store/pluginInstance/actions";
+import type { ApplicationState } from "../../store/root/applicationState";
+import { getRequiredObject } from "../CreateFeed/createFeedHelper";
+import { AddIcon } from "../Icons";
+import BasicConfiguration from "./BasicConfiguration";
+import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
+import { AddNodeContext } from "./context";
+import type { AddNodeProps } from "./types";
+import { Types } from "./types";
 
 const AddNode = ({
   selectedPlugin,
@@ -152,7 +150,7 @@ const AddNode = ({
 
   return (
     <>
-      <Button icon={<PlusButtonIcon />} type="button" onClick={toggleOpen}>
+      <Button icon={<AddIcon />} type="button" onClick={toggleOpen}>
         Add a Child Node <span style={{ padding: "2px" }}>( C )</span>
       </Button>
       <Modal

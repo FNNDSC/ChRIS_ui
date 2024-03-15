@@ -1,5 +1,4 @@
 import { Button } from "@patternfly/react-core";
-import FaDownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { useEffect } from "react";
@@ -12,6 +11,7 @@ import {
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
+import { ArchiveIcon } from "../Icons";
 
 function DownloadNode() {
   const { pluginInstances, selectedPlugin } = useTypedSelector(
@@ -95,7 +95,7 @@ function DownloadNode() {
         onClick={() => {
           mutation.mutate();
         }}
-        icon={<FaDownloadIcon />}
+        icon={<ArchiveIcon />}
       >
         Zip
       </Button>

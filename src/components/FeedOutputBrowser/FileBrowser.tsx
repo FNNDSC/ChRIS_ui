@@ -1,11 +1,5 @@
 import type { FeedFile } from "@fnndsc/chrisapi";
 import {
-  ArrowDownTrayIcon,
-  DocumentTextIcon,
-  FolderIcon,
-  PhotoIcon,
-} from "@heroicons/react/24/outline";
-import {
   Breadcrumb,
   BreadcrumbItem,
   Button,
@@ -16,13 +10,13 @@ import {
   DrawerPanelContent,
   Grid,
 } from "@patternfly/react-core";
-import FaFileIcon from "@patternfly/react-icons/dist/esm/icons/file-icon";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { getFileExtension } from "../../api/model";
 import { setFilePreviewPanel } from "../../store/drawer/actions";
 import {
   clearSelectedFile,
@@ -33,12 +27,19 @@ import { ClipboardCopyContainer, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
+import {
+  DownloadIcon,
+  FileIcon,
+  FileImageIcon,
+  FileTxtIcon,
+  FilePdfIcon,
+  FolderIcon,
+} from "../Icons";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import { EmptyStateLoader } from "./FeedOutputBrowser";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
-import { getFileExtension } from "../../api/model";
 
 const getFileName = (name: string) => {
   return name.split("/").slice(-1).join("");
@@ -100,7 +101,6 @@ const FileBrowser = (props: FileBrowserProps) => {
           if (!url) {
             throw new Error("Failed to construct the url");
           }
-
           const client = ChrisAPIClient.getClient();
           const token = client.auth.token;
           // This is highly inconsistent and needs to be investigated further
@@ -142,12 +142,19 @@ const FileBrowser = (props: FileBrowserProps) => {
     data,
   } = downloadMutation;
   const [api, contextHolder] = notification.useNotification();
+
   React.useEffect(() => {
+    if (isPending) {
+      api.info({
+        message: "Processing download...",
+      });
+    }
+
     if (data) {
       const fileName = getFileName(data.data.fname);
       if (isSuccess) {
         api.success({
-          message: `Download ${fileName} Successfully`,
+          message: `Triggered the Download for ${fileName}`,
         });
       }
 
@@ -156,12 +163,6 @@ const FileBrowser = (props: FileBrowserProps) => {
           message: `Download Error: ${fileName}`,
           //@ts-ignore
           description: downloadError.message,
-        });
-      }
-
-      if (isPending) {
-        api.info({
-          message: `Processing the download for ${fileName}`,
         });
       }
 
@@ -368,12 +369,12 @@ const FileBrowser = (props: FileBrowserProps) => {
                       const downloadComponent =
                         typeof item === "string" ? undefined : (
                           <Button
-                            variant="link"
+                            variant="plain"
                             onClick={(e) => {
                               e.stopPropagation();
                               downloadMutation.mutate(item);
                             }}
-                            icon={<ArrowDownTrayIcon className="pf-v5-svg" />}
+                            icon={<DownloadIcon />}
                           />
                         );
 
@@ -410,17 +411,19 @@ export default FileBrowser;
 const getIcon = (type: string) => {
   switch (type.toLowerCase()) {
     case "dir":
-      return <FolderIcon className="pf-v5-svg" />;
+      return <FolderIcon />;
     case "dcm":
     case "jpg":
     case "png":
-      return <PhotoIcon />;
+      return <FileImageIcon />;
     case "html":
     case "json":
-      return <FaFileIcon />;
+      return <FileIcon />;
     case "txt":
-      return <DocumentTextIcon />;
+      return <FileTxtIcon />;
+    case "pdf":
+      return <FilePdfIcon />;
     default:
-      return <FaFileIcon />;
+      return <FileIcon />;
   }
 };

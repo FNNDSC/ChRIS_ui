@@ -4,7 +4,6 @@ import { Alert } from "antd";
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { PlusButtonIcon } from "../../icons";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";
 import {
@@ -13,6 +12,7 @@ import {
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
+import { AddIcon } from "../Icons";
 import Pipelines from "../PipelinesCopy";
 import { PipelineContext, Types } from "../PipelinesCopy/context";
 
@@ -123,7 +123,7 @@ const AddPipeline = () => {
 
   return (
     <React.Fragment>
-      <Button icon={<PlusButtonIcon />} onClick={handleToggle} type="button">
+      <Button icon={<AddIcon />} onClick={handleToggle} type="button">
         Add a Pipeline <span style={{ padding: "2px" }}>( P )</span>
       </Button>
       <Modal

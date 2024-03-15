@@ -15,6 +15,7 @@ import { catchError } from "../../api/common";
 import { MainRouterContext } from "../../routes";
 import { useTypedSelector } from "../../store/hooks";
 import { AddNodeContext } from "../AddNode/context";
+import { CodeBranchIcon } from "../Icons";
 import PipelinesCopy from "../PipelinesCopy";
 import { PipelineContext } from "../PipelinesCopy/context";
 import BasicInformation from "./BasicInformation";
@@ -210,7 +211,11 @@ export default function CreateFeed() {
 
   return (
     <div>
-      <Button variant="primary" onClick={() => closeWizard()}>
+      <Button
+        icon={<CodeBranchIcon />}
+        variant="primary"
+        onClick={() => closeWizard()}
+      >
         Create Feed
       </Button>
       <Modal
