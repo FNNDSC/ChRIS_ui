@@ -1,31 +1,30 @@
-import React, { Fragment, ReactElement, useCallback } from "react";
-import * as dicomParser from "dicom-parser";
+import type { FeedFile } from "@fnndsc/chrisapi";
 import {
+  Button,
   Label,
   Text,
-  Button,
-  Tooltip,
   Toolbar,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
-import { Alert } from "antd";
-import { useQuery } from "@tanstack/react-query";
-import { ErrorBoundary } from "react-error-boundary";
-import ZoomIcon from "@patternfly/react-icons/dist/esm/icons/search-plus-icon";
-import PanIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import RotateIcon from "@patternfly/react-icons/dist/esm/icons/sync-alt-icon";
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
-import InfoIcon from "@patternfly/react-icons/dist/esm/icons/info-circle-icon";
-import {
-  PencilIcon,
-  LightBulbIcon,
-  MagnifyingGlassCircleIcon,
-} from "@heroicons/react/24/solid";
+import { useQuery } from "@tanstack/react-query";
+import { Alert } from "antd";
+import * as dicomParser from "dicom-parser";
+import React, { Fragment, ReactElement, useCallback } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { IFileBlob, fileViewerMap, getFileExtension } from "../../api/model";
 import { useTypedSelector } from "../../store/hooks";
-import type { FeedFile } from "@fnndsc/chrisapi";
-import { getFileExtension } from "../../api/model";
-import { IFileBlob, fileViewerMap } from "../../api/model";
 import { SpinContainer } from "../Common";
+import {
+  AddIcon,
+  BrightnessIcon,
+  InfoIcon,
+  RotateIcon,
+  RulerIcon,
+  SearchIcon,
+  ZoomIcon,
+} from "../Icons";
 import { TagInfoModal } from "./HelperComponent";
 import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 
@@ -245,16 +244,13 @@ const actions = [
   },
   {
     name: "Pan",
-    icon: <PanIcon />,
+    icon: <SearchIcon />,
   },
   {
     name: "Magnify",
     icon: (
-      <MagnifyingGlassCircleIcon
-        height="1em"
-        width="1em"
-        className="pf-v5-svg"
-      />
+      // We could be using a better icon here.
+      <AddIcon />
     ),
   },
   {
@@ -263,7 +259,7 @@ const actions = [
   },
   {
     name: "WindowLevel",
-    icon: <LightBulbIcon className="pf-v5-svg" />,
+    icon: <BrightnessIcon />,
   },
   {
     name: "Reset",
@@ -271,7 +267,7 @@ const actions = [
   },
   {
     name: "Length",
-    icon: <PencilIcon className="pf-v5-svg" />,
+    icon: <RulerIcon />,
   },
 
   {
