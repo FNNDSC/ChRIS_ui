@@ -101,7 +101,6 @@ const FileBrowser = (props: FileBrowserProps) => {
           if (!url) {
             throw new Error("Failed to construct the url");
           }
-
           const client = ChrisAPIClient.getClient();
           const token = client.auth.token;
           // This is highly inconsistent and needs to be investigated further
@@ -143,12 +142,19 @@ const FileBrowser = (props: FileBrowserProps) => {
     data,
   } = downloadMutation;
   const [api, contextHolder] = notification.useNotification();
+
   React.useEffect(() => {
+    if (isPending) {
+      api.info({
+        message: "Processing download...",
+      });
+    }
+
     if (data) {
       const fileName = getFileName(data.data.fname);
       if (isSuccess) {
         api.success({
-          message: `Download ${fileName} Successfully`,
+          message: `Triggered the Download for ${fileName}`,
         });
       }
 
@@ -157,12 +163,6 @@ const FileBrowser = (props: FileBrowserProps) => {
           message: `Download Error: ${fileName}`,
           //@ts-ignore
           description: downloadError.message,
-        });
-      }
-
-      if (isPending) {
-        api.info({
-          message: `Processing the download for ${fileName}`,
         });
       }
 
