@@ -1,6 +1,5 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { useEffect } from "react";
@@ -14,6 +13,7 @@ import {
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
+import { DeleteIcon } from "../Icons";
 
 const DeleteNode = () => {
   const dispatch = useDispatch();
@@ -93,7 +93,7 @@ const DeleteNode = () => {
           selectedPlugin?.data.plugin_name === "pl-dircopy"
         }
         onClick={handleModalToggle}
-        icon={<TrashIcon />}
+        icon={<DeleteIcon />}
         variant="primary"
         type="button"
       >

@@ -1,23 +1,23 @@
-import React, { ReactNode, useState } from "react";
 import { ToolbarItem } from "@patternfly/react-core";
 import { Badge } from "antd";
+import React, { ReactNode, useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchNote } from "../../api/common";
+import { setDrawerCurrentlyActive } from "../../store/drawer/actions";
+import { IDrawerState } from "../../store/drawer/types";
 import { useTypedSelector } from "../../store/hooks";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
 import { handleToggle } from "../Feeds/utilties";
-import { useDispatch } from "react-redux";
-import { IDrawerState } from "../../store/drawer/types";
-import FaFileIcon from "@patternfly/react-icons/dist/esm/icons/file-icon";
-import FaCodeBranch from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
-import FaBrainIcon from "@patternfly/react-icons/dist/esm/icons/brain-icon";
-import CommandLineIcon from "@patternfly/react-icons/dist/esm/icons/terminal-icon";
 import {
-  FolderOpenIcon,
-  PencilSquareIcon,
-  PhotoIcon,
-  EllipsisHorizontalCircleIcon,
-} from "@heroicons/react/24/solid";
-import { setDrawerCurrentlyActive } from "../../store/drawer/actions";
-import { fetchNote } from "../../api/common";
+  BrainIcon,
+  CodeBranchIcon,
+  FeedBrowserIcon,
+  DuplicateIcon as FolderTreeIcon,
+  NodeDetailsPanelIcon,
+  NoteEditIcon,
+  PreviewIcon,
+  TerminalIcon,
+} from "../Icons";
 import "./feed-details.css";
 
 const FeedDetails = () => {
@@ -48,8 +48,8 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonContainer
-            title="Graph"
-            Icon={<FaCodeBranch />}
+            title="Feed Tree Panel"
+            Icon={<CodeBranchIcon />}
             action="graph"
             dispatch={dispatch}
             drawerState={drawerState}
@@ -61,16 +61,18 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonContainer
-            title="Node"
+            title={
+              node ? "Configuration Panel" : note ? "Feed Note" : "Terminal"
+            }
             Icon={
               node ? (
-                <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
+                <NodeDetailsPanelIcon />
               ) : note ? (
                 <>
-                  <PencilSquareIcon className="pf-v5-svg" />
+                  <NoteEditIcon />
                 </>
               ) : (
-                <CommandLineIcon className="pf-v5-svg" />
+                <TerminalIcon />
               )
             }
             action="node"
@@ -84,8 +86,8 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonContainer
-            title="Directory"
-            Icon={<FolderOpenIcon className="pf-v5-svg" />}
+            title="Folder Directory Panel"
+            Icon={<FolderTreeIcon />}
             action="directory"
             dispatch={dispatch}
             drawerState={drawerState}
@@ -97,8 +99,8 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonContainer
-            title="Files"
-            Icon={<FaFileIcon />}
+            title="Files Table Panel"
+            Icon={<FeedBrowserIcon />}
             action="files"
             dispatch={dispatch}
             drawerState={drawerState}
@@ -110,10 +112,8 @@ const FeedDetails = () => {
       <DrawerActionsToolbar
         button={
           <ButtonContainer
-            title="Preview"
-            Icon={
-              preview ? <PhotoIcon className="pf-v5-svg" /> : <FaBrainIcon />
-            }
+            title="Preview Panel"
+            Icon={preview ? <PreviewIcon /> : <BrainIcon />}
             action="preview"
             dispatch={dispatch}
             drawerState={drawerState}
@@ -127,7 +127,7 @@ const FeedDetails = () => {
           <ButtonWithTooltip
             className="button-style large-button"
             position="bottom"
-            content={!node && terminal ? "Node Details" : "Terminal"}
+            content={!node && terminal ? "Configuration Panel" : "Terminal"}
             onClick={() => {
               if (terminal) {
                 dispatch(setDrawerCurrentlyActive("node", "node"));
@@ -136,11 +136,7 @@ const FeedDetails = () => {
               }
             }}
             Icon={
-              !node && terminal ? (
-                <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
-              ) : (
-                <CommandLineIcon className="pf-v5-svg" />
-              )
+              !node && terminal ? <NodeDetailsPanelIcon /> : <TerminalIcon />
             }
             isDisabled={false}
           />
@@ -153,7 +149,7 @@ const FeedDetails = () => {
             <ButtonWithTooltip
               className="button-style large-button"
               position="bottom"
-              content={!note ? "Feed Note" : "Node Details"}
+              content={!note ? "Feed Note" : "Configuration Panel"}
               onClick={() => {
                 if (note) {
                   dispatch(setDrawerCurrentlyActive("node", "node"));
@@ -163,10 +159,10 @@ const FeedDetails = () => {
               }}
               Icon={
                 !node && note ? (
-                  <EllipsisHorizontalCircleIcon className="pf-v5-svg" />
+                  <NodeDetailsPanelIcon />
                 ) : (
                   <>
-                    <PencilSquareIcon className="pf-v5-svg" />
+                    <NoteEditIcon />
                   </>
                 )
               }
@@ -181,7 +177,7 @@ const FeedDetails = () => {
           <ButtonWithTooltip
             className="button-style large-button"
             position="bottom"
-            content={preview ? "Xtk Viewer" : "Preview"}
+            content={preview ? "Visualization Panel" : "Preview Panel"}
             onClick={() => {
               if (preview) {
                 dispatch(setDrawerCurrentlyActive("preview", "xtk"));
@@ -189,9 +185,7 @@ const FeedDetails = () => {
                 dispatch(setDrawerCurrentlyActive("preview", "preview"));
               }
             }}
-            Icon={
-              preview ? <FaBrainIcon /> : <PhotoIcon className="pf-v5-svg" />
-            }
+            Icon={preview ? <BrainIcon /> : <PreviewIcon />}
             isDisabled={false}
           />
         }
