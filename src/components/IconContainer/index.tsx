@@ -12,7 +12,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert, Spin } from "antd";
 import { cujs } from "chris-utility";
 import React, { ReactElement } from "react";
 import { useDispatch } from "react-redux";
@@ -169,11 +169,18 @@ const IconContainer = () => {
       const { bulkSelect, sharePublically, feedName } = data;
       for (const feed of bulkSelect) {
         try {
-          await feed.put({
-            //@ts-ignore
-            public: sharePublically ? sharePublically : feed.data.public,
-            owner: sharePublically ? feed.data.creator_username : feedName,
-          });
+          if (sharePublically) {
+            const currentState = feed.data.public;
+
+            await feed.put({
+              //@ts-ignore
+              public: !currentState,
+            });
+          } else {
+            await feed.put({
+              owner: feedName,
+            });
+          }
         } catch (error: any) {
           throw new Error(error);
         }
@@ -181,6 +188,7 @@ const IconContainer = () => {
     },
     onSuccess: () => {
       dispatch(setBulkSelect([], false));
+      invalidateQueries();
       handleModalToggle(false);
     },
     onError: (error) => {
@@ -304,6 +312,12 @@ const IconContainer = () => {
       handleDuplicateFeedMutation.mutate({ feedList: bulkSelect, feedName });
   };
 
+  const isPending =
+    shareFeedMutation.isPending ||
+    handleDownloadMutation.isPending ||
+    handleDuplicateFeedMutation.isPending ||
+    deleteFeedMutation.isPending;
+
   return (
     <ToggleGroup aria-label="Feed Action Bar">
       {["archive", "merge", "duplicate", "share", "delete"].map((action) => {
@@ -339,7 +353,8 @@ const IconContainer = () => {
             variant={currentAction === "delete" ? "danger" : "primary"}
             form="modal-with-form-form"
             onClick={handleSubmit}
-            isDisabled={bulkSelect.length === 0}
+            isDisabled={bulkSelect.length === 0 || isPending}
+            icon={isPending && <Spin />}
           >
             Confirm
           </Button>,
@@ -380,7 +395,7 @@ const IconContainer = () => {
                   <Checkbox
                     isChecked={modalState.sharePublically}
                     id="checked"
-                    label="Share this feed publically"
+                    label="This will make a private feed public and vice versa"
                     onChange={(_event, checked: boolean) => {
                       setModalState({
                         ...modalState,
