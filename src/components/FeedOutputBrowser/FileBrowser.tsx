@@ -51,6 +51,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
+
   const dispatch = useDispatch();
   const [currentRowIndex, setCurrentRowIndex] = React.useState(0);
   const { files, folders, path } = pluginFilesPayload;
@@ -64,66 +65,60 @@ const FileBrowser = (props: FileBrowserProps) => {
   const pathSplit = path?.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
+  const privateFeed = feed?.data.public === false ? true : false;
+
   const makeDataSourcePublic = async () => {
     // Implement logic to make the data source public
-    await feed?.put({ public: true });
+    await feed?.put({
+      //@ts-ignore
+      public: true,
+    });
   };
 
   const makeDataSourcePrivate = async () => {
+    console.log("Make it private again");
     // Implement logic to make the data source private again
-    await feed?.put({ public: false });
+    await feed?.put({
+      //@ts-ignore
+      public: false,
+    });
   };
 
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
       try {
-        const extension = getFileExtension(item.data.fname);
         const fileName = getFileName(item.data.fname);
         const link = document.createElement("a");
-        if (["dcm", "png", "jpg", "json"].includes(extension)) {
-          // Triggering a browser download for these files can be inconsistent
-          try {
-            const blob = await item.getFileBlob();
-            if (!blob) {
-              throw new Error("Failed to fetch the file");
-            }
-            link.href = window.URL.createObjectURL(blob);
-            link.download = fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            return item;
-          } catch (e) {
-            throw e;
-          }
-        } else {
-          const url = item.collection.items[0].links[0].href;
-          if (!url) {
-            throw new Error("Failed to construct the url");
-          }
-          const client = ChrisAPIClient.getClient();
-          const token = client.auth.token;
-          // This is highly inconsistent and needs to be investigated further
-          const authorizedUrl = `${url}?token=${token}`; // Add token as a query parameter
-          const privateFeed = feed?.data.public === false;
-          // Make the data source public
-          privateFeed && (await makeDataSourcePublic());
 
-          // Create an anchor element
+        const url = item.collection.items[0].links[0].href;
+        if (!url) {
+          throw new Error("Failed to construct the url");
+        }
 
-          link.href = authorizedUrl;
-          link.download = fileName; // Set the download attribute to specify the filename
-          // Append the anchor element to the document body
-          document.body.appendChild(link);
-          // Programmatically trigger the download
-          link.click();
-          // Remove the anchor element from the document body after the download is initiated
-          document.body.removeChild(link);
+        // This is highly inconsistent and needs to be investigated further
+        const authorizedUrl = `${url}`; // Add token as a query parameter
 
+        // Make the data source public
+        privateFeed && (await makeDataSourcePublic());
+
+        // Create an anchor element
+
+        link.href = authorizedUrl;
+        link.download = fileName; // Set the download attribute to specify the filename
+        // Append the anchor element to the document body
+        // Listen for the load event on the anchor element
+        link.onload = async () => {
           // Make the data source private again after the download is done
           privateFeed && (await makeDataSourcePrivate());
-          return item;
-        }
+        };
+
+        document.body.appendChild(link);
+        // Programmatically trigger the download
+        link.click();
+        // Remove the anchor element from the document body after the download is initiated
+        document.body.removeChild(link);
+
+        return item;
       } catch (e) {
         throw e;
       }
@@ -372,6 +367,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                             variant="plain"
                             onClick={(e) => {
                               e.stopPropagation();
+                              e.preventDefault();
                               downloadMutation.mutate(item);
                             }}
                             icon={<DownloadIcon />}
