@@ -45,6 +45,8 @@ const getFileName = (name: string) => {
   return name.split("/").slice(-1).join("");
 };
 
+let isDownloadInitiated = false;
+
 const FileBrowser = (props: FileBrowserProps) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
@@ -65,8 +67,6 @@ const FileBrowser = (props: FileBrowserProps) => {
   const pathSplit = path?.split(`/${plugin_name}_${id}/`);
   const breadcrumb = path ? pathSplit[1].split("/") : [];
 
-  const privateFeed = feed?.data.public === false ? true : false;
-
   const makeDataSourcePublic = async () => {
     // Implement logic to make the data source public
     await feed?.put({
@@ -85,6 +85,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
+      const privateFeed = feed?.data.public === false ? true : false;
       try {
         const fileName = getFileName(item.data.fname);
         const link = document.createElement("a");
@@ -109,13 +110,21 @@ const FileBrowser = (props: FileBrowserProps) => {
 
         document.body.appendChild(link);
         // Programmatically trigger the download
+
+        isDownloadInitiated = true;
+
         link.click();
         // Remove the anchor element from the document body after the download is initiated
         document.body.removeChild(link);
 
-        setTimeout(async () => {
-          privateFeed && (await makeDataSourcePrivate());
-        }, 2000); // Adjust the delay time as needed
+        // Wait for a short delay to ensure download initiation
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // If download is initiated, make the data source private
+        if (isDownloadInitiated && privateFeed) {
+          await makeDataSourcePrivate();
+        }
+        privateFeed && (await makeDataSourcePrivate());
 
         return item;
       } catch (e) {
