@@ -76,7 +76,6 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const makeDataSourcePrivate = async () => {
-    console.log("Make it private again");
     // Implement logic to make the data source private again
     await feed?.put({
       //@ts-ignore
@@ -107,16 +106,16 @@ const FileBrowser = (props: FileBrowserProps) => {
         link.download = fileName; // Set the download attribute to specify the filename
         // Append the anchor element to the document body
         // Listen for the load event on the anchor element
-        link.onload = async () => {
-          // Make the data source private again after the download is done
-          privateFeed && (await makeDataSourcePrivate());
-        };
 
         document.body.appendChild(link);
         // Programmatically trigger the download
         link.click();
         // Remove the anchor element from the document body after the download is initiated
         document.body.removeChild(link);
+
+        setTimeout(async () => {
+          privateFeed && (await makeDataSourcePrivate());
+        }, 2000); // Adjust the delay time as needed
 
         return item;
       } catch (e) {
