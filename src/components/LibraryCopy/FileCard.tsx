@@ -3,23 +3,22 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Split,
-  SplitItem,
-  Progress,
   Modal,
   ModalVariant,
+  Progress,
+  Split,
+  SplitItem,
 } from "@patternfly/react-core";
+import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
-import { useContext, useState } from "react";
-import FaFile from "@patternfly/react-icons/dist/esm/icons/file-icon";
-import FaDownload from "@patternfly/react-icons/dist/esm/icons/download-icon";
-import AiOutlineClose from "@patternfly/react-icons/dist/esm/icons/close-icon";
-import useLongPress from "./utils";
-import FileDetailView from "../Preview/FileDetailView";
+import axios, { AxiosProgressEvent } from "axios";
+import { useContext, useEffect, useState } from "react";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { FileViewerModel } from "../../api/model";
-import { DotsIndicator } from "../Common";
-import { elipses } from "./utils";
+import { DownloadIcon, FileIcon } from "../Icons";
+import FileDetailView from "../Preview/FileDetailView";
 import { LibraryContext } from "./context";
+import useLongPress, { elipses } from "./utils";
 
 const FileCard = ({ file }: { file: any }) => {
   const { state } = useContext(LibraryContext);
@@ -34,6 +33,59 @@ const FileCard = ({ file }: { file: any }) => {
   const fileNameArray = file.data.fname.split("/");
   const fileName = fileNameArray[fileNameArray.length - 1];
   const { previewAll } = state;
+
+  const downloadFile = useMutation({
+    mutationFn: () => {
+      const url = file.collection.items[0].links[0].href;
+      if (!url) {
+        throw new Error("Count not fetch the file from this url");
+      }
+      const client = ChrisAPIClient.getClient();
+      const token = client.auth.token;
+
+      const downloadPromise = axios.get(url, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
+          if (progressEvent?.progress) {
+            setDownloadStatus(progressEvent.progress * 100);
+          }
+        },
+      });
+      return downloadPromise;
+    },
+  });
+
+  useEffect(() => {
+    if (downloadFile.isSuccess) {
+      const { data: response } = downloadFile;
+      const link = document.createElement("a");
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      const fileViewer = new FileViewerModel();
+      const fileName = fileViewer.getFileName(file);
+      link.target = "_blank";
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      notification.info({
+        message: `Triggered download for ${fileName}`,
+        duration: 0.5,
+      });
+      downloadFile.reset();
+      setDownloadStatus(-1);
+    }
+
+    if (downloadFile.isError) {
+      notification.error({
+        message: `${downloadFile.error.message}`,
+        duration: 2,
+      });
+      downloadFile.reset();
+    }
+  }, [downloadFile.isSuccess, downloadFile.isError]);
 
   return (
     <Card
@@ -52,9 +104,9 @@ const FileCard = ({ file }: { file: any }) => {
       isRounded
     >
       <CardHeader>
-        <Split style={{ overflow: "hidden" }}>
+        <Split style={{ overflow: "hidden", alignItems: "center" }}>
           <SplitItem>
-            <FaFile />
+            <FileIcon />
           </SplitItem>
           <SplitItem isFilled>
             <Button variant="link">{elipses(fileName, 40)}</Button>
@@ -78,25 +130,13 @@ const FileCard = ({ file }: { file: any }) => {
           <Button
             style={{ marginLeft: "0.5rem" }}
             variant="link"
-            icon={
-              <FaDownload
-                style={{ cursor: "pointer" }}
-                onClick={async (event) => {
-                  event.stopPropagation();
-                  FileViewerModel.startDownload(
-                    file,
-                    notification,
-                    (statusCallbackValue: any) => {
-                      const statusValue = statusCallbackValue[file.data.fname];
-                      setDownloadStatus(statusValue);
-                    },
-                  );
-                }}
-              />
-            }
+            onClick={async (event) => {
+              event.stopPropagation();
+              downloadFile.mutate();
+            }}
+            icon={<DownloadIcon style={{ cursor: "pointer" }} />}
           />
-          {status === 0 && <DotsIndicator title="Processing Download..." />}
-          {status && status > 0 ? (
+          {status > 0 && (
             <div
               style={{
                 display: "flex",
@@ -110,19 +150,9 @@ const FileCard = ({ file }: { file: any }) => {
                 }}
                 size="sm"
                 value={status}
-              />{" "}
-              <AiOutlineClose
-                style={{
-                  color: "red",
-                  marginLeft: "0.25rem",
-                }}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  FileViewerModel.abortControllers[file.data.fname].abort();
-                }}
               />
             </div>
-          ) : null}
+          )}
         </div>
       </CardBody>
       {largePreview && (
