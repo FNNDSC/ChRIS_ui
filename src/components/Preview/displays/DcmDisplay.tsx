@@ -41,7 +41,8 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         if (extension === "dcm") {
           imageID = await loadDicomImage(blob);
         } else {
-          const fileName = FileViewerModel.getFileName(file);
+          const fileviewer = new FileViewerModel();
+          const fileName = fileviewer.getFileName(file);
           imageID = `web:${file.url}${fileName}`;
         }
         const activeViewport = await displayDicomImage(element, imageID);
