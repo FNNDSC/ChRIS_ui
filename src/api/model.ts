@@ -168,148 +168,6 @@ export interface IFileBlob {
   fileType: string;
 }
 
-export class FileViewerModel {
-  static downloadStatus: any = {};
-  static itemsToDownload: FeedFile[] = [];
-  static abortControllers: any = {};
-
-  static getFileName(item: FeedFile) {
-    const splitString = item.data.fname.split("/");
-    const filename = splitString[splitString.length - 1];
-    return filename;
-  }
-
-  static setDownloadStatus(status: number, item: FeedFile) {
-    this.downloadStatus = {
-      ...this.downloadStatus,
-      [item.data.fname]: status,
-    };
-  }
-
-  static startDownload(
-    item: FeedFile,
-    notification: any,
-    callback: (status: any) => void,
-  ) {
-    const findItem = this.itemsToDownload.find(
-      (currentItem) => currentItem.data.fname === item.data.fname,
-    );
-
-    const filename = this.getFileName(item);
-
-    const onDownloadProgress = (progress: any, item: FeedFile) => {
-      this.downloadStatus = {
-        ...this.downloadStatus,
-        [item.data.fname]: progress,
-      };
-      callback(this.downloadStatus);
-    };
-
-    if (!findItem) {
-      this.itemsToDownload.push(item);
-      this.setDownloadStatus(0, item);
-      callback(this.downloadStatus);
-      notification.info({
-        message: `Preparing ${filename} for download.`,
-        description: `Total Jobs (${this.itemsToDownload.length})`,
-        duration: 5,
-      });
-
-      this.downloadFile(
-        item,
-        filename,
-        notification,
-        callback,
-        onDownloadProgress,
-      );
-    }
-  }
-
-  static removeJobs(
-    item: FeedFile,
-    notification: any,
-    callback: (status: any) => void,
-    status: string,
-  ) {
-    const index = this.itemsToDownload.indexOf(item);
-    if (index > -1) {
-      // only splice array when item is found
-      this.itemsToDownload.splice(index, 1); // 2nd parameter means remove one item only
-    }
-
-    delete this.downloadStatus[item.data.fname];
-    delete this.abortControllers[item.data.fname];
-    const filename = this.getFileName(item);
-
-    callback(this.downloadStatus);
-    notification.info({
-      message: `${status} download for ${filename}`,
-      description: `Total jobs ${this.itemsToDownload.length}`,
-      duration: 1.5,
-    });
-  }
-
-  // Download File Blob
-  static async downloadFile(
-    item: FeedFile,
-    filename: string,
-    notification: any,
-    callback: (status: any) => void,
-    onDownloadProgressCallback: (progressEvent: number, item: FeedFile) => void,
-  ) {
-    const urlString = `${item.url}${filename}`;
-    const client = ChrisAPIClient.getClient();
-    const token = client.auth.token;
-    const controller = new AbortController();
-    const { signal } = controller;
-
-    this.abortControllers = {
-      ...this.abortControllers,
-      [item.data.fname]: controller,
-    };
-
-    const downloadPromise = axios
-      .get(urlString, {
-        responseType: "blob",
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-        signal,
-        onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
-          if (progressEvent.loaded) {
-            const progress = Math.floor(
-              (progressEvent.loaded / item.data.fsize) * 100,
-            );
-
-            onDownloadProgressCallback(progress, item);
-          }
-        },
-      })
-      .catch((error) => {
-        this.removeJobs(item, notification, callback, error);
-        return null;
-      });
-
-    const response = await downloadPromise;
-
-    if (response?.data) {
-      const blob = new Blob([response.data]);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.target = "_blank";
-      link.href = url;
-      link.setAttribute("download", filename);
-      document.body.appendChild(link);
-      setTimeout(function () {
-        link.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-      }, 1000);
-      this.removeJobs(item, notification, callback, "Finished");
-    }
-  }
-}
-
 // Description: Mapping for Viewer type by file type *Note: Should come from db
 // File type: Viewer component name
 export const fileViewerMap: any = {
@@ -344,4 +202,13 @@ export function getFileExtension(filename: string) {
 
   const name = filename.substring(filename.lastIndexOf(".") + 1);
   return name;
+}
+
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+export class FileViewerModel {
+  public getFileName(item: FeedFile) {
+    const splitString = item.data.fname.split("/");
+    const filename = splitString[splitString.length - 1];
+    return filename;
+  }
 }
