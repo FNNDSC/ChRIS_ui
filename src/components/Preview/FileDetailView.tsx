@@ -116,7 +116,6 @@ const FileDetailView = (props: AllProps) => {
   const { selectedFile, preview } = props;
 
   const fetchData = async (selectedFile: FeedFile | PACSFile) => {
-    console.log("SelectedFile", selectedFile);
     setError("");
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
@@ -132,7 +131,7 @@ const FileDetailView = (props: AllProps) => {
 
     try {
       const blob = await selectedFile.getFileBlob();
-      console.log("Blob", blob);
+
       return {
         blob,
         file: selectedFile,
