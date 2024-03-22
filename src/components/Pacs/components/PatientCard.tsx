@@ -9,7 +9,7 @@ import {
   Tooltip,
   Skeleton,
 } from "@patternfly/react-core";
-import StudyCard from "./StudyCard";
+import StudyCard from "./StudyCardCopy";
 import { CardHeaderComponent } from "./SettingsComponents";
 import { PacsQueryContext } from "../context";
 import useSettings from "../useSettings";

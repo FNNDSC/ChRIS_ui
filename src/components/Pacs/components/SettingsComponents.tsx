@@ -5,7 +5,7 @@ import { Popover } from "antd";
 import { Checkbox, Button } from "@patternfly/react-core";
 import ChrisApiClient from "../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../store/hooks";
-import SettingsIcon from "@patternfly/react-icons/dist/esm/icons/cog-icon";
+import { NodeDetailsPanelIcon } from "../../Icons";
 
 export const CardHeaderComponent = ({
   resource,
@@ -40,7 +40,7 @@ export const CardHeaderComponent = ({
             setSettingsModal(!settingsModal);
           }}
           variant="link"
-          icon={<SettingsIcon />}
+          icon={<NodeDetailsPanelIcon />}
         />
       </Popover>
     </div>

@@ -24,6 +24,7 @@ export enum Types {
   RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
   SET_PULL_STUDY = "SET_PULL_STUDY",
   SET_SERIES_UPDATE = "SET_SERIES_UPDATE",
+  SET_STUDY_PULL_TRACKER = "SET_STUDY_PULL_TRACKER",
 }
 
 interface PacsQueryState {
@@ -42,6 +43,11 @@ interface PacsQueryState {
   seriesUpdate: {
     [key: string]: Record<string, string>;
   };
+  studyPullTracker: {
+    [key: string]: {
+      [key: string]: boolean;
+    };
+  };
 }
 
 const initialState = {
@@ -56,6 +62,7 @@ const initialState = {
   pullStudy: false,
   seriesUpdate: {},
   seriesPreviews: {},
+  studyPullTracker: {},
 };
 
 type PacsQueryPayload = {
@@ -108,6 +115,12 @@ type PacsQueryPayload = {
     currentStep: string;
     seriesInstanceUID: string;
     studyInstanceUID: string;
+  };
+
+  [Types.SET_STUDY_PULL_TRACKER]: {
+    studyInstanceUID: string;
+    seriesInstanceUID: string;
+    currentProgress: boolean;
   };
 };
 
@@ -226,6 +239,21 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       return {
         ...state,
         pullStudy: !state.pullStudy,
+      };
+    }
+
+    case Types.SET_STUDY_PULL_TRACKER: {
+      const { studyInstanceUID, seriesInstanceUID, currentProgress } =
+        action.payload;
+      return {
+        ...state,
+        studyPullTracker: {
+          ...state.studyPullTracker,
+          [studyInstanceUID]: {
+            ...state.studyPullTracker[studyInstanceUID],
+            [seriesInstanceUID]: currentProgress,
+          },
+        },
       };
     }
 

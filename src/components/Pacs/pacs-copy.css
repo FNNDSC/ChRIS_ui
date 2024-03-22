@@ -75,3 +75,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+.retrieve-progress {
+  .pf-v5-c-progress__description {
+    display:none !important;
+  }
+}
