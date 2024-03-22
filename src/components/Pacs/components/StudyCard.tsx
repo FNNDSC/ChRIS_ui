@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { format, parse } from "date-fns";
 import { Alert } from "antd";
 import {
   Card,
@@ -64,6 +65,13 @@ const StudyCard = ({ study }: { study: any }) => {
     },
     fetchNextStatus ? 4000 : null,
   );
+  const studyDate = study.StudyDate.value;
+  const parsedDate = parse(studyDate, "yyyyMMdd", new Date());
+  const formattedDate = Number.isNaN(
+    parsedDate.getTime(),
+  ) /* Check if parsedDate is a valid date */
+    ? studyDate
+    : format(parsedDate, "MMMM d, yyyy");
 
   return (
     <>
@@ -133,7 +141,7 @@ const StudyCard = ({ study }: { study: any }) => {
                     <div>
                       {study.NumberOfStudyRelatedSeries.value &&
                         study.NumberOfStudyRelatedSeries.value}{" "}
-                      series, {`${formatStudyDate(study.StudyDate.value)}`}
+                      series, {formattedDate}
                     </div>
                   </div>
                   <div className="flex-studies-item ">
