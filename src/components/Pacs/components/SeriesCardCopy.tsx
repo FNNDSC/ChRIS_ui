@@ -94,6 +94,17 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     }
   }, [pullStudy]);
 
+  useEffect(() => {
+    if (
+      data &&
+      data.totalFilesCount > 0 &&
+      data.totalFilesCount !== seriesInstances &&
+      !isFetching
+    ) {
+      setIsFetching(true);
+    }
+  }, [data]);
+
   async function fetchCubeFiles() {
     try {
       const middleValue = Math.floor(seriesInstances / 2);
@@ -367,7 +378,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       </div>
 
       <div className="flex-series-item button-container">
-        {data && data.totalFilesCount < seriesInstances && !isFetching && (
+        {data && data.totalFilesCount <= 0 && !isFetching && (
           <Tooltip content="Retrieve Series">
             <Button
               variant="tertiary"
