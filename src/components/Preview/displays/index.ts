@@ -8,3 +8,4 @@ export { default as PdfDisplay } from "./PdfDisplay";
 export { default as XtkDisplay } from "./XtkDisplay";
 export { default as TextDisplay } from "./TextDisplay";
 export { default as NiiVueDisplay } from "./NiiVueDisplay.tsx";
+export { default as VideoDisplay } from "./VideoDisplay.tsx";

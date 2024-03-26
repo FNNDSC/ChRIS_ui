@@ -1,7 +1,5 @@
 import _ from "lodash";
 import type { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "./chrisapiclient";
-import axios, { AxiosProgressEvent } from "axios";
 
 export interface IActionTypeParam {
   type: string;
@@ -165,12 +163,15 @@ export class TreeModel {
 export interface IFileBlob {
   blob?: Blob;
   file?: FeedFile;
+  url?: string;
   fileType: string;
 }
 
 // Description: Mapping for Viewer type by file type *Note: Should come from db
 // File type: Viewer component name
-export const fileViewerMap: any = {
+export const fileViewerMap: {
+  [key: string]: string;
+} = {
   stats: "TextDisplay",
   txt: "TextDisplay",
   html: "IframeDisplay",
@@ -192,6 +193,11 @@ export const fileViewerMap: any = {
   smoothwm: "XtkDisplay",
   pial: "XtkDisplay",
   "nii.gz": "NiiVueDisplay",
+  mp4: "VideoDisplay", // Add mp4 format
+  avi: "VideoDisplay", // Add avi format
+  mov: "VideoDisplay", // Add mov format
+  wmv: "VideoDisplay", // Add wmv format
+  mkv: "VideoDisplay", // Add mkv format
 };
 
 // Description: get file type by file extension

@@ -275,6 +275,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             handlePrevious={handlePrevious}
             selectedFile={selectedFile}
             preview="large"
+            isPublic={feed?.data.public}
           />
         )}
         {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
