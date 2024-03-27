@@ -10,6 +10,7 @@ import {
   basicInit,
   handleEvents,
   type IStackViewport,
+  setUpTooling,
 } from "./dicomUtils/utils";
 import useSize from "../../FeedTree/useSize";
 import { type ActionState } from "../FileDetailView";
@@ -24,20 +25,27 @@ export type DcmImageProps = {
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview, actionState } = props;
   const { file, blob } = fileItem;
-  const dicomImageRef = React.useRef<HTMLDivElement>(null);
-  const element = dicomImageRef.current;
+
   const [activeViewport, setActiveViewport] = React.useState<
     IStackViewport | undefined
   >();
+  const [cornerstoneInitialized, setCornerstoneInitialized] =
+    React.useState<boolean>(false);
+  const dicomImageRef = React.useRef(null);
+
+  const uniqueId = `${file?.data.id}`;
+  const elementId = `cornerstone-element-${uniqueId}`;
 
   useSize(dicomImageRef);
 
   React.useEffect(() => {
     async function setupCornerstone() {
-      if (file && blob && element) {
+      const element = document.getElementById(elementId) as HTMLDivElement;
+      if (file && blob && element && !cornerstoneInitialized) {
         let imageID: string;
         const extension = getFileExtension(file.data.fname);
         await basicInit();
+        setUpTooling(uniqueId);
         if (extension === "dcm") {
           imageID = await loadDicomImage(blob);
         } else {
@@ -45,19 +53,25 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
           const fileName = fileviewer.getFileName(file);
           imageID = `web:${file.url}${fileName}`;
         }
-        const activeViewport = await displayDicomImage(element, imageID);
+
+        const activeViewport = await displayDicomImage(
+          element,
+          imageID,
+          uniqueId,
+        );
         setActiveViewport(activeViewport);
+        setCornerstoneInitialized(true); // Mark Cornerstone as initialized
       }
     }
 
     setupCornerstone();
-  }, [file, blob, element]);
+  }, [file, blob, uniqueId, cornerstoneInitialized, elementId]);
 
   React.useEffect(() => {
-    if (actionState && element) {
-      handleEvents(actionState, activeViewport);
+    if (actionState && activeViewport) {
+      handleEvents(actionState, uniqueId, activeViewport);
     }
-  }, [actionState, activeViewport, element]);
+  }, [actionState, activeViewport, uniqueId]);
 
   const style = {
     height: "100%",
@@ -66,7 +80,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   return (
     <div id="content" className={preview === "large" ? "dcm-preview" : ""}>
-      <div id="cornerstone-element" style={style} ref={dicomImageRef} />{" "}
+      <div id={elementId} style={style} ref={dicomImageRef} />
     </div>
   );
 };

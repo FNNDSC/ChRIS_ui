@@ -1,4 +1,4 @@
-import type { FeedFile } from "@fnndsc/chrisapi";
+import type { FeedFile, PACSFile } from "@fnndsc/chrisapi";
 import {
   Button,
   Label,
@@ -31,7 +31,7 @@ import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
-  selectedFile?: FeedFile;
+  selectedFile?: FeedFile | PACSFile;
   isDicom?: boolean;
   preview: "large" | "small";
   handleNext?: () => void;
@@ -115,7 +115,7 @@ const FileDetailView = (props: AllProps) => {
 
   const { selectedFile, preview } = props;
 
-  const fetchData = async (selectedFile: FeedFile) => {
+  const fetchData = async (selectedFile: FeedFile | PACSFile) => {
     setError("");
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
@@ -131,6 +131,7 @@ const FileDetailView = (props: AllProps) => {
 
     try {
       const blob = await selectedFile.getFileBlob();
+
       return {
         blob,
         file: selectedFile,

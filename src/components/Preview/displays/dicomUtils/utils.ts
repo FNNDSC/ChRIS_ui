@@ -45,9 +45,9 @@ const {
 const { MouseBindings } = csToolsEnums;
 
 let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
-let alreadyAdded = false;
-const renderingEngineId = "myRenderingEngine";
-const viewportId = "CT_STACK";
+const alreadyAdded: {
+  [key: string]: boolean;
+} = {};
 
 function initProviders() {
   cornerstone.metaData.addProvider(
@@ -62,32 +62,48 @@ function initProviders() {
   );
 }
 
-function setUpTooling() {
-  if (!alreadyAdded) {
-    // Add tools to Cornerstone3D
-    const toolGroupId = "STACK_TOOL_GROUP_ID";
-    cornerstoneTools.addTool(LengthTool);
-    cornerstoneTools.addTool(PanTool);
-    cornerstoneTools.addTool(WindowLevelTool);
-    cornerstoneTools.addTool(StackScrollMouseWheelTool);
-    cornerstoneTools.addTool(ZoomTool);
-    cornerstoneTools.addTool(MagnifyTool);
-    cornerstoneTools.addTool(PlanarRotateTool);
+export function setUpTooling(uniqueToolId: string) {
+  console.log(
+    "AlreadyAdded",
+    uniqueToolId,
+    alreadyAdded,
+    alreadyAdded[uniqueToolId],
+  );
 
-    toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
+  if (!alreadyAdded[uniqueToolId]) {
+    // Check if tool group already exists
+    const existingToolGroup = ToolGroupManager.getToolGroup(uniqueToolId);
+    console.log("ExistingToolGroup", existingToolGroup);
 
-    if (toolGroup) {
-      // Add tools to the tool group
+    if (!existingToolGroup) {
+      // Tool group doesn't exist, create a new one
+      const toolGroupId = uniqueToolId;
+      toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
 
-      toolGroup.addTool(WindowLevelTool.toolName);
-      toolGroup.addTool(PanTool.toolName);
-      toolGroup.addTool(ZoomTool.toolName);
-      toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
-      toolGroup.addTool(PlanarRotateTool.toolName);
-      toolGroup.addTool(LengthTool.toolName);
-      toolGroup.addTool(MagnifyTool.toolName);
+      if (toolGroup) {
+        // Add tools to the tool group
+        cornerstoneTools.addTool(LengthTool);
+        cornerstoneTools.addTool(PanTool);
+        cornerstoneTools.addTool(WindowLevelTool);
+        cornerstoneTools.addTool(StackScrollMouseWheelTool);
+        cornerstoneTools.addTool(ZoomTool);
+        cornerstoneTools.addTool(MagnifyTool);
+        cornerstoneTools.addTool(PlanarRotateTool);
+
+        toolGroup.addTool(WindowLevelTool.toolName);
+        toolGroup.addTool(PanTool.toolName);
+        toolGroup.addTool(ZoomTool.toolName);
+        toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
+        toolGroup.addTool(PlanarRotateTool.toolName);
+        toolGroup.addTool(LengthTool.toolName);
+        toolGroup.addTool(MagnifyTool.toolName);
+
+        // Mark the tool as added
+        alreadyAdded[uniqueToolId] = true;
+      }
+    } else {
+      console.log(`Tool group with ID ${uniqueToolId} already exists.`);
     }
-    alreadyAdded = true;
   }
 }
 
@@ -146,29 +162,23 @@ export const basicInit = async () => {
   initVolumeLoader();
   await init();
   csToolsInit();
-  setUpTooling();
   registerWebImageLoader(imageLoader);
 };
-
-const actionStateTools = [
-  "Zoom",
-  "Pan",
-  "WindowLevel",
-  "PlanarRotate",
-  "Length",
-  "Magnify",
-  "Reset",
-];
 
 export type IStackViewport = Types.IStackViewport;
 
 export const handleEvents = (
   actionState: { [key: string]: boolean | string },
+  uniqueToolId: string,
   activeViewport?: IStackViewport,
 ) => {
   const activeTool = Object.keys(actionState)[0];
   const previousTool = actionState.previouslyActive as string;
-  toolGroup?.setToolPassive(previousTool);
+  const existingToolGroup = ToolGroupManager.getToolGroup(uniqueToolId);
+
+  if (!existingToolGroup) return;
+
+  existingToolGroup?.setToolPassive(previousTool);
 
   if (activeTool === "Reset") {
     activeViewport?.resetCamera(true, true);
@@ -233,8 +243,11 @@ function createDisplayArea(
 export const displayDicomImage = async (
   element: HTMLDivElement,
   imageId: string,
+  uniqueId: string,
 ): Promise<Types.IStackViewport> => {
   try {
+    const viewportId = uniqueId;
+    const renderingEngineId = `myRenderingEngine_${uniqueId}`;
     const imageIds = [imageId];
     if (imageId.startsWith("web")) {
       metaData.addProvider(
@@ -242,7 +255,6 @@ export const displayDicomImage = async (
         10000,
       );
     }
-
     const renderingEngine = new RenderingEngine(renderingEngineId);
     const viewportInput = {
       viewportId,
@@ -262,7 +274,7 @@ export const displayDicomImage = async (
     viewport.setProperties(displayArea);
 
     await viewport.setStack(imageIds);
-    //cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
+    cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
 
     return viewport;

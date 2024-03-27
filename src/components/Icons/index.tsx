@@ -12,6 +12,9 @@ import {
   SearchPlusIcon,
   SearchIcon,
   InfoIcon,
+  DatabaseIcon,
+  QuestionCircleIcon,
+  ThLargeIcon,
 } from "@patternfly/react-icons";
 
 const MergeIcon = () => {
@@ -223,4 +226,7 @@ export {
   InfoIcon,
   RulerIcon,
   BrightnessIcon,
+  DatabaseIcon as LibraryIcon,
+  QuestionCircleIcon,
+  ThLargeIcon,
 };
