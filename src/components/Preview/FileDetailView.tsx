@@ -135,6 +135,7 @@ const FileDetailView = (props: AllProps) => {
         blob,
         file: selectedFile,
         fileType,
+        url: "",
       };
     } catch (error: any) {
       setError("Failed to fetch the data for preview");

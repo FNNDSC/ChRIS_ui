@@ -10,15 +10,19 @@ const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   let url = "";
 
   if (fileItem.fileType === "html") {
-    url = fileItem.blob
-      ? window.URL.createObjectURL(
-          new Blob([fileItem.blob], { type: "text/html" }),
-        )
-      : "";
+    url = fileItem.url
+      ? fileItem.url
+      : fileItem.blob
+        ? window.URL.createObjectURL(
+            new Blob([fileItem.blob], { type: "text/html" }),
+          )
+        : "";
   } else {
-    url = fileItem.blob
-      ? window.URL.createObjectURL(new Blob([fileItem.blob]))
-      : "";
+    url = fileItem.url
+      ? fileItem.url
+      : fileItem.blob
+        ? window.URL.createObjectURL(new Blob([fileItem.blob]))
+        : "";
   }
 
   return (
