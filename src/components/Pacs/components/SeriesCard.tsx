@@ -19,7 +19,7 @@ import {
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
-import { useContext, useEffect, useMemo, useState, Suspense } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { DotsIndicator } from "../../Common";
