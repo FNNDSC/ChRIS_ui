@@ -8,6 +8,7 @@ import {
   Skeleton,
   Tooltip,
 } from "@patternfly/react-core";
+import { format, parse } from "date-fns";
 import { Alert } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { DotsIndicator } from "../../Common";
@@ -31,6 +32,14 @@ const StudyCardCopy = ({ study }: { study: any }) => {
   const userPreferences = data?.study;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
   const studyInstanceUID = study.StudyInstanceUID.value;
+
+  const studyDate = study.StudyDate.value;
+  const parsedDate = parse(studyDate, "yyyyMMdd", new Date());
+  const formattedDate = Number.isNaN(
+    parsedDate.getTime(),
+  ) /* Check if parsedDate is a valid date */
+    ? studyDate
+    : format(parsedDate, "MMMM d, yyyy");
 
   useEffect(() => {
     if (studyPullTracker && pullStudy) {
@@ -122,7 +131,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
                     <div>
                       {study.NumberOfStudyRelatedSeries.value &&
                         study.NumberOfStudyRelatedSeries.value}{" "}
-                      series, {`${formatStudyDate(study.StudyDate.value)}`}
+                      series, {formattedDate}
                     </div>
                   </div>
                   <div className="flex-studies-item ">
