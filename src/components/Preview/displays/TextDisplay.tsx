@@ -32,6 +32,37 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     }
   }, [fileItem]);
 
+  React.useEffect(() => {
+    const textDisplay = document.getElementById("text-display");
+
+    if (textDisplay) {
+      const displayContent = async () => {
+        if (fileItem.blob) {
+          const reader = new FileReader();
+          reader.addEventListener(
+            "load",
+            () => {
+              //@ts-ignore
+              textDisplay.innerText = reader.result;
+            },
+            false,
+          );
+          reader.readAsText(fileItem.blob);
+        } else if (fileItem.url) {
+          try {
+            const response = await fetch(fileItem.url);
+            const text = await response.text();
+            textDisplay.innerText = text;
+          } catch (error) {
+            console.error("Failed to fetch text content from URL:", error);
+          }
+        }
+      };
+
+      displayContent();
+    }
+  }, [fileItem]);
+
   return (
     <Fragment>
       <div
@@ -48,7 +79,7 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
             fontFamily: "monospace",
             color: "white",
           }}
-        ></span>
+        />
       </div>
     </Fragment>
   );

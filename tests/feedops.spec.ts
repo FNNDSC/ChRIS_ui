@@ -8,8 +8,6 @@ const SOME_FILE = path.join(__dirname, "..", "package-lock.json");
 test("Can perform feed operations", async ({ page, isMobile }) => {
   test.slow();
   await page.goto("feeds?type=private");
-  const classSelector = ".ant-typography";
-
   const animal = faker.animal.type();
   const feedName = `A study on ${animal}`;
   await createFeed(page, feedName, SOME_FILE);

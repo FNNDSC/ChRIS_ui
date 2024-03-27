@@ -37,11 +37,14 @@ interface AllProps {
   handleNext?: () => void;
   handlePrevious?: () => void;
   gallery?: boolean;
+  isPublic?: boolean;
 }
 
 export interface ActionState {
   [key: string]: boolean | string;
 }
+
+const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
 
 const FileDetailView = (props: AllProps) => {
   const [tagInfo, setTagInfo] = React.useState<any>();
@@ -116,6 +119,15 @@ const FileDetailView = (props: AllProps) => {
     setError("");
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
+
+    if (props.isPublic && !fileTypes.includes(fileType)) {
+      return {
+        blob: undefined,
+        file: selectedFile,
+        fileType,
+        url: selectedFile?.collection.items[0].links[0].href, // Corrected semicolon to comma
+      };
+    }
 
     try {
       const blob = await selectedFile.getFileBlob();
