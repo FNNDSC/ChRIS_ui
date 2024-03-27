@@ -17,6 +17,10 @@ const Browser = ({ handleFolderClick, folders, files, path }: BrowserProps) => {
       }}
       hasGutter
     >
+      {folders && folders.length > 0 && (
+        <div>Number of Folders: {folders.length}</div>
+      )}
+      {files && files.length > 0 && <div>Number of Files : {files.length}</div>}
       {files &&
         files.length > 0 &&
         files.map((file) => {

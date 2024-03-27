@@ -75,3 +75,50 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+.retrieve-progress {
+  .pf-v5-c-progress__description {
+    display:none !important;
+  }
+}
+
+
+.series-actions {
+  z-index:1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hiddem;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.series-actions:hover {
+  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+}
+
+.action-button-container {
+  display: flex;
+  align-items: center;
+  flex-direction:column;
+}
+
+.progress-active {
+  .pf-v5-c-progress__indicator{
+    background-color:#bee1f4;
+  }
+}
+
+.progress-success{
+   .pf-v5-c-progress__indicator{
+    background-color:#004080;
+  }
+}

@@ -1,77 +1,58 @@
-import { useState, useContext } from "react";
-import { format, parse } from "date-fns";
-import { Alert } from "antd";
 import {
+  Badge,
+  Button,
   Card,
   CardHeader,
-  GridItem,
-  Badge,
-  Tooltip,
   Grid,
-  Button,
+  GridItem,
   Skeleton,
+  Tooltip,
 } from "@patternfly/react-core";
+import { Alert } from "antd";
+import { useContext, useEffect, useState } from "react";
 import { DotsIndicator } from "../../Common";
-import FaQuestionCircle from "@patternfly/react-icons/dist/esm/icons/question-circle-icon";
-import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
-import EyeIcon from "@patternfly/react-icons/dist/esm/icons/eye-icon";
-import ThLargeIcon from "@patternfly/react-icons/dist/esm/icons/th-large-icon";
-import SeriesCard from "./SeriesCard";
-import { formatStudyDate } from "./utils";
+import {
+  DownloadIcon,
+  PreviewIcon,
+  QuestionCircleIcon,
+  ThLargeIcon,
+} from "../../Icons";
 import { PacsQueryContext, Types } from "../context";
+import SeriesCard from "./SeriesCard";
 import { CardHeaderComponent } from "./SettingsComponents";
-import useInterval from "./useInterval";
+import { formatStudyDate } from "./utils";
 import useSettings from "../useSettings";
 
-const StudyCard = ({ study }: { study: any }) => {
+const StudyCardCopy = ({ study }: { study: any }) => {
   const { data, isLoading, error } = useSettings();
   const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
-
-  const [fetchNextStatus, setFetchNextStatus] = useState(false);
-
-  const { seriesPreviews, preview, seriesUpdate } = state;
-
+  const { preview, pullStudy, studyPullTracker } = state;
   const userPreferences = data?.study;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
+  const studyInstanceUID = study.StudyInstanceUID.value;
 
-  useInterval(
-    () => {
-      if (fetchNextStatus) {
-        const { series } = study;
-
-        let allCompleted = true;
-        const seriesUpdateForStudy = seriesUpdate[study.StudyInstanceUID.value];
-
-        if (seriesUpdateForStudy) {
-          for (const serie of series) {
-            const instanceUID = serie.SeriesInstanceUID.value;
-
-            if (seriesUpdateForStudy[instanceUID] !== "completed") {
-              allCompleted = false;
-              break;
-            }
+  useEffect(() => {
+    if (studyPullTracker && pullStudy) {
+      const studyBeingTracked = studyPullTracker[studyInstanceUID];
+      if (studyBeingTracked) {
+        let allSeriesBeingTracked = true;
+        for (const series in studyBeingTracked) {
+          const isSeriesDone = studyBeingTracked[series];
+          if (!isSeriesDone) {
+            allSeriesBeingTracked = false;
+            break;
           }
         }
-
-        if (allCompleted && seriesUpdateForStudy) {
-          setFetchNextStatus(!fetchNextStatus);
+        if (allSeriesBeingTracked) {
           dispatch({
             type: Types.SET_PULL_STUDY,
             payload: null,
           });
         }
       }
-    },
-    fetchNextStatus ? 4000 : null,
-  );
-  const studyDate = study.StudyDate.value;
-  const parsedDate = parse(studyDate, "yyyyMMdd", new Date());
-  const formattedDate = Number.isNaN(
-    parsedDate.getTime(),
-  ) /* Check if parsedDate is a valid date */
-    ? studyDate
-    : format(parsedDate, "MMMM d, yyyy");
+    }
+  }, [studyPullTracker, pullStudy]);
 
   return (
     <>
@@ -141,7 +122,7 @@ const StudyCard = ({ study }: { study: any }) => {
                     <div>
                       {study.NumberOfStudyRelatedSeries.value &&
                         study.NumberOfStudyRelatedSeries.value}{" "}
-                      series, {formattedDate}
+                      series, {`${formatStudyDate(study.StudyDate.value)}`}
                     </div>
                   </div>
                   <div className="flex-studies-item ">
@@ -165,7 +146,7 @@ const StudyCard = ({ study }: { study: any }) => {
                     <div className="study-detail-title">Accession Number</div>
                     {study.AccessionNumber.value?.startsWith("no value") ? (
                       <Tooltip content={study.AccessionNumber}>
-                        <FaQuestionCircle />
+                        <QuestionCircleIcon />
                       </Tooltip>
                     ) : (
                       <div>{study.AccessionNumber.value}</div>
@@ -177,7 +158,7 @@ const StudyCard = ({ study }: { study: any }) => {
                       "no value",
                     ) ? (
                       <Tooltip content={study.PerformedStationAETitle.value}>
-                        <FaQuestionCircle />
+                        <QuestionCircleIcon />
                       </Tooltip>
                     ) : (
                       <div>{study.PerformedStationAETitle.value}</div>
@@ -185,7 +166,6 @@ const StudyCard = ({ study }: { study: any }) => {
                   </div>
                 </>
               )}
-
               <div className="flex-studies-item button-container">
                 {import.meta.env.VITE_OHIF_URL && (
                   <Tooltip content="Open in OHIF">
@@ -204,7 +184,6 @@ const StudyCard = ({ study }: { study: any }) => {
                     />
                   </Tooltip>
                 )}
-
                 <Tooltip
                   content={
                     preview === true ? "Hide All Previews" : "Show All Previews"
@@ -226,11 +205,11 @@ const StudyCard = ({ study }: { study: any }) => {
                         setIsStudyExpanded(true);
                       }
                     }}
-                    icon={<EyeIcon />}
+                    icon={<PreviewIcon />}
                   />
                 </Tooltip>
 
-                {fetchNextStatus ? (
+                {pullStudy ? (
                   <DotsIndicator title="Pulling Study..." />
                 ) : (
                   <Tooltip content="Pull Study">
@@ -240,8 +219,6 @@ const StudyCard = ({ study }: { study: any }) => {
                           type: Types.SET_PULL_STUDY,
                           payload: null,
                         });
-
-                        setFetchNextStatus(!fetchNextStatus);
                         setIsStudyExpanded(true);
                       }}
                       variant="tertiary"
@@ -260,17 +237,14 @@ const StudyCard = ({ study }: { study: any }) => {
         <div className="patient-series">
           <Grid hasGutter>
             {study.series.map((series: any) => {
-              const seriesID = series.SeriesInstanceUID.value;
-              const seriesPreview = seriesPreviews?.[seriesID];
               return (
                 <GridItem
                   key={series.SeriesInstanceUID.value}
-                  className={seriesPreviews?.[seriesID] ? "series-grid" : ""}
                   rowSpan={1}
-                  lg={seriesPreview ? 4 : 12}
-                  md={seriesPreview ? 4 : 12}
+                  lg={12}
+                  md={12}
                   sm={12}
-                  xl={seriesPreview ? 3 : 12}
+                  xl={12}
                 >
                   <SeriesCard
                     key={series.SeriesInstanceUID.value}
@@ -286,4 +260,4 @@ const StudyCard = ({ study }: { study: any }) => {
   );
 };
 
-export default StudyCard;
+export default StudyCardCopy;
