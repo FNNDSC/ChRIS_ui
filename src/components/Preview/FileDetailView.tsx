@@ -119,7 +119,7 @@ const FileDetailView = (props: AllProps) => {
     setError("");
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
-    console.log("props", props);
+
     if (props.isPublic && !fileTypes.includes(fileType)) {
       return {
         blob: undefined,
