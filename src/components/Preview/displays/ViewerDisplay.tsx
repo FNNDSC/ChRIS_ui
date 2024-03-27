@@ -10,6 +10,7 @@ import {
   XtkDisplay,
   TextDisplay,
   NiiVueDisplay,
+  VideoDisplay,
 } from "./index";
 import { ActionState } from "../FileDetailView";
 
@@ -23,6 +24,7 @@ const components = {
   XtkDisplay,
   TextDisplay,
   NiiVueDisplay,
+  VideoDisplay,
 };
 
 interface ViewerDisplayProps {
