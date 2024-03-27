@@ -445,7 +445,7 @@ const SeriesCard = ({ series }: { series: any }) => {
 
   const filePreviewLayout = (
     <CardBody style={{ height: "350px" }}>
-      <FileDetailView preview="small" selectedFile={cubeFilePreview} />
+      <FileDetailView preview="large" selectedFile={cubeFilePreview} />
       <div className="series-actions">
         <div className="action-button-container hover">{filePreviewButton}</div>
       </div>
