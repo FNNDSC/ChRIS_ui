@@ -20,10 +20,9 @@ export enum Types {
   SET_LOADING_SPINNER = "SET_LOADING_SPINNER",
   SET_DEFAULT_EXPANDED = "SET_DEFAULT_EXPANDED",
   SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
-  SET_SERIES_PREVIEWS = "SET_SERIES_PREVIEWS",
-  RESET_SERIES_PREVIEWS = "RESET_SERIES_PREVIEWS",
+
   SET_PULL_STUDY = "SET_PULL_STUDY",
-  SET_SERIES_UPDATE = "SET_SERIES_UPDATE",
+
   SET_STUDY_PULL_TRACKER = "SET_STUDY_PULL_TRACKER",
 }
 
@@ -32,17 +31,10 @@ interface PacsQueryState {
   pacsServices: string[];
   currentQueryType: string;
   queryResult: Record<any, any>[];
-  queryStageForSeries: Record<any, any>;
   fetchingResults: { status: boolean; text: string };
   shouldDefaultExpanded: boolean;
   preview: boolean;
-  seriesPreviews: {
-    [key: string]: boolean;
-  };
   pullStudy: boolean;
-  seriesUpdate: {
-    [key: string]: Record<string, string>;
-  };
   studyPullTracker: {
     [key: string]: {
       [key: string]: boolean;
@@ -55,13 +47,10 @@ const initialState = {
   pacsServices: [],
   currentQueryType: "PatientID",
   queryResult: [],
-  queryStageForSeries: {},
   fetchingResults: { status: false, text: "" },
   shouldDefaultExpanded: false,
   preview: false,
   pullStudy: false,
-  seriesUpdate: {},
-  seriesPreviews: {},
   studyPullTracker: {},
 };
 
@@ -100,22 +89,7 @@ type PacsQueryPayload = {
     preview: boolean;
   };
 
-  [Types.SET_SERIES_PREVIEWS]: {
-    seriesID: number;
-    preview: boolean;
-  };
-
-  [Types.RESET_SERIES_PREVIEWS]: {
-    clearSeriesPreview: boolean;
-  };
-
   [Types.SET_PULL_STUDY]: null;
-
-  [Types.SET_SERIES_UPDATE]: {
-    currentStep: string;
-    seriesInstanceUID: string;
-    studyInstanceUID: string;
-  };
 
   [Types.SET_STUDY_PULL_TRACKER]: {
     studyInstanceUID: string;
@@ -184,16 +158,6 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       };
     }
 
-    case Types.SET_QUERY_STAGE_FOR_SERIES: {
-      return {
-        ...state,
-        queryStageForSeries: {
-          ...state.queryStageForSeries,
-          [action.payload.SeriesInstanceUID]: action.payload.queryStage,
-        },
-      };
-    }
-
     case Types.SET_LOADING_SPINNER: {
       return {
         ...state,
@@ -218,23 +182,6 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       };
     }
 
-    case Types.SET_SERIES_PREVIEWS: {
-      return {
-        ...state,
-        seriesPreviews: {
-          ...state.seriesPreviews,
-          [action.payload.seriesID]: action.payload.preview,
-        },
-      };
-    }
-
-    case Types.RESET_SERIES_PREVIEWS: {
-      return {
-        ...state,
-        seriesPreviews: {},
-      };
-    }
-
     case Types.SET_PULL_STUDY: {
       return {
         ...state,
@@ -252,21 +199,6 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
           [studyInstanceUID]: {
             ...state.studyPullTracker[studyInstanceUID],
             [seriesInstanceUID]: currentProgress,
-          },
-        },
-      };
-    }
-
-    case Types.SET_SERIES_UPDATE: {
-      const { seriesInstanceUID, studyInstanceUID, currentStep } =
-        action.payload;
-
-      return {
-        ...state,
-        seriesUpdate: {
-          [studyInstanceUID]: {
-            ...state.seriesUpdate[studyInstanceUID],
-            [seriesInstanceUID]: currentStep,
           },
         },
       };
