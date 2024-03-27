@@ -89,7 +89,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   });
 
   useEffect(() => {
-    if (pullStudy) {
+    if (pullStudy && !isFetching) {
       handleRetrieve();
     }
   }, [pullStudy]);
