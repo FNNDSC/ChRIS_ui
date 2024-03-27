@@ -1,5 +1,3 @@
-import { useState, useContext } from "react";
-import { Alert } from "antd";
 import {
   Badge,
   Button,
@@ -53,9 +51,8 @@ const StudyCardCopy = ({ study }: { study: any }) => {
           });
         }
       }
-    },
-    fetchNextStatus ? 4000 : null,
-  );
+    }
+  }, [studyPullTracker, pullStudy]);
 
   return (
     <>
@@ -125,7 +122,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
                     <div>
                       {study.NumberOfStudyRelatedSeries.value &&
                         study.NumberOfStudyRelatedSeries.value}{" "}
-                      series, {formattedDate}
+                      series, {`${formatStudyDate(study.StudyDate.value)}`}
                     </div>
                   </div>
                   <div className="flex-studies-item ">
