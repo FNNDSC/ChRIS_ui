@@ -69,15 +69,16 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
-
   const seriesInstances = parseInt(NumberOfSeriesRelatedInstances.value);
+  const studyInstanceUID = StudyInstanceUID.value;
+  const seriesInstanceUID = SeriesInstanceUID.value;
 
   const pullQuery: DataFetchQuery = useMemo(() => {
     return {
-      StudyInstanceUID: StudyInstanceUID.value,
-      SeriesInstanceUID: SeriesInstanceUID.value,
+      StudyInstanceUID: studyInstanceUID,
+      SeriesInstanceUID: seriesInstanceUID,
     };
-  }, [SeriesInstanceUID.value]);
+  }, [studyInstanceUID, seriesInstanceUID]);
 
   const { data, isPending, isError, error } = useQuery({
     queryKey: ["pacsFiles", SeriesInstanceUID.value],
@@ -90,7 +91,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   });
 
   useEffect(() => {
-    if (pullStudy && !isFetching) {
+    if (pullStudy?.[studyInstanceUID] && !isFetching) {
       handleRetrieve();
     }
   }, [pullStudy]);
