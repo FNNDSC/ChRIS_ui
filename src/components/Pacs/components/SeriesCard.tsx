@@ -73,15 +73,17 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const studyInstanceUID = StudyInstanceUID.value;
   const seriesInstanceUID = SeriesInstanceUID.value;
 
-  const pullQuery: DataFetchQuery = useMemo(() => {
-    return {
-      StudyInstanceUID: studyInstanceUID,
-      SeriesInstanceUID: seriesInstanceUID,
-    };
-  }, [studyInstanceUID, seriesInstanceUID]);
+  const pullQuery: DataFetchQuery = {
+    StudyInstanceUID: studyInstanceUID,
+    SeriesInstanceUID: seriesInstanceUID,
+  };
 
   const { data, isPending, isError, error } = useQuery({
-    queryKey: ["pacsFiles", SeriesInstanceUID.value],
+    queryKey: [
+      SeriesInstanceUID.value,
+      StudyInstanceUID.value,
+      seriesInstances,
+    ],
     queryFn: fetchCubeFiles,
     refetchInterval: () => {
       if (isFetching) return 500;
@@ -97,6 +99,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   }, [pullStudy]);
 
   useEffect(() => {
+    if (isFetching) return;
     if (
       data &&
       data.totalFilesCount > 0 &&
@@ -169,7 +172,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         setIsPreviewFileAvailable(true);
       }
 
-      if (pullStudy) {
+      if (pullStudy?.[studyInstanceUID]) {
         dispatch({
           type: Types.SET_STUDY_PULL_TRACKER,
           payload: {
