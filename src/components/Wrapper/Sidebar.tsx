@@ -28,6 +28,7 @@ const Sidebar: React.FC<AllProps> = ({
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const onSelect = (selectedItem: any) => {
     const { itemId } = selectedItem;
+    if (sidebarActiveItem === itemId) return;
     setSidebarActive({
       activeItem: itemId,
     });
@@ -35,19 +36,26 @@ const Sidebar: React.FC<AllProps> = ({
 
   const urlParam = isLoggedIn ? "private" : "public";
 
+  const renderLink = (to: string, label: string, itemId: string) => {
+    if (sidebarActiveItem === itemId) {
+      return <span style={{ color: "gray" }}>{label}</span>;
+    }
+    return <Link to={to}>{label}</Link>;
+  };
+
   const PageNav = (
     <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
       <NavList>
         <NavItem itemId="overview" isActive={sidebarActiveItem === "overview"}>
-          <Link to="/">Overview</Link>
+          {renderLink("/", "Overview", "overview")}
         </NavItem>
 
         <NavGroup title="Data">
           <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
-            <Link to="/library">Library</Link>
+            {renderLink("/library", "Library", "lib")}
           </NavItem>
           <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
-            <Link to="/pacs">PACS Query/Retrieve</Link>
+            {renderLink("/pacs", "PACS Query/Retrieve", "pacs")}
           </NavItem>
         </NavGroup>
 
@@ -56,46 +64,30 @@ const Sidebar: React.FC<AllProps> = ({
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
-            <Link to={`/feeds?type=${urlParam}`}>
-              New and Existing Analyses
-            </Link>
+            {renderLink(
+              `/feeds?type=${urlParam}`,
+              "New and Existing Analyses",
+              "analyses",
+            )}
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            <Link to="/catalog">Plugins</Link>
+            {renderLink("/catalog", "Plugins", "catalog")}
           </NavItem>
 
           <NavItem itemId="compute" isActive={sidebarActiveItem === "compute"}>
-            <Link to="/compute">Compute</Link>
+            {renderLink("/compute", "Compute", "compute")}
           </NavItem>
 
           <NavItem
             itemId="pipelines"
             isActive={sidebarActiveItem === "pipelines"}
           >
-            <Link to="/pipelines">Pipelines</Link>
+            {renderLink("/pipelines", "Pipelines", "pipelines")}
           </NavItem>
 
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
-            <Link to="/dataset">Volume View</Link>
+            {renderLink("/dataset", "Volume View", "dataset")}
           </NavItem>
-
-          {import.meta.env.REACT_APP_ALPHA_FEATURES === "development" && (
-            <NavItem
-              itemId="workflows"
-              isActive={sidebarActiveItem === "workflows"}
-            >
-              <Link to="/workflows">Run a Quick Workflow</Link>
-            </NavItem>
-          )}
-
-          {import.meta.env.REACT_APP_ALPHA_FEATURES === "development" && (
-            <NavItem
-              itemId="workflows"
-              isActive={sidebarActiveItem === "workflows"}
-            >
-              <Link to="/workflows">Run a Quick Workflow</Link>
-            </NavItem>
-          )}
         </NavGroup>
       </NavList>
     </Nav>
