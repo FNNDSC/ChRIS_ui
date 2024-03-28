@@ -169,6 +169,7 @@ const QueryBuilder = () => {
             },
           });
 
+          // This is just for production instances where PACSDCM is the default service always.
           const findIndex = list.findIndex(
             (listItem: string) => listItem === "PACSDCM",
           );
@@ -177,7 +178,7 @@ const QueryBuilder = () => {
             dispatch({
               type: Types.SET_SELECTED_PACS_SERVICE,
               payload: {
-                selectedPacsService: findIndex > 1 ? list[findIndex] : list[0],
+                selectedPacsService: findIndex >= 1 ? list[findIndex] : list[0],
               },
             });
           }
