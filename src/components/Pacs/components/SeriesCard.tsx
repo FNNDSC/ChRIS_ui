@@ -74,6 +74,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   const pullQuery: DataFetchQuery = useMemo(() => {
     return {
+      StudyInstanceUID: StudyInstanceUID.value,
       SeriesInstanceUID: SeriesInstanceUID.value,
     };
   }, [SeriesInstanceUID.value]);
