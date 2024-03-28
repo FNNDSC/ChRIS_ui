@@ -82,7 +82,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     queryKey: ["pacsFiles", SeriesInstanceUID.value],
     queryFn: fetchCubeFiles,
     refetchInterval: () => {
-      if (isFetching) return 2000;
+      if (isFetching) return 500;
       return false;
     },
     refetchOnMount: true,
