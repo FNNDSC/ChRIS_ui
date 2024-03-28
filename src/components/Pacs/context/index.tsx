@@ -20,9 +20,7 @@ export enum Types {
   SET_LOADING_SPINNER = "SET_LOADING_SPINNER",
   SET_DEFAULT_EXPANDED = "SET_DEFAULT_EXPANDED",
   SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
-
   SET_PULL_STUDY = "SET_PULL_STUDY",
-
   SET_STUDY_PULL_TRACKER = "SET_STUDY_PULL_TRACKER",
 }
 
@@ -34,7 +32,9 @@ interface PacsQueryState {
   fetchingResults: { status: boolean; text: string };
   shouldDefaultExpanded: boolean;
   preview: boolean;
-  pullStudy: boolean;
+  pullStudy: {
+    [key: string]: boolean;
+  };
   studyPullTracker: {
     [key: string]: {
       [key: string]: boolean;
@@ -50,7 +50,7 @@ const initialState = {
   fetchingResults: { status: false, text: "" },
   shouldDefaultExpanded: false,
   preview: false,
-  pullStudy: false,
+  pullStudy: {},
   studyPullTracker: {},
 };
 
@@ -89,7 +89,10 @@ type PacsQueryPayload = {
     preview: boolean;
   };
 
-  [Types.SET_PULL_STUDY]: null;
+  [Types.SET_PULL_STUDY]: {
+    studyInstanceUID: string;
+    status: boolean;
+  };
 
   [Types.SET_STUDY_PULL_TRACKER]: {
     studyInstanceUID: string;
@@ -183,12 +186,15 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
     }
 
     case Types.SET_PULL_STUDY: {
+      const { studyInstanceUID, status } = action.payload;
       return {
         ...state,
-        pullStudy: !state.pullStudy,
+        pullStudy: {
+          ...state.pullStudy,
+          [studyInstanceUID]: status,
+        },
       };
     }
-
     case Types.SET_STUDY_PULL_TRACKER: {
       const { studyInstanceUID, seriesInstanceUID, currentProgress } =
         action.payload;

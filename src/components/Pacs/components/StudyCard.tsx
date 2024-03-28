@@ -21,7 +21,7 @@ import {
 import { PacsQueryContext, Types } from "../context";
 import SeriesCard from "./SeriesCard";
 import { CardHeaderComponent } from "./SettingsComponents";
-import { formatStudyDate } from "./utils";
+
 import useSettings from "../useSettings";
 
 const StudyCardCopy = ({ study }: { study: any }) => {
@@ -56,7 +56,10 @@ const StudyCardCopy = ({ study }: { study: any }) => {
         if (allSeriesBeingTracked) {
           dispatch({
             type: Types.SET_PULL_STUDY,
-            payload: null,
+            payload: {
+              studyInstanceUID,
+              status: false,
+            },
           });
         }
       }
@@ -218,7 +221,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
                   />
                 </Tooltip>
 
-                {pullStudy ? (
+                {pullStudy[studyInstanceUID] ? (
                   <DotsIndicator title="Pulling Study..." />
                 ) : (
                   <Tooltip content="Pull Study">
@@ -226,7 +229,10 @@ const StudyCardCopy = ({ study }: { study: any }) => {
                       onClick={() => {
                         dispatch({
                           type: Types.SET_PULL_STUDY,
-                          payload: null,
+                          payload: {
+                            studyInstanceUID,
+                            status: true,
+                          },
                         });
                         setIsStudyExpanded(true);
                       }}
