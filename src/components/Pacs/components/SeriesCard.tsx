@@ -377,7 +377,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         </>
       )}
       <div className="flex-series-item steps-container">
-        {isPending && !isError ? (
+        {isPending && !isError && !data ? (
           <DotsIndicator title="Fetching current status..." />
         ) : data ? (
           <Progress
@@ -398,13 +398,15 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
             measureLocation={ProgressMeasureLocation.top}
           />
         ) : (
-          <Alert
-            style={{ height: "100%" }}
-            closable
-            type="error"
-            message={error?.message || "Failed to get status. Try again"}
-            description={<span>{retrieveButton}</span>}
-          />
+          isError && (
+            <Alert
+              style={{ height: "100%" }}
+              closable
+              type="error"
+              message={error?.message || "Failed to get status. Try again"}
+              description={<span>{retrieveButton}</span>}
+            />
+          )
         )}
       </div>
 
