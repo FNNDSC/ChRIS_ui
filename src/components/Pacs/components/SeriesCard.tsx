@@ -99,6 +99,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   }, [pullStudy]);
 
   useEffect(() => {
+    if (isFetching) return;
     if (
       data &&
       data.totalFilesCount > 0 &&
