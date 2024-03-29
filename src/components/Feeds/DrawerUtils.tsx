@@ -6,11 +6,7 @@ import {
   DrawerHead,
   DrawerActions,
 } from "@patternfly/react-core";
-
-import {
-  ArrowsPointingInIcon,
-  ArrowsPointingOutIcon,
-} from "@heroicons/react/24/outline";
+import { CompressArrowsAltIcon, ExpandArrowsAltIcon } from "../Icons";
 
 interface ButtonProps {
   variant?: any;
@@ -85,7 +81,7 @@ export const DrawerActionButton = ({
               zIndex: "999",
             }}
             variant="link"
-            icon={<ArrowsPointingInIcon className="pf-v5-svg" />}
+            icon={<CompressArrowsAltIcon />}
             onClick={handleMinimize}
           />
         ) : (
@@ -93,7 +89,7 @@ export const DrawerActionButton = ({
             style={{ paddingLeft: "0.5em", paddingRight: "0.5em" }}
             onClick={handleMaximize}
             variant="link"
-            icon={<ArrowsPointingOutIcon className="pf-v5-svg" />}
+            icon={<ExpandArrowsAltIcon />}
           />
         )}
       </DrawerActions>

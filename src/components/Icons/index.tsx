@@ -15,6 +15,8 @@ import {
   DatabaseIcon,
   QuestionCircleIcon,
   ThLargeIcon,
+  CompressArrowsAltIcon,
+  ExpandArrowsAltIcon,
 } from "@patternfly/react-icons";
 
 const MergeIcon = () => {
@@ -229,4 +231,6 @@ export {
   DatabaseIcon as LibraryIcon,
   QuestionCircleIcon,
   ThLargeIcon,
+  CompressArrowsAltIcon,
+  ExpandArrowsAltIcon,
 };

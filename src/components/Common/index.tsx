@@ -1,4 +1,4 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { InfoIcon as InfoIconComponent } from "../Icons";
 import {
   ClipboardCopyButton,
   Dropdown,
@@ -153,18 +153,14 @@ export const InfoIcon = ({
   );
 
   return (
-    <Title level={4}>
-      {title}
-      <Popover placement="bottom" trigger="hover" content={content}>
-        <InformationCircleIcon
-          style={{
-            height: "1em",
-            width: "0.75em",
-            marginLeft: "0.25em",
-          }}
-        />
+    <div style={{ display: "flex" }}>
+      <Title level={4} style={{ marginBottom: 0 }}>
+        {title}
+      </Title>
+      <Popover placement="top" trigger="hover" content={content}>
+        <InfoIconComponent style={{ alignSelf: "flex-start" }} />
       </Popover>
-    </Title>
+    </div>
   );
 };
 

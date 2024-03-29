@@ -29,7 +29,6 @@
     "@cornerstonejs/streaming-image-volume-loader": "^1.61.1",
     "@cornerstonejs/tools": "^1.61.1",
     "@fnndsc/chrisapi": "^1.15.0",
-    "@heroicons/react": "^2.1.1",
     "@niivue/niivue": "^0.39.0",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.1.2",
