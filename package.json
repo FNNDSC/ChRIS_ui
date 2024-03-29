@@ -60,6 +60,7 @@
     "npm": "^10.4.0",
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
+    "query-string": "^9.0.0",
     "rc-tree": "^5.8.0",
     "react": "^18.2.0",
     "react-activity": "^2.1.3",

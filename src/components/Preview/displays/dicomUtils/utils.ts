@@ -63,17 +63,9 @@ function initProviders() {
 }
 
 export function setUpTooling(uniqueToolId: string) {
-  console.log(
-    "AlreadyAdded",
-    uniqueToolId,
-    alreadyAdded,
-    alreadyAdded[uniqueToolId],
-  );
-
   if (!alreadyAdded[uniqueToolId]) {
     // Check if tool group already exists
     const existingToolGroup = ToolGroupManager.getToolGroup(uniqueToolId);
-    console.log("ExistingToolGroup", existingToolGroup);
 
     if (!existingToolGroup) {
       // Tool group doesn't exist, create a new one
@@ -102,7 +94,7 @@ export function setUpTooling(uniqueToolId: string) {
         alreadyAdded[uniqueToolId] = true;
       }
     } else {
-      console.log(`Tool group with ID ${uniqueToolId} already exists.`);
+      console.error(`Tool group with ID ${uniqueToolId} already exists.`);
     }
   }
 }
