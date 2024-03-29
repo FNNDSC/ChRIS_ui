@@ -77,11 +77,11 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         };
 
         if (redirectTo) {
-          navigate(redirectTo);
+          const decodedRedirectTo = decodeURIComponent(redirectTo);
+          navigate(decodedRedirectTo);
         } else {
           navigate("/");
         }
-        //redirect(redirectTo);
       }
     } catch (error: unknown) {
       setShowHelperText(true);
