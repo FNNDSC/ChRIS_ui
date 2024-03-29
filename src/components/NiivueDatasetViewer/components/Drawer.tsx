@@ -12,7 +12,7 @@ import styles from "./Drawer.module.css";
 import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
 import { css } from "@patternfly/react-styles";
 import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
-import { EllipsisVIcon } from "@patternfly/react-icons";
+import { EllipsisVIcon } from "../../Icons";
 
 /**
  * A drawer which smushes the main content.

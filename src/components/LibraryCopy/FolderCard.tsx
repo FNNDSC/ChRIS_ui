@@ -7,9 +7,8 @@ import {
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import FaFolder from "@patternfly/react-icons/dist/esm/icons/folder-icon";
-
-import ExternalLinkSquareIcon from "@patternfly/react-icons/dist/esm/icons/external-link-square-alt-icon";
+import { FolderIcon as FaFolder } from "../Icons";
+import { ExternalLinkSquareAltIcon } from "../Icons";
 import useLongPress, { elipses } from "./utils";
 import { fetchAuthenticatedFeed, fetchPublicFeed } from "../Feeds/utilties";
 
@@ -74,7 +73,7 @@ function FolderCard({
             <span>
               <Link to={`/feeds/${data?.feed?.data.id}?type=${data?.type}`}>
                 {" "}
-                <ExternalLinkSquareIcon />
+                <ExternalLinkSquareAltIcon />
               </Link>
             </span>
           ) : null,

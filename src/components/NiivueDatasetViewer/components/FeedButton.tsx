@@ -1,5 +1,5 @@
 import { Button, Tooltip } from "@patternfly/react-core";
-import MdCallSplit from "@patternfly/react-icons/dist/esm/icons/code-branch-icon";
+import { CodeBranchIcon as MdCallSplit } from "../../Icons";
 import React from "react";
 import { useNavigate } from "react-router";
 import { Feed } from "@fnndsc/chrisapi";

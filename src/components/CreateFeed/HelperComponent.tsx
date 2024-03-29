@@ -6,10 +6,7 @@ import {
   FlexItem,
 } from "@patternfly/react-core";
 import { notification } from "antd";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import FileIcon from "@patternfly/react-icons/dist/esm/icons/file-icon";
-import FolderIcon from "@patternfly/react-icons/dist/esm/icons/folder-icon";
-
+import { DeleteIcon as TrashIcon, FileIcon, FolderIcon } from "../Icons";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
 

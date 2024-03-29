@@ -145,10 +145,7 @@ const NodeDetails: React.FC = () => {
           <FeedNote />
         ) : (
           <>
-            <div className="node-details__title">
-              <PluginTitle />
-            </div>
-
+            <PluginTitle />
             <Grid className="node-details__grid">
               {renderGridItem("Status", <StatusTitle />)}
             </Grid>

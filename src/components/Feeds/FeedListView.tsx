@@ -16,7 +16,7 @@ import {
   ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { SearchIcon } from "../Icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useQuery } from "@tanstack/react-query";
 import { Typography } from "antd";

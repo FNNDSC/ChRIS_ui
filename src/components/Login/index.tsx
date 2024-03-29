@@ -9,7 +9,7 @@ import {
   LoginMainFooterBandItem,
   LoginPage,
 } from "@patternfly/react-core";
-import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import { ExclamationCircleIcon } from "../Icons";
 import queryString from "query-string";
 import React from "react";
 import { useCookies } from "react-cookie";

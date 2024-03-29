@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
-import HomeIcon from "@patternfly/react-icons/dist/esm/icons/home-icon";
+import { HomeIcon } from "../Icons";
 
 const BreadcrumbContainer = ({
   path,
