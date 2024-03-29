@@ -1,27 +1,29 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
 import ChrisApiClient from "@fnndsc/chrisapi";
-import { useCookies } from "react-cookie";
-import ChRIS_Logo from "../../assets/chris-logo.png";
-import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 import {
+  HelperText,
+  HelperTextItem,
+  ListItem,
+  ListVariant,
   LoginFooterItem,
   LoginForm,
   LoginMainFooterBandItem,
   LoginPage,
-  ListItem,
-  ListVariant,
-  HelperText,
-  HelperTextItem,
 } from "@patternfly/react-core";
 import ExclamationCircleIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import queryString from "query-string";
+import React from "react";
+import { useCookies } from "react-cookie";
+import { useDispatch } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
+import ChRIS_Logo from "../../assets/chris-logo.png";
 import { setAuthTokenSuccess } from "../../store/user/actions";
 import "./Login.css";
-import ChrisAPIClient from "../../api/chrisapiclient";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [_cookies, setCookie] = useCookies<string>([""]);
   const [showHelperText, setShowHelperText] = React.useState(false);
@@ -30,8 +32,6 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   const [password, setPassword] = React.useState("");
   const [isValidPassword, setIsValidPassword] = React.useState(true);
   const [errorMessage, setErrorMessage] = React.useState("");
-
-  const navigate = useNavigate();
 
   enum LoginErrorMessage {
     invalidCredentials = "Invalid Credentials",
@@ -72,7 +72,16 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           }),
         );
 
-        navigate("/");
+        const { redirectTo } = queryString.parse(location.search) as {
+          redirectTo: string;
+        };
+
+        if (redirectTo) {
+          navigate(redirectTo);
+        } else {
+          navigate("/");
+        }
+        //redirect(redirectTo);
       }
     } catch (error: unknown) {
       setShowHelperText(true);
@@ -103,7 +112,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
     setPassword(value);
   };
 
-  let helperText;
+  let helperText: React.ReactNode = null;
   if (showHelperText) {
     helperText = (
       <HelperText>

@@ -37,7 +37,8 @@ const Sidebar: React.FC<AllProps> = ({
   const urlParam = isLoggedIn ? "private" : "public";
 
   const renderLink = (to: string, label: string, itemId: string) => {
-    if (sidebarActiveItem === itemId) {
+    // Don't do this for existing analyses
+    if (sidebarActiveItem !== "analyses" && sidebarActiveItem === itemId) {
       return <span style={{ color: "gray" }}>{label}</span>;
     }
     return <Link to={to}>{label}</Link>;
