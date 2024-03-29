@@ -81,7 +81,10 @@ export default function FeedView() {
 
   React.useEffect(() => {
     if (!type || (type === "private" && !isLoggedIn)) {
-      navigate(`/login?redirectTo=${location.pathname}${location.search}`);
+      const redirectTo = encodeURIComponent(
+        `${location.pathname}${location.search}`,
+      );
+      navigate(`/login?redirectTo=${redirectTo}`);
     }
   }, [type, navigate, isLoggedIn]);
 
