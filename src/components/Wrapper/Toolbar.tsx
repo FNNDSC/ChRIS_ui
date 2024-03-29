@@ -1,6 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dispatch } from "redux";
 import FeedDetails from "../FeedDetails";
@@ -39,11 +39,9 @@ type AllProps = IUserState & IUiState & IPropsFromDispatch & ComponentProps;
 const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   const drawerState = useTypedSelector((state) => state.drawers);
 
-  const fullScreen =
-    drawerState &&
-    drawerState["preview"].open &&
-    drawerState["preview"].maximized;
+  const fullScreen = drawerState?.preview.open && drawerState.preview.maximized;
   const navigate = useNavigate();
+  const location = useLocation();
   const [_, _setCookie, removeCookie] = useCookies();
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
   const queryClient = useQueryClient();
@@ -74,8 +72,10 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   };
 
   const copyLoginCommand = () => {
-    let url = `${window.location.protocol}://${window.location.host}`;
-    let command = `chrs login --ui "${url}" --cube "${import.meta.env.VITE_CHRIS_UI_URL}" --username "${username}" --token "${token}"`;
+    const url = `${window.location.protocol}://${window.location.host}`;
+    const command = `chrs login --ui "${url}" --cube "${
+      import.meta.env.VITE_CHRIS_UI_URL
+    }" --username "${username}" --token "${token}"`;
     navigator.clipboard.writeText(command);
     onDropdownToggle();
   };
@@ -108,6 +108,7 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
           <ToolbarItem>
             <Dropdown
               isPlain
+              onSelect={() => onDropdownToggle()}
               isOpen={isDropdownOpen}
               toggle={(toggleRef) => {
                 return (
@@ -126,7 +127,11 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
               <Button
                 style={{ padding: "0" }}
                 variant="link"
-                onClick={() => navigate("/login")}
+                onClick={() => {
+                  navigate(
+                    `/login?redirectTo=${location.pathname}${location.search}`,
+                  );
+                }}
               >
                 Login
               </Button>

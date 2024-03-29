@@ -8,7 +8,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import * as React from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { clearSelectedFile } from "../../store/explorer/actions";
 import {
   getFeedSuccess,
@@ -47,6 +47,7 @@ export default function FeedView() {
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = params;
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin,
@@ -75,12 +76,12 @@ export default function FeedView() {
   const { data: privateFeed } = useQuery({
     queryKey: ["authenticatedFeed", id],
     queryFn: () => fetchAuthenticatedFeed(id),
-    enabled: type === "private",
+    enabled: type === "private" && isLoggedIn,
   });
 
   React.useEffect(() => {
     if (!type || (type === "private" && !isLoggedIn)) {
-      navigate("/feeds?type=public");
+      navigate(`/login?redirectTo=${location.pathname}${location.search}`);
     }
   }, [type, navigate, isLoggedIn]);
 
@@ -90,11 +91,7 @@ export default function FeedView() {
       dispatch(getFeedSuccess(feed as Feed));
       dispatch(getPluginInstancesRequest(feed));
     }
-
-    if (!isLoggedIn && publicFeed && Object.keys(publicFeed).length === 0) {
-      navigate("/feeds?type=public");
-    }
-  }, [isLoggedIn, privateFeed, publicFeed, dispatch, navigate]);
+  }, [privateFeed, publicFeed, dispatch]);
 
   React.useEffect(() => {
     return () => {
