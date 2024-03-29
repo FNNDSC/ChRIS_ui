@@ -15,8 +15,7 @@ import {
   MenuToggle,
   TextInput,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { CubesIcon, SearchIcon } from "../Icons";
 import { Alert, Popover, Spin, Typography } from "antd";
 import React, { ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";

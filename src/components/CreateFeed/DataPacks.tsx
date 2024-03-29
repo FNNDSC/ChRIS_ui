@@ -10,8 +10,7 @@ import {
   TextInput,
   useWizardContext,
 } from "@patternfly/react-core";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-
+import { SearchIcon } from "../Icons";
 import { Types as AddNodeTypes } from "../AddNode/types";
 import { Types } from "./types/feed";
 import { notification } from "antd";

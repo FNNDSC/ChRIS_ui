@@ -1,7 +1,6 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { Alert, Switch, TextInput } from "@patternfly/react-core";
-import RotateLeft from "@patternfly/react-icons/dist/esm/icons/angle-double-left-icon";
-import RotateRight from "@patternfly/react-icons/dist/esm/icons/angle-double-right-icon";
+import { RotateLeft, RotateRight } from "../Icons";
 import { HierarchyPointLink, hierarchy, tree } from "d3-hierarchy";
 import { event, select } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";

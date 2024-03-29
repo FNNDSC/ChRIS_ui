@@ -53,33 +53,6 @@
   margin: 0 0.5em 0 0;
 }
 
-.node-block .node-details__title {
-  display: flex;
-  margin: 0.5em auto;
-}
-
-.node-block .node-details__title--button {
-  margin-left: auto;
-}
-
-.node-block .node-details__title--button .pf-m-start {
-  margin-right: 0px;
-}
-
-.node-block .node-details__title--button .pf-m-start svg {
-  height: 16px;
-  width: 16px;
-}
-
-.node-block .node-details__title--formInput {
-  --pf-c-form-control--Width: 30%;
-  margin-right: 1em;
-}
-
-.node-block .node-details__title--formButton {
-  margin-right: 1em;
-}
-
 .node-block .node-details__grid {
   margin-bottom: 0.5em;
 }

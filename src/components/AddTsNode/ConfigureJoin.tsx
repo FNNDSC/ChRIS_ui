@@ -5,7 +5,7 @@ import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { deleteTsNode } from "../../store/tsplugins/actions";
 import { useSafeDispatch } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
-import CloseIcon from "@patternfly/react-icons/dist/esm/icons/close-icon";
+import { CloseIcon } from "../Icons";
 import { InputType } from "./ParentContainer";
 
 type ConfigureJoinProps = {

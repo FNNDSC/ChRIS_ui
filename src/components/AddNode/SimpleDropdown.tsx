@@ -6,7 +6,7 @@ import {
   DropdownList,
   TextInput,
 } from "@patternfly/react-core";
-import CloseIcon from "@patternfly/react-icons/dist/esm/icons/close-icon";
+import { CloseIcon } from "../Icons";
 import { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./utils";
 import { PluginParameter } from "@fnndsc/chrisapi";

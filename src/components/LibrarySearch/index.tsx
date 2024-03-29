@@ -4,10 +4,8 @@ import { useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "react-router";
 import { Link } from "react-router-dom";
-
 import WrapperConnect from "../Wrapper";
 import { LibraryProvider } from "../LibraryCopy/context";
-
 import Browser from "../LibraryCopy/Browser";
 import { InfoIcon } from "../Common";
 import {
@@ -19,7 +17,7 @@ import {
   EmptyStateBody,
   EmptyStateIcon,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
+import { CubesIcon } from "../Icons";
 import { SpinContainer } from "../Common";
 import { find } from "../../api/filesystem";
 import Cart from "../LibraryCopy/Cart";

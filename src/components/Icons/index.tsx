@@ -17,6 +17,17 @@ import {
   ThLargeIcon,
   CompressArrowsAltIcon,
   ExpandArrowsAltIcon,
+  CloseIcon,
+  CubesIcon,
+  UploadIcon,
+  CogsIcon,
+  AngleDoubleLeftIcon,
+  AngleDoubleRightIcon,
+  HomeIcon,
+  ExternalLinkSquareAltIcon,
+  ExclamationCircleIcon,
+  EllipsisVIcon,
+  EditIcon,
 } from "@patternfly/react-icons";
 
 const MergeIcon = () => {
@@ -233,4 +244,15 @@ export {
   ThLargeIcon,
   CompressArrowsAltIcon,
   ExpandArrowsAltIcon,
+  CloseIcon,
+  CubesIcon,
+  UploadIcon,
+  CogsIcon as SettingsIcon,
+  AngleDoubleLeftIcon as RotateLeft,
+  AngleDoubleRightIcon as RotateRight,
+  HomeIcon,
+  ExternalLinkSquareAltIcon,
+  ExclamationCircleIcon,
+  EllipsisVIcon,
+  EditIcon,
 };

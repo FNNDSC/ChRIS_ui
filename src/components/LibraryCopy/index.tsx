@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-
 import ReactJson from "react-json-view";
 import {
   Button,
@@ -21,7 +20,6 @@ import {
 } from "@patternfly/react-core";
 import { Typography } from "antd";
 import { debounce } from "lodash";
-
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import WrapperConnect from "../Wrapper";
@@ -32,7 +30,7 @@ import { SpinContainer, EmptyStateComponent } from "../Common";
 import BreadcrumbContainer from "./BreadcrumbContainer";
 import { LibraryProvider } from "./context/";
 import { InfoIcon } from "../Common";
-import FaUpload from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import { UploadIcon as FaUpload } from "../Icons";
 import type { AxiosProgressEvent, AxiosResponse } from "axios";
 import { useCookieToken } from "../Common";
 import { useTypedSelector } from "../../store/hooks";
