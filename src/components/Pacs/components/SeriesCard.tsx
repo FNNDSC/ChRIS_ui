@@ -152,7 +152,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       if (pushCountCheck && pushCountCheck.length > 0) {
         const pushCount = +pushCountCheck[0].data.SeriesDescription;
 
-        if (pushCount !== seriesInstances) {
+        if (pushCount !== files.totalCount) {
           throw new Error(
             "The attempted push count does not match the number of series related instances.",
           );
