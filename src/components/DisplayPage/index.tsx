@@ -18,7 +18,7 @@ import {
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { EmptyStateComponent, SpinContainer } from "../Common";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { SearchIcon } from "../Icons";
 import "./display-page.css";
 
 export const ComputeQueryTypes = {

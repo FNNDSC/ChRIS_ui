@@ -5,7 +5,7 @@ import {
   TextInput,
   Title,
 } from "@patternfly/react-core";
-import EditIcon from "@patternfly/react-icons/dist/esm/icons/edit-icon";
+import { EditIcon } from "../Icons";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { useEffect, useState } from "react";
@@ -56,13 +56,19 @@ const PluginTitle = () => {
 
   return (
     <>
-      <Title headingLevel="h3" size="xl">
-        <span>{value}</span>
-      </Title>
-      <EditIcon
-        style={{ cursor: "pointer", marginLeft: "0.25em" }}
-        onClick={() => setIsOpen(!isOpen)}
-      />
+      <div style={{ display: "flex" }}>
+        <Title headingLevel="h3" size="md">
+          <span>{value}</span>
+        </Title>
+        <EditIcon
+          style={{
+            marginLeft: "0.75rem",
+            cursor: "pointer",
+            alignSelf: "flex-start",
+          }}
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </div>
 
       <Modal
         title="Edit the Selected Node's Name"

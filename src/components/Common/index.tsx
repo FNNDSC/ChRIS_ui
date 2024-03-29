@@ -1,4 +1,4 @@
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { InfoIcon as InfoIconComponent } from "../Icons";
 import {
   ClipboardCopyButton,
   Dropdown,
@@ -15,8 +15,7 @@ import {
   MenuToggle,
   TextInput,
 } from "@patternfly/react-core";
-import CubesIcon from "@patternfly/react-icons/dist/esm/icons/cubes-icon";
-import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
+import { CubesIcon, SearchIcon } from "../Icons";
 import { Alert, Popover, Spin, Typography } from "antd";
 import React, { ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
@@ -153,18 +152,14 @@ export const InfoIcon = ({
   );
 
   return (
-    <Title level={4}>
-      {title}
-      <Popover placement="bottom" trigger="hover" content={content}>
-        <InformationCircleIcon
-          style={{
-            height: "1em",
-            width: "0.75em",
-            marginLeft: "0.25em",
-          }}
-        />
+    <div style={{ display: "flex" }}>
+      <Title level={4} style={{ marginBottom: 0 }}>
+        {title}
+      </Title>
+      <Popover placement="top" trigger="hover" content={content}>
+        <InfoIconComponent style={{ alignSelf: "flex-start" }} />
       </Popover>
-    </Title>
+    </div>
   );
 };
 

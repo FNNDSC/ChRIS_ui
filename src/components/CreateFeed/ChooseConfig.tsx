@@ -18,9 +18,7 @@ import {
   Tooltip,
   useWizardContext,
 } from "@patternfly/react-core";
-import SettingsIcon from "@patternfly/react-icons/dist/esm/icons/cogs-icon";
-import TrashIcon from "@patternfly/react-icons/dist/esm/icons/trash-icon";
-import UploadIcon from "@patternfly/react-icons/dist/esm/icons/upload-icon";
+import { SettingsIcon, DeleteIcon as TrashIcon, UploadIcon } from "../Icons";
 import { Alert, Steps, notification } from "antd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useTypedSelector } from "../../store/hooks";
