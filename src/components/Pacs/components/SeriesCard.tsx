@@ -17,12 +17,14 @@ import {
   Tooltip,
   pluralize,
 } from "@patternfly/react-core";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
+import { MainRouterContext } from "../../../routes";
 import { DotsIndicator } from "../../Common";
+import { ThemeContext } from "../../DarkTheme/useTheme";
 import {
   CodeBranchIcon,
   DownloadIcon,
@@ -34,7 +36,6 @@ import { PacsQueryContext, Types } from "../context";
 import PFDCMClient, { DataFetchQuery } from "../pfdcmClient";
 import useSettings from "../useSettings";
 import { CardHeaderComponent } from "./SettingsComponents";
-import { MainRouterContext } from "../../../routes";
 
 async function getPACSData(
   pacsIdentifier: string,
@@ -55,8 +56,8 @@ async function getPACSData(
 }
 
 const SeriesCardCopy = ({ series }: { series: any }) => {
+  const theme = useContext(ThemeContext);
   const navigate = useNavigate();
-
   // Load user Preference Data
   const {
     data: userPreferenceData,
@@ -80,6 +81,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const studyInstanceUID = StudyInstanceUID.value;
   const seriesInstanceUID = SeriesInstanceUID.value;
 
+  // disable the card completely in this case
+  const isDisabled = seriesInstances === 0;
   const [isFetching, setIsFetching] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
@@ -361,6 +364,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       onClick={() => {
         handleRetrieveMutation.mutate();
       }}
+      // Only when the number of series related instances in a series is 0
+      isDisabled={isDisabled}
     />
   );
 
@@ -475,8 +480,21 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </CardHeader>
   );
 
+  let background = "";
+  if (isDisabled) {
+    if (theme.isDarkTheme) {
+      background = "#4F5255";
+    }
+    background = "#D2D2D2";
+  }
+
   return (
-    <Card isRounded>
+    <Card
+      style={{
+        background: background,
+      }}
+      isRounded
+    >
       {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
       {data?.fileToPreview && largeFilePreview}
     </Card>
