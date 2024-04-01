@@ -87,7 +87,8 @@ class PfdcmClient {
     };
 
     try {
-      await axios(RequestConfig);
+      const response = await axios(RequestConfig);
+      return response.data.timestamp;
     } catch (error: any) {
       throw new Error(error);
     }
