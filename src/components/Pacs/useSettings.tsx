@@ -61,17 +61,19 @@ const useSettings = () => {
     isLoading,
     data,
     error,
+    isError,
   }: {
     isLoading: boolean;
     data?: {
       [key: string]: Record<string, boolean>;
     };
     error: any;
+    isError: boolean;
   } = useQuery({
     queryKey: ["metadata"],
     queryFn: async () => await fetchData(username),
   });
 
-  return { data, isLoading, error };
+  return { data, isLoading, error, isError };
 };
 export default useSettings;

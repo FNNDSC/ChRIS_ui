@@ -17,9 +17,9 @@ import {
   Tooltip,
   pluralize,
 } from "@patternfly/react-core";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Alert } from "antd";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { DotsIndicator } from "../../Common";
@@ -56,7 +56,17 @@ async function getPACSData(
 
 const SeriesCardCopy = ({ series }: { series: any }) => {
   const navigate = useNavigate();
-  const { data: userData, isLoading, error: queryError } = useSettings();
+
+  // Load user Preference Data
+  const {
+    data: userPreferenceData,
+    isLoading: userDataLoading,
+    error: userDataErrorMessage,
+    isError: userDataError,
+  } = useSettings();
+  const userPreferences = userPreferenceData?.series;
+  const userPreferencesArray = userPreferences && Object.keys(userPreferences);
+
   const { state, dispatch } = useContext(PacsQueryContext);
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const { selectedPacsService, pullStudy, preview } = state;
@@ -66,38 +76,167 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     StudyInstanceUID,
     NumberOfSeriesRelatedInstances,
   } = series;
-  const [isFetching, setIsFetching] = useState(false);
-  const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
-  const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
   const seriesInstances = parseInt(NumberOfSeriesRelatedInstances.value);
   const studyInstanceUID = StudyInstanceUID.value;
   const seriesInstanceUID = SeriesInstanceUID.value;
+
+  const [isFetching, setIsFetching] = useState(false);
+  const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
+  const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
+  const [timeStamp, setTimeStamp] = useState(
+    localStorage.getItem(seriesInstanceUID.value) || "",
+  );
 
   const pullQuery: DataFetchQuery = {
     StudyInstanceUID: studyInstanceUID,
     SeriesInstanceUID: seriesInstanceUID,
   };
 
-  const { data, isPending, isError, error } = useQuery({
-    queryKey: [
-      SeriesInstanceUID.value,
-      StudyInstanceUID.value,
-      seriesInstances,
-    ],
+  // Handle Retrieve Request and save the timestamp of the request for polling
+  const handleRetrieveMutation = useMutation({
+    mutationFn: async () => {
+      try {
+        const data = await client.findRetrieve(selectedPacsService, pullQuery);
+        localStorage.setItem(SeriesInstanceUID.value, data);
+        setTimeStamp(data);
+        // Start polling for files after a successful pfdcm request
+        setIsFetching(true);
+      } catch (e) {
+        throw e;
+      }
+    },
+  });
+
+  const {
+    isPending: retrieveLoading,
+    isError: retrieveFetchError,
+    error: retrieveErrorMessage,
+  } = handleRetrieveMutation;
+
+  // Polling cube files after a successful retrieve request from pfdcm;
+  async function fetchCubeFiles() {
+    try {
+      const middleValue = Math.floor(seriesInstances / 2);
+
+      // Get the total file count current in cube
+      const files = await getPACSData(selectedPacsService, pullQuery, {
+        limit: 1,
+        offset: isPreviewFileAvailable ? middleValue : 0,
+      });
+
+      // Setting files to preview
+      const fileItems: PACSFile[] = files.getItems() as never as PACSFile[];
+      let fileToPreview: PACSFile | null = null;
+      if (fileItems) {
+        fileToPreview = fileItems[0];
+      }
+
+      // Get the series related instance in cube
+      const seriesRelatedInstance = await getPACSData(
+        "org.fnndsc.oxidicom",
+        pullQuery,
+        {
+          limit: 1,
+          ProtocolName: "NumberOfSeriesRelatedInstances",
+          min_creation_date: fileToPreview?.data.creation_date || timeStamp,
+        },
+      );
+
+      const seriesCountCheck = seriesRelatedInstance.getItems();
+
+      let seriesCount = null;
+      if (seriesCountCheck && seriesCountCheck.length > 0) {
+        seriesCount = +seriesCountCheck[0].data.SeriesDescription;
+
+        if (seriesCount !== seriesInstances) {
+          throw new Error(
+            "The number of series related instances in cube does not match the number in pfdcm.",
+          );
+        }
+      }
+
+      const pushCountInstance = await getPACSData(
+        "org.fnndsc.oxidicom",
+        pullQuery,
+        {
+          limit: 1,
+          ProtocolName: "OxidicomAttemptedPushCount",
+          min_creation_date: fileToPreview?.data.creation_date || timeStamp,
+        },
+      );
+
+      const pushCountCheck = pushCountInstance.getItems();
+      let pushCount = null;
+      if (pushCountCheck && pushCountCheck.length > 0) {
+        pushCount = +pushCountCheck[0].data.SeriesDescription;
+      }
+
+      const totalFilesCount = files.totalCount;
+
+      if (totalFilesCount >= middleValue) {
+        // Pick the middle image of the stack for preview. Set to true if that file is available
+        setIsPreviewFileAvailable(true);
+      }
+
+      // setting the study instance tracker if pull study is clicked
+      if (pullStudy?.[studyInstanceUID]) {
+        dispatch({
+          type: Types.SET_STUDY_PULL_TRACKER,
+          payload: {
+            seriesInstanceUID: SeriesInstanceUID.value,
+            studyInstanceUID: StudyInstanceUID.value,
+            currentProgress: totalFilesCount === seriesInstances,
+          },
+        });
+      }
+
+      if (pushCount && isFetching) {
+        // This means oxidicom is done pushing as the push count file is available
+        setIsFetching(false);
+        // Delete the timestamp from localstorage;
+        localStorage.removeItem(SeriesInstanceUID.value);
+        // oxidicom is done pushing but the file count in cube is less than the series related instances. Something has behaved.
+        if (pushCount && seriesCount && files.totalCount < seriesCount) {
+          throw new Error(
+            "Failed to retrieve successfully. The total file count does not match the expected series instances. Please try again",
+          );
+        }
+      }
+
+      return {
+        fileToPreview,
+        totalFilesCount,
+      };
+    } catch (error) {
+      setIsFetching(false);
+      throw error;
+    }
+  }
+
+  const {
+    data,
+    isPending: filesLoading,
+    isError: filesError,
+    error: filesErrorMessage,
+  } = useQuery({
+    queryKey: [SeriesInstanceUID.value, StudyInstanceUID.value],
     queryFn: fetchCubeFiles,
     refetchInterval: () => {
+      // Only fetch after a successfull response from pfdcm
       if (isFetching) return 500;
       return false;
     },
     refetchOnMount: true,
   });
 
+  // Retrieve this series if the pull study is clicked and the series is not already being retrieved.
   useEffect(() => {
     if (pullStudy?.[studyInstanceUID] && !isFetching) {
-      handleRetrieve();
+      handleRetrieveMutation.mutate();
     }
   }, [pullStudy]);
 
+  // Start polling from where the user left off in case the user refreshed the screen.
   useEffect(() => {
     if (isFetching) return;
     if (
@@ -110,100 +249,18 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     }
   }, [data]);
 
-  async function fetchCubeFiles() {
-    try {
-      const middleValue = Math.floor(seriesInstances / 2);
-      const files = await getPACSData(selectedPacsService, pullQuery, {
-        limit: 1,
-        offset: isPreviewFileAvailable ? middleValue : 0,
-      });
-
-      const seriesRelatedInstance = await getPACSData(
-        "org.fnndsc.oxidicom",
-        pullQuery,
-        {
-          limit: 1,
-          ProtocolName: "NumberOfSeriesRelatedInstances",
-        },
-      );
-
-      const pushCountInstance = await getPACSData(
-        "org.fnndsc.oxidicom",
-        pullQuery,
-        {
-          limit: 1,
-          ProtocolName: "OxidicomAttemptedPushCount",
-        },
-      );
-
-      const seriesCountCheck = seriesRelatedInstance.getItems();
-      const pushCountCheck = pushCountInstance.getItems();
-
-      if (seriesCountCheck && seriesCountCheck.length > 0) {
-        const seriesCount = +seriesCountCheck[0].data.SeriesDescription;
-
-        if (seriesCount !== seriesInstances) {
-          throw new Error(
-            "The number of series related instances in cube does not match the number in pfdcm.",
-          );
-        }
-      }
-
-      if (pushCountCheck && pushCountCheck.length > 0) {
-        const pushCount = +pushCountCheck[0].data.SeriesDescription;
-
-        if (pushCount !== files.totalCount) {
-          throw new Error(
-            "The attempted push count does not match the number of series related instances.",
-          );
-        }
-      }
-
-      const fileItems: PACSFile[] = files.getItems() as never as PACSFile[];
-      let fileToPreview: PACSFile | null = null;
-      if (fileItems) {
-        fileToPreview = fileItems[0];
-      }
-
-      const totalFilesCount = files.totalCount;
-
-      if (totalFilesCount >= middleValue) {
-        // Preview is the middle image of the stack
-        setIsPreviewFileAvailable(true);
-      }
-
-      if (pullStudy?.[studyInstanceUID]) {
-        dispatch({
-          type: Types.SET_STUDY_PULL_TRACKER,
-          payload: {
-            seriesInstanceUID: SeriesInstanceUID.value,
-            studyInstanceUID: StudyInstanceUID.value,
-            currentProgress: totalFilesCount === seriesInstances,
-          },
-        });
-      }
-
-      if (totalFilesCount === seriesInstances && isFetching) {
-        setIsFetching(false);
-      }
-      return {
-        fileToPreview,
-        totalFilesCount,
-      };
-    } catch (error) {
-      setIsFetching(false);
-      throw error;
-    }
-  }
-
-  const handleRetrieve = async () => {
-    await client.findRetrieve(selectedPacsService, pullQuery);
-    setIsFetching(true);
-  };
+  // Error and loading state indicators for retrieving from pfdcm and polling cube for files.
+  const isResourceBeingFetched = filesLoading || retrieveLoading;
+  const resourceErrorFound = filesError || retrieveFetchError;
+  const errorMessages = filesErrorMessage
+    ? filesErrorMessage.message
+    : retrieveErrorMessage
+      ? retrieveErrorMessage.message
+      : "";
 
   const helperText = (
     <HelperText>
-      <HelperTextItem variant="error">{error?.message}</HelperTextItem>
+      <HelperTextItem variant="error">{errorMessages}</HelperTextItem>
     </HelperText>
   );
 
@@ -296,15 +353,14 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </CardBody>
   );
 
-  const userPreferences = userData?.series;
-  const userPreferencesArray = userPreferences && Object.keys(userPreferences);
-
   const retrieveButton = (
     <Button
       variant="tertiary"
       icon={<DownloadIcon />}
       size="sm"
-      onClick={handleRetrieve}
+      onClick={() => {
+        handleRetrieveMutation.mutate();
+      }}
     />
   );
 
@@ -315,13 +371,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       }}
       className="flex-series-container"
     >
-      {isLoading ? (
+      {userDataLoading ? (
         <Skeleton width="100%" height="100%" />
-      ) : queryError ? (
-        <Alert
-          type="error"
-          description="Failed to fetching user preferences..."
-        />
+      ) : userDataError ? (
+        <Alert type="error" description={userDataErrorMessage.message} />
       ) : userPreferences &&
         userPreferencesArray &&
         userPreferencesArray.length > 0 ? (
@@ -377,7 +430,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         </>
       )}
       <div className="flex-series-item steps-container">
-        {isPending && !isError && !data ? (
+        {isResourceBeingFetched && !resourceErrorFound && !data ? (
           <DotsIndicator title="Fetching current status..." />
         ) : data ? (
           <Progress
@@ -393,17 +446,17 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
             value={data.totalFilesCount}
             max={seriesInstances}
             size={ProgressSize.sm}
-            helperText={isError ? helperText : ""}
-            variant={isError ? ProgressVariant.danger : undefined}
+            helperText={resourceErrorFound ? helperText : ""}
+            variant={resourceErrorFound ? ProgressVariant.danger : undefined}
             measureLocation={ProgressMeasureLocation.top}
           />
         ) : (
-          isError && (
+          resourceErrorFound && (
             <Alert
               style={{ height: "100%" }}
               closable
               type="error"
-              message={error?.message || "Failed to get status. Try again"}
+              message={errorMessages}
               description={<span>{retrieveButton}</span>}
             />
           )
