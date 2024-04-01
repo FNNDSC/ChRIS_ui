@@ -62,7 +62,13 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
 
   return (
     <>
-      <Card isRounded isExpanded={isPatientExpanded}>
+      <Card
+        isFlat={true}
+        isFullHeight={true}
+        isCompact={true}
+        isRounded={true}
+        isExpanded={isPatientExpanded}
+      >
         <CardHeader
           actions={{
             actions: <CardHeaderComponent resource={patient} type="patient" />,
