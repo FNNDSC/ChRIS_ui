@@ -68,7 +68,15 @@ const StudyCardCopy = ({ study }: { study: any }) => {
 
   return (
     <>
-      <Card isExpanded={isStudyExpanded} isRounded isSelectable isClickable>
+      <Card
+        isFlat={true}
+        isFullHeight={true}
+        isCompact={true}
+        isRounded={true}
+        isExpanded={isStudyExpanded}
+        isSelectable
+        isClickable
+      >
         <CardHeader
           actions={{
             actions: <CardHeaderComponent resource={study} type="study" />,

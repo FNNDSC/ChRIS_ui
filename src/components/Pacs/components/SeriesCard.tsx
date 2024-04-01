@@ -480,20 +480,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </CardHeader>
   );
 
-  let background = "";
-  if (isDisabled) {
-    if (theme.isDarkTheme) {
-      background = "#4F5255";
-    }
-    background = "#D2D2D2";
-  }
-
   return (
     <Card
-      style={{
-        background: background,
-      }}
-      isRounded
+      isDisabled={isDisabled}
+      isFlat={true}
+      isFullHeight={true}
+      isCompact={true}
+      isRounded={true}
     >
       {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
       {data?.fileToPreview && largeFilePreview}
