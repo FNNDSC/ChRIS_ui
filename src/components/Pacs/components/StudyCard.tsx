@@ -24,7 +24,7 @@ import { CardHeaderComponent } from "./SettingsComponents";
 import useSettings from "../useSettings";
 
 const StudyCardCopy = ({ study }: { study: any }) => {
-  const { data, isLoading, error } = useSettings();
+  const { data, isLoading, isError } = useSettings();
   const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
   const { preview, pullStudy, studyPullTracker } = state;
@@ -94,7 +94,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
               </div>
             ) : (
               <>
-                {!error &&
+                {!isError &&
                 userPreferences &&
                 userPreferencesArray &&
                 userPreferencesArray.length > 0 ? (

@@ -1,18 +1,18 @@
-import React, { useState, useContext } from "react";
-import { format, parse } from "date-fns";
-import { notification } from "antd";
 import {
-  GridItem,
   Card,
   CardHeader,
   Grid,
-  Tooltip,
+  GridItem,
   Skeleton,
+  Tooltip,
 } from "@patternfly/react-core";
-import StudyCard from "./StudyCard";
-import { CardHeaderComponent } from "./SettingsComponents";
+import { notification } from "antd";
+import { format, parse } from "date-fns";
+import { useContext, useEffect, useState } from "react";
 import { PacsQueryContext } from "../context";
 import useSettings from "../useSettings";
+import { CardHeaderComponent } from "./SettingsComponents";
+import StudyCard from "./StudyCard";
 
 function getPatientDetails(patientDetails: any) {
   return {
@@ -35,7 +35,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
   const { PatientID, PatientName, PatientBirthDate, PatientSex } =
     patientDetails;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isError) {
       api.error({
         message: error.message,
@@ -93,7 +93,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
                   screenreaderText="Loading contents"
                 />
               </GridItem>
-            ) : !error &&
+            ) : !isError &&
               userPreferences &&
               userPreferencesArray &&
               userPreferencesArray.length > 0 ? (
