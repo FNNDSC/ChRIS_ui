@@ -56,13 +56,11 @@ async function getPACSData(
 }
 
 const SeriesCardCopy = ({ series }: { series: any }) => {
-  const theme = useContext(ThemeContext);
   const navigate = useNavigate();
   // Load user Preference Data
   const {
     data: userPreferenceData,
     isLoading: userDataLoading,
-    error: userDataErrorMessage,
     isError: userDataError,
   } = useSettings();
   const userPreferences = userPreferenceData?.series;
@@ -377,10 +375,11 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       className="flex-series-container"
     >
       {userDataLoading ? (
-        <Skeleton width="100%" height="100%" />
-      ) : userDataError ? (
-        <Alert type="error" description={userDataErrorMessage.message} />
-      ) : userPreferences &&
+        <div className="flex-series-item">
+          <Skeleton width="100%" height="100%" />
+        </div>
+      ) : !userDataError &&
+        userPreferences &&
         userPreferencesArray &&
         userPreferencesArray.length > 0 ? (
         userPreferencesArray.map((key: string) => (
@@ -434,6 +433,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           </div>
         </>
       )}
+
       <div className="flex-series-item steps-container">
         {isResourceBeingFetched && !resourceErrorFound && !data ? (
           <DotsIndicator title="Fetching current status..." />

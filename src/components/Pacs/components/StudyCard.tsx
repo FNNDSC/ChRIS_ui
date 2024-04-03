@@ -9,7 +9,6 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { format, parse } from "date-fns";
-import { Alert } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { DotsIndicator } from "../../Common";
 import {
@@ -84,176 +83,173 @@ const StudyCardCopy = ({ study }: { study: any }) => {
           className="flex-studies-container"
           onExpand={() => setIsStudyExpanded(!isStudyExpanded)}
         >
-          {isLoading ? (
-            <GridItem lg={4} md={4} sm={12}>
-              <Skeleton
-                width="100%"
-                height="100%"
-                screenreaderText="Loading contents"
-              />
-            </GridItem>
-          ) : error ? (
-            <GridItem>
-              <Alert type="error" description="Please Refresh the page..." />
-            </GridItem>
-          ) : (
-            <>
-              {userPreferences &&
-              userPreferencesArray &&
-              userPreferencesArray.length > 0 ? (
-                userPreferencesArray.map((key: string) => (
-                  <div key={key} className="flex-studies-item">
-                    <div className="study-detail-title">{key}</div>
-                    <Tooltip content={study[key].value} position="auto">
-                      <div
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <span style={{ marginRight: "0.5em" }}>
-                          {study[key].value && study[key].value}
-                        </span>{" "}
-                      </div>
-                    </Tooltip>
-                  </div>
-                ))
-              ) : (
-                <>
-                  <div className="flex-studies-item">
-                    <Tooltip
-                      content={study.StudyDescription.value}
-                      position="auto"
-                    >
-                      <div
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        <span style={{ marginRight: "0.5em" }}>
-                          {study.StudyDescription.value &&
-                            study.StudyDescription.value}
-                        </span>{" "}
-                      </div>
-                    </Tooltip>
-                    <div>
-                      {study.NumberOfStudyRelatedSeries.value &&
-                        study.NumberOfStudyRelatedSeries.value}{" "}
-                      series, {formattedDate}
-                    </div>
-                  </div>
-                  <div className="flex-studies-item ">
-                    <div className="study-detail-title">
-                      Modalities in Study
-                    </div>
-                    <div>
-                      {study.ModalitiesInStudy.value
-                        ?.split("\\")
-                        .map((m: string, index: number) => (
-                          <Badge
-                            style={{ margin: "auto 0.125em" }}
-                            key={`${m} _${index}`}
-                          >
-                            {m}
-                          </Badge>
-                        ))}
-                    </div>
-                  </div>
-                  <div className="flex-studies-item">
-                    <div className="study-detail-title">Accession Number</div>
-                    {study.AccessionNumber.value?.startsWith("no value") ? (
-                      <Tooltip content={study.AccessionNumber}>
-                        <QuestionCircleIcon />
+          <>
+            {isLoading ? (
+              <div className="flex-studies-item">
+                <Skeleton
+                  width="100%"
+                  height="100%"
+                  screenreaderText="Loading contents"
+                />
+              </div>
+            ) : (
+              <>
+                {!error &&
+                userPreferences &&
+                userPreferencesArray &&
+                userPreferencesArray.length > 0 ? (
+                  userPreferencesArray.map((key: string) => (
+                    <div key={key} className="flex-studies-item">
+                      <div className="study-detail-title">{key}</div>
+                      <Tooltip content={study[key].value} position="auto">
+                        <div
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <span style={{ marginRight: "0.5em" }}>
+                            {study[key].value && study[key].value}
+                          </span>{" "}
+                        </div>
                       </Tooltip>
-                    ) : (
-                      <div>{study.AccessionNumber.value}</div>
-                    )}
-                  </div>
-                  <div className="flex-studies-item">
-                    <div className="study-detail-title">Station</div>
-                    {study.PerformedStationAETitle.value?.startsWith(
-                      "no value",
-                    ) ? (
-                      <Tooltip content={study.PerformedStationAETitle.value}>
-                        <QuestionCircleIcon />
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    <div className="flex-studies-item">
+                      <Tooltip
+                        content={study.StudyDescription.value}
+                        position="auto"
+                      >
+                        <div
+                          style={{
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <span style={{ marginRight: "0.5em" }}>
+                            {study.StudyDescription.value &&
+                              study.StudyDescription.value}
+                          </span>{" "}
+                        </div>
                       </Tooltip>
-                    ) : (
-                      <div>{study.PerformedStationAETitle.value}</div>
-                    )}
-                  </div>
-                </>
-              )}
-              <div className="flex-studies-item button-container">
-                {import.meta.env.VITE_OHIF_URL && (
-                  <Tooltip content="Open in OHIF">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      style={{ marginRight: "0.25em" }}
-                      icon={<ThLargeIcon />}
-                      component="a"
-                      href={`${
-                        import.meta.env.VITE_OHIF_URL
-                      }viewer?StudyInstanceUIDs=${
-                        study.StudyInstanceUID.value
-                      }`}
-                      target="_blank"
-                    />
-                  </Tooltip>
+                      <div>
+                        {study.NumberOfStudyRelatedSeries.value &&
+                          study.NumberOfStudyRelatedSeries.value}{" "}
+                        series, {formattedDate}
+                      </div>
+                    </div>
+                    <div className="flex-studies-item ">
+                      <div className="study-detail-title">
+                        Modalities in Study
+                      </div>
+                      <div>
+                        {study.ModalitiesInStudy.value
+                          ?.split("\\")
+                          .map((m: string, index: number) => (
+                            <Badge
+                              style={{ margin: "auto 0.125em" }}
+                              key={`${m}_${index}`}
+                            >
+                              {m}
+                            </Badge>
+                          ))}
+                      </div>
+                    </div>
+                    <div className="flex-studies-item">
+                      <div className="study-detail-title">Accession Number</div>
+                      {study.AccessionNumber.value?.startsWith("no value") ? (
+                        <Tooltip content={study.AccessionNumber}>
+                          <QuestionCircleIcon />
+                        </Tooltip>
+                      ) : (
+                        <div>{study.AccessionNumber.value}</div>
+                      )}
+                    </div>
+                    <div className="flex-studies-item">
+                      <div className="study-detail-title">Station</div>
+                      {study.PerformedStationAETitle.value?.startsWith(
+                        "no value",
+                      ) ? (
+                        <Tooltip content={study.PerformedStationAETitle.value}>
+                          <QuestionCircleIcon />
+                        </Tooltip>
+                      ) : (
+                        <div>{study.PerformedStationAETitle.value}</div>
+                      )}
+                    </div>
+                  </>
                 )}
-                <Tooltip
-                  content={
-                    preview === true ? "Hide All Previews" : "Show All Previews"
-                  }
-                >
+              </>
+            )}
+            <div className="flex-studies-item button-container">
+              {import.meta.env.VITE_OHIF_URL && (
+                <Tooltip content="Open in OHIF">
                   <Button
                     size="sm"
-                    variant="tertiary"
+                    variant="secondary"
                     style={{ marginRight: "0.25em" }}
-                    onClick={() => {
-                      dispatch({
-                        type: Types.SET_SHOW_PREVIEW,
-                        payload: {
-                          preview: !preview,
-                        },
-                      });
-
-                      if (preview === false) {
-                        setIsStudyExpanded(true);
-                      }
-                    }}
-                    icon={<PreviewIcon />}
+                    icon={<ThLargeIcon />}
+                    component="a"
+                    href={`${
+                      import.meta.env.VITE_OHIF_URL
+                    }viewer?StudyInstanceUIDs=${study.StudyInstanceUID.value}`}
+                    target="_blank"
                   />
                 </Tooltip>
+              )}
+              <Tooltip
+                content={
+                  preview === true ? "Hide All Previews" : "Show All Previews"
+                }
+              >
+                <Button
+                  size="sm"
+                  variant="tertiary"
+                  style={{ marginRight: "0.25em" }}
+                  onClick={() => {
+                    dispatch({
+                      type: Types.SET_SHOW_PREVIEW,
+                      payload: {
+                        preview: !preview,
+                      },
+                    });
 
-                {pullStudy[studyInstanceUID] ? (
-                  <DotsIndicator title="Pulling Study..." />
-                ) : (
-                  <Tooltip content="Pull Study">
-                    <Button
-                      onClick={() => {
-                        dispatch({
-                          type: Types.SET_PULL_STUDY,
-                          payload: {
-                            studyInstanceUID,
-                            status: true,
-                          },
-                        });
-                        setIsStudyExpanded(true);
-                      }}
-                      variant="tertiary"
-                      className="button-with-margin"
-                      size="sm"
-                      icon={<DownloadIcon />}
-                    />
-                  </Tooltip>
-                )}
-              </div>
-            </>
-          )}
+                    if (preview === false) {
+                      setIsStudyExpanded(true);
+                    }
+                  }}
+                  icon={<PreviewIcon />}
+                />
+              </Tooltip>
+
+              {pullStudy[studyInstanceUID] ? (
+                <DotsIndicator title="Pulling Study..." />
+              ) : (
+                <Tooltip content="Pull Study">
+                  <Button
+                    onClick={() => {
+                      dispatch({
+                        type: Types.SET_PULL_STUDY,
+                        payload: {
+                          studyInstanceUID,
+                          status: true,
+                        },
+                      });
+                      setIsStudyExpanded(true);
+                    }}
+                    variant="tertiary"
+                    className="button-with-margin"
+                    size="sm"
+                    icon={<DownloadIcon />}
+                  />
+                </Tooltip>
+              )}
+            </div>
+          </>
         </CardHeader>
       </Card>
       {isStudyExpanded && (
