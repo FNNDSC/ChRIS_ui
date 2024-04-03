@@ -1,6 +1,6 @@
-import { useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import { format, parse } from "date-fns";
-import { Alert } from "antd";
+import { notification } from "antd";
 import {
   GridItem,
   Card,
@@ -24,9 +24,9 @@ function getPatientDetails(patientDetails: any) {
 }
 
 const PatientCard = ({ queryResult }: { queryResult: any }) => {
-  const { data, isLoading, error } = useSettings();
+  const [api] = notification.useNotification();
+  const { data, isLoading, error, isError } = useSettings();
   const { state } = useContext(PacsQueryContext);
-
   const patient = queryResult[0];
   const patientDetails = getPatientDetails(patient);
   const [isPatientExpanded, setIsPatientExpanded] = useState(
@@ -34,6 +34,15 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
   );
   const { PatientID, PatientName, PatientBirthDate, PatientSex } =
     patientDetails;
+
+  React.useEffect(() => {
+    if (isError) {
+      api.error({
+        message: error.message,
+        description: "Failed to load user preferences",
+      });
+    }
+  }, [isError]);
 
   const parsedDate = parse(PatientBirthDate, "yyyyMMdd", new Date());
 
@@ -84,11 +93,8 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
                   screenreaderText="Loading contents"
                 />
               </GridItem>
-            ) : error ? (
-              <GridItem lg={4} md={4} sm={12}>
-                <Alert type="error" description="Please refresh the page..." />
-              </GridItem>
-            ) : userPreferences &&
+            ) : !error &&
+              userPreferences &&
               userPreferencesArray &&
               userPreferencesArray.length > 0 ? (
               userPreferencesArray.map((key: string) => (
