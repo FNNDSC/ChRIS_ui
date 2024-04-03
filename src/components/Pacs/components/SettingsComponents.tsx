@@ -1,8 +1,8 @@
-import { useState } from "react";
-import axios from "axios";
+import { Button, Checkbox } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
 import { Popover } from "antd";
-import { Checkbox, Button } from "@patternfly/react-core";
+import axios from "axios";
+import { useState } from "react";
 import ChrisApiClient from "../../../api/chrisapiclient";
 import { useTypedSelector } from "../../../store/hooks";
 import { NodeDetailsPanelIcon } from "../../Icons";
