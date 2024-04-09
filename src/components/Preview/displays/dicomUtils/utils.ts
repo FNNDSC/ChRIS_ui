@@ -236,7 +236,10 @@ export const displayDicomImage = async (
   element: HTMLDivElement,
   imageId: string,
   uniqueId: string,
-): Promise<Types.IStackViewport> => {
+): Promise<{
+  viewport: Types.IStackViewport;
+  renderingEngine: RenderingEngine;
+}> => {
   try {
     const viewportId = uniqueId;
     const renderingEngineId = `myRenderingEngine_${uniqueId}`;
@@ -269,7 +272,10 @@ export const displayDicomImage = async (
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
 
-    return viewport;
+    return {
+      viewport,
+      renderingEngine,
+    };
   } catch (e) {
     throw new Error(e as string);
   }
