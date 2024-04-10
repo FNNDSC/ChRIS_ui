@@ -11,11 +11,15 @@ import {
   handleEvents,
   type IStackViewport,
   setUpTooling,
+  cleanupCornerstoneTooling,
+  registerToolingOnce,
+  removeTools,
 } from "./dicomUtils/utils";
 import useSize from "../../FeedTree/useSize";
 import { type ActionState } from "../FileDetailView";
 import { _loadImageIntoBuffer } from "./dicomUtils/webImageLoader";
 import { RenderingEngine } from "@cornerstonejs/core";
+import { v4 } from "uuid";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -34,7 +38,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const [cornerstoneInitialized, setCornerstoneInitialized] =
     useState<boolean>(false);
   const dicomImageRef = useRef<HTMLDivElement>(null);
-  const uniqueId = `${file?.data.id || file?.data.fname}`;
+  const uniqueId = `${file?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;
   const size = useSize(dicomImageRef); // Use the useSize hook with dicomImageRef
 
@@ -59,6 +63,16 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    //Global registration needs to happen once
+    registerToolingOnce();
+
+    return () => {
+      removeTools();
+      cleanupCornerstoneTooling();
     };
   }, []);
 
@@ -94,9 +108,9 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   useEffect(() => {
     if (actionState && activeViewport) {
-      handleEvents(actionState, uniqueId, activeViewport);
+      handleEvents(actionState, activeViewport);
     }
-  }, [actionState, activeViewport, uniqueId]);
+  }, [actionState, activeViewport]);
 
   useEffect(() => {
     handleResize();
