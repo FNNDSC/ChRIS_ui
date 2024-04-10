@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";
 import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
+import React from "react";
 
 const DropdownMenu = ({
   children,
@@ -52,9 +53,7 @@ const DropdownMenu = ({
     },
   ];
 
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
-    e.domEvent.stopPropagation();
-
+  const handleOperations = (e: any) => {
     if (e.key === "1") {
       dispatch(getNodeOperations("childNode"));
     }
@@ -75,6 +74,17 @@ const DropdownMenu = ({
     }
   };
 
+  const handleMenuClick: MenuProps["onClick"] = (e) => {
+    e.domEvent.stopPropagation();
+
+    handleOperations(e);
+  };
+
+  const handleTouchEvent = (e: React.TouchEvent<HTMLUListElement>) => {
+    e.stopPropagation();
+    handleOperations(e);
+  };
+
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
   const handleLongPress: MenuProps["onTouchStart"] = (e) => {
     // Our mobile experience is horribly broken due to the drawers. This feature will be tested once that is in order
@@ -83,7 +93,7 @@ const DropdownMenu = ({
     // You may adjust the duration based on your preference
     setTimeout(() => {
       // Open the dropdown
-      handleMenuClick(e);
+      handleTouchEvent(e);
     }, 500); // 500 milliseconds as an example duration for long press
   };
 

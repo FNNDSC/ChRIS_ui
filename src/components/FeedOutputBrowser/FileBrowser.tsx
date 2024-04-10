@@ -249,9 +249,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       className="file-browser__previewPanel"
       isResizable
       defaultSize={
-        !drawerState.directory.open && !drawerState.files.open
-          ? "100%"
-          : "55.3%"
+        !drawerState.directory.open && !drawerState.files.open ? "100%" : "47%"
       }
       minSize={"25%"}
     >

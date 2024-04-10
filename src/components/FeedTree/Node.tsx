@@ -265,6 +265,9 @@ const Node = (props: NodeProps) => {
           handleZip={() => {
             mutation.mutate();
           }}
+          handleClick={() => {
+            onNodeClick(data);
+          }}
         >
           <circle
             id={`node_${data.id}`}
