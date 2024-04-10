@@ -208,7 +208,6 @@ const Node = (props: NodeProps) => {
   });
 
   useEffect(() => {
-    console.log("Mutation", mutation);
     if (mutation.isSuccess || mutation.isError) {
       if (mutation.isSuccess) {
         api.success({
@@ -264,9 +263,6 @@ const Node = (props: NodeProps) => {
         <DropdownMenu
           handleZip={() => {
             mutation.mutate();
-          }}
-          handleClick={() => {
-            onNodeClick(data);
           }}
         >
           <circle

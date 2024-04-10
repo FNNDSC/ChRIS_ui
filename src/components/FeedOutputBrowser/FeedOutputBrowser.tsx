@@ -27,7 +27,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
   } = useFeedBrowser();
 
   return (
-    <div className="feed-output-browser">
+    <div style={{ height: "100%" }} className="feed-output-browser">
       {pluginFilesPayload && selected ? (
         <FileBrowser
           selected={selected}
@@ -38,7 +38,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
       ) : statusTitle && statusTitle ? (
         <FetchFilesLoader title="Fetching Files" />
       ) : (
-        <EmptyStateLoader title="Fetching Files" />
+        <EmptyStateLoader title="No Files yet..." />
       )}
     </div>
   );
