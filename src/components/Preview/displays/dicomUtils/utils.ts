@@ -45,9 +45,6 @@ const {
 const { MouseBindings } = csToolsEnums;
 
 let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
-const alreadyAdded: {
-  [key: string]: boolean;
-} = {};
 
 function initProviders() {
   cornerstone.metaData.addProvider(
@@ -62,39 +59,56 @@ function initProviders() {
   );
 }
 
+export const registerToolingOnce = () => {
+  // Add tools to the tool group
+  cornerstoneTools.addTool(LengthTool);
+  cornerstoneTools.addTool(PanTool);
+  cornerstoneTools.addTool(WindowLevelTool);
+  cornerstoneTools.addTool(StackScrollMouseWheelTool);
+  cornerstoneTools.addTool(ZoomTool);
+  cornerstoneTools.addTool(MagnifyTool);
+  cornerstoneTools.addTool(PlanarRotateTool);
+};
+
+export const removeTools = () => {
+  console.log("Remove called");
+  // Remove tools from the tool group
+  cornerstoneTools.removeTool(LengthTool);
+  cornerstoneTools.removeTool(PanTool);
+  cornerstoneTools.removeTool(WindowLevelTool);
+  cornerstoneTools.removeTool(StackScrollMouseWheelTool);
+  cornerstoneTools.removeTool(ZoomTool);
+  cornerstoneTools.removeTool(MagnifyTool);
+  cornerstoneTools.removeTool(PlanarRotateTool);
+};
+
+export const cleanupCornerstoneTooling = () => {
+  // Remove the tool group
+  const id = toolGroup?.id;
+  if (id) {
+    const existingToolGroup = ToolGroupManager.getToolGroup(id);
+    if (existingToolGroup) {
+      ToolGroupManager.destroyToolGroup(id);
+      toolGroup = undefined;
+    }
+  }
+};
+
 export function setUpTooling(uniqueToolId: string) {
-  if (!alreadyAdded[uniqueToolId]) {
-    // Check if tool group already exists
-    const existingToolGroup = ToolGroupManager.getToolGroup(uniqueToolId);
+  // Check if tool group already exists
+  const id = toolGroup?.id;
+  if (!id) {
+    // Tool group doesn't exist, create a new one
+    toolGroup = ToolGroupManager.createToolGroup(uniqueToolId);
 
-    if (!existingToolGroup) {
-      // Tool group doesn't exist, create a new one
-      const toolGroupId = uniqueToolId;
-      toolGroup = ToolGroupManager.createToolGroup(toolGroupId);
-
-      if (toolGroup) {
-        // Add tools to the tool group
-        cornerstoneTools.addTool(LengthTool);
-        cornerstoneTools.addTool(PanTool);
-        cornerstoneTools.addTool(WindowLevelTool);
-        cornerstoneTools.addTool(StackScrollMouseWheelTool);
-        cornerstoneTools.addTool(ZoomTool);
-        cornerstoneTools.addTool(MagnifyTool);
-        cornerstoneTools.addTool(PlanarRotateTool);
-
-        toolGroup.addTool(WindowLevelTool.toolName);
-        toolGroup.addTool(PanTool.toolName);
-        toolGroup.addTool(ZoomTool.toolName);
-        toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
-        toolGroup.addTool(PlanarRotateTool.toolName);
-        toolGroup.addTool(LengthTool.toolName);
-        toolGroup.addTool(MagnifyTool.toolName);
-
-        // Mark the tool as added
-        alreadyAdded[uniqueToolId] = true;
-      }
-    } else {
-      console.error(`Tool group with ID ${uniqueToolId} already exists.`);
+    if (toolGroup) {
+      toolGroup.addTool(WindowLevelTool.toolName);
+      toolGroup.addTool(PanTool.toolName);
+      toolGroup.addTool(ZoomTool.toolName);
+      toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
+      toolGroup.addTool(PlanarRotateTool.toolName);
+      toolGroup.addTool(LengthTool.toolName);
+      toolGroup.addTool(MagnifyTool.toolName);
     }
   }
 }
@@ -161,26 +175,24 @@ export type IStackViewport = Types.IStackViewport;
 
 export const handleEvents = (
   actionState: { [key: string]: boolean | string },
-  uniqueToolId: string,
   activeViewport?: IStackViewport,
 ) => {
   const activeTool = Object.keys(actionState)[0];
   const previousTool = actionState.previouslyActive as string;
-  const existingToolGroup = ToolGroupManager.getToolGroup(uniqueToolId);
+  const id = toolGroup?.id;
 
-  if (!existingToolGroup) return;
-
-  existingToolGroup?.setToolPassive(previousTool);
-
-  if (activeTool === "Reset") {
-    activeViewport?.resetCamera(true, true);
-    activeViewport?.resetProperties();
-    activeViewport?.render();
+  if (id) {
+    toolGroup?.setToolPassive(previousTool);
+    if (activeTool === "Reset") {
+      activeViewport?.resetCamera(true, true);
+      activeViewport?.resetProperties();
+      activeViewport?.render();
+    } else {
+      toolGroup?.setToolActive(activeTool, {
+        bindings: [{ mouseButton: MouseBindings.Primary }],
+      });
+    }
   }
-
-  toolGroup?.setToolActive(activeTool, {
-    bindings: [{ mouseButton: MouseBindings.Primary }],
-  });
 };
 
 export const loadDicomImage = (blob: Blob) => {
@@ -259,11 +271,9 @@ export const displayDicomImage = async (
 
     renderingEngine.enableElement(viewportInput);
     toolGroup?.addViewport(viewportId, renderingEngineId);
-
     const viewport = <Types.IStackViewport>(
       renderingEngine.getViewport(viewportId)
     );
-
     const displayArea: ViewportInputOptions = createDisplayArea(1, 0.5);
     viewport.setOptions(displayArea, true);
     viewport.setProperties(displayArea);
