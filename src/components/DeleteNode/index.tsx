@@ -13,7 +13,6 @@ import {
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
-import { DeleteIcon } from "../Icons";
 
 const DeleteNode = () => {
   const dispatch = useDispatch();
@@ -86,54 +85,40 @@ const DeleteNode = () => {
   }, [mutation.isSuccess]);
 
   return (
-    <>
-      <Button
-        isDisabled={
-          selectedPlugin?.data.plugin_type === "fs" &&
-          selectedPlugin?.data.plugin_name === "pl-dircopy"
-        }
-        onClick={handleModalToggle}
-        icon={<DeleteIcon />}
-        variant="primary"
-        type="button"
-      >
-        Delete Node <span style={{ padding: "2px" }}>( D )</span>
-      </Button>
-      <Modal
-        variant={ModalVariant.small}
-        title="Delete Selected Node"
-        isOpen={isModalOpen}
-        onClose={handleModalToggle}
-        actions={[
-          <>
-            <Button
-              key="confirm"
-              variant="primary"
-              onClick={() => mutation.mutate()}
-            >
-              Confirm
-            </Button>
-            <Button key="cancel" variant="primary" onClick={handleModalToggle}>
-              Cancel
-            </Button>
-          </>,
-        ]}
-      >
-        <span>
-          {" "}
-          Deleting a node will delete all it&apos;s descendants as well. Please
-          confirm if you are sure
-        </span>
+    <Modal
+      variant={ModalVariant.small}
+      title="Delete Selected Node"
+      isOpen={isModalOpen}
+      onClose={handleModalToggle}
+      actions={[
+        <>
+          <Button
+            key="confirm"
+            variant="primary"
+            onClick={() => mutation.mutate()}
+          >
+            Confirm
+          </Button>
+          <Button key="cancel" variant="primary" onClick={handleModalToggle}>
+            Cancel
+          </Button>
+        </>,
+      ]}
+    >
+      <span>
+        {" "}
+        Deleting a node will delete all it&apos;s descendants as well. Please
+        confirm if you are sure
+      </span>
 
-        {mutation.isPending && <SpinContainer title="Deleting..." />}
-        {mutation.isError && (
-          <Alert type="error" description={mutation.error.message} />
-        )}
-        {mutation.isSuccess && (
-          <Alert type="success" description="Deleted Successfully" />
-        )}
-      </Modal>
-    </>
+      {mutation.isPending && <SpinContainer title="Deleting..." />}
+      {mutation.isError && (
+        <Alert type="error" description={mutation.error.message} />
+      )}
+      {mutation.isSuccess && (
+        <Alert type="success" description="Deleted Successfully" />
+      )}
+    </Modal>
   );
 };
 

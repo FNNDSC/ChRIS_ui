@@ -2,7 +2,6 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { getPluginFilesRequest } from "../../store/resources/actions";
 import { useTypedSelector } from "../../store/hooks";
-import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
@@ -89,12 +88,6 @@ export const useFeedBrowser = () => {
     }
   };
 
-  const handleSidebarDrawer = (action: string) => {
-    if (action === "maximized") {
-      handleMaximize("directory", dispatch);
-    } else handleMinimize("directory", dispatch);
-  };
-
   return {
     handleFileClick,
     filesLoading,
@@ -103,8 +96,6 @@ export const useFeedBrowser = () => {
     download,
     selected,
     pluginFilesPayload,
-    handleSidebarDrawer,
-    sidebarStatus: drawerState.directory,
     filesStatus: drawerState.files,
     previewStatus: drawerState.preview,
   };

@@ -416,13 +416,13 @@ const FeedTree = (props: OwnProps) => {
       </div>
 
       {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
+        // biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
         <svg
           focusable="true"
           className={`${svgClassName}`}
           width="100%"
           height="100%"
         >
-          <title>Feed Tree</title>
           <TransitionGroupWrapper
             component="g"
             className={graphClassName}

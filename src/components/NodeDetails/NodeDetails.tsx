@@ -10,7 +10,6 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-
 import React, { Fragment, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
@@ -18,11 +17,9 @@ import { useTypedSelector } from "../../store/hooks";
 import AddNodeConnect from "../AddNode/AddNode";
 import { AddNodeProvider } from "../AddNode/context";
 import AddPipeline from "../AddPipeline/AddPipeline";
-import GraphNodeContainer from "../AddTsNode";
 import { SpinContainer } from "../Common";
 import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
 import DeleteNode from "../DeleteNode";
-import DownloadNode from "../DownloadNode";
 import FeedNote from "../FeedDetails/FeedNote";
 import { CalendarAltIcon, PreviewIcon } from "../Icons";
 import { PipelineProvider } from "../PipelinesCopy/context";
@@ -57,7 +54,7 @@ const NodeDetails: React.FC = () => {
   const drawerState = useTypedSelector((state) => state.drawers);
 
   const { plugin, instanceParameters, pluginParameters } = nodeState;
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [isExpanded, setIsExpanded] = React.useState(true);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
 
   React.useEffect(() => {
@@ -222,64 +219,40 @@ const NodeDetails: React.FC = () => {
               </Grid>
             </ExpandableSection>
 
-            <Grid className="node-details__grid" hasGutter={true}>
-              <Grid className="node-details__grid" hasGutter={true}>
-                {cancelled ? null : (
-                  <AddNodeProvider>
-                    <RenderButtonGridItem>
-                      {" "}
-                      <AddNodeConnect />
-                    </RenderButtonGridItem>
-                  </AddNodeProvider>
-                )}
-                <RenderButtonGridItem>
-                  <PipelineProvider>
-                    <AddPipeline />
-                  </PipelineProvider>
-                </RenderButtonGridItem>
-              </Grid>
+            <>
+              {/* Note this modals are fired from the dropdown menu in the tree*/}
+              <AddNodeProvider>
+                <AddNodeConnect />
+              </AddNodeProvider>
+              {/* Graph Node Container is missing */}
+              <DeleteNode />
+              <PipelineProvider>
+                <AddPipeline />
+              </PipelineProvider>
+            </>
 
-              <Grid hasGutter={true}>
-                <RenderButtonGridItem>
-                  <GraphNodeContainer />
-                </RenderButtonGridItem>
-
-                <RenderButtonGridItem>
-                  <DeleteNode />
-                </RenderButtonGridItem>
-              </Grid>
-
-              <Grid hasGutter={true}>
-                <RenderButtonGridItem>
-                  <PipelineProvider>
-                    <DownloadNode />
-                  </PipelineProvider>
-                </RenderButtonGridItem>
-              </Grid>
-
-              {
-                // Jennings: hastily adding an extra button here.
-                // IMO the Node Details pane should be cleaned up.
-                isPlVisualDataset(selectedPlugin) && (
-                  <Grid hasGutter={true}>
-                    <RenderButtonGridItem>
-                      <Button
-                        icon={<PreviewIcon />}
-                        onClick={() =>
-                          navigate(`/niivue/${selectedPlugin.data.id}`)
-                        }
-                      >
-                        View Volumes{" "}
-                        {/* I didn't make this shortcut work, since none of them currently work in caae85dd1cb337c11179724eedf3b81ac6373aaa */}
-                        <span style={{ padding: "2px", color: "#F5F5DC" }}>
-                          ( V )
-                        </span>
-                      </Button>
-                    </RenderButtonGridItem>
-                  </Grid>
-                )
-              }
-            </Grid>
+            {
+              // Jennings: hastily adding an extra button here.
+              // IMO the Node Details pane should be cleaned up.
+              isPlVisualDataset(selectedPlugin) && (
+                <Grid hasGutter={true}>
+                  <RenderButtonGridItem>
+                    <Button
+                      icon={<PreviewIcon />}
+                      onClick={() =>
+                        navigate(`/niivue/${selectedPlugin.data.id}`)
+                      }
+                    >
+                      View Volumes{" "}
+                      {/* I didn't make this shortcut work, since none of them currently work in caae85dd1cb337c11179724eedf3b81ac6373aaa */}
+                      <span style={{ padding: "2px", color: "#F5F5DC" }}>
+                        ( V )
+                      </span>
+                    </Button>
+                  </RenderButtonGridItem>
+                </Grid>
+              )
+            }
           </>
         )}
       </div>

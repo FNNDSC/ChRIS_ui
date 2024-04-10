@@ -26,14 +26,14 @@ const FeedDetails = () => {
   const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
 
-  const node = drawerState["node"].currentlyActive === "node" ? true : false;
-  const note = drawerState["node"].currentlyActive === "note" ? true : false;
+  const node = drawerState.node.currentlyActive === "node" ? true : false;
+  const note = drawerState.node.currentlyActive === "note" ? true : false;
   const [showNoteBadge, setShowNoteBadge] = useState(false);
   const terminal =
-    drawerState["node"].currentlyActive === "terminal" ? true : false;
+    drawerState.node.currentlyActive === "terminal" ? true : false;
 
   const preview =
-    drawerState["preview"].currentlyActive === "preview" ? true : false;
+    drawerState.preview.currentlyActive === "preview" ? true : false;
 
   React.useEffect(() => {
     fetchNote(currentFeed).then((feedNote) => {
@@ -53,7 +53,7 @@ const FeedDetails = () => {
             action="graph"
             dispatch={dispatch}
             drawerState={drawerState}
-            isDisabled={drawerState["graph"].open}
+            isDisabled={drawerState.graph.open}
           />
         }
       />
@@ -78,20 +78,7 @@ const FeedDetails = () => {
             action="node"
             dispatch={dispatch}
             drawerState={drawerState}
-            isDisabled={drawerState["node"].open}
-          />
-        }
-      />
-
-      <DrawerActionsToolbar
-        button={
-          <ButtonContainer
-            title="Folder Directory Panel"
-            Icon={<FolderTreeIcon />}
-            action="directory"
-            dispatch={dispatch}
-            drawerState={drawerState}
-            isDisabled={drawerState["directory"].open}
+            isDisabled={drawerState.node.open}
           />
         }
       />
@@ -104,7 +91,7 @@ const FeedDetails = () => {
             action="files"
             dispatch={dispatch}
             drawerState={drawerState}
-            isDisabled={drawerState["files"].open}
+            isDisabled={drawerState.files.open}
           />
         }
       />
@@ -117,7 +104,7 @@ const FeedDetails = () => {
             action="preview"
             dispatch={dispatch}
             drawerState={drawerState}
-            isDisabled={drawerState["preview"].open}
+            isDisabled={drawerState.preview.open}
           />
         }
       />

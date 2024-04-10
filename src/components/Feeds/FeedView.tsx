@@ -198,11 +198,7 @@ export default function FeedView() {
       <Drawer
         isInline
         position="bottom"
-        isExpanded={
-          drawerState.preview.open ||
-          drawerState.directory.open ||
-          drawerState.files.open
-        }
+        isExpanded={drawerState.preview.open || drawerState.files.open}
       >
         <DrawerContent
           panelContent={
