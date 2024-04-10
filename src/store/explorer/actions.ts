@@ -1,8 +1,8 @@
 import { action } from "typesafe-actions";
 import { ExplorerActionTypes } from "./types";
-import { FeedFile } from "@fnndsc/chrisapi";
 
-export const setSelectedFile = (selectedFile: FeedFile) =>
+//Type to be determined
+export const setSelectedFile = (selectedFile: any) =>
   action(ExplorerActionTypes.SET_SELECTED_FILE, selectedFile);
 
 export const clearSelectedFile = () =>

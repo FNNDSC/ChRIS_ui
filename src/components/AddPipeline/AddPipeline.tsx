@@ -12,9 +12,13 @@ import {
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
-import { AddIcon } from "../Icons";
+
 import Pipelines from "../PipelinesCopy";
-import { PipelineContext, Types } from "../PipelinesCopy/context";
+import {
+  PipelineContext,
+  Types,
+  PipelineProvider,
+} from "../PipelinesCopy/context";
 
 const AddPipeline = () => {
   const { state, dispatch } = useContext(PipelineContext);
@@ -122,44 +126,39 @@ const AddPipeline = () => {
       : true;
 
   return (
-    <React.Fragment>
-      <Button icon={<AddIcon />} onClick={handleToggle} type="button">
-        Add a Pipeline <span style={{ padding: "2px" }}>( P )</span>
-      </Button>
-      <Modal
-        variant={ModalVariant.large}
-        aria-label="My Pipeline Modal"
-        isOpen={childPipeline}
-        onClose={handleToggle}
-        description="Add a Pipeline to the plugin instance"
-        actions={[
-          <Button
-            key="confirm"
-            variant="primary"
-            onClick={() => mutation.mutate()}
-            isDisabled={isButtonDisabled}
-          >
-            Confirm
-          </Button>,
-          <Button key="cancel" variant="link" onClick={handleToggle}>
-            Cancel
-          </Button>,
-        ]}
-      >
-        <Pipelines />
-        {mutation.isError || mutation.isSuccess || mutation.isPending ? (
-          <div id="indicators">
-            {mutation.isError && (
-              <Alert type="error" description={mutation.error.message} />
-            )}
-            {mutation.isSuccess && (
-              <Alert type="success" description="Pipeline Added" />
-            )}
-            {mutation.isPending && <SpinContainer title="Adding Pipeline..." />}
-          </div>
-        ) : null}
-      </Modal>
-    </React.Fragment>
+    <Modal
+      variant={ModalVariant.large}
+      aria-label="My Pipeline Modal"
+      isOpen={childPipeline}
+      onClose={handleToggle}
+      description="Add a Pipeline to the plugin instance"
+      actions={[
+        <Button
+          key="confirm"
+          variant="primary"
+          onClick={() => mutation.mutate()}
+          isDisabled={isButtonDisabled}
+        >
+          Confirm
+        </Button>,
+        <Button key="cancel" variant="link" onClick={handleToggle}>
+          Cancel
+        </Button>,
+      ]}
+    >
+      <Pipelines />
+      {mutation.isError || mutation.isSuccess || mutation.isPending ? (
+        <div id="indicators">
+          {mutation.isError && (
+            <Alert type="error" description={mutation.error.message} />
+          )}
+          {mutation.isSuccess && (
+            <Alert type="success" description="Pipeline Added" />
+          )}
+          {mutation.isPending && <SpinContainer title="Adding Pipeline..." />}
+        </div>
+      ) : null}
+    </Modal>
   );
 };
 

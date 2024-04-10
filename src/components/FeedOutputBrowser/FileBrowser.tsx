@@ -15,8 +15,6 @@ import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { getFileExtension } from "../../api/model";
 import { setFilePreviewPanel } from "../../store/drawer/actions";
 import {
   clearSelectedFile,

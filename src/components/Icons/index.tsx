@@ -28,6 +28,7 @@ import {
   ExclamationCircleIcon,
   EllipsisVIcon,
   EditIcon,
+  FileArchiveIcon as PatternflyArchiveIcon,
 } from "@patternfly/react-icons";
 
 const MergeIcon = () => {
@@ -215,6 +216,7 @@ const BrightnessIcon = () => {
 export {
   TrashIcon as DeleteIcon,
   ArchiveIcon,
+  PatternflyArchiveIcon,
   ShareIcon,
   DuplicateIcon,
   MergeIcon,

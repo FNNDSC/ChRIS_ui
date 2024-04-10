@@ -1,12 +1,21 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
+import { useMutation } from "@tanstack/react-query";
+import { notification } from "antd";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import React, { Fragment, useRef, useContext } from "react";
+import { Fragment, useContext, useEffect, useRef, memo } from "react";
 import { useDispatch } from "react-redux";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { getSelectedD3Node } from "../../store/pluginInstance/actions";
+import {
+  getPluginInstancesSuccess,
+  getSelectedD3Node,
+  getSelectedPlugin,
+} from "../../store/pluginInstance/actions";
+import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { FeedTreeScaleType } from "./Controls";
+import DropdownMenu from "./DropdownMenu";
 import TreeNodeDatum, { Datum, Point } from "./data";
 
 type NodeWrapperProps = {
@@ -49,31 +58,33 @@ const Node = (props: NodeProps) => {
     data,
     onNodeClick,
     onNodeClickTs,
-
     toggleLabel,
     status,
     currentId,
     overlaySize,
   } = props;
 
+  const [api, contextHolder] = notification.useNotification();
+  const dispatch = useDispatch();
   const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances.data,
   );
-
+  const selectedPlugin = useTypedSelector((state) => {
+    return state.instance.selectedPlugin;
+  });
   const searchFilter = useTypedSelector((state) => state.feed.searchFilter);
-
   const { value } = searchFilter;
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
       .style("opacity", opacity);
-    select(textRef.current).attr("transform", `translate(-28, 28)`);
+    select(textRef.current).attr("transform", "translate(-28, 28)");
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
     applyNodeTransform(nodeTransform);
   }, [orientation, position, applyNodeTransform]);
@@ -133,6 +144,91 @@ const Node = (props: NodeProps) => {
     }
   }
 
+  // This pipeline code is temporary and will be moved someplace else
+  const alreadyAvailableInstances = pluginInstances;
+  async function fetchPipelines() {
+    const client = ChrisAPIClient.getClient();
+
+    try {
+      const pipelineList = await client.getPipelines({
+        name: "zip v20240311",
+      });
+
+      const pipelines = pipelineList.getItems();
+
+      if (pipelines && pipelines.length > 0) {
+        const pipeline = pipelines[0];
+        const { id } = pipeline.data;
+
+        //@ts-ignore
+        // We do not need to explicitly provide the nodes_info property. This change needs to be made
+        // in the js client
+        const workflow = await client.createWorkflow(id, {
+          previous_plugin_inst_id: selectedPlugin?.data.id, // Ensure selectedPlugin is defined
+        });
+
+        const pluginInstances = await workflow.getPluginInstances({
+          limit: 1000,
+        });
+
+        const instanceItems = pluginInstances.getItems();
+
+        if (
+          instanceItems &&
+          instanceItems.length > 0 &&
+          alreadyAvailableInstances
+        ) {
+          const firstInstance = instanceItems[instanceItems.length - 1];
+          const completeList = [...alreadyAvailableInstances, ...instanceItems];
+
+          // Assuming reactDispatch, getSelectedPlugin, getPluginInstanceStatusSuccess, and getPluginInstanceStatusRequest are defined elsewhere
+          dispatch(getSelectedPlugin(firstInstance));
+
+          const pluginInstanceObj = {
+            selected: firstInstance,
+            pluginInstances: completeList,
+          };
+
+          dispatch(getPluginInstancesSuccess(pluginInstanceObj));
+          dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
+        }
+      } else {
+        throw new Error(
+          "The pipeline to zip is not registered. Please contact an admin",
+        );
+      }
+      return pipelines;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  const mutation = useMutation({
+    mutationFn: () => fetchPipelines(),
+  });
+
+  useEffect(() => {
+    console.log("Mutation", mutation);
+    if (mutation.isSuccess || mutation.isError) {
+      if (mutation.isSuccess) {
+        api.success({
+          message: "Zipping process started...",
+        });
+        mutation.reset();
+      }
+      if (mutation.isError) {
+        api.error({
+          message: mutation.error.message,
+        });
+      }
+    }
+    if (mutation.isPending) {
+      api.info({
+        message: "Preparing to initiate the zipping process...",
+      });
+    }
+  }, [mutation.isSuccess, mutation.isError, mutation.isPending]);
+
   const textLabel = (
     <g
       style={{
@@ -150,6 +246,8 @@ const Node = (props: NodeProps) => {
 
   return (
     <Fragment>
+      {contextHolder}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
       <g
         id={`${data.id}`}
         ref={nodeRef}
@@ -163,15 +261,21 @@ const Node = (props: NodeProps) => {
           }
         }}
       >
-        <circle
-          id={`node_${data.id}`}
-          className={`node ${statusClass} ${tsClass}`}
-          style={{
-            stroke: currentId ? strokeColor : "",
-            strokeWidth: currentId ? "3px" : "1px",
+        <DropdownMenu
+          handleZip={() => {
+            mutation.mutate();
           }}
-          r={DEFAULT_NODE_CIRCLE_RADIUS}
-        />
+        >
+          <circle
+            id={`node_${data.id}`}
+            className={`node ${statusClass} ${tsClass}`}
+            style={{
+              stroke: currentId ? strokeColor : "",
+              strokeWidth: currentId ? "3px" : "1px",
+            }}
+            r={DEFAULT_NODE_CIRCLE_RADIUS}
+          />
+        </DropdownMenu>
         {overlaySize && (
           <circle
             id={`node_overlay_${data.id}`}
@@ -180,13 +284,14 @@ const Node = (props: NodeProps) => {
             r={DEFAULT_NODE_CIRCLE_RADIUS * overlaySize}
           />
         )}
+
         {statusClass === "search" ? textLabel : toggleLabel ? textLabel : null}
       </g>
     </Fragment>
   );
 };
 
-const NodeMemoed = React.memo(Node);
+const NodeMemoed = memo(Node);
 
 const NodeWrapper = (props: NodeWrapperProps) => {
   const dispatch = useDispatch();
@@ -202,7 +307,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     return false;
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentId) dispatch(getSelectedD3Node(data));
   }, [currentId, data, dispatch]);
 
@@ -226,7 +331,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   );
 };
 
-export default React.memo(
+export default memo(
   NodeWrapper,
   (prevProps: NodeWrapperProps, nextProps: NodeWrapperProps) => {
     if (
