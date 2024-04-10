@@ -12,11 +12,6 @@ const initialState: IDrawerState = {
     maximized: false,
     currentlyActive: "node",
   },
-  directory: {
-    open: true,
-    maximized: false,
-    currentlyActive: "directory",
-  },
   files: {
     open: true,
     maximized: false,
@@ -35,7 +30,7 @@ const reducer: Reducer<IDrawerState> = (
 ) => {
   switch (action.type) {
     case DrawerActionTypes.SET_DRAWER_STATE: {
-      let newState;
+      let newState = {};
       if (action.payload.maximized === true) {
         newState = getMaximizedObject(state, action.payload);
       } else if (action.payload.minimized === true) {
@@ -59,7 +54,7 @@ const reducer: Reducer<IDrawerState> = (
     case DrawerActionTypes.SET_PREVIEW_PANEL: {
       return {
         ...state,
-        ["preview"]: {
+        preview: {
           open: true,
           maximized: false,
           currentlyActive: "preview",

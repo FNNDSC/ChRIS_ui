@@ -17,7 +17,6 @@ import { getNodeOperations, getParams } from "../../store/plugin/actions";
 import { addNodeRequest } from "../../store/pluginInstance/actions";
 import type { ApplicationState } from "../../store/root/applicationState";
 import { getRequiredObject } from "../CreateFeed/createFeedHelper";
-import { AddIcon } from "../Icons";
 import BasicConfiguration from "./BasicConfiguration";
 import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
@@ -149,56 +148,51 @@ const AddNode = ({
   };
 
   return (
-    <>
-      <Button icon={<AddIcon />} type="button" onClick={toggleOpen}>
-        Add a Child Node <span style={{ padding: "2px" }}>( C )</span>
-      </Button>
-      <Modal
-        aria-label="Wizard Modal"
-        showClose={true}
-        hasNoBodyWrapper
-        variant={ModalVariant.large}
-        isOpen={childNode}
+    <Modal
+      aria-label="Wizard Modal"
+      showClose={true}
+      hasNoBodyWrapper
+      variant={ModalVariant.large}
+      isOpen={childNode}
+    >
+      <Wizard
+        header={
+          <WizardHeader
+            onClose={toggleOpen}
+            title="Add a New Node"
+            description="This wizard allows you to add a node to a feed"
+          />
+        }
+        onClose={toggleOpen}
+        onSave={handleSave}
+        height={500}
+        width={"100%"}
       >
-        <Wizard
-          header={
-            <WizardHeader
-              onClose={toggleOpen}
-              title="Add a New Node"
-              description="This wizard allows you to add a node to a feed"
-            />
-          }
-          onClose={toggleOpen}
-          onSave={handleSave}
-          height={500}
-          width={"100%"}
+        <WizardStep
+          id={"1"}
+          name="Plugin Selection"
+          footer={{
+            isNextDisabled: pluginMeta ? false : true,
+          }}
         >
-          <WizardStep
-            id={"1"}
-            name="Plugin Selection"
-            footer={{
-              isNextDisabled: pluginMeta ? false : true,
-            }}
-          >
-            {selectedPlugin ? (
-              <BasicConfiguration selectedPlugin={selectedPlugin} />
-            ) : (
-              <span>No Plugin Selected</span>
-            )}
-          </WizardStep>
-          <WizardStep
-            id={"2"}
-            name="Plugin Form"
-            footer={{
-              nextButtonText: "Add Node",
-              isNextDisabled: !isDisabled ? false : true,
-            }}
-          >
-            <GuidedConfig />
-          </WizardStep>
-        </Wizard>
-      </Modal>
-    </>
+          {selectedPlugin ? (
+            <BasicConfiguration selectedPlugin={selectedPlugin} />
+          ) : (
+            <span>No Plugin Selected</span>
+          )}
+        </WizardStep>
+        <WizardStep
+          id={"2"}
+          name="Plugin Form"
+          footer={{
+            nextButtonText: "Add Node",
+            isNextDisabled: !isDisabled ? false : true,
+          }}
+        >
+          <GuidedConfig />
+        </WizardStep>
+      </Wizard>
+    </Modal>
   );
 };
 

@@ -15,8 +15,6 @@ import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { getFileExtension } from "../../api/model";
 import { setFilePreviewPanel } from "../../store/drawer/actions";
 import {
   clearSelectedFile,
@@ -250,11 +248,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     <DrawerPanelContent
       className="file-browser__previewPanel"
       isResizable
-      defaultSize={
-        !drawerState.directory.open && !drawerState.files.open
-          ? "100%"
-          : "55.3%"
-      }
+      defaultSize={!drawerState.files.open ? "100%" : "47%"}
       minSize={"25%"}
     >
       <DrawerActionButton

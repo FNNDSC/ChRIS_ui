@@ -31,6 +31,8 @@ const ParentComponent = (props: ParentComponentProps) => {
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const data = getFeedTree(instances);
+
+      //Get Topological joins as well
       getTsNodes(instances).then((nodes) => {
         setTsIds(nodes);
       });
