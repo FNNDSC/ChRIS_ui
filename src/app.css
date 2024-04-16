@@ -83,3 +83,7 @@
   justify-content: center;
   align-items: center;
 }
+
+.ant-spin-text, .ant-spin-dot{
+  color: #1fa7f8 !important;
+}

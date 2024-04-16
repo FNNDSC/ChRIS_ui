@@ -8,7 +8,7 @@ import Dashboard from "./components/Dashboard";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
 import PipelinePage from "./components/PipelinesPage";
-import LibraryCopyPage from "./components/LibraryCopy";
+import LibraryCopyPage from "./components/NewLibrary";
 import {
   RouterContext,
   RouterProvider,
