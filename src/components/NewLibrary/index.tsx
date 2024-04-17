@@ -8,7 +8,13 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./Breadcrumb";
+import MenuBar from "./MenuBar";
 import { FilesCard, FolderCard, LinkCard } from "./Browser";
+import {
+  FileBrowserFolderFile,
+  FileBrowserFolderFileList,
+  FileBrowserFolderLinkFile,
+} from "@fnndsc/chrisapi";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -21,14 +27,15 @@ const NewLibrary = () => {
     };
 
     try {
-      const folderList = await client.getFileBrowserFolders({
-        path: computedPath,
-      });
+      const folderList: FileBrowserFolderFileList =
+        await client.getFileBrowserFolders({
+          path: computedPath,
+        });
 
       const folders = folderList.getItems();
-      const subFoldersMap = new Map();
-      const linkFilesMap = new Map();
-      const filesMap = new Map();
+      let subFoldersMap: FileBrowserFolderFile[] = [];
+      let linkFilesMap: FileBrowserFolderLinkFile[] = [];
+      let filesMap: FileBrowserFolderFile[] = [];
       const initialPaginateValue = {
         totalCount: 0,
         hasNextPage: false,
@@ -38,32 +45,33 @@ const NewLibrary = () => {
       let linksPagination = initialPaginateValue;
 
       if (folders) {
-        for (const folder of folders) {
-          try {
-            const children = await folder.getChildren(pagination);
-            const linkFiles = await folder.getLinkFiles(pagination);
-            const folderFiles = await folder.getFiles(pagination);
+        const folder = folders[0];
 
-            foldersPagination = {
-              totalCount: children.totalCount,
-              hasNextPage: children.hasNextPage,
-            };
-            linksPagination = {
-              totalCount: linkFiles.totalCount,
-              hasNextPage: linkFiles.hasNextPage,
-            };
-            filesPagination = {
-              totalCount: folderFiles.totalCount,
-              hasNextPage: folderFiles.hasNextPage,
-            };
+        if (folder) {
+          const children = await folder.getChildren(pagination);
+          const linkFiles = await folder.getLinkFiles(pagination);
+          const folderFiles = await folder.getFiles(pagination);
 
-            subFoldersMap.set(folder.data.id, children.getItems());
-            linkFilesMap.set(folder.data.id, linkFiles.getItems());
-            filesMap.set(folder.data.id, folderFiles.getItems());
-          } catch (error) {
-            // biome-ignore lint/complexity/noUselessCatch: <explanation>
-            throw error;
-          }
+          console.log("Children", children);
+          console.log("Link Files", linkFiles);
+          console.log("Folder Files", folderFiles);
+
+          subFoldersMap = children.getItems();
+          filesMap = folderFiles.getItems();
+          linkFilesMap = linkFiles.getItems();
+
+          foldersPagination = {
+            totalCount: children.totalCount,
+            hasNextPage: children.hasNextPage,
+          };
+          linksPagination = {
+            totalCount: linkFiles.totalCount,
+            hasNextPage: linkFiles.hasNextPage,
+          };
+          filesPagination = {
+            totalCount: folderFiles.totalCount,
+            hasNextPage: folderFiles.hasNextPage,
+          };
         }
       }
 
@@ -119,7 +127,6 @@ const NewLibrary = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        console.log("Scrolling", fetchMore, entries[0].isIntersecting);
         if (entries[0].isIntersecting && fetchMore) {
           handlePagination();
         }
@@ -141,10 +148,18 @@ const NewLibrary = () => {
   return (
     <WrapperConnect>
       <div style={{ margin: "1rem" }}>
-        <BreadcrumbContainer
-          path={computedPath}
-          handleFolderClick={handleBreadcrumbClick}
-        />
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <MenuBar />
+          <BreadcrumbContainer
+            path={computedPath}
+            handleFolderClick={handleBreadcrumbClick}
+          />
+        </div>
 
         {isError && <Alert type="error" description={error.message} />}
         {data?.filesPagination.totalCount === -1 &&

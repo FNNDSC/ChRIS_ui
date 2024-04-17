@@ -20,6 +20,10 @@ import {
 } from "../Icons";
 import { elipses } from "../LibraryCopy/utils";
 import { useNavigate } from "react-router";
+import {
+  FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
+} from "@fnndsc/chrisapi";
 
 type Pagination = {
   totalCount: number;
@@ -32,29 +36,22 @@ export const FolderCard = ({
   computedPath,
   pagination,
 }: {
-  folders: any;
+  folders: FileBrowserFolderFile[];
   handleFolderClick: (path: string) => void;
   computedPath: string;
   pagination?: Pagination;
 }) => {
   return (
     <Fragment>
-      {Array.from(folders.entries()).map(([key, value, index]) => {
-        if (value.length > 0) {
-          return (
-            <Fragment key={`folder_${index}`}>
-              {value.map((val: any, innerIndex) => (
-                <SubFolderCard
-                  key={`sub_folder_${innerIndex}`}
-                  val={val}
-                  computedPath={computedPath}
-                  handleFolderClick={handleFolderClick}
-                />
-              ))}
-            </Fragment>
-          );
-        }
-        return null;
+      {folders.map((folder) => {
+        return (
+          <SubFolderCard
+            key={`sub_folder_${folder}`}
+            val={folder}
+            computedPath={computedPath}
+            handleFolderClick={handleFolderClick}
+          />
+        );
       })}
     </Fragment>
   );
@@ -65,7 +62,7 @@ const SubFolderCard = ({
   computedPath,
   handleFolderClick,
 }: {
-  val: any;
+  val: FileBrowserFolderFile;
   computedPath: string;
   handleFolderClick: (path: string) => void;
 }) => {
@@ -116,7 +113,7 @@ const SubFolderCard = ({
   const creation_date = val.data.creation_date;
 
   return (
-    <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={val.id}>
+    <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={val.data.id}>
       <Card
         onClick={() => {
           handleFolderClick(folderName);
@@ -145,56 +142,40 @@ export const LinkCard = ({
   linkFiles,
   pagination,
 }: {
-  linkFiles: any;
+  linkFiles: FileBrowserFolderLinkFile[];
   pagination?: Pagination;
 }) => {
   const navigate = useNavigate();
   return (
     <Fragment>
-      {Array.from(linkFiles.entries()).map(([key, value, index]) => {
-        if (value.length > 0) {
-          return (
-            <Fragment key={index}>
-              {value.map((val: any) => {
-                const pathList = val.data.path.split("/");
-                const linkName = pathList[pathList.length - 1];
-                const creation_date = val.data.creation_date;
-                return (
-                  <GridItem
-                    sm={1}
-                    lg={4}
-                    md={4}
-                    xl={4}
-                    xl2={4}
-                    key={val.data.fname}
-                  >
-                    <Card
-                      onClick={() => {
-                        navigate(val.data.path);
-                      }}
-                      isRounded
-                    >
-                      <CardHeader>
-                        <Split>
-                          <SplitItem style={{ marginRight: "1em" }}>
-                            <ExternalLinkSquareAltIcon />
-                          </SplitItem>
-                          <SplitItem>
-                            <Button variant="link" style={{ padding: 0 }}>
-                              {elipses(linkName, 40)}
-                            </Button>
-                            <div>{new Date(creation_date).toDateString()}</div>
-                          </SplitItem>
-                        </Split>
-                      </CardHeader>
-                    </Card>
-                  </GridItem>
-                );
-              })}
-            </Fragment>
-          );
-        }
-        return null;
+      {linkFiles.map((val) => {
+        const pathList = val.data.path.split("/");
+        const linkName = pathList[pathList.length - 1];
+        const creation_date = val.data.creation_date;
+        return (
+          <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={val.data.fname}>
+            <Card
+              onClick={() => {
+                navigate(val.data.path);
+              }}
+              isRounded
+            >
+              <CardHeader>
+                <Split>
+                  <SplitItem style={{ marginRight: "1em" }}>
+                    <ExternalLinkSquareAltIcon />
+                  </SplitItem>
+                  <SplitItem>
+                    <Button variant="link" style={{ padding: 0 }}>
+                      {elipses(linkName, 40)}
+                    </Button>
+                    <div>{new Date(creation_date).toDateString()}</div>
+                  </SplitItem>
+                </Split>
+              </CardHeader>
+            </Card>
+          </GridItem>
+        );
       })}
     </Fragment>
   );
@@ -204,39 +185,23 @@ export const FilesCard = ({
   files,
   pagination,
 }: {
-  files: any;
+  files: FileBrowserFolderFile[];
   pagination?: Pagination;
 }) => {
   return (
     <Fragment>
-      {Array.from(files.entries()).map(([key, value, index]) => {
-        if (value.length > 0) {
-          return (
-            <Fragment key={`file_${index}`}>
-              {value.map((val: any) => {
-                return (
-                  <GridItem
-                    sm={1}
-                    lg={4}
-                    md={4}
-                    xl={4}
-                    xl2={4}
-                    key={val.data.fname}
-                  >
-                    <SubFileCard file={val} />
-                  </GridItem>
-                );
-              })}
-            </Fragment>
-          );
-        }
-        return null;
+      {files.map((file) => {
+        return (
+          <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={file.data.fname}>
+            <SubFileCard file={file} />
+          </GridItem>
+        );
       })}
     </Fragment>
   );
 };
 
-export const SubFileCard = ({ file }: { file: any }) => {
+export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const [isOpen, setIsOpen] = useState(false);
   const listOfPaths = file.data.fname.split("/");
   const fileName = listOfPaths[listOfPaths.length - 1];
