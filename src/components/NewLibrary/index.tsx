@@ -1,20 +1,20 @@
-import { Grid, Button } from "@patternfly/react-core";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
-import { debounce } from "lodash";
-import { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { EmptyStateComponent, SpinContainer } from "../Common";
-import WrapperConnect from "../Wrapper";
-import BreadcrumbContainer from "./Breadcrumb";
-import MenuBar from "./MenuBar";
-import { FilesCard, FolderCard, LinkCard } from "./Browser";
 import {
   FileBrowserFolderFile,
   FileBrowserFolderFileList,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
+import { Button, Grid } from "@patternfly/react-core";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { Alert } from "antd";
+import { debounce } from "lodash";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { EmptyStateComponent, SpinContainer } from "../Common";
+import WrapperConnect from "../Wrapper";
+import BreadcrumbContainer from "./Breadcrumb";
+import { FilesCard, FolderCard, LinkCard } from "./Browser";
+import MenuBar from "./MenuBar";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -51,10 +51,6 @@ const NewLibrary = () => {
           const children = await folder.getChildren(pagination);
           const linkFiles = await folder.getLinkFiles(pagination);
           const folderFiles = await folder.getFiles(pagination);
-
-          console.log("Children", children);
-          console.log("Link Files", linkFiles);
-          console.log("Folder Files", folderFiles);
 
           subFoldersMap = children.getItems();
           filesMap = folderFiles.getItems();
