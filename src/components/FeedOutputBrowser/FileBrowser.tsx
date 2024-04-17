@@ -27,12 +27,12 @@ import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 import {
   DownloadIcon,
+  ExternalLinkSquareAltIcon,
   FileIcon,
   FileImageIcon,
-  FileTxtIcon,
   FilePdfIcon,
+  FileTxtIcon,
   FolderIcon,
-  ExternalLinkSquareAltIcon,
 } from "../Icons";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
@@ -300,7 +300,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         onClick={() => {
           handleItem(item, type);
         }}
-        key={item.id} // Assuming 'item' has an 'id' property
+        key={type === "file" ? item.data.fname : item.data.path} // Assuming 'item' has an 'id' property
       >
         <Td dataLabel={columnNames.name}>{fileNameComponent}</Td>
         <Td dataLabel={columnNames.size}>{fsize}</Td>
