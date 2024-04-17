@@ -32,6 +32,7 @@ import {
   FileTxtIcon,
   FilePdfIcon,
   FolderIcon,
+  ExternalLinkSquareAltIcon,
 } from "../Icons";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
@@ -51,20 +52,14 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
-
   const dispatch = useDispatch();
-  const [currentRowIndex, setCurrentRowIndex] = React.useState(0);
-  const { files, folders, path } = pluginFilesPayload;
+  const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
   const columnNames = {
     name: "Name",
     size: "Size",
     download: "",
   };
-  const items = files && folders ? [...files, ...folders] : [];
-  const { id, plugin_name } = selected.data;
-  const pathSplit = path?.split(`/${plugin_name}_${id}/`);
-  const breadcrumb = path ? pathSplit[1].split("/") : [];
-
+  const breadcrumb = path.split("/");
   const makeDataSourcePublic = async () => {
     // Implement logic to make the data source public
     await feed?.put({
@@ -182,22 +177,15 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const generateBreadcrumb = (value: string, index: number) => {
     const onClick = () => {
-      dispatch(clearSelectedFile());
       if (index === breadcrumb.length - 1) {
         return;
       }
       const findIndex = breadcrumb.findIndex((path) => path === value);
       if (findIndex !== -1) {
         const newPathList = breadcrumb.slice(0, findIndex + 1);
-        const combinedPathList = [
-          ...pathSplit[0].split("/"),
-          `${plugin_name}_${id}`,
-          ...newPathList,
-        ];
-        handleFileClick(combinedPathList.join("/"));
+        handleFileClick(newPathList.join("/"));
       }
     };
-
     return (
       <BreadcrumbItem
         showDivider={true}
@@ -219,28 +207,15 @@ const FileBrowser = (props: FileBrowserProps) => {
       ?.animate(previewAnimation, previewAnimationTiming);
   };
 
-  const handleItem = (item: string | FeedFile) => {
-    if (typeof item === "string") {
-      handleFileClick(`${path}/${item}`);
-    } else {
+  const handleItem = (item: any, type: string) => {
+    if (type === "link" || type === "folder") {
+      handleFileClick(item.data.path);
+    }
+
+    if (type === "file") {
       toggleAnimation();
       dispatch(setSelectedFile(item));
       !drawerState.preview.open && dispatch(setFilePreviewPanel());
-    }
-  };
-
-  const handleNext = () => {
-    if (currentRowIndex + 1 < items.length) {
-      const item = items[currentRowIndex + 1];
-      setCurrentRowIndex(currentRowIndex + 1);
-      handleItem(item);
-    }
-  };
-  const handlePrevious = () => {
-    if (currentRowIndex - 1 >= 0) {
-      const item = items[currentRowIndex - 1];
-      setCurrentRowIndex(currentRowIndex - 1);
-      handleItem(item);
     }
   };
 
@@ -265,8 +240,6 @@ const FileBrowser = (props: FileBrowserProps) => {
         {drawerState.preview.currentlyActive === "preview" && selectedFile && (
           <FileDetailView
             gallery={true}
-            handleNext={handleNext}
-            handlePrevious={handlePrevious}
             selectedFile={selectedFile}
             preview="large"
             isPublic={feed?.data.public}
@@ -276,6 +249,65 @@ const FileBrowser = (props: FileBrowserProps) => {
       </DrawerPanelBody>
     </DrawerPanelContent>
   );
+
+  const tableRowItem = (item: any, type: string) => {
+    let iconType: string;
+    let icon: React.ReactNode = null;
+    let fsize = " ";
+    let fileName = "";
+    iconType = "UNKNOWN FORMAT";
+    const pathList =
+      type === "folder" || type === "link"
+        ? item.data.path.split("/")
+        : item.data.fname.split("/");
+
+    fileName = pathList[pathList.length - 1];
+    if (type === "file" && fileName.indexOf(".") > -1) {
+      iconType = getFileName(fileName)[0].toUpperCase();
+      fsize = bytesToSize(item.data.fsize);
+    } else {
+      iconType = type;
+    }
+    const isPreviewing = selectedFile === item;
+    const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
+
+    icon = getIcon(iconType);
+    const fileNameComponent = (
+      <div
+        className={"file-browser__table--fileName"}
+        style={{
+          background: isPreviewing ? backgroundColor : "",
+        }}
+      >
+        <span>{icon}</span>
+        <span>{fileName}</span>
+      </div>
+    );
+    const downloadComponent =
+      type !== "file" ? undefined : (
+        <Button
+          variant="plain"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            downloadMutation.mutate(item);
+          }}
+          icon={<DownloadIcon />}
+        />
+      );
+    return (
+      <Tr
+        onClick={() => {
+          handleItem(item, type);
+        }}
+        key={item.id} // Assuming 'item' has an 'id' property
+      >
+        <Td dataLabel={columnNames.name}>{fileNameComponent}</Td>
+        <Td dataLabel={columnNames.size}>{fsize}</Td>
+        <Td dataLabel={columnNames.download}>{downloadComponent}</Td>
+      </Tr>
+    );
+  };
 
   return (
     <Grid hasGutter className="file-browser">
@@ -301,16 +333,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                   <ClipboardCopyContainer path={path} />
                   <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
                 </div>
-
-                <div className="file-browser__header__info">
-                  <span className="files-browser__header--fileCount">
-                    {items.length > 1
-                      ? `(${items.length} items)`
-                      : items.length === 1
-                        ? `(${items.length} item)`
-                        : "Empty Directory"}
-                  </span>
-                </div>
               </div>
               <Table aria-label="file-browser-table" variant="compact">
                 <Thead className="file-browser-table--head">
@@ -322,77 +344,20 @@ const FileBrowser = (props: FileBrowserProps) => {
                 </Thead>
                 {filesLoading ? (
                   <SpinContainer title="Fetching Files for this path..." />
-                ) : !filesLoading && items.length === 0 ? (
-                  <EmptyStateLoader title="Empty Data set" />
                 ) : (
                   <Tbody>
                     {contextHolder}
-                    {items.map((item: string | FeedFile, index) => {
-                      let type: string;
-                      let icon: React.ReactNode;
-                      let fsize: string;
-                      let fileName: string;
-                      type = "UNKNOWN FORMAT";
-                      const isPreviewing = selectedFile === item;
-
-                      if (typeof item === "string") {
-                        type = "dir";
-                        icon = getIcon(type);
-                        fileName = item;
-                      } else {
-                        fileName = getFileName(item.data.fname);
-                        if (fileName.indexOf(".") > -1) {
-                          type = getFileName(fileName)[0].toUpperCase();
-                        }
-                        fsize = bytesToSize(item.data.fsize);
-                        icon = getIcon(type);
-                      }
-
-                      const backgroundColor = isDarkTheme
-                        ? "#002952"
-                        : "#E7F1FA";
-
-                      const fileNameComponent = (
-                        <div
-                          className={"file-browser__table--fileName"}
-                          style={{
-                            background: isPreviewing ? backgroundColor : "",
-                          }}
-                        >
-                          <span>{icon}</span>
-                          <span>{fileName}</span>
-                        </div>
-                      );
-
-                      const downloadComponent =
-                        typeof item === "string" ? undefined : (
-                          <Button
-                            variant="plain"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              downloadMutation.mutate(item);
-                            }}
-                            icon={<DownloadIcon />}
-                          />
-                        );
-
-                      return (
-                        <Tr
-                          onClick={() => {
-                            handleItem(item);
-                          }}
-                          key={index}
-                        >
-                          <Td dataLabel={columnNames.name}>
-                            {fileNameComponent}
-                          </Td>
-                          <Td dataLabel={columnNames.size}>{fsize}</Td>
-                          <Td dataLabel={columnNames.download}>
-                            {downloadComponent}
-                          </Td>
-                        </Tr>
-                      );
+                    {folderFiles.map((folderFile) => {
+                      const component = tableRowItem(folderFile, "file");
+                      return component;
+                    })}
+                    {linkFiles.map((linkFile) => {
+                      const component = tableRowItem(linkFile, "link");
+                      return component;
+                    })}
+                    {children.map((child) => {
+                      const component = tableRowItem(child, "folder");
+                      return component;
                     })}
                   </Tbody>
                 )}
@@ -422,6 +387,10 @@ const getIcon = (type: string) => {
       return <FileTxtIcon />;
     case "pdf":
       return <FilePdfIcon />;
+    case "link":
+      return <ExternalLinkSquareAltIcon />;
+    case "folder":
+      return <FolderIcon />;
     default:
       return <FileIcon />;
   }

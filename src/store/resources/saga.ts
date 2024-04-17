@@ -3,11 +3,7 @@ import { Task } from "redux-saga";
 import { IActionTypeParam } from "../../api/model";
 import { ResourceTypes, PluginStatusLabels } from "./types";
 import { PluginInstanceTypes } from "../pluginInstance/types";
-import {
-  FileBrowserPathFileList,
-  PluginInstance,
-  FileBrowserPath,
-} from "@fnndsc/chrisapi";
+import { PluginInstance } from "@fnndsc/chrisapi";
 import { inflate, inflateRaw } from "pako";
 import {
   getPluginInstanceResourceSuccess,
@@ -30,44 +26,60 @@ export function* getPluginFiles(plugin: PluginInstance) {
 
 export const fetchFilesFromAPath = async (path: string) => {
   const client = ChrisAPIClient.getClient();
-  const foldersList: FileBrowserPathFileList = await client.getFileBrowserPaths(
-    {
-      path,
-    },
-  );
-  let folders: string[] = [];
-  const pathList: FileBrowserPath = await client.getFileBrowserPath(path);
-  const fetchFileFn = pathList.getFiles;
-  const boundFetchFileFn = fetchFileFn.bind(pathList);
-  const params = { limit: 100, offset: 0 };
-  let files: any[] = [];
+  const folderList = await client.getFileBrowserFolders({
+    path,
+  });
+  const folders = folderList.getItems();
+  const pagination = { limit: 100, offset: 0 };
+  if (folders) {
+    const folder = folders[0];
 
-  const { resource } = await fetchResource(params, boundFetchFileFn);
-  files = resource;
+    if (folder) {
+      const childrenFn = folder.getChildren;
+      const boundChildrenFn = childrenFn.bind(folder);
+      const { resource: children } = await fetchResource(
+        pagination,
+        boundChildrenFn,
+      );
+      const linkFilesFn = folder.getLinkFiles;
+      const boundLinkFilesFn = linkFilesFn.bind(folder);
+      const { resource: linkFiles } = await fetchResource(
+        pagination,
+        boundLinkFilesFn,
+      );
+      const filesFn = folder.getFiles;
+      const boundFilesFn = filesFn.bind(folder);
+      const { resource: folderFiles } = await fetchResource(
+        pagination,
+        boundFilesFn,
+      );
 
-  if (
-    foldersList.data &&
-    foldersList.data[0].subfolders &&
-    foldersList.data[0].subfolders.length > 0
-  ) {
-    folders = JSON.parse(foldersList.data[0].subfolders);
+      return {
+        folderFiles: folderFiles,
+        linkFiles: linkFiles,
+        children: children,
+      };
+    }
+
+    return {
+      folderFiles: [],
+      linkFiles: [],
+      children: [],
+    };
   }
-
-  return {
-    files,
-    folders,
-  };
 };
 
 function* fetchPluginFiles(action: IActionTypeParam) {
   const { id, path } = action.payload;
 
   try {
-    const { files, folders } = yield fetchFilesFromAPath(path);
+    const { folderFiles, linkFiles, children } =
+      yield fetchFilesFromAPath(path);
     const payload = {
       id,
-      files,
-      folders,
+      folderFiles,
+      linkFiles,
+      children,
       path,
     };
     yield put(getPluginFilesSuccess(payload));
@@ -187,7 +199,7 @@ function cancelStatusPolling(task: Task) {
 }
 
 function* watchCancelPoll(pollTask: Task) {
-  yield takeEvery(ResourceTypes.STOP_FETCHING_PLUGIN_RESOURCES, function () {
+  yield takeEvery(ResourceTypes.STOP_FETCHING_PLUGIN_RESOURCES, () => {
     cancelPolling(pollTask);
   });
 }
@@ -195,7 +207,7 @@ function* watchCancelPoll(pollTask: Task) {
 function* watchStatusCancelPoll(pollTask: PollTask) {
   yield takeEvery(
     ResourceTypes.STOP_FETCHING_STATUS_RESOURCES,
-    function (action: IActionTypeParam) {
+    (action: IActionTypeParam) => {
       const id = action.payload;
       const taskToCancel = pollTask[id];
       cancelStatusPolling(taskToCancel);
