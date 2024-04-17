@@ -11,7 +11,7 @@ const BreadcrumbContainer = ({
   const initialPathSplit = path.split("/");
 
   return (
-    <Breadcrumb>
+    <Breadcrumb style={{ marginTop: "1rem" }}>
       {initialPathSplit.map((path: string, index) => {
         return (
           <BreadcrumbItem
