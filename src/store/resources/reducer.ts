@@ -58,15 +58,16 @@ const reducer: Reducer<IResourceState> = (
     }
 
     case ResourceTypes.GET_PLUGIN_FILES_SUCCESS: {
-      const { id, files, folders, path } = action.payload;
+      const { id, linkFiles, folderFiles, children, path } = action.payload;
 
       return {
         ...state,
         loading: false,
         pluginFiles: {
           [id]: {
-            files,
-            folders,
+            folderFiles: folderFiles,
+            linkFiles: linkFiles,
+            children: children,
             error: "",
             path,
           },
