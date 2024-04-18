@@ -1,5 +1,4 @@
 import { Tag, PluginInstance } from "@fnndsc/chrisapi";
-
 import { IUserState } from "../../../store/user/types";
 import { Feed } from "@fnndsc/chrisapi";
 import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
@@ -143,10 +142,6 @@ export interface CreateFeedReduxProp {
   user?: IUserState;
   addFeed?: (feed: Feed) => void;
   getSelectedPlugin?: (item: PluginInstance) => void;
-}
-
-export interface ChrisFileSelectProp {
-  username: string;
 }
 
 /**

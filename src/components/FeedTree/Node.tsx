@@ -298,7 +298,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status;
-    } else return;
+    }
   });
 
   const currentId = useTypedSelector((state) => {

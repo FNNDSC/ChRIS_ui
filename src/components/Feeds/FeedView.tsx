@@ -176,7 +176,7 @@ export default function FeedView() {
           handleMinimize={() => {
             handleMinimize("graph", dispatch);
           }}
-          maximized={drawerState["graph"].maximized}
+          maximized={drawerState.graph.maximized}
         />
 
         <DrawerContentBody>
