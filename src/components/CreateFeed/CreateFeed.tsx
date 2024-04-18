@@ -28,6 +28,7 @@ import { createFeed, createFeedInstanceWithFS } from "./createFeedHelper";
 import { Types } from "./types/feed";
 
 export default function CreateFeed() {
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const [feedProcessing, setFeedProcessing] = React.useState(false);
   const queryClient = useQueryClient();
   const router = useContext(MainRouterContext);
@@ -215,6 +216,7 @@ export default function CreateFeed() {
         icon={<CodeBranchIcon />}
         variant="primary"
         onClick={() => closeWizard()}
+        isDisabled={!isLoggedIn}
       >
         Create Feed
       </Button>
