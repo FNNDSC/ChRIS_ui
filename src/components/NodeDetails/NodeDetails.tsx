@@ -14,15 +14,10 @@ import React, { Fragment, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
-import AddNodeConnect from "../AddNode/AddNode";
-import { AddNodeProvider } from "../AddNode/context";
-import AddPipeline from "../AddPipeline/AddPipeline";
 import { SpinContainer } from "../Common";
 import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
-import DeleteNode from "../DeleteNode";
 import FeedNote from "../FeedDetails/FeedNote";
 import { CalendarAltIcon, PreviewIcon } from "../Icons";
-import { PipelineProvider } from "../PipelinesCopy/context";
 import "./NodeDetails.css";
 import PluginLog from "./PluginLog";
 import PluginTitle from "./PluginTitle";
@@ -218,18 +213,6 @@ const NodeDetails: React.FC = () => {
                   )}
               </Grid>
             </ExpandableSection>
-
-            <>
-              {/* Note this modals are fired from the dropdown menu in the tree*/}
-              <AddNodeProvider>
-                <AddNodeConnect />
-              </AddNodeProvider>
-              {/* Graph Node Container is missing */}
-              <DeleteNode />
-              <PipelineProvider>
-                <AddPipeline />
-              </PipelineProvider>
-            </>
 
             {
               // Jennings: hastily adding an extra button here.
