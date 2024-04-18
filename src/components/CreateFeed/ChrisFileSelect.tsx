@@ -4,32 +4,26 @@ import { useWizardContext } from "@patternfly/react-core";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
 import { Tree, notification } from "antd";
 
-import {
-  Types,
-  Info,
-  DataBreadcrumb,
-  ChrisFileSelectProp,
-  CheckedKeys,
-} from "./types/feed";
+import { Types, Info, DataBreadcrumb, CheckedKeys } from "./types/feed";
 import { generateTreeNodes, getNewTreeData } from "./utils";
 import { isEmpty } from "lodash";
 
 const { DirectoryTree } = Tree;
 
 export function clearCache() {
-  cache["tree"] = [];
+  cache.tree = [];
 }
 
-function getEmptyTree(username: string) {
+function getEmptyTree() {
   const node: DataBreadcrumb[] = [];
   node.push({
-    breadcrumb: username,
-    title: username,
+    breadcrumb: "/home",
+    title: "home",
     checkable: false,
     key: "0-0",
   });
   node.push({
-    breadcrumb: "SERVICES",
+    breadcrumb: "/SERVICES",
     title: "SERVICES",
     checkable: false,
     key: "0-1",
@@ -46,21 +40,19 @@ const cache: {
 };
 
 function setCacheTree(tree: DataBreadcrumb[]) {
-  cache["tree"] = tree;
+  cache.tree = tree;
 }
 
 function getCacheTree() {
-  return cache["tree"];
+  return cache.tree;
 }
 
-const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
-  username,
-}: ChrisFileSelectProp) => {
+const ChrisFileSelect = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
   const { chrisFiles, checkedKeys } = state.data;
   const { goToPrevStep: onBack, goToNextStep: onNext } = useWizardContext();
   const [tree, setTree] = useState<DataBreadcrumb[]>(
-    (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
+    (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(),
   );
   const [loadingError, setLoadingError] = useState<Error>();
 
@@ -81,7 +73,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           },
         });
         notification.info({
-          message: `New File(s) added`,
+          message: "New File(s) added",
           description: `New ${path} file(s) added`,
           duration: 1,
         });
@@ -94,7 +86,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           },
         });
         notification.info({
-          message: `File(s) removed`,
+          message: "File(s) removed",
           description: `${path} file(s) removed`,
           duration: 1,
         });
@@ -114,12 +106,13 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
     }
   };
 
+  // Cynthia (Outreachy intern) - My attemp to use keyboard navigation to move left and right in the wizard
   const handleKeyDown = useCallback(
     (e: any) => {
       if (e.target.closest("INPUT")) return;
-      if (chrisFiles.length > 0 && e.code == "ArrowRight") {
+      if (chrisFiles.length > 0 && e.code === "ArrowRight") {
         onNext();
-      } else if (e.code == "ArrowLeft") {
+      } else if (e.code === "ArrowLeft") {
         onBack();
       }
     },
@@ -173,13 +166,10 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
         <br />
 
         <DirectoryTree
-          //@ts-ignore
           onCheck={onCheck}
-          //@ts-ignore
           loadData={onLoad}
           checkedKeys={fetchKeysFromDict}
           checkable
-          //@ts-ignore
           treeData={tree}
         />
 

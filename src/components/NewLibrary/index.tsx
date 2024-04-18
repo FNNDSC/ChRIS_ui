@@ -15,6 +15,7 @@ import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./Breadcrumb";
 import { FilesCard, FolderCard, LinkCard } from "./Browser";
 import MenuBar from "./MenuBar";
+import TreeBrowser from "./TreeBrowser";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -87,12 +88,10 @@ const NewLibrary = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
-
+  const [cardLayout, setCardLayout] = useState(true);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
-
   const computedPath = currentPathSplit || "/";
-
   const { data, isPending, isFetching, isError, error } = useQuery({
     queryKey: ["folders", computedPath, pageNumber],
     queryFn: () => fetchFolders(computedPath, pageNumber),
@@ -150,7 +149,12 @@ const NewLibrary = () => {
             flexDirection: "column",
           }}
         >
-          <MenuBar />
+          <MenuBar
+            handleChange={() => {
+              setCardLayout(!cardLayout);
+            }}
+            checked={cardLayout}
+          />
           <BreadcrumbContainer
             path={computedPath}
             handleFolderClick={handleBreadcrumbClick}
@@ -163,7 +167,7 @@ const NewLibrary = () => {
           data?.linksPagination.totalCount === -1 && (
             <EmptyStateComponent title="No data in this path" />
           )}
-        {data && (
+        {data && cardLayout ? (
           <Grid
             style={{
               marginTop: "1rem",
@@ -201,6 +205,8 @@ const NewLibrary = () => {
               }}
             />{" "}
           </Grid>
+        ) : (
+          <TreeBrowser />
         )}
       </div>
     </WrapperConnect>

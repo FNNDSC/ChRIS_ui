@@ -8,25 +8,31 @@ const BreadcrumbContainer = ({
   path: string;
   handleFolderClick: (path: string) => void;
 }) => {
-  const initialPathSplit = path.split("/");
+  const initialPathSplit = path !== "/" ? path.split("/") : [];
+
+  console.log("initialPathSplit", path);
 
   return (
     <Breadcrumb style={{ marginTop: "1rem" }}>
+      <BreadcrumbItem
+        onClick={() => {
+          handleFolderClick(" ");
+        }}
+        to="#"
+      >
+        root
+      </BreadcrumbItem>
       {initialPathSplit.map((path: string, index) => {
         return (
           <BreadcrumbItem
             onClick={() => {
-              if (index === 0) {
-                handleFolderClick("");
-              } else {
-                const newPath = initialPathSplit.slice(0, index + 1).join("/");
-                handleFolderClick(`/${newPath}`);
-              }
+              const newPath = initialPathSplit.slice(0, index + 1).join("/");
+              handleFolderClick(`/${newPath}`);
             }}
             key={`breadcrumb_${index}`}
             to="#"
           >
-            {index === 0 ? <HomeIcon /> : path}
+            {path}
           </BreadcrumbItem>
         );
       })}

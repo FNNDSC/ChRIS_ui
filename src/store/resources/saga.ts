@@ -16,14 +16,6 @@ import {
 import { fetchResource } from "../../api/common";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
-export function* getPluginFiles(plugin: PluginInstance) {
-  const params = { limit: 200, offset: 0 };
-  const fn = plugin.getFiles;
-  const boundFn = fn.bind(plugin);
-  const { resource: files } = yield fetchResource<any>(params, boundFn);
-  return files;
-}
-
 export const fetchFilesFromAPath = async (path: string) => {
   const client = ChrisAPIClient.getClient();
   const folderList = await client.getFileBrowserFolders({
