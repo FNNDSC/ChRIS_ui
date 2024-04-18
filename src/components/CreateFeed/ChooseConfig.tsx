@@ -252,7 +252,7 @@ const ChooseConfig = ({
             padding: "1em",
           }}
         >
-          {user?.username && <ChrisFileSelect username={user.username} />}
+          <ChrisFileSelect />
           <Grid style={navigationButtonStyle} />
         </DrawerPanelBody>
       </DrawerPanelContent>
