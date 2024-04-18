@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import { Fragment, useContext, useEffect, useRef, memo } from "react";
+import { Fragment, memo, useContext, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
@@ -13,7 +13,12 @@ import {
   getSelectedPlugin,
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
+import AddNodeConnect from "../AddNode/AddNode";
+import { AddNodeProvider } from "../AddNode/context";
+import AddPipeline from "../AddPipeline/AddPipeline";
 import { ThemeContext } from "../DarkTheme/useTheme";
+import DeleteNode from "../DeleteNode";
+import { PipelineProvider } from "../PipelinesCopy/context";
 import { FeedTreeScaleType } from "./Controls";
 import DropdownMenu from "./DropdownMenu";
 import TreeNodeDatum, { Datum, Point } from "./data";
@@ -245,6 +250,17 @@ const Node = (props: NodeProps) => {
 
   return (
     <Fragment>
+      <>
+        {/* Note this modals are fired from the dropdown menu in the tree*/}
+        <AddNodeProvider>
+          <AddNodeConnect />
+        </AddNodeProvider>
+        {/* Graph Node Container is missing */}
+        <DeleteNode />
+        <PipelineProvider>
+          <AddPipeline />
+        </PipelineProvider>
+      </>
       {contextHolder}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
       <g
