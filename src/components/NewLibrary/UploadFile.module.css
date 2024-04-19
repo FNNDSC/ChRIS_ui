@@ -64,6 +64,6 @@
   border-radius: 5px;
 }
 
-
-
-
+.antTree {
+  background:inherit !important;
+}

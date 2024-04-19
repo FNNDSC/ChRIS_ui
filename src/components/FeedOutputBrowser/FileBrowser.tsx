@@ -10,9 +10,8 @@ import {
   Grid,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { setFilePreviewPanel } from "../../store/drawer/actions";
 import { setSelectedFile } from "../../store/explorer/actions";
@@ -30,19 +29,18 @@ import {
   FileTxtIcon,
   FolderIcon,
 } from "../Icons";
+import useDownload from "../NewLibrary/useDownloadHook";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
-
-import { FileBrowserFolderFile } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "../../api/chrisapiclient";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
 
-const getFileName = (name: string) => {
+export const getFileName = (name: string) => {
   return name.split("/").slice(-1).join("");
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
+  const [api, contextHolder] = notification.useNotification();
   const { isDarkTheme } = useContext(ThemeContext);
   const { pluginFilesPayload, handleFileClick, filesLoading } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
@@ -55,75 +53,33 @@ const FileBrowser = (props: FileBrowserProps) => {
     download: "",
   };
   const breadcrumb = path.split("/");
-
-  const handleDownloadClick = async (item: FileBrowserFolderFile) => {
-    if (item) {
-      try {
-        const client = ChrisAPIClient.getClient();
-        const fileName = getFileName(item.data.fname);
-        // Create an anchor element
-        const link = document.createElement("a");
-        const token = await client.createDownloadToken();
-        const url = item.collection.items[0].links[0].href;
-        if (!url) {
-          throw new Error("Failed to construct the url");
-        }
-        const authorizedUrl = `${url}?${token}`; // Add token as a query parameter
-        link.href = authorizedUrl;
-        link.download = fileName; // Set the download attribute to specify the filename
-        // Append the anchor element to the document body
-        document.body.appendChild(link);
-        link.click();
-        // Remove the anchor element from the document body after the download is initiated
-        document.body.removeChild(link);
-        return item;
-      } catch (e) {
-        throw e;
-      }
-    }
-  };
-
-  const downloadMutation = useMutation({
-    mutationFn: (item: FileBrowserFolderFile) => handleDownloadClick(item),
-  });
-
+  const handleDownloadMutation = useDownload();
   const {
     isSuccess,
-    isPending,
+
     isError,
     error: downloadError,
-    data,
-  } = downloadMutation;
-  const [api, contextHolder] = notification.useNotification();
-
-  React.useEffect(() => {
-    if (isPending) {
-      api.info({
-        message: "Processing download...",
+  } = handleDownloadMutation;
+  useEffect(() => {
+    if (isSuccess) {
+      api.success({
+        message: "Successfully Triggered the Download",
+        duration: 1,
       });
-    }
-
-    if (data) {
-      const fileName = getFileName(data.data.fname);
-      if (isSuccess) {
-        api.success({
-          message: `Triggered the Download for ${fileName}`,
-        });
-      }
-
-      if (isError) {
-        api.error({
-          message: `Download Error: ${fileName}`,
-          //@ts-ignore
-          description: downloadError.message,
-        });
-      }
 
       setTimeout(() => {
-        downloadMutation.reset();
+        handleDownloadMutation.reset();
       }, 1000);
     }
-  }, [isSuccess, isError, isPending, downloadError]);
+
+    if (isError) {
+      api.error({
+        message: "Download Error",
+        //@ts-ignore
+        description: downloadError.message,
+      });
+    }
+  }, [isSuccess, isError, downloadError]);
 
   const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -246,7 +202,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
-            downloadMutation.mutate(item);
+            handleDownloadMutation.mutate(item);
           }}
           icon={<DownloadIcon />}
         />

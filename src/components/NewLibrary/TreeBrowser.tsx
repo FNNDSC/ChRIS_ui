@@ -3,6 +3,8 @@ import { EventDataNode, Key } from "rc-tree/lib/interface";
 import { useMemo, useState } from "react";
 import type { CheckedKeys, DataBreadcrumb } from "../CreateFeed/types/feed";
 import { getNewTreeData, generateTreeNodes } from "../CreateFeed/utils";
+import styles from "./UploadFile.module.css";
+
 const { DirectoryTree } = Tree;
 
 function getEmptyTree() {
@@ -60,6 +62,7 @@ const TreeBrowser = () => {
       }}
     >
       <DirectoryTree
+        className={styles.antTree}
         onCheck={onCheck}
         loadData={onLoad}
         checkedKeys={fetchKeysFromDict}
