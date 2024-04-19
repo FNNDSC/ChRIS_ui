@@ -66,4 +66,6 @@
 
 .antTree {
   background:inherit !important;
+  font-family:RedHatText, helvetica, arial, sans-serif;
+  font-size:1rem;
 }
