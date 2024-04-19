@@ -51,7 +51,7 @@ export default function useLongPress() {
     }
 
     if (!(e.ctrlKey || e.shiftKey || e.detail === 2) && e.detail === 1) {
-      cbFolder && cbFolder(path);
+      cbFolder?.(path);
     }
   }
 

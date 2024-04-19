@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
@@ -27,7 +28,8 @@ import {
 } from "../Icons";
 import { elipses } from "../LibraryCopy/utils";
 import FileDetailView from "../Preview/FileDetailView";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import { notification } from "antd";
+import useDownload from "./useDownloadHook";
 
 type Pagination = {
   totalCount: number;
@@ -50,7 +52,7 @@ export const FolderCard = ({
       {folders.map((folder) => {
         return (
           <SubFolderCard
-            key={`sub_folder_${folder}`}
+            key={`sub_folder_${folder.data.path}`}
             val={folder}
             computedPath={computedPath}
             handleFolderClick={handleFolderClick}
@@ -100,12 +102,13 @@ const SubFolderCard = ({
     >
       <DropdownList>
         <DropdownItem
-          onClick={() => {
+          onClick={async (e) => {
+            e.stopPropagation();
             setPreview(!isPreview);
           }}
           key="action"
         >
-          File Preview
+          Download
         </DropdownItem>
       </DropdownList>
     </Dropdown>
@@ -206,11 +209,35 @@ export const FilesCard = ({
 };
 
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
+  const handleDownloadMutation = useDownload();
+  const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const listOfPaths = file.data.fname.split("/");
   const fileName = listOfPaths[listOfPaths.length - 1];
   const creation_date = file.data.creation_date;
+  const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
+
+  useEffect(() => {
+    if (isSuccess) {
+      api.success({
+        message: "Successfully Triggered the Download",
+        duration: 1,
+      });
+
+      setTimeout(() => {
+        handleDownloadMutation.reset();
+      }, 1000);
+    }
+
+    if (isError) {
+      api.error({
+        message: "Download Error",
+        //@ts-ignore
+        description: downloadError.message,
+      });
+    }
+  }, [isSuccess, isError, downloadError]);
 
   const onSelect = () => {
     setIsOpen(!isOpen);
@@ -221,19 +248,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
       <DropdownItem
         onClick={async (e) => {
           e.stopPropagation();
-          const client = ChrisAPIClient.getClient();
-          const token = await client.createDownloadToken();
-          const url = file.collection.items[0].links[0].href;
-          if (!url) {
-            throw new Error("Failed to construct the url");
-          }
-          const authorizedUrl = `${url}?${token}`;
-          const link = document.createElement("a");
-          link.href = authorizedUrl;
-          link.download = fileName;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+          handleDownloadMutation.mutate(file);
         }}
         key="action"
       >
@@ -276,6 +291,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
         }}
         isRounded
       >
+        {contextHolder}
         <CardHeader actions={{ actions: headerActions }}>
           <Split>
             <SplitItem style={{ marginRight: "1em" }}>

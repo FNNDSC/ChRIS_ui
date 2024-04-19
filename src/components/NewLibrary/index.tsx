@@ -172,47 +172,48 @@ const NewLibrary = () => {
           data?.linksPagination.totalCount === -1 && (
             <EmptyStateComponent title="No data in this path" />
           )}
-        {data && cardLayout ? (
-          <Grid
-            style={{
-              marginTop: "1rem",
-            }}
-            hasGutter={true}
-          >
-            <FolderCard
-              folders={data.subFoldersMap}
-              handleFolderClick={handleFolderClick}
-              computedPath={computedPath}
-              pagination={data.foldersPagination}
-            />
-            <FilesCard
-              files={data.filesMap}
-              pagination={data.filesPagination}
-            />
-            <LinkCard
-              linkFiles={data.linkFilesMap}
-              pagination={data.linksPagination}
-            />
-            {(isPending || isFetching) && (
-              <SpinContainer title="Fetching more data..." />
-            )}
-            {fetchMore && !(isPending || isFetching) && (
-              <>
-                <Button onClick={handlePagination} variant="link">
-                  Load More Data...
-                </Button>
-              </>
-            )}
-            <div
-              ref={observerTarget}
+        {data &&
+          (cardLayout ? (
+            <Grid
               style={{
-                height: "10px",
+                marginTop: "1rem",
               }}
-            />{" "}
-          </Grid>
-        ) : (
-          <TreeBrowser />
-        )}
+              hasGutter={true}
+            >
+              <FolderCard
+                folders={data.subFoldersMap}
+                handleFolderClick={handleFolderClick}
+                computedPath={computedPath}
+                pagination={data.foldersPagination}
+              />
+              <FilesCard
+                files={data.filesMap}
+                pagination={data.filesPagination}
+              />
+              <LinkCard
+                linkFiles={data.linkFilesMap}
+                pagination={data.linksPagination}
+              />
+              {(isPending || isFetching) && (
+                <SpinContainer title="Fetching more data..." />
+              )}
+              {fetchMore && !(isPending || isFetching) && (
+                <>
+                  <Button onClick={handlePagination} variant="link">
+                    Load More Data...
+                  </Button>
+                </>
+              )}
+              <div
+                ref={observerTarget}
+                style={{
+                  height: "10px",
+                }}
+              />{" "}
+            </Grid>
+          ) : (
+            <TreeBrowser />
+          ))}
       </div>
       <UploadContainer
         isOpenModal={uploadFileModal}
