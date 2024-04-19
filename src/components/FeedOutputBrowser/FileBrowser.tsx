@@ -1,4 +1,3 @@
-import type { FeedFile } from "@fnndsc/chrisapi";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,10 +15,7 @@ import { notification } from "antd";
 import React, { useContext } from "react";
 import { useDispatch } from "react-redux";
 import { setFilePreviewPanel } from "../../store/drawer/actions";
-import {
-  clearSelectedFile,
-  setSelectedFile,
-} from "../../store/explorer/actions";
+import { setSelectedFile } from "../../store/explorer/actions";
 import { useTypedSelector } from "../../store/hooks";
 import { ClipboardCopyContainer, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
@@ -36,7 +32,7 @@ import {
 } from "../Icons";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
-import { EmptyStateLoader } from "./FeedOutputBrowser";
+
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
 
@@ -48,7 +44,7 @@ let isDownloadInitiated = false;
 
 const FileBrowser = (props: FileBrowserProps) => {
   const { isDarkTheme } = useContext(ThemeContext);
-  const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
+  const { pluginFilesPayload, handleFileClick, filesLoading } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
