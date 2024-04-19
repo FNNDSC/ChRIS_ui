@@ -35,6 +35,7 @@ import XtkViewer from "../XtkViewer/XtkViewer";
 
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 const getFileName = (name: string) => {
   return name.split("/").slice(-1).join("");
@@ -74,10 +75,11 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const handleDownloadClick = async (item: FeedFile) => {
     if (item) {
-      const privateFeed = feed?.data.public === false ? true : false;
       try {
+        const client = ChrisAPIClient.getClient();
         const fileName = getFileName(item.data.fname);
         const link = document.createElement("a");
+        const token = await client.createDownloadToken();
 
         const url = item.collection.items[0].links[0].href;
         if (!url) {
@@ -85,11 +87,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         }
 
         // This is highly inconsistent and needs to be investigated further
-        const authorizedUrl = `${url}`; // Add token as a query parameter
-
-        // Make the data source public
-        privateFeed && (await makeDataSourcePublic());
-
+        const authorizedUrl = `${url}?${token}`; // Add token as a query parameter
         // Create an anchor element
 
         link.href = authorizedUrl;
@@ -98,23 +96,9 @@ const FileBrowser = (props: FileBrowserProps) => {
         // Listen for the load event on the anchor element
 
         document.body.appendChild(link);
-        // Programmatically trigger the download
-
-        isDownloadInitiated = true;
-
         link.click();
         // Remove the anchor element from the document body after the download is initiated
         document.body.removeChild(link);
-
-        // Wait for a short delay to ensure download initiation
-        await new Promise((resolve) => setTimeout(resolve, 100));
-
-        // If download is initiated, make the data source private
-        if (isDownloadInitiated && privateFeed) {
-          await makeDataSourcePrivate();
-        }
-        privateFeed && (await makeDataSourcePrivate());
-
         return item;
       } catch (e) {
         throw e;
