@@ -25,6 +25,7 @@ import {
   Types,
 } from "./context";
 import { usePaginate } from "../Feeds/usePaginate";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 type LoadingResources = {
   [key: string]: boolean;
