@@ -37,7 +37,6 @@ interface AllProps {
   handleNext?: () => void;
   handlePrevious?: () => void;
   gallery?: boolean;
-  isPublic?: boolean;
 }
 
 export interface ActionState {
