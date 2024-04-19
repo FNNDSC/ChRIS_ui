@@ -33,22 +33,20 @@ import {
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 
+import { FileBrowserFolderFile } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
-import ChrisAPIClient from "../../api/chrisapiclient";
 
 const getFileName = (name: string) => {
   return name.split("/").slice(-1).join("");
 };
-
-let isDownloadInitiated = false;
 
 const FileBrowser = (props: FileBrowserProps) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const { pluginFilesPayload, handleFileClick, filesLoading } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
-  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const dispatch = useDispatch();
   const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
   const columnNames = {
@@ -57,44 +55,23 @@ const FileBrowser = (props: FileBrowserProps) => {
     download: "",
   };
   const breadcrumb = path.split("/");
-  const makeDataSourcePublic = async () => {
-    // Implement logic to make the data source public
-    await feed?.put({
-      //@ts-ignore
-      public: true,
-    });
-  };
 
-  const makeDataSourcePrivate = async () => {
-    // Implement logic to make the data source private again
-    await feed?.put({
-      //@ts-ignore
-      public: false,
-    });
-  };
-
-  const handleDownloadClick = async (item: FeedFile) => {
+  const handleDownloadClick = async (item: FileBrowserFolderFile) => {
     if (item) {
       try {
         const client = ChrisAPIClient.getClient();
         const fileName = getFileName(item.data.fname);
+        // Create an anchor element
         const link = document.createElement("a");
         const token = await client.createDownloadToken();
-
         const url = item.collection.items[0].links[0].href;
         if (!url) {
           throw new Error("Failed to construct the url");
         }
-
-        // This is highly inconsistent and needs to be investigated further
         const authorizedUrl = `${url}?${token}`; // Add token as a query parameter
-        // Create an anchor element
-
         link.href = authorizedUrl;
         link.download = fileName; // Set the download attribute to specify the filename
         // Append the anchor element to the document body
-        // Listen for the load event on the anchor element
-
         document.body.appendChild(link);
         link.click();
         // Remove the anchor element from the document body after the download is initiated
@@ -107,7 +84,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
 
   const downloadMutation = useMutation({
-    mutationFn: (item: FeedFile) => handleDownloadClick(item),
+    mutationFn: (item: FileBrowserFolderFile) => handleDownloadClick(item),
   });
 
   const {
@@ -222,7 +199,6 @@ const FileBrowser = (props: FileBrowserProps) => {
             gallery={true}
             selectedFile={selectedFile}
             preview="large"
-            isPublic={feed?.data.public}
           />
         )}
         {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
