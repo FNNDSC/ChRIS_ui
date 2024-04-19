@@ -8,8 +8,10 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { setSidebarActive } from "../../store/ui/actions";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./Breadcrumb";
@@ -88,6 +90,7 @@ const NewLibrary = () => {
 
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [pageNumber, setPageNumber] = useState(1);
   const [cardLayout, setCardLayout] = useState(true);
   const [uploadFileModal, setUploadFileModal] = useState(false);
@@ -100,6 +103,14 @@ const NewLibrary = () => {
     placeholderData: keepPreviousData,
     structuralSharing: true,
   });
+
+  useEffect(() => {
+    dispatch(
+      setSidebarActive({
+        activeItem: "lib",
+      }),
+    );
+  }, [dispatch]);
 
   const handleFolderClick = debounce((folder: string) => {
     const url = `${decodedPath}/${folder}`;
@@ -160,10 +171,12 @@ const NewLibrary = () => {
             }}
             checked={cardLayout}
           />
-          <BreadcrumbContainer
-            path={computedPath}
-            handleFolderClick={handleBreadcrumbClick}
-          />
+          {cardLayout && (
+            <BreadcrumbContainer
+              path={computedPath}
+              handleFolderClick={handleBreadcrumbClick}
+            />
+          )}
         </div>
 
         {isError && <Alert type="error" description={error.message} />}
