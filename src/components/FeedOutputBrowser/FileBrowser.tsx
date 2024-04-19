@@ -54,12 +54,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
   const breadcrumb = path.split("/");
   const handleDownloadMutation = useDownload();
-  const {
-    isSuccess,
-
-    isError,
-    error: downloadError,
-  } = handleDownloadMutation;
+  const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
   useEffect(() => {
     if (isSuccess) {
       api.success({
