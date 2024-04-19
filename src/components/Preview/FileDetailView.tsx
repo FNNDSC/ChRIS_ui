@@ -120,7 +120,9 @@ const FileDetailView = (props: AllProps) => {
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
 
-    if (props.isPublic && !fileTypes.includes(fileType)) {
+    if (!fileTypes.includes(fileType)) {
+      // These file types use the native browser's built in capabilities to view files.
+      // Just pass the url and the browser should take care of the visualization
       return {
         blob: undefined,
         file: selectedFile,
