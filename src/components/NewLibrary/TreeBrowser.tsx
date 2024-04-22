@@ -6,21 +6,19 @@ import type {
   DataBreadcrumb,
   Info,
 } from "../CreateFeed/types/feed";
-import { getNewTreeData, generateTreeNodes } from "../CreateFeed/utils";
+import { generateTreeNodes, getNewTreeData } from "../CreateFeed/utils";
 import styles from "./UploadFile.module.css";
 
 const { DirectoryTree } = Tree;
 
 function getEmptyTree() {
   const node: DataBreadcrumb[] = [];
-
   node.push({
     breadcrumb: "/",
     title: "/",
     checkable: false,
     key: "0-0",
   });
-
   return node;
 }
 
@@ -29,7 +27,6 @@ const TreeBrowser = () => {
   const [checkedKeys, setCheckedKeys] = useState<CheckedKeys>([]);
 
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
-    console.log("Info", info, checkedKeys);
     if (info.node.breadcrumb) {
       if (info.checked === true) {
         setCheckedKeys(checkedKeys);
