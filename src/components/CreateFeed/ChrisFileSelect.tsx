@@ -17,8 +17,8 @@ export function clearCache() {
 function getEmptyTree() {
   const node: DataBreadcrumb[] = [];
   node.push({
-    breadcrumb: "/home",
-    title: "home",
+    breadcrumb: "/",
+    title: "/",
     checkable: false,
     key: "0-0",
   });
