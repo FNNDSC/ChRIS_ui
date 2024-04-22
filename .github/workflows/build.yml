@@ -29,6 +29,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -39,7 +40,7 @@ jobs:
       - name: Get postfix of latest
         id: postfix_of_latest
         run: |
-          if [[ $GITHUB_REF_TYPE == tag || $GITHUB_REF_NAME == master || $GITHUB_REF_NAME == staging ]]; then
+          if [[ $GITHUB_REF_TYPE == tag || $GITHUB_REF_NAME == master ]]; then
             echo "Postfix of latest: ''"
             echo "postfix_of_latest=" >> $GITHUB_OUTPUT
           else
@@ -47,7 +48,7 @@ jobs:
             echo "postfix_of_latest=-$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build
+      - name: Build and export
         uses: docker/build-push-action@v5
         with:
           tags: |
@@ -58,11 +59,14 @@ jobs:
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}.tar
 
       - name: Copy to physical ./dist
         run: |
+          docker load --input /tmp/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}.tar
+          docker image ls
           mkdir -p ./dist
-          docker run --entrypoint /bin/sh --rm -v ./dist:/tmp/dist ghcr.io/fnndsc/chris_ui:20240418.445-0d0952cf -c 'cp -R /app/* /tmp/dist'
+          docker run --entrypoint /bin/sh --rm -v ./dist:/tmp/dist chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}} -c 'cp -R /app/* /tmp/dist'
 
       - name: Copy and push
         uses: docker/build-push-action@v5
@@ -74,8 +78,6 @@ jobs:
             ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
           context: .
           file: ./Dockerfile_cp
-          build-args: |
-            FROM_IMAGE=chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
           platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=gha
