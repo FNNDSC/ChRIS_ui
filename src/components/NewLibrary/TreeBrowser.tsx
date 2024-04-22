@@ -1,6 +1,6 @@
 import { Tree } from "antd";
-import { EventDataNode, Key } from "rc-tree/lib/interface";
-import { useMemo, useState } from "react";
+import { EventDataNode } from "rc-tree/lib/interface";
+import { useState } from "react";
 import type {
   CheckedKeys,
   DataBreadcrumb,
@@ -26,7 +26,7 @@ function getEmptyTree() {
 
 const TreeBrowser = () => {
   const [tree, setTree] = useState(getEmptyTree);
-  const [checkedKeys, setCheckedKeys] = useState({});
+  const [checkedKeys, setCheckedKeys] = useState<CheckedKeys>([]);
 
   const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
     console.log("Info", info, checkedKeys);
@@ -36,8 +36,6 @@ const TreeBrowser = () => {
       }
     }
   };
-
-  console.log("Libary Page", checkedKeys);
 
   const onLoad = (treeNode: EventDataNode<any>): Promise<void> => {
     const { children } = treeNode;
@@ -81,13 +79,3 @@ const TreeBrowser = () => {
 };
 
 export default TreeBrowser;
-
-function getCheckedKeys(checkedKeys: { [key: string]: Key[] }) {
-  const checkedKeysArray: Key[] = [];
-
-  for (const i in checkedKeys) {
-    checkedKeysArray.push(...checkedKeys[i]);
-  }
-
-  return checkedKeysArray;
-}
