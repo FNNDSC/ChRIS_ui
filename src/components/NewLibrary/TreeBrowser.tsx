@@ -1,7 +1,11 @@
 import { Tree } from "antd";
 import { EventDataNode, Key } from "rc-tree/lib/interface";
 import { useMemo, useState } from "react";
-import type { CheckedKeys, DataBreadcrumb } from "../CreateFeed/types/feed";
+import type {
+  CheckedKeys,
+  DataBreadcrumb,
+  Info,
+} from "../CreateFeed/types/feed";
 import { getNewTreeData, generateTreeNodes } from "../CreateFeed/utils";
 import styles from "./UploadFile.module.css";
 
@@ -12,7 +16,7 @@ function getEmptyTree() {
 
   node.push({
     breadcrumb: "/",
-    title: "root",
+    title: "/",
     checkable: false,
     key: "0-0",
   });
@@ -23,14 +27,17 @@ function getEmptyTree() {
 const TreeBrowser = () => {
   const [tree, setTree] = useState(getEmptyTree);
   const [checkedKeys, setCheckedKeys] = useState({});
-  const fetchKeysFromDict: Key[] = useMemo(
-    () => getCheckedKeys(checkedKeys),
-    [checkedKeys],
-  );
 
-  const onCheck = (checkedKeys: CheckedKeys) => {
-    setCheckedKeys(checkedKeys);
+  const onCheck = (checkedKeys: CheckedKeys, info: Info) => {
+    console.log("Info", info, checkedKeys);
+    if (info.node.breadcrumb) {
+      if (info.checked === true) {
+        setCheckedKeys(checkedKeys);
+      }
+    }
   };
+
+  console.log("Libary Page", checkedKeys);
 
   const onLoad = (treeNode: EventDataNode<any>): Promise<void> => {
     const { children } = treeNode;
@@ -65,7 +72,7 @@ const TreeBrowser = () => {
         className={styles.antTree}
         onCheck={onCheck}
         loadData={onLoad}
-        checkedKeys={fetchKeysFromDict}
+        checkedKeys={checkedKeys}
         checkable
         treeData={tree}
       />

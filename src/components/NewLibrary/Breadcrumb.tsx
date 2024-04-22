@@ -17,7 +17,7 @@ const BreadcrumbContainer = ({
         }}
         to="#"
       >
-        root
+        /
       </BreadcrumbItem>
       {initialPathSplit.map((path: string, index) => {
         return (
