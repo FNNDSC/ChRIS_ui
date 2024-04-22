@@ -1,0 +1,22 @@
+# build image
+ARG FROM_IMAGE
+FROM ${FROM_IMAGE} as builder
+
+WORKDIR /app
+# assuming ./dist is the dist.
+COPY ./dist /app/dist
+
+# production image
+FROM node:20.7-alpine
+
+RUN npm i -g sirv-cli
+
+WORKDIR /app
+
+COPY --from=builder /app/dist /app
+COPY ./docker-entrypoint.sh /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+ENV HOST=0.0.0.0 PORT=3000
+CMD ["sirv", "--etag", "--single"]
+EXPOSE 3000
