@@ -24,9 +24,10 @@ type SizedNiivueCanvasProps = NiivueCanvasProps & {
 };
 
 /**
- * A wrapper for `NiivueCanvas` including some workarounds for sizing-related
- * features. The `textHeight` option of `Niivue` is calculated based on
- * `baseTextHeight`, `size`, and `isScaling`.
+ * A wrapper for `NiivueCanvas` which accepts extra props `size` and `isScaling`
+ * which come together to set the value of `textHeight.
+ *
+ * Also, `onLocationChange` is accepted as a prop.
  *
  * ## Relative or Absolute(-ish) decoration size scaling
  *
@@ -45,16 +46,6 @@ type SizedNiivueCanvasProps = NiivueCanvasProps & {
  * The final value of `textHeight` will be multiplied by `size / 10`.
  * The units of `size` are arbitrary, though it is roughly calibrated to
  * the font `pt` size where `size=10` is about the same size as text size.
- *
- * ## Other Workarounds
- *
- * Some workarounds for these bugs are included:
- *
- * - https://github.com/niivue/niivue/issues/861
- *   Canvas does not resize when parent is resized (the Niivue canvas gets
- *   smushed when the sidebar is toggled)
- * - https://github.com/niivue/niivue/issues/862
- *   Canvas height irreversibly grows in size when window is resized
  */
 const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
   size,
@@ -80,37 +71,11 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
       nv.onLocationChange = (location) =>
         onLocationChange(location as CrosshairLocation);
     }
-
-    // Override nv.resizeListener, which updates the canvas' width and height.
-    const superResizeListener = nv.resizeListener.bind(nv);
-    const canvas = nv.canvas as HTMLCanvasElement;
-    const updateCanvasDimensions = () => {
-      const devicePixelRatio = nv.uiData.dpr as number;
-      setCanvasDimensions([
-        canvas.width / devicePixelRatio,
-        canvas.height / devicePixelRatio,
-      ]);
-    };
-    nv.resizeListener = function () {
-      superResizeListener();
-      updateCanvasDimensions();
-    };
-    updateCanvasDimensions();
-
-    // workaround for https://github.com/niivue/niivue/issues/861
-    // nv.resizeListener() needs to be called after parent element is resized
-    const badlyResizeCanvasEveryHalfSecond = () => {
-      setTimeout(() => {
-        nv.resizeListener();
-        badlyResizeCanvasEveryHalfSecond();
-      }, 500);
-    };
-    badlyResizeCanvasEveryHalfSecond();
   };
 
   const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
   const client = ChrisAPIClient.getClient();
-  let authedVolumes =
+  const authedVolumes =
     isLoggedIn && volumes !== undefined
       ? volumes.map((v) => {
           return {
