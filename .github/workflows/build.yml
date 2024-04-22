@@ -47,7 +47,24 @@ jobs:
             echo "postfix_of_latest=-$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build and push
+      - name: Build
+        uses: docker/build-push-action@v5
+        with:
+          tags: |
+            chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Copy to physical ./dist
+        run: |
+          mkdir -p ./dist
+          docker run --entrypoint /bin/sh --rm -v ./dist:/tmp/dist ghcr.io/fnndsc/chris_ui:20240418.445-0d0952cf -c 'cp -R /app/* /tmp/dist'
+
+      - name: Copy and push
         uses: docker/build-push-action@v5
         with:
           tags: |
@@ -56,7 +73,9 @@ jobs:
             ghcr.io/fnndsc/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
             ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile_cp
+          build-args: |
+            FROM_IMAGE=chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
           platforms: linux/amd64,linux/arm64
           push: true
           cache-from: type=gha
