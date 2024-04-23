@@ -18,7 +18,10 @@ import BreadcrumbContainer from "./Breadcrumb";
 import { FilesCard, FolderCard, LinkCard } from "./Browser";
 import MenuBar from "./MenuBar";
 import TreeBrowser from "./TreeBrowser";
+import Cart from "./Cart";
+import Search from "./Search";
 import UploadContainer from "./UploadComponent";
+import { LibraryProvider } from "../LibraryCopy/context";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -155,83 +158,87 @@ const NewLibrary = () => {
 
   return (
     <WrapperConnect>
-      <div style={{ margin: "1rem" }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <MenuBar
-            handleChange={() => {
-              setCardLayout(!cardLayout);
+      <LibraryProvider>
+        <Cart />
+        <Search />
+        <div style={{ margin: "1rem" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
             }}
-            handleUploadModal={() => {
-              setUploadFileModal(!uploadFileModal);
-            }}
-            checked={cardLayout}
-          />
-          {cardLayout && (
-            <BreadcrumbContainer
-              path={computedPath}
-              handleFolderClick={handleBreadcrumbClick}
-            />
-          )}
-        </div>
-
-        {isError && <Alert type="error" description={error.message} />}
-        {data?.filesPagination.totalCount === -1 &&
-          data?.foldersPagination.totalCount === -1 &&
-          data?.linksPagination.totalCount === -1 && (
-            <EmptyStateComponent title="No data in this path" />
-          )}
-        {data &&
-          (cardLayout ? (
-            <Grid
-              style={{
-                marginTop: "1rem",
+          >
+            <MenuBar
+              handleChange={() => {
+                setCardLayout(!cardLayout);
               }}
-              hasGutter={true}
-            >
-              <FolderCard
-                folders={data.subFoldersMap}
-                handleFolderClick={handleFolderClick}
-                computedPath={computedPath}
-                pagination={data.foldersPagination}
+              handleUploadModal={() => {
+                setUploadFileModal(!uploadFileModal);
+              }}
+              checked={cardLayout}
+            />
+            {cardLayout && (
+              <BreadcrumbContainer
+                path={computedPath}
+                handleFolderClick={handleBreadcrumbClick}
               />
-              <FilesCard
-                files={data.filesMap}
-                pagination={data.filesPagination}
-              />
-              <LinkCard
-                linkFiles={data.linkFilesMap}
-                pagination={data.linksPagination}
-              />
-              {(isPending || isFetching) && (
-                <SpinContainer title="Fetching more data..." />
-              )}
-              {fetchMore && !(isPending || isFetching) && (
-                <>
-                  <Button onClick={handlePagination} variant="link">
-                    Load More Data...
-                  </Button>
-                </>
-              )}
-              <div
-                ref={observerTarget}
+            )}
+          </div>
+
+          {isError && <Alert type="error" description={error.message} />}
+          {data?.filesPagination.totalCount === -1 &&
+            data?.foldersPagination.totalCount === -1 &&
+            data?.linksPagination.totalCount === -1 && (
+              <EmptyStateComponent title="No data in this path" />
+            )}
+          {data &&
+            (cardLayout ? (
+              <Grid
                 style={{
-                  height: "10px",
+                  marginTop: "1rem",
                 }}
-              />{" "}
-            </Grid>
-          ) : (
-            <TreeBrowser />
-          ))}
-      </div>
-      <UploadContainer
-        isOpenModal={uploadFileModal}
-        handleFileModal={() => setUploadFileModal(!uploadFileModal)}
-      />
+                hasGutter={true}
+              >
+                <FolderCard
+                  folders={data.subFoldersMap}
+                  handleFolderClick={handleFolderClick}
+                  computedPath={computedPath}
+                  pagination={data.foldersPagination}
+                />
+                <FilesCard
+                  files={data.filesMap}
+                  pagination={data.filesPagination}
+                />
+                <LinkCard
+                  linkFiles={data.linkFilesMap}
+                  pagination={data.linksPagination}
+                />
+                {(isPending || isFetching) && (
+                  <SpinContainer title="Fetching more data..." />
+                )}
+                {fetchMore && !(isPending || isFetching) && (
+                  <>
+                    <Button onClick={handlePagination} variant="link">
+                      Load More Data...
+                    </Button>
+                  </>
+                )}
+                <div
+                  ref={observerTarget}
+                  style={{
+                    height: "10px",
+                  }}
+                />{" "}
+              </Grid>
+            ) : (
+              <TreeBrowser />
+            ))}
+        </div>
+        <UploadContainer
+          isOpenModal={uploadFileModal}
+          handleFileModal={() => setUploadFileModal(!uploadFileModal)}
+        />
+      </LibraryProvider>
     </WrapperConnect>
   );
 };
