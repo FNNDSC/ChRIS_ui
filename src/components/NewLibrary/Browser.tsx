@@ -29,6 +29,7 @@ import {
 import { elipses } from "../LibraryCopy/utils";
 import FileDetailView from "../Preview/FileDetailView";
 import useDownload from "./useDownloadHook";
+import useLongPress from "../LibraryCopy/utils";
 
 type Pagination = {
   totalCount: number;
@@ -209,6 +210,8 @@ export const FilesCard = ({
 
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const handleDownloadMutation = useDownload();
+  const { handlers } = useLongPress();
+  const { handleOnClick, handleOnMouseDown } = handlers;
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
