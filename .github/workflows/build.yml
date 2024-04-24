@@ -48,25 +48,11 @@ jobs:
             echo "postfix_of_latest=-$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build and export
-        uses: docker/build-push-action@v5
+      - uses: actions/setup-node@v4
         with:
-          tags: |
-            chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          outputs: type=docker,dest=/tmp/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}.tar
-
-      - name: Copy to physical ./dist
-        run: |
-          docker load --input /tmp/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}.tar
-          docker image ls
-          mkdir -p ./dist
-          docker run --entrypoint /bin/sh --rm -v ./dist:/tmp/dist chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}} -c 'cp -R /app/* /tmp/dist'
+          node-version: 20.7
+      - run: npm ci
+      - run: npm run build
 
       - name: Copy and push
         uses: docker/build-push-action@v5
