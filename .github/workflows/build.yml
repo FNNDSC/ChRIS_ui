@@ -59,9 +59,9 @@ jobs:
         with:
           tags: |
             docker.io/fnndsc/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
-            docker.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
+            docker.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
             ghcr.io/fnndsc/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
-            ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
+            ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
           context: .
           file: ./Dockerfile_cp
           platforms: linux/amd64,linux/arm64
