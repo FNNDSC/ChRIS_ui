@@ -1,3 +1,11 @@
+# Dockerfile for copying local `./dist` into the docker image.
+#
+#   The goal of this dockerfile is to efficiently achieve
+#   multi-architectural build.
+#
+#   The app should be built in the physical machine using `npm run build`
+#   before applying this dockerfile.
+#
 FROM node:20.7-alpine
 
 RUN npm i -g sirv-cli
