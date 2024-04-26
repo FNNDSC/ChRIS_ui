@@ -1,26 +1,26 @@
 import * as React from "react";
 import { useNavigate, useRoutes } from "react-router-dom";
-import NotFound from "./components/NotFound";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import Pacs from "./components/Pacs";
+import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
+import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
-import PipelinePage from "./components/PipelinesPage";
 import LibraryCopyPage from "./components/LibraryCopy";
+import LibrarySearch from "./components/LibrarySearch";
+import Login from "./components/Login";
+import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
+import NotFound from "./components/NotFound";
+import Pacs from "./components/Pacs";
+import PipelinePage from "./components/PipelinesPage";
+import PluginCatalog from "./components/PluginCatalog/";
+import PrivateRoute from "./components/PrivateRoute";
 import {
   RouterContext,
   RouterProvider,
 } from "./components/Routing/RouterContext";
-import PluginCatalog from "./components/PluginCatalog/";
-import ComputePage from "./components/ComputePage";
-import PrivateRoute from "./components/PrivateRoute";
-import LibrarySearch from "./components/LibrarySearch";
+import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import { useTypedSelector } from "./store/hooks";
-import DatasetRedirect from "./components/DatasetRedirect";
 
 interface IState {
   selectData?: Series;
