@@ -23,9 +23,9 @@ import useSize from "../FeedTree/useSize";
 import NodeData from "./NodeData";
 import { PipelineContext } from "./context";
 
-const nodeSize = { x: 200, y: 80 };
-const svgClassName = "feed-tree__svg";
-const graphClassName = "feed-tree__graph";
+const nodeSize = { x: 120, y: 80 };
+const svgClassName = "pipeline-tree__svg";
+const graphClassName = "pipeline-tree__graph";
 const scale = 1;
 
 export interface TreeProps {
@@ -49,7 +49,6 @@ const Tree = (props: TreeProps) => {
   const { state } = React.useContext(PipelineContext);
   const { selectedPipeline } = state;
   const divRef = useRef<HTMLDivElement>(null);
-  const graphRef = useRef<SVGGElement>(null);
   const [translate, setTranslate] = React.useState({
     x: 0,
     y: 0,
@@ -60,6 +59,7 @@ const Tree = (props: TreeProps) => {
   const [data, setData] = React.useState<TreeNode[]>();
   const [tsIds, setTsIds] = React.useState<any>();
   const { zoom, scaleExtent } = props;
+
   const bindZoomListener = React.useCallback(() => {
     const svg = select(`.${svgClassName}`);
     const g = select(`.${graphClassName}`);
@@ -113,24 +113,9 @@ const Tree = (props: TreeProps) => {
     }
   }, [size]);
 
-  React.useEffect(() => {
-    const updateHeight = () => {
-      if (graphRef.current && divRef.current) {
-        const rect = graphRef.current.getBoundingClientRect();
-        if (rect) {
-          const height = rect.height;
-          divRef.current.style.height = `${height + 50}px`;
-        }
-      }
-    };
-
-    // Run the update on mount
-    updateHeight();
-  }, [graphRef.current, divRef.current]);
-
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
-    let nodes;
+    let nodes: any[] = [];
     let links: any[] = [];
     let newLinks: any[] = [];
     if (data) {
@@ -189,6 +174,26 @@ const Tree = (props: TreeProps) => {
 
   const { nodes, newLinks: links } = generateTree();
 
+  const calculateTreeDimensions = React.useMemo(() => {
+    let maxX = 0;
+    let maxY = 0;
+
+    nodes.forEach((node) => {
+      maxX = Math.max(maxX, node.x);
+      maxY = Math.max(maxY, node.y);
+    });
+
+    // Add padding to the calculated dimensions
+    const padding = 150; // Adjust as needed
+    const width = maxX + padding;
+    const height = maxY + padding;
+
+    return { width, height };
+  }, [nodes]);
+
+  // Update the SVG dimensions based on the calculated tree dimensions
+  const { height } = calculateTreeDimensions;
+
   return (
     <>
       <div ref={divRef} className="feed-tree grabbable mode_tree">
@@ -198,12 +203,11 @@ const Tree = (props: TreeProps) => {
           <svg
             focusable="true"
             className={`${svgClassName}`}
-            height="100%"
+            height={height}
             width="100%"
           >
             <title>Pipeline Tree</title>
             <TransitionGroupWrapper
-              ref={graphRef}
               component="g"
               className={graphClassName}
               transform={`translate(${translate.x},${translate.y}) scale(${scale})`}

@@ -75,11 +75,37 @@ const PipelinesCopy = () => {
   };
 
   const handleChange = async (key: string | string[]) => {
+    // The pipelines that the user chooses to view appears as a list of ids.
     const filteredPipelines = data?.registeredPipelines.filter((pipeline) =>
       (key as string[]).includes(`${pipeline.data.id}`),
     );
 
     if (filteredPipelines) {
+      // a pipeline has already been selected;
+
+      if (filteredPipelines.length === 0) {
+        // Remove the exisiting pipeline
+        dispatch({
+          type: Types.PipelineToAdd,
+          payload: {
+            pipeline: undefined,
+          },
+        });
+      } else {
+        // add a pipeline
+        const pipelineToAdd = filteredPipelines[filteredPipelines.length - 1];
+        dispatch({
+          type: Types.PipelineToAdd,
+          payload: {
+            pipeline: pipelineToAdd,
+          },
+        });
+      }
+    }
+
+    /* Get this pipelines assosciated to the id's and then fetch all the resources for that particular pipelines 
+     to render the tree*/
+    if (filteredPipelines && filteredPipelines.length > 0) {
       for (const pipeline of filteredPipelines) {
         const { id } = pipeline.data;
         if (!state.selectedPipeline?.[id]) {
@@ -239,14 +265,28 @@ const PipelinesCopy = () => {
                         size="sm"
                         onClick={(e) => {
                           if (state.selectedPipeline?.[id]) {
+                            // If the pipeline already exists, don't propogate since the onChange event of the
+                            // collapse component fires and we don't refetch all the resource again. Let's assume that
+                            // the user's intent is to add the pipeline
                             e.stopPropagation();
                           }
-                          dispatch({
-                            type: Types.PipelineToAdd,
-                            payload: {
-                              pipeline,
-                            },
-                          });
+
+                          if (state?.pipelineToAdd?.data.id === id) {
+                            // If this pipeline already exists, user wants to deselect it
+                            dispatch({
+                              type: Types.PipelineToAdd,
+                              payload: {
+                                pipeline: undefined,
+                              },
+                            });
+                          } else {
+                            dispatch({
+                              type: Types.PipelineToAdd,
+                              payload: {
+                                pipeline,
+                              },
+                            });
+                          }
                         }}
                         variant="primary"
                         key="select-action"

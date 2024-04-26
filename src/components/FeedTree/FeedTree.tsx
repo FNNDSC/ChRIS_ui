@@ -1,11 +1,15 @@
 import { PluginInstance } from "@fnndsc/chrisapi";
 import { Alert, Switch, TextInput } from "@patternfly/react-core";
-import { RotateLeft, RotateRight } from "../Icons";
-import { HierarchyPointLink, hierarchy, tree } from "d3-hierarchy";
+import {
+  HierarchyPointLink,
+  HierarchyPointNode,
+  hierarchy,
+  tree,
+} from "d3-hierarchy";
 import { event, select } from "d3-selection";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { isEqual } from "lodash";
-import React, { useRef, useContext } from "react";
+import React, { useContext, useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
   setFeedLayout,
@@ -14,14 +18,13 @@ import {
 } from "../../store/feed/actions";
 import type { FeedTreeProp } from "../../store/feed/types";
 import { useTypedSelector } from "../../store/hooks";
-import { getNodeOperations } from "../../store/plugin/actions";
-import { switchTreeMode } from "../../store/tsplugins/actions";
 import { ThemeContext } from "../DarkTheme/useTheme";
+import { RotateLeft, RotateRight } from "../Icons";
 import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import Link from "./Link";
 import NodeWrapper from "./Node";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import TreeNodeDatum, { Point, treeAlgorithm, OwnProps } from "./data";
+import TreeNodeDatum, { OwnProps, Point } from "./data";
 import useSize from "./useSize";
 
 type FeedTreeState = {
@@ -40,7 +43,7 @@ type FeedTreeState = {
 };
 
 function calculateD3Geometry(nextProps: OwnProps, feedTreeProp: FeedTreeProp) {
-  let scale;
+  let scale: any;
   if (nextProps.zoom > nextProps.scaleExtent.max) {
     scale = nextProps.scaleExtent.max;
   } else if (nextProps.zoom < nextProps.scaleExtent.min) {
@@ -81,8 +84,6 @@ const FeedTree = (props: OwnProps) => {
   const { feedTreeProp, currentLayout, searchFilter } = useTypedSelector(
     (state) => state.feed,
   );
-  const { selectedD3Node } = useTypedSelector((state) => state.instance);
-  const { treeMode } = useTypedSelector((state) => state.tsPlugins);
   const [feedTree, setFeedTree] = React.useState<{
     nodes?: any[];
     links?: HierarchyPointLink<TreeNodeDatum>[];
@@ -91,7 +92,8 @@ const FeedTree = (props: OwnProps) => {
     links: [],
   });
   const size = useSize(divRef);
-  const { nodeSize, orientation, separation, tsIds } = props;
+  const { nodeSize, separation, tsIds } = props;
+  const { orientation } = feedTreeProp;
 
   const generateTree = React.useCallback(
     (data: TreeNodeDatum[]) => {
@@ -107,7 +109,7 @@ const FeedTree = (props: OwnProps) => {
             : separation.nonSiblings;
         });
 
-      let nodes;
+      let nodes: HierarchyPointNode<TreeNodeDatum>[] | undefined = undefined;
       let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
       let newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
 
@@ -223,6 +225,7 @@ const FeedTree = (props: OwnProps) => {
       d3Zoom()
         .scaleExtent([scaleExtent.min, scaleExtent.max])
         .on("zoom", () => {
+          // This event is being imported from the d3 selection library
           g.attr("transform", event.transform);
         }),
     );
@@ -231,40 +234,6 @@ const FeedTree = (props: OwnProps) => {
   React.useEffect(() => {
     bindZoomListener();
   }, [bindZoomListener]);
-
-  React.useEffect(() => {
-    const svg = select(`.${svgClassName}`);
-    svg.on("keydown", () => {
-      if (links && feedTree.nodes) {
-        treeAlgorithm(event, selectedD3Node, feedTree.nodes, props.onNodeClick);
-      }
-
-      if (event.code === "KeyT") {
-        dispatch(getNodeOperations("terminal"));
-      }
-
-      if (event.code === "KeyC") {
-        dispatch(getNodeOperations("childNode"));
-      }
-
-      if (event.code === "KeyG") {
-        if (treeMode === true) {
-          dispatch(switchTreeMode(false));
-        } else {
-          dispatch(switchTreeMode(true));
-        }
-        dispatch(getNodeOperations("childGraph"));
-      }
-
-      if (event.code === "KeyP") {
-        dispatch(getNodeOperations("childPipeline"));
-      }
-
-      if (event.code === "KeyD") {
-        dispatch(getNodeOperations("deleteNode"));
-      }
-    });
-  });
 
   React.useEffect(() => {
     if (props.data) {
@@ -323,6 +292,8 @@ const FeedTree = (props: OwnProps) => {
     >
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
+          {/* Suppressing this for now as we don't know how which key events to hook for changing orientations */}
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
           <div
             onClick={() => {
               changeOrientation(orientation);
@@ -482,8 +453,7 @@ const FeedTreeMemoed = React.memo(
 export default FeedTreeMemoed;
 
 FeedTree.defaultProps = {
-  orientation: "vertical",
-  scaleExtent: { min: 0.1, max: 1 },
+  scaleExtent: { min: 0.1, max: 1.5 },
   zoom: 1,
   nodeSize: { x: 120, y: 80 },
 };

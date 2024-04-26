@@ -1,30 +1,20 @@
+import { PluginInstance } from "@fnndsc/chrisapi";
+import { Switch, Text } from "@patternfly/react-core";
 import React from "react";
-import { connect, useDispatch } from "react-redux";
+import { ErrorBoundary } from "react-error-boundary";
 import ForceGraph2D, {
   ForceGraphMethods,
   NodeObject,
 } from "react-force-graph-2d";
-import { ApplicationState } from "../../store/root/applicationState";
+import { connect, useDispatch } from "react-redux";
 import { TreeModel } from "../../api/model";
-import { PluginInstance } from "@fnndsc/chrisapi";
-import { ErrorBoundary } from "react-error-boundary";
-import { Text, Switch } from "@patternfly/react-core";
-import useSize from "./useSize";
 import { setFeedLayout } from "../../store/feed/actions";
-import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import { useTypedSelector } from "../../store/hooks";
 import type { PluginInstancePayload } from "../../store/pluginInstance/types";
+import { ApplicationState } from "../../store/root/applicationState";
+import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
-
-/*
-
-const useForceUpdate = () => {
-  const setToggle = React.useState(false)[1];
-  return () => setToggle((b) => !b);
-};
-
-
-*/
+import useSize from "./useSize";
 
 interface IFeedProps {
   pluginInstances: PluginInstancePayload;
@@ -49,11 +39,10 @@ const FeedGraph = (props: IFeedProps) => {
 
   const [graphData, setGraphData] = React.useState();
   const [controls] = React.useState({ "DAG Orientation": "td" });
-  //const forceUpdate = useForceUpdate();
 
   const handleNodeClick = (node: NodeObject) => {
     const distance = 40;
-    if (node && node.x && node.y && node.z && fgRef.current) {
+    if (node?.x && node.y && node.z && fgRef.current) {
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
       //@ts-ignore
       fgRef.current.cameraPosition(
@@ -71,41 +60,6 @@ const FeedGraph = (props: IFeedProps) => {
     //@ts-ignore
     onNodeClick(node.item);
   };
-
-  /*
-
-  React.useEffect(() => {
-     //@ts-ignore
-    // add controls GUI
-    const gui = new dat.GUI();
-    gui
-      .add(controls, "DAG Orientation", [
-        "td",
-        "bu",
-        "lr",
-        "rl",
-        "radialout",
-        "radialin",
-        null,
-      ])
-      .onChange(forceUpdate);
-  }, [controls, forceUpdate]);
-
-  */
-
-  /*
-
-  React.useEffect(() => {
-    // add collision force
-    if (fgRef.current) {
-      fgRef.current.d3Force(
-        "collision",
-        d3.forceCollide((node) => Math.sqrt(100 / (node.level + 1))),
-      );
-    }
-  }, []);
-
-  */
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {
