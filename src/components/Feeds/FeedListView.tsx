@@ -16,7 +16,6 @@ import {
   ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
-import { SearchIcon } from "../Icons";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useQuery } from "@tanstack/react-query";
 import { Typography } from "antd";
@@ -40,6 +39,7 @@ import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import IconContainer from "../IconContainer";
+import { SearchIcon } from "../Icons";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import { usePaginate, useSearchQueryParams } from "./usePaginate";
@@ -168,12 +168,16 @@ const TableSelectable: React.FunctionComponent = () => {
     type === "private"
       ? data?.totalFeedsCount === -1
         ? 0
-        : data?.totalFeedsCount || "Fetching..."
+        : data?.totalFeedsCount
       : publicFeeds?.totalFeedsCount === -1
         ? 0
-        : publicFeeds?.totalFeedsCount || "Fetching...";
+        : publicFeeds?.totalFeedsCount;
 
-  const generatePagination = () => {
+  const generatePagination = (feedCount?: number) => {
+    if (!feedCount) {
+      return <Skeleton width="25%" screenreaderText="Loaded Feed Count" />;
+    }
+
     return (
       <Pagination
         itemCount={feedCount}
@@ -191,7 +195,9 @@ const TableSelectable: React.FunctionComponent = () => {
         <PageSection className="feed-header">
           <InfoIcon
             data-test-id="analysis-count"
-            title={`New and Existing Analyses (${feedCount})`}
+            title={`New and Existing Analyses (${
+              !feedCount ? "Fetching..." : feedCount
+            })`}
             p1={
               <Paragraph>
                 Analyses (aka ChRIS feeds) are computational experiments where
@@ -227,7 +233,7 @@ const TableSelectable: React.FunctionComponent = () => {
                 />
               </ToggleGroup>
             </div>
-            {generatePagination()}
+            {generatePagination(feedCount)}
           </div>
           <div className="feed-list__split">
             <DataTableToolbar
