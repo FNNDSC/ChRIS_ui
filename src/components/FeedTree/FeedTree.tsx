@@ -202,10 +202,15 @@ const FeedTree = (props: OwnProps) => {
   React.useEffect(() => {
     //@ts-ignore
     if (size?.width) {
-      //@ts-ignore
-      dispatch(setTranslate({ x: size.width / 2, y: 90 }));
+      if (orientation === "vertical") {
+        //@ts-ignore
+        dispatch(setTranslate({ x: size.width / 2, y: 90 }));
+      } else {
+        //@ts-ignore
+        dispatch(setTranslate({ x: 180, y: size.height / 3 }));
+      }
     }
-  }, [size, dispatch]);
+  }, [size, orientation, dispatch]);
 
   const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
