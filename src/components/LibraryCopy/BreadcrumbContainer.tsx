@@ -23,7 +23,7 @@ const BreadcrumbContainer = ({
                 handleFolderClick("/" + newPath);
               }
             }}
-            key={index}
+            key={`${path}`}
             to="#"
           >
             {index === 0 ? <HomeIcon /> : path}
