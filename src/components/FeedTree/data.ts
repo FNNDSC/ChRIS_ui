@@ -1,6 +1,7 @@
 import {
   PipelinePipingDefaultParameterList,
   PluginInstance,
+  PluginInstanceParameter,
   PluginParameter,
   PluginPiping,
 } from "@fnndsc/chrisapi";
