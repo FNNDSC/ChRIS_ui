@@ -58,10 +58,11 @@ const Tree = (props: TreeProps) => {
     y: 0,
   });
   const size = useSize(divRef);
-  //const graphSize = useSize(graphRef);
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<TreeNode[]>();
-  const [tsIds, setTsIds] = React.useState<any>();
+  const [tsIds, setTsIds] = React.useState<{
+    [key: string]: number[];
+  }>();
   const { zoom, scaleExtent } = props;
 
   const bindZoomListener = React.useCallback(() => {
@@ -69,11 +70,11 @@ const Tree = (props: TreeProps) => {
     const g = select(`.${graphClassName}`);
 
     svg.call(
-      ///@ts-ignore
+      //@ts-ignore
       d3Zoom().transform,
-      ///@ts-ignore
       zoomIdentity
         .translate(translate.x, translate.y)
+        //@ts-ignore
         .scale(zoom),
     );
 
@@ -238,7 +239,7 @@ const Tree = (props: TreeProps) => {
               {nodes?.map(({ data, x, y, parent }, i) => {
                 return (
                   <NodeData
-                    key={`node + ${i}`}
+                    key={`node_${i}`}
                     data={data}
                     position={{ x, y }}
                     parent={parent}
