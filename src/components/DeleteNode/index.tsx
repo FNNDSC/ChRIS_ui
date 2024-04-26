@@ -2,7 +2,7 @@ import { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "antd";
-import { useEffect } from "react";
+import { useEffect, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import { fetchResource } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
@@ -33,10 +33,9 @@ const DeleteNode = () => {
         const status = selectedPlugin.data.status;
 
         if (!statuses.includes(status)) {
-          // Always cancel an active node first to avoid side effects
-          await selectedPlugin.put({
-            status: "cancelled",
-          });
+          throw new Error(
+            "Cannot delete actively running node at the moment...",
+          );
         }
 
         await selectedPlugin.delete();
@@ -91,7 +90,7 @@ const DeleteNode = () => {
       isOpen={isModalOpen}
       onClose={handleModalToggle}
       actions={[
-        <>
+        <Fragment key="button-actions">
           <Button
             key="confirm"
             variant="primary"
@@ -102,7 +101,7 @@ const DeleteNode = () => {
           <Button key="cancel" variant="primary" onClick={handleModalToggle}>
             Cancel
           </Button>
-        </>,
+        </Fragment>,
       ]}
     >
       <span>
