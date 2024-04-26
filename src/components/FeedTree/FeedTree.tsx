@@ -120,20 +120,20 @@ const FeedTree = (props: OwnProps) => {
         nodes = rootNode.descendants();
         links = rootNode.links();
 
-        const newLinksToAdd = [];
+        const newLinksToAdd: HierarchyPointLink<TreeNodeDatum>[] = [];
 
-        if (tsIds) {
+        if (tsIds && Object.keys(tsIds).length > 0) {
           for (const link of links) {
-            // Extract target and source IDs from the link
             const targetId = link.target.data.id;
-            const sourceId = link.target.data.id; // Corrected to use link.target.data.id
+            const sourceId = link.source.data.id;
 
             // Check if targetId and sourceId exist and if at least one of them is in 'tsIds'
             if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
               // 'tsPlugin' found
 
-              // Determine the topological link based on 'tsIds'
-              let topologicalLink: any;
+              let topologicalLink:
+                | HierarchyPointNode<TreeNodeDatum>
+                | undefined;
 
               if (tsIds[targetId]) {
                 topologicalLink = link.target;
@@ -141,38 +141,44 @@ const FeedTree = (props: OwnProps) => {
                 topologicalLink = link.source;
               }
 
-              // Get the parents from 'tsIds'
-              const parents = tsIds[topologicalLink.data.id];
+              // Check if 'topologicalLink' is defined
+              if (topologicalLink.data.id) {
+                const parents = tsIds[topologicalLink.data.id];
 
-              // Create a dictionary to store unique source and target nodes
-              const dict: { [key: string]: any } = {};
+                // Check if 'parents' is defined and not empty
+                if (parents && parents.length > 0) {
+                  const dict: {
+                    [key: string]: HierarchyPointNode<TreeNodeDatum>;
+                  } = {};
 
-              // Iterate over all links to find nodes related to parents
-              for (const innerLink of links) {
-                for (let i = 0; i < parents.length; i++) {
-                  // Check if the source ID matches any parent and it is not already in the dictionary
-                  if (
-                    innerLink.source.data.id === parents[i] &&
-                    !dict[innerLink.source.data.id]
-                  ) {
-                    dict[innerLink.source.data.id] = innerLink.source;
+                  for (const innerLink of links) {
+                    if (innerLink.source && innerLink.target) {
+                      for (let i = 0; i < parents.length; i++) {
+                        if (
+                          innerLink.source.data.id === parents[i] &&
+                          !dict[innerLink.source.data.id]
+                        ) {
+                          dict[innerLink.source.data.id] = innerLink.source;
+                        }
+                        if (
+                          innerLink.target.data.id === parents[i] &&
+                          !dict[innerLink.target.data.id]
+                        ) {
+                          dict[innerLink.target.data.id] = innerLink.target;
+                        }
+                      }
+                    }
                   }
-                  // Check if the target ID matches any parent and it is not already in the dictionary
-                  else if (
-                    innerLink.target.data.id === parents[i] &&
-                    !dict[innerLink.target.data.id]
-                  ) {
-                    dict[innerLink.target.data.id] = innerLink.target;
+
+                  for (const key in dict) {
+                    if (Object.prototype.hasOwnProperty.call(dict, key)) {
+                      newLinksToAdd.push({
+                        source: dict[key],
+                        target: topologicalLink,
+                      });
+                    }
                   }
                 }
-              }
-
-              // Add new links to the array based on the dictionary
-              for (const i in dict) {
-                newLinksToAdd.push({
-                  source: dict[i],
-                  target: topologicalLink,
-                });
               }
             }
           }
