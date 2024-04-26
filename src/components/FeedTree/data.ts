@@ -50,7 +50,6 @@ export interface OwnProps {
     y: number;
   };
   separation: Separation;
-  orientation: "horizontal" | "vertical";
   changeOrientation: (orientation: string) => void;
 }
 

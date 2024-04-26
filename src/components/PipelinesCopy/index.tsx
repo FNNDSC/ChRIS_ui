@@ -80,9 +80,10 @@ const PipelinesCopy = () => {
       (key as string[]).includes(`${pipeline.data.id}`),
     );
 
+    console.log("filteredPipelines", filteredPipelines);
+
     if (filteredPipelines) {
       // a pipeline has already been selected;
-
       if (filteredPipelines.length === 0) {
         // Remove the exisiting pipeline
         dispatch({
