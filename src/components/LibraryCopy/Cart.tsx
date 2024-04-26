@@ -218,7 +218,7 @@ export default function Cart() {
               </>
             }
             style={{ width: "100%", marginTop: "3em", padding: "2em" }}
-          ></Alert>
+          />
           {alert && <Alert type="error" description={alert} />}
           {progress.currentProgress > 0 && (
             <Progress
@@ -229,7 +229,6 @@ export default function Cart() {
         </AlertGroup>
       </>
     );
-  } else {
-    return null;
   }
+  return null;
 }
