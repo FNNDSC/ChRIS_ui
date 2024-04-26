@@ -12,7 +12,6 @@ import {
   BrainIcon,
   CodeBranchIcon,
   FeedBrowserIcon,
-  DuplicateIcon as FolderTreeIcon,
   NodeDetailsPanelIcon,
   NoteEditIcon,
   PreviewIcon,

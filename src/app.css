@@ -76,10 +76,10 @@
 }
 
 .button-style {
-  border-radius: 50%;
-  padding:1rem;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border-radius: 50% !important;
+  padding:1rem !important;
+  border: none !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
 }

@@ -126,16 +126,16 @@ const Tree = (props: TreeProps) => {
       const rootNode = d3Tree(hierarchy(data[0]));
       nodes = rootNode.descendants();
       links = rootNode.links();
-      const newLinksToAdd = [];
+      const newLinksToAdd: HierarchyPointLink<TreeNode>[] = [];
 
-      if (tsIds) {
+      if (tsIds && Object.keys(tsIds).length > 0) {
         for (const link of links) {
           const targetId = link.target.data.id;
-          const sourceId = link.target.data.id;
+          const sourceId = link.source.data.id;
 
           if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
             // tsPlugin found
-            let topologicalLink: any;
+            let topologicalLink: HierarchyPointNode<TreeNode> | undefined;
 
             if (tsIds[targetId]) {
               topologicalLink = link.target;
@@ -143,34 +143,40 @@ const Tree = (props: TreeProps) => {
               topologicalLink = link.source;
             }
 
-            const parents = tsIds[topologicalLink.data.id];
-            const dict: { [key: string]: any } = {};
+            if (topologicalLink) {
+              const parents = tsIds[topologicalLink.data.id];
+              if (parents && parents.length > 0) {
+                const dict: { [key: string]: HierarchyPointNode<TreeNode> } =
+                  {};
 
-            // Iterate over all links to find nodes related to parents
-            for (const innerLink of links) {
-              for (let i = 0; i < parents.length; i++) {
-                // Check if the source ID matches any parent and it is not already in the dictionary
-                if (
-                  innerLink.source.data.id === parents[i] &&
-                  !dict[innerLink.source.data.id]
-                ) {
-                  dict[innerLink.source.data.id] = innerLink.source;
+                // Iterate over all links to find nodes related to parents
+                for (const innerLink of links) {
+                  if (innerLink.source && innerLink.target) {
+                    for (let i = 0; i < parents.length; i++) {
+                      if (
+                        innerLink.source.data.id === parents[i] &&
+                        !dict[innerLink.source.data.id]
+                      ) {
+                        dict[innerLink.source.data.id] = innerLink.source;
+                      } else if (
+                        innerLink.target.data.id === parents[i] &&
+                        !dict[innerLink.target.data.id]
+                      ) {
+                        dict[innerLink.target.data.id] = innerLink.target;
+                      }
+                    }
+                  }
                 }
-                // Check if the target ID matches any parent and it is not already in the dictionary
-                else if (
-                  innerLink.target.data.id === parents[i] &&
-                  !dict[innerLink.target.data.id]
-                ) {
-                  dict[innerLink.target.data.id] = innerLink.target;
+
+                for (const key in dict) {
+                  if (Object.prototype.hasOwnProperty.call(dict, key)) {
+                    newLinksToAdd.push({
+                      source: dict[key],
+                      target: topologicalLink,
+                    });
+                  }
                 }
               }
-            }
-
-            for (const i in dict) {
-              newLinksToAdd.push({
-                source: dict[i],
-                target: topologicalLink,
-              });
             }
           }
         }
