@@ -85,7 +85,7 @@ const FeedTree = (props: OwnProps) => {
     (state) => state.feed,
   );
   const [feedTree, setFeedTree] = React.useState<{
-    nodes?: HierarychyPointNode<TreeNodeDatum>[];
+    nodes?: HierarchyPointNode<TreeNodeDatum>[];
     links?: HierarchyPointLink<TreeNodeDatum>[];
   }>({
     nodes: [],
