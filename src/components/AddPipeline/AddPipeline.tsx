@@ -1,3 +1,4 @@
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "antd";
@@ -13,12 +14,9 @@ import {
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
 
+import { fetchResource } from "../../api/common";
 import Pipelines from "../PipelinesCopy";
-import {
-  PipelineContext,
-  Types,
-  PipelineProvider,
-} from "../PipelinesCopy/context";
+import { PipelineContext, Types } from "../PipelinesCopy/context";
 
 const AddPipeline = () => {
   const { state, dispatch } = useContext(PipelineContext);
@@ -76,11 +74,14 @@ const AddPipeline = () => {
           nodes_info: JSON.stringify(nodes_info),
         });
 
-        // Use the pagination helper here
-        const pluginInstances = await workflow.getPluginInstances({
-          limit: 1000,
-        });
-        const instanceItems = pluginInstances.getItems();
+        const fn = workflow.getPluginInstances;
+        const boundFn = fn.bind(workflow);
+        const params = { limit: 100, offset: 0 };
+        const { resource: instanceItems } = await fetchResource<PluginInstance>(
+          params,
+          boundFn,
+        );
+
         if (instanceItems && alreadyAvailableInstances) {
           const firstInstance = instanceItems[instanceItems.length - 1];
           const completeList = [...alreadyAvailableInstances, ...instanceItems];
