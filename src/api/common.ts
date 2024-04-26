@@ -145,14 +145,12 @@ export interface TreeNode {
 }
 
 export const getFeedTree = (items: any[]) => {
-  const tree = [],
-    mappedArr: {
-      [key: string]: TreeNode;
-    } = {};
+  const tree = [];
+  const mappedArr: { [key: string]: TreeNode } = {};
 
   items.forEach((item) => {
     const id = item.data.id;
-    if (!mappedArr.hasOwnProperty(id)) {
+    if (!mappedArr[id]) {
       mappedArr[id] = {
         id: id,
         plugin_id: item.data.plugin_id,
@@ -167,15 +165,16 @@ export const getFeedTree = (items: any[]) => {
   });
 
   for (const id in mappedArr) {
-    let mappedElem;
-    if (mappedArr.hasOwnProperty(id)) {
-      mappedElem = mappedArr[id];
+    if (Object.prototype.hasOwnProperty.call(mappedArr, id)) {
+      const mappedElem = mappedArr[id];
       if (mappedElem.previous_id) {
         const parentId = mappedElem.previous_id;
         if (parentId && mappedArr[parentId] && mappedArr[parentId].children) {
           mappedArr[parentId].children.push(mappedElem);
         }
-      } else tree.push(mappedElem);
+      } else {
+        tree.push(mappedElem);
+      }
     }
   }
   return tree;

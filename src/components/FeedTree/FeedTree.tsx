@@ -85,7 +85,7 @@ const FeedTree = (props: OwnProps) => {
     (state) => state.feed,
   );
   const [feedTree, setFeedTree] = React.useState<{
-    nodes?: any[];
+    nodes?: HierarychyPointNode<TreeNodeDatum>[];
     links?: HierarchyPointLink<TreeNodeDatum>[];
   }>({
     nodes: [],
@@ -120,7 +120,7 @@ const FeedTree = (props: OwnProps) => {
         nodes = rootNode.descendants();
         links = rootNode.links();
 
-        const newLinksToAdd: any[] = [];
+        const newLinksToAdd = [];
 
         if (tsIds) {
           for (const link of links) {

@@ -1,5 +1,10 @@
 import { Pipeline } from "@fnndsc/chrisapi";
-import { hierarchy, tree } from "d3-hierarchy";
+import {
+  HierarchyPointLink,
+  HierarchyPointNode,
+  hierarchy,
+  tree,
+} from "d3-hierarchy";
 import { event, select } from "d3-selection";
 import { linkVertical } from "d3-shape";
 import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
@@ -10,7 +15,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { TreeNode, getFeedTree } from "../../api/common";
+import { getFeedTree, type TreeNode } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
@@ -24,10 +29,7 @@ import NodeData from "./NodeData";
 import { PipelineContext } from "./context";
 
 const nodeSize = { x: 120, y: 80 };
-const svgClassName = "pipeline-tree__svg";
-const graphClassName = "pipeline-tree__graph";
 const scale = 1;
-
 export interface TreeProps {
   translate?: Point;
   scaleExtent: {
@@ -46,6 +48,8 @@ export interface TreeProps {
 
 const Tree = (props: TreeProps) => {
   const { currentPipeline } = props;
+  const svgClassName = `pipeline-tree__svg_${currentPipeline.data.id}`;
+  const graphClassName = `pipeline-tree__graph_${currentPipeline.data.id}`;
   const { state } = React.useContext(PipelineContext);
   const { selectedPipeline } = state;
   const divRef = useRef<HTMLDivElement>(null);
@@ -115,14 +119,14 @@ const Tree = (props: TreeProps) => {
 
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
-    let nodes: any[] = [];
-    let links: any[] = [];
-    let newLinks: any[] = [];
+    let nodes: HierarchyPointNode<TreeNode>[] | undefined = undefined;
+    let links: HierarchyPointLink<TreeNode>[] | undefined = undefined;
+    let newLinks: HierarchyPointLink<TreeNode>[] = [];
     if (data) {
       const rootNode = d3Tree(hierarchy(data[0]));
       nodes = rootNode.descendants();
       links = rootNode.links();
-      const newLinksToAdd: any[] = [];
+      const newLinksToAdd = [];
 
       if (tsIds) {
         for (const link of links) {
@@ -140,20 +144,24 @@ const Tree = (props: TreeProps) => {
             }
 
             const parents = tsIds[topologicalLink.data.id];
-            const dict: any = {};
+            const dict: { [key: string]: any } = {};
 
-            for (const link of links) {
+            // Iterate over all links to find nodes related to parents
+            for (const innerLink of links) {
               for (let i = 0; i < parents.length; i++) {
+                // Check if the source ID matches any parent and it is not already in the dictionary
                 if (
-                  link.source.data.id === parents[i] &&
-                  !dict[link.source.data.id]
+                  innerLink.source.data.id === parents[i] &&
+                  !dict[innerLink.source.data.id]
                 ) {
-                  dict[link.source.data.id] = link.source;
-                } else if (
-                  link.target.data.id === parents[i] &&
-                  !dict[link.target.data.id]
+                  dict[innerLink.source.data.id] = innerLink.source;
+                }
+                // Check if the target ID matches any parent and it is not already in the dictionary
+                else if (
+                  innerLink.target.data.id === parents[i] &&
+                  !dict[innerLink.target.data.id]
                 ) {
-                  dict[link.target.data.id] = link.target;
+                  dict[innerLink.target.data.id] = innerLink.target;
                 }
               }
             }
@@ -178,7 +186,7 @@ const Tree = (props: TreeProps) => {
     let maxX = 0;
     let maxY = 0;
 
-    nodes.forEach((node) => {
+    nodes?.forEach((node) => {
       maxX = Math.max(maxX, node.x);
       maxY = Math.max(maxY, node.y);
     });
