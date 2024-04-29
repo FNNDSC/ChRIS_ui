@@ -6,9 +6,10 @@ import {
   DrawerPanelContent,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
+import { notification } from "antd";
 import * as React from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate, useParams, useLocation } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { clearSelectedFile } from "../../store/explorer/actions";
 import {
   getFeedSuccess,
@@ -48,6 +49,7 @@ export default function FeedView() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [api, contextHolder] = notification.useNotification();
   const { id } = params;
   const selectedPlugin = useTypedSelector(
     (state) => state.instance.selectedPlugin,
@@ -73,7 +75,11 @@ export default function FeedView() {
     enabled: type === "public",
   });
 
-  const { data: privateFeed } = useQuery({
+  const {
+    data: privateFeed,
+    isError: isPrivateFeedError,
+    error: privateFeedError,
+  } = useQuery({
     queryKey: ["authenticatedFeed", id],
     queryFn: () => fetchAuthenticatedFeed(id),
     enabled: type === "private" && isLoggedIn,
@@ -87,6 +93,21 @@ export default function FeedView() {
       navigate(`/login?redirectTo=${redirectTo}`);
     }
   }, [type, navigate, isLoggedIn]);
+
+  React.useEffect(() => {
+    if (isPrivateFeedError) {
+      // cube does not return a 404 error when the user fetches a
+      // feed with an incorrect token
+      api.error({
+        message: privateFeedError.message,
+        duration: 1.5,
+      });
+
+      setTimeout(() => {
+        navigate("/feeds?type=private");
+      }, 2500);
+    }
+  }, [isPrivateFeedError]);
 
   React.useEffect(() => {
     const feed: Feed | undefined = privateFeed || publicFeed;
@@ -195,6 +216,7 @@ export default function FeedView() {
 
   return (
     <WrapperConnect>
+      {contextHolder}
       <Drawer
         isInline
         position="bottom"
