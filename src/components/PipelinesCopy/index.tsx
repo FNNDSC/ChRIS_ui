@@ -259,46 +259,6 @@ const PipelinesCopy = () => {
                       {description}
                     </span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <SelectAllCompute pipeline={pipeline} />
-                    {!browseOnly && (
-                      <Button
-                        size="sm"
-                        onClick={(e) => {
-                          if (state.selectedPipeline?.[id]) {
-                            // If the pipeline already exists, don't propogate since the onChange event of the
-                            // collapse component fires and we don't refetch all the resource again. Let's assume that
-                            // the user's intent is to add the pipeline
-                            e.stopPropagation();
-                          }
-
-                          if (state?.pipelineToAdd?.data.id === id) {
-                            // If this pipeline already exists, user wants to deselect it
-                            dispatch({
-                              type: Types.PipelineToAdd,
-                              payload: {
-                                pipeline: undefined,
-                              },
-                            });
-                          } else {
-                            dispatch({
-                              type: Types.PipelineToAdd,
-                              payload: {
-                                pipeline,
-                              },
-                            });
-                          }
-                        }}
-                        variant="primary"
-                        key="select-action"
-                        style={{ marginLeft: "1em", width: "80px" }} // Set a fixed width
-                      >
-                        {pipeline.data.id === state.pipelineToAdd?.data.id
-                          ? "Selected"
-                          : "Select"}
-                      </Button>
-                    )}
-                  </div>
                 </div>
               ),
               children: (

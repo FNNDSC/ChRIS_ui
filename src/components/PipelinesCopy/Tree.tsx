@@ -27,6 +27,7 @@ import {
 import useSize from "../FeedTree/useSize";
 import NodeData from "./NodeData";
 import { PipelineContext } from "./context";
+import SelectAllCompute from "./SelectAllCompute";
 
 const nodeSize = { x: 120, y: 80 };
 const scale = 1;
@@ -215,41 +216,50 @@ const Tree = (props: TreeProps) => {
         {loading ? (
           <SpinContainer title="Constructing the tree..." />
         ) : translate.x > 0 && translate.y > 0 ? (
-          <svg
-            focusable="true"
-            className={`${svgClassName}`}
-            height={height}
-            width="100%"
+          <div
+            style={{
+              display: "flex",
+            }}
           >
-            <title>Pipeline Tree</title>
-            <TransitionGroupWrapper
-              component="g"
-              className={graphClassName}
-              transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
+            <svg
+              focusable="true"
+              className={`${svgClassName}`}
+              height={height}
+              width="100%"
             >
-              {links?.map((linkData, i) => {
-                return (
-                  <LinkData
-                    orientation="vertical"
-                    key={`link${i}`}
-                    linkData={linkData}
-                  />
-                );
-              })}
-              {nodes?.map(({ data, x, y, parent }, i) => {
-                return (
-                  <NodeData
-                    key={`node_${i}`}
-                    data={data}
-                    position={{ x, y }}
-                    parent={parent}
-                    orientation="vertical"
-                    currentPipelineId={currentPipeline.data.id}
-                  />
-                );
-              })}
-            </TransitionGroupWrapper>
-          </svg>
+              <title>Pipeline Tree</title>
+              <TransitionGroupWrapper
+                component="g"
+                className={graphClassName}
+                transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
+              >
+                {links?.map((linkData, i) => {
+                  return (
+                    <LinkData
+                      orientation="vertical"
+                      key={`link${i}`}
+                      linkData={linkData}
+                    />
+                  );
+                })}
+                {nodes?.map(({ data, x, y, parent }, i) => {
+                  return (
+                    <NodeData
+                      key={`node_${i}`}
+                      data={data}
+                      position={{ x, y }}
+                      parent={parent}
+                      orientation="vertical"
+                      currentPipelineId={currentPipeline.data.id}
+                    />
+                  );
+                })}
+              </TransitionGroupWrapper>
+            </svg>
+            <div style={{ height: "3rem" }}>
+              <SelectAllCompute pipeline={currentPipeline} />
+            </div>
+          </div>
         ) : (
           <EmptyStateComponent />
         )}
