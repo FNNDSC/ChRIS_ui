@@ -102,19 +102,35 @@ export const fetchPublicFeeds = async (filterState: any) => {
 
 export async function fetchAuthenticatedFeed(id?: string) {
   if (!id) return;
-  const client = ChrisAPIClient.getClient();
-  const feed = await client.getFeed(+id);
-  return feed;
+
+  try {
+    const client = ChrisAPIClient.getClient();
+    const feed = await client.getFeed(+id);
+
+    if (!feed) {
+      throw new Error(
+        "You do not permissions to view this feed. Redirecting...",
+      );
+    }
+    return feed;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export async function fetchPublicFeed(id?: string) {
   if (!id) return;
-  const client = ChrisAPIClient.getClient();
-  const publicFeed = await client.getPublicFeeds({ id: +id });
+  try {
+    const client = ChrisAPIClient.getClient();
+    const publicFeed = await client.getPublicFeeds({ id: +id });
 
-  //@ts-ignore
-  if (publicFeed && publicFeed.getItems().length > 0) {
     //@ts-ignore
-    return publicFeed.getItems()[0] as any as Feed;
+    if (publicFeed && publicFeed.getItems().length > 0) {
+      //@ts-ignore
+      return publicFeed.getItems()[0] as any as Feed;
+    }
+    throw new Error("Failed to fetch this feed...");
+  } catch (error) {
+    throw error;
   }
 }
