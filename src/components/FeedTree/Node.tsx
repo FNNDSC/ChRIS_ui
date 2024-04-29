@@ -120,7 +120,8 @@ const Node = (props: NodeProps) => {
 
   if (
     value.length > 0 &&
-    (value === data.item?.data.plugin_name || value === data.item?.data.title)
+    (data.item?.data.plugin_name?.toLowerCase().includes(value.toLowerCase()) ||
+      data.item?.data.title?.toLowerCase().includes(value.toLowerCase()))
   ) {
     statusClass = "search";
   }

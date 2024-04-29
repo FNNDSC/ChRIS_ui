@@ -97,7 +97,7 @@ function SelectAllCompute({ pipeline }: OwnProps) {
         ? "List of Compute"
         : selectedItem
           ? selectedItem
-          : "Select a Compute"}
+          : "Set a Compute for the Tree"}
     </MenuToggle>
   );
 
