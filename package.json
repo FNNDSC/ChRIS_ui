@@ -35,9 +35,14 @@
     "@cornerstonejs/dicom-image-loader": "^1.57.0",
     "@cornerstonejs/streaming-image-volume-loader": "^1.61.1",
     "@cornerstonejs/tools": "^1.61.1",
+<<<<<<< HEAD
     "@fnndsc/chrisapi": "^1.20.0",
 >>>>>>> be766664 (refactor: Apply rebase changes)
     "@niivue/niivue": "^0.41.1",
+=======
+    "@fnndsc/chrisapi": "^1.19.0",
+    "@niivue/niivue": "^0.39.0",
+>>>>>>> 97332429 (refactor: Fix merge conflicts)
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.3.0",
     "@patternfly/react-core": "^5.3.3",
