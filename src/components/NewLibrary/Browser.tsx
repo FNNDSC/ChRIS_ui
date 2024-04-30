@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   FileBrowserFolderFile,
   FileBrowserFolder,
@@ -19,7 +20,7 @@ import {
   SplitItem,
 } from "@patternfly/react-core";
 import { notification } from "antd";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   EllipsisVIcon,
@@ -29,12 +30,9 @@ import {
 } from "../Icons";
 import { elipses } from "../LibraryCopy/utils";
 import FileDetailView from "../Preview/FileDetailView";
-<<<<<<< HEAD
 import useDownload from "./useDownloadHook";
 import useLongPress from "../LibraryCopy/utils";
-=======
 import ChrisAPIClient from "../../api/chrisapiclient";
->>>>>>> 3c50fa9a (refactor: fix merge conflicts)
 
 type Pagination = {
   totalCount: number;
@@ -214,13 +212,10 @@ export const FilesCard = ({
 };
 
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
-<<<<<<< HEAD
   const handleDownloadMutation = useDownload();
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
   const [api, contextHolder] = notification.useNotification();
-=======
->>>>>>> 3c50fa9a (refactor: fix merge conflicts)
   const [preview, setIsPreview] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const listOfPaths = file.data.fname.split("/");
@@ -258,9 +253,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
       <DropdownItem
         onClick={async (e) => {
           e.stopPropagation();
-<<<<<<< HEAD
           handleDownloadMutation.mutate(file);
-=======
           const client = ChrisAPIClient.getClient();
           const token = await client.createDownloadToken();
           const url = file.collection.items[0].links[0].href;
@@ -274,7 +267,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
->>>>>>> 3c50fa9a (refactor: fix merge conflicts)
+          handleDownloadMutation.mutate(file);
         }}
         key="action"
       >
@@ -317,10 +310,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
         }}
         isRounded
       >
-<<<<<<< HEAD
         {contextHolder}
-=======
->>>>>>> 3c50fa9a (refactor: fix merge conflicts)
         <CardHeader actions={{ actions: headerActions }}>
           <Split>
             <SplitItem style={{ marginRight: "1em" }}>
