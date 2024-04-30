@@ -1,5 +1,6 @@
 import {
   FileBrowserFolderFile,
+  FileBrowserFolder,
   FileBrowserFolderFileList,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
@@ -13,15 +14,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { setSidebarActive } from "../../store/ui/actions";
 import { EmptyStateComponent, SpinContainer } from "../Common";
+import { LibraryProvider } from "../LibraryCopy/context";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./Breadcrumb";
 import { FilesCard, FolderCard, LinkCard } from "./Browser";
-import MenuBar from "./MenuBar";
-import TreeBrowser from "./TreeBrowser";
-import Cart from "./Cart";
 import Search from "./Search";
+import TreeBrowser from "./TreeBrowser";
 import UploadContainer from "./UploadComponent";
-import { LibraryProvider } from "../LibraryCopy/context";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -40,7 +39,7 @@ const NewLibrary = () => {
         });
 
       const folders = folderList.getItems();
-      let subFoldersMap: FileBrowserFolderFile[] = [];
+      let subFoldersMap: FileBrowserFolder[] = [];
       let linkFilesMap: FileBrowserFolderLinkFile[] = [];
       let filesMap: FileBrowserFolderFile[] = [];
       const initialPaginateValue = {
@@ -159,8 +158,15 @@ const NewLibrary = () => {
   return (
     <WrapperConnect>
       <LibraryProvider>
-        <Cart />
-        <Search />
+        <Search
+          handleChange={() => {
+            setCardLayout(!cardLayout);
+          }}
+          handleUploadModal={() => {
+            setUploadFileModal(!uploadFileModal);
+          }}
+          checked={cardLayout}
+        />
         <div style={{ margin: "1rem" }}>
           <div
             style={{
@@ -168,15 +174,6 @@ const NewLibrary = () => {
               flexDirection: "column",
             }}
           >
-            <MenuBar
-              handleChange={() => {
-                setCardLayout(!cardLayout);
-              }}
-              handleUploadModal={() => {
-                setUploadFileModal(!uploadFileModal);
-              }}
-              checked={cardLayout}
-            />
             {cardLayout && (
               <BreadcrumbContainer
                 path={computedPath}

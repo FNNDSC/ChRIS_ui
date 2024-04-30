@@ -11,7 +11,9 @@ import {
   RouterContext,
   RouterProvider,
 } from "./components/Routing/RouterContext";
-import Signup from "./components/Signup";
+import PluginCatalog from "./components/PluginCatalog/";
+import PrivateRoute from "./components/PrivateRoute";
+import LibrarySearch from "./components/NewLibrarySearch";
 import SinglePlugin from "./components/SinglePlugin";
 import { useTypedSelector } from "./store/hooks";
 

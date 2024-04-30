@@ -1,5 +1,6 @@
 import {
   FileBrowserFolderFile,
+  FileBrowserFolder,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import {
@@ -42,7 +43,7 @@ export const FolderCard = ({
   computedPath,
   pagination,
 }: {
-  folders: FileBrowserFolderFile[];
+  folders: FileBrowserFolder[];
   handleFolderClick: (path: string) => void;
   computedPath: string;
   pagination?: Pagination;
@@ -63,12 +64,12 @@ export const FolderCard = ({
   );
 };
 
-const SubFolderCard = ({
+export const SubFolderCard = ({
   val,
   computedPath,
   handleFolderClick,
 }: {
-  val: FileBrowserFolderFile;
+  val: FileBrowserFolder;
   computedPath: string;
   handleFolderClick: (path: string) => void;
 }) => {
