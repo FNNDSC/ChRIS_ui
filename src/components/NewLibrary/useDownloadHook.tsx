@@ -8,11 +8,15 @@ const useDownload = () => {
     const fileName = getFileName(file.data.fname);
     try {
       const client = ChrisAPIClient.getClient();
-      const token = await client.createDownloadToken();
+      const response = await client.createDownloadToken();
       const url = file.collection.items[0].links[0].href;
       if (!url) {
         throw new Error("Failed to construct the URL");
       }
+      if (!response) {
+        throw new Error("Failed to fetch the token...");
+      }
+      const token = response.data.token;
       const authorizedUrl = `${url}?token=${token}`; // Adjust token assignment
       const link = document.createElement("a");
       link.href = authorizedUrl;
