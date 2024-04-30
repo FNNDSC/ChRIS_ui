@@ -5,15 +5,8 @@ import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
-import LibraryCopyPage from "./components/LibraryCopy";
-import LibrarySearch from "./components/LibrarySearch";
-import Login from "./components/Login";
-import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
-import NotFound from "./components/NotFound";
-import Pacs from "./components/Pacs";
 import PipelinePage from "./components/PipelinesPage";
-import PluginCatalog from "./components/PluginCatalog/";
-import PrivateRoute from "./components/PrivateRoute";
+import LibraryCopyPage from "./components/NewLibrary";
 import {
   RouterContext,
   RouterProvider,
