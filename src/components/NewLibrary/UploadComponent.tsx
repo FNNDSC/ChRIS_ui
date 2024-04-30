@@ -1,330 +1,32 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
-import ReactJson from "react-json-view";
 import {
   Button,
-  TextInput,
-  Dropdown,
-  DropdownList,
-  DropdownItem,
-  MenuToggle,
-  PageSection,
-  Modal,
-  CodeBlockCode,
   CodeBlock,
-  FormGroup,
+  CodeBlockCode,
   Form,
+  FormGroup,
+  Modal,
+  ModalVariant,
   Alert as PatternflyAlert,
   Progress,
-  ModalVariant,
+  TextInput,
 } from "@patternfly/react-core";
-import { Typography } from "antd";
-import { debounce } from "lodash";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { useState, useEffect, useRef, useCallback } from "react";
+import type { AxiosResponse } from "axios";
+import type { AxiosProgressEvent } from "axios";
+import ReactJson from "react-json-view";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import WrapperConnect from "../Wrapper";
-import Cart from "./Cart";
-import Browser from "./Browser";
-import { LocalFileList } from "../CreateFeed/HelperComponent";
-import { SpinContainer, EmptyStateComponent } from "../Common";
-import BreadcrumbContainer from "./BreadcrumbContainer";
-import { LibraryProvider } from "./context/";
-import { InfoIcon } from "../Common";
-import { UploadIcon as FaUpload } from "../Icons";
-import type { AxiosProgressEvent, AxiosResponse } from "axios";
-import { useCookieToken } from "../Common";
-import { useTypedSelector } from "../../store/hooks";
 import {
   catchError,
-  limitConcurrency,
   getTimestamp,
+  limitConcurrency,
   uploadWrapper,
 } from "../../api/common";
-import { useDispatch } from "react-redux";
-import { setSidebarActive } from "../../store/ui/actions";
-import { fetchResource } from "../../api/common";
-import styles from "./LibraryCopy.module.css";
-
-export const fetchFilesUnderThisPath = async (path?: string) => {
-  if (!path) return;
-
-  const client = ChrisAPIClient.getClient();
-  const pathList = await client.getFileBrowserPath(path);
-  const pagination = {
-    limit: 20,
-    offset: 0,
-  };
-
-  if (pathList) {
-    const fn = pathList.getFiles;
-    const boundFn = fn.bind(pathList);
-
-    const { resource } = await fetchResource(pagination, boundFn);
-
-    if (resource) {
-      return resource;
-    }
-  }
-
-  return [];
-};
-
-export const fetchFoldersUnderThisPath = async (path?: string) => {
-  if (!path) return;
-  const client = ChrisAPIClient.getClient();
-  const uploads = await client.getFileBrowserPaths({
-    path,
-  });
-
-  const parsedUpload = uploads?.data[0].subfolders
-    ? JSON.parse(uploads.data[0].subfolders)
-    : [];
-
-  return parsedUpload;
-};
-
-const useGetFolders = (computedPath: string) => {
-  const folderData = useQuery({
-    queryKey: ["folders", computedPath],
-    queryFn: () => fetchFoldersUnderThisPath(computedPath),
-    enabled: !!computedPath,
-  });
-
-  return folderData;
-};
-
-const useGetFiles = (computedPath: string) => {
-  const fileData = useQuery({
-    queryKey: ["files", computedPath],
-    queryFn: () => fetchFilesUnderThisPath(computedPath),
-    enabled: !!computedPath,
-  });
-
-  return fileData;
-};
-
-const { Paragraph } = Typography;
-
-export const LibraryCopyPage = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [localFiles, setLocalFiles] = useState<File[]>([]);
-
-  const handleLocalFiles = (files: File[]) => {
-    setLocalFiles(files);
-  };
-
-  const handleFileModal = () => {
-    setIsOpenModal(!isOpenModal);
-    if (isOpenModal && localFiles.length > 0) {
-      setLocalFiles([]);
-    }
-  };
-
-  const handleAddFolder = (path: string, user: string) => {
-    navigate(`/library/${user}/uploads/${path}`);
-  };
-
-  React.useEffect(() => {
-    dispatch(
-      setSidebarActive({
-        activeItem: "lib",
-      }),
-    );
-  }, [dispatch]);
-
-  return (
-    <WrapperConnect>
-      <>
-        <PageSection
-          style={{
-            paddingBottom: "0",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <InfoIcon
-            title="Library"
-            p1={
-              <Paragraph>
-                The Library provides a card-focused mechanism for browsing,
-                viewing, and interacting with data in the ChRIS system. A card
-                is analogous to a file or folder in a convention filesystem, and
-                multiple cards can be grouped into a shopping cart to allow for
-                bulk operations. Simply long press and release a card to add it
-                to the cart. Bulk operations include: <b>Download</b> (which
-                will copy all cart contents to your local filesystem),{" "}
-                <b>Delete</b> (which will permanently remove all data in the
-                cards from ChRIS), and <b>Create</b> which will seed a new
-                analysis with a new root node containing each card as a
-                subdirectory.
-              </Paragraph>
-            }
-          />
-          <div style={{ marginRight: "1rem" }}>
-            <Button
-              variant="primary"
-              onClick={handleFileModal}
-              icon={<FaUpload />}
-            >
-              Upload
-            </Button>
-          </div>
-        </PageSection>
-
-        <PageSection
-          style={{
-            paddingTop: "0",
-          }}
-        >
-          <LibraryProvider>
-            <UploadComponent
-              handleFileModal={handleFileModal}
-              handleLocalFiles={handleLocalFiles}
-              uploadFileModal={isOpenModal}
-              handleAddFolder={handleAddFolder}
-              localFiles={localFiles}
-              handleDelete={(name: string, type?: string) => {
-                if (type === "folder") {
-                  setLocalFiles([]);
-                } else {
-                  const filteredfiles = localFiles.filter(
-                    (file) => file.name !== name,
-                  );
-                  setLocalFiles(filteredfiles);
-                }
-              }}
-            />
-
-            <Cart />
-            <LocalSearch />
-            <NormalBrowser />
-          </LibraryProvider>
-        </PageSection>
-      </>
-    </WrapperConnect>
-  );
-};
-
-function NormalBrowser() {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-
-  const decodedPath = decodeURIComponent(pathname);
-  const currentPathSplit = decodedPath.split("/library/")[1];
-
-  const computedPath = currentPathSplit || "/";
-
-  const fileData = useGetFiles(computedPath);
-  const folderData = useGetFolders(computedPath);
-
-  const { data: files, isLoading: isFileLoading } = fileData;
-  const { data: folders, isLoading: isFolderLoading } = folderData;
-
-  const handleFolderClick = debounce((folder: string) => {
-    const url = `${decodedPath}/${folder}`;
-    navigate(url);
-  }, 500);
-
-  const handleBreadcrumb = (path: string) => {
-    navigate(`/library${path}`);
-  };
-
-  return (
-    <>
-      <BreadcrumbContainer
-        path={computedPath}
-        handleFolderClick={handleBreadcrumb}
-      />
-
-      <Browser
-        handleFolderClick={handleFolderClick}
-        files={files}
-        folders={folders}
-        path={computedPath}
-      />
-
-      {(isFileLoading || isFolderLoading) && (
-        <SpinContainer title="Fetching the Resources for this path" />
-      )}
-    </>
-  );
-}
-
-export default LibraryCopyPage;
-
-const items = ["feeds", "pacs"];
-
-function LocalSearch() {
-  const navigate = useNavigate();
-
-  const [value, setValue] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchSpace, setSearchSpace] = useState(items[0]);
-
-  const handleSearch = async () => {
-    if (value) {
-      navigate(`/librarysearch/?search=${value}&space=${searchSpace}`);
-    }
-  };
-
-  return (
-    <div
-      style={{
-        margin: "1rem",
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-      }}
-    >
-      <Dropdown
-        toggle={(toggleRef: any) => {
-          return (
-            <MenuToggle
-              ref={toggleRef}
-              onClick={() => {
-                setIsOpen(!isOpen);
-              }}
-            >
-              {searchSpace}
-            </MenuToggle>
-          );
-        }}
-        aria-label="Choose a space to search"
-        isOpen={isOpen}
-      >
-        <DropdownList>
-          {items.map((item) => {
-            return (
-              <DropdownItem
-                key={item}
-                onClick={() => {
-                  setSearchSpace(item);
-                  setIsOpen(!isOpen);
-                }}
-              >
-                {item}
-              </DropdownItem>
-            );
-          })}
-        </DropdownList>
-      </Dropdown>
-
-      <TextInput
-        aria-label="Search over uploaded Space"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleSearch();
-          }
-        }}
-        onChange={(_e, value) => setValue(value)}
-        value={value}
-        placeholder="Choose a space to search under"
-      />
-    </div>
-  );
-}
+import { useTypedSelector } from "../../store/hooks";
+import { EmptyStateComponent, useCookieToken } from "../Common";
+import { LocalFileList } from "../CreateFeed/HelperComponent";
+import { UploadIcon as FaUpload } from "../Icons";
+import styles from "./UploadFile.module.css";
 
 interface UploadComponentProps {
   handleFileModal: () => void;
@@ -340,7 +42,52 @@ interface FileUpload {
   promise: Promise<AxiosResponse<any>>;
 }
 
-const UploadComponent: React.FC<UploadComponentProps> = ({
+const UploadContainer = ({
+  isOpenModal,
+  handleFileModal,
+}: {
+  isOpenModal: boolean;
+  handleFileModal: () => void;
+}) => {
+  const navigate = useNavigate();
+  const [localFiles, setLocalFiles] = useState<File[]>([]);
+  const handleLocalFiles = (files: File[]) => {
+    setLocalFiles(files);
+  };
+
+  const closeModal = () => {
+    if (isOpenModal && localFiles.length > 0) {
+      setLocalFiles([]);
+    }
+    handleFileModal();
+  };
+
+  const handleAddFolder = (path: string, user: string) => {
+    navigate(`home/${user}/uploads/${path}`);
+  };
+
+  return (
+    <UploadComponent
+      handleAddFolder={handleAddFolder}
+      handleLocalFiles={handleLocalFiles}
+      handleFileModal={closeModal}
+      localFiles={localFiles}
+      uploadFileModal={isOpenModal}
+      handleDelete={(name: string, type?: string) => {
+        if (type === "folder") {
+          setLocalFiles([]);
+        } else {
+          const filteredfiles = localFiles.filter((file) => file.name !== name);
+          setLocalFiles(filteredfiles);
+        }
+      }}
+    />
+  );
+};
+
+export default UploadContainer;
+
+export const UploadComponent: React.FC<UploadComponentProps> = ({
   handleFileModal,
   handleLocalFiles,
   handleAddFolder,
@@ -456,7 +203,7 @@ const UploadComponent: React.FC<UploadComponentProps> = ({
       }
     };
 
-    const uploadDirectory = `${username}/uploads/${directoryName}`;
+    const uploadDirectory = `home/${username}/uploads/${directoryName}`;
 
     const fileUploads: FileUpload[] = uploadWrapper(
       localFiles,

@@ -12,6 +12,8 @@ import {
   GridItem,
   MenuToggle,
   MenuToggleElement,
+  Modal,
+  ModalVariant,
   Split,
   SplitItem,
 } from "@patternfly/react-core";
@@ -24,6 +26,8 @@ import {
   FolderIcon,
 } from "../Icons";
 import { elipses } from "../LibraryCopy/utils";
+import FileDetailView from "../Preview/FileDetailView";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 type Pagination = {
   totalCount: number;
@@ -202,6 +206,7 @@ export const FilesCard = ({
 };
 
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
+  const [preview, setIsPreview] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const listOfPaths = file.data.fname.split("/");
   const fileName = listOfPaths[listOfPaths.length - 1];
@@ -213,8 +218,26 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
 
   const dropdownItems = (
     <>
-      <DropdownItem onClick={async () => {}} key="action">
-        File Preview
+      <DropdownItem
+        onClick={async (e) => {
+          e.stopPropagation();
+          const client = ChrisAPIClient.getClient();
+          const token = await client.createDownloadToken();
+          const url = file.collection.items[0].links[0].href;
+          if (!url) {
+            throw new Error("Failed to construct the url");
+          }
+          const authorizedUrl = `${url}?${token}`;
+          const link = document.createElement("a");
+          link.href = authorizedUrl;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }}
+        key="action"
+      >
+        Download
       </DropdownItem>
     </>
   );
@@ -227,7 +250,10 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
           <MenuToggle
             ref={toggleRef}
             isExpanded={isOpen}
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={(e) => {
+              e?.stopPropagation();
+              setIsOpen(!isOpen);
+            }}
             variant="plain"
             aria-label="Card header images and actions example kebab toggle"
           >
@@ -243,26 +269,45 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   );
 
   return (
-    <Card isRounded>
-      <CardHeader actions={{ actions: headerActions }}>
-        <Split>
-          <SplitItem style={{ marginRight: "1em" }}>
-            <FileIcon />
-          </SplitItem>
+    <>
+      <Card
+        onClick={() => {
+          setIsPreview(!preview);
+        }}
+        isRounded
+      >
+        <CardHeader actions={{ actions: headerActions }}>
+          <Split>
+            <SplitItem style={{ marginRight: "1em" }}>
+              <FileIcon />
+            </SplitItem>
 
-          <SplitItem>
-            <Button
-              variant="link"
-              style={{
-                padding: 0,
-              }}
-            >
-              {elipses(fileName, 40)}
-            </Button>
-            <div>{new Date(creation_date).toDateString()}</div>
-          </SplitItem>
-        </Split>
-      </CardHeader>
-    </Card>
+            <SplitItem>
+              <Button
+                variant="link"
+                style={{
+                  padding: 0,
+                }}
+              >
+                {elipses(fileName, 40)}
+              </Button>
+              <div>{new Date(creation_date).toDateString()}</div>
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
+      {
+        <Modal
+          className="library-preview"
+          variant={ModalVariant.large}
+          title="Preview"
+          aria-label="viewer"
+          isOpen={preview}
+          onClose={() => setIsPreview(false)}
+        >
+          <FileDetailView selectedFile={file} preview="large" />
+        </Modal>
+      }
+    </>
   );
 };

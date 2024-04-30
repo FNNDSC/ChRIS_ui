@@ -16,6 +16,7 @@ import BreadcrumbContainer from "./Breadcrumb";
 import { FilesCard, FolderCard, LinkCard } from "./Browser";
 import MenuBar from "./MenuBar";
 import TreeBrowser from "./TreeBrowser";
+import UploadContainer from "./UploadComponent";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -89,6 +90,7 @@ const NewLibrary = () => {
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
   const [cardLayout, setCardLayout] = useState(true);
+  const [uploadFileModal, setUploadFileModal] = useState(false);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
@@ -153,6 +155,9 @@ const NewLibrary = () => {
             handleChange={() => {
               setCardLayout(!cardLayout);
             }}
+            handleUploadModal={() => {
+              setUploadFileModal(!uploadFileModal);
+            }}
             checked={cardLayout}
           />
           <BreadcrumbContainer
@@ -209,6 +214,10 @@ const NewLibrary = () => {
           <TreeBrowser />
         )}
       </div>
+      <UploadContainer
+        isOpenModal={uploadFileModal}
+        handleFileModal={() => setUploadFileModal(!uploadFileModal)}
+      />
     </WrapperConnect>
   );
 };

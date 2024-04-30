@@ -54,13 +54,19 @@ const TreeBrowser = () => {
   };
 
   return (
-    <DirectoryTree
-      onCheck={onCheck}
-      loadData={onLoad}
-      checkedKeys={fetchKeysFromDict}
-      checkable
-      treeData={tree}
-    />
+    <div
+      style={{
+        marginTop: "1rem",
+      }}
+    >
+      <DirectoryTree
+        onCheck={onCheck}
+        loadData={onLoad}
+        checkedKeys={fetchKeysFromDict}
+        checkable
+        treeData={tree}
+      />
+    </div>
   );
 };
 
