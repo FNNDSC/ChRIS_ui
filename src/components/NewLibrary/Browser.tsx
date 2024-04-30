@@ -213,8 +213,6 @@ export const FilesCard = ({
 
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const handleDownloadMutation = useDownload();
-  const { handlers } = useLongPress();
-  const { handleOnClick, handleOnMouseDown } = handlers;
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -253,20 +251,6 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
       <DropdownItem
         onClick={async (e) => {
           e.stopPropagation();
-          handleDownloadMutation.mutate(file);
-          const client = ChrisAPIClient.getClient();
-          const token = await client.createDownloadToken();
-          const url = file.collection.items[0].links[0].href;
-          if (!url) {
-            throw new Error("Failed to construct the url");
-          }
-          const authorizedUrl = `${url}?${token}`;
-          const link = document.createElement("a");
-          link.href = authorizedUrl;
-          link.download = fileName;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
           handleDownloadMutation.mutate(file);
         }}
         key="action"

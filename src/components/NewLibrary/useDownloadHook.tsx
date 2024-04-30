@@ -9,6 +9,7 @@ const useDownload = () => {
     try {
       const client = ChrisAPIClient.getClient();
       const response = await client.createDownloadToken();
+      console.log("Response", response);
       const url = file.collection.items[0].links[0].href;
       if (!url) {
         throw new Error("Failed to construct the URL");
