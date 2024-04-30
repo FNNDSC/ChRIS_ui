@@ -162,7 +162,6 @@ const NewLibrary = () => {
           handleChange={() => {
             setCardLayout(!cardLayout);
           }}
-<<<<<<< HEAD
           handleUploadModal={() => {
             setUploadFileModal(!uploadFileModal);
           }}
@@ -170,32 +169,6 @@ const NewLibrary = () => {
         />
         <div style={{ margin: "1rem" }}>
           <div
-=======
-        >
-          <MenuBar
-            handleChange={() => {
-              setCardLayout(!cardLayout);
-            }}
-            handleUploadModal={() => {
-              setUploadFileModal(!uploadFileModal);
-            }}
-            checked={cardLayout}
-          />
-          <BreadcrumbContainer
-            path={computedPath}
-            handleFolderClick={handleBreadcrumbClick}
-          />
-        </div>
-
-        {isError && <Alert type="error" description={error.message} />}
-        {data?.filesPagination.totalCount === -1 &&
-          data?.foldersPagination.totalCount === -1 &&
-          data?.linksPagination.totalCount === -1 && (
-            <EmptyStateComponent title="No data in this path" />
-          )}
-        {data && cardLayout ? (
-          <Grid
->>>>>>> 3c50fa9a (refactor: fix merge conflicts)
             style={{
               display: "flex",
               flexDirection: "column",
@@ -215,7 +188,6 @@ const NewLibrary = () => {
             data?.linksPagination.totalCount === -1 && (
               <EmptyStateComponent title="No data in this path" />
             )}
-<<<<<<< HEAD
           {data &&
             (cardLayout ? (
               <Grid
@@ -264,23 +236,6 @@ const NewLibrary = () => {
           handleFileModal={() => setUploadFileModal(!uploadFileModal)}
         />
       </LibraryProvider>
-=======
-            <div
-              ref={observerTarget}
-              style={{
-                height: "10px",
-              }}
-            />{" "}
-          </Grid>
-        ) : (
-          <TreeBrowser />
-        )}
-      </div>
-      <UploadContainer
-        isOpenModal={uploadFileModal}
-        handleFileModal={() => setUploadFileModal(!uploadFileModal)}
-      />
->>>>>>> 3c50fa9a (refactor: fix merge conflicts)
     </WrapperConnect>
   );
 };
