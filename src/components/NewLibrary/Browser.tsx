@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import {
   FileBrowserFolderFile,
   FileBrowserFolder,
@@ -32,30 +31,6 @@ import { elipses } from "../LibraryCopy/utils";
 import FileDetailView from "../Preview/FileDetailView";
 import useDownload from "./useDownloadHook";
 import useLongPress from "../LibraryCopy/utils";
-=======
-import { Fragment, useEffect, useState, useRef } from "react";
-import {
-  Card,
-  CardHeader,
-  GridItem,
-  Split,
-  SplitItem,
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownList,
-  MenuToggle,
-  MenuToggleElement,
-} from "@patternfly/react-core";
-import {
-  FileIcon,
-  FolderIcon,
-  EllipsisVIcon,
-  ExternalLinkSquareAltIcon,
-} from "../Icons";
-import { elipses } from "../LibraryCopy/utils";
-import { useNavigate } from "react-router";
->>>>>>> 8412135d (feat: A mvp for the library page)
 
 type Pagination = {
   totalCount: number;
@@ -68,18 +43,13 @@ export const FolderCard = ({
   computedPath,
   pagination,
 }: {
-<<<<<<< HEAD
   folders: FileBrowserFolder[];
-=======
-  folders: any;
->>>>>>> 8412135d (feat: A mvp for the library page)
   handleFolderClick: (path: string) => void;
   computedPath: string;
   pagination?: Pagination;
 }) => {
   return (
     <Fragment>
-<<<<<<< HEAD
       {folders.map((folder) => {
         return (
           <SubFolderCard
@@ -89,43 +59,17 @@ export const FolderCard = ({
             handleFolderClick={handleFolderClick}
           />
         );
-=======
-      {Array.from(folders.entries()).map(([key, value, index]) => {
-        if (value.length > 0) {
-          return (
-            <Fragment key={`folder_${index}`}>
-              {value.map((val: any, innerIndex) => (
-                <SubFolderCard
-                  key={`sub_folder_${innerIndex}`}
-                  val={val}
-                  computedPath={computedPath}
-                  handleFolderClick={handleFolderClick}
-                />
-              ))}
-            </Fragment>
-          );
-        }
-        return null;
->>>>>>> 8412135d (feat: A mvp for the library page)
       })}
     </Fragment>
   );
 };
 
-<<<<<<< HEAD
 export const SubFolderCard = ({
-=======
-const SubFolderCard = ({
->>>>>>> 8412135d (feat: A mvp for the library page)
   val,
   computedPath,
   handleFolderClick,
 }: {
-<<<<<<< HEAD
   val: FileBrowserFolder;
-=======
-  val: any;
->>>>>>> 8412135d (feat: A mvp for the library page)
   computedPath: string;
   handleFolderClick: (path: string) => void;
 }) => {
@@ -159,21 +103,13 @@ const SubFolderCard = ({
     >
       <DropdownList>
         <DropdownItem
-<<<<<<< HEAD
           onClick={async (e) => {
             e.stopPropagation();
-=======
-          onClick={() => {
->>>>>>> 8412135d (feat: A mvp for the library page)
             setPreview(!isPreview);
           }}
           key="action"
         >
-<<<<<<< HEAD
           Download
-=======
-          File Preview
->>>>>>> 8412135d (feat: A mvp for the library page)
         </DropdownItem>
       </DropdownList>
     </Dropdown>
@@ -185,11 +121,7 @@ const SubFolderCard = ({
   const creation_date = val.data.creation_date;
 
   return (
-<<<<<<< HEAD
     <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={val.data.id}>
-=======
-    <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={val.id}>
->>>>>>> 8412135d (feat: A mvp for the library page)
       <Card
         onClick={() => {
           handleFolderClick(folderName);
@@ -218,17 +150,12 @@ export const LinkCard = ({
   linkFiles,
   pagination,
 }: {
-<<<<<<< HEAD
   linkFiles: FileBrowserFolderLinkFile[];
-=======
-  linkFiles: any;
->>>>>>> 8412135d (feat: A mvp for the library page)
   pagination?: Pagination;
 }) => {
   const navigate = useNavigate();
   return (
     <Fragment>
-<<<<<<< HEAD
       {linkFiles.map((val) => {
         const pathList = val.data.path.split("/");
         const linkName = pathList[pathList.length - 1];
@@ -257,52 +184,6 @@ export const LinkCard = ({
             </Card>
           </GridItem>
         );
-=======
-      {Array.from(linkFiles.entries()).map(([key, value, index]) => {
-        if (value.length > 0) {
-          return (
-            <Fragment key={index}>
-              {value.map((val: any) => {
-                const pathList = val.data.path.split("/");
-                const linkName = pathList[pathList.length - 1];
-                const creation_date = val.data.creation_date;
-                return (
-                  <GridItem
-                    sm={1}
-                    lg={4}
-                    md={4}
-                    xl={4}
-                    xl2={4}
-                    key={val.data.fname}
-                  >
-                    <Card
-                      onClick={() => {
-                        navigate(val.data.path);
-                      }}
-                      isRounded
-                    >
-                      <CardHeader>
-                        <Split>
-                          <SplitItem style={{ marginRight: "1em" }}>
-                            <ExternalLinkSquareAltIcon />
-                          </SplitItem>
-                          <SplitItem>
-                            <Button variant="link" style={{ padding: 0 }}>
-                              {elipses(linkName, 40)}
-                            </Button>
-                            <div>{new Date(creation_date).toDateString()}</div>
-                          </SplitItem>
-                        </Split>
-                      </CardHeader>
-                    </Card>
-                  </GridItem>
-                );
-              })}
-            </Fragment>
-          );
-        }
-        return null;
->>>>>>> 8412135d (feat: A mvp for the library page)
       })}
     </Fragment>
   );
@@ -312,66 +193,32 @@ export const FilesCard = ({
   files,
   pagination,
 }: {
-<<<<<<< HEAD
   files: FileBrowserFolderFile[];
-=======
-  files: any;
->>>>>>> 8412135d (feat: A mvp for the library page)
   pagination?: Pagination;
 }) => {
   return (
     <Fragment>
-<<<<<<< HEAD
       {files.map((file) => {
         return (
           <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={file.data.fname}>
             <SubFileCard file={file} />
           </GridItem>
         );
-=======
-      {Array.from(files.entries()).map(([key, value, index]) => {
-        if (value.length > 0) {
-          return (
-            <Fragment key={`file_${index}`}>
-              {value.map((val: any) => {
-                return (
-                  <GridItem
-                    sm={1}
-                    lg={4}
-                    md={4}
-                    xl={4}
-                    xl2={4}
-                    key={val.data.fname}
-                  >
-                    <SubFileCard file={val} />
-                  </GridItem>
-                );
-              })}
-            </Fragment>
-          );
-        }
-        return null;
->>>>>>> 8412135d (feat: A mvp for the library page)
       })}
     </Fragment>
   );
 };
 
-<<<<<<< HEAD
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const handleDownloadMutation = useDownload();
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
-=======
-export const SubFileCard = ({ file }: { file: any }) => {
->>>>>>> 8412135d (feat: A mvp for the library page)
   const [isOpen, setIsOpen] = useState(false);
   const listOfPaths = file.data.fname.split("/");
   const fileName = listOfPaths[listOfPaths.length - 1];
   const creation_date = file.data.creation_date;
-<<<<<<< HEAD
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
 
   useEffect(() => {
@@ -394,8 +241,6 @@ export const SubFileCard = ({ file }: { file: any }) => {
       });
     }
   }, [isSuccess, isError, downloadError]);
-=======
->>>>>>> 8412135d (feat: A mvp for the library page)
 
   const onSelect = () => {
     setIsOpen(!isOpen);
@@ -403,7 +248,6 @@ export const SubFileCard = ({ file }: { file: any }) => {
 
   const dropdownItems = (
     <>
-<<<<<<< HEAD
       <DropdownItem
         onClick={async (e) => {
           e.stopPropagation();
@@ -412,10 +256,6 @@ export const SubFileCard = ({ file }: { file: any }) => {
         key="action"
       >
         Download
-=======
-      <DropdownItem onClick={async () => {}} key="action">
-        File Preview
->>>>>>> 8412135d (feat: A mvp for the library page)
       </DropdownItem>
     </>
   );
@@ -428,14 +268,10 @@ export const SubFileCard = ({ file }: { file: any }) => {
           <MenuToggle
             ref={toggleRef}
             isExpanded={isOpen}
-<<<<<<< HEAD
             onClick={(e) => {
               e?.stopPropagation();
               setIsOpen(!isOpen);
             }}
-=======
-            onClick={() => setIsOpen(!isOpen)}
->>>>>>> 8412135d (feat: A mvp for the library page)
             variant="plain"
             aria-label="Card header images and actions example kebab toggle"
           >
@@ -451,7 +287,6 @@ export const SubFileCard = ({ file }: { file: any }) => {
   );
 
   return (
-<<<<<<< HEAD
     <>
       <Card
         onClick={() => {
@@ -493,28 +328,5 @@ export const SubFileCard = ({ file }: { file: any }) => {
         </Modal>
       }
     </>
-=======
-    <Card isRounded>
-      <CardHeader actions={{ actions: headerActions }}>
-        <Split>
-          <SplitItem style={{ marginRight: "1em" }}>
-            <FileIcon />
-          </SplitItem>
-
-          <SplitItem>
-            <Button
-              variant="link"
-              style={{
-                padding: 0,
-              }}
-            >
-              {elipses(fileName, 40)}
-            </Button>
-            <div>{new Date(creation_date).toDateString()}</div>
-          </SplitItem>
-        </Split>
-      </CardHeader>
-    </Card>
->>>>>>> 8412135d (feat: A mvp for the library page)
   );
 };
