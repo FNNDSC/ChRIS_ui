@@ -32,6 +32,10 @@ import {
 import useDownload from "../NewLibrary/useDownloadHook";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3c50fa9a (refactor: fix merge conflicts)
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
 

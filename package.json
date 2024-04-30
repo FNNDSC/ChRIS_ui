@@ -36,11 +36,15 @@
     "@cornerstonejs/streaming-image-volume-loader": "^1.61.1",
     "@cornerstonejs/tools": "^1.61.1",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@fnndsc/chrisapi": "^1.20.0",
 >>>>>>> be766664 (refactor: Apply rebase changes)
     "@niivue/niivue": "^0.41.1",
 =======
     "@fnndsc/chrisapi": "^1.19.0",
+=======
+    "@fnndsc/chrisapi": "^1.20.0",
+>>>>>>> 3c50fa9a (refactor: fix merge conflicts)
     "@niivue/niivue": "^0.39.0",
 >>>>>>> 97332429 (refactor: Fix merge conflicts)
     "@patternfly/react-catalog-view-extension": "^5.0.0",
@@ -69,7 +73,11 @@
     "micromark": "^4.0.0",
     "micromark-extension-gfm": "^3.0.0",
     "niivue-react": "github:niivue/niivue-react",
+<<<<<<< HEAD
     "npm": "^10.6.0",
+=======
+    "npm": "^10.5.2",
+>>>>>>> 3c50fa9a (refactor: fix merge conflicts)
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
     "query-string": "^9.0.0",

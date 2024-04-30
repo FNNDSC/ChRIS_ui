@@ -1,8 +1,11 @@
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 import { HomeIcon } from "../Icons";
 >>>>>>> 8412135d (feat: A mvp for the library page)
+=======
+>>>>>>> 3c50fa9a (refactor: fix merge conflicts)
 
 const BreadcrumbContainer = ({
   path,
