@@ -33,11 +33,7 @@ export const createFeed = async (
 
   if (selectedConfig.includes("local_select")) {
     const generateUnique = generatePathForLocalFile(data);
-<<<<<<< HEAD
     const path = `home/${username}/uploads/${generateUnique}`;
-=======
-    const path = `home/${username}/${generateUnique}`;
->>>>>>> 97332429 (refactor: Fix merge conflicts)
     dirpath.push(path);
 
     try {
