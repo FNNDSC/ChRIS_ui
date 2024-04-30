@@ -64,10 +64,16 @@ const TreeBrowser = () => {
       }}
     >
       <DirectoryTree
+<<<<<<< HEAD
         className={styles.antTree}
         onCheck={onCheck}
         loadData={onLoad}
         checkedKeys={checkedKeys}
+=======
+        onCheck={onCheck}
+        loadData={onLoad}
+        checkedKeys={fetchKeysFromDict}
+>>>>>>> 3c50fa9a (refactor: fix merge conflicts)
         checkable
         treeData={tree}
       />
