@@ -32,13 +32,6 @@ import {
 import useDownload from "../NewLibrary/useDownloadHook";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
->>>>>>> 3c50fa9a (refactor: fix merge conflicts)
-=======
->>>>>>> 18858139 (feat: Create a utility hook for file downloads that can be used in any component)
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
 
@@ -61,16 +54,8 @@ const FileBrowser = (props: FileBrowserProps) => {
   };
   const breadcrumb = path.split("/");
   const handleDownloadMutation = useDownload();
-<<<<<<< HEAD
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
-=======
-  const {
-    isSuccess,
 
-    isError,
-    error: downloadError,
-  } = handleDownloadMutation;
->>>>>>> 18858139 (feat: Create a utility hook for file downloads that can be used in any component)
   useEffect(() => {
     if (isSuccess) {
       api.success({
