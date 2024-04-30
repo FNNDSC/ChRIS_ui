@@ -33,7 +33,7 @@ export const createFeed = async (
 
   if (selectedConfig.includes("local_select")) {
     const generateUnique = generatePathForLocalFile(data);
-    const path = `${username}/uploads/${generateUnique}`;
+    const path = `home/${username}/${generateUnique}`;
     dirpath.push(path);
 
     try {
