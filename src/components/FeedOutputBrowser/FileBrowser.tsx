@@ -243,11 +243,15 @@ const FileBrowser = (props: FileBrowserProps) => {
                 </div>
               </div>
               <Table aria-label="file-browser-table" variant="compact">
-                <Thead className="file-browser-table--head">
+                <Thead
+                  className="file-browser-table--head"
+                  name="Files Table"
+                  aria-label="Files Table"
+                >
                   <Tr>
-                    <Th>{columnNames.name}</Th>
-                    <Th>{columnNames.size}</Th>
-                    <Th>{columnNames.download}</Th>
+                    <Th name="file name">{columnNames.name}</Th>
+                    <Th name="file size">{columnNames.size}</Th>
+                    <Th name="download file">{columnNames.download}</Th>
                   </Tr>
                 </Thead>
                 {filesLoading ? (
