@@ -30,6 +30,7 @@ import {
   EditIcon,
   FileArchiveIcon as PatternflyArchiveIcon,
 } from "@patternfly/react-icons";
+import React from "react";
 
 const MergeIcon = () => {
   return (
@@ -55,6 +56,25 @@ const ArchiveIcon = () => {
     >
       <title>Archive</title>
       <path d="M377 105L279.1 7c-4.5-4.5-10.6-7-17-7H256v128h128v-6.1c0-6.3-2.5-12.4-7-16.9zM128.4 336c-17.9 0-32.4 12.1-32.4 27 0 15 14.6 27 32.5 27s32.4-12.1 32.4-27-14.6-27-32.5-27zM224 136V0h-63.6v32h-32V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zM95.9 32h32v32h-32zm32.3 384c-33.2 0-58-30.4-51.4-62.9L96.4 256v-32h32v-32h-32v-32h32v-32h-32V96h32V64h32v32h-32v32h32v32h-32v32h32v32h-32v32h22.1c5.7 0 10.7 4.1 11.8 9.7l17.3 87.7c6.4 32.4-18.4 62.6-51.4 62.6z" />
+    </svg>
+  );
+};
+
+const CartIcon = ({
+  style,
+}: {
+  [key: string]: React.CSSProperties;
+}) => {
+  return (
+    <svg
+      fill="currentColor"
+      className="pf-v5-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 576 512"
+      style={style}
+    >
+      <title>Cart</title>
+      <path d="M0 24C0 10.7 10.7 0 24 0H69.5c22 0 41.5 12.8 50.6 32h411c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3H170.7l5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5H488c13.3 0 24 10.7 24 24s-10.7 24-24 24H199.7c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5H24C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
     </svg>
   );
 };
@@ -262,6 +282,7 @@ export {
   ExpandArrowsAltIcon,
   CloseIcon,
   CubesIcon,
+  CartIcon,
   UploadIcon,
   CogsIcon as SettingsIcon,
   AngleDoubleLeftIcon as RotateLeft,

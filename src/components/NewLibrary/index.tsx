@@ -8,19 +8,20 @@ import { Button, Grid } from "@patternfly/react-core";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { debounce } from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { setSidebarActive } from "../../store/ui/actions";
 import { EmptyStateComponent, SpinContainer } from "../Common";
-import { LibraryProvider } from "../LibraryCopy/context";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./Breadcrumb";
 import { FilesCard, FolderCard, LinkCard } from "./Browser";
 import Search from "./Search";
 import TreeBrowser from "./TreeBrowser";
 import UploadContainer from "./UploadComponent";
+import { LibraryContext, LibraryProvider } from "./context";
+import Cart from "./Cart";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -90,11 +91,14 @@ const NewLibrary = () => {
     }
   }
 
+  const { state } = useContext(LibraryContext);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [pageNumber, setPageNumber] = useState(1);
   const [cardLayout, setCardLayout] = useState(true);
+  const [open, setOpen] = useState(false);
+
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
@@ -125,6 +129,14 @@ const NewLibrary = () => {
 
   const handlePagination = () => {
     setPageNumber((prevState) => prevState + 1);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const showOpen = () => {
+    setOpen(true);
   };
 
   const observerTarget = useRef(null);
@@ -158,6 +170,8 @@ const NewLibrary = () => {
   return (
     <WrapperConnect>
       <LibraryProvider>
+        {open && <Cart open={open} onClose={onClose} />}
+
         <Search
           handleChange={() => {
             setCardLayout(!cardLayout);
@@ -166,6 +180,7 @@ const NewLibrary = () => {
             setUploadFileModal(!uploadFileModal);
           }}
           checked={cardLayout}
+          showOpen={showOpen}
         />
         <div style={{ margin: "1rem" }}>
           <div

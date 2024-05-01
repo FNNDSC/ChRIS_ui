@@ -31,8 +31,7 @@ import {
 import { elipses } from "../LibraryCopy/utils";
 import FileDetailView from "../Preview/FileDetailView";
 import useDownload from "./useDownloadHook";
-import useLongPress from "../LibraryCopy/utils";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import useLongPress from "./utils";
 
 type Pagination = {
   totalCount: number;
@@ -43,7 +42,6 @@ export const FolderCard = ({
   folders,
   handleFolderClick,
   computedPath,
-  pagination,
 }: {
   folders: FileBrowserFolder[];
   handleFolderClick: (path: string) => void;
@@ -75,6 +73,8 @@ export const SubFolderCard = ({
   computedPath: string;
   handleFolderClick: (path: string) => void;
 }) => {
+  const { handlers } = useLongPress();
+  const { handleOnClick, handleOnMouseDown } = handlers;
   const [isOpen, setIsOpen] = useState(false);
   const [isPreview, setPreview] = useState(true);
 
@@ -125,8 +125,11 @@ export const SubFolderCard = ({
   return (
     <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={val.data.id}>
       <Card
-        onClick={() => {
-          handleFolderClick(folderName);
+        onClick={(e) => {
+          handleOnClick(e, folderName, val.data.path, handleFolderClick);
+        }}
+        onMouseDown={() => {
+          handleOnMouseDown();
         }}
         isRounded
       >
@@ -150,7 +153,6 @@ export const SubFolderCard = ({
 
 export const LinkCard = ({
   linkFiles,
-  pagination,
 }: {
   linkFiles: FileBrowserFolderLinkFile[];
   pagination?: Pagination;
@@ -193,7 +195,6 @@ export const LinkCard = ({
 
 export const FilesCard = ({
   files,
-  pagination,
 }: {
   files: FileBrowserFolderFile[];
   pagination?: Pagination;
@@ -213,6 +214,8 @@ export const FilesCard = ({
 
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const handleDownloadMutation = useDownload();
+  const { handlers } = useLongPress();
+  const { handleOnClick, handleOnMouseDown } = handlers;
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -291,6 +294,14 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
       <Card
         onClick={() => {
           setIsPreview(!preview);
+          if (!preview) {
+            handleOnClick(e, file.data.fname, file.data.fname);
+          }
+        }}
+        onMouseDown={() => {
+          if (!preview) {
+            handleOnMouseDown();
+          }
         }}
         isRounded
       >

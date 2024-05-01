@@ -49,9 +49,7 @@ const TreeBrowser = () => {
           setTree(treeData);
           resolve();
         })
-        .catch((err) => {
-          console.log("Error", err);
-          //setLoadingError(err);
+        .catch(() => {
           resolve();
         });
     });
