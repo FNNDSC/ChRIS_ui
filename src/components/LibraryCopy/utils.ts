@@ -4,7 +4,7 @@ import { setSelectFolder, clearSelectFolder } from "./context/actions";
 
 export function elipses(str: string, len: number) {
   if (str.length <= len) return str;
-  return str.slice(0, len - 3) + "...";
+  return `${str.slice(0, len - 3)}...`;
 }
 
 export default function useLongPress() {

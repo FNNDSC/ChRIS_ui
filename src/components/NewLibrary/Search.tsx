@@ -13,19 +13,27 @@ import {
   ToolbarItem,
   ToolbarToggleGroup,
 } from "@patternfly/react-core";
-import { Alert } from "antd";
-import React, { useState } from "react";
+import { Alert, Badge } from "antd";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
-import { SearchIcon } from "../Icons";
+import { CartIcon, SearchIcon } from "../Icons";
+import { LibraryContext } from "./context";
 
 interface SearchProps {
   checked: boolean;
   handleChange: () => void;
   handleUploadModal: () => void;
+  showOpen: () => void;
 }
 
-const Search = ({ checked, handleChange, handleUploadModal }: SearchProps) => {
+const Search = ({
+  checked,
+  handleChange,
+  handleUploadModal,
+  showOpen,
+}: SearchProps) => {
   const navigate = useNavigate();
+  const { state } = useContext(LibraryContext);
   const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState("");
   const [statusIsExpanded, setStatusIsExpanded] = useState(false);
@@ -75,6 +83,36 @@ const Search = ({ checked, handleChange, handleUploadModal }: SearchProps) => {
 
   const toggleGroupItems = (
     <React.Fragment>
+      <ToolbarItem spacer={spacer}>
+        <Select
+          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+            <MenuToggle
+              ref={toggleRef}
+              onClick={() => onStatusToggle()}
+              isExpanded={statusIsExpanded}
+              style={
+                {
+                  width: "300px",
+                } as React.CSSProperties
+              }
+            >
+              {statusSelected || "Select a files space to search in"}
+            </MenuToggle>
+          )}
+          onSelect={onStatusSelect}
+          onOpenChange={(isOpen) => setStatusIsExpanded(isOpen)}
+          selected={statusSelected}
+          isOpen={statusIsExpanded}
+        >
+          <SelectList>
+            {statusOptions.map((option, index) => (
+              <SelectOption key={index} value={option}>
+                {option}
+              </SelectOption>
+            ))}
+          </SelectList>
+        </Select>
+      </ToolbarItem>
       <ToolbarItem variant="search-filter">
         <SearchInput
           aria-label="Component toggle groups example search input"
@@ -90,38 +128,24 @@ const Search = ({ checked, handleChange, handleUploadModal }: SearchProps) => {
           }}
         />
       </ToolbarItem>
-      <ToolbarGroup variant="filter-group">
-        <ToolbarItem spacer={spacer}>
-          <Select
-            toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-              <MenuToggle
-                ref={toggleRef}
-                onClick={() => onStatusToggle()}
-                isExpanded={statusIsExpanded}
-                style={
-                  {
-                    width: "300px",
-                  } as React.CSSProperties
-                }
-              >
-                {statusSelected || "Select a files space to search in"}
-              </MenuToggle>
-            )}
-            onSelect={onStatusSelect}
-            onOpenChange={(isOpen) => setStatusIsExpanded(isOpen)}
-            selected={statusSelected}
-            isOpen={statusIsExpanded}
-          >
-            <SelectList>
-              {statusOptions.map((option, index) => (
-                <SelectOption key={index} value={option}>
-                  {option}
-                </SelectOption>
-              ))}
-            </SelectList>
-          </Select>
-        </ToolbarItem>
+    </React.Fragment>
+  );
 
+  const items = (
+    <>
+      <ToolbarToggleGroup
+        toggleIcon={
+          <SearchIcon
+            style={{
+              marginLeft: "1rem",
+            }}
+          />
+        }
+        breakpoint="xl"
+      >
+        {toggleGroupItems}
+      </ToolbarToggleGroup>
+      <ToolbarGroup variant="filter-group">
         <ToolbarItem spacer={spacer}>
           <Button onClick={handleUploadModal} variant="primary" size="sm">
             Upload Data
@@ -138,22 +162,7 @@ const Search = ({ checked, handleChange, handleUploadModal }: SearchProps) => {
           />
         </ToolbarItem>
       </ToolbarGroup>
-    </React.Fragment>
-  );
-
-  const items = (
-    <ToolbarToggleGroup
-      toggleIcon={
-        <SearchIcon
-          style={{
-            marginLeft: "1rem",
-          }}
-        />
-      }
-      breakpoint="xl"
-    >
-      {toggleGroupItems}
-    </ToolbarToggleGroup>
+    </>
   );
 
   return (
@@ -161,6 +170,31 @@ const Search = ({ checked, handleChange, handleUploadModal }: SearchProps) => {
       <Toolbar id="search" className="pf-m-toggle-group-container">
         <ToolbarContent>{items}</ToolbarContent>
       </Toolbar>
+      <div
+        style={{
+          position: "absolute",
+          right: "3rem",
+          marginTop: "1rem",
+        }}
+      >
+        <Badge
+          style={{
+            color: "white",
+          }}
+          color="blue"
+          count={state.selectedPaths.length}
+          offset={[10, 1]}
+        >
+          <Button onClick={showOpen} variant="tertiary">
+            <CartIcon
+              style={{
+                height: "1.35em",
+                width: "1.35em",
+              }}
+            />
+          </Button>
+        </Badge>
+      </div>
       {error && <Alert type="error" message={error} closable />}
     </>
   );
