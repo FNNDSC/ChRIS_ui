@@ -9,7 +9,7 @@ const useDownload = () => {
     try {
       const client = ChrisAPIClient.getClient();
       const response = await client.createDownloadToken();
-      console.log("Response", response);
+
       const url = file.collection.items[0].links[0].href;
       if (!url) {
         throw new Error("Failed to construct the URL");
@@ -18,11 +18,13 @@ const useDownload = () => {
         throw new Error("Failed to fetch the token...");
       }
       const token = response.data.token;
-      const authorizedUrl = `${url}?token=${token}`; // Adjust token assignment
+
+      const authorizedUrl = `${url}?download_token=${token}`; // Adjust token assignment
       const link = document.createElement("a");
       link.href = authorizedUrl;
       link.download = fileName;
       document.body.appendChild(link);
+      link.target = "blank";
       link.click();
       document.body.removeChild(link);
       return file;
