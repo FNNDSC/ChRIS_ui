@@ -76,7 +76,6 @@ export const SubFolderCard = ({
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
   const [isOpen, setIsOpen] = useState(false);
-  const [isPreview, setPreview] = useState(true);
 
   const onSelect = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -107,11 +106,10 @@ export const SubFolderCard = ({
         <DropdownItem
           onClick={async (e) => {
             e.stopPropagation();
-            setPreview(!isPreview);
           }}
           key="action"
         >
-          Download
+          Zip and Download
         </DropdownItem>
       </DropdownList>
     </Dropdown>
@@ -126,7 +124,14 @@ export const SubFolderCard = ({
     <GridItem sm={1} lg={4} md={4} xl={4} xl2={4} key={val.data.id}>
       <Card
         onClick={(e) => {
-          handleOnClick(e, folderName, val.data.path, handleFolderClick);
+          handleOnClick(
+            e,
+            val,
+            folderName,
+            val.data.path,
+            "folder",
+            handleFolderClick,
+          );
         }}
         onMouseDown={() => {
           handleOnMouseDown();
@@ -292,10 +297,18 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   return (
     <>
       <Card
-        onClick={() => {
-          setIsPreview(!preview);
+        onClick={(e) => {
           if (!preview) {
-            handleOnClick(e, file.data.fname, file.data.fname);
+            handleOnClick(
+              e,
+              file,
+              file.data.fname,
+              file.data.fname,
+              "file",
+              () => {
+                setIsPreview(!preview);
+              },
+            );
           }
         }}
         onMouseDown={() => {

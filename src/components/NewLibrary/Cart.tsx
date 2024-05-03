@@ -1,9 +1,39 @@
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
+import { Button, Grid, GridItem, Tooltip } from "@patternfly/react-core";
 import { Drawer, List } from "antd";
 import { useContext } from "react";
-import { LibraryContext } from "./context";
-import { Button, Grid, GridItem } from "@patternfly/react-core";
-import { FolderIcon } from "../Icons";
-import { clearSelectFolder } from "./context/actions";
+import { DotsIndicator } from "../Common";
+import { CheckCircleIcon, FileIcon, FolderIcon } from "../Icons";
+import { DownloadTypes, LibraryContext, SelectionPayload } from "./context";
+import {
+  clearCart,
+  clearSelectFolder,
+  downloadFileStatus,
+} from "./context/actions";
+import { downloadFile } from "./useDownloadHook";
+import { elipses } from "./utils";
+
+export const Status = ({ item }: { item: SelectionPayload }) => {
+  const { state } = useContext(LibraryContext);
+  const { fileDownloadStatus } = state;
+  const { type, payload } = item;
+
+  if (type === "file") {
+    const currentStatus = fileDownloadStatus[payload.data.id];
+    return (
+      <>
+        {currentStatus === DownloadTypes.progress ? (
+          <DotsIndicator title="" />
+        ) : currentStatus === DownloadTypes.finished ? (
+          <Button
+            variant="plain"
+            icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
+          />
+        ) : null}
+      </>
+    );
+  }
+};
 
 const Cart = ({
   open,
@@ -14,8 +44,40 @@ const Cart = ({
 }) => {
   const { state, dispatch } = useContext(LibraryContext);
 
+  const handleDownload = async () => {
+    const { selectedPaths } = state;
+
+    for (const userSelection of selectedPaths) {
+      const { type, payload } = userSelection;
+
+      if (type === "file") {
+        dispatch(
+          downloadFileStatus(
+            payload as FileBrowserFolderFile,
+            DownloadTypes.progress,
+          ),
+        );
+        const file = await downloadFile(payload as FileBrowserFolderFile);
+
+        if (file) {
+          dispatch(
+            downloadFileStatus(
+              payload as FileBrowserFolderFile,
+              DownloadTypes.finished,
+            ),
+          );
+        }
+      }
+
+      if (type === "folder") {
+        console.log("We got to do the zip operation here");
+      }
+    }
+  };
+
   return (
     <Drawer
+      width={500}
       title="Cart"
       placement="right"
       closable={true}
@@ -23,24 +85,33 @@ const Cart = ({
       open={open}
     >
       <Grid hasGutter={true}>
-        <GridItem span={4}>
-          <Button size="sm" variant="primary">
+        <GridItem span={6}>
+          <Button style={{ marginRight: "0.5em" }} size="sm" variant="primary">
             Create Feed
           </Button>
-        </GridItem>
-
-        <GridItem span={4}>
-          <Button size="sm" variant="primary">
+          <Button onClick={handleDownload} size="sm" variant="primary">
             Download
           </Button>
         </GridItem>
 
-        <GridItem span={4}>
+        <GridItem span={6}>
+          <Button
+            size="sm"
+            onClick={() => {
+              dispatch(clearCart());
+            }}
+            style={{
+              marginRight: "0.5em",
+            }}
+          >
+            Clear All
+          </Button>
           <Button size="sm" variant="danger">
             Delete
           </Button>
         </GridItem>
       </Grid>
+
       <List
         style={{ marginTop: "2rem" }}
         dataSource={state.selectedPaths}
@@ -48,22 +119,35 @@ const Cart = ({
         renderItem={(item) => {
           return (
             <List.Item
-              key={item}
+              key={item.path}
               actions={[
-                <a
-                  // biome-ignore lint/a11y/useValidAnchor: <explanation>
+                <Status item={item} />,
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => {
-                    dispatch(clearSelectFolder(item));
+                    dispatch(clearSelectFolder(item.path));
                   }}
                   key={`a-${item}`}
                 >
                   Clear
-                </a>,
+                </Button>,
               ]}
             >
               <List.Item.Meta
-                avatar={<FolderIcon />}
-                title={<a href="https://ant.design/index-cn">{item}</a>}
+                avatar={item.type === "folder" ? <FolderIcon /> : <FileIcon />}
+                title={
+                  <Tooltip content={item.path}>
+                    <a
+                      style={{
+                        color: "white",
+                      }}
+                      href="https://ant.design/index-cn"
+                    >
+                      {elipses(item.path, 40)}
+                    </a>
+                  </Tooltip>
+                }
               />
             </List.Item>
           );

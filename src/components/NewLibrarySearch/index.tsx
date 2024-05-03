@@ -6,6 +6,8 @@ import type {
   UserFileList,
 } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
+import { Grid, GridItem } from "@patternfly/react-core";
+import { Alert } from "antd";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { EmptyStateComponent, SpinContainer } from "../Common";
@@ -13,7 +15,6 @@ import { useSearchQueryParams } from "../Feeds/usePaginate";
 import BreadcrumbContainer from "../NewLibrary/Breadcrumb";
 import { SubFolderCard } from "../NewLibrary/Browser";
 import WrapperConnect from "../Wrapper";
-import { Alert } from "antd";
 
 const LibrarySearch = () => {
   const navigate = useNavigate();
@@ -91,20 +92,26 @@ const LibrarySearch = () => {
       ) : data && data.length > 0 ? (
         data.map((folder) => {
           return (
-            <>
+            <Grid
+              style={{
+                marginTop: "1rem",
+              }}
+              key={folder.data.id}
+            >
               <BreadcrumbContainer
                 path={folder.data.path}
                 handleFolderClick={handleFolderClick}
               />
-              <SubFolderCard
-                key={folder.data.id}
-                val={folder}
-                computedPath={folder.data.path}
-                handleFolderClick={() => {
-                  handleFolderClick(`${folder.data.path}`);
-                }}
-              />
-            </>
+              <GridItem sm={1} lg={4} md={4} xl={4} xl2={4}>
+                <SubFolderCard
+                  val={folder}
+                  computedPath={folder.data.path}
+                  handleFolderClick={() => {
+                    handleFolderClick(`${folder.data.path}`);
+                  }}
+                />
+              </GridItem>
+            </Grid>
           );
         })
       ) : (

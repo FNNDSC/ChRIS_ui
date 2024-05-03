@@ -28,6 +28,7 @@ import {
   ExclamationCircleIcon,
   EllipsisVIcon,
   EditIcon,
+  CheckCircleIcon,
   FileArchiveIcon as PatternflyArchiveIcon,
 } from "@patternfly/react-icons";
 import React from "react";
@@ -283,6 +284,7 @@ export {
   CloseIcon,
   CubesIcon,
   CartIcon,
+  CheckCircleIcon,
   UploadIcon,
   CogsIcon as SettingsIcon,
   AngleDoubleLeftIcon as RotateLeft,

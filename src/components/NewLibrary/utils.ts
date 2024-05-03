@@ -1,6 +1,7 @@
 import { useState, useRef, useContext } from "react";
 import { LibraryContext } from "./context";
 import { setSelectFolder, clearSelectFolder } from "./context/actions";
+import { FileBrowserFolder, FileBrowserFolderFile } from "@fnndsc/chrisapi";
 
 export function elipses(str: string, len: number) {
   if (str.length <= len) return str;
@@ -26,15 +27,19 @@ export default function useLongPress() {
 
   function handleOnClick(
     e: any,
+    payload: FileBrowserFolder | FileBrowserFolderFile,
     path: string,
     pathForCart: string,
+    type: string,
     cbFolder?: (path: string) => void,
   ) {
-    const isExist = selectedPaths.findIndex((item) => item === path);
+    const isExist = selectedPaths.findIndex(
+      (item) => item.path === pathForCart,
+    );
 
     if (isLongPress.current) {
       if (isExist === -1) {
-        dispatch(setSelectFolder(pathForCart));
+        dispatch(setSelectFolder(pathForCart, type, payload));
       } else {
         dispatch(clearSelectFolder(pathForCart));
       }
@@ -43,7 +48,7 @@ export default function useLongPress() {
 
     if (e.ctrlKey || e.shiftKey || e.metaKey) {
       if (isExist === -1) {
-        dispatch(setSelectFolder(pathForCart));
+        dispatch(setSelectFolder(pathForCart, type, payload));
       } else {
         dispatch(clearSelectFolder(pathForCart));
       }
