@@ -52,14 +52,15 @@ const PluginCatalog = () => {
     const pluginList = await client.getPluginMetas(params);
     const plugins: PluginMeta[] = pluginList.getItems() as PluginMeta[];
     if (plugins) {
+      // Fetch all the versions of the plugins to display
       const newPluginPayload = Promise.all(
         plugins.map(async (plugin) => {
           const plugins = await plugin.getPlugins({ limit: 1000 });
           const pluginItems = plugins.getItems();
           let version = "";
 
-          if (pluginItems) {
-            version = pluginItems[pluginItems.length - 1].data.version;
+          if (pluginItems && pluginItems.length > 0) {
+            version = pluginItems[0].data.version;
           }
           return {
             data: {
