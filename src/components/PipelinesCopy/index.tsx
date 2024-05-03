@@ -1,5 +1,4 @@
 import {
-  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -17,7 +16,6 @@ import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import "./Pipelines.css";
 import PipelinesComponent from "./PipelinesComponent";
-import SelectAllCompute from "./SelectAllCompute";
 import {
   PIPELINEQueryTypes,
   PerPipelinePayload,
@@ -39,8 +37,6 @@ const PipelinesCopy = () => {
   const { isDarkTheme } = useContext(ThemeContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
   const [resourceError, setResourceError] = useState<LoadingResourceError>();
-
-  const browseOnly = location.pathname === "/pipelines";
 
   const {
     filterState: pageState,
@@ -79,8 +75,6 @@ const PipelinesCopy = () => {
     const filteredPipelines = data?.registeredPipelines.filter((pipeline) =>
       (key as string[]).includes(`${pipeline.data.id}`),
     );
-
-    console.log("filteredPipelines", filteredPipelines);
 
     if (filteredPipelines) {
       // a pipeline has already been selected;

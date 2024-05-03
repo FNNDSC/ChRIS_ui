@@ -26,6 +26,7 @@ export const useFeedBrowser = () => {
   const { pluginFiles, loading: filesLoading } = useTypedSelector(
     (state) => state.resource,
   );
+
   const selected = useTypedSelector((state) => state.instance.selectedPlugin);
   const { data: plugins } = pluginInstances;
 
