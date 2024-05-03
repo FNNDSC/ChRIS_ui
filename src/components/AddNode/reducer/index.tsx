@@ -14,12 +14,11 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
           stepIdReached: id,
           showPreviousRun: false,
         };
-      } else {
-        return {
-          ...state,
-          stepIdReached: id,
-        };
       }
+      return {
+        ...state,
+        stepIdReached: id,
+      };
     }
 
     case Types.SetPluginMeta: {
@@ -64,13 +63,6 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
       };
     }
 
-    case Types.SetPluginMetaList: {
-      return {
-        ...state,
-        pluginMetas: action.payload.pluginMetas,
-      };
-    }
-
     case Types.SetToggleWizard: {
       return {
         ...state,
@@ -86,15 +78,14 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
           ...state,
           dropdownInput: input,
         };
-      } else {
-        return {
-          ...state,
-          dropdownInput: {
-            ...state.dropdownInput,
-            ...input,
-          },
-        };
       }
+      return {
+        ...state,
+        dropdownInput: {
+          ...state.dropdownInput,
+          ...input,
+        },
+      };
     }
 
     case Types.RequiredInput: {
@@ -105,15 +96,14 @@ export const addNodeReducer = (state: AddNodeState, action: any) => {
           ...state,
           requiredInput: input,
         };
-      } else {
-        return {
-          ...state,
-          requiredInput: {
-            ...state.requiredInput,
-            ...input,
-          },
-        };
       }
+      return {
+        ...state,
+        requiredInput: {
+          ...state.requiredInput,
+          ...input,
+        },
+      };
     }
 
     case Types.SetEditorValue: {

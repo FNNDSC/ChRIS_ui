@@ -136,7 +136,6 @@ export interface AddNodeState extends InputState {
   editorValue: string;
   loading: boolean;
   isOpen: boolean;
-  pluginMetas: PluginMeta[];
   componentList: string[];
   showPreviousRun: boolean;
   advancedConfig: {

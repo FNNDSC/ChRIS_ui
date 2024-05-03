@@ -1,28 +1,22 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useContext,
-} from "react";
+import { PluginMeta } from "@fnndsc/chrisapi";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionToggle,
   FormGroup,
   TextInput,
   Title,
-  Accordion,
-  AccordionItem,
-  AccordionContent,
-  AccordionToggle,
 } from "@patternfly/react-core";
-import { BasicConfigurationProps } from "./types";
-import { PluginMeta } from "@fnndsc/chrisapi";
+import { useQuery } from "@tanstack/react-query";
+import { Alert } from "antd";
+import React, { useCallback, useContext, useRef, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { PluginMetaSelectState } from "./types";
 import { fetchResource } from "../../api/common";
-import { AddNodeContext } from "./context";
+import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import { Types } from "./types";
-import { SpinContainer } from "../Common";
+import { AddNodeContext } from "./context";
+import { BasicConfigurationProps, PluginMetaSelectState, Types } from "./types";
 
 const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
   selectedPlugin,
@@ -50,39 +44,36 @@ const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
 export default BasicConfiguration;
 
 const PluginSelect: React.FC = () => {
-  const [isMounted, setMounted] = useState(false);
-  const { dispatch } = useContext(AddNodeContext);
-
   const [expanded, setExpanded] =
     useState<PluginMetaSelectState["expanded"]>("all-toggle");
 
-  const fetchAllPlugins = React.useCallback(async () => {
+  const fetchAllPlugins = async () => {
     const client = ChrisAPIClient.getClient();
     const params = { limit: 25, offset: 0 };
     const fn = client.getPluginMetas;
     const boundFn = fn.bind(client);
-    let { resource: pluginMetas } = await fetchResource<PluginMeta>(
-      params,
-      boundFn,
-    );
 
-    pluginMetas =
-      pluginMetas &&
-      pluginMetas.filter((pluginMeta) => pluginMeta.data.type !== "fs");
-    if (isMounted && pluginMetas) {
-      dispatch({
-        type: Types.SetPluginMetaList,
-        payload: {
-          pluginMetas: pluginMetas,
-        },
-      });
+    try {
+      let { resource: pluginMetas } = await fetchResource<PluginMeta>(
+        params,
+        boundFn,
+      );
+
+      pluginMetas = pluginMetas?.filter(
+        (pluginMeta) => pluginMeta.data.type !== "fs",
+      );
+
+      return pluginMetas;
+    } catch (e) {
+      throw e;
     }
-  }, [isMounted, dispatch]);
+  };
 
-  useEffect(() => {
-    setMounted(true);
-    fetchAllPlugins();
-  }, [fetchAllPlugins]);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["pluginList"],
+    queryFn: () => fetchAllPlugins(),
+    refetchOnMount: true,
+  });
 
   const handleAccordionToggle = (_expanded: string) => {
     if (_expanded === expanded) {
@@ -103,19 +94,27 @@ const PluginSelect: React.FC = () => {
           All Plugins
         </AccordionToggle>
         <AccordionContent id="all-content" isHidden={expanded !== "all-toggle"}>
-          <PluginList />
+          {isLoading ? (
+            <SpinContainer title="Fetching the list of plugins" />
+          ) : isError ? (
+            <Alert type="error" description={error.message} />
+          ) : data ? (
+            <PluginList pluginMetas={data} />
+          ) : (
+            <EmptyStateComponent title="No plugins found..." />
+          )}
         </AccordionContent>
       </AccordionItem>
     </Accordion>
   );
 };
 
-const PluginList: React.FC = () => {
+const PluginList = ({ pluginMetas }: { pluginMetas: PluginMeta[] }) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const listRef = useRef<any>();
   const [filter, setFilter] = useState("");
   const { state, dispatch } = useContext(AddNodeContext);
-  const { pluginMetas, pluginMeta } = state;
+  const { pluginMeta } = state;
 
   const handleFilterChange = (
     _event: React.FormEvent<HTMLInputElement>,
@@ -142,7 +141,7 @@ const PluginList: React.FC = () => {
   const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
 
   return (
-    <ul ref={listRef} tabIndex={0} className="plugin-list">
+    <ul ref={listRef} className="plugin-list">
       <TextInput
         className="plugin-list-filter"
         value={filter}
@@ -151,35 +150,30 @@ const PluginList: React.FC = () => {
         placeholder="Filter by Name"
       />
 
-      {pluginMetas ? (
-        pluginMetas
-          .sort((a, b) => a.data.name.localeCompare(b.data.name))
-          .filter(matchesFilter)
-          .map((item) => {
-            const { id, name, title } = item.data;
-            const isSelected = pluginMeta && name === pluginMeta.data.name;
-            return (
-              <li
-                tabIndex={1}
-                key={id}
-                style={{
-                  backgroundColor: isSelected ? backgroundColor : "inherit",
-                }}
-                onKeyDown={(event: any) => {
-                  if (event.key === "Enter") {
-                    getPluginFromMeta(item);
-                  }
-                }}
-                onClick={() => getPluginFromMeta(item)}
-              >
-                <span>{name}</span>
-                <span className="description">Description: {title}</span>
-              </li>
-            );
-          })
-      ) : (
-        <SpinContainer title="Loading Plugins" />
-      )}
+      {pluginMetas
+        .sort((a, b) => a.data.name.localeCompare(b.data.name))
+        .filter(matchesFilter)
+        .map((item) => {
+          const { id, name, title } = item.data;
+          const isSelected = pluginMeta && name === pluginMeta.data.name;
+          return (
+            <li
+              key={id}
+              style={{
+                backgroundColor: isSelected ? backgroundColor : "inherit",
+              }}
+              onKeyDown={(event: any) => {
+                if (event.key === "Enter") {
+                  getPluginFromMeta(item);
+                }
+              }}
+              onClick={() => getPluginFromMeta(item)}
+            >
+              <span>{name}</span>
+              <span className="description">Description: {title}</span>
+            </li>
+          );
+        })}
     </ul>
   );
 };
