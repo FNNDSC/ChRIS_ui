@@ -15,7 +15,7 @@ export function getInitialNodeState(): AddNodeState {
     loading: false,
     errors: undefined,
     isOpen: false,
-    pluginMetas: [],
+
     componentList: [],
     showPreviousRun: false,
     advancedConfig: {},

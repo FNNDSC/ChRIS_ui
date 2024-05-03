@@ -17,6 +17,8 @@ export interface FeedOutputBrowserProps {
   explore: boolean;
 }
 
+const statusTitles = ["started", "scheduled", "registeringFiles", "created"];
+
 const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
   const {
     selected,
@@ -35,10 +37,12 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
           pluginFilesPayload={pluginFilesPayload}
           filesLoading={filesLoading}
         />
-      ) : statusTitle && statusTitle ? (
+      ) : statusTitle && statusTitles.includes(statusTitle) ? (
+        <FetchFilesLoader title="Plugin executing. Files will be fetched when plugin completes" />
+      ) : filesLoading ? (
         <FetchFilesLoader title="Fetching Files" />
       ) : (
-        <EmptyStateLoader title="No Files yet..." />
+        <EmptyStateLoader title="Files are not available yet..." />
       )}
     </div>
   );
