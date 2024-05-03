@@ -8,7 +8,7 @@ import { Button, Grid } from "@patternfly/react-core";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
 import { debounce } from "lodash";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -20,7 +20,7 @@ import { FilesCard, FolderCard, LinkCard } from "./Browser";
 import Search from "./Search";
 import TreeBrowser from "./TreeBrowser";
 import UploadContainer from "./UploadComponent";
-import { LibraryContext, LibraryProvider } from "./context";
+import { LibraryProvider } from "./context";
 import Cart from "./Cart";
 
 const NewLibrary = () => {
@@ -91,7 +91,6 @@ const NewLibrary = () => {
     }
   }
 
-  const { state } = useContext(LibraryContext);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -103,7 +102,7 @@ const NewLibrary = () => {
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
-  const { data, isPending, isFetching, isError, error } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ["folders", computedPath, pageNumber],
     queryFn: () => fetchFolders(computedPath, pageNumber),
     placeholderData: keepPreviousData,
@@ -170,7 +169,10 @@ const NewLibrary = () => {
   return (
     <WrapperConnect>
       <LibraryProvider>
+        {/*Library Cart Component */}
         {open && <Cart open={open} onClose={onClose} />}
+
+        {/* Search Component */}
 
         <Search
           handleChange={() => {
@@ -182,6 +184,7 @@ const NewLibrary = () => {
           checked={cardLayout}
           showOpen={showOpen}
         />
+
         <div style={{ margin: "1rem" }}>
           <div
             style={{
@@ -198,11 +201,15 @@ const NewLibrary = () => {
           </div>
 
           {isError && <Alert type="error" description={error.message} />}
+
           {data?.filesPagination.totalCount === -1 &&
             data?.foldersPagination.totalCount === -1 &&
             data?.linksPagination.totalCount === -1 && (
               <EmptyStateComponent title="No data in this path" />
             )}
+
+          {isLoading && <SpinContainer title="Fetching Data..." />}
+
           {data &&
             (cardLayout ? (
               <Grid
@@ -225,22 +232,22 @@ const NewLibrary = () => {
                   linkFiles={data.linkFilesMap}
                   pagination={data.linksPagination}
                 />
-                {(isPending || isFetching) && (
-                  <SpinContainer title="Fetching more data..." />
-                )}
-                {fetchMore && !(isPending || isFetching) && (
+
+                {fetchMore && !isLoading && (
                   <>
                     <Button onClick={handlePagination} variant="link">
                       Load More Data...
                     </Button>
                   </>
                 )}
+
+                {/* When the user is at the bottom of the page, load more data */}
                 <div
                   ref={observerTarget}
                   style={{
                     height: "10px",
                   }}
-                />{" "}
+                />
               </Grid>
             ) : (
               <TreeBrowser />
