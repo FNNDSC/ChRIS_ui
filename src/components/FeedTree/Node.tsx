@@ -205,6 +205,7 @@ const Node = (props: NodeProps) => {
       }
       return pipelines;
     } catch (error) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
   }

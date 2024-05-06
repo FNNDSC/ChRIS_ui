@@ -1,5 +1,5 @@
 import { FileBrowserFolder, FileBrowserFolderFile } from "@fnndsc/chrisapi";
-import { Types, DownloadTypes } from ".";
+import { Types, DownloadTypes, FolderDownloadTypes } from ".";
 
 export const setSelectFolder = (
   path: string,
@@ -33,7 +33,7 @@ export const clearCart = () => {
 
 export const downloadFileStatus = (
   file: FileBrowserFolderFile,
-  status: "STARTED" | "FINISHED" | "PROGRESS",
+  status: DownloadTypes,
 ) => {
   return {
     type: Types.SET_FILE_DOWNLOAD_STATUS,
@@ -41,5 +41,30 @@ export const downloadFileStatus = (
       id: file.data.id,
       status,
     },
+  };
+};
+
+export const downloadFolderStatus = (
+  folder: FileBrowserFolder,
+  status: FolderDownloadTypes,
+) => {
+  return {
+    type: Types.SET_FOLDER_DOWNLOAD_STATUS,
+    payload: {
+      id: folder.data.id,
+      status,
+    },
+  };
+};
+
+export const clearDownloadFileStatus = () => {
+  return {
+    type: Types.CLEAR_DOWNLOAD_FILE_STATUS,
+  };
+};
+
+export const clearDownloadFolderStaus = () => {
+  return {
+    type: Types.CLEAR_DOWNLOAD_FOLDER_STATUS,
   };
 };

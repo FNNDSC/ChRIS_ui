@@ -34,10 +34,9 @@ const NewLibrary = () => {
     };
 
     try {
-      const folderList: FileBrowserFolderFileList =
-        await client.getFileBrowserFolders({
-          path: computedPath,
-        });
+      const folderList = await client.getFileBrowserFolders({
+        path: computedPath,
+      });
 
       const folders = folderList.getItems();
       let subFoldersMap: FileBrowserFolder[] = [];
@@ -87,6 +86,7 @@ const NewLibrary = () => {
         linksPagination,
       };
     } catch (error) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
   }
