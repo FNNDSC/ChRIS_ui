@@ -13,6 +13,9 @@ interface LibraryState {
   fileDownloadStatus: {
     [key: string]: DownloadTypes;
   };
+  folderDownloadStatus: {
+    [key: string]: FolderDownloadTypes;
+  };
 }
 
 function getInitialState(): LibraryState {
@@ -20,6 +23,7 @@ function getInitialState(): LibraryState {
     selectedPaths: [],
     previewAll: false,
     fileDownloadStatus: {},
+    folderDownloadStatus: {},
   };
 }
 
@@ -40,11 +44,22 @@ export enum Types {
   SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
   CLEAR_CART = "CLEAR_CART",
   SET_FILE_DOWNLOAD_STATUS = "SET_FILE_DOWNLOAD_STATUS",
+  SET_FOLDER_DOWNLOAD_STATUS = "SET_FOLDER_DOWNLOAD_STATUS",
+  CLEAR_DOWNLOAD_FILE_STATUS = "CLEAR_DOWNLOAD_FILE_STATUS",
+  CLEAR_DOWNLOAD_FOLDER_STATUS = "CLEAR_DOWNLOAD_FOLDER_STATUS",
 }
 
 export enum DownloadTypes {
   started = "STARTED",
   progress = "PROGRESS",
+  finished = "FINISHED",
+}
+
+export enum FolderDownloadTypes {
+  started = "STARTED",
+  creatingFeed = "CREATING_FEED",
+  zippingFolder = "ZIPPING_FOLDER",
+  startingDownload = "STARTING_DOWNLOAD",
   finished = "FINISHED",
 }
 
@@ -66,6 +81,14 @@ export type LibraryPayload = {
     id: number;
     status: DownloadTypes;
   };
+
+  [Types.SET_FOLDER_DOWNLOAD_STATUS]: {
+    id: number;
+    status: FolderDownloadTypes;
+  };
+
+  [Types.CLEAR_DOWNLOAD_FILE_STATUS]: null;
+  [Types.CLEAR_DOWNLOAD_FOLDER_STATUS]: null;
 };
 
 export type LibraryActions =
@@ -95,6 +118,18 @@ export const libraryReducer = (
       };
     }
 
+    case Types.SET_FOLDER_DOWNLOAD_STATUS: {
+      const { id, status } = action.payload;
+
+      return {
+        ...state,
+        folderDownloadStatus: {
+          ...state.folderDownloadStatus,
+          [id]: status,
+        },
+      };
+    }
+
     case Types.SET_SELECTED_PATHS: {
       return {
         ...state,
@@ -119,6 +154,19 @@ export const libraryReducer = (
       };
     }
 
+    case Types.CLEAR_DOWNLOAD_FILE_STATUS: {
+      return {
+        ...state,
+        fileDownloadStatus: {},
+      };
+    }
+
+    case Types.CLEAR_DOWNLOAD_FOLDER_STATUS: {
+      return {
+        ...state,
+        folderDownloadStatus: {},
+      };
+    }
     default:
       return state;
   }
