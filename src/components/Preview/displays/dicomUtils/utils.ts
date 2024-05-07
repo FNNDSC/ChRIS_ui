@@ -71,7 +71,6 @@ export const registerToolingOnce = () => {
 };
 
 export const removeTools = () => {
-  console.log("Remove called");
   // Remove tools from the tool group
   cornerstoneTools.removeTool(LengthTool);
   cornerstoneTools.removeTool(PanTool);
