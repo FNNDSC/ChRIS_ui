@@ -6,10 +6,9 @@ import {
   Pagination,
   TextInput,
 } from "@patternfly/react-core";
-import { useLocation } from "react-router";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Collapse, Form, Tag } from "antd";
+import { Alert, Collapse } from "antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
@@ -32,7 +31,6 @@ type LoadingResourceError = {
 };
 
 const PipelinesCopy = () => {
-  const location = useLocation();
   const { state, dispatch } = useContext(PipelineContext);
   const { isDarkTheme } = useContext(ThemeContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
@@ -194,27 +192,6 @@ const PipelinesCopy = () => {
             }}
           />
         </div>
-
-        {state.pipelineToAdd && (
-          <div>
-            <Form.Item style={{ marginBottom: "0" }} label="Currently Selected">
-              <Tag
-                bordered
-                color="#004080"
-                closeIcon
-                onClose={(e) => {
-                  e.preventDefault();
-                  dispatch({
-                    type: Types.PipelineToDelete,
-                  });
-                }}
-              >
-                {state.pipelineToAdd.data.name}
-              </Tag>
-            </Form.Item>
-          </div>
-        )}
-
         <Pagination
           itemCount={data?.totalCount ? data.totalCount : 0}
           perPage={pageState.perPage}

@@ -13,7 +13,7 @@ import {
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
 import { SpinContainer } from "../Common";
-
+import { Form, Tag } from "antd";
 import { fetchResource } from "../../api/common";
 import Pipelines from "../PipelinesCopy";
 import { PipelineContext, Types } from "../PipelinesCopy/context";
@@ -145,6 +145,30 @@ const AddPipeline = () => {
         <Button key="cancel" variant="link" onClick={handleToggle}>
           Cancel
         </Button>,
+        <>
+          {state.pipelineToAdd && (
+            <div>
+              <Form.Item
+                style={{ marginBottom: "0" }}
+                label="Currently Selected Pipeline"
+              >
+                <Tag
+                  bordered
+                  color="#004080"
+                  closeIcon
+                  onClose={(e) => {
+                    e.preventDefault();
+                    dispatch({
+                      type: Types.PipelineToDelete,
+                    });
+                  }}
+                >
+                  {state.pipelineToAdd.data.name}
+                </Tag>
+              </Form.Item>
+            </div>
+          )}
+        </>,
       ]}
     >
       <Pipelines />
