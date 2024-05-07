@@ -43,7 +43,18 @@ export interface ActionState {
   [key: string]: boolean | string;
 }
 
-const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
+const fileTypes = [
+  "nii",
+  "dcm",
+  "fsm",
+  "crv",
+  "smoothwm",
+  "pial",
+  "nii.gz",
+  "jpg",
+  "png",
+  "jpeg",
+];
 
 const FileDetailView = (props: AllProps) => {
   const [tagInfo, setTagInfo] = React.useState<any>();
