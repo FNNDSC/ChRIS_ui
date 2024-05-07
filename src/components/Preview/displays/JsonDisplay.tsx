@@ -1,41 +1,40 @@
-import React, { useState, useContext, useEffect, useRef } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import ReactJSON from "react-json-view";
 import { IFileBlob } from "../../../api/model";
-import { Text } from "@patternfly/react-core";
 import { ThemeContext } from "../../DarkTheme/useTheme";
+import { SpinContainer } from "../../Common";
 
 type AllProps = {
   fileItem: IFileBlob;
 };
 
-const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
+const JsonDisplay: React.FunctionComponent<AllProps> = ({
+  fileItem,
+}: AllProps) => {
   const isDarkTheme = useContext(ThemeContext);
-  const [blobText, setBlobText] = useState({});
-  const { fileItem } = props;
-  const _isMounted = useRef(false);
+  const [blobText, setBlobText] = useState<any>(null); // Update with correct initial state type
 
-  const getBlobText = React.useCallback(() => {
-    const { blob } = fileItem;
-    if (blob) {
-      const reader = new FileReader();
-      reader.addEventListener("loadend", (e: any) => {
-        const blobText = e.target.result;
-        if (_isMounted.current === true) setBlobText(JSON.parse(blobText));
-      });
-      reader.readAsText(blob);
+  const getBlobText = useCallback(async () => {
+    const { file } = fileItem;
+    if (file) {
+      try {
+        const blob = await file.getFileBlob();
+        const reader = new FileReader();
+        reader.addEventListener("loadend", (e: any) => {
+          const blobText = e.target.result;
+          setBlobText(JSON.parse(blobText));
+        });
+        reader.readAsText(blob);
+      } catch (error) {
+        console.error("Error reading file blob:", error);
+        setBlobText(null);
+      }
     }
-  }, [fileItem]);
+  }, [fileItem.url]);
 
   useEffect(() => {
-    _isMounted.current = true;
     getBlobText();
-
-    return () => {
-      _isMounted.current = false;
-    };
   }, [getBlobText]);
-
-  getBlobText();
 
   return (
     <>
@@ -49,12 +48,10 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
           collapsed={false}
         />
       ) : (
-        <Text component="p">Could not load json payload at the moment....</Text>
+        <SpinContainer title="Fetching json..." />
       )}
     </>
   );
 };
 
-const MemoedJsonDisplay = React.memo(JsonDisplay);
-
-export default MemoedJsonDisplay;
+export default JsonDisplay;

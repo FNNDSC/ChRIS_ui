@@ -1,12 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  FileViewerModel,
-  IFileBlob,
-  getFileExtension,
-} from "../../../api/model";
+import { IFileBlob, getFileExtension } from "../../../api/model";
 import {
   displayDicomImage,
-  loadDicomImage,
   basicInit,
   handleEvents,
   type IStackViewport,
@@ -29,7 +24,7 @@ export type DcmImageProps = {
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview, actionState } = props;
-  const { file, blob } = fileItem;
+  const { file, url } = fileItem;
 
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
@@ -79,17 +74,15 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   useEffect(() => {
     async function setupCornerstone() {
       const element = document.getElementById(elementId) as HTMLDivElement;
-      if (file && blob && element && !cornerstoneInitialized) {
+      if (file && url && element && !cornerstoneInitialized) {
         let imageID: string;
         const extension = getFileExtension(file.data.fname);
         await basicInit();
         setUpTooling(uniqueId);
         if (extension === "dcm") {
-          imageID = await loadDicomImage(blob);
+          imageID = "wadouri:" + url;
         } else {
-          const fileviewer = new FileViewerModel();
-          const fileName = fileviewer.getFileName(file);
-          imageID = `web:${file.url}${fileName}`;
+          imageID = `web:${url}`;
         }
 
         const { viewport, renderingEngine } = await displayDicomImage(
@@ -104,7 +97,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
 
     setupCornerstone();
-  }, [file, blob, uniqueId, cornerstoneInitialized, elementId]);
+  }, [file, url, uniqueId, cornerstoneInitialized, elementId]);
 
   useEffect(() => {
     if (actionState && activeViewport) {

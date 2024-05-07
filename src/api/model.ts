@@ -1,7 +1,5 @@
 import _ from "lodash";
-import type { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "./chrisapiclient";
-import axios, { AxiosProgressEvent } from "axios";
+import type { FileBrowserFolderFile, PluginInstance } from "@fnndsc/chrisapi";
 
 export interface IActionTypeParam {
   type: string;
@@ -163,9 +161,8 @@ export class TreeModel {
 }
 
 export interface IFileBlob {
-  blob?: Blob;
-  file?: FeedFile;
-  url?: string;
+  file?: FileBrowserFolderFile;
+  url: string;
   fileType: string;
 }
 
@@ -212,7 +209,7 @@ export function getFileExtension(filename: string) {
 
 // biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class FileViewerModel {
-  public getFileName(item: FeedFile) {
+  public getFileName(item: FileBrowserFolderFile) {
     const splitString = item.data.fname.split("/");
     const filename = splitString[splitString.length - 1];
     return filename;
