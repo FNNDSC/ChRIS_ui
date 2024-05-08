@@ -174,7 +174,7 @@ const TableSelectable: React.FunctionComponent = () => {
         : publicFeeds?.totalFeedsCount;
 
   const generatePagination = (feedCount?: number) => {
-    if (!feedCount) {
+    if (!feedCount && loadingFeedState) {
       return <Skeleton width="25%" screenreaderText="Loaded Feed Count" />;
     }
 
@@ -189,6 +189,9 @@ const TableSelectable: React.FunctionComponent = () => {
     );
   };
 
+  const loadingFeedState =
+    isLoading || isFetching || publicFeedLoading || publicFeedFetching;
+
   return (
     <React.Fragment>
       <WrapperConnect>
@@ -196,7 +199,11 @@ const TableSelectable: React.FunctionComponent = () => {
           <InfoIcon
             data-test-id="analysis-count"
             title={`New and Existing Analyses (${
-              !feedCount ? "Fetching..." : feedCount
+              !feedCount && loadingFeedState
+                ? "Fetching..."
+                : feedCount === -1
+                  ? 0
+                  : feedCount
             })`}
             p1={
               <Paragraph>
@@ -245,10 +252,7 @@ const TableSelectable: React.FunctionComponent = () => {
 
             {feedsToDisplay && <IconContainer />}
           </div>
-          {isLoading ||
-          isFetching ||
-          publicFeedLoading ||
-          publicFeedFetching ? (
+          {loadingFeedState ? (
             <LoadingTable />
           ) : feedsToDisplay.length > 0 ? (
             <Table variant="compact" aria-label="Feed Table">
