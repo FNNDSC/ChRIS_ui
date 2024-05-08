@@ -173,6 +173,9 @@ const TableSelectable: React.FunctionComponent = () => {
         ? 0
         : publicFeeds?.totalFeedsCount;
 
+  const loadingFeedState =
+    isLoading || isFetching || publicFeedLoading || publicFeedFetching;
+
   const generatePagination = (feedCount?: number) => {
     if (!feedCount && loadingFeedState) {
       return <Skeleton width="25%" screenreaderText="Loaded Feed Count" />;
@@ -188,9 +191,6 @@ const TableSelectable: React.FunctionComponent = () => {
       />
     );
   };
-
-  const loadingFeedState =
-    isLoading || isFetching || publicFeedLoading || publicFeedFetching;
 
   return (
     <React.Fragment>
