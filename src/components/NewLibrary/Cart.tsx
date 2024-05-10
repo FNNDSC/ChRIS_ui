@@ -213,6 +213,12 @@ const Cart = ({
                   const folderList = await client.getFileBrowserFolders({
                     path: filePath,
                   });
+
+                  if (!folderList) {
+                    throw new Error(
+                      `Could not fetch files for this path: ${filePath}`,
+                    );
+                  }
                   const folders = folderList.getItems();
 
                   if (folders) {
