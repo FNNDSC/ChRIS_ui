@@ -8,6 +8,7 @@ import {
   DrawerPanelBody,
   DrawerPanelContent,
   Grid,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { notification } from "antd";
@@ -28,6 +29,7 @@ import {
   FilePdfIcon,
   FileTxtIcon,
   FolderIcon,
+  HomeIcon,
 } from "../Icons";
 import useDownload from "../NewLibrary/useDownloadHook";
 import FileDetailView from "../Preview/FileDetailView";
@@ -40,12 +42,14 @@ export const getFileName = (name: string) => {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
+  const { selected } = props;
   const [api, contextHolder] = notification.useNotification();
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { isDarkTheme } = useContext(ThemeContext);
   const { pluginFilesPayload, handleFileClick, filesLoading } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
+  const username = useTypedSelector((state) => state.user.username);
   const dispatch = useDispatch();
   const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
   const columnNames = {
@@ -56,6 +60,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const breadcrumb = path.split("/");
   const handleDownloadMutation = useDownload(feed);
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
+  const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
 
   useEffect(() => {
     if (isSuccess) {
@@ -96,12 +101,25 @@ const FileBrowser = (props: FileBrowserProps) => {
         handleFileClick(newPathList.join("/"));
       }
     };
+
+    // This is somewhat tricky. do not allow the user to click paths before the selected plugin.
+    const disabledIndex = breadcrumb.findIndex(
+      (path) => path === `${selected.data.plugin_name}_${selected.data.id}`,
+    );
+    // If this selected plugin is of the type fs, assume that this is the first node of the tree and could have link files. All the paths
+    // that the user navigates to should not be clickable
+    const shouldNotClick =
+      (disabledIndex > 1 && index <= disabledIndex) ||
+      selected.data.plugin_type === "fs";
+
     return (
       <BreadcrumbItem
         showDivider={true}
         key={index}
-        onClick={onClick}
-        to={index === breadcrumb.length - 1 ? undefined : "#"}
+        onClick={() => {
+          shouldNotClick ? undefined : onClick();
+        }}
+        to={index === breadcrumb.length - 1 || shouldNotClick ? undefined : "#"}
       >
         {value}
       </BreadcrumbItem>
@@ -241,6 +259,20 @@ const FileBrowser = (props: FileBrowserProps) => {
                 <div className="file-browser__header--breadcrumbContainer">
                   <ClipboardCopyContainer path={path} />
                   <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
+                </div>
+                <div>
+                  {path !== currentPath &&
+                    selected.data.plugin_type === "fs" && (
+                      <Tooltip
+                        content={<span>Go back to the base directory</span>}
+                      >
+                        <Button
+                          onClick={() => handleFileClick(currentPath)}
+                          variant="link"
+                          icon={<HomeIcon />}
+                        />
+                      </Tooltip>
+                    )}
                 </div>
               </div>
               <Table aria-label="file-browser-table" variant="compact">

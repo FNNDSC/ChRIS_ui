@@ -49,6 +49,7 @@ const useDownload = (feed?: Feed) => {
       }
       return file;
     } catch (e) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw e;
     }
   };
