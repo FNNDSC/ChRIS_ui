@@ -53,6 +53,7 @@ export enum DownloadTypes {
   started = "STARTED",
   progress = "PROGRESS",
   finished = "FINISHED",
+  cancelled = "CANCELLED",
 }
 
 export enum FolderDownloadTypes {
@@ -61,6 +62,7 @@ export enum FolderDownloadTypes {
   zippingFolder = "ZIPPING_FOLDER",
   startingDownload = "STARTING_DOWNLOAD",
   finished = "FINISHED",
+  cancelled = "CANCELLED",
 }
 
 export type LibraryPayload = {

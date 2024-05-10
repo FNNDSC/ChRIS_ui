@@ -3,7 +3,7 @@ import type {
   FileBrowserFolder,
   Feed,
 } from "@fnndsc/chrisapi";
-import { Button, Grid, GridItem, Tooltip } from "@patternfly/react-core";
+import { Button, Grid, GridItem, Tooltip, Text } from "@patternfly/react-core";
 import { Drawer, List } from "antd";
 import { useContext } from "react";
 import { DotsIndicator } from "../Common";
@@ -71,6 +71,8 @@ export const Status = ({ item }: { item: SelectionPayload }) => {
             variant="plain"
             icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
           />
+        ) : currentStatus === FolderDownloadTypes.cancelled ? (
+          <Text>Cancelled</Text>
         ) : currentStatus ? (
           <DotsIndicator title={folderStatusMap[currentStatus]} />
         ) : null}
@@ -121,18 +123,32 @@ const Cart = ({
             FolderDownloadTypes.started,
           ),
         );
-
-        const path = payload.data.path;
-        const client = ChrisAPIClient.getClient();
-
-        dispatch(
-          downloadFolderStatus(
-            payload as FileBrowserFolder,
-            FolderDownloadTypes.creatingFeed,
-          ),
-        );
-
         try {
+          const path = payload.data.path;
+          const cannotDownload = [
+            "home",
+            `home/${username}`,
+            `home/${username}/uploads`,
+            "SERVICES",
+          ];
+
+          if (cannotDownload.includes(path)) {
+            throw new Error(
+              `Please avoid zipping folders listed here: ${cannotDownload.join(
+                ", ",
+              )}`,
+            );
+          }
+
+          const client = ChrisAPIClient.getClient();
+
+          dispatch(
+            downloadFolderStatus(
+              payload as FileBrowserFolder,
+              FolderDownloadTypes.creatingFeed,
+            ),
+          );
+
           const dircopy = await getPlugin("pl-dircopy");
 
           if (!dircopy) {
@@ -173,9 +189,9 @@ const Cart = ({
               name: "zip v20240311",
             });
 
-            if (!pipelineList) {
+            if (!pipelineList.data) {
               throw new Error(
-                "Is the zip pipeline registered with the name zip v20240311",
+                "Is the zip pipeline registered with the name zip v20240311?",
               );
             }
 
@@ -239,7 +255,13 @@ const Cart = ({
             }
           }
         } catch (e) {
-          // biome-ignore lint/complexity/noUselessCatch: <explanation>
+          console.log("ERROR");
+          dispatch(
+            downloadFolderStatus(
+              payload as FileBrowserFolder,
+              FolderDownloadTypes.cancelled,
+            ),
+          );
           throw e;
         }
       }
@@ -333,7 +355,7 @@ const Cart = ({
           );
         }}
       />
-      {isError && <Alert type="error" description={error.message} />}
+      {isError && <Alert type="error" closable description={error.message} />}
     </Drawer>
   );
 };
