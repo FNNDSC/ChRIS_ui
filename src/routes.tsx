@@ -26,7 +26,7 @@ interface IState {
   selectData?: Series;
 }
 
-export type Series = any[];
+export type Series = string[];
 
 interface IActions {
   createFeedWithData: (data: Series) => void;
