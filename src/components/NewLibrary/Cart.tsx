@@ -339,11 +339,11 @@ const Cart = ({
     mutationFn: () => handleDownload(),
   });
 
-  const { isError, error, mutate } = handleDownloadMutation;
+  const { mutate } = handleDownloadMutation;
 
   return (
     <Drawer
-      width={500}
+      width={600}
       title="Cart"
       placement="right"
       closable={true}
@@ -426,7 +426,7 @@ const Cart = ({
                       }}
                       href="https://ant.design/index-cn"
                     >
-                      {elipses(item.path, 40)}
+                      {elipses(item.path, 30)}
                     </a>
                   </Tooltip>
                 }

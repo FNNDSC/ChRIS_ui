@@ -80,7 +80,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         await basicInit();
         setUpTooling(uniqueId);
         if (extension === "dcm") {
-          imageID = "wadouri:" + url;
+          imageID = `wadouri:${url}`;
         } else {
           imageID = `web:${url}`;
         }

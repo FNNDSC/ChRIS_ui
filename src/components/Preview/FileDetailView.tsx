@@ -81,11 +81,10 @@ const FileDetailView = (props: AllProps) => {
     };
   });
 
-  const displayTagInfo = useCallback((fileUrl: string) => {
+  const displayTagInfo = useCallback((data: IFileBlob) => {
     const fetchData = async () => {
       try {
-        const response = await fetch(fileUrl);
-        const blob = await response.blob();
+        const blob = await data.file?.getFileBlob();
         const reader = new FileReader();
         reader.onloadend = async () => {
           try {
@@ -102,7 +101,10 @@ const FileDetailView = (props: AllProps) => {
             setError("Failed to parse the file for dicom tags");
           }
         };
-        reader.readAsArrayBuffer(blob);
+        console.log("Blob", blob);
+        if (blob) {
+          reader.readAsArrayBuffer(blob);
+        }
       } catch (error) {
         setError("Failed to fetch the file");
       }
@@ -158,7 +160,7 @@ const FileDetailView = (props: AllProps) => {
 
   const handleEvents = (action: string, previouslyActive: string) => {
     if (action === "TagInfo" && data) {
-      displayTagInfo(data.url);
+      displayTagInfo(data);
     }
     const currentAction = actionState[action];
     setActionState({
