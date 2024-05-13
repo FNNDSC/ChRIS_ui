@@ -1,9 +1,11 @@
-import type {
+import {
   Feed,
   FeedList,
   FileBrowserFolder,
   PACSFile,
   PACSFileList,
+  PACSSeries,
+  PACSSeriesList,
   UserFile,
   UserFileList,
 } from "@fnndsc/chrisapi";
@@ -21,15 +23,18 @@ import WrapperConnect from "../Wrapper";
 import Cart from "../NewLibrary/Cart";
 import Search from "../NewLibrary/Search";
 import { LibraryProvider } from "../NewLibrary/context";
+import { useTypedSelector } from "../../store/hooks";
 
 const LibrarySearch = () => {
+  const username = useTypedSelector((state) => state.user.username);
   const [open, setOpen] = useState(false);
   const [cardLayout, setCardLayout] = useState(true);
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const navigate = useNavigate();
   const query = useSearchQueryParams();
-  const statusSelected = query.get("search");
+  const path = query.get("path");
   const inputValue = query.get("value");
+  const filter = query.get("filter");
 
   const onClose = () => {
     setOpen(false);
@@ -39,13 +44,16 @@ const LibrarySearch = () => {
     setOpen(true);
   };
 
+  const pacsPath = "/library/SERVICES/";
+  const feedsPath = `/library/home/${username}/feeds`;
+  const userFilesPath = `/library/home/${username}/uploads`;
+
   const handleSearch = async () => {
     const client = ChrisAPIClient.getClient();
     const parentFolders: FileBrowserFolder[] = [];
-    console.log("Status Selected", statusSelected);
 
     try {
-      if (statusSelected === "Feed Files") {
+      if (path?.startsWith(feedsPath) || path === feedsPath) {
         try {
           const data: FeedList = await client.getFeeds({
             files_fname_icontains: (inputValue as string).trim(),
@@ -66,7 +74,7 @@ const LibrarySearch = () => {
           throw new Error("Failed to fetch Feed Files...");
         }
       }
-      if (statusSelected === "User Files") {
+      if (path?.startsWith(userFilesPath) || path === userFilesPath) {
         try {
           const data: UserFileList = await client.getUserFiles({
             fname_icontains: (inputValue as string).trim(),
@@ -90,23 +98,40 @@ const LibrarySearch = () => {
         }
       }
 
-      if (statusSelected === "PACS Files") {
+      if (path?.startsWith(pacsPath) || path === pacsPath) {
         try {
-          const data: PACSFileList = await client.getPACSFiles({
-            fname_icontains_topdir_unique: (inputValue as string).trim(),
-            limit: 1000000,
-          });
+          if (filter) {
+            const data: PACSSeriesList = await client.getPACSSeriesList({
+              [filter]: (inputValue as string).trim(),
+            });
+            const pacsFiles = data.getItems() as PACSSeries[];
 
-          const pacsFiles = data.getItems() as PACSFile[];
+            for (const file of pacsFiles) {
+              const parentFolder: FileBrowserFolder = await file.getFolder();
+              const isDuplicate = parentFolders.some(
+                (folder) => folder.data.id === parentFolder.data.id,
+              );
+              if (!isDuplicate) {
+                parentFolders.push(parentFolder);
+              }
+            }
+          } else {
+            const data: PACSFileList = await client.getPACSFiles({
+              fname_icontains_topdir_unique: (inputValue as string).trim(),
+              limit: 1000000,
+            });
 
-          for (const file of pacsFiles) {
-            const parentFolder: FileBrowserFolder =
-              await file.getParentFolder();
-            const isDuplicate = parentFolders.some(
-              (folder) => folder.data.id === parentFolder.data.id,
-            );
-            if (!isDuplicate) {
-              parentFolders.push(parentFolder);
+            const pacsFiles = data.getItems() as PACSFile[];
+
+            for (const file of pacsFiles) {
+              const parentFolder: FileBrowserFolder =
+                await file.getParentFolder();
+              const isDuplicate = parentFolders.some(
+                (folder) => folder.data.id === parentFolder.data.id,
+              );
+              if (!isDuplicate) {
+                parentFolders.push(parentFolder);
+              }
             }
           }
         } catch (error) {
@@ -122,7 +147,7 @@ const LibrarySearch = () => {
   };
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["searchedFolders", inputValue, statusSelected],
+    queryKey: ["searchedFolders", inputValue, path],
     queryFn: () => handleSearch(),
   });
 
@@ -153,6 +178,7 @@ const LibrarySearch = () => {
               <Grid
                 style={{
                   marginTop: "1rem",
+                  marginLeft: "1rem",
                 }}
                 key={folder.data.id}
               >

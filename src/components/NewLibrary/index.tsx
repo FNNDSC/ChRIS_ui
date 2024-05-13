@@ -1,7 +1,6 @@
 import {
   FileBrowserFolderFile,
   FileBrowserFolder,
-  FileBrowserFolderFileList,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import { Button, Grid } from "@patternfly/react-core";

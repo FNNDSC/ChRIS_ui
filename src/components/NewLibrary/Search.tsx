@@ -1,8 +1,8 @@
 import {
   Button,
   MenuToggle,
-  MenuToggleElement,
   SearchInput,
+  SelectGroup,
   Select,
   SelectList,
   SelectOption,
@@ -15,7 +15,7 @@ import {
 } from "@patternfly/react-core";
 import { Alert, Badge } from "antd";
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { CartIcon, SearchIcon } from "../Icons";
 import { LibraryContext } from "./context";
 
@@ -26,55 +26,61 @@ interface SearchProps {
   showOpen: () => void;
 }
 
+const pacsFilters = [
+  "PatientID",
+  "PatientName",
+  "PatientSex",
+  "PatientAge",
+  "StudyDate",
+  "AccessionNumber",
+  "ProtocolName",
+  "StudyInstanceUID",
+  "StudyDescription",
+  "SeriesInstanceUID",
+  "SeriesDescription",
+  "pacs_identifier",
+];
+
 const Search = ({
   checked,
   handleChange,
   handleUploadModal,
   showOpen,
 }: SearchProps) => {
+  const { pathname } = useLocation();
+  const decodedPath = decodeURIComponent(pathname);
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { state } = useContext(LibraryContext);
   const [inputValue, setInputValue] = useState("");
+  const [selectedItem, setSelectedItem] = useState<string>("");
   const [error, setError] = useState("");
-  const [statusIsExpanded, setStatusIsExpanded] = useState(false);
-  const [statusSelected, setStatusSelected] = useState("");
-
-  const statusOptions = ["PACS Files", "User Files", "Feed Files"];
 
   const onInputChange = (newValue: string) => {
     setInputValue(newValue);
   };
 
-  const onStatusToggle = () => {
-    setStatusIsExpanded(!statusIsExpanded);
-  };
-
-  const onStatusSelect = (
-    _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value?: string | number,
-  ) => {
-    if (value) {
-      setStatusSelected(value as string);
-    }
-
-    setStatusIsExpanded(false);
-  };
-
   const handleSearch = async () => {
-    if (inputValue && statusSelected) {
+    if (inputValue && decodedPath) {
       navigate(
         `/librarysearch?value=${
           inputValue as string
-        }&&search=${statusSelected}`,
+        }&&path=${decodedPath}&&filter=${selectedItem}`,
       );
     } else {
       if (!inputValue) {
         setError("Please provide a search term");
       }
-      if (!statusSelected) {
-        setError("Please choose a space to search in");
-      }
     }
+  };
+
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const onSelect = (_event: React.MouseEvent | undefined, value: string) => {
+    setSelectedItem(value);
   };
 
   const spacer: {
@@ -83,35 +89,48 @@ const Search = ({
 
   const toggleGroupItems = (
     <React.Fragment>
-      <ToolbarItem spacer={spacer}>
-        <Select
-          toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-            <MenuToggle
-              ref={toggleRef}
-              onClick={() => onStatusToggle()}
-              isExpanded={statusIsExpanded}
-              style={
-                {
-                  width: "300px",
-                } as React.CSSProperties
-              }
-            >
-              {statusSelected || "Select a files space to search in"}
-            </MenuToggle>
-          )}
-          onSelect={onStatusSelect}
-          onOpenChange={(isOpen) => setStatusIsExpanded(isOpen)}
-          selected={statusSelected}
-          isOpen={statusIsExpanded}
-        >
-          <SelectList>
-            {statusOptions.map((option, index) => (
-              <SelectOption key={index} value={option}>
-                {option}
-              </SelectOption>
-            ))}
-          </SelectList>
-        </Select>
+      <ToolbarItem>
+        {(decodedPath.startsWith("/library/SERVICES/") ||
+          decodedPath === "/library/SERVICES") && (
+          <Select
+            isOpen={isOpen}
+            ref={menuRef}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={onToggleClick}
+                isExpanded={isOpen}
+              >
+                {selectedItem ? selectedItem : "Select PACS FILTERS"}
+              </MenuToggle>
+            )}
+            // eslint-disable-next-line no-console
+            onActionClick={(_event, value, actionId) =>
+              console.log(`clicked on ${value} - ${actionId}`)
+            }
+            onSelect={(event, value) => {
+              onSelect(event, value as string);
+            }}
+            onOpenChange={(isOpen) => setIsOpen(isOpen)}
+          >
+            <SelectGroup label="Actions">
+              <SelectList>
+                {pacsFilters.map((filter) => {
+                  return (
+                    <SelectOption
+                      key={filter}
+                      isSelected={selectedItem === filter}
+                      description=""
+                      value={filter}
+                    >
+                      {filter}
+                    </SelectOption>
+                  );
+                })}
+              </SelectList>
+            </SelectGroup>
+          </Select>
+        )}
       </ToolbarItem>
       <ToolbarItem variant="search-filter">
         <SearchInput
