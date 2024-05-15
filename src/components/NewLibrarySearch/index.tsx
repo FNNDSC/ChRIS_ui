@@ -20,14 +20,13 @@ import { useSearchQueryParams } from "../Feeds/usePaginate";
 import BreadcrumbContainer from "../NewLibrary/Breadcrumb";
 import { SubFolderCard } from "../NewLibrary/Browser";
 import WrapperConnect from "../Wrapper";
-import Cart from "../NewLibrary/Cart";
 import Search from "../NewLibrary/Search";
-import { LibraryProvider } from "../NewLibrary/context";
+
 import { useTypedSelector } from "../../store/hooks";
 
 const LibrarySearch = () => {
   const username = useTypedSelector((state) => state.user.username);
-  const [open, setOpen] = useState(false);
+
   const [cardLayout, setCardLayout] = useState(true);
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const navigate = useNavigate();
@@ -36,15 +35,7 @@ const LibrarySearch = () => {
   const inputValue = query.get("value");
   const filter = query.get("filter");
 
-  const onClose = () => {
-    setOpen(false);
-  };
-
-  const showOpen = () => {
-    setOpen(true);
-  };
-
-  const pacsPath = "/library/SERVICES/";
+  const pacsPath = "/library/SERVICES";
   const feedsPath = `/library/home/${username}/feeds`;
   const userFilesPath = `/library/home/${username}/uploads`;
 
@@ -105,7 +96,6 @@ const LibrarySearch = () => {
               [filter]: (inputValue as string).trim(),
             });
             const pacsFiles = data.getItems() as PACSSeries[];
-
             for (const file of pacsFiles) {
               const parentFolder: FileBrowserFolder = await file.getFolder();
               const isDuplicate = parentFolders.some(
@@ -157,53 +147,56 @@ const LibrarySearch = () => {
 
   return (
     <WrapperConnect>
-      <LibraryProvider>
-        {open && <Cart open={open} onClose={onClose} />}
-        <Search
-          handleChange={() => {
-            setCardLayout(!cardLayout);
-          }}
-          handleUploadModal={() => {
-            setUploadFileModal(!uploadFileModal);
-          }}
-          checked={cardLayout}
-          showOpen={showOpen}
-        />
-        {isError && <Alert type="error" description={error.message} />}
-        {isLoading ? (
-          <SpinContainer title="Fetching Search Results..." />
-        ) : data && data.length > 0 ? (
-          data.map((folder) => {
-            return (
-              <Grid
-                style={{
-                  marginTop: "1rem",
-                  marginLeft: "1rem",
-                }}
-                key={folder.data.id}
+      <Search
+        handleChange={() => {
+          setCardLayout(!cardLayout);
+        }}
+        handleUploadModal={() => {
+          setUploadFileModal(!uploadFileModal);
+        }}
+        checked={cardLayout}
+      />
+      {isError && <Alert type="error" description={error.message} />}
+      {isLoading ? (
+        <SpinContainer title="Fetching Search Results..." />
+      ) : data && data.length > 0 ? (
+        data.map((folder) => {
+          return (
+            <Grid
+              style={{
+                marginTop: "1rem",
+                marginLeft: "1rem",
+              }}
+              key={folder.data.id}
+            >
+              <BreadcrumbContainer
+                path={folder.data.path}
+                handleFolderClick={handleFolderClick}
+              />
+              <GridItem
+                style={{ marginTop: "1rem" }}
+                sm={1}
+                lg={4}
+                md={4}
+                xl={4}
+                xl2={4}
               >
-                <BreadcrumbContainer
-                  path={folder.data.path}
-                  handleFolderClick={handleFolderClick}
+                <SubFolderCard
+                  val={folder}
+                  computedPath={folder.data.path}
+                  handleFolderClick={() => {
+                    handleFolderClick(`${folder.data.path}`);
+                  }}
                 />
-                <GridItem sm={1} lg={4} md={4} xl={4} xl2={4}>
-                  <SubFolderCard
-                    val={folder}
-                    computedPath={folder.data.path}
-                    handleFolderClick={() => {
-                      handleFolderClick(`${folder.data.path}`);
-                    }}
-                  />
-                </GridItem>
-              </Grid>
-            );
-          })
-        ) : (
-          <EmptyStateComponent
-            title={`No search terms available for ${inputValue}`}
-          />
-        )}
-      </LibraryProvider>
+              </GridItem>
+            </Grid>
+          );
+        })
+      ) : (
+        <EmptyStateComponent
+          title={`No search terms available for ${inputValue}`}
+        />
+      )}
     </WrapperConnect>
   );
 };

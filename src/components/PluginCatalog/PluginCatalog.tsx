@@ -86,6 +86,7 @@ const PluginCatalog = () => {
     queryFn: () => {
       return fetchPlugins(perPage, page, search, searchType);
     },
+    refetchOnMount: true,
   });
 
   const handleSearch = (search: string, searchType: string) => {

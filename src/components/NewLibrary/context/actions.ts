@@ -57,14 +57,20 @@ export const downloadFolderStatus = (
   };
 };
 
-export const clearDownloadFileStatus = () => {
+export const clearDownloadFileStatus = (id: number) => {
   return {
     type: Types.CLEAR_DOWNLOAD_FILE_STATUS,
+    payload: {
+      id,
+    },
   };
 };
 
-export const clearDownloadFolderStaus = () => {
+export const clearDownloadFolderStatus = (id: number) => {
   return {
     type: Types.CLEAR_DOWNLOAD_FOLDER_STATUS,
+    payload: {
+      id,
+    },
   };
 };

@@ -5,7 +5,7 @@ import {
   Types,
 } from "../types/feed";
 import { Key } from "rc-tree/lib/interface";
-import { State as MainRouterContextState } from "../../../routes";
+import { State as MainRouterContextState } from "../../../App";
 
 /*
 import { Series } from "../../../../pages/DataLibrary/Library";

@@ -22,9 +22,8 @@ import { Alert } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { MainRouterContext } from "../../../routes";
+import { MainRouterContext } from "../../../App";
 import { DotsIndicator } from "../../Common";
-import { ThemeContext } from "../../DarkTheme/useTheme";
 import {
   CodeBranchIcon,
   DownloadIcon,
