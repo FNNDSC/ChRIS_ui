@@ -4,14 +4,29 @@ import type {
   FileBrowserFolderFile,
 } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import { useContext, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { MainRouterContext } from "../../App";
 import { useTypedSelector } from "../../store/hooks";
 import { getPlugin } from "../CreateFeed/createFeedHelper";
-import { DownloadTypes, FolderDownloadTypes, LibraryContext } from "./context";
+import {
+  DownloadTypes,
+  FolderDownloadTypes,
+  LibraryContext,
+  SelectionPayload,
+  Types,
+} from "./context";
 import { downloadFileStatus, downloadFolderStatus } from "./context/actions";
 import { downloadFile } from "./useDownloadHook";
+import { isNull, isEmpty } from "lodash";
+
+interface FolderDataServer {
+  folderDownload: {
+    [key: string]: FolderDownloadTypes;
+  };
+  selectedPaths: SelectionPayload[];
+}
 
 const useOperations = () => {
   const router = useContext(MainRouterContext);
@@ -24,6 +39,7 @@ const useOperations = () => {
     "SERVICES",
     "PIPELINES",
   ];
+  const path = `/home/${username}/uploads/config`;
 
   const [feedCreationError, setFeedCreatorError] = useState<{
     paths: string[];
@@ -52,6 +68,32 @@ const useOperations = () => {
     });
   };
 
+  const keepACopyInState = async () => {
+    const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
+    const client = ChrisAPIClient.getClient();
+    await client.setUrls();
+    const formData = new FormData();
+    const fileName = "downloads.json";
+    const data = JSON.stringify({
+      folderDownload: state.folderDownloadStatus,
+      selectedPaths: state.selectedPaths,
+    });
+    formData.append("upload_path", `${path}/${fileName}`);
+    formData.append(
+      "fname",
+      new Blob([data], {
+        type: "application/json",
+      }),
+      fileName,
+    );
+    const config = {
+      headers: {
+        Authorization: `Token ${client.auth.token}`,
+      },
+    };
+    await axios.post(url, formData, config);
+  };
+
   const createFeed = () => {
     const invalidPaths: string[] = [];
     const validPaths: string[] = [];
@@ -75,6 +117,65 @@ const useOperations = () => {
 
   const clearFeed = () => {
     router.actions.clearFeedData();
+  };
+
+  const recreateState = async () => {
+    const client = ChrisAPIClient.getClient();
+
+    const fileList = await client.getUserFiles({
+      fname: "home/chris/uploads/config",
+      limit: 100,
+    });
+    const files = fileList.getItems();
+    if (files) {
+      const file = files[0];
+
+      try {
+        const blob = await file.getFileBlob();
+        const reader = new FileReader();
+        // Use a Promise to wait for the reader.onload to complete
+        const readPromise = new Promise((resolve, reject) => {
+          reader.onload = (e) => {
+            try {
+              const value = e.target ? e.target.result : ("{}" as any);
+              const contents = JSON.parse(value);
+              resolve(contents);
+            } catch (parseError: any) {
+              // Handle JSON parsing error
+              reject(new Error(`Error parsing JSON: ${parseError.message}`));
+            }
+          };
+        });
+
+        reader.readAsText(blob);
+        await file._delete();
+        // Wait for the reader.onload to complete before moving to the next file
+        const data = (await readPromise) as FolderDataServer;
+        if (isNull(state.selectedPaths) && !isNull(data.selectedPaths)) {
+          for (const path of data.selectedPaths) {
+            const url = new URL(path.payload.url);
+            const pathname = url.pathname;
+            const parts = pathname.split("/");
+            const id = parts[parts.length - 2];
+            const folder = await client.getFileBrowserFolder(+id);
+            path.payload = folder;
+          }
+          dispatch({
+            type: Types.SET_STATUS_FROM_STORAGE,
+            payload: {
+              statusInStorage: !isEmpty(data)
+                ? data
+                : state.folderDownloadStatus,
+              paths: data.selectedPaths,
+            },
+          });
+        }
+      } catch (error: any) {
+        throw new Error(
+          error.message || "An error occurred while processing files",
+        );
+      }
+    }
   };
 
   const setDownloadErrorState = (
@@ -127,9 +228,9 @@ const useOperations = () => {
             FolderDownloadTypes.started,
           ),
         );
+        await keepACopyInState();
 
         const path = payload.data.path;
-
         if (cannotDownload.includes(path)) {
           setDownloadErrorState(
             payload as FileBrowserFolder,
@@ -149,6 +250,7 @@ const useOperations = () => {
             FolderDownloadTypes.creatingFeed,
           ),
         );
+        await keepACopyInState();
 
         const dircopy = await getPlugin("pl-dircopy");
 
@@ -195,6 +297,7 @@ const useOperations = () => {
               FolderDownloadTypes.zippingFolder,
             ),
           );
+          await keepACopyInState();
 
           const pipelineList = await client.getPipelines({
             name: "zip v20240311",
@@ -267,6 +370,8 @@ const useOperations = () => {
                       FolderDownloadTypes.finished,
                     ),
                   );
+                  await keepACopyInState();
+                  await feed.delete();
                 }
               }
             }
@@ -288,6 +393,8 @@ const useOperations = () => {
     downloadError,
     cannotDownload,
     resetErrors,
+    recreateState,
+    keepACopyInState,
   };
 };
 
