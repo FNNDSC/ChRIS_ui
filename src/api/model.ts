@@ -1,7 +1,5 @@
 import _ from "lodash";
 import type { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-import ChrisAPIClient from "./chrisapiclient";
-import axios, { AxiosProgressEvent } from "axios";
 
 export interface IActionTypeParam {
   type: string;
@@ -210,7 +208,6 @@ export function getFileExtension(filename: string) {
   return name;
 }
 
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class FileViewerModel {
   public getFileName(item: FeedFile) {
     const splitString = item.data.fname.split("/");
