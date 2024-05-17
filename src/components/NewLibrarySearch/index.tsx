@@ -1,6 +1,4 @@
 import {
-  Feed,
-  FeedList,
   FileBrowserFolder,
   PACSFile,
   PACSFileList,
@@ -21,12 +19,9 @@ import BreadcrumbContainer from "../NewLibrary/Breadcrumb";
 import { SubFolderCard } from "../NewLibrary/Browser";
 import WrapperConnect from "../Wrapper";
 import Search from "../NewLibrary/Search";
-
-import { useTypedSelector } from "../../store/hooks";
+import { fetchResource } from "../../api/common";
 
 const LibrarySearch = () => {
-  const username = useTypedSelector((state) => state.user.username);
-
   const [cardLayout, setCardLayout] = useState(true);
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const navigate = useNavigate();
@@ -34,68 +29,50 @@ const LibrarySearch = () => {
   const path = query.get("path");
   const inputValue = query.get("value");
   const filter = query.get("filter");
-
   const pacsPath = "/library/SERVICES";
-  const feedsPath = `/library/home/${username}/feeds`;
-  const userFilesPath = `/library/home/${username}/uploads`;
 
   const handleSearch = async () => {
     const client = ChrisAPIClient.getClient();
     const parentFolders: FileBrowserFolder[] = [];
-
     try {
-      if (path?.startsWith(feedsPath) || path === feedsPath) {
-        try {
-          const data: FeedList = await client.getFeeds({
-            files_fname_icontains: (inputValue as string).trim(),
-            limit: 1000000,
-          });
+      if (path?.startsWith("/library/home") || path === "/library/home") {
+        const userFilesFn = client.getUserFiles;
+        const boundUserFilesFn = userFilesFn.bind(client);
+        const params = {
+          fname_icontains: (inputValue as string).trim(),
+          limit: 10,
+          offset: 0,
+        };
 
-          const feedItems = data.getItems() as Feed[];
-          for (const feed of feedItems) {
-            const parentFolder: FileBrowserFolder = await feed.getFolder();
-            const isDuplicate = parentFolders.some(
-              (folder) => folder.data.id === parentFolder.data.id,
-            );
-            if (!isDuplicate) {
-              parentFolders.push(parentFolder);
-            }
+        const { resource: uploadFiles } = await fetchResource<UserFile>(
+          params,
+          boundUserFilesFn,
+        );
+        for (const file of uploadFiles) {
+          const parentFolder: FileBrowserFolder = await file.getParentFolder();
+          const isDuplicate = parentFolders.some(
+            (folder) => folder.data.id === parentFolder.data.id,
+          );
+          if (!isDuplicate) {
+            parentFolders.push(parentFolder);
           }
-        } catch (error) {
-          throw new Error("Failed to fetch Feed Files...");
-        }
-      }
-      if (path?.startsWith(userFilesPath) || path === userFilesPath) {
-        try {
-          const data: UserFileList = await client.getUserFiles({
-            fname_icontains: (inputValue as string).trim(),
-            limit: 1000000,
-          });
-
-          const uploadFiles = data.getItems() as UserFile[];
-
-          for (const file of uploadFiles) {
-            const parentFolder: FileBrowserFolder =
-              await file.getParentFolder();
-            const isDuplicate = parentFolders.some(
-              (folder) => folder.data.id === parentFolder.data.id,
-            );
-            if (!isDuplicate) {
-              parentFolders.push(parentFolder);
-            }
-          }
-        } catch (error) {
-          throw new Error("Failed to fetch User Files...");
         }
       }
 
       if (path?.startsWith(pacsPath) || path === pacsPath) {
         try {
           if (filter) {
-            const data: PACSSeriesList = await client.getPACSSeriesList({
+            const pacsFn = client.getPACSSeriesList;
+            const boundPacsFn = pacsFn.bind(client);
+            const params = {
               [filter]: (inputValue as string).trim(),
-            });
-            const pacsFiles = data.getItems() as PACSSeries[];
+              limit: 10,
+              offset: 0,
+            };
+            const { resource: pacsFiles } = await fetchResource<PACSSeries>(
+              params,
+              boundPacsFn,
+            );
             for (const file of pacsFiles) {
               const parentFolder: FileBrowserFolder = await file.getFolder();
               const isDuplicate = parentFolders.some(
@@ -106,13 +83,17 @@ const LibrarySearch = () => {
               }
             }
           } else {
-            const data: PACSFileList = await client.getPACSFiles({
+            const pacsFn = client.getPACSFiles;
+            const boundPacsFn = pacsFn.bind(client);
+            const params = {
               fname_icontains_topdir_unique: (inputValue as string).trim(),
-              limit: 1000000,
-            });
-
-            const pacsFiles = data.getItems() as PACSFile[];
-
+              limit: 10,
+              offset: 0,
+            };
+            const { resource: pacsFiles } = await fetchResource<PACSFile>(
+              params,
+              boundPacsFn,
+            );
             for (const file of pacsFiles) {
               const parentFolder: FileBrowserFolder =
                 await file.getParentFolder();

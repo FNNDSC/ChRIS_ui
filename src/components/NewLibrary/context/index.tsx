@@ -50,6 +50,7 @@ export enum Types {
   CLEAR_DOWNLOAD_FILE_STATUS = "CLEAR_DOWNLOAD_FILE_STATUS",
   CLEAR_DOWNLOAD_FOLDER_STATUS = "CLEAR_DOWNLOAD_FOLDER_STATUS",
   SET_TOGGLE_CART = "SET_TOGGLE_CART",
+  SET_STATUS_FROM_STORAGE = "SET_STATUS_FROM_STORAGE",
 }
 
 export enum DownloadTypes {
@@ -97,6 +98,12 @@ export type LibraryPayload = {
   };
   [Types.CLEAR_DOWNLOAD_FOLDER_STATUS]: {
     id: string;
+  };
+  [Types.SET_STATUS_FROM_STORAGE]: {
+    statusInStorage: {
+      [key: string]: FolderDownloadTypes;
+    };
+    paths: SelectionPayload[];
   };
   [Types.SET_TOGGLE_CART]: null;
 };
@@ -147,6 +154,14 @@ export const libraryReducer = (
       return {
         ...state,
         folderDownloadStatus,
+      };
+    }
+
+    case Types.SET_STATUS_FROM_STORAGE: {
+      return {
+        ...state,
+        folderDownloadStatus: action.payload.statusInStorage,
+        selectedPaths: action.payload.paths,
       };
     }
 

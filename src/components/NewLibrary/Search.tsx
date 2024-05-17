@@ -75,6 +75,7 @@ const Search = ({ checked, handleChange, handleUploadModal }: SearchProps) => {
 
   const onSelect = (_event: React.MouseEvent | undefined, value: string) => {
     setSelectedItem(value);
+    onToggleClick();
   };
 
   const spacer: {

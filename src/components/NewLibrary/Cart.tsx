@@ -80,6 +80,7 @@ const Cart = () => {
     clearFeed,
     cannotDownload,
     resetErrors,
+    recreateState,
   } = useOperations();
   const { mutate } = handleDownloadMutation;
 
@@ -93,6 +94,11 @@ const Cart = () => {
         dispatch({
           type: Types.SET_TOGGLE_CART,
         });
+      }}
+      afterOpenChange={(open) => {
+        if (open === true) {
+          recreateState();
+        }
       }}
       open={state.openCart}
     >
