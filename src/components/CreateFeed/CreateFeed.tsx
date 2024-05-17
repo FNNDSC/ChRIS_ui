@@ -61,6 +61,16 @@ export default function CreateFeed() {
     });
   };
 
+  const resetAfterCompletion = () => {
+    dispatch({
+      type: Types.ResetState,
+    });
+    pipelineDispatch({
+      type: Types.ResetState,
+    });
+    router.actions.clearFeedData();
+  };
+
   const enableSave =
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
@@ -136,9 +146,7 @@ export default function CreateFeed() {
 
         setTimeout(() => {
           setFeedProcessing(false);
-          dispatch({
-            type: Types.ResetState,
-          });
+          resetAfterCompletion();
         }, 1500);
       }
     } catch (error) {
@@ -233,13 +241,7 @@ export default function CreateFeed() {
             <WizardHeader
               onClose={() => {
                 if (wizardOpen) {
-                  dispatch({
-                    type: Types.ResetState,
-                  });
-                  pipelineDispatch({
-                    type: Types.ResetState,
-                  });
-                  router.actions.clearFeedData();
+                  resetAfterCompletion();
                 }
               }}
               title="Create a New Analysis"

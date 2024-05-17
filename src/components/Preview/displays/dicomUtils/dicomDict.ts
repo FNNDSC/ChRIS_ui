@@ -1,10 +1,11 @@
 import { TAG_DICT, uids } from "./dataDictionary";
 import Rusha from "rusha";
+import dicomParser from "dicom-parser";
 
 function imageFrameLink(frameIndex: any) {
   let linkText = "<a class='imageFrameDownload' ";
-  linkText += "data-frameIndex='" + frameIndex + "'";
-  linkText += " href='#'> Frame #" + frameIndex + "</a>";
+  linkText += `data-frameIndex='${frameIndex}'`;
+  linkText += ` href='#'> Frame #${frameIndex}</a>`;
   return linkText;
 }
 
@@ -13,15 +14,16 @@ const rusha = new Rusha();
 // helper function to see if a string only has ascii characters in it
 function isASCII(str: any) {
   //Ts-ignore
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: <explanation>
   return /^[\x00-\x7F]*$/.test(str);
 }
 
 function sha1(byteArray: any, position?: any, length?: any) {
-  position = position || 0;
-  length = length || byteArray.length;
-  position = position || 0;
-  length = length || byteArray.length;
-  const subArray = dicomParser.sharedCopy(byteArray, position, length);
+  const subArray = dicomParser.sharedCopy(
+    byteArray,
+    position || 0,
+    length || byteArray.length,
+  );
   return rusha.digest(subArray);
 }
 
@@ -30,7 +32,7 @@ function sha1Text(byteArray: any, position?: any, length?: any) {
   if (showSHA1 === false) {
     return "";
   }
-  const text = "; SHA1 " + sha1(byteArray, position, length);
+  const text = `; SHA1 ${sha1(byteArray, position, length)}`;
   return text;
 }
 
@@ -65,7 +67,7 @@ function mapUid(str: any) {
   //@ts-ignore
   const uid = uids[str];
   if (uid) {
-    return " [ " + uid + " ]";
+    return ` [ ${uid} ]`;
   }
   return "";
 }
@@ -82,7 +84,7 @@ const maxLength = 128;
 function getTag(tag: any) {
   const group = tag.substring(1, 5);
   const element = tag.substring(5, 9);
-  const tagIndex = ("(" + group + "," + element + ")").toUpperCase();
+  const tagIndex = `(${group},${element})`.toUpperCase();
 
   //@ts-ignore
   const attr = TAG_DICT[tagIndex];
@@ -132,67 +134,67 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
       // The output string begins with the element name (or tag if not in data dictionary), length and VR (if present).  VR is undefined for
       // implicit transfer syntaxes
       if (tag === undefined) {
-        let lengthText = "length=" + element.length;
+        let lengthText = `length=${element.length}`;
         if (element.hadUndefinedLength) {
           lengthText += " (-1)";
         }
         //@ts-ignore
         if (showLength === true) {
-          text += lengthText + "; ";
+          text += `${lengthText}; `;
         }
 
         title += lengthText;
 
         let vrText = "";
         if (element.vr) {
-          vrText += "VR=" + element.vr;
+          vrText += `VR=${element.vr}`;
         }
 
         if (showVR) {
-          text += vrText + "; ";
+          text += `${vrText}; `;
         }
         if (vrText) {
-          title += "; " + vrText;
+          title += `; ${vrText}`;
         }
 
-        title += "dataOffset=" + element.dataOffset;
+        title += `dataOffset=${element.dataOffset}`;
         // make text lighter since this is an unknown attribute
         color = "#C8C8C8";
       } else {
         let vrText = "";
         if (element.vr) {
-          vrText += "VR=" + element.vr;
+          vrText += `VR=${element.vr}`;
         }
 
         if (showVR) {
-          text += vrText + "; ";
+          text += `${vrText}; `;
         }
         if (vrText) {
-          title += "" + vrText;
+          title += `${vrText}`;
         }
 
-        title += "; dataOffset=" + element.dataOffset;
+        title += `; dataOffset=${element.dataOffset}`;
       }
 
       // Here we check for Sequence items and iterate over them if present.  items will not be set in the
       // element object for elements that don't have SQ VR type.  Note that implicit little endian
       // sequences will are currently not parsed.
       if (element.items) {
-        output.push("<li>" + text + "</li>");
+        output.push(`<li>${text}</li>`);
         output.push("<ul>");
 
         // each item contains its own data set so we iterate over the items
         // and recursively call this function
         let itemNumber = 0;
-        element.items.forEach(function (item: any) {
-          output.push("<li>Item #" + itemNumber++ + " " + item.tag);
-          let lengthText = " length=" + item.length;
+        element.items.forEach((item: any) => {
+          output.push(`<li>Item #${itemNumber++} ${item.tag}`);
+          let lengthText = ` length=${item.length}`;
           if (item.hadUndefinedLength) {
             lengthText += " (-1)";
           }
           //@ts-ignore
           if (showLength === true) {
-            text += lengthText + "; ";
+            text += `${lengthText}; `;
             output.push(lengthText);
           }
           output.push("</li>");
@@ -202,28 +204,21 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
         });
         output.push("</ul>");
       } else if (element.fragments) {
-        text +=
-          "encapsulated pixel data with " +
-          element.basicOffsetTable.length +
-          " offsets and " +
-          element.fragments.length +
-          " fragments";
+        text += `encapsulated pixel data with ${element.basicOffsetTable.length} offsets and ${element.fragments.length} fragments`;
         text += sha1Text(dataSet.byteArray, element.dataOffset, element.length);
 
-        output.push("<li title='" + title + "'=>" + text + "</li>");
+        output.push(`<li title='${title}'=>${text}</li>`);
 
         if (showFragments && element.encapsulatedPixelData) {
           output.push("Fragments:<br>");
           output.push("<ul>");
           let itemNumber = 0;
-          element.fragments.forEach(function (fragment: any) {
-            let str =
-              "<li>Fragment #" +
-              itemNumber++ +
-              " dataOffset = " +
-              fragment.position;
-            str += "; offset = " + fragment.offset;
-            str += "; length = " + fragment.length;
+          element.fragments.forEach((fragment: any) => {
+            let str = `<li>Fragment #${itemNumber++} dataOffset = ${
+              fragment.position
+            }`;
+            str += `; offset = ${fragment.offset}`;
+            str += `; length = ${fragment.length}`;
             str += sha1Text(
               dataSet.byteArray,
               fragment.position,
@@ -247,17 +242,17 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
           for (let frameIndex = 0; frameIndex < bot.length; frameIndex++) {
             let str = "<li>";
             str += imageFrameLink(frameIndex);
-            str +=
-              " dataOffset = " +
-              (element.fragments[0].position + bot[frameIndex]);
-            str += "; offset = " + bot[frameIndex];
+            str += ` dataOffset = ${
+              element.fragments[0].position + bot[frameIndex]
+            }`;
+            str += `; offset = ${bot[frameIndex]}`;
             const imageFrame = dicomParser.readEncapsulatedImageFrame(
               dataSet,
               element,
               frameIndex,
               bot,
             );
-            str += "; length = " + imageFrame.length;
+            str += `; length = ${imageFrame.length}`;
             str += sha1Text(imageFrame);
             str += "</li>";
             output.push(str);
@@ -288,9 +283,9 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
           // image Rows and Columns so that is why those are assumed over other VR types.
           if (element.vr === undefined && tag === undefined) {
             if (element.length === 2) {
-              text += " (" + dataSet.uint16(propertyName) + ")";
+              text += ` (${dataSet.uint16(propertyName)})`;
             } else if (element.length === 4) {
-              text += " (" + dataSet.uint32(propertyName) + ")";
+              text += ` (${dataSet.uint32(propertyName)})`;
             }
 
             // Next we ask the dataset to give us the element's data in string form.  Most elements are
@@ -344,7 +339,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
                 i < dataSet.elements[propertyName].length / 2;
                 i++
               ) {
-                text += "\\" + dataSet.uint16(propertyName, i);
+                text += `\\${dataSet.uint16(propertyName, i)}`;
               }
             } else if (vr === "SS") {
               text += dataSet.int16(propertyName);
@@ -353,7 +348,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
                 i < dataSet.elements[propertyName].length / 2;
                 i++
               ) {
-                text += "\\" + dataSet.int16(propertyName, i);
+                text += `\\${dataSet.int16(propertyName, i)}`;
               }
             } else if (vr === "UL") {
               text += dataSet.uint32(propertyName);
@@ -362,7 +357,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
                 i < dataSet.elements[propertyName].length / 4;
                 i++
               ) {
-                text += "\\" + dataSet.uint32(propertyName, i);
+                text += `\\${dataSet.uint32(propertyName, i)}`;
               }
             } else if (vr === "SL") {
               text += dataSet.int32(propertyName);
@@ -371,7 +366,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
                 i < dataSet.elements[propertyName].length / 4;
                 i++
               ) {
-                text += "\\" + dataSet.int32(propertyName, i);
+                text += `\\${dataSet.int32(propertyName, i)}`;
               }
             } else if (vr == "FD") {
               text += dataSet.double(propertyName);
@@ -380,16 +375,16 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
                 i < dataSet.elements[propertyName].length / 8;
                 i++
               ) {
-                text += "\\" + dataSet.double(propertyName, i);
+                text += `\\${dataSet.double(propertyName, i)}`;
               }
-            } else if (vr == "FL") {
+            } else if (vr === "FL") {
               text += dataSet.float(propertyName);
               for (
                 let i = 1;
                 i < dataSet.elements[propertyName].length / 4;
                 i++
               ) {
-                text += "\\" + dataSet.float(propertyName, i);
+                text += `\\${dataSet.float(propertyName, i)}`;
               }
             } else if (
               vr === "OB" ||
@@ -432,16 +427,14 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
                 */
             } else if (vr === "AT") {
               const group = dataSet.uint16(propertyName, 0);
-              const groupHexStr = ("0000" + group.toString(16)).substring(-4);
+              const groupHexStr = `0000${group.toString(16)}`.substring(-4);
               const element = dataSet.uint16(propertyName, 1);
-              const elementHexStr = ("0000" + element.toString(16)).substring(
-                -4,
-              );
-              text += "x" + groupHexStr + elementHexStr;
+              const elementHexStr = `0000${element.toString(16)}`.substring(-4);
+              text += `x${groupHexStr}${elementHexStr}`;
             } else if (vr === "SQ") {
             } else {
               // If it is some other length and we have no string
-              text += "<i>no display code for VR " + vr + " yet, sorry!</i>";
+              text += `<i>no display code for VR ${vr} yet, sorry!</i>`;
             }
           }
 
@@ -467,13 +460,7 @@ export function dumpDataSet(dataSet: any, output: any, testOutput: any) {
         }
 
         output.push(
-          '<li style="color:' +
-            color +
-            ';" title="' +
-            title +
-            '">' +
-            text +
-            "</li>",
+          `<li style="color:${color};" title="${title}">${text}</li>`,
         );
       }
     }
