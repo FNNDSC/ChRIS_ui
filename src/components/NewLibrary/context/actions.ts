@@ -1,5 +1,5 @@
 import { FileBrowserFolder, FileBrowserFolderFile } from "@fnndsc/chrisapi";
-import { Types, DownloadTypes, FolderDownloadTypes } from ".";
+import { Types, DownloadTypes, FolderDownloadTypes, SelectionPayload } from ".";
 
 export const setSelectFolder = (
   path: string,
@@ -71,6 +71,15 @@ export const clearDownloadFolderStatus = (id: number) => {
     type: Types.CLEAR_DOWNLOAD_FOLDER_STATUS,
     payload: {
       id,
+    },
+  };
+};
+
+export const setSelectedFolderFromCookies = (paths: SelectionPayload[]) => {
+  return {
+    type: Types.SET_SELECTED_PATHS_FROM_COOKIES,
+    payload: {
+      paths,
     },
   };
 };
