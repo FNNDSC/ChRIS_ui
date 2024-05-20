@@ -22,12 +22,13 @@ import SeriesCard from "./SeriesCard";
 import { CardHeaderComponent } from "./SettingsComponents";
 
 import useSettings from "../useSettings";
+import PfdcmClient from "../pfdcmClient";
 
 const StudyCardCopy = ({ study }: { study: any }) => {
   const { data, isLoading, isError } = useSettings();
   const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
-  const { preview, pullStudy, studyPullTracker } = state;
+  const { preview, pullStudy, studyPullTracker, selectedPacsService } = state;
   const userPreferences = data?.study;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
   const studyInstanceUID = study.StudyInstanceUID.value;
@@ -231,7 +232,12 @@ const StudyCardCopy = ({ study }: { study: any }) => {
               ) : (
                 <Tooltip content="Pull Study">
                   <Button
-                    onClick={() => {
+                    onClick={async () => {
+                      const client = new PfdcmClient();
+                      await client.findRetrieve(selectedPacsService, {
+                        AccessionNumber: study.AccessionNumber.value,
+                      });
+
                       dispatch({
                         type: Types.SET_PULL_STUDY,
                         payload: {
