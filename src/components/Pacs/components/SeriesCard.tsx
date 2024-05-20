@@ -24,7 +24,6 @@ import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { MainRouterContext } from "../../../routes";
 import { DotsIndicator } from "../../Common";
-import { ThemeContext } from "../../DarkTheme/useTheme";
 import {
   CodeBranchIcon,
   DownloadIcon,
@@ -45,6 +44,7 @@ async function getPACSData(
   const cubeClient = ChrisAPIClient.getClient();
   try {
     const data: PACSFileList = await cubeClient.getPACSFiles({
+      //@ts-ignore
       pacs_identifier: pacsIdentifier,
       ...pullQuery,
       ...additionalParams,
@@ -99,10 +99,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       try {
         const data = await client.findRetrieve(selectedPacsService, pullQuery);
         localStorage.setItem(SeriesInstanceUID.value, data);
+        // Timestamp data is important for tracking the min_creation_date while polling the backend for files
         setTimeStamp(data);
         // Start polling for files after a successful pfdcm request
         setIsFetching(true);
       } catch (e) {
+        // Don't poll if the request fails
         throw e;
       }
     },
@@ -224,7 +226,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     queryFn: fetchCubeFiles,
     refetchInterval: () => {
       // Only fetch after a successfull response from pfdcm
-      if (isFetching) return 500;
+      // Decrease polling frequency to avoid overwhelming cube with network requests
+      if (isFetching) return 1500;
       return false;
     },
     refetchOnMount: true,
@@ -233,7 +236,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   // Retrieve this series if the pull study is clicked and the series is not already being retrieved.
   useEffect(() => {
     if (pullStudy?.[studyInstanceUID] && !isFetching) {
-      handleRetrieveMutation.mutate();
+      //handleRetrieveMutation.mutate();
+      setIsFetching(true);
     }
   }, [pullStudy]);
 
@@ -469,7 +473,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       </div>
 
       <div className="flex-series-item button-container">
-        {data && data.totalFilesCount <= 0 && !isFetching && (
+        {((data && data.totalFilesCount <= 0 && !isFetching) ||
+          resourceErrorFound) && (
           <Tooltip content="Retrieve Series">{retrieveButton}</Tooltip>
         )}
         {isFetching && data && data.totalFilesCount < 1 && (

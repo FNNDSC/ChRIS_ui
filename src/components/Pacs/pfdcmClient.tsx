@@ -1,7 +1,6 @@
-import React from "react";
-import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
-import { Spin } from "antd";
+import axios from "axios";
+import React from "react";
 
 export interface ImageStatusType {
   title: string;
@@ -11,8 +10,9 @@ export interface ImageStatusType {
 }
 
 export interface DataFetchQuery {
-  SeriesInstanceUID: string;
-  StudyInstanceUID: string;
+  SeriesInstanceUID?: string;
+  StudyInstanceUID?: string;
+  AccessionNumber?: string;
 }
 
 class PfdcmClient {
@@ -33,7 +33,8 @@ class PfdcmClient {
       const url = `${this.url}api/v1/PACSservice/list/`;
       const response = await axios.get(url);
       return response.data;
-    } catch (error: any) {
+      // setting error as unknown for better type safety
+    } catch (error: unknown) {
       throw error;
     }
   }
@@ -60,8 +61,8 @@ class PfdcmClient {
       if (status) {
         return pypx;
       }
-    } catch (error: any) {
-      throw new Error(error);
+    } catch (error: unknown) {
+      throw error;
     }
   }
 
@@ -69,6 +70,8 @@ class PfdcmClient {
     const RequestConfig: AxiosRequestConfig = {
       url: `${this.url}api/v1/PACS/thread/pypx/`,
       method: "POST",
+      timeout: 10000, //10s
+      timeoutErrorMessage: "Error Request Timeout out",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -89,8 +92,8 @@ class PfdcmClient {
     try {
       const response = await axios(RequestConfig);
       return response.data.timestamp;
-    } catch (error: any) {
-      throw new Error(error);
+    } catch (error: unknown) {
+      throw error;
     }
   }
 }
