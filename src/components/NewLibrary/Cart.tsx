@@ -74,6 +74,7 @@ const Cart = () => {
   const { state, dispatch } = useContext(LibraryContext);
   const {
     handleDownloadMutation,
+    handleDeleteMutation,
     createFeed,
     feedCreationError,
     downloadError,
@@ -81,6 +82,7 @@ const Cart = () => {
     cannotDownload,
     resetErrors,
     recreateState,
+    keepACopyInState,
   } = useOperations();
   const { mutate } = handleDownloadMutation;
 
@@ -132,7 +134,13 @@ const Cart = () => {
           >
             Clear All
           </Button>
-          <Button isDisabled={true} size="sm" variant="danger">
+          <Button
+            onClick={() => {
+              handleDeleteMutation.mutate();
+            }}
+            size="sm"
+            variant="danger"
+          >
             Delete
           </Button>
         </GridItem>
@@ -151,13 +159,14 @@ const Cart = () => {
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => {
+                  onClick={async () => {
                     dispatch(clearSelectFolder(item.path));
                     clearFeed();
                     clearDownloadFileStatus(item.payload.data.id);
                     clearDownloadFolderStatus(item.payload.data.id);
+                    keepACopyInState(state);
                   }}
-                  key={`a-${item}`}
+                  key={`a-${item.payload.data.id}`}
                 >
                   Clear
                 </Button>,

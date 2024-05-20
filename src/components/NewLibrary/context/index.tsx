@@ -7,7 +7,7 @@ export interface SelectionPayload {
   payload: FileBrowserFolderFile | FileBrowserFolder;
 }
 
-interface LibraryState {
+export interface LibraryState {
   openCart: boolean;
   selectedPaths: SelectionPayload[];
   previewAll: boolean;
@@ -42,6 +42,7 @@ type ActionMap<M extends { [index: string]: any }> = {
 
 export enum Types {
   SET_SELECTED_PATHS = "SET_SELECTED_PATHS",
+  SET_SELECTED_PATHS_FROM_COOKIES = "SET_SELECTED_PATHS_FROM_COOKIES",
   CLEAR_SELECTED_PATHS = "CLEAR_SELECTED_PATHS",
   SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
   CLEAR_CART = "CLEAR_CART",
@@ -50,7 +51,6 @@ export enum Types {
   CLEAR_DOWNLOAD_FILE_STATUS = "CLEAR_DOWNLOAD_FILE_STATUS",
   CLEAR_DOWNLOAD_FOLDER_STATUS = "CLEAR_DOWNLOAD_FOLDER_STATUS",
   SET_TOGGLE_CART = "SET_TOGGLE_CART",
-  SET_STATUS_FROM_STORAGE = "SET_STATUS_FROM_STORAGE",
 }
 
 export enum DownloadTypes {
@@ -74,6 +74,9 @@ export type LibraryPayload = {
     path: string;
     type: string;
     payload: FileBrowserFolderFile | FileBrowserFolder;
+  };
+  [Types.SET_SELECTED_PATHS_FROM_COOKIES]: {
+    paths: SelectionPayload[];
   };
   [Types.CLEAR_SELECTED_PATHS]: {
     path: string;
@@ -99,12 +102,7 @@ export type LibraryPayload = {
   [Types.CLEAR_DOWNLOAD_FOLDER_STATUS]: {
     id: string;
   };
-  [Types.SET_STATUS_FROM_STORAGE]: {
-    statusInStorage: {
-      [key: string]: FolderDownloadTypes;
-    };
-    paths: SelectionPayload[];
-  };
+
   [Types.SET_TOGGLE_CART]: null;
 };
 
@@ -157,14 +155,6 @@ export const libraryReducer = (
       };
     }
 
-    case Types.SET_STATUS_FROM_STORAGE: {
-      return {
-        ...state,
-        folderDownloadStatus: action.payload.statusInStorage,
-        selectedPaths: action.payload.paths,
-      };
-    }
-
     case Types.SET_FOLDER_DOWNLOAD_STATUS: {
       const { id, status } = action.payload;
 
@@ -181,6 +171,13 @@ export const libraryReducer = (
       return {
         ...state,
         selectedPaths: [...state.selectedPaths, action.payload],
+      };
+    }
+
+    case Types.SET_SELECTED_PATHS_FROM_COOKIES: {
+      return {
+        ...state,
+        selectedPaths: [...action.payload.paths],
       };
     }
 
