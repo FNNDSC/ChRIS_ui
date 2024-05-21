@@ -235,8 +235,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   // Retrieve this series if the pull study is clicked and the series is not already being retrieved.
   useEffect(() => {
-    if (pullStudy?.[studyInstanceUID] && !isFetching) {
-      //handleRetrieveMutation.mutate();
+    if (pullStudy?.[studyInstanceUID] && !isFetching && !isDisabled) {
       setIsFetching(true);
     }
   }, [pullStudy]);
