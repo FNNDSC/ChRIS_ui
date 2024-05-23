@@ -24,7 +24,7 @@ function getPatientDetails(patientDetails: any) {
 }
 
 const PatientCard = ({ queryResult }: { queryResult: any }) => {
-  const [api] = notification.useNotification();
+  const [api, contextHolder] = notification.useNotification();
   const { data, isLoading, error, isError } = useSettings();
   const { state } = useContext(PacsQueryContext);
   const patient = queryResult[0];
@@ -78,6 +78,7 @@ const PatientCard = ({ queryResult }: { queryResult: any }) => {
         isRounded={true}
         isExpanded={isPatientExpanded}
       >
+        {contextHolder}
         <CardHeader
           actions={{
             actions: <CardHeaderComponent resource={patient} type="patient" />,

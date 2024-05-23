@@ -8,6 +8,7 @@ import {
   Skeleton,
   Tooltip,
 } from "@patternfly/react-core";
+import { notification } from "antd";
 import { format, parse } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import { DotsIndicator } from "../../Common";
@@ -18,21 +19,22 @@ import {
   ThLargeIcon,
 } from "../../Icons";
 import { PacsQueryContext, Types } from "../context";
+import PfdcmClient from "../pfdcmClient";
+import useSettings from "../useSettings";
 import SeriesCard from "./SeriesCard";
 import { CardHeaderComponent } from "./SettingsComponents";
-
-import useSettings from "../useSettings";
-import PfdcmClient from "../pfdcmClient";
+import usePullStudyHook from "./usePullStudyHook";
 
 const StudyCardCopy = ({ study }: { study: any }) => {
+  const [api, contextHolder] = notification.useNotification();
+  const { writeStatus, getStatus } = usePullStudyHook();
   const { data, isLoading, isError } = useSettings();
   const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
   const { preview, pullStudy, studyPullTracker, selectedPacsService } = state;
   const userPreferences = data?.study;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
-  const studyInstanceUID = study.StudyInstanceUID.value;
-
+  const accessionNumber = study.AccessionNumber.value;
   const studyDate = study.StudyDate.value;
   const parsedDate = parse(studyDate, "yyyyMMdd", new Date());
   const formattedDate = Number.isNaN(
@@ -42,32 +44,73 @@ const StudyCardCopy = ({ study }: { study: any }) => {
     : format(parsedDate, "MMMM d, yyyy");
 
   useEffect(() => {
-    if (studyPullTracker && pullStudy) {
-      const studyBeingTracked = studyPullTracker[studyInstanceUID];
-      if (studyBeingTracked) {
-        let allSeriesBeingTracked = true;
-        for (const series in studyBeingTracked) {
-          const isSeriesDone = studyBeingTracked[series];
-          if (!isSeriesDone) {
-            allSeriesBeingTracked = false;
-            break;
+    async function setUpStatus() {
+      if (studyPullTracker[accessionNumber] && pullStudy[accessionNumber]) {
+        const studyBeingTracked = studyPullTracker[accessionNumber];
+        if (studyBeingTracked) {
+          let allSeriesBeingTracked = true;
+          for (const series in studyBeingTracked) {
+            const isSeriesDone = studyBeingTracked[series];
+            if (!isSeriesDone) {
+              allSeriesBeingTracked = false;
+              break;
+            }
           }
-        }
-        if (allSeriesBeingTracked) {
-          dispatch({
-            type: Types.SET_PULL_STUDY,
-            payload: {
-              studyInstanceUID,
-              status: false,
-            },
-          });
+          if (allSeriesBeingTracked) {
+            dispatch({
+              type: Types.SET_PULL_STUDY,
+              payload: {
+                studyInstanceUID: accessionNumber,
+                status: false,
+              },
+            });
+            // stop tracking this status as an active pull
+            await writeStatus(accessionNumber, false);
+          }
         }
       }
     }
-  }, [studyPullTracker, pullStudy]);
+
+    setUpStatus();
+  }, [studyPullTracker[accessionNumber], pullStudy[accessionNumber]]);
+
+  useEffect(() => {
+    async function fetchStatus() {
+      const status = await getStatus(accessionNumber);
+      if (status?.[accessionNumber]) {
+        setIsStudyExpanded(true);
+        dispatch({
+          type: Types.SET_PULL_STUDY,
+          payload: {
+            studyInstanceUID: accessionNumber,
+            status: true,
+          },
+        });
+      }
+    }
+    // Fetch Status
+    fetchStatus();
+  }, []);
+
+  const retrieveStudy = async () => {
+    await writeStatus(study.AccessionNumber.value, true);
+    const client = new PfdcmClient();
+    await client.findRetrieve(selectedPacsService, {
+      AccessionNumber: study.AccessionNumber.value,
+    });
+    dispatch({
+      type: Types.SET_PULL_STUDY,
+      payload: {
+        studyInstanceUID: accessionNumber,
+        status: true,
+      },
+    });
+    setIsStudyExpanded(true);
+  };
 
   return (
     <>
+      {contextHolder}
       <Card
         isFlat={true}
         isFullHeight={true}
@@ -227,25 +270,32 @@ const StudyCardCopy = ({ study }: { study: any }) => {
                 />
               </Tooltip>
 
-              {pullStudy[studyInstanceUID] ? (
+              {pullStudy[accessionNumber] ? (
                 <DotsIndicator title="Pulling Study..." />
               ) : (
                 <Tooltip content="Pull Study">
                   <Button
                     onClick={async () => {
-                      const client = new PfdcmClient();
-                      await client.findRetrieve(selectedPacsService, {
-                        AccessionNumber: study.AccessionNumber.value,
-                      });
-
-                      dispatch({
-                        type: Types.SET_PULL_STUDY,
-                        payload: {
-                          studyInstanceUID,
-                          status: true,
-                        },
-                      });
-                      setIsStudyExpanded(true);
+                      const status = await getStatus(accessionNumber);
+                      if (status?.[accessionNumber]) {
+                        api.info({
+                          message: "This study has already been pulled",
+                          description: (
+                            <Button
+                              variant="tertiary"
+                              onClick={async () => {
+                                await retrieveStudy();
+                              }}
+                            >
+                              Pull again?
+                            </Button>
+                          ),
+                          duration: 4,
+                        });
+                        setIsStudyExpanded(true);
+                      } else {
+                        await retrieveStudy();
+                      }
                     }}
                     variant="tertiary"
                     className="button-with-margin"

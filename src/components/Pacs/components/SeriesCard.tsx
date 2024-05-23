@@ -74,10 +74,14 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     SeriesInstanceUID,
     StudyInstanceUID,
     NumberOfSeriesRelatedInstances,
+    AccessionNumber,
   } = series;
   const seriesInstances = parseInt(NumberOfSeriesRelatedInstances.value);
   const studyInstanceUID = StudyInstanceUID.value;
   const seriesInstanceUID = SeriesInstanceUID.value;
+  const accessionNumber = AccessionNumber.value;
+
+  console.log("State", state);
 
   // disable the card completely in this case
   const isDisabled = seriesInstances === 0;
@@ -182,12 +186,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       }
 
       // setting the study instance tracker if pull study is clicked
-      if (pullStudy?.[studyInstanceUID]) {
+      if (pullStudy?.[accessionNumber]) {
         dispatch({
           type: Types.SET_STUDY_PULL_TRACKER,
           payload: {
             seriesInstanceUID: SeriesInstanceUID.value,
-            studyInstanceUID: StudyInstanceUID.value,
+            studyInstanceUID: accessionNumber,
             currentProgress: totalFilesCount === seriesInstances,
           },
         });
@@ -235,14 +239,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   // Retrieve this series if the pull study is clicked and the series is not already being retrieved.
   useEffect(() => {
-    if (pullStudy?.[studyInstanceUID] && !isFetching && !isDisabled) {
+    if (pullStudy?.[accessionNumber] && !isFetching && !isDisabled) {
       setIsFetching(true);
     }
   }, [pullStudy]);
 
   // Start polling from where the user left off in case the user refreshed the screen.
   useEffect(() => {
-    if (isFetching) return;
     if (
       data &&
       data.totalFilesCount > 0 &&
