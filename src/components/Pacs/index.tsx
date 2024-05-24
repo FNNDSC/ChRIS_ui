@@ -418,7 +418,7 @@ const Results = () => {
               </div>
             );
           }
-          return <EmptyStateComponent />;
+          return <EmptyStateComponent key={index} />;
         })
       ) : (
         <EmptyStateComponent />

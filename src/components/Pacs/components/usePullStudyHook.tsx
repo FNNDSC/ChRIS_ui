@@ -9,7 +9,6 @@ const usePullStudyHook = () => {
   const token = client.auth.token;
 
   const writeStatus = async (accessionNumber: string, type: boolean) => {
-    // get existing status
     try {
       const status = await getStatus(accessionNumber);
       // delete this file
