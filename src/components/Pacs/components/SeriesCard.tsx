@@ -81,8 +81,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const seriesInstanceUID = SeriesInstanceUID.value;
   const accessionNumber = AccessionNumber.value;
 
-  console.log("State", state);
-
   // disable the card completely in this case
   const isDisabled = seriesInstances === 0;
   const [isFetching, setIsFetching] = useState(false);
@@ -239,10 +237,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   // Retrieve this series if the pull study is clicked and the series is not already being retrieved.
   useEffect(() => {
-    if (pullStudy?.[accessionNumber] && !isFetching && !isDisabled) {
+    if (pullStudy[accessionNumber] && !isFetching && !isDisabled) {
       setIsFetching(true);
     }
-  }, [pullStudy]);
+  }, [pullStudy[accessionNumber]]);
 
   // Start polling from where the user left off in case the user refreshed the screen.
   useEffect(() => {

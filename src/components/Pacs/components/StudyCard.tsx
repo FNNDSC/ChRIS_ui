@@ -56,7 +56,12 @@ const StudyCardCopy = ({ study }: { study: any }) => {
               break;
             }
           }
-          if (allSeriesBeingTracked) {
+
+          // All series are being tracked and are complete
+          if (
+            allSeriesBeingTracked &&
+            study.series.length === Object.keys(studyBeingTracked).length
+          ) {
             dispatch({
               type: Types.SET_PULL_STUDY,
               payload: {
