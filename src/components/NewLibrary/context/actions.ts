@@ -83,3 +83,14 @@ export const setSelectedFolderFromCookies = (paths: SelectionPayload[]) => {
     },
   };
 };
+
+export const setDownloadStatusFromCookies = (status: {
+  [key: string]: FolderDownloadTypes;
+}) => {
+  return {
+    type: Types.SET_FOLDER_DOWNLOAD_FROM_COOKIES,
+    payload: {
+      status,
+    },
+  };
+};
