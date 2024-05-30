@@ -126,8 +126,6 @@ const useOperations = () => {
     selectedPaths: any,
     folderDownloadStatus: any,
   ) => {
-    console.log("SelectedPaths", selectedPaths);
-
     const downloadPromises = selectedPaths.map(async (userSelection: any) => {
       const { type, payload } = userSelection;
       if (type === "folder") {
@@ -137,23 +135,29 @@ const useOperations = () => {
           if (currentStatus === FolderDownloadTypes.zippingFolder) {
             const data = await checkIfFeedExists(payload);
 
-            if (!data || !data.feed || !data.createdInstance) {
-              return; // Skip this iteration
-            }
+            console.log("Data", data);
 
-            const { feed, createdInstance } = data;
-            dispatch(
-              downloadFolderStatus(
+            if (!data || !data.feed || !data.createdInstance) {
+              setDownloadErrorState(
                 payload as FileBrowserFolder,
-                FolderDownloadTypes.zippingFolder,
-              ),
-            );
-            await createPipelineDuringDownload(
-              payload as FileBrowserFolder,
-              payload.data.path,
-              createdInstance,
-              feed,
-            );
+                payload.data.path,
+                "Error download this folder/file",
+              );
+            } else {
+              const { feed, createdInstance } = data;
+              dispatch(
+                downloadFolderStatus(
+                  payload as FileBrowserFolder,
+                  FolderDownloadTypes.zippingFolder,
+                ),
+              );
+              await createPipelineDuringDownload(
+                payload as FileBrowserFolder,
+                payload.data.path,
+                createdInstance,
+                feed,
+              );
+            }
           }
         }
       }
@@ -225,7 +229,11 @@ const useOperations = () => {
         path,
         "Failed to find dircopy",
       );
-      return undefined;
+      return {
+        feed: undefined,
+        folderName: "",
+        createdInstance: undefined,
+      };
     }
     const client = ChrisAPIClient.getClient();
     // Check if the feed already exists with this name (Feed downloads cannot be repetitive)
@@ -245,9 +253,9 @@ const useOperations = () => {
       feed = feeds?.[0];
       const pluginInstances = await feed?.getPluginInstances({});
       const pluginInstancesItems = pluginInstances?.getItems();
+      console.log("PluginInstanceItems", pluginInstancesItems);
       if (pluginInstancesItems) {
-        createdInstance =
-          pluginInstances?.data[pluginInstancesItems.length - 1];
+        createdInstance = pluginInstancesItems[pluginInstancesItems.length - 1];
       }
     } else {
       createdInstance = await client.createPluginInstance(dircopy.data.id, {
@@ -271,11 +279,11 @@ const useOperations = () => {
         path,
         "Failed to create a Feed",
       );
+    } else {
+      await data?.feed?.put({
+        name: `Library Download for ${data.folderName}`,
+      });
     }
-
-    await data?.feed?.put({
-      name: `Library Download for ${data.folderName}`,
-    });
 
     return { feed: data?.feed, createdInstance: data?.createdInstance };
   };
@@ -283,7 +291,7 @@ const useOperations = () => {
   const createPipelineDuringDownload = async (
     payload: FileBrowserFolder,
     path: string,
-    createdInstance: PluginInstance["data"],
+    createdInstance: PluginInstance,
     feed: Feed,
   ) => {
     const client = ChrisAPIClient.getClient();
@@ -307,9 +315,11 @@ const useOperations = () => {
 
       const { id } = pipeline.data;
 
+      console.log("Created Instance", createdInstance);
+
       //@ts-ignore
       const workflow = await client.createWorkflow(id, {
-        previous_plugin_inst_id: createdInstance.id,
+        previous_plugin_inst_id: createdInstance.data.id,
       });
 
       const pluginInstancesList = await workflow.getPluginInstances({
@@ -328,7 +338,7 @@ const useOperations = () => {
           status = statusReq.data.status;
         }
 
-        const filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+        const filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
         if (status === "finishedSuccessfully") {
           const folderList = await client.getFileBrowserFolders({
             path: filePath,
@@ -405,41 +415,44 @@ const useOperations = () => {
               ", ",
             )}`,
           );
-          return;
-        }
+        } else {
+          dispatch(
+            downloadFolderStatus(
+              payload as FileBrowserFolder,
+              FolderDownloadTypes.creatingFeed,
+            ),
+          );
 
-        dispatch(
-          downloadFolderStatus(
+          /** Create */
+          const data = await createFeedDuringDownload(
             payload as FileBrowserFolder,
-            FolderDownloadTypes.creatingFeed,
-          ),
-        );
+            path,
+          );
 
-        /** Create */
-        const data = await createFeedDuringDownload(
-          payload as FileBrowserFolder,
-          path,
-        );
+          if (!data || !data.feed || !data.createdInstance) {
+            setDownloadErrorState(
+              payload as FileBrowserFolder,
+              path,
+              "Error download this folder/file",
+            );
+          } else {
+            const { feed, createdInstance } = data;
 
-        if (!data || !data.feed || !data.createdInstance) {
-          return;
+            dispatch(
+              downloadFolderStatus(
+                payload as FileBrowserFolder,
+                FolderDownloadTypes.zippingFolder,
+              ),
+            );
+
+            await createPipelineDuringDownload(
+              payload as FileBrowserFolder,
+              path,
+              createdInstance,
+              feed,
+            );
+          }
         }
-
-        const { feed, createdInstance } = data;
-
-        dispatch(
-          downloadFolderStatus(
-            payload as FileBrowserFolder,
-            FolderDownloadTypes.zippingFolder,
-          ),
-        );
-
-        await createPipelineDuringDownload(
-          payload as FileBrowserFolder,
-          path,
-          createdInstance,
-          feed,
-        );
       }
     });
 
