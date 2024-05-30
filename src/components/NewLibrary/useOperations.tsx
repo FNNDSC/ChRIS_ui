@@ -122,31 +122,76 @@ const useOperations = () => {
       });
     }
   };
+  const pickDownloadsFromCookie = async (
+    selectedPaths: any,
+    folderDownloadStatus: any,
+  ) => {
+    console.log("SelectedPaths", selectedPaths);
+
+    const downloadPromises = selectedPaths.map(async (userSelection: any) => {
+      const { type, payload } = userSelection;
+      if (type === "folder") {
+        // Check if current status exists
+        const currentStatus = folderDownloadStatus[payload.data.id];
+        if (currentStatus) {
+          if (currentStatus === FolderDownloadTypes.zippingFolder) {
+            const data = await checkIfFeedExists(payload);
+
+            if (!data || !data.feed || !data.createdInstance) {
+              return; // Skip this iteration
+            }
+
+            const { feed, createdInstance } = data;
+            dispatch(
+              downloadFolderStatus(
+                payload as FileBrowserFolder,
+                FolderDownloadTypes.zippingFolder,
+              ),
+            );
+            await createPipelineDuringDownload(
+              payload as FileBrowserFolder,
+              payload.data.path,
+              createdInstance,
+              feed,
+            );
+          }
+        }
+      }
+    });
+
+    await Promise.all(downloadPromises); // Wait for all downloads to complete
+  };
 
   const recreateState = async () => {
     const client = ChrisAPIClient.getClient();
-
+    const folderDownloadStatus = cookie.get("folderDownloadStatus");
+    const selectedPaths = cookie.get("selectedPaths");
     try {
-      const folderDownloadStatus = cookie.get("folderDownloadStatus");
-      const selectedPaths = cookie.get("selectedPaths");
-
       if (isEmpty(state.selectedPaths) && !isEmpty(selectedPaths)) {
-        for (const path of selectedPaths) {
-          const url = new URL(path.payload.url);
-          const pathname = url.pathname;
-          const parts = pathname.split("/");
-          const id = parts[parts.length - 2];
-          const folder = await client.getFileBrowserFolder(+id);
-          path.payload = folder;
-        }
-        dispatch(setSelectedFolderFromCookies(selectedPaths));
-      }
+        const updatedSelectedPaths = await Promise.all(
+          selectedPaths.map(async (path: any) => {
+            const url = new URL(path.payload.url);
+            const pathname = url.pathname;
+            const parts = pathname.split("/");
+            const id = parts[parts.length - 2];
+            const folder = await client.getFileBrowserFolder(+id);
+            path.payload = folder;
+            return path;
+          }),
+        );
 
-      if (
-        isEmpty(state.folderDownloadStatus) &&
-        !isEmpty(folderDownloadStatus)
-      ) {
-        dispatch(setDownloadStatusFromCookies(folderDownloadStatus));
+        dispatch(setSelectedFolderFromCookies(updatedSelectedPaths));
+
+        if (
+          isEmpty(state.folderDownloadStatus) &&
+          !isEmpty(folderDownloadStatus)
+        ) {
+          dispatch(setDownloadStatusFromCookies(folderDownloadStatus));
+          await pickDownloadsFromCookie(
+            updatedSelectedPaths,
+            folderDownloadStatus,
+          ); // Ensure this awaits the completion
+        }
       }
     } catch (error) {
       console.log("Error", error);
@@ -171,52 +216,74 @@ const useOperations = () => {
     });
   };
 
-  const createFeedDuringDownload = async (
-    payload: FileBrowserFolder,
-    path: string,
-  ) => {
-    const client = ChrisAPIClient.getClient();
+  const checkIfFeedExists = async (payload: FileBrowserFolder) => {
+    const path = payload.data.path;
     const dircopy = await getPlugin("pl-dircopy");
-
     if (!dircopy) {
       setDownloadErrorState(
         payload as FileBrowserFolder,
         path,
         "Failed to find dircopy",
       );
-      return;
+      return undefined;
     }
+    const client = ChrisAPIClient.getClient();
+    // Check if the feed already exists with this name (Feed downloads cannot be repetitive)
+    const folderNameList = payload.data.path.split("/");
+    const folderName =
+      folderNameList[folderNameList.length - 1] || payload.data.id;
 
-    const createdInstance = await client.createPluginInstance(dircopy.data.id, {
-      //@ts-ignore
-      dir: path,
+    const feedExists = await client.getFeeds({
+      name: `Library Download for ${folderName}`,
     });
 
-    const feed = (await createdInstance.getFeed()) as Feed;
+    let createdInstance: PluginInstance | undefined;
+    let feed: Feed | undefined;
 
-    if (!feed) {
+    if (feedExists?.data) {
+      const feeds = feedExists.getItems();
+      feed = feeds?.[0];
+      const pluginInstances = await feed?.getPluginInstances({});
+      const pluginInstancesItems = pluginInstances?.getItems();
+      if (pluginInstancesItems) {
+        createdInstance =
+          pluginInstances?.data[pluginInstancesItems.length - 1];
+      }
+    } else {
+      createdInstance = await client.createPluginInstance(dircopy.data.id, {
+        //@ts-ignore
+        dir: path,
+      });
+      feed = (await createdInstance.getFeed()) as Feed;
+    }
+    return { feed, createdInstance, folderName };
+  };
+
+  const createFeedDuringDownload = async (
+    payload: FileBrowserFolder,
+    path: string,
+  ) => {
+    const data = await checkIfFeedExists(payload as FileBrowserFolder);
+
+    if (!data) {
       setDownloadErrorState(
         payload as FileBrowserFolder,
         path,
         "Failed to create a Feed",
       );
-      return;
     }
 
-    const folderNameList = payload.data.path.split("/");
-    const folderName =
-      folderNameList[folderNameList.length - 1] || payload.data.id;
-    await feed.put({
-      name: `Library Download for ${folderName}`,
+    await data?.feed?.put({
+      name: `Library Download for ${data.folderName}`,
     });
 
-    return { feed, createdInstance };
+    return { feed: data?.feed, createdInstance: data?.createdInstance };
   };
 
   const createPipelineDuringDownload = async (
     payload: FileBrowserFolder,
     path: string,
-    createdInstance: PluginInstance,
+    createdInstance: PluginInstance["data"],
     feed: Feed,
   ) => {
     const client = ChrisAPIClient.getClient();
@@ -242,7 +309,7 @@ const useOperations = () => {
 
       //@ts-ignore
       const workflow = await client.createWorkflow(id, {
-        previous_plugin_inst_id: createdInstance.data.id,
+        previous_plugin_inst_id: createdInstance.id,
       });
 
       const pluginInstancesList = await workflow.getPluginInstances({
@@ -261,8 +328,7 @@ const useOperations = () => {
           status = statusReq.data.status;
         }
 
-        const filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
-
+        const filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.id}/pl-pfdorun_${zipInstance.data.id}/data`;
         if (status === "finishedSuccessfully") {
           const folderList = await client.getFileBrowserFolders({
             path: filePath,
@@ -300,7 +366,7 @@ const useOperations = () => {
   const handleDownload = async () => {
     const { selectedPaths } = state;
 
-    for (const userSelection of selectedPaths) {
+    const downloadPromises = selectedPaths.map(async (userSelection) => {
       const { type, payload } = userSelection;
 
       if (type === "file") {
@@ -339,7 +405,7 @@ const useOperations = () => {
               ", ",
             )}`,
           );
-          continue;
+          return;
         }
 
         dispatch(
@@ -356,7 +422,7 @@ const useOperations = () => {
         );
 
         if (!data || !data.feed || !data.createdInstance) {
-          continue;
+          return;
         }
 
         const { feed, createdInstance } = data;
@@ -367,6 +433,7 @@ const useOperations = () => {
             FolderDownloadTypes.zippingFolder,
           ),
         );
+
         await createPipelineDuringDownload(
           payload as FileBrowserFolder,
           path,
@@ -374,7 +441,10 @@ const useOperations = () => {
           feed,
         );
       }
-    }
+    });
+
+    // Wait for all downloads to complete
+    await Promise.all(downloadPromises);
   };
 
   const handleDelete = async () => {
