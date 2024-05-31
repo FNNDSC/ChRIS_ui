@@ -101,7 +101,7 @@ const FileDetailView = (props: AllProps) => {
             setError("Failed to parse the file for dicom tags");
           }
         };
-        console.log("Blob", blob);
+
         if (blob) {
           reader.readAsArrayBuffer(blob);
         }

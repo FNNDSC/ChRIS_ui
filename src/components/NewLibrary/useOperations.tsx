@@ -20,12 +20,8 @@ import {
 } from "./context/actions";
 import { downloadFile } from "./useDownloadHook";
 import { isEmpty } from "lodash";
-import { useCookies, Cookies } from "react-cookie";
 
-const oneDayToSeconds = 24 * 60 * 60;
 const useOperations = () => {
-  const [_cookies, setCookie] = useCookies();
-  const cookie = new Cookies();
   const router = useContext(MainRouterContext);
   const { state, dispatch } = useContext(LibraryContext);
   const username = useTypedSelector((state) => state.user.username);
@@ -65,6 +61,11 @@ const useOperations = () => {
   };
 
   useEffect(() => {
+    // recreate state whenever the component first mounts from session storage
+    recreateState();
+  }, []);
+
+  useEffect(() => {
     keepACopyInState();
   }, [state.folderDownloadStatus, state.selectedPaths]);
 
@@ -95,34 +96,42 @@ const useOperations = () => {
     router.actions.clearFeedData();
   };
 
-  const clearPathCookie = (path: string) => {
+  const clearPathSessionStorage = (path: string, id: number) => {
     const copiedState = { ...state };
     const newSelectedPaths = copiedState.selectedPaths.filter((pathObj) => {
       return pathObj.path !== path;
     });
 
-    setCookie("selectedPaths", newSelectedPaths, {
-      path: "/",
-      maxAge: oneDayToSeconds,
-    });
+    // Delete ids
+    if (!isEmpty(FolderDownloadTypes)) {
+      delete copiedState.folderDownloadStatus[id];
+    }
+
+    sessionStorage.setItem("selectedPaths", JSON.stringify(newSelectedPaths));
+
+    sessionStorage.setItem(
+      "folderDownloadStatus",
+      JSON.stringify(copiedState.folderDownloadStatus),
+    );
   };
 
   const keepACopyInState = () => {
     if (!isEmpty(state.folderDownloadStatus)) {
-      setCookie("folderDownloadStatus", state.folderDownloadStatus, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
+      sessionStorage.setItem(
+        "folderDownloadStatus",
+        JSON.stringify(state.folderDownloadStatus),
+      );
     }
 
     if (!isEmpty(state.selectedPaths)) {
-      setCookie("selectedPaths", state.selectedPaths, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
+      sessionStorage.setItem(
+        "selectedPaths",
+        JSON.stringify(state.selectedPaths),
+      );
     }
   };
-  const pickDownloadsFromCookie = async (
+
+  const pickDownloadsFromSession = async (
     selectedPaths: any,
     folderDownloadStatus: any,
   ) => {
@@ -134,14 +143,11 @@ const useOperations = () => {
         if (currentStatus) {
           if (currentStatus === FolderDownloadTypes.zippingFolder) {
             const data = await checkIfFeedExists(payload);
-
-            console.log("Data", data);
-
             if (!data || !data.feed || !data.createdInstance) {
               setDownloadErrorState(
                 payload as FileBrowserFolder,
                 payload.data.path,
-                "Error download this folder/file",
+                "Error downloading this folder/file",
               );
             } else {
               const { feed, createdInstance } = data;
@@ -168,8 +174,12 @@ const useOperations = () => {
 
   const recreateState = async () => {
     const client = ChrisAPIClient.getClient();
-    const folderDownloadStatus = cookie.get("folderDownloadStatus");
-    const selectedPaths = cookie.get("selectedPaths");
+    const folderDownloadStatus = JSON.parse(
+      sessionStorage.getItem("folderDownloadStatus") || "{}",
+    );
+    const selectedPaths = JSON.parse(
+      sessionStorage.getItem("selectedPaths") || "[]",
+    );
     try {
       if (isEmpty(state.selectedPaths) && !isEmpty(selectedPaths)) {
         const updatedSelectedPaths = await Promise.all(
@@ -183,15 +193,13 @@ const useOperations = () => {
             return path;
           }),
         );
-
         dispatch(setSelectedFolderFromCookies(updatedSelectedPaths));
-
         if (
           isEmpty(state.folderDownloadStatus) &&
           !isEmpty(folderDownloadStatus)
         ) {
           dispatch(setDownloadStatusFromCookies(folderDownloadStatus));
-          await pickDownloadsFromCookie(
+          await pickDownloadsFromSession(
             updatedSelectedPaths,
             folderDownloadStatus,
           ); // Ensure this awaits the completion
@@ -253,7 +261,6 @@ const useOperations = () => {
       feed = feeds?.[0];
       const pluginInstances = await feed?.getPluginInstances({});
       const pluginInstancesItems = pluginInstances?.getItems();
-      console.log("PluginInstanceItems", pluginInstancesItems);
       if (pluginInstancesItems) {
         createdInstance = pluginInstancesItems[pluginInstancesItems.length - 1];
       }
@@ -315,8 +322,6 @@ const useOperations = () => {
 
       const { id } = pipeline.data;
 
-      console.log("Created Instance", createdInstance);
-
       //@ts-ignore
       const workflow = await client.createWorkflow(id, {
         previous_plugin_inst_id: createdInstance.data.id,
@@ -339,6 +344,7 @@ const useOperations = () => {
         }
 
         const filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+
         if (status === "finishedSuccessfully") {
           const folderList = await client.getFileBrowserFolders({
             path: filePath,
@@ -361,13 +367,13 @@ const useOperations = () => {
             const fileToZip = fileItems[0];
             await downloadFile(fileToZip);
             await feed.delete();
+            dispatch(
+              downloadFolderStatus(
+                payload as FileBrowserFolder,
+                FolderDownloadTypes.finished,
+              ),
+            );
           }
-          dispatch(
-            downloadFolderStatus(
-              payload as FileBrowserFolder,
-              FolderDownloadTypes.finished,
-            ),
-          );
         }
       }
     }
@@ -433,7 +439,7 @@ const useOperations = () => {
             setDownloadErrorState(
               payload as FileBrowserFolder,
               path,
-              "Error download this folder/file",
+              "Error downloading this folder/file",
             );
           } else {
             const { feed, createdInstance } = data;
@@ -493,7 +499,7 @@ const useOperations = () => {
     cannotDownload,
     resetErrors,
     recreateState,
-    clearPathCookie,
+    clearPathSessionStorage,
     keepACopyInState,
   };
 };

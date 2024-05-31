@@ -127,7 +127,7 @@ const XtkViewer = () => {
         r.add(secondaryObject);
       }
 
-      r.onShowtime = function () {
+      r.onShowtime = () => {
         gui = new dat.GUI();
 
         if (viewerMode === "mesh") {

@@ -73,6 +73,7 @@ export default function FeedView() {
     queryKey: ["publicFeed", id],
     queryFn: () => fetchPublicFeed(id),
     enabled: type === "public",
+    refetchOnMount: true,
   });
 
   const {
@@ -83,6 +84,7 @@ export default function FeedView() {
     queryKey: ["authenticatedFeed", id],
     queryFn: () => fetchAuthenticatedFeed(id),
     enabled: type === "private" && isLoggedIn,
+    refetchOnMount: true,
   });
 
   React.useEffect(() => {
