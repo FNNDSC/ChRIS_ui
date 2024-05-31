@@ -21,6 +21,7 @@ import {
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import { useTypedSelector } from "./store/hooks";
+import Store from "./components/Store";
 
 interface IState {
   selectData?: Series;
@@ -155,6 +156,10 @@ export const MainRouter: React.FC = () => {
     {
       path: "niivue/:plinstId",
       element: <NiivueDatasetViewerPage />,
+    },
+    {
+      path: "store",
+      element: <Store />,
     },
     {
       path: "*",

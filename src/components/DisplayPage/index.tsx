@@ -123,10 +123,9 @@ const DisplayPage = ({
   const updateDropdownValue = (type: string) => {
     setDropdownValue(type);
     if (isPlugin) {
-      handlePluginSearch && handlePluginSearch("", dropdownValue.toLowerCase());
+      handlePluginSearch?.("", dropdownValue.toLowerCase());
     } else {
-      handleComputeSearch &&
-        handleComputeSearch("", dropdownValue.toLowerCase());
+      handleComputeSearch?.("", dropdownValue.toLowerCase());
     }
   };
   const dropdownItems = isPlugin
@@ -272,13 +271,11 @@ const DisplayPage = ({
             aria-label="search"
             onChange={(_event, value: string) => {
               if (isPlugin) {
-                handlePluginSearch &&
-                  handlePluginSearch(value, dropdownValue.toLowerCase());
+                handlePluginSearch?.(value, dropdownValue.toLowerCase());
               }
 
               if (isCompute) {
-                handleComputeSearch &&
-                  handleComputeSearch(value, dropdownValue.toLowerCase());
+                handleComputeSearch?.(value, dropdownValue.toLowerCase());
               }
             }}
           />

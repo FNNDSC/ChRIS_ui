@@ -13,7 +13,7 @@ const PluginCatalog = () => {
     itemCount: 0,
   });
 
-  const { page, perPage, search, searchType } = pageState;
+  const { page, perPage, search, searchType, itemCount } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
 
   const onSetPage = (_event: any, page: number) => {
@@ -77,6 +77,7 @@ const PluginCatalog = () => {
           itemCount: pluginList.totalCount,
         };
       });
+
       return newPluginPayload;
     }
   }
@@ -86,6 +87,7 @@ const PluginCatalog = () => {
     queryFn: () => {
       return fetchPlugins(perPage, page, search, searchType);
     },
+    refetchOnMount: true,
   });
 
   const handleSearch = (search: string, searchType: string) => {
@@ -95,6 +97,8 @@ const PluginCatalog = () => {
       searchType,
     });
   };
+
+  console.log("Page State", pageState);
 
   return (
     <>
