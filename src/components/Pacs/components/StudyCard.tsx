@@ -16,6 +16,7 @@ import {
   DownloadIcon,
   PreviewIcon,
   QuestionCircleIcon,
+  RetryIcon,
   ThLargeIcon,
 } from "../../Icons";
 import { PacsQueryContext, Types } from "../context";
@@ -31,6 +32,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
   const { data, isLoading, isError } = useSettings();
   const { state, dispatch } = useContext(PacsQueryContext);
   const [isStudyExpanded, setIsStudyExpanded] = useState(false);
+  const [startPullStudy, setStartStudying] = useState(false);
   const { preview, pullStudy, studyPullTracker, selectedPacsService } = state;
   const userPreferences = data?.study;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
@@ -42,6 +44,18 @@ const StudyCardCopy = ({ study }: { study: any }) => {
   ) /* Check if parsedDate is a valid date */
     ? studyDate
     : format(parsedDate, "MMMM d, yyyy");
+
+  const clearState = async () => {
+    dispatch({
+      type: Types.SET_PULL_STUDY,
+      payload: {
+        studyInstanceUID: accessionNumber,
+        status: false,
+      },
+    });
+    // stop tracking this status as an active pull
+    await writeStatus(accessionNumber, false);
+  };
 
   useEffect(() => {
     async function setUpStatus() {
@@ -62,15 +76,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
             allSeriesBeingTracked &&
             study.series.length === Object.keys(studyBeingTracked).length
           ) {
-            dispatch({
-              type: Types.SET_PULL_STUDY,
-              payload: {
-                studyInstanceUID: accessionNumber,
-                status: false,
-              },
-            });
-            // stop tracking this status as an active pull
-            await writeStatus(accessionNumber, false);
+            await clearState();
           }
         }
       }
@@ -98,6 +104,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
   }, []);
 
   const retrieveStudy = async () => {
+    setStartStudying(true);
     await writeStatus(study.AccessionNumber.value, true);
     const client = new PfdcmClient();
     await client.findRetrieve(selectedPacsService, {
@@ -110,6 +117,7 @@ const StudyCardCopy = ({ study }: { study: any }) => {
         status: true,
       },
     });
+    setStartStudying(false);
     setIsStudyExpanded(true);
   };
 
@@ -275,8 +283,23 @@ const StudyCardCopy = ({ study }: { study: any }) => {
                 />
               </Tooltip>
 
-              {pullStudy[accessionNumber] ? (
-                <DotsIndicator title="Pulling Study..." />
+              {pullStudy[accessionNumber] || startPullStudy ? (
+                <>
+                  <Tooltip content="Retry the pull if you see no progress">
+                    <Button
+                      onClick={async () => {
+                        await clearState();
+                      }}
+                      variant="danger"
+                      style={{
+                        marginLeft: "0.5em",
+                      }}
+                      size="sm"
+                      icon={<RetryIcon />}
+                    />
+                  </Tooltip>
+                  <DotsIndicator title="Pulling Study..." />
+                </>
               ) : (
                 <Tooltip content="Pull Study">
                   <Button

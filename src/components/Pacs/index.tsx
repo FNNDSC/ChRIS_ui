@@ -418,11 +418,7 @@ const Results = () => {
               </div>
             );
           }
-<<<<<<< HEAD
-          return <EmptyStateComponent key={index} />;
-=======
           return <EmptyStateComponent key={`result${index}`} />;
->>>>>>> 2cdc9252 (feat: Fix warning about unique keys in Results Component)
         })
       ) : (
         <EmptyStateComponent />
