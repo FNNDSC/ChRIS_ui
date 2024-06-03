@@ -106,7 +106,7 @@ const DeleteNode = () => {
     >
       <span>
         {" "}
-        Deleting a node will delete all it&apos;s descendants as well. Please
+        Deleting a node will delete all of its descendants as well. Please
         confirm if you are sure
       </span>
 
