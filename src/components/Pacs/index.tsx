@@ -413,12 +413,16 @@ const Results = () => {
         queryResult.map((result: any, index: any) => {
           if (result && result.data.length > 0) {
             return (
-              <div key={`${index}`} className="result-grid">
+              <div key={`result_${index}`} className="result-grid">
                 <PatientCard queryResult={result.data} />
               </div>
             );
           }
+<<<<<<< HEAD
           return <EmptyStateComponent key={index} />;
+=======
+          return <EmptyStateComponent key={`result${index}`} />;
+>>>>>>> 2cdc9252 (feat: Fix warning about unique keys in Results Component)
         })
       ) : (
         <EmptyStateComponent />
