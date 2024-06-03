@@ -86,24 +86,17 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
-  const [timeStamp, setTimeStamp] = useState(
-    localStorage.getItem(seriesInstanceUID.value) || "",
-  );
 
   const pullQuery: DataFetchQuery = {
     StudyInstanceUID: studyInstanceUID,
     SeriesInstanceUID: seriesInstanceUID,
   };
 
-  // Handle Retrieve Request and save the timestamp of the request for polling
+  // Handle Retrieve Request
   const handleRetrieveMutation = useMutation({
     mutationFn: async () => {
       try {
-        const data = await client.findRetrieve(selectedPacsService, pullQuery);
-        localStorage.setItem(SeriesInstanceUID.value, data);
-        // Timestamp data is important for tracking the min_creation_date while polling the backend for files
-        setTimeStamp(data);
-        // Start polling for files after a successful pfdcm request
+        await client.findRetrieve(selectedPacsService, pullQuery);
         setIsFetching(true);
       } catch (e) {
         // Don't poll if the request fails
@@ -121,6 +114,9 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   // Polling cube files after a successful retrieve request from pfdcm;
   async function fetchCubeFiles() {
     try {
+      if (isDisabled) {
+        setIsFetching(false);
+      }
       const middleValue = Math.floor(seriesInstances / 2);
 
       // Get the total file count current in cube
@@ -143,13 +139,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         {
           limit: 1,
           ProtocolName: "NumberOfSeriesRelatedInstances",
-          min_creation_date: fileToPreview?.data.creation_date || timeStamp,
         },
       );
 
       const seriesCountCheck = seriesRelatedInstance.getItems();
 
-      let seriesCount = null;
+      let seriesCount = 0;
       if (seriesCountCheck && seriesCountCheck.length > 0) {
         seriesCount = +seriesCountCheck[0].data.SeriesDescription;
 
@@ -164,14 +159,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         "org.fnndsc.oxidicom",
         pullQuery,
         {
-          limit: 1,
+          limit: 10,
           ProtocolName: "OxidicomAttemptedPushCount",
-          min_creation_date: fileToPreview?.data.creation_date || timeStamp,
         },
       );
 
       const pushCountCheck = pushCountInstance.getItems();
-      let pushCount = null;
+      let pushCount = 0;
       if (pushCountCheck && pushCountCheck.length > 0) {
         pushCount = +pushCountCheck[0].data.SeriesDescription;
       }
@@ -190,22 +184,17 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           payload: {
             seriesInstanceUID: SeriesInstanceUID.value,
             studyInstanceUID: accessionNumber,
-            currentProgress: totalFilesCount === seriesInstances,
+            currentProgress:
+              seriesInstances === 0 || totalFilesCount === seriesInstances
+                ? true
+                : false,
           },
         });
       }
 
-      if (pushCount && isFetching) {
+      if (pushCount > 0 && pushCount === totalFilesCount && isFetching) {
         // This means oxidicom is done pushing as the push count file is available
         setIsFetching(false);
-        // Delete the timestamp from localstorage;
-        localStorage.removeItem(SeriesInstanceUID.value);
-        // oxidicom is done pushing but the file count in cube is less than the series related instances. Something has behaved.
-        if (pushCount && seriesCount && files.totalCount < seriesCount) {
-          throw new Error(
-            "Failed to retrieve successfully. The total file count does not match the expected series instances. Please try again",
-          );
-        }
       }
 
       return {
@@ -237,7 +226,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   // Retrieve this series if the pull study is clicked and the series is not already being retrieved.
   useEffect(() => {
-    if (pullStudy[accessionNumber] && !isFetching && !isDisabled) {
+    if (pullStudy[accessionNumber] && !isFetching) {
       setIsFetching(true);
     }
   }, [pullStudy[accessionNumber]]);
