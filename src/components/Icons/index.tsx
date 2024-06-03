@@ -87,6 +87,20 @@ const DuplicateIcon = () => {
   );
 };
 
+const RetryIcon = () => {
+  return (
+    <svg
+      fill="currentColor"
+      className="pf-v5-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 512 512"
+    >
+      <title>Retry</title>
+      <path d="M212.3 224.3H12c-6.6 0-12-5.4-12-12V12C0 5.4 5.4 0 12 0h48c6.6 0 12 5.4 12 12v78.1C117.8 39.3 184.3 7.5 258.2 8c136.9 1 246.4 111.6 246.2 248.5C504 393.3 393.1 504 256.3 504c-64.1 0-122.5-24.3-166.5-64.2-5.1-4.6-5.3-12.6-.5-17.4l34-34c4.5-4.5 11.7-4.7 16.4-.5C170.8 415.3 211.6 432 256.3 432c97.3 0 176-78.7 176-176 0-97.3-78.7-176-176-176-58.5 0-110.3 28.5-142.3 72.3h98.3c6.6 0 12 5.4 12 12v48c0 6.6-5.4 12-12 12z" />
+    </svg>
+  );
+};
+
 const FeedBrowserIcon = () => {
   return (
     <svg
@@ -257,4 +271,5 @@ export {
   ExclamationCircleIcon,
   EllipsisVIcon,
   EditIcon,
+  RetryIcon,
 };
