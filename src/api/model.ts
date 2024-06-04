@@ -1,9 +1,5 @@
 import _ from "lodash";
-<<<<<<< HEAD
-import type { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-=======
-import type { FileBrowserFolderFile, PluginInstance } from "@fnndsc/chrisapi";
->>>>>>> 4187ef86 (feat: Pass the url directly to image viewers and let the browser fetch the data natively)
+import type { PluginInstance, FileBrowserFolderFile } from "@fnndsc/chrisapi";
 
 export interface IActionTypeParam {
   type: string;
