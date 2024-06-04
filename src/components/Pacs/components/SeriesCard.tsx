@@ -83,6 +83,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   // disable the card completely in this case
   const isDisabled = seriesInstances === 0;
+  // This flag controls the start/stop for polling cube for files and display progress indicators
   const [isFetching, setIsFetching] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
@@ -115,8 +116,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   async function fetchCubeFiles() {
     try {
       if (isDisabled) {
+        // Cancel polling for files that have zero number of series instances
         setIsFetching(false);
       }
+
       const middleValue = Math.floor(seriesInstances / 2);
 
       // Get the total file count current in cube
@@ -185,7 +188,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
             seriesInstanceUID: SeriesInstanceUID.value,
             studyInstanceUID: accessionNumber,
             currentProgress:
-              seriesInstances === 0 || totalFilesCount === seriesInstances
+              seriesInstances === 0 || totalFilesCount === pushCount
                 ? true
                 : false,
           },
@@ -194,7 +197,15 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
       if (pushCount > 0 && pushCount === totalFilesCount && isFetching) {
         // This means oxidicom is done pushing as the push count file is available
+        // cancel polling
         setIsFetching(false);
+
+        // Miscellenaous error handling
+        if (seriesCount > 0 && seriesCount !== seriesInstances) {
+          throw new Error(
+            "The expected number of series instances do no match the instances pulled",
+          );
+        }
       }
 
       return {
