@@ -15,7 +15,10 @@ export interface LibraryState {
     [key: string]: DownloadTypes;
   };
   folderDownloadStatus: {
-    [key: string]: FolderDownloadTypes;
+    [key: string]: {
+      status: FolderDownloadTypes;
+      pipelineType: string;
+    };
   };
 }
 
@@ -82,7 +85,10 @@ export type LibraryPayload = {
 
   [Types.SET_FOLDER_DOWNLOAD_FROM_COOKIES]: {
     status: {
-      [key: string]: FolderDownloadTypes;
+      [key: string]: {
+        status: FolderDownloadTypes;
+        pipelineType: string;
+      };
     };
   };
 
@@ -102,6 +108,7 @@ export type LibraryPayload = {
   [Types.SET_FOLDER_DOWNLOAD_STATUS]: {
     id: number;
     status: FolderDownloadTypes;
+    pipelineType: string;
   };
 
   [Types.CLEAR_DOWNLOAD_FILE_STATUS]: {
@@ -164,13 +171,16 @@ export const libraryReducer = (
     }
 
     case Types.SET_FOLDER_DOWNLOAD_STATUS: {
-      const { id, status } = action.payload;
+      const { id, status, pipelineType } = action.payload;
 
       return {
         ...state,
         folderDownloadStatus: {
           ...state.folderDownloadStatus,
-          [id]: status,
+          [id]: {
+            status,
+            pipelineType,
+          },
         },
       };
     }

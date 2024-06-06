@@ -47,12 +47,14 @@ export const downloadFileStatus = (
 export const downloadFolderStatus = (
   folder: FileBrowserFolder,
   status: FolderDownloadTypes,
+  pipelineType: string,
 ) => {
   return {
     type: Types.SET_FOLDER_DOWNLOAD_STATUS,
     payload: {
       id: folder.data.id,
       status,
+      pipelineType,
     },
   };
 };

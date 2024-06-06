@@ -51,11 +51,12 @@ export const Status = ({ item }: { item: SelectionPayload }) => {
   }
 
   if (type === "folder") {
-    const currentStatus = folderDownloadStatus[payload.data.id];
+    const folderStatus = folderDownloadStatus?.[payload.data.id];
+    const currentStatus = folderStatus?.status;
 
     return (
       <>
-        {currentStatus === FolderDownloadTypes.finished ? (
+        {currentStatus && currentStatus === FolderDownloadTypes.finished ? (
           <Button
             variant="plain"
             icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
@@ -104,47 +105,49 @@ const Cart = () => {
       }}
       open={state.openCart}
     >
-      <Grid hasGutter={true}>
-        <GridItem span={6}>
-          <Button
-            onClick={() => createFeed()}
-            style={{ marginRight: "0.5em" }}
-            size="sm"
-            variant="primary"
-          >
-            Create Feed
-          </Button>
-          <Button onClick={() => mutate()} size="sm" variant="primary">
-            Download
-          </Button>
-        </GridItem>
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <Button onClick={() => createFeed()} size="sm" variant="primary">
+          Create Feed
+        </Button>
 
-        <GridItem span={6}>
-          <Button
-            size="sm"
-            onClick={() => {
-              dispatch(clearCart());
-              // Clear out errors if any
-              handleDownloadMutation.reset();
-              resetErrors();
-            }}
-            style={{
-              marginRight: "0.5em",
-            }}
-          >
-            Clear All
-          </Button>
-          <Button
-            onClick={() => {
-              handleDeleteMutation.mutate();
-            }}
-            size="sm"
-            variant="danger"
-          >
-            Delete
-          </Button>
-        </GridItem>
-      </Grid>
+        <Button
+          onClick={() => mutate({ type: "download" })}
+          size="sm"
+          variant="primary"
+        >
+          Download
+        </Button>
+
+        <Button
+          onClick={() => mutate({ type: "anonymize" })}
+          size="sm"
+          variant="primary"
+        >
+          Anonymize
+        </Button>
+
+        <Button
+          size="sm"
+          onClick={() => {
+            dispatch(clearCart());
+            handleDownloadMutation.reset();
+            resetErrors();
+          }}
+          style={{
+            marginRight: "0.5em",
+          }}
+        >
+          Clear All
+        </Button>
+
+        <Button
+          onClick={() => handleDeleteMutation.mutate()}
+          size="sm"
+          variant="danger"
+        >
+          Delete
+        </Button>
+      </div>
 
       <List
         style={{ marginTop: "2rem" }}
