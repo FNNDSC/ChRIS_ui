@@ -11,6 +11,7 @@ const DEFAULT_OPTIONS: ChNVROptions = {
   backColor: [0, 0, 0],
   multiplanarForceRender: false,
   isRadiologicalConvention: true,
+  sagittalNoseLeft: true,
   show3Dcrosshair: true,
   crosshairWidth: 0.5,
 };

@@ -17,6 +17,7 @@ const RadiologcalConventionToggle: React.FC<RadiologcalConventionToggleProps> =
         onChange={() =>
           setOptions((draft) => {
             draft.isRadiologicalConvention = false;
+            draft.sagittalNoseLeft = false;
           })
         }
       />
@@ -26,6 +27,7 @@ const RadiologcalConventionToggle: React.FC<RadiologcalConventionToggleProps> =
         onChange={() =>
           setOptions((draft) => {
             draft.isRadiologicalConvention = true;
+            draft.sagittalNoseLeft = true;
           })
         }
       />
