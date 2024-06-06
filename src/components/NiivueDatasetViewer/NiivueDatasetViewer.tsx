@@ -82,7 +82,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   const [firstRunFiles, setFirstRunFiles] = useState<number[] | null>(null);
 
   const [nvOptions, setNvOptions] = useImmer<ChNVROptions>(DEFAULT_OPTIONS);
-  const [nvSize, setNvSize] = useState(10);
+  const [nvSize, setNvSize] = useState(8);
   const [sizeIsScaling, setSizeIsScaling] = useState(false);
   const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>(
     { string: "" },
@@ -176,7 +176,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     if (dataset === null) {
       setReadme(null);
       setFileStates(null);
-      setTagsDictionary(null);
+      setTagsDictionary({});
       return;
     }
 
