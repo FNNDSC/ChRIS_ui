@@ -18,6 +18,7 @@ type PreviewOptions = Required<
     | "backColor"
     | "isRadiologicalConvention"
     | "crosshairWidth"
+    | "sagittalNoseLeft"
   >
 >;
 
@@ -39,6 +40,7 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
   const options: PreviewOptions = {
     backColor: [0, 0, 0],
     isRadiologicalConvention: true,
+    sagittalNoseLeft: true,
     sliceType: SLICE_TYPES[sliceTypeName],
     isColorbar: false,
     crosshairWidth: sliceTypeName === "M" ? 0.5 : 0,

@@ -21,6 +21,7 @@ type ChNVROptions = Required<
     | "backColor"
     | "multiplanarForceRender"
     | "isRadiologicalConvention"
+    | "sagittalNoseLeft"
     | "show3Dcrosshair"
     | "crosshairWidth"
   >
