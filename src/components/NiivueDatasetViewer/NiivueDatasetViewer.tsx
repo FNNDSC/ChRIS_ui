@@ -176,7 +176,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     if (dataset === null) {
       setReadme(null);
       setFileStates(null);
-      setTagsDictionary(null);
+      setTagsDictionary({});
       return;
     }
 
