@@ -1,20 +1,15 @@
-import { useContext, useState } from "react";
+import { Button, Tooltip, Progress } from "@patternfly/react-core";
+import { useQueryClient } from "@tanstack/react-query";
+import { Alert, Drawer, List } from "antd";
 import axios from "axios";
-import { MainRouterContext } from "../../routes";
-import {
-  AlertGroup,
-  ChipGroup,
-  Button,
-  Chip,
-  Progress,
-} from "@patternfly/react-core";
-import { Alert } from "antd";
-import { LibraryContext } from "./context";
-import { clearCart, clearSelectFolder } from "./context/actions";
-import { useTypedSelector } from "../../store/hooks";
+import { useContext, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { catchError, fetchResource } from "../../api/common";
-import { useQueryClient } from "@tanstack/react-query";
+import { MainRouterContext } from "../../routes";
+import { useTypedSelector } from "../../store/hooks";
+import { LibraryContext, Types } from "./context";
+import { clearCart, clearSelectFolder } from "./context/actions";
+import { elipses } from "./utils";
 
 export default function Cart() {
   const queryClient = useQueryClient();
@@ -151,73 +146,84 @@ export default function Cart() {
   if (selectedPaths.length > 0) {
     return (
       <>
-        <AlertGroup isToast>
-          <Alert
-            type="info"
-            closeIcon
-            onClose={() => {
-              clearFeed();
+        <Drawer
+          width={600}
+          title="Cart"
+          placement="right"
+          closable={true}
+          onClose={() => {
+            clearFeed();
+            dispatch({
+              type: Types.SET_TOGGLE_CART,
+            });
+          }}
+          open={state.openCart}
+        >
+          <div
+            style={{
+              marginBottom: "1em",
+              display: "flex",
             }}
-            description={
-              <>
-                <div
-                  style={{
-                    marginBottom: "1em",
-                    display: "flex",
-                  }}
-                >
-                  <Button
-                    style={{ marginRight: "0.5em" }}
-                    onClick={createFeed}
-                    variant="primary"
-                  >
-                    Create Analysis
-                  </Button>
+          >
+            <Button
+              style={{ marginRight: "0.5em" }}
+              onClick={createFeed}
+              variant="primary"
+            >
+              Create Analysis
+            </Button>
 
-                  <Button
-                    style={{ marginRight: "0.5em" }}
-                    onClick={() => {
-                      handleDownload();
-                    }}
-                    variant="secondary"
-                  >
-                    Download Data
-                  </Button>
-                  <Button variant="danger" onClick={handleDelete}>
-                    Delete Data
-                  </Button>
-                </div>
-                {selectedPaths.length > 0 && (
-                  <>
-                    <ChipGroup style={{ marginBottom: "1em" }} categoryName="">
-                      {selectedPaths.map((path: string, index: number) => {
-                        return (
-                          <Chip
-                            onClick={() => {
-                              dispatch(clearSelectFolder(path));
-                            }}
-                            key={index}
-                          >
-                            {path}
-                          </Chip>
-                        );
-                      })}
-                    </ChipGroup>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
+            <Button
+              style={{ marginRight: "0.5em" }}
+              onClick={() => {
+                handleDownload();
+              }}
+              variant="secondary"
+            >
+              Download Data
+            </Button>
+            <Button variant="danger" onClick={handleDelete}>
+              Delete Data
+            </Button>
+          </div>
+          <List
+            style={{ marginTop: "2rem" }}
+            dataSource={state.selectedPaths}
+            bordered
+            renderItem={(item) => {
+              return (
+                <List.Item
+                  key={item}
+                  actions={[
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={async () => {
+                        dispatch(clearSelectFolder(item));
                       }}
+                      key={`a-${item}`}
                     >
-                      <Button variant="tertiary" onClick={clearFeed}>
-                        Empty Cart
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </>
-            }
-            style={{ width: "100%", marginTop: "3em", padding: "2em" }}
+                      Clear
+                    </Button>,
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={
+                      <Tooltip content={item}>
+                        <a
+                          style={{
+                            color: "inherit",
+                          }}
+                          href="https://ant.design/index-cn"
+                        >
+                          {elipses(item, 40)}
+                        </a>
+                      </Tooltip>
+                    }
+                  />
+                </List.Item>
+              );
+            }}
           />
           {alert && <Alert type="error" description={alert} />}
           {progress.currentProgress > 0 && (
@@ -226,7 +232,7 @@ export default function Cart() {
               title={progress.currentStep}
             />
           )}
-        </AlertGroup>
+        </Drawer>
       </>
     );
   }
