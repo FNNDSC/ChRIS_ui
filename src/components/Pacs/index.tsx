@@ -466,7 +466,7 @@ const jsonToCSV = (jsonArray: any[]): string | null => {
 const Results: React.FC = () => {
   const { state } = React.useContext(PacsQueryContext);
   const [exporting, setExporting] = React.useState(false);
-  console.log("Exporting", exporting);
+ 
 
   const { queryResult, fetchingResults } = state;
 
