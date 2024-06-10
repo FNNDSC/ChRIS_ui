@@ -25,6 +25,14 @@ import PatientCard from "./components/PatientCard";
 import { PacsQueryContext, PacsQueryProvider, Types } from "./context";
 import "./pacs-copy.css";
 import PfdcmClient from "./pfdcmClient";
+import {
+  flatMap,
+  flatMapDeep,
+  flatMapDepth,
+  flatten,
+  flattenDeep,
+  flattenDepth,
+} from "lodash";
 
 const dropdownMatch: { [key: string]: string } = {
   PatientID: "Patient MRN",
@@ -405,6 +413,38 @@ const Results = () => {
 
   const { queryResult, fetchingResults } = state;
 
+  const jsonToCSV = (jsonArray: any[]) => {
+    if (!jsonArray || !jsonArray.length) {
+      return null;
+    }
+
+    const keys = Object.keys(jsonArray[0]);
+    const csvRows = [];
+
+    // Add the header row
+    csvRows.push(keys.join(","));
+
+    // Add the data rows
+    jsonArray.forEach((item) => {
+      const values = keys.map((key) => `"${item[key]}"`);
+      csvRows.push(values.join(","));
+    });
+
+    return csvRows.join("\n");
+  };
+
+  const exportAsCSV = () => {
+    // Flatten the data arrays from all query results
+    const allData = queryResult.flatMap((result) => result.data);
+    const csvData = jsonToCSV(allData);
+
+    if (csvData) {
+      // Create a blob and initiate the download
+      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+      console.log("Blob", blob, csvData);
+    }
+  };
+
   return (
     <>
       {fetchingResults.status && <SpinContainer title={fetchingResults.text} />}
@@ -427,6 +467,7 @@ const Results = () => {
       ) : (
         <EmptyStateComponent />
       )}
+      {<Button onClick={exportAsCSV}>Export as csv</Button>}
     </>
   );
 };
