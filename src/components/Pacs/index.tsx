@@ -12,7 +12,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import { Alert } from "antd";
+import { Alert, Spin } from "antd";
 import * as React from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
@@ -33,6 +33,7 @@ import {
   flattenDeep,
   flattenDepth,
 } from "lodash";
+import { DownloadIcon } from "../Icons";
 
 const dropdownMatch: { [key: string]: string } = {
   PatientID: "Patient MRN",
@@ -408,48 +409,130 @@ const QueryBuilder = () => {
   );
 };
 
-const Results = () => {
+// Utility function to flatten a nested object, focusing on 'label' and 'value'
+const flattenObject = (obj: any, _parent = "", res: any = {}): any => {
+  for (const key in obj) {
+    // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+    if (obj.hasOwnProperty(key)) {
+      if (
+        typeof obj[key] === "object" &&
+        obj[key] !== null &&
+        !Array.isArray(obj[key])
+      ) {
+        if (obj[key].label && obj[key].value !== undefined) {
+          res[obj[key].label] = obj[key].value;
+        } else {
+          flattenObject(obj[key], key, res);
+        }
+      } else if (Array.isArray(obj[key])) {
+        obj[key].forEach((item: any, index: number) => {
+          flattenObject(item, `${key}[${index}]`, res);
+        });
+      } else {
+        res[key] = obj[key];
+      }
+    }
+  }
+  return res;
+};
+
+// Utility function to convert JSON array to CSV
+const jsonToCSV = (jsonArray: any[]): string | null => {
+  if (!jsonArray || !jsonArray.length) {
+    return null;
+  }
+
+  // Flatten each JSON object in the array
+  const flattenedArray = jsonArray.map((item) => flattenObject(item));
+
+  // Extract keys (header row)
+  const keys = Object.keys(flattenedArray[0]);
+  const csvRows: string[] = [];
+
+  // Add the header row
+  csvRows.push(keys.join(","));
+
+  // Add the data rows
+  flattenedArray.forEach((item) => {
+    const values = keys.map(
+      (key) => `"${item[key] !== undefined ? item[key] : ""}"`,
+    );
+    csvRows.push(values.join(","));
+  });
+
+  return csvRows.join("\n");
+};
+
+const Results: React.FC = () => {
   const { state } = React.useContext(PacsQueryContext);
+  const [exporting, setExporting] = React.useState(false);
+  console.log("Exporting", exporting);
 
   const { queryResult, fetchingResults } = state;
 
-  const jsonToCSV = (jsonArray: any[]) => {
-    if (!jsonArray || !jsonArray.length) {
-      return null;
-    }
-
-    const keys = Object.keys(jsonArray[0]);
-    const csvRows = [];
-
-    // Add the header row
-    csvRows.push(keys.join(","));
-
-    // Add the data rows
-    jsonArray.forEach((item) => {
-      const values = keys.map((key) => `"${item[key]}"`);
-      csvRows.push(values.join(","));
+  const exportAsCSV = (): void => {
+    setExporting(true);
+    // Flatten the data arrays from all query results, including empty data results
+    const allData = queryResult.flatMap((result: any) => {
+      if (result.data.length > 0) {
+        return result.data;
+      }
+      // Include empty result with a message and relevant patient info
+      return [
+        {
+          PatientID: result.args.PatientID,
+          PatientName: result.args.PatientName,
+          AccessionNumber: result.args.AccessionNumber,
+          Message: "No results found",
+        },
+      ];
     });
 
-    return csvRows.join("\n");
-  };
-
-  const exportAsCSV = () => {
-    // Flatten the data arrays from all query results
-    const allData = queryResult.flatMap((result) => result.data);
     const csvData = jsonToCSV(allData);
+    setExporting(false);
 
     if (csvData) {
-      // Create a blob and initiate the download
+      // Create a blob
       const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
-      console.log("Blob", blob, csvData);
+
+      // Create a link element
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "search_results.csv";
+
+      // Append the link to the document body and click it to trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Remove the link element from the document
+      document.body.removeChild(link);
     }
   };
 
   return (
-    <>
+    <div>
       {fetchingResults.status && <SpinContainer title={fetchingResults.text} />}
+      {queryResult.length > 0 && (
+        <div
+          style={{
+            marginTop: "0.5em",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={exporting ? <Spin /> : <DownloadIcon />}
+            onClick={() => exportAsCSV()}
+            style={{ marginLeft: 0 }}
+          >
+            {exporting ? "Exporting as CSV..." : "Export as CSV"}
+          </Button>
+        </div>
+      )}
       {queryResult.length > 0 ? (
-        queryResult.map((result: any, index: any) => {
+        queryResult.map((result: any, index: number) => {
           if (result && result.data.length > 0) {
             return (
               <div key={`result_${index}`} className="result-grid">
@@ -460,14 +543,13 @@ const Results = () => {
           return (
             <EmptyStateComponent
               key={`result${index}`}
-              title={`No results found for ${result.args.PatientID} ${result.args.PatientName} ${result.args.AccessionNumber}`}
+              title={`No results found for : ${result.args.PatientID} ${result.args.PatientName} ${result.args.AccessionNumber}`}
             />
           );
         })
       ) : (
         <EmptyStateComponent />
       )}
-      {<Button onClick={exportAsCSV}>Export as csv</Button>}
-    </>
+    </div>
   );
 };
