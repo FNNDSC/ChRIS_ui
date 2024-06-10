@@ -25,14 +25,6 @@ import PatientCard from "./components/PatientCard";
 import { PacsQueryContext, PacsQueryProvider, Types } from "./context";
 import "./pacs-copy.css";
 import PfdcmClient from "./pfdcmClient";
-import {
-  flatMap,
-  flatMapDeep,
-  flatMapDepth,
-  flatten,
-  flattenDeep,
-  flattenDepth,
-} from "lodash";
 import { DownloadIcon } from "../Icons";
 
 const dropdownMatch: { [key: string]: string } = {
@@ -466,7 +458,6 @@ const jsonToCSV = (jsonArray: any[]): string | null => {
 const Results: React.FC = () => {
   const { state } = React.useContext(PacsQueryContext);
   const [exporting, setExporting] = React.useState(false);
- 
 
   const { queryResult, fetchingResults } = state;
 
@@ -531,7 +522,7 @@ const Results: React.FC = () => {
           </Button>
         </div>
       )}
-      {queryResult.length > 0 ? (
+      {queryResult.length > 0 &&
         queryResult.map((result: any, index: number) => {
           if (result && result.data.length > 0) {
             return (
@@ -546,9 +537,9 @@ const Results: React.FC = () => {
               title={`No results found for : ${result.args.PatientID} ${result.args.PatientName} ${result.args.AccessionNumber}`}
             />
           );
-        })
-      ) : (
-        <EmptyStateComponent />
+        })}
+      {!fetchingResults.status && queryResult.length === 0 && (
+        <EmptyStateComponent title="Please enter a search term to see results" />
       )}
     </div>
   );
