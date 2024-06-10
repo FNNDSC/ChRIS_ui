@@ -408,7 +408,6 @@ const Results = () => {
   return (
     <>
       {fetchingResults.status && <SpinContainer title={fetchingResults.text} />}
-
       {queryResult.length > 0 ? (
         queryResult.map((result: any, index: any) => {
           if (result && result.data.length > 0) {
@@ -418,7 +417,12 @@ const Results = () => {
               </div>
             );
           }
-          return <EmptyStateComponent key={`result${index}`} />;
+          return (
+            <EmptyStateComponent
+              key={`result${index}`}
+              title={`No results found for ${result.args.PatientID} ${result.args.PatientName} ${result.args.AccessionNumber}`}
+            />
+          );
         })
       ) : (
         <EmptyStateComponent />
