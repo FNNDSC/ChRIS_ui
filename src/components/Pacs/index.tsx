@@ -62,6 +62,8 @@ export default PacsCopy;
 const client = new PfdcmClient();
 const actions = ["Patient MRN", "Patient Name", "Accession Number"];
 
+const cache = [];
+
 const QueryBuilder = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -77,6 +79,9 @@ const QueryBuilder = () => {
 
   const service = searchParams.get("service");
   const queryType = searchParams.get("queryType");
+  const searchValue = searchParams.get("value");
+
+  const responseCache = React.useRef(new Map());
 
   const handleSubmitQuery = React.useCallback(
     async (
@@ -85,7 +90,22 @@ const QueryBuilder = () => {
       value: string,
       selectedPacsService = "default",
     ) => {
+      const cacheKey = `${currentQueryType}-${value}-${selectedPacsService}`;
+      // Check if the response for the query is already cached
+      if (responseCache.current.has(cacheKey)) {
+        return;
+      }
+      // Cache the response
+      responseCache.current.set(cacheKey, 1);
+
       if (value.length > 0 && currentQueryType) {
+        // Reset Search Results in the state first to avoid duplication if search button is hit twice or if the page is refreshed
+        // and the ui is trying to construct the page with url search params
+        dispatch({
+          type: Types.RESET_SEARCH_RESULTS,
+          payload: null,
+        });
+
         const csv = value.trim().split(/[,\s]+/);
 
         dispatch({
@@ -97,6 +117,7 @@ const QueryBuilder = () => {
         });
 
         const responses = [];
+
         for (const value of csv) {
           try {
             const response = await client.find(
@@ -105,14 +126,19 @@ const QueryBuilder = () => {
               },
               selectedPacsService,
             );
-
             response && responses.push(response);
-
             dispatch({
               type: Types.SET_LOADING_SPINNER,
               payload: {
                 status: true,
                 text: `Completed ${responses.length} of ${csv.length} searches`,
+              },
+            });
+
+            dispatch({
+              type: Types.SET_SEARCH_RESULT,
+              payload: {
+                queryResult: response,
               },
             });
           } catch (error: any) {
@@ -125,15 +151,6 @@ const QueryBuilder = () => {
               },
             });
           }
-        }
-
-        if (responses.length > 0) {
-          dispatch({
-            type: Types.SET_SEARCH_RESULT,
-            payload: {
-              queryResult: responses,
-            },
-          });
         }
 
         dispatch({
@@ -191,42 +208,27 @@ const QueryBuilder = () => {
   }, [dispatch, service]);
 
   React.useEffect(() => {
-    const searchValue = searchParams.get("value");
-
-    if (queryResult.length === 0 && queryType && searchValue && service) {
-      dispatch({
-        type: Types.SET_SELECTED_PACS_SERVICE,
-        payload: {
-          selectedPacsService: service,
-        },
-      });
-
-      queryResult.length < 2 &&
+    const fetchData = async () => {
+      if (queryType && searchValue && service) {
         dispatch({
-          type: Types.SET_DEFAULT_EXPANDED,
-          payload: {
-            expanded: true,
-          },
+          type: Types.SET_SELECTED_PACS_SERVICE,
+          payload: { selectedPacsService: service },
         });
 
-      dispatch({
-        type: Types.SET_CURRENT_QUERY_TYPE,
-        payload: {
-          currentQueryType: queryType,
-        },
-      });
+        dispatch({
+          type: Types.SET_CURRENT_QUERY_TYPE,
+          payload: { currentQueryType: queryType },
+        });
 
-      handleSubmitQuery(false, queryType, searchValue, service);
-      setValue(searchValue);
-    }
-  }, [
-    queryResult,
-    queryType,
-    dispatch,
-    handleSubmitQuery,
-    searchParams,
-    service,
-  ]);
+        if (queryResult.length === 0) {
+          setValue(searchValue);
+          await handleSubmitQuery(false, queryType, searchValue, service);
+        }
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const onToggle = () => {
     setQueryOpen(!queryOpen);
