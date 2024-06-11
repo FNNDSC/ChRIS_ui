@@ -199,13 +199,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         // This means oxidicom is done pushing as the push count file is available
         // cancel polling
         setIsFetching(false);
-
-        // Miscellenaous error handling
-        if (seriesCount > 0 && seriesCount !== seriesInstances) {
-          throw new Error(
-            "The expected number of series instances do no match the instances pulled",
-          );
-        }
       }
 
       return {
@@ -456,7 +449,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
             max={seriesInstances}
             size={ProgressSize.sm}
             helperText={resourceErrorFound ? helperText : ""}
-            variant={resourceErrorFound ? ProgressVariant.danger : undefined}
+            variant={
+              resourceErrorFound
+                ? ProgressVariant.danger
+                : data.totalFilesCount === seriesInstances
+                  ? ProgressVariant.success
+                  : undefined
+            }
             measureLocation={ProgressMeasureLocation.top}
           />
         ) : (
