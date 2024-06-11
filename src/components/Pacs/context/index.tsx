@@ -22,6 +22,7 @@ export enum Types {
   SET_SHOW_PREVIEW = "SET_SHOW_PREVIEW",
   SET_PULL_STUDY = "SET_PULL_STUDY",
   SET_STUDY_PULL_TRACKER = "SET_STUDY_PULL_TRACKER",
+  RESET_SEARCH_RESULTS = "RESET_SEARCH_RESULTS",
 }
 
 interface PacsQueryState {
@@ -68,7 +69,7 @@ type PacsQueryPayload = {
   };
 
   [Types.SET_SEARCH_RESULT]: {
-    queryResult: Record<any, any>[];
+    queryResult: Record<any, any>;
   };
 
   [Types.SET_QUERY_STAGE_FOR_SERIES]: {
@@ -99,6 +100,8 @@ type PacsQueryPayload = {
     seriesInstanceUID: string;
     currentProgress: boolean;
   };
+
+  [Types.RESET_SEARCH_RESULTS]: null;
 };
 
 export type PacsQueryActions =
@@ -157,7 +160,14 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
     case Types.SET_SEARCH_RESULT: {
       return {
         ...state,
-        queryResult: action.payload.queryResult,
+        queryResult: [...state.queryResult, action.payload.queryResult],
+      };
+    }
+
+    case Types.RESET_SEARCH_RESULTS: {
+      return {
+        ...state,
+        queryResult: [],
       };
     }
 
