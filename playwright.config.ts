@@ -1,6 +1,5 @@
 import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
 
-
 const SAFARI_BROWSERS: PlaywrightTestConfig["projects"] = [];
 
 if (process.env.TEST_SAFARI?.toLowerCase().startsWith('y')) {
@@ -65,7 +64,6 @@ export default defineConfig({
 
     ...SAFARI_BROWSERS
   ],
-
   webServer: {
     command: "env USE_BABEL_PLUGIN_ISTANBUL=y npm run dev:public",
     url: "http://localhost:25173",

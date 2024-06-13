@@ -19,11 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-<<<<<<< HEAD
     "noImplicitAny":true,
-=======
-    "noImplicitAny": false
->>>>>>> 180631e3 (feat: Explore the idea of a store from which a user can install plugins)
   },
   "references": [{ "path": "./tsconfig.node.json" }]
 }
