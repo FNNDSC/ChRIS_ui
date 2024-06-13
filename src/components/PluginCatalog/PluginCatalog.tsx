@@ -98,8 +98,6 @@ const PluginCatalog = () => {
     });
   };
 
-  console.log("Page State", pageState);
-
   return (
     <>
       <DisplayPage
