@@ -18,6 +18,11 @@ import {
   SelectOption,
   MenuToggleElement,
   MenuToggle,
+  Modal,
+  Form,
+  FormGroup,
+  TextInput,
+  ActionGroup,
 } from "@patternfly/react-core";
 import "../SinglePlugin/singlePlugin.css";
 import { format } from "date-fns";
@@ -34,7 +39,15 @@ const Store = () => {
   const [version, setVersion] = useState<{
     [key: string]: any;
   }>({});
-  const [installingPluginId, setInstallingPluginId] = useState(null);
+  const [installingPlugin, setInstallingPlugin] = useState<
+    | {
+        data: any;
+      }
+    | undefined
+  >(undefined);
+  const [enterAdminCred, setEnterAdminCred] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     document.title = "Store Catalog";
@@ -96,9 +109,8 @@ const Store = () => {
   });
 
   const handleInstall = async (selectedPlugin: Plugin) => {
-    console.log("SelectedPlugin", selectedPlugin);
     const url = "http://localhost:8000/chris-admin/api/v1/";
-    const credentials = btoa("chris:chris1234"); // Base64 encoding for Basic Auth
+    const credentials = btoa(`${username}:${password}`); // Base64 encoding for Basic Auth
 
     const pluginData = {
       compute_names: "host",
@@ -131,15 +143,37 @@ const Store = () => {
   };
 
   const handleInstallMutation = useMutation({
-    mutationFn: async (selectedPlugin: any) =>
+    mutationFn: async (selectedPlugin: Plugin) =>
       await handleInstall(selectedPlugin),
-    onMutate: (selectedPlugin) => {
-      setInstallingPluginId(selectedPlugin.data.id);
-    },
     onSettled: () => {
-      setInstallingPluginId(null);
+      setInstallingPlugin(undefined);
+      setEnterAdminCred(false);
     },
   });
+
+  const handleSave = () => {
+    if (installingPlugin) {
+      let selectedPlugin: Plugin | undefined = undefined;
+      if (!isEmpty(version)) {
+        const findPlugin = installingPlugin.data.plugins.find(
+          (pluginMeta: any) => {
+            return (
+              pluginMeta.data.version === version[installingPlugin.data.id]
+            );
+          },
+        );
+        if (findPlugin) {
+          selectedPlugin = findPlugin;
+        }
+      } else {
+        selectedPlugin = installingPlugin.data.plugins[0];
+      }
+
+      if (selectedPlugin) {
+        handleInstallMutation.mutate(selectedPlugin);
+      }
+    }
+  };
 
   useEffect(() => {
     if (handleInstallMutation.isSuccess) {
@@ -158,6 +192,65 @@ const Store = () => {
   return (
     <WrapperConnect>
       {contextHolder}
+      <Modal
+        variant="small"
+        isOpen={enterAdminCred}
+        onClose={() => setEnterAdminCred(!enterAdminCred)}
+      >
+        <Form isWidthLimited>
+          <FormGroup label="Enter a username" isRequired>
+            <TextInput
+              isRequired
+              type="text"
+              value={username}
+              onChange={(_event, value: string) => {
+                setUsername(value);
+              }}
+            />
+          </FormGroup>
+          <FormGroup label="Enter a password" isRequired>
+            <TextInput
+              isRequired
+              type="password"
+              value={password}
+              onChange={(_event, value: string) => {
+                setPassword(value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSave();
+                }
+              }}
+            />
+          </FormGroup>
+          <ActionGroup>
+            <Button
+              onClick={() => {
+                handleSave();
+              }}
+              isDisabled={!(username && password)}
+              variant="primary"
+              icon={handleInstallMutation.isPending && <Spin />}
+            >
+              Submit
+            </Button>
+            <Button
+              onClick={() => setEnterAdminCred(!enterAdminCred)}
+              variant="link"
+            >
+              Cancel
+            </Button>
+          </ActionGroup>
+          {handleInstallMutation.isError && (
+            <Alert
+              type="error"
+              closable
+              description={handleInstallMutation.error.message}
+            />
+          )}
+        </Form>
+      </Modal>
+
       <PageSection
         style={{
           marginBottom: "0",
@@ -238,26 +331,9 @@ const Store = () => {
                         marginTop: "1em",
                       }}
                       onClick={() => {
-                        let selectedPlugin = undefined;
-                        if (!isEmpty(version)) {
-                          const findPlugin = plugin.data.plugins.find(
-                            (pluginMeta: any) => {
-                              return (
-                                pluginMeta.data.version ===
-                                version[plugin.data.id]
-                              );
-                            },
-                          );
-                          if (findPlugin) {
-                            selectedPlugin = findPlugin;
-                          }
-                        } else {
-                          selectedPlugin = plugin.data.plugins[0];
-                        }
-
-                        handleInstallMutation.mutate(selectedPlugin);
+                        setEnterAdminCred(!enterAdminCred);
+                        setInstallingPlugin(plugin);
                       }}
-                      icon={installingPluginId === plugin.data.id && <Spin />}
                     >
                       Install
                     </Button>
