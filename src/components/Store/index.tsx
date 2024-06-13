@@ -48,6 +48,7 @@ const Store = () => {
   const [enterAdminCred, setEnterAdminCred] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [url, setUrl] = useState("");
 
   useEffect(() => {
     document.title = "Store Catalog";
@@ -109,9 +110,10 @@ const Store = () => {
   });
 
   const handleInstall = async (selectedPlugin: Plugin) => {
-    const url = "http://localhost:8000/chris-admin/api/v1/";
-    const credentials = btoa(`${username}:${password}`); // Base64 encoding for Basic Auth
-
+    if (!url) {
+      throw new Error("Please provide a link to your chris-admin url");
+    }
+    const credentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
     const pluginData = {
       compute_names: "host",
       name: selectedPlugin.data.name,
@@ -137,6 +139,7 @@ const Store = () => {
 
       return data;
     } catch (error) {
+      console.log("Error", error);
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
@@ -145,9 +148,11 @@ const Store = () => {
   const handleInstallMutation = useMutation({
     mutationFn: async (selectedPlugin: Plugin) =>
       await handleInstall(selectedPlugin),
-    onSettled: () => {
-      setInstallingPlugin(undefined);
-      setEnterAdminCred(false);
+    onSettled: (error) => {
+      if (!isEmpty(error)) {
+        setInstallingPlugin(undefined);
+        setEnterAdminCred(false);
+      }
     },
   });
 
@@ -196,10 +201,12 @@ const Store = () => {
         variant="small"
         isOpen={enterAdminCred}
         onClose={() => setEnterAdminCred(!enterAdminCred)}
+        aria-label="Enter admin credentials"
       >
         <Form isWidthLimited>
           <FormGroup label="Enter a username" isRequired>
             <TextInput
+              id="username"
               isRequired
               type="text"
               value={username}
@@ -210,6 +217,7 @@ const Store = () => {
           </FormGroup>
           <FormGroup label="Enter a password" isRequired>
             <TextInput
+              id="password"
               isRequired
               type="password"
               value={password}
@@ -223,12 +231,28 @@ const Store = () => {
               }}
             />
           </FormGroup>
+
+          <FormGroup
+            label="Enter the url to your chris-admin dashboard"
+            isRequired
+          >
+            <TextInput
+              id="url"
+              isRequired
+              type="url"
+              value={url}
+              onChange={(_event, value: string) => {
+                setUrl(value);
+              }}
+              placeholder="eg: http://localhost:8000/chris-admin/api/v1/"
+            />
+          </FormGroup>
           <ActionGroup>
             <Button
               onClick={() => {
                 handleSave();
               }}
-              isDisabled={!(username && password)}
+              isDisabled={!(username && password && url)}
               variant="primary"
               icon={handleInstallMutation.isPending && <Spin />}
             >
