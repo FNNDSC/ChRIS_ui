@@ -89,6 +89,10 @@ const Sidebar: React.FC<AllProps> = ({
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
             {renderLink("/dataset", "Volume View", "dataset")}
           </NavItem>
+
+          <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
+            {renderLink("/store", "Store", "store")}
+          </NavItem>
         </NavGroup>
       </NavList>
     </Nav>
