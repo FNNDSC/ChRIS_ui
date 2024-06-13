@@ -274,6 +274,7 @@ export const HeaderCardPlugin = ({
               <Tab eventKey={0} title={<TabTitleText>Overview</TabTitleText>}>
                 <div style={{ color: "gray", margin: "1em 0" }}>README</div>
                 {readme ? (
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                   <div dangerouslySetInnerHTML={{ __html: readme }} />
                 ) : (
                   <div style={{ margin: "auto" }}>
@@ -432,7 +433,7 @@ export const HeaderSidebar = ({
         </p>
 
         <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="Copied">
-          {parameterPayload?.url ? parameterPayload.url : ""}
+          {parameterPayload?.url ? parameterPayload.url : "Fetching the url..."}
         </ClipboardCopy>
       </div>
       <div className="plugin-body-detail-section">

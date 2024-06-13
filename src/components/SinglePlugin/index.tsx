@@ -143,14 +143,17 @@ const SinglePlugin = () => {
     enabled: !!id,
   });
 
-  const removeEmail = (authors: string[]) => {
+  const removeEmail = (authors: string | string[]) => {
+    let authorArray: string[] = [];
     const emailRegex = /(<|\().+?@.{2,}?\..{2,}?(>|\))/g;
     // Match '<' or '(' at the beginning and end
     // Match <string>@<host>.<tld> inside brackets
-    if (!Array.isArray(authors))
-      // eslint-disable-next-line no-param-reassign
-      authors = [authors];
-    return authors.map((author) => author.replace(emailRegex, "").trim());
+    if (!Array.isArray(authors)) {
+      authorArray = [authors];
+    } else authorArray = authors;
+    // eslint-disable-next-line no-param-reassign
+
+    return authorArray.map((author) => author.replace(emailRegex, "").trim());
   };
 
   React.useEffect(() => {
