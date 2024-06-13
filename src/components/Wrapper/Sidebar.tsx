@@ -15,6 +15,7 @@ import { ApplicationState } from "../../store/root/applicationState";
 import { IUiState } from "../../store/ui/types";
 import { IUserState } from "../../store/user/types";
 import { useTypedSelector } from "../../store/hooks";
+import { isEmpty } from "lodash";
 
 type AllProps = IUiState & IUserState & ReduxProp;
 type ReduxProp = {
@@ -90,9 +91,11 @@ const Sidebar: React.FC<AllProps> = ({
             {renderLink("/dataset", "Volume View", "dataset")}
           </NavItem>
 
-          <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
-            {renderLink("/store", "Store", "store")}
-          </NavItem>
+          {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
+            <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
+              {renderLink("/store", "Store", "store")}
+            </NavItem>
+          )}
         </NavGroup>
       </NavList>
     </Nav>
