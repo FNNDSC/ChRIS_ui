@@ -195,7 +195,11 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         });
       }
 
+<<<<<<< HEAD
       if (pushCount > 0 && pushCount === totalFilesCount && isFetching) {
+=======
+      if (pushCount > 0 && isFetching) {
+>>>>>>> a20afa3a (refactor: cleanup)
         // This means oxidicom is done pushing as the push count file is available
         // cancel polling
         setIsFetching(false);
