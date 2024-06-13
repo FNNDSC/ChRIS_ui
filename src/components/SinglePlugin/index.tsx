@@ -102,7 +102,7 @@ const SinglePlugin = () => {
       const pluginInstances = isLoggedIn
         ? ((
             await plugin.getPluginInstances({
-              limit: 20,
+              limit: 1000,
             })
           ).getItems() as PluginInstance[])
         : [];
