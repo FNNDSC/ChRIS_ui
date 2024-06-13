@@ -24,13 +24,16 @@ import { format } from "date-fns";
 import { setSidebarActive } from "../../store/ui/actions";
 import { useDispatch } from "react-redux";
 import { InfoIcon } from "../Common";
+import { isEmpty } from "lodash";
 
 const { Paragraph } = Typography;
 
 const Store = () => {
   const [api, contextHolder] = notification.useNotification();
   const dispatch = useDispatch();
-  const [version, setVersion] = useState({});
+  const [version, setVersion] = useState<{
+    [key: string]: any;
+  }>({});
   const [installingPluginId, setInstallingPluginId] = useState(null);
 
   useEffect(() => {
@@ -47,9 +50,7 @@ const Store = () => {
     if (!url) {
       throw new Error("No url found for a store");
     }
-
     const client = new Client(url);
-
     try {
       const pluginMetaList = await client.getPluginMetas({ limit: 1000 });
 
@@ -84,6 +85,7 @@ const Store = () => {
         client: client,
       };
     } catch (error) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
   };
@@ -93,19 +95,16 @@ const Store = () => {
     queryFn: fetchPlugins,
   });
 
-  const handleInstall = async (plugins: Plugin[], plugin: any) => {
-    if (!plugins || plugins.length === 0) {
-      throw new Error("No plugins available to install.");
-    }
-    const latestPlugin = plugins[0];
+  const handleInstall = async (selectedPlugin: Plugin) => {
+    console.log("SelectedPlugin", selectedPlugin);
     const url = "http://localhost:8000/chris-admin/api/v1/";
     const credentials = btoa("chris:chris1234"); // Base64 encoding for Basic Auth
 
     const pluginData = {
       compute_names: "host",
-      name: latestPlugin.data.name,
-      version: version[plugin.data.id] || latestPlugin.data.version,
-      plugin_store_url: latestPlugin.url,
+      name: selectedPlugin.data.name,
+      version: selectedPlugin.data.version,
+      plugin_store_url: selectedPlugin.url,
     };
 
     try {
@@ -126,18 +125,16 @@ const Store = () => {
 
       return data;
     } catch (error) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
   };
 
   const handleInstallMutation = useMutation({
-    mutationFn: async ({
-      plugins,
-      plugin,
-    }: { plugins: Plugin[]; plugin: any }) =>
-      await handleInstall(plugins, plugin),
-    onMutate: ({ plugin }) => {
-      setInstallingPluginId(plugin.data.id);
+    mutationFn: async (selectedPlugin: any) =>
+      await handleInstall(selectedPlugin),
+    onMutate: (selectedPlugin) => {
+      setInstallingPluginId(selectedPlugin.data.id);
     },
     onSettled: () => {
       setInstallingPluginId(null);
@@ -224,11 +221,10 @@ const Store = () => {
                     >
                       Version:{" "}
                       <VersionSelect
-                        handlePluginVersion={(selectedVersion) => {
-                          setVersion((prevVersion) => ({
-                            ...prevVersion,
+                        handlePluginVersion={(selectedVersion: any) => {
+                          setVersion({
                             [plugin.data.id]: selectedVersion,
-                          }));
+                          });
                         }}
                         currentVersion={
                           version[plugin.data.id] || plugin.data.version
@@ -241,12 +237,26 @@ const Store = () => {
                       style={{
                         marginTop: "1em",
                       }}
-                      onClick={() =>
-                        handleInstallMutation.mutate({
-                          plugins: plugin.data.plugins,
-                          plugin,
-                        })
-                      }
+                      onClick={() => {
+                        let selectedPlugin = undefined;
+                        if (!isEmpty(version)) {
+                          const findPlugin = plugin.data.plugins.find(
+                            (pluginMeta: any) => {
+                              return (
+                                pluginMeta.data.version ===
+                                version[plugin.data.id]
+                              );
+                            },
+                          );
+                          if (findPlugin) {
+                            selectedPlugin = findPlugin;
+                          }
+                        } else {
+                          selectedPlugin = plugin.data.plugins[0];
+                        }
+
+                        handleInstallMutation.mutate(selectedPlugin);
+                      }}
                       icon={installingPluginId === plugin.data.id && <Spin />}
                     >
                       Install
@@ -264,7 +274,15 @@ const Store = () => {
 
 export default Store;
 
-const VersionSelect = ({ plugins, currentVersion, handlePluginVersion }) => {
+const VersionSelect = ({
+  plugins,
+  currentVersion,
+  handlePluginVersion,
+}: {
+  plugins: Plugin[];
+  currentVersion: string;
+  handlePluginVersion: (value: string | number | undefined) => void;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const onToggleClick = () => {
     setIsOpen(!isOpen);
