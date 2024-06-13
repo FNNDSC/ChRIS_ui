@@ -25,8 +25,7 @@
         "useExhaustiveDependencies": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off",
-        "noArrayIndexKey": "off"
+        "noExplicitAny": "off"
       }
     }
   },

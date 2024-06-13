@@ -12,6 +12,7 @@ const { Paragraph } = Typography;
 
 const CatalogPage = () => {
   const dispatch = useDispatch();
+
   React.useEffect(() => {
     document.title = "Analysis Catalog";
     dispatch(
@@ -20,6 +21,7 @@ const CatalogPage = () => {
       }),
     );
   });
+
   return (
     <WrapperConnect>
       <PageSection>
