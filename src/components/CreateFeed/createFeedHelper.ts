@@ -177,6 +177,17 @@ export const createFeedInstanceWithFS = async (
   }
 };
 
+const stripQuotes = (value: string) => {
+  if (typeof value === "string") {
+    const singleQuoted = value.startsWith("'") && value.endsWith("'");
+    const doubleQuoted = value.startsWith('"') && value.endsWith('"');
+    if (singleQuoted || doubleQuoted) {
+      return value.slice(1, -1);
+    }
+  }
+  return value;
+};
+
 export const getRequiredObject = async (
   dropdownInput: InputType,
   requiredInput: InputType,
@@ -219,7 +230,7 @@ export const getRequiredObject = async (
       const flag = params[i].data.flag;
       const defaultValue = params[i].data.default;
       if (Object.keys(nodeParameter).includes(flag)) {
-        let value: string | boolean = nodeParameter[flag].value;
+        let value: string | boolean = stripQuotes(nodeParameter[flag].value);
         const type = nodeParameter[flag].type;
 
         if (value === "" && type === "boolean") {
