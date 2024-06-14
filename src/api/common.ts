@@ -10,6 +10,7 @@ import {
   PipelinePipingDefaultParameterList,
   ComputeResource,
 } from "@fnndsc/chrisapi";
+import { quote } from "shlex";
 
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
@@ -436,3 +437,19 @@ export async function fetchNote(feed?: Feed) {
 export const pluralize = (file: string, length: number) => {
   return length === 1 ? file : `${file}s`;
 };
+
+export function needsQuoting(value: string) {
+  // Check if the value is already properly quoted
+  const singleQuoted = value.startsWith("'") && value.endsWith("'");
+  const doubleQuoted = value.startsWith('"') && value.endsWith('"');
+  const isProperlyQuoted = singleQuoted || doubleQuoted;
+
+  // If already properly quoted, return false
+  if (isProperlyQuoted) {
+    return false;
+  }
+
+  // If not quoted, check if quoting is necessary
+  const quotedValue = quote(value);
+  return quotedValue !== value;
+}

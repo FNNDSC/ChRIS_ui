@@ -1,11 +1,10 @@
-import { PluginInstanceParameter } from "@fnndsc/chrisapi";
 import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
   Button,
   Card,
   CardBody,
   Checkbox,
-  ClipboardCopy,
   Dropdown,
   DropdownItem,
   DropdownList,
@@ -22,11 +21,11 @@ import {
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";
-import React, { useEffect, useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { quote } from "shlex";
 import { v4 } from "uuid";
-import { fetchResource } from "../../api/common";
+import { fetchResource, needsQuoting } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getParams } from "../../store/plugin/actions";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
@@ -102,7 +101,7 @@ const GuidedConfig = () => {
         return key;
       });
 
-      if (params && defaultComponentList.length < params["dropdown"].length) {
+      if (params && defaultComponentList.length < params.dropdown.length) {
         defaultComponentList = [...defaultComponentList, v4()];
       }
       nodeDispatch({
@@ -180,8 +179,8 @@ const GuidedConfig = () => {
     );
   };
 
-  const requiredLength = params && params["required"].length;
-  const dropdownLength = params && params["dropdown"].length;
+  const requiredLength = params?.required.length;
+  const dropdownLength = params?.dropdown.length;
 
   return (
     <div className="configuration">
@@ -226,8 +225,8 @@ const GuidedConfig = () => {
               />
             </span>
             {params &&
-              params["required"].length > 0 &&
-              renderRequiredParams(params["required"])}
+              params.required.length > 0 &&
+              renderRequiredParams(params.required)}
           </div>
           <div>
             <span>
@@ -297,36 +296,41 @@ const CheckboxComponent = () => {
       const dropdownInput: { [id: string]: InputIndex } = {};
 
       const paramsRequiredFetched = params?.required.reduce(
-        (acc, param) => ({
-          ...acc,
-          [param.data.name]: [param.data.id, param.data.flag],
-        }),
+        (acc: any, param) => {
+          acc[param.data.name] = [param.data.id, param.data.flag];
+          return acc;
+        },
         {},
       );
 
       const paramsDropdownFetched = params?.dropdown.reduce(
-        (acc, param) => ({
-          ...acc,
-          [param.data.name]: param.data.flag,
-        }),
+        (acc: any, param) => {
+          acc[param.data.name] = param.data.flag;
+          return acc;
+        },
         {},
       );
 
       for (let i = 0; i < pluginParameters.length; i++) {
         const parameter = pluginParameters[i];
         const { param_name, type, value } = parameter.data;
-        if (paramsRequiredFetched && paramsRequiredFetched[param_name]) {
+        if (paramsRequiredFetched?.[param_name]) {
+          const quotedValue =
+            type === "string" && needsQuoting(value) ? quote(value) : value;
           const [id, flag] = paramsRequiredFetched[param_name];
           requiredInput[id] = {
-            value: type === "string" ? quote(value) : value,
+            value: quotedValue,
             flag,
             type,
             placeholder: "",
           };
         } else if (paramsDropdownFetched) {
+          const quotedValue =
+            type === "string" && needsQuoting(value) ? quote(value) : value;
+
           const flag = paramsDropdownFetched[param_name];
           dropdownInput[v4()] = {
-            value: type === "string" ? quote(value) : value,
+            value: quotedValue,
             flag,
             type,
             placeholder: "",
