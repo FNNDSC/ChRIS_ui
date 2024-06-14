@@ -1,35 +1,34 @@
-import WrapperConnect from "../Wrapper";
-import { useEffect, useState, Ref } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import Client, { Plugin } from "@fnndsc/chrisapi";
-import { SpinContainer } from "../Common";
-import { Alert, Spin, Typography, notification } from "antd";
 import {
-  Card,
-  Grid,
-  GridItem,
-  Button,
-  CardBody,
-  Split,
-  SplitItem,
-  PageSection,
+  ActionGroup,
   Badge,
-  Select,
-  SelectOption,
-  MenuToggleElement,
-  MenuToggle,
-  Modal,
+  Button,
+  Card,
+  CardBody,
   Form,
   FormGroup,
+  Grid,
+  GridItem,
+  MenuToggle,
+  MenuToggleElement,
+  Modal,
+  PageSection,
+  Select,
+  SelectOption,
+  Split,
+  SplitItem,
   TextInput,
-  ActionGroup,
 } from "@patternfly/react-core";
-import "../SinglePlugin/singlePlugin.css";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Alert, Spin, Typography, notification } from "antd";
 import { format } from "date-fns";
-import { setSidebarActive } from "../../store/ui/actions";
-import { useDispatch } from "react-redux";
-import { InfoIcon } from "../Common";
 import { isEmpty } from "lodash";
+import { Ref, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { setSidebarActive } from "../../store/ui/actions";
+import { InfoIcon, SpinContainer } from "../Common";
+import "../SinglePlugin/singlePlugin.css";
+import WrapperConnect from "../Wrapper";
 
 const { Paragraph } = Typography;
 
@@ -139,7 +138,6 @@ const Store = () => {
 
       return data;
     } catch (error) {
-      console.log("Error", error);
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
