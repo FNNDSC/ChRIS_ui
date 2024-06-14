@@ -24,6 +24,7 @@ import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import { getErrorCodeMessage } from "./utils";
+import { quote } from "shlex";
 
 interface INodeState {
   plugin?: Plugin;
@@ -300,7 +301,7 @@ function getCommand(
 
         modifiedParams.push({
           name: pluginParameters[j].data.flag,
-          value: isBoolean ? " " : isString ? `'${value}'` : value,
+          value: isBoolean ? " " : isString ? quote(value) : value,
         });
       }
     }
