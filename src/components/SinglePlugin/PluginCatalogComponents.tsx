@@ -433,7 +433,6 @@ export const HeaderSidebar = ({
     if (navigator.clipboard) {
       try {
         await navigator.clipboard.writeText(text.toString());
-        console.log("Text copied to clipboard successfully.");
       } catch (error) {
         alert("Failed to copy text to clipboard. Please try again.");
       }
