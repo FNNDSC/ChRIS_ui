@@ -424,6 +424,29 @@ export const HeaderSidebar = ({
   currentPluginMeta: PluginMeta;
   removeEmail: (authors: string[]) => string[];
 }) => {
+  const handleCopy = async (_event: any, text: string) => {
+    if (!text) {
+      console.warn("No text provided to copy.");
+      return;
+    }
+
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text.toString());
+        console.log("Text copied to clipboard successfully.");
+      } catch (error) {
+        alert("Failed to copy text to clipboard. Please try again.");
+      }
+    } else {
+      console.warn(
+        "Clipboard API not found. This copy function will not work. This is likely because you're using an",
+        "unsupported browser or you're not using HTTPS.",
+      );
+      alert(
+        "Clipboard API is not supported in your browser. Please use a supported browser or enable HTTPS.",
+      );
+    }
+  };
   return (
     <div className="plugin-body-side-col">
       <div className="plugin-body-detail-section">
@@ -432,7 +455,19 @@ export const HeaderSidebar = ({
           install this plugin.
         </p>
 
-        <ClipboardCopy isReadOnly hoverTip="Copy" clickTip="Copied">
+        <ClipboardCopy
+          isReadOnly
+          hoverTip="Copy"
+          clickTip="Copied"
+          onCopy={(event) =>
+            handleCopy(
+              event,
+              parameterPayload?.url
+                ? parameterPayload.url
+                : "Fetching the url...",
+            )
+          }
+        >
           {parameterPayload?.url ? parameterPayload.url : "Fetching the url..."}
         </ClipboardCopy>
       </div>
