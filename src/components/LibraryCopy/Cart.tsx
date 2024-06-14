@@ -176,7 +176,10 @@ export default function Cart() {
         const feed = (await createdInstance.getFeed()) as Feed;
 
         await feed.put({
-          name: `Cart download and zip for ${path.replace(/\//g, "_")}`,
+          name: `Cart download and zip for ${elipses(
+            path.replace(/\//g, "_"),
+            40,
+          )}`,
         });
 
         const pipelineList = await client.getPipelines({
@@ -199,6 +202,7 @@ export default function Cart() {
         }
       }
     } catch (e) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw e;
     }
   };
@@ -315,6 +319,13 @@ export default function Cart() {
             description={handleMutation.error.message}
           />
         )}
+        {handleMutation.isSuccess && (
+          <Alert
+            type="success"
+            description="Workflow creation successful. Please navigate to the Existing Analysis table to track the progress."
+          />
+        )}
+
         {alert && <Alert type="error" description={alert} />}
         {progress.currentProgress > 0 && (
           <Progress
