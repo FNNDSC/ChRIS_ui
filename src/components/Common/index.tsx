@@ -14,6 +14,7 @@ import {
   Hint,
   MenuToggle,
   TextInput,
+  ClipboardCopy,
 } from "@patternfly/react-core";
 import { CubesIcon, SearchIcon } from "../Icons";
 import { Alert, Popover, Spin, Typography } from "antd";
@@ -304,5 +305,48 @@ export const ErrorAlert = ({
         />
       }
     />
+  );
+};
+
+export const ClipboardCopyFixed = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange?: (_event: any, text?: string | number) => void;
+}) => {
+  const handleCopy = async (_event: any, text: string) => {
+    if (!text) {
+      console.warn("No text provided to copy.");
+      return;
+    }
+
+    if (navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(text.toString());
+      } catch (error) {
+        alert("Failed to copy text to clipboard. Please try again.");
+      }
+    } else {
+      console.warn(
+        "Clipboard API not found. This copy function will not work. This is likely because you're using an",
+        "unsupported browser or you're not using HTTPS.",
+      );
+      alert(
+        "Clipboard API is not supported in your browser. Please use a supported browser or enable HTTPS.",
+      );
+    }
+  };
+
+  return (
+    <ClipboardCopy
+      isReadOnly
+      hoverTip="Copy"
+      clickTip="Copied"
+      onCopy={(event) => handleCopy(event, value)}
+      onChange={onChange}
+    >
+      {value}
+    </ClipboardCopy>
   );
 };

@@ -1,41 +1,41 @@
-import React, { useEffect, useContext, useState } from "react";
+import { PluginInstanceParameter } from "@fnndsc/chrisapi";
+import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import {
-  ClipboardCopy,
-  Dropdown,
-  MenuToggle,
-  DropdownItem,
+  Button,
   Card,
   CardBody,
   Checkbox,
-  Grid,
-  GridItem,
-  Tooltip,
+  ClipboardCopy,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
   Form,
   FormGroup,
-  TextInput,
-  DropdownList,
-  Button,
+  Grid,
+  GridItem,
   HelperText,
   HelperTextItem,
-  SelectList,
+  MenuToggle,
   Select,
+  SelectList,
   SelectOption,
+  TextInput,
+  Tooltip,
 } from "@patternfly/react-core";
-
-import { PluginInstance, PluginInstanceParameter } from "@fnndsc/chrisapi";
-import SimpleDropdown from "./SimpleDropdown";
-import RequiredParam from "./RequiredParam";
-import ComputeEnvironments from "./ComputeEnvironment";
-import { ErrorAlert } from "../Common";
-import { v4 } from "uuid";
-import { handleGetTokens, unpackParametersIntoString } from "./utils";
-import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
-import { AddNodeContext } from "./context";
-import { Types, InputIndex } from "./types";
-import { useTypedSelector } from "../../store/hooks";
+import React, { useEffect, useContext, useState } from "react";
 import { useDispatch } from "react-redux";
-import { getParams } from "../../store/plugin/actions";
+import { quote } from "shlex";
+import { v4 } from "uuid";
 import { fetchResource } from "../../api/common";
+import { useTypedSelector } from "../../store/hooks";
+import { getParams } from "../../store/plugin/actions";
+import { ClipboardCopyFixed, ErrorAlert } from "../Common";
+import ComputeEnvironments from "./ComputeEnvironment";
+import RequiredParam from "./RequiredParam";
+import SimpleDropdown from "./SimpleDropdown";
+import { AddNodeContext } from "./context";
+import { InputIndex, Types } from "./types";
+import { handleGetTokens, unpackParametersIntoString } from "./utils";
 
 const advancedConfigList = [
   {
@@ -275,6 +275,7 @@ const CheckboxComponent = () => {
   const params = useTypedSelector((state) => state.plugin.parameters);
   const { state, dispatch } = useContext(AddNodeContext);
   const { showPreviousRun, selectedPluginFromMeta } = state;
+
   const handleCheckboxChange = async () => {
     const pluginInstanceList = await selectedPluginFromMeta?.getPluginInstances(
       {
@@ -285,7 +286,7 @@ const CheckboxComponent = () => {
     const pluginInstances = pluginInstanceList?.getItems();
 
     if (pluginInstances && pluginInstances.length > 0) {
-      const pluginInstance: PluginInstance = pluginInstances[0];
+      const pluginInstance = pluginInstances[0];
       const paramsToFn = { limit: 10, offset: 0 };
       const fn = pluginInstance.getParameters;
       const boundFn = fn.bind(pluginInstance);
@@ -295,39 +296,29 @@ const CheckboxComponent = () => {
       const requiredInput: { [id: string]: InputIndex } = {};
       const dropdownInput: { [id: string]: InputIndex } = {};
 
-      const paramsRequiredFetched:
-        | {
-            [key: string]: [number, string];
-          }
-        | undefined =
-        params &&
-        params["required"].reduce((acc, param) => {
-          return {
-            ...acc,
-            [param.data.name]: [param.data.id, param.data.flag],
-          };
-        }, {});
+      const paramsRequiredFetched = params?.required.reduce(
+        (acc, param) => ({
+          ...acc,
+          [param.data.name]: [param.data.id, param.data.flag],
+        }),
+        {},
+      );
 
-      const paramsDropdownFetched:
-        | {
-            [key: string]: string;
-          }
-        | undefined =
-        params &&
-        params["dropdown"].reduce((acc, param) => {
-          return {
-            ...acc,
-            [param.data.name]: param.data.flag,
-          };
-        }, {});
+      const paramsDropdownFetched = params?.dropdown.reduce(
+        (acc, param) => ({
+          ...acc,
+          [param.data.name]: param.data.flag,
+        }),
+        {},
+      );
 
       for (let i = 0; i < pluginParameters.length; i++) {
-        const parameter: PluginInstanceParameter = pluginParameters[i];
+        const parameter = pluginParameters[i];
         const { param_name, type, value } = parameter.data;
         if (paramsRequiredFetched && paramsRequiredFetched[param_name]) {
           const [id, flag] = paramsRequiredFetched[param_name];
           requiredInput[id] = {
-            value,
+            value: type === "string" ? quote(value) : value,
             flag,
             type,
             placeholder: "",
@@ -335,7 +326,7 @@ const CheckboxComponent = () => {
         } else if (paramsDropdownFetched) {
           const flag = paramsDropdownFetched[param_name];
           dropdownInput[v4()] = {
-            value,
+            value: type === "string" ? quote(value) : value,
             flag,
             type,
             placeholder: "",
@@ -363,11 +354,11 @@ const CheckboxComponent = () => {
 
   return (
     <Checkbox
-      isChecked={showPreviousRun ? true : false}
+      isChecked={showPreviousRun ?? false}
       id="fill-parameters"
       label="Fill the form using a latest run of this plugin"
       onChange={(_event, checked) => {
-        if (checked === true) {
+        if (checked) {
           handleCheckboxChange();
         } else {
           dispatch({
@@ -496,7 +487,8 @@ const EditorValue = ({
     <div style={{ width: "100%" }} className="autogenerated__text">
       <Grid hasGutter={true}>
         <GridItem span={12}>
-          <ClipboardCopy
+          <ClipboardCopyFixed
+            value={editorValue}
             onChange={(_event, text?: string | number) => {
               if (text) {
                 dispatch({
@@ -507,11 +499,7 @@ const EditorValue = ({
                 });
               }
             }}
-            hoverTip="Copy"
-            clickTip="copied"
-          >
-            {editorValue}
-          </ClipboardCopy>
+          />
         </GridItem>
         <GridItem span={2}>
           <Tooltip
@@ -578,7 +566,7 @@ const AdvancedConfiguration = () => {
 
   const onFocus = () => {
     const element = document.getElementById("memory-limit");
-    element && element.focus();
+    element?.focus();
   };
 
   const onSelect = () => {
@@ -615,7 +603,7 @@ const AdvancedConfiguration = () => {
                 event.preventDefault();
               }}
               isHorizontal
-              aria-invalid={errors && errors[config.name] ? "true" : "false"}
+              aria-invalid={errors?.[config.name] ? "true" : "false"}
               style={{
                 marginBottom: "0.5em",
               }}
@@ -625,9 +613,7 @@ const AdvancedConfiguration = () => {
                   type="text"
                   aria-label="advanced configuration"
                   value={advancedConfig[config.name]}
-                  validated={
-                    errors && errors[config.name] ? "error" : "default"
-                  }
+                  validated={errors?.[config.name] ? "error" : "default"}
                   onChange={(_event, value: string) => {
                     dispatch({
                       type: Types.AdvancedConfiguration,
