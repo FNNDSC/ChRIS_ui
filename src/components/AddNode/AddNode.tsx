@@ -50,7 +50,7 @@ const AddNode = ({
   const { goToNextStep: onNextStep } = useWizardContext();
 
   const isDisabled =
-    params && Object.keys(requiredInput).length !== params["required"].length;
+    params && Object.keys(requiredInput).length !== params.required.length;
 
   useEffect(() => {
     window.addEventListener("keydown", (event) => {

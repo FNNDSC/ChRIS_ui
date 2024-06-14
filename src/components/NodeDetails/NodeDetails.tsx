@@ -13,6 +13,8 @@ import {
 import React, { Fragment, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
+import { quote } from "shlex";
+import { needsQuoting } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
@@ -24,7 +26,6 @@ import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import { getErrorCodeMessage } from "./utils";
-import { quote } from "shlex";
 
 interface INodeState {
   plugin?: Plugin;
@@ -299,9 +300,12 @@ function getCommand(
         const isString = instanceParameters[i].data.type === "string";
         const value = instanceParameters[i].data.value;
 
+        const safeValue =
+          isString && needsQuoting(value) ? quote(value) : value;
+
         modifiedParams.push({
           name: pluginParameters[j].data.flag,
-          value: isBoolean ? " " : isString ? quote(value) : value,
+          value: isBoolean ? " " : isString ? safeValue : value,
         });
       }
     }
