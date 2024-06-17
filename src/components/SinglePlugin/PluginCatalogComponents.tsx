@@ -21,14 +21,20 @@ import {
   List,
   ListItem,
   DropdownList,
+  Modal,
+  FormGroup,
+  ActionGroup,
+  Form,
+  TextInput,
 } from "@patternfly/react-core";
 import { Alert } from "antd";
 import { UserAltIcon, CheckCircleIcon } from "@patternfly/react-icons";
 import { PluginMeta, Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import { useNavigate } from "react-router";
+import { redirect, useNavigate } from "react-router";
 import PluginImg from "../../assets/brainy-pointer.png";
 import { Link } from "react-router-dom";
 import { ClipboardCopyFixed } from "../Common";
+import { useMutation } from "@tanstack/react-query";
 
 export const HeaderComponent = ({
   currentPluginMeta,
@@ -424,10 +430,77 @@ export const HeaderSidebar = ({
   currentPluginMeta: PluginMeta;
   removeEmail: (authors: string[]) => string[];
 }) => {
+  const [installModal, setInstallModal] = React.useState(false);
+  const [value, setValue] = React.useState("");
+
+  const handleSave = () => {
+    if (!value) {
+      throw new Error("You have to provide a valid url to your server");
+    }
+
+    if (parameterPayload?.url) {
+      const decodedURL = encodeURIComponent(parameterPayload?.url);
+      const url = `${value}/install?uri=${decodedURL}`;
+      setInstallModal(!installModal);
+      setValue("");
+      window.open(url, "_blank");
+    }
+  };
+
+  const handleInstallMutation = useMutation({
+    mutationFn: async () => handleSave(),
+  });
+
   return (
     <div className="plugin-body-side-col">
+      {
+        <Modal
+          variant="small"
+          isOpen={installModal}
+          onClose={() => setInstallModal(!installModal)}
+        >
+          <Form isWidthLimited>
+            <FormGroup label="Enter the url to your website" isRequired>
+              <TextInput
+                isRequired
+                id="url"
+                type="url"
+                value={value}
+                onChange={(_e, value) => {
+                  setValue(value);
+                }}
+              />
+            </FormGroup>
+            <ActionGroup>
+              <Button
+                onClick={() => {
+                  handleInstallMutation.mutate();
+                }}
+                isDisabled={!value}
+                variant="primary"
+              >
+                Submit
+              </Button>
+              <Button
+                onClick={() => setInstallModal(!installModal)}
+                variant="link"
+              >
+                Cancel
+              </Button>
+            </ActionGroup>
+          </Form>
+        </Modal>
+      }
       <div className="plugin-body-detail-section">
-        <p>
+        <Button
+          onClick={() => {
+            setInstallModal(!installModal);
+          }}
+        >
+          Install this plugin on your server
+        </Button>
+        {/*
+         <p>
           Copy and Paste the URL below into your ChRIS Admin Dashboard to
           install this plugin.
         </p>
@@ -436,7 +509,8 @@ export const HeaderSidebar = ({
           value={
             parameterPayload?.url ? parameterPayload.url : "Fetching the url..."
           }
-        />
+        /> 
+       */}
       </div>
       <div className="plugin-body-detail-section">
         <h4>Repository</h4>

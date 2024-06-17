@@ -13,6 +13,7 @@ import NotFound from "./components/NotFound";
 import Pacs from "./components/Pacs";
 import PipelinePage from "./components/PipelinesPage";
 import PluginCatalog from "./components/PluginCatalog/";
+import PluginInstall from "./components/PluginInstall";
 import PrivateRoute from "./components/PrivateRoute";
 import {
   RouterContext,
@@ -20,8 +21,8 @@ import {
 } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import { useTypedSelector } from "./store/hooks";
 import Store from "./components/Store";
+import { useTypedSelector } from "./store/hooks";
 
 interface IState {
   selectData?: Series;
@@ -164,6 +165,10 @@ export const MainRouter: React.FC = () => {
     {
       path: "*",
       element: <NotFound />,
+    },
+    {
+      path: "install/*",
+      element: <PluginInstall />,
     },
   ]);
 

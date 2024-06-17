@@ -93,7 +93,7 @@ const Sidebar: React.FC<AllProps> = ({
 
           {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
-              {renderLink("/store", "Store", "store")}
+              {renderLink("/store", "Explore", "store")}
             </NavItem>
           )}
         </NavGroup>
