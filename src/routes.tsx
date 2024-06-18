@@ -18,24 +18,6 @@ import PrivateRoute from "./components/PrivateRoute";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
-import { useTypedSelector } from "./store/hooks";
-
-interface IState {
-  selectData?: Series;
-}
-
-export type Series = any[];
-
-interface IActions {
-  createFeedWithData: (data: Series) => void;
-  clearFeedData: () => void;
-}
-
-export const [State, MainRouterContext] = RouterContext<IState, IActions>({
-  state: {
-    selectData: [] as Series,
-  },
-});
 
 export const MainRouter: React.FC = () => {
   const element = useRoutes([
