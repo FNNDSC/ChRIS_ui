@@ -20,6 +20,8 @@ import { type ActionState } from "../FileDetailView";
 import { _loadImageIntoBuffer } from "./dicomUtils/webImageLoader";
 import { RenderingEngine } from "@cornerstonejs/core";
 import { v4 } from "uuid";
+import { useQuery } from "@tanstack/react-query";
+import { SpinContainer } from "../../Common";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;
@@ -30,13 +32,11 @@ export type DcmImageProps = {
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview, actionState } = props;
   const { file, blob } = fileItem;
-
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
   >();
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
-  const [cornerstoneInitialized, setCornerstoneInitialized] =
-    useState<boolean>(false);
+
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const uniqueId = `${file?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;
@@ -76,35 +76,34 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     };
   }, []);
 
-  useEffect(() => {
-    async function setupCornerstone() {
-      const element = document.getElementById(elementId) as HTMLDivElement;
-      if (file && blob && element && !cornerstoneInitialized) {
-        let imageID: string;
-        const extension = getFileExtension(file.data.fname);
-        await basicInit();
-        setUpTooling(uniqueId);
-        if (extension === "dcm") {
-          imageID = await loadDicomImage(blob);
-        } else {
-          const fileviewer = new FileViewerModel();
-          const fileName = fileviewer.getFileName(file);
-          imageID = `web:${file.url}${fileName}`;
-        }
-
-        const { viewport, renderingEngine } = await displayDicomImage(
-          element,
-          imageID,
-          uniqueId,
-        );
-        setActiveViewport(viewport);
-        setRenderingEngine(renderingEngine);
-        setCornerstoneInitialized(true); // Mark Cornerstone as initialized
+  async function setupCornerstone() {
+    const element = document.getElementById(elementId) as HTMLDivElement;
+    if (file && blob) {
+      let imageID: string;
+      const extension = getFileExtension(file.data.fname);
+      renderingEngine?.destroy();
+      await basicInit();
+      setUpTooling(uniqueId);
+      if (extension === "dcm") {
+        imageID = await loadDicomImage(blob);
+      } else {
+        const fileviewer = new FileViewerModel();
+        const fileName = fileviewer.getFileName(file);
+        imageID = `web:${file.url}${fileName}`;
       }
+      const { viewport, renderingEngine: newRenderingEngine } =
+        await displayDicomImage(element, imageID, uniqueId);
+      setActiveViewport(viewport);
+      setRenderingEngine(newRenderingEngine);
+      return file.data.fname;
     }
+  }
 
-    setupCornerstone();
-  }, [file, blob, uniqueId, cornerstoneInitialized, elementId]);
+  const { isLoading } = useQuery({
+    queryKey: ["cornerstone-preview", file, blob],
+    queryFn: () => setupCornerstone(),
+    refetchOnMount: true,
+  });
 
   useEffect(() => {
     if (actionState && activeViewport) {
@@ -117,13 +116,16 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [size]);
 
   return (
-    <div
-      id="content"
-      ref={dicomImageRef}
-      className={preview === "large" ? "dcm-preview" : ""}
-    >
-      <div id={elementId} />
-    </div>
+    <>
+      {isLoading && <SpinContainer title="Displaying image..." />}
+      <div
+        id="content"
+        ref={dicomImageRef}
+        className={preview === "large" ? "dcm-preview" : ""}
+      >
+        <div id={elementId} />
+      </div>
+    </>
   );
 };
 
