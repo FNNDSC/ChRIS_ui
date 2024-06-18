@@ -54,9 +54,7 @@ function App() {
     createFeedWithData: (selectData: Series) => {
       setState({ selectData });
       const type = isLoggedIn ? "private" : "public";
-      navigate(
-        `/feeds?search=&searchType=&page=${1}&perPage=${14}&type=${type}`,
-      );
+      navigate(`/feeds?type=${type}`);
     },
 
     clearFeedData: () => {

@@ -22,7 +22,7 @@ import { Alert } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { MainRouterContext } from "../../../routes";
+import { MainRouterContext } from "../../../App";
 import { DotsIndicator } from "../../Common";
 import {
   CodeBranchIcon,
@@ -35,6 +35,7 @@ import { PacsQueryContext, Types } from "../context";
 import PFDCMClient, { DataFetchQuery } from "../pfdcmClient";
 import useSettings from "../useSettings";
 import { CardHeaderComponent } from "./SettingsComponents";
+import useLongPress from "../../LibraryCopy/utils";
 
 async function getPACSData(
   pacsIdentifier: string,
@@ -56,6 +57,8 @@ async function getPACSData(
 }
 
 const SeriesCardCopy = ({ series }: { series: any }) => {
+  const { handlers } = useLongPress();
+  const { handleOnClick, handleOnMouseDown } = handlers;
   const navigate = useNavigate();
   // Load user Preference Data
   const {
@@ -484,6 +487,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </CardHeader>
   );
 
+  const handleCart = (e) => {
+    const listSplit = data?.fileToPreview?.data.fname.split("/");
+    const folderReconstruct = listSplit.slice(0, listSplit.length - 1);
+    const folder = folderReconstruct.join("/");
+    handleOnClick(e, folder, folder);
+  };
+
   return (
     <Card
       isDisabled={isDisabled}
@@ -491,6 +501,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       isFullHeight={true}
       isCompact={true}
       isRounded={true}
+      onClick={(e) => handleCart(e)}
     >
       {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
       {data?.fileToPreview && largeFilePreview}

@@ -1,7 +1,7 @@
 import { Chip, ChipGroup } from "@patternfly/react-core";
 import { pluralize } from "../../api/common";
 import React, { useContext } from "react";
-import { MainRouterContext } from "../../routes";
+import { MainRouterContext } from "../../App";
 
 /** Wraps step component to add an alert to the top */
 
@@ -35,7 +35,7 @@ export const SelectionAlertWrap = ({
           </ChipGroup>
         </div>
       );
-    else return null;
+    return null;
   };
 
   return (

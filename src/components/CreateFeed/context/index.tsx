@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer } from "react";
-import { MainRouterContext } from "../../../routes";
+import { MainRouterContext } from "../../../App";
 import { createFeedReducer, getInitialState } from "../reducer/feedReducer";
 import { CreateFeedState } from "../types/feed";
 
@@ -20,7 +20,9 @@ const CreateFeedProvider: React.FC<CreateFeedProviderProps> = ({
 }: CreateFeedProviderProps) => {
   const { state: routerState } = useContext(MainRouterContext);
   const initialState = getInitialState(routerState);
+
   const [state, dispatch] = useReducer(createFeedReducer, initialState);
+
   return (
     <CreateFeedContext.Provider value={{ state, dispatch }}>
       {children}

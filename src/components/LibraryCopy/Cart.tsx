@@ -1,17 +1,26 @@
 import { Button, Tooltip, Progress } from "@patternfly/react-core";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert, Drawer, List } from "antd";
 import axios from "axios";
 import { useContext, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { catchError, fetchResource } from "../../api/common";
-import { MainRouterContext } from "../../routes";
+import { MainRouterContext } from "../../App";
 import { useTypedSelector } from "../../store/hooks";
 import { LibraryContext, Types } from "./context";
 import { clearCart, clearSelectFolder } from "./context/actions";
 import { elipses } from "./utils";
+import { useLocation } from "react-router";
+import { getPlugin } from "../CreateFeed/createFeedHelper";
+import { Feed } from "@fnndsc/chrisapi";
+import { SpinContainer } from "../Common";
 
 export default function Cart() {
+  const { pathname } = useLocation();
+
+  const libraryActions = pathname.startsWith("/library");
+  const pacsActions = pathname.startsWith("/pacs");
+
   const queryClient = useQueryClient();
   const username = useTypedSelector((state) => state.user.username);
   const { state, dispatch } = useContext(LibraryContext);
@@ -38,6 +47,9 @@ export default function Cart() {
   };
 
   const createFeed = () => {
+    dispatch({
+      type: Types.SET_TOGGLE_CART,
+    });
     const pathList = selectedPaths.map((path) => path);
     router.actions.createFeedWithData(pathList);
   };
@@ -45,6 +57,9 @@ export default function Cart() {
   const clearFeed = () => {
     dispatch(clearCart());
     router.actions.clearFeedData();
+    dispatch({
+      type: Types.SET_TOGGLE_CART,
+    });
   };
 
   const handleDelete = async () => {
@@ -143,28 +158,77 @@ export default function Cart() {
     );
   };
 
-  if (selectedPaths.length > 0) {
-    return (
-      <>
-        <Drawer
-          width={600}
-          title="Cart"
-          placement="right"
-          closable={true}
-          onClose={() => {
-            clearFeed();
-            dispatch({
-              type: Types.SET_TOGGLE_CART,
-            });
+  const anonymizePipeline = async (path: string) => {
+    const client = ChrisAPIClient.getClient();
+
+    try {
+      const dircopy = await getPlugin("pl-dircopy");
+
+      if (dircopy) {
+        const createdInstance = await client.createPluginInstance(
+          dircopy.data.id,
+          {
+            //@ts-ignore
+            dir: path,
+          },
+        );
+
+        const feed = (await createdInstance.getFeed()) as Feed;
+
+        await feed.put({
+          name: `Cart download and zip for ${path.replace(/\//g, "_")}`,
+        });
+
+        const pipelineList = await client.getPipelines({
+          name: "zip v20240311",
+        });
+
+        if (!pipelineList.data) {
+          throw new Error("Failed to fetch the pipeline...");
+        }
+
+        const pipelines = pipelineList.getItems();
+
+        if (pipelines && pipelines.length > 0) {
+          const pipeline = pipelines[0];
+          const { id } = pipeline.data;
+          //@ts-ignore
+          await client.createWorkflow(id, {
+            previous_plugin_inst_id: createdInstance.data.id, // Ensure selectedPlugin is defined
+          });
+        }
+      }
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  const handleMutation = useMutation({
+    mutationFn: (path: string) => anonymizePipeline(path),
+  });
+
+  return (
+    <>
+      <Drawer
+        width={600}
+        title="Cart"
+        placement="right"
+        closable={true}
+        onClose={() => {
+          dispatch({
+            type: Types.SET_TOGGLE_CART,
+          });
+        }}
+        open={state.openCart}
+      >
+        <div
+          style={{
+            marginBottom: "1em",
+            display: "flex",
+            justifyContent: "space-between",
           }}
-          open={state.openCart}
         >
-          <div
-            style={{
-              marginBottom: "1em",
-              display: "flex",
-            }}
-          >
+          <div style={{ display: "flex" }}>
             <Button
               style={{ marginRight: "0.5em" }}
               onClick={createFeed}
@@ -172,69 +236,93 @@ export default function Cart() {
             >
               Create Analysis
             </Button>
-
-            <Button
-              style={{ marginRight: "0.5em" }}
-              onClick={() => {
-                handleDownload();
-              }}
-              variant="secondary"
-            >
-              Download Data
-            </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              Delete Data
-            </Button>
-          </div>
-          <List
-            style={{ marginTop: "2rem" }}
-            dataSource={state.selectedPaths}
-            bordered
-            renderItem={(item) => {
-              return (
-                <List.Item
-                  key={item}
-                  actions={[
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={async () => {
-                        dispatch(clearSelectFolder(item));
-                      }}
-                      key={`a-${item}`}
-                    >
-                      Clear
-                    </Button>,
-                  ]}
+            {pacsActions && (
+              <Button
+                onClick={() => {
+                  state.selectedPaths.map((path) => {
+                    handleMutation.mutate(path);
+                  });
+                }}
+              >
+                Zip and Download
+              </Button>
+            )}
+            {libraryActions && (
+              <>
+                <Button
+                  style={{ marginRight: "0.5em" }}
+                  onClick={() => {
+                    handleDownload();
+                  }}
+                  variant="secondary"
                 >
-                  <List.Item.Meta
-                    title={
-                      <Tooltip content={item}>
-                        <a
-                          style={{
-                            color: "inherit",
-                          }}
-                          href="https://ant.design/index-cn"
-                        >
-                          {elipses(item, 40)}
-                        </a>
-                      </Tooltip>
-                    }
-                  />
-                </List.Item>
-              );
-            }}
+                  Download Data
+                </Button>
+                <Button variant="danger" onClick={handleDelete}>
+                  Delete Data
+                </Button>
+              </>
+            )}
+          </div>
+          <Button variant="tertiary" onClick={clearFeed}>
+            Empty Cart
+          </Button>
+        </div>
+        <List
+          style={{ marginTop: "2rem" }}
+          dataSource={state.selectedPaths}
+          bordered
+          renderItem={(item) => {
+            return (
+              <List.Item
+                key={item}
+                actions={[
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={async () => {
+                      dispatch(clearSelectFolder(item));
+                    }}
+                    key={`a-${item}`}
+                  >
+                    Clear
+                  </Button>,
+                ]}
+              >
+                <List.Item.Meta
+                  title={
+                    <Tooltip content={item}>
+                      <a
+                        style={{
+                          color: "inherit",
+                        }}
+                        href="https://ant.design/index-cn"
+                      >
+                        {elipses(item, 40)}
+                      </a>
+                    </Tooltip>
+                  }
+                />
+              </List.Item>
+            );
+          }}
+        />
+        {handleMutation.isPending && <SpinContainer title="Preparing to zip" />}
+        {handleMutation.isError && (
+          <Alert
+            type="error"
+            closable
+            description={handleMutation.error.message}
           />
-          {alert && <Alert type="error" description={alert} />}
-          {progress.currentProgress > 0 && (
-            <Progress
-              value={progress.currentProgress}
-              title={progress.currentStep}
-            />
-          )}
-        </Drawer>
-      </>
-    );
-  }
-  return null;
+        )}
+        {alert && <Alert type="error" description={alert} />}
+        {progress.currentProgress > 0 && (
+          <Progress
+            value={progress.currentProgress}
+            title={progress.currentStep}
+          />
+        )}
+      </Drawer>
+    </>
+  );
 }
