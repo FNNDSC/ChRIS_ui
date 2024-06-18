@@ -7,8 +7,10 @@ import WrapperConnect from "../Wrapper";
 import { Alert } from "antd";
 import { SpinContainer } from "../Common";
 import { useNavigate } from "react-router";
+import { useCookies, Cookies } from "react-cookie";
 
 const PluginInstall = () => {
+  const [_cookie, setCookie] = useCookies();
   const navigate = useNavigate();
   const [showHelperText, setShowHelperText] = React.useState(false);
   const [username, setUsername] = React.useState("");
@@ -63,10 +65,33 @@ const PluginInstall = () => {
   });
 
   React.useEffect(() => {
+    const cookies = new Cookies();
+
+    if (cookies.get("admin_username")) {
+      setUsername(cookies.get("admin_username"));
+    }
+
+    if (cookies.get("admin_password")) {
+      setPassword(cookies.get("admin_password"));
+    }
+  }, []);
+
+  React.useEffect(() => {
     if (isSuccess) {
       if (data) {
         const id = data.collection.items[0].data[0].value;
         if (typeof id === "number" && !Number.isNaN(id)) {
+          if (isRememberMeChecked) {
+            const oneDayToSeconds = 24 * 60 * 60;
+            setCookie("admin_username", username, {
+              path: "/",
+              maxAge: oneDayToSeconds,
+            });
+            setCookie("admin_password", password, {
+              path: "/",
+              maxAge: oneDayToSeconds,
+            });
+          }
           navigate(`/plugin/${id}`);
         }
       }
