@@ -91,6 +91,14 @@ const Sidebar: React.FC<AllProps> = ({
             {renderLink("/dataset", "Volume View", "dataset")}
           </NavItem>
 
+          {/*
+            !isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
+            <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
+              {renderLink("/store", "Explore", "store")}
+            </NavItem>
+          )}
+          */}
+
           {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
               {renderLink("/store", "Explore", "store")}
