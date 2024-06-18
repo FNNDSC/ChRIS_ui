@@ -1,40 +1,43 @@
-import React from "react";
+import { Plugin, PluginInstance, PluginMeta } from "@fnndsc/chrisapi";
 import {
-  Grid,
-  GridItem,
+  ActionGroup,
   Badge,
   Button,
   Card,
-  Tabs,
-  TabTitleText,
-  Tab,
-  CodeBlock,
-  CodeBlockCode,
-  Dropdown,
-  MenuToggle,
-  DropdownItem,
-  CodeBlockAction,
-  ClipboardCopyButton,
-  CardTitle,
   CardBody,
   CardHeader,
+  CardTitle,
+  ClipboardCopyButton,
+  CodeBlock,
+  CodeBlockAction,
+  CodeBlockCode,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  Form,
+  FormGroup,
+  FormHelperText,
+  Grid,
+  GridItem,
+  HelperText,
+  HelperTextItem,
   List,
   ListItem,
-  DropdownList,
+  MenuToggle,
   Modal,
-  FormGroup,
-  ActionGroup,
-  Form,
+  Tab,
+  TabTitleText,
+  Tabs,
   TextInput,
 } from "@patternfly/react-core";
-import { Alert, Spin } from "antd";
-import { UserAltIcon, CheckCircleIcon } from "@patternfly/react-icons";
-import { PluginMeta, Plugin, PluginInstance } from "@fnndsc/chrisapi";
-import { redirect, useNavigate } from "react-router";
-import PluginImg from "../../assets/brainy-pointer.png";
-import { Link } from "react-router-dom";
-import { ClipboardCopyFixed } from "../Common";
+import { CheckCircleIcon, UserAltIcon } from "@patternfly/react-icons";
 import { useMutation } from "@tanstack/react-query";
+import { Alert, Spin } from "antd";
+import React from "react";
+import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
+import PluginImg from "../../assets/brainy-pointer.png";
+import { ClipboardCopyFixed } from "../Common";
 
 export const HeaderComponent = ({
   currentPluginMeta,
@@ -438,9 +441,12 @@ export const HeaderSidebar = ({
       throw new Error("You have to provide a valid url to your server");
     }
 
+    // Remove trailing slash if present
+    const trimmedValue = value.replace(/\/+$/, "");
+
     if (parameterPayload?.url) {
       const decodedURL = encodeURIComponent(parameterPayload?.url);
-      const url = `${value}/install?uri=${decodedURL}`;
+      const url = `${trimmedValue}/install?uri=${decodedURL}`;
       setInstallModal(!installModal);
       setValue("");
       window.open(url, "_blank");
@@ -471,6 +477,14 @@ export const HeaderSidebar = ({
                   setValue(value);
                 }}
               />
+              <FormHelperText>
+                <HelperText>
+                  <HelperTextItem>
+                    The URL should always be the root URL, for example,
+                    http://localhost:5173 and not http://localhost:5173/test.
+                  </HelperTextItem>
+                </HelperText>
+              </FormHelperText>
             </FormGroup>
             <ActionGroup>
               <Button
@@ -490,6 +504,13 @@ export const HeaderSidebar = ({
                 Cancel
               </Button>
             </ActionGroup>
+            {handleInstallMutation.isError && (
+              <Alert
+                closable
+                type="error"
+                description={handleInstallMutation.error.message}
+              />
+            )}
           </Form>
         </Modal>
       }
@@ -505,11 +526,7 @@ export const HeaderSidebar = ({
         </Button>
       </div>
       <div className="plugin-body-detail-section">
-        <p
-          style={{
-            marginTop: "1rem",
-          }}
-        >
+        <p>
           Copy and Paste the URL below into your ChRIS Admin Dashboard to
           install this plugin.
         </p>
