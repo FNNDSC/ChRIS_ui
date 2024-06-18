@@ -27,7 +27,7 @@ import {
   Form,
   TextInput,
 } from "@patternfly/react-core";
-import { Alert } from "antd";
+import { Alert, Spin } from "antd";
 import { UserAltIcon, CheckCircleIcon } from "@patternfly/react-icons";
 import { PluginMeta, Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import { redirect, useNavigate } from "react-router";
@@ -455,6 +455,7 @@ export const HeaderSidebar = ({
     <div className="plugin-body-side-col">
       {
         <Modal
+          aria-label="Admin credentials"
           variant="small"
           isOpen={installModal}
           onClose={() => setInstallModal(!installModal)}
@@ -478,8 +479,9 @@ export const HeaderSidebar = ({
                 }}
                 isDisabled={!value}
                 variant="primary"
+                icon={handleInstallMutation.isPending && <Spin />}
               >
-                Submit
+                Take me to my website
               </Button>
               <Button
                 onClick={() => setInstallModal(!installModal)}
@@ -491,16 +493,23 @@ export const HeaderSidebar = ({
           </Form>
         </Modal>
       }
+
       <div className="plugin-body-detail-section">
         <Button
           onClick={() => {
             setInstallModal(!installModal);
           }}
+          icon={handleInstallMutation.isPending && <Spin />}
         >
           Install this plugin on your server
         </Button>
-        {/*
-         <p>
+      </div>
+      <div className="plugin-body-detail-section">
+        <p
+          style={{
+            marginTop: "1rem",
+          }}
+        >
           Copy and Paste the URL below into your ChRIS Admin Dashboard to
           install this plugin.
         </p>
@@ -509,8 +518,7 @@ export const HeaderSidebar = ({
           value={
             parameterPayload?.url ? parameterPayload.url : "Fetching the url..."
           }
-        /> 
-       */}
+        />
       </div>
       <div className="plugin-body-detail-section">
         <h4>Repository</h4>
