@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate, useRoutes } from "react-router-dom";
+import { useRoutes } from "react-router-dom";
 import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
@@ -15,52 +15,11 @@ import PipelinePage from "./components/PipelinesPage";
 import PluginCatalog from "./components/PluginCatalog/";
 import PluginInstall from "./components/PluginInstall";
 import PrivateRoute from "./components/PrivateRoute";
-import {
-  RouterContext,
-  RouterProvider,
-} from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
-import { useTypedSelector } from "./store/hooks";
-
-interface IState {
-  selectData?: Series;
-}
-
-export type Series = any[];
-
-interface IActions {
-  createFeedWithData: (data: Series) => void;
-  clearFeedData: () => void;
-}
-
-export const [State, MainRouterContext] = RouterContext<IState, IActions>({
-  state: {
-    selectData: [] as Series,
-  },
-});
 
 export const MainRouter: React.FC = () => {
-  const [state, setState] = React.useState(State);
-  const [route, setRoute] = React.useState<string>();
-  const navigate = useNavigate();
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-
-  const actions: IActions = {
-    createFeedWithData: (selectData: Series) => {
-      setState({ selectData });
-      const type = isLoggedIn ? "private" : "public";
-      navigate(
-        `/feeds?search=&searchType=&page=${1}&perPage=${14}&type=${type}`,
-      );
-    },
-
-    clearFeedData: () => {
-      setState({ selectData: [] });
-    },
-  };
-
   const element = useRoutes([
     {
       path: "/",
@@ -70,12 +29,7 @@ export const MainRouter: React.FC = () => {
       path: "library/*",
       element: (
         <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <LibraryCopyPage />
-          </RouterProvider>
+          <LibraryCopyPage />
         </PrivateRoute>
       ),
     },
@@ -83,26 +37,14 @@ export const MainRouter: React.FC = () => {
       path: "librarysearch/*",
       element: (
         <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <LibrarySearch />
-          </RouterProvider>
+          <LibrarySearch />
         </PrivateRoute>
       ),
     },
 
     {
       path: "feeds/*",
-      element: (
-        <RouterProvider
-          {...{ actions, state, route, setRoute }}
-          context={MainRouterContext}
-        >
-          <FeedsListView />
-        </RouterProvider>
-      ),
+      element: <FeedsListView />,
     },
     {
       path: "feeds/:id",
@@ -116,12 +58,7 @@ export const MainRouter: React.FC = () => {
       path: "pacs",
       element: (
         <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <Pacs />
-          </RouterProvider>
+          <Pacs />
         </PrivateRoute>
       ),
     },

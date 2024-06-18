@@ -5,7 +5,7 @@ import {
   Types,
 } from "../types/feed";
 import { Key } from "rc-tree/lib/interface";
-import { State as MainRouterContextState } from "../../../routes";
+import { State as MainRouterContextState } from "../../../App";
 
 /*
 import { Series } from "../../../../pages/DataLibrary/Library";
@@ -53,11 +53,13 @@ export const createFeedReducer = (
   action: CreateFeedActions,
 ): CreateFeedState => {
   switch (action.type) {
-    case Types.ToggleWizard:
+    case Types.ToggleWizard: {
       return {
         ...state,
         wizardOpen: !state.wizardOpen,
       };
+    }
+
     case Types.SetStep:
       return {
         ...state,
@@ -82,7 +84,6 @@ export const createFeedReducer = (
         },
       };
     case Types.SelectedConfig:
-      //  clearCache();
       return {
         ...state,
         selectedConfig: [...action.payload.selectedConfig],
@@ -165,7 +166,6 @@ export const createFeedReducer = (
       };
 
     case Types.ResetState: {
-      //clearCache();
       return {
         ...state,
         data: getDefaultCreateFeedData(),

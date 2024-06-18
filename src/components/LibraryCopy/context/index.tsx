@@ -3,12 +3,14 @@ import React, { createContext, useReducer } from "react";
 interface LibraryState {
   selectedPaths: string[];
   previewAll: boolean;
+  openCart: boolean;
 }
 
 function getInitialState(): LibraryState {
   return {
     selectedPaths: [],
     previewAll: false,
+    openCart: false,
   };
 }
 
@@ -28,6 +30,7 @@ export enum Types {
   CLEAR_SELECTED_PATHS = "CLEAR_SELECTED_PATHS",
   SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
   CLEAR_CART = "CLEAR_CART",
+  SET_TOGGLE_CART = "SET_TOGGLE_CART",
 }
 
 export type LibraryPayload = {
@@ -41,6 +44,8 @@ export type LibraryPayload = {
     previewAll: boolean;
   };
   [Types.CLEAR_CART]: Record<any, unknown>;
+
+  [Types.SET_TOGGLE_CART]: null;
 };
 
 export type LibraryActions =
@@ -63,6 +68,13 @@ export const libraryReducer = (
       return {
         ...state,
         selectedPaths: [...state.selectedPaths, action.payload.path],
+      };
+    }
+
+    case Types.SET_TOGGLE_CART: {
+      return {
+        ...state,
+        openCart: !state.openCart,
       };
     }
 

@@ -23,12 +23,10 @@ import { debounce } from "lodash";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import WrapperConnect from "../Wrapper";
-import Cart from "./Cart";
 import Browser from "./Browser";
 import { LocalFileList } from "../CreateFeed/HelperComponent";
 import { SpinContainer, EmptyStateComponent } from "../Common";
 import BreadcrumbContainer from "./BreadcrumbContainer";
-import { LibraryProvider } from "./context/";
 import { InfoIcon } from "../Common";
 import { UploadIcon as FaUpload } from "../Icons";
 import type { AxiosProgressEvent, AxiosResponse } from "axios";
@@ -178,30 +176,26 @@ export const LibraryCopyPage = () => {
             paddingTop: "0",
           }}
         >
-          <LibraryProvider>
-            <UploadComponent
-              handleFileModal={handleFileModal}
-              handleLocalFiles={handleLocalFiles}
-              uploadFileModal={isOpenModal}
-              handleAddFolder={handleAddFolder}
-              localFiles={localFiles}
-              handleDelete={(name: string, type?: string) => {
-                if (type === "folder") {
-                  setLocalFiles([]);
-                } else {
-                  const filteredfiles = localFiles.filter(
-                    (file) => file.name !== name,
-                  );
-                  setLocalFiles(filteredfiles);
-                }
-              }}
-            />
+          <UploadComponent
+            handleFileModal={handleFileModal}
+            handleLocalFiles={handleLocalFiles}
+            uploadFileModal={isOpenModal}
+            handleAddFolder={handleAddFolder}
+            localFiles={localFiles}
+            handleDelete={(name: string, type?: string) => {
+              if (type === "folder") {
+                setLocalFiles([]);
+              } else {
+                const filteredfiles = localFiles.filter(
+                  (file) => file.name !== name,
+                );
+                setLocalFiles(filteredfiles);
+              }
+            }}
+          />
 
-            <Cart />
-            <LocalSearch />
-
-            <NormalBrowser />
-          </LibraryProvider>
+          <LocalSearch />
+          <NormalBrowser />
         </PageSection>
       </>
     </WrapperConnect>
