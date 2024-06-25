@@ -2,7 +2,10 @@ import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
 
 const SAFARI_BROWSERS: PlaywrightTestConfig["projects"] = [];
 
-if (process.env.TEST_SAFARI?.toLowerCase().startsWith('y')) {
+const SHOULD_TEST_SAFARI = getBoolEnvVar('TEST_SAFARI');
+const SHOULD_TEST_LOCALLY = getBoolEnvVar('TEST_LOCAL');
+
+if (SHOULD_TEST_SAFARI) {
   SAFARI_BROWSERS.push(
     {
       name: 'webkit',
@@ -14,6 +17,15 @@ if (process.env.TEST_SAFARI?.toLowerCase().startsWith('y')) {
     },
   );
 }
+
+/**
+ * Name of a npm script which starts a UI development server.
+ */
+const UI_SCRIPT = SHOULD_TEST_LOCALLY ? 'dev' : 'dev:public';
+/**
+ * Port number (on localhost) for the server created by {@link UI_SCRIPT}
+ */
+const UI_PORT = SHOULD_TEST_LOCALLY ? 5173 : 25173;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -41,7 +53,7 @@ export default defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
-    baseURL: "http://localhost:25173",
+    baseURL: `http://localhost:${UI_PORT}`,
   },
 
   /* Configure projects for major browsers */
@@ -65,8 +77,15 @@ export default defineConfig({
     ...SAFARI_BROWSERS
   ],
   webServer: {
-    command: "env USE_BABEL_PLUGIN_ISTANBUL=y npm run dev:public",
-    url: "http://localhost:25173",
+    command: `env USE_BABEL_PLUGIN_ISTANBUL=y npm run ${UI_SCRIPT}`,
+    url: `http://localhost:${UI_PORT}`,
     reuseExistingServer:true
   },
 });
+
+/**
+ * Get a boolean value from an environment variable.
+ */
+function getBoolEnvVar(name: string): boolean {
+  return process.env[name]?.toLowerCase().startsWith('y') || false;
+}
