@@ -15,7 +15,6 @@
     "test:ui": "playwright test -c playwright.config.ts --ui",
     "test:codegen": "playwright codegen http://localhost:25173",
     "test:codegen:mobile": "playwright codegen --device 'Pixel 5' http://localhost:25173",
-    "test:fetalmri": "playwright test -c playwright-fetalmri.config.ts",
     "lint": "biome lint .",
     "fix": "biome check --apply .",
     "fix:unsafe": "biome check --apply-unsafe .",
