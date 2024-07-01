@@ -1,4 +1,5 @@
 import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
+import path from 'path';
 
 const SAFARI_BROWSERS: PlaywrightTestConfig["projects"] = [];
 
@@ -20,7 +21,7 @@ if (process.env.TEST_SAFARI?.toLowerCase().startsWith('y')) {
  */
 export default defineConfig({
   /* A script which deletes the previous coverage data */
-  globalSetup: require.resolve('./deleteCoverageData'),
+  globalSetup: path.resolve('./deleteCoverageData'),
 
   testDir: "./tests",
   /* The base directory, relative to the config file, for snapshot files created with toMatchSnapshot and toHaveScreenshot. */
@@ -67,6 +68,6 @@ export default defineConfig({
   webServer: {
     command: "env USE_BABEL_PLUGIN_ISTANBUL=y npm run dev:public",
     url: "http://localhost:25173",
-    reuseExistingServer:true
+    reuseExistingServer: true
   },
 });
