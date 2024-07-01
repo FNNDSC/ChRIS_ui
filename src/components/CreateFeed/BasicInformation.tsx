@@ -26,7 +26,6 @@ const BasicInformation: React.FC = () => {
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const { goToNextStep: onNext } = useWizardContext();
 
-  //
   const inputElement = useRef<any>();
   useEffect(() => {
     let mounted = true;
@@ -46,17 +45,16 @@ const BasicInformation: React.FC = () => {
       inputElement.current.focus();
     }
   }, []);
+
   const handleKeyDown = useCallback(
-    (e: any) => {
-      if (feedName && e.code == "Enter") {
+    (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (feedName && e.code === "Enter" && target.tagName !== "TEXTAREA") {
         e.preventDefault();
         onNext();
-      } else if (
-        e.target.closest("INPUT, TEXTAREA") &&
-        e.code == "ArrowRight"
-      ) {
+      } else if (target.closest("INPUT, TEXTAREA") && e.code === "ArrowRight") {
         return;
-      } else if (feedName && e.code == "ArrowRight") {
+      } else if (feedName && e.code === "ArrowRight") {
         onNext();
       }
     },
