@@ -24,11 +24,19 @@
     "print-version": "./print_version.sh"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@cornerstonejs/core": "^1.81.2",
     "@cornerstonejs/dicom-image-loader": "^1.81.2",
     "@cornerstonejs/streaming-image-volume-loader": "^1.81.2",
     "@cornerstonejs/tools": "^1.81.2",
     "@fnndsc/chrisapi": "^1.15.0",
+=======
+    "@cornerstonejs/core": "^1.61.1",
+    "@cornerstonejs/dicom-image-loader": "^1.57.0",
+    "@cornerstonejs/streaming-image-volume-loader": "^1.61.1",
+    "@cornerstonejs/tools": "^1.61.1",
+    "@fnndsc/chrisapi": "^1.20.0",
+>>>>>>> be766664 (refactor: Apply rebase changes)
     "@niivue/niivue": "^0.41.1",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.3.0",

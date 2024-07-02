@@ -5,6 +5,11 @@ import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
+import LibrarySearch from "./components/LibrarySearch";
+import Login from "./components/Login";
+import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
+import NotFound from "./components/NotFound";
+import Pacs from "./components/Pacs";
 import PipelinePage from "./components/PipelinesPage";
 import PluginCatalog from "./components/PluginCatalog/";
 import PluginInstall from "./components/PluginInstall";
@@ -13,9 +18,7 @@ import {
   RouterContext,
   RouterProvider,
 } from "./components/Routing/RouterContext";
-import PluginCatalog from "./components/PluginCatalog/";
-import PrivateRoute from "./components/PrivateRoute";
-import LibrarySearch from "./components/NewLibrarySearch";
+import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
 import { useTypedSelector } from "./store/hooks";
