@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import { IFileBlob } from "../../../api/model";
 import useSize from "../../FeedTree/useSize";
 
@@ -11,56 +11,27 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { fileItem } = props;
   useSize(divRef);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const textDisplay = document.getElementById("text-display");
 
-    if (textDisplay) {
-      const reader = new FileReader();
-
-      reader.addEventListener(
-        "load",
-        () => {
-          //@ts-ignore
-          textDisplay.innerText = reader.result;
-        },
-        false,
-      );
-
-      if (fileItem.blob) {
-        reader.readAsText(fileItem.blob);
-      }
-    }
-  }, [fileItem]);
-
-  React.useEffect(() => {
-    const textDisplay = document.getElementById("text-display");
-
-    if (textDisplay) {
-      const displayContent = async () => {
-        if (fileItem.blob) {
+    const displayContent = async () => {
+      if (textDisplay && fileItem.file) {
+        try {
+          const blob = await fileItem.file.getFileBlob();
           const reader = new FileReader();
-          reader.addEventListener(
-            "load",
-            () => {
-              //@ts-ignore
-              textDisplay.innerText = reader.result;
-            },
-            false,
-          );
-          reader.readAsText(fileItem.blob);
-        } else if (fileItem.url) {
-          try {
-            const response = await fetch(fileItem.url);
-            const text = await response.text();
-            textDisplay.innerText = text;
-          } catch (error) {
-            console.error("Failed to fetch text content from URL:", error);
-          }
+          reader.addEventListener("load", () => {
+            if (textDisplay instanceof HTMLSpanElement) {
+              textDisplay.innerText = reader.result as string;
+            }
+          });
+          reader.readAsText(blob);
+        } catch (error) {
+          console.error("Error fetching file blob:", error);
         }
-      };
+      }
+    };
 
-      displayContent();
-    }
+    displayContent();
   }, [fileItem]);
 
   return (
@@ -85,6 +56,4 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   );
 };
 
-const MemoedTextDisplay = React.memo(TextDisplay);
-
-export default MemoedTextDisplay;
+export default TextDisplay;

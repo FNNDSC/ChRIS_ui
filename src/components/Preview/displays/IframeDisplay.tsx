@@ -1,46 +1,31 @@
 import React, { Fragment } from "react";
 import { IFileBlob } from "../../../api/model";
+import { EmptyStateComponent } from "../../Common";
+
 type AllProps = {
   fileItem: IFileBlob;
 };
 
 const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { fileItem } = props;
-
-  let url = "";
-
-  if (fileItem.fileType === "html") {
-    url = fileItem.url
-      ? fileItem.url
-      : fileItem.blob
-        ? window.URL.createObjectURL(
-            new Blob([fileItem.blob], { type: "text/html" }),
-          )
-        : "";
-  } else {
-    url = fileItem.url
-      ? fileItem.url
-      : fileItem.blob
-        ? window.URL.createObjectURL(new Blob([fileItem.blob]))
-        : "";
-  }
-
   return (
     <Fragment>
       <div className="iframe-container">
-        <iframe
-          id="myframe"
-          key={fileItem?.file?.data.fname}
-          src={url}
-          width="100%"
-          height="100%"
-          title="Gallery"
-        />
+        {fileItem.url ? (
+          <iframe
+            id="myframe"
+            key={fileItem?.file?.data.fname}
+            src={fileItem.url}
+            width="100%"
+            height="100%"
+            title="Gallery"
+          />
+        ) : (
+          <EmptyStateComponent title="Failed to load this file..." />
+        )}
       </div>
     </Fragment>
   );
 };
 
-const MemoedIframeDisplay = React.memo(IframeDisplay);
-
-export default MemoedIframeDisplay;
+export default IframeDisplay;

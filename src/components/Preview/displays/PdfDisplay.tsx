@@ -6,13 +6,7 @@ type AllProps = {
 };
 
 const PdfDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
-  const url = fileItem.url
-    ? fileItem.url
-    : fileItem.blob
-      ? window.URL.createObjectURL(
-          new Blob([fileItem.blob], { type: "application/pdf" }),
-        )
-      : "";
+  const url = fileItem.url;
   return (
     <div className="iframe-container">
       <iframe

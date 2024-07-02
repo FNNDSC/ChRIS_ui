@@ -378,7 +378,6 @@ export const uploadFile = async (
 ) => {
   const formData = new FormData();
   const name = file.webkitRelativePath ? file.webkitRelativePath : file.name;
-
   formData.append("upload_path", `${directoryName}/${name}`);
   formData.append("fname", file, name);
 
@@ -400,7 +399,7 @@ export const uploadWrapper = (
   token: string,
   onUploadProgress?: (file: any, progressEvent: AxiosProgressEvent) => void,
 ) => {
-  const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
+  const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
   return localFiles.map((file) => {
     const onUploadProgressWrap = (progressEvent: AxiosProgressEvent) => {
       onUploadProgress?.(file, progressEvent);

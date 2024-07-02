@@ -194,8 +194,8 @@ export const handleEvents = (
   }
 };
 
-export const loadDicomImage = (blob: Blob) => {
-  return cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+export const loadDicomImage = (url: string) => {
+  return cornerstonejsDICOMImageLoader.wadouri.fileManager.add(url);
 };
 
 type ImagePoint = [number, number];
@@ -206,7 +206,6 @@ interface DisplayArea {
     imagePoint: ImagePoint;
     canvasPoint: ImagePoint;
   };
-  // storeAsInitialCamera?: boolean;
 }
 
 interface ViewportInputOptions {
@@ -238,7 +237,6 @@ function createDisplayArea(
         imagePoint,
         canvasPoint,
       },
-      // storeAsInitialCamera: true,
     },
   };
 }

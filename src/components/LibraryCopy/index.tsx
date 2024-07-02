@@ -199,7 +199,6 @@ export const LibraryCopyPage = () => {
 
             <Cart />
             <LocalSearch />
-
             <NormalBrowser />
           </LibraryProvider>
         </PageSection>

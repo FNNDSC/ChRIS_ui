@@ -26,8 +26,9 @@ export const getPluginFilesRequest = (payload: { id: number; path: string }) =>
   action(ResourceTypes.GET_PLUGIN_FILES_REQUEST, payload);
 export const getPluginFilesSuccess = (filesPayload: {
   id: number;
-  files: any[];
-  folders: any[];
+  folderFiles: any[];
+  linkFiles: any[];
+  children: any[];
   path: string;
 }) => action(ResourceTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload);
 export const getPluginFilesError = (payload: { id: number; error: any }) =>

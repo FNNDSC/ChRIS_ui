@@ -1,0 +1,223 @@
+import { Button, Grid, GridItem, Text, Tooltip } from "@patternfly/react-core";
+import { Alert, Drawer, List } from "antd";
+import { useContext } from "react";
+import { DotsIndicator } from "../Common";
+import { CheckCircleIcon, FileIcon, FolderIcon } from "../Icons";
+import {
+  DownloadTypes,
+  FolderDownloadTypes,
+  LibraryContext,
+  Types,
+  SelectionPayload,
+} from "./context";
+import { elipses } from "./utils";
+import useOperations from "./useOperations";
+import {
+  clearSelectFolder,
+  clearCart,
+  clearDownloadFileStatus,
+  clearDownloadFolderStatus,
+} from "./context/actions";
+
+const folderStatusMap: {
+  [key: string]: string;
+} = {
+  STARTED: "Started",
+  CREATING_FEED: "Creating Feed",
+  ZIPPING_FOLDER: "Preparing to Zip",
+  STARTING_DOWNLOAD: "Starting Download",
+  FINISHED: "Finished",
+};
+
+export const Status = ({ item }: { item: SelectionPayload }) => {
+  const { state } = useContext(LibraryContext);
+  const { fileDownloadStatus, folderDownloadStatus } = state;
+  const { type, payload } = item;
+
+  if (type === "file") {
+    const currentStatus = fileDownloadStatus[payload.data.id];
+    return (
+      <>
+        {currentStatus === DownloadTypes.progress ? (
+          <DotsIndicator title="" />
+        ) : currentStatus === DownloadTypes.finished ? (
+          <Button
+            variant="plain"
+            icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
+          />
+        ) : null}
+      </>
+    );
+  }
+
+  if (type === "folder") {
+    const folderStatus = folderDownloadStatus?.[payload.data.id];
+    const currentStatus = folderStatus?.status;
+
+    return (
+      <>
+        {currentStatus && currentStatus === FolderDownloadTypes.finished ? (
+          <Button
+            variant="plain"
+            icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
+          />
+        ) : currentStatus === FolderDownloadTypes.cancelled ? (
+          <Text>Cancelled</Text>
+        ) : currentStatus ? (
+          <DotsIndicator title={folderStatusMap[currentStatus]} />
+        ) : null}
+      </>
+    );
+  }
+};
+
+const Cart = () => {
+  const { state, dispatch } = useContext(LibraryContext);
+  const {
+    handleDownloadMutation,
+    handleDeleteMutation,
+    createFeed,
+    feedCreationError,
+    downloadError,
+    clearFeed,
+    cannotDownload,
+    resetErrors,
+    recreateState,
+    clearPathSessionStorage,
+  } = useOperations();
+  const { mutate } = handleDownloadMutation;
+
+  return (
+    <Drawer
+      width={600}
+      title="Cart"
+      placement="right"
+      closable={true}
+      onClose={() => {
+        dispatch({
+          type: Types.SET_TOGGLE_CART,
+        });
+      }}
+      afterOpenChange={(open) => {
+        if (open === true) {
+          recreateState();
+        }
+      }}
+      open={state.openCart}
+    >
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <Button onClick={() => createFeed()} size="sm" variant="primary">
+          Create Feed
+        </Button>
+
+        <Button
+          onClick={() => mutate({ type: "download" })}
+          size="sm"
+          variant="primary"
+        >
+          Download
+        </Button>
+
+        <Button
+          onClick={() => mutate({ type: "anonymize" })}
+          size="sm"
+          variant="primary"
+        >
+          Anonymize
+        </Button>
+
+        <Button
+          size="sm"
+          onClick={() => {
+            dispatch(clearCart());
+            handleDownloadMutation.reset();
+            resetErrors();
+          }}
+          style={{
+            marginRight: "0.5em",
+          }}
+        >
+          Clear All
+        </Button>
+
+        <Button
+          onClick={() => handleDeleteMutation.mutate()}
+          size="sm"
+          variant="danger"
+        >
+          Delete
+        </Button>
+      </div>
+
+      <List
+        style={{ marginTop: "2rem" }}
+        dataSource={state.selectedPaths}
+        bordered
+        renderItem={(item) => {
+          return (
+            <List.Item
+              key={item.path}
+              actions={[
+                <Status item={item} />,
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={async () => {
+                    dispatch(clearSelectFolder(item.path));
+                    clearFeed();
+                    dispatch(clearDownloadFileStatus(item.payload.data.id));
+                    dispatch(clearDownloadFolderStatus(item.payload.data.id));
+                    clearPathSessionStorage(item.path, item.payload.data.id);
+                  }}
+                  key={`a-${item.payload.data.id}`}
+                >
+                  Clear
+                </Button>,
+              ]}
+            >
+              <List.Item.Meta
+                avatar={item.type === "folder" ? <FolderIcon /> : <FileIcon />}
+                title={
+                  <Tooltip content={item.path}>
+                    <a
+                      style={{
+                        color: "inherit",
+                      }}
+                      href="https://ant.design/index-cn"
+                    >
+                      {elipses(item.path, 40)}
+                    </a>
+                  </Tooltip>
+                }
+              />
+            </List.Item>
+          );
+        }}
+      />
+      <div
+        style={{
+          marginTop: "1rem",
+        }}
+      >
+        {downloadError.paths.length > 0 && (
+          <Alert
+            type="error"
+            closable
+            description={downloadError.error_message}
+          />
+        )}
+        {feedCreationError.paths.length > 0 && (
+          <Alert
+            type="error"
+            closable
+            description={`${
+              feedCreationError.error_message
+            } ${cannotDownload.join(", ")}`}
+          />
+        )}
+      </div>
+    </Drawer>
+  );
+};
+
+export default Cart;

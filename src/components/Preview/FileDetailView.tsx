@@ -1,4 +1,4 @@
-import type { FeedFile, PACSFile } from "@fnndsc/chrisapi";
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import {
   Button,
   Label,
@@ -27,24 +27,22 @@ import {
 } from "../Icons";
 import { TagInfoModal } from "./HelperComponent";
 import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
-  selectedFile?: FeedFile | PACSFile;
+  selectedFile?: FileBrowserFolderFile;
   isDicom?: boolean;
   preview: "large" | "small";
   handleNext?: () => void;
   handlePrevious?: () => void;
   gallery?: boolean;
-  isPublic?: boolean;
 }
 
 export interface ActionState {
   [key: string]: boolean | string;
 }
-
-const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
 
 const FileDetailView = (props: AllProps) => {
   const [tagInfo, setTagInfo] = React.useState<any>();
@@ -54,6 +52,7 @@ const FileDetailView = (props: AllProps) => {
   });
   const [error, setError] = React.useState("");
   const drawerState = useTypedSelector((state) => state.drawers);
+  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
 
   const handleKeyboardEvents = (event: any) => {
     switch (event.keyCode) {
@@ -82,63 +81,61 @@ const FileDetailView = (props: AllProps) => {
     };
   });
 
-  const displayTagInfo = useCallback((result: any) => {
-    const reader = new FileReader();
-
-    reader.onloadend = async () => {
+  const displayTagInfo = useCallback((data: IFileBlob) => {
+    const fetchData = async () => {
       try {
-        if (reader.result) {
-          //@ts-ignore
-          const byteArray = new Uint8Array(reader.result);
-          //@ts-ignore
-          const testOutput: any[] = [];
-          const output: any[] = [];
-          const dataSet = dicomParser.parseDicom(byteArray);
-          dumpDataSet(dataSet, output, testOutput);
-          const merged = Object.assign({}, ...testOutput);
-          setTagInfo(merged);
+        const blob = await data.file?.getFileBlob();
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          try {
+            if (reader.result) {
+              const byteArray = new Uint8Array(reader.result as ArrayBuffer);
+              const testOutput: any[] = [];
+              const output: any[] = [];
+              const dataSet = dicomParser.parseDicom(byteArray);
+              dumpDataSet(dataSet, output, testOutput);
+              const merged = Object.assign({}, ...testOutput);
+              setTagInfo(merged);
+            }
+          } catch (error) {
+            setError("Failed to parse the file for dicom tags");
+          }
+        };
+
+        if (blob) {
+          reader.readAsArrayBuffer(blob);
         }
       } catch (error) {
-        setError("Failed to parse the file for dicom tags");
-        return {
-          blob: undefined,
-          file: undefined,
-          fileType: "",
-        };
+        setError("Failed to fetch the file");
       }
     };
 
-    if (result) {
-      reader.readAsArrayBuffer(result);
-    }
+    fetchData();
   }, []);
 
   const { selectedFile, preview } = props;
 
-  const fetchData = async (selectedFile: FeedFile | PACSFile) => {
+  const fetchData = async (selectedFile: FileBrowserFolderFile) => {
     setError("");
     const fileName = selectedFile.data.fname;
     const fileType = getFileExtension(fileName);
-
-    if (props.isPublic && !fileTypes.includes(fileType)) {
-      return {
-        blob: undefined,
-        file: selectedFile,
-        fileType,
-        url: selectedFile?.collection.items[0].links[0].href, // Corrected semicolon to comma
-      };
-    }
-
     try {
-      const blob = await selectedFile.getFileBlob();
-
+      let url = "";
+      if (feed?.data.public) {
+        url = selectedFile?.collection.items[0].links[0].href;
+      } else {
+        // private feed
+        const client = ChrisAPIClient.getClient();
+        const response = await client.createDownloadToken();
+        const token = response.data.token;
+        url = `${selectedFile?.collection.items[0].links[0].href}?download_token=${token}`;
+      }
       return {
-        blob,
         file: selectedFile,
         fileType,
-        url: "",
+        url: url,
       };
-    } catch (error: any) {
+    } catch (error) {
       setError("Failed to fetch the data for preview");
       throw error;
     }
@@ -148,7 +145,6 @@ const FileDetailView = (props: AllProps) => {
     useQuery({
       queryKey: ["preview", selectedFile],
       queryFn: () => selectedFile && fetchData(selectedFile),
-      enabled: !!selectedFile,
     });
 
   let viewerName = "";
@@ -164,7 +160,7 @@ const FileDetailView = (props: AllProps) => {
 
   const handleEvents = (action: string, previouslyActive: string) => {
     if (action === "TagInfo" && data) {
-      displayTagInfo(data.blob);
+      displayTagInfo(data);
     }
     const currentAction = actionState[action];
     setActionState({

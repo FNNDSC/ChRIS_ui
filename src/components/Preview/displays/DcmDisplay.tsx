@@ -1,12 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  FileViewerModel,
-  IFileBlob,
-  getFileExtension,
-} from "../../../api/model";
+import { IFileBlob, getFileExtension } from "../../../api/model";
 import {
   displayDicomImage,
-  loadDicomImage,
   basicInit,
   handleEvents,
   type IStackViewport,
