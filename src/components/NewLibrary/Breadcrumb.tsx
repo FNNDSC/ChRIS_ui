@@ -1,5 +1,4 @@
 import { Breadcrumb, BreadcrumbItem } from "@patternfly/react-core";
-import { HomeIcon } from "../Icons";
 
 const BreadcrumbContainer = ({
   path,
@@ -9,8 +8,6 @@ const BreadcrumbContainer = ({
   handleFolderClick: (path: string) => void;
 }) => {
   const initialPathSplit = path !== "/" ? path.split("/") : [];
-
-  console.log("initialPathSplit", path);
 
   return (
     <Breadcrumb style={{ marginTop: "1rem" }}>

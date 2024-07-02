@@ -9,9 +9,11 @@ import {
 const MenuBar = ({
   checked,
   handleChange,
+  handleUploadModal,
 }: {
   checked: boolean;
   handleChange: () => void;
+  handleUploadModal: () => void;
 }) => {
   return (
     <OverflowMenu breakpoint="lg">
@@ -26,13 +28,8 @@ const MenuBar = ({
           />
         </OverflowMenuItem>
         <OverflowMenuItem>
-          <Button size="sm" variant="primary">
-            Upload a Folder
-          </Button>
-        </OverflowMenuItem>
-        <OverflowMenuItem>
-          <Button size="sm" variant="primary">
-            Upload Files
+          <Button onClick={handleUploadModal} variant="primary" size="sm">
+            Upload Data
           </Button>
         </OverflowMenuItem>
 
