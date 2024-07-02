@@ -24,6 +24,7 @@ import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
 import { useTypedSelector } from "./store/hooks";
+import Store from "./components/Store";
 
 interface IState {
   selectData?: Series;
