@@ -2,6 +2,8 @@ import type {
   Feed,
   FeedList,
   FileBrowserFolder,
+  PACSFile,
+  PACSFileList,
   UserFile,
   UserFileList,
 } from "@fnndsc/chrisapi";
@@ -40,6 +42,7 @@ const LibrarySearch = () => {
   const handleSearch = async () => {
     const client = ChrisAPIClient.getClient();
     const parentFolders: FileBrowserFolder[] = [];
+    console.log("Status Selected", statusSelected);
 
     try {
       if (statusSelected === "Feed Files") {
@@ -84,6 +87,30 @@ const LibrarySearch = () => {
           }
         } catch (error) {
           throw new Error("Failed to fetch User Files...");
+        }
+      }
+
+      if (statusSelected === "PACS Files") {
+        try {
+          const data: PACSFileList = await client.getPACSFiles({
+            fname_icontains_topdir_unique: (inputValue as string).trim(),
+            limit: 1000000,
+          });
+
+          const pacsFiles = data.getItems() as PACSFile[];
+
+          for (const file of pacsFiles) {
+            const parentFolder: FileBrowserFolder =
+              await file.getParentFolder();
+            const isDuplicate = parentFolders.some(
+              (folder) => folder.data.id === parentFolder.data.id,
+            );
+            if (!isDuplicate) {
+              parentFolders.push(parentFolder);
+            }
+          }
+        } catch (error) {
+          throw new Error("Failed to fetch PACS Files...");
         }
       }
     } catch (error) {
