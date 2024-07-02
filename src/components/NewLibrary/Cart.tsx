@@ -82,7 +82,7 @@ const Cart = () => {
     cannotDownload,
     resetErrors,
     recreateState,
-    keepACopyInState,
+    clearPathCookie,
   } = useOperations();
   const { mutate } = handleDownloadMutation;
 
@@ -162,9 +162,9 @@ const Cart = () => {
                   onClick={async () => {
                     dispatch(clearSelectFolder(item.path));
                     clearFeed();
-                    clearDownloadFileStatus(item.payload.data.id);
-                    clearDownloadFolderStatus(item.payload.data.id);
-                    keepACopyInState(state);
+                    dispatch(clearDownloadFileStatus(item.payload.data.id));
+                    dispatch(clearDownloadFolderStatus(item.payload.data.id));
+                    clearPathCookie(item.path);
                   }}
                   key={`a-${item.payload.data.id}`}
                 >

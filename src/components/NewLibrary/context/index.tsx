@@ -43,6 +43,7 @@ type ActionMap<M extends { [index: string]: any }> = {
 export enum Types {
   SET_SELECTED_PATHS = "SET_SELECTED_PATHS",
   SET_SELECTED_PATHS_FROM_COOKIES = "SET_SELECTED_PATHS_FROM_COOKIES",
+  SET_FOLDER_DOWNLOAD_FROM_COOKIES = "SET_FOLDER_DOWNLOAD_FROM_COOKIES",
   CLEAR_SELECTED_PATHS = "CLEAR_SELECTED_PATHS",
   SET_PREVIEW_ALL = "SET_PREVIEW_ALL",
   CLEAR_CART = "CLEAR_CART",
@@ -78,6 +79,13 @@ export type LibraryPayload = {
   [Types.SET_SELECTED_PATHS_FROM_COOKIES]: {
     paths: SelectionPayload[];
   };
+
+  [Types.SET_FOLDER_DOWNLOAD_FROM_COOKIES]: {
+    status: {
+      [key: string]: FolderDownloadTypes;
+    };
+  };
+
   [Types.CLEAR_SELECTED_PATHS]: {
     path: string;
   };
@@ -178,6 +186,13 @@ export const libraryReducer = (
       return {
         ...state,
         selectedPaths: [...action.payload.paths],
+      };
+    }
+
+    case Types.SET_FOLDER_DOWNLOAD_FROM_COOKIES: {
+      return {
+        ...state,
+        folderDownloadStatus: action.payload.status,
       };
     }
 
