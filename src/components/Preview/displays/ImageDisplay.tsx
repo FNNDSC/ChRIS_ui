@@ -7,20 +7,14 @@ type AllProps = {
 
 const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const { fileItem } = props;
-  const url = fileItem.url
-    ? fileItem.url
-    : fileItem.blob
-      ? window.URL.createObjectURL(new Blob([fileItem.blob]))
-      : "";
+  const url = fileItem.url;
   return (
     <img
       id={props.fileItem.file ? props.fileItem.file.data.fname : ""}
       src={url}
-      alt=""
+      alt="png or jpeg display"
     />
   );
 };
 
-const ImageDisplayMemoed = React.memo(ImageDisplay);
-
-export default ImageDisplayMemoed;
+export default ImageDisplay;

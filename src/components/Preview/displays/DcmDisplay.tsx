@@ -1,12 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  FileViewerModel,
-  IFileBlob,
-  getFileExtension,
-} from "../../../api/model";
+import { IFileBlob, getFileExtension } from "../../../api/model";
 import {
   displayDicomImage,
-  loadDicomImage,
   basicInit,
   handleEvents,
   type IStackViewport,
@@ -31,7 +26,12 @@ export type DcmImageProps = {
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { fileItem, preview, actionState } = props;
+<<<<<<< HEAD
   const { file, blob } = fileItem;
+=======
+  const { file, url } = fileItem;
+
+>>>>>>> dab5c0e2 (feat: rebase)
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
   >();
@@ -76,6 +76,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     };
   }, []);
 
+<<<<<<< HEAD
   async function setupCornerstone() {
     const element = document.getElementById(elementId) as HTMLDivElement;
     if (file && blob) {
@@ -90,6 +91,30 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         const fileviewer = new FileViewerModel();
         const fileName = fileviewer.getFileName(file);
         imageID = `web:${file.url}${fileName}`;
+=======
+  useEffect(() => {
+    async function setupCornerstone() {
+      const element = document.getElementById(elementId) as HTMLDivElement;
+      if (file && url && element && !cornerstoneInitialized) {
+        let imageID: string;
+        const extension = getFileExtension(file.data.fname);
+        await basicInit();
+        setUpTooling(uniqueId);
+        if (extension === "dcm") {
+          imageID = "wadouri:" + url;
+        } else {
+          imageID = `web:${url}`;
+        }
+
+        const { viewport, renderingEngine } = await displayDicomImage(
+          element,
+          imageID,
+          uniqueId,
+        );
+        setActiveViewport(viewport);
+        setRenderingEngine(renderingEngine);
+        setCornerstoneInitialized(true); // Mark Cornerstone as initialized
+>>>>>>> dab5c0e2 (feat: rebase)
       }
       const { viewport, renderingEngine: newRenderingEngine } =
         await displayDicomImage(element, imageID, uniqueId);
@@ -99,11 +124,16 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
   }
 
+<<<<<<< HEAD
   const { isLoading } = useQuery({
     queryKey: ["cornerstone-preview", file, blob],
     queryFn: () => setupCornerstone(),
     refetchOnMount: true,
   });
+=======
+    setupCornerstone();
+  }, [file, url, uniqueId, cornerstoneInitialized, elementId]);
+>>>>>>> dab5c0e2 (feat: rebase)
 
   useEffect(() => {
     if (actionState && activeViewport) {

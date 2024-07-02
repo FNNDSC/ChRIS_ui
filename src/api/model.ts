@@ -1,5 +1,9 @@
 import _ from "lodash";
+<<<<<<< HEAD
 import type { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
+=======
+import type { FileBrowserFolderFile, PluginInstance } from "@fnndsc/chrisapi";
+>>>>>>> 4187ef86 (feat: Pass the url directly to image viewers and let the browser fetch the data natively)
 
 export interface IActionTypeParam {
   type: string;
@@ -161,9 +165,8 @@ export class TreeModel {
 }
 
 export interface IFileBlob {
-  blob?: Blob;
-  file?: FeedFile;
-  url?: string;
+  file?: FileBrowserFolderFile;
+  url: string;
   fileType: string;
 }
 
@@ -209,7 +212,7 @@ export function getFileExtension(filename: string) {
 }
 
 export class FileViewerModel {
-  public getFileName(item: FeedFile) {
+  public getFileName(item: FileBrowserFolderFile) {
     const splitString = item.data.fname.split("/");
     const filename = splitString[splitString.length - 1];
     return filename;

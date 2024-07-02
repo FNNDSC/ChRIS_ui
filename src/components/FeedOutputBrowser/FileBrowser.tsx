@@ -41,6 +41,7 @@ export const getFileName = (name: string) => {
 
 const FileBrowser = (props: FileBrowserProps) => {
   const [api, contextHolder] = notification.useNotification();
+  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const { isDarkTheme } = useContext(ThemeContext);
   const { pluginFilesPayload, handleFileClick, filesLoading } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
@@ -53,7 +54,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     download: "",
   };
   const breadcrumb = path.split("/");
-  const handleDownloadMutation = useDownload();
+  const handleDownloadMutation = useDownload(feed);
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
 
   useEffect(() => {

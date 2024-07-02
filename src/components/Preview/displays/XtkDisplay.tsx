@@ -15,7 +15,8 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
   useEffect(() => {
     let r: any;
     async function renderFileData() {
-      const fileData = await fileItem.blob?.arrayBuffer();
+      const blob = await fileItem.file?.getFileBlob();
+      const fileData = await blob?.arrayBuffer();
       const fileName = fileItem.file?.data.fname;
       let object;
 
@@ -49,7 +50,7 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
         r.destroy();
       }
     };
-  }, [fileItem.blob, fileItem.file?.data.fname, mode]);
+  }, [fileItem.file, fileItem.file?.data.fname, mode]);
 
   const renderContainerRef = useRef(null);
 
