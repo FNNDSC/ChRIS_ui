@@ -15,16 +15,9 @@ import PipelinePage from "./components/PipelinesPage";
 import PluginCatalog from "./components/PluginCatalog/";
 import PluginInstall from "./components/PluginInstall";
 import PrivateRoute from "./components/PrivateRoute";
-<<<<<<< HEAD
-import {
-  RouterContext,
-  RouterProvider,
-} from "./components/Routing/RouterContext";
+import { RouterContext } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import Store from "./components/Store";
-import { useTypedSelector } from "./store/hooks";
-import Store from "./components/Store";
 
 interface IState {
   selectData?: Series;
@@ -42,10 +35,6 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
     selectData: [] as Series,
   },
 });
-=======
-import Signup from "./components/Signup";
-import SinglePlugin from "./components/SinglePlugin";
->>>>>>> 96389f7f (feat: Update the cart feature)
 
 export const MainRouter: React.FC = () => {
   const element = useRoutes([
@@ -123,10 +112,7 @@ export const MainRouter: React.FC = () => {
       path: "niivue/:plinstId",
       element: <NiivueDatasetViewerPage />,
     },
-    {
-      path: "store",
-      element: <Store />,
-    },
+
     {
       path: "*",
       element: <NotFound />,
