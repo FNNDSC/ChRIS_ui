@@ -9,7 +9,6 @@ import type { PluginInstance } from "@fnndsc/chrisapi";
 import FileBrowser from "./FileBrowser";
 import { SpinContainer } from "../Common";
 import { useFeedBrowser } from "./useFeedBrowser";
-
 import "./FeedOutputBrowser.css";
 
 export interface FeedOutputBrowserProps {
