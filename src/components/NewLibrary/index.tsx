@@ -19,8 +19,6 @@ import { FilesCard, FolderCard, LinkCard } from "./Browser";
 import Search from "./Search";
 import TreeBrowser from "./TreeBrowser";
 import UploadContainer from "./UploadComponent";
-import { LibraryProvider } from "./context";
-import Cart from "./Cart";
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
@@ -95,7 +93,6 @@ const NewLibrary = () => {
   const dispatch = useDispatch();
   const [pageNumber, setPageNumber] = useState(1);
   const [cardLayout, setCardLayout] = useState(true);
-  const [open, setOpen] = useState(false);
 
   const [uploadFileModal, setUploadFileModal] = useState(false);
   const decodedPath = decodeURIComponent(pathname);
@@ -129,14 +126,6 @@ const NewLibrary = () => {
     setPageNumber((prevState) => prevState + 1);
   };
 
-  const onClose = () => {
-    setOpen(false);
-  };
-
-  const showOpen = () => {
-    setOpen(true);
-  };
-
   const observerTarget = useRef(null);
 
   const fetchMore =
@@ -167,96 +156,89 @@ const NewLibrary = () => {
 
   return (
     <WrapperConnect>
-      <LibraryProvider>
-        {/*Library Cart Component */}
-        {open && <Cart open={open} onClose={onClose} />}
+      {/* Search Component */}
+      <Search
+        handleChange={() => {
+          setCardLayout(!cardLayout);
+        }}
+        handleUploadModal={() => {
+          setUploadFileModal(!uploadFileModal);
+        }}
+        checked={cardLayout}
+      />
 
-        {/* Search Component */}
-
-        <Search
-          handleChange={() => {
-            setCardLayout(!cardLayout);
+      <div style={{ margin: "1rem" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
           }}
-          handleUploadModal={() => {
-            setUploadFileModal(!uploadFileModal);
-          }}
-          checked={cardLayout}
-          showOpen={showOpen}
-        />
-
-        <div style={{ margin: "1rem" }}>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            {cardLayout && (
-              <BreadcrumbContainer
-                path={computedPath}
-                handleFolderClick={handleBreadcrumbClick}
-              />
-            )}
-          </div>
-
-          {isError && <Alert type="error" description={error.message} />}
-
-          {data?.filesPagination.totalCount === -1 &&
-            data?.foldersPagination.totalCount === -1 &&
-            data?.linksPagination.totalCount === -1 && (
-              <EmptyStateComponent title="No data in this path" />
-            )}
-
-          {isLoading && <SpinContainer title="Fetching Data..." />}
-
-          {data &&
-            (cardLayout ? (
-              <Grid
-                style={{
-                  marginTop: "1rem",
-                }}
-                hasGutter={true}
-              >
-                <FolderCard
-                  folders={data.subFoldersMap}
-                  handleFolderClick={handleFolderClick}
-                  computedPath={computedPath}
-                  pagination={data.foldersPagination}
-                />
-                <FilesCard
-                  files={data.filesMap}
-                  pagination={data.filesPagination}
-                />
-                <LinkCard
-                  linkFiles={data.linkFilesMap}
-                  pagination={data.linksPagination}
-                />
-
-                {fetchMore && !isLoading && (
-                  <>
-                    <Button onClick={handlePagination} variant="link">
-                      Load More Data...
-                    </Button>
-                  </>
-                )}
-
-                {/* When the user is at the bottom of the page, load more data */}
-                <div
-                  ref={observerTarget}
-                  style={{
-                    height: "10px",
-                  }}
-                />
-              </Grid>
-            ) : (
-              <TreeBrowser />
-            ))}
+        >
+          {cardLayout && (
+            <BreadcrumbContainer
+              path={computedPath}
+              handleFolderClick={handleBreadcrumbClick}
+            />
+          )}
         </div>
-        <UploadContainer
-          isOpenModal={uploadFileModal}
-          handleFileModal={() => setUploadFileModal(!uploadFileModal)}
-        />
-      </LibraryProvider>
+
+        {isError && <Alert type="error" description={error.message} />}
+
+        {data?.filesPagination.totalCount === -1 &&
+          data?.foldersPagination.totalCount === -1 &&
+          data?.linksPagination.totalCount === -1 && (
+            <EmptyStateComponent title="No data in this path" />
+          )}
+
+        {isLoading && <SpinContainer title="Fetching Data..." />}
+
+        {data &&
+          (cardLayout ? (
+            <Grid
+              style={{
+                marginTop: "1rem",
+              }}
+              hasGutter={true}
+            >
+              <FolderCard
+                folders={data.subFoldersMap}
+                handleFolderClick={handleFolderClick}
+                computedPath={computedPath}
+                pagination={data.foldersPagination}
+              />
+              <FilesCard
+                files={data.filesMap}
+                pagination={data.filesPagination}
+              />
+              <LinkCard
+                linkFiles={data.linkFilesMap}
+                pagination={data.linksPagination}
+              />
+
+              {fetchMore && !isLoading && (
+                <>
+                  <Button onClick={handlePagination} variant="link">
+                    Load More Data...
+                  </Button>
+                </>
+              )}
+
+              {/* When the user is at the bottom of the page, load more data */}
+              <div
+                ref={observerTarget}
+                style={{
+                  height: "10px",
+                }}
+              />
+            </Grid>
+          ) : (
+            <TreeBrowser />
+          ))}
+      </div>
+      <UploadContainer
+        isOpenModal={uploadFileModal}
+        handleFileModal={() => setUploadFileModal(!uploadFileModal)}
+      />
     </WrapperConnect>
   );
 };

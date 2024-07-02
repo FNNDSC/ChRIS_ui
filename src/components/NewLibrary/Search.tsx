@@ -17,13 +17,12 @@ import { Alert, Badge } from "antd";
 import React, { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { CartIcon, SearchIcon } from "../Icons";
-import { LibraryContext } from "./context";
+import { LibraryContext, Types } from "./context";
 
 interface SearchProps {
   checked: boolean;
   handleChange: () => void;
   handleUploadModal: () => void;
-  showOpen: () => void;
 }
 
 const pacsFilters = [
@@ -41,18 +40,13 @@ const pacsFilters = [
   "pacs_identifier",
 ];
 
-const Search = ({
-  checked,
-  handleChange,
-  handleUploadModal,
-  showOpen,
-}: SearchProps) => {
+const Search = ({ checked, handleChange, handleUploadModal }: SearchProps) => {
   const { pathname } = useLocation();
   const decodedPath = decodeURIComponent(pathname);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { state } = useContext(LibraryContext);
+  const { state, dispatch } = useContext(LibraryContext);
   const [inputValue, setInputValue] = useState("");
   const [selectedItem, setSelectedItem] = useState<string>("");
   const [error, setError] = useState("");
@@ -204,7 +198,14 @@ const Search = ({
           count={state.selectedPaths.length}
           offset={[10, 1]}
         >
-          <Button onClick={showOpen} variant="tertiary">
+          <Button
+            onClick={() => {
+              dispatch({
+                type: Types.SET_TOGGLE_CART,
+              });
+            }}
+            variant="tertiary"
+          >
             <CartIcon
               style={{
                 height: "1.35em",

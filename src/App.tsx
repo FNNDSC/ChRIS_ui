@@ -1,22 +1,39 @@
 import "@patternfly/react-core/dist/styles/base.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConfigProvider, theme } from "antd";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { CookiesProvider } from "react-cookie";
-import { Provider } from "react-redux";
-import { BrowserRouter } from "react-router-dom";
-import { Store } from "redux";
+import { useNavigate } from "react-router-dom";
+import Cart from "./components/NewLibrary/Cart";
 //@ts-ignore
 import useAckee from "use-ackee";
 import "./app.css";
 import { ThemeContext } from "./components/DarkTheme/useTheme";
 import "./components/Feeds/Feeds.css";
+import { LibraryProvider } from "./components/NewLibrary/context";
+import {
+  RouterContext,
+  RouterProvider,
+} from "./components/Routing/RouterContext";
 import Routes from "./routes";
-import { RootState } from "./store/root/applicationState";
+import { useTypedSelector } from "./store/hooks";
 
-interface AllProps {
-  store: Store<RootState>;
+interface IState {
+  selectData?: Series;
 }
+
+export type Series = string[];
+
+interface IActions {
+  createFeedWithData: (data: Series) => void;
+  clearFeedData: () => void;
+}
+
+export const [State, MainRouterContext] = RouterContext<IState, IActions>({
+  state: {
+    selectData: [] as Series,
+  },
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,10 +44,26 @@ const queryClient = new QueryClient({
   },
 });
 
-function App(props: AllProps) {
-  const { isDarkTheme } = useContext(ThemeContext);
-  const { store } = props;
+function App() {
+  const [state, setState] = useState(State);
+  const [route, setRoute] = useState<string>();
 
+  const navigate = useNavigate();
+  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const actions: IActions = {
+    createFeedWithData: (selectData: Series) => {
+      setState({ selectData });
+      const type = isLoggedIn ? "private" : "public";
+      navigate(
+        `/feeds?search=&searchType=&page=${1}&perPage=${14}&type=${type}`,
+      );
+    },
+
+    clearFeedData: () => {
+      setState({ selectData: [] });
+    },
+  };
+  const { isDarkTheme } = useContext(ThemeContext);
   const ackeeEnvironment = {
     server: import.meta.env.VITE_ACKEE_SERVER,
     domainId: import.meta.env.VITE_ACKEE_DOMAIN_ID,
@@ -46,23 +79,27 @@ function App(props: AllProps) {
 
   return (
     <>
-      <Provider store={store}>
-        <CookiesProvider>
-          <BrowserRouter>
-            <QueryClientProvider client={queryClient}>
-              <ConfigProvider
-                theme={{
-                  algorithm: isDarkTheme
-                    ? theme.darkAlgorithm
-                    : theme.defaultAlgorithm,
-                }}
-              >
+      <CookiesProvider>
+        <QueryClientProvider client={queryClient}>
+          <ConfigProvider
+            theme={{
+              algorithm: isDarkTheme
+                ? theme.darkAlgorithm
+                : theme.defaultAlgorithm,
+            }}
+          >
+            <RouterProvider
+              {...{ actions, state, route, setRoute }}
+              context={MainRouterContext}
+            >
+              <LibraryProvider>
+                <Cart />
                 <Routes />
-              </ConfigProvider>
-            </QueryClientProvider>
-          </BrowserRouter>
-        </CookiesProvider>
-      </Provider>
+              </LibraryProvider>
+            </RouterProvider>
+          </ConfigProvider>
+        </QueryClientProvider>
+      </CookiesProvider>
     </>
   );
 }

@@ -8,6 +8,7 @@ export interface SelectionPayload {
 }
 
 interface LibraryState {
+  openCart: boolean;
   selectedPaths: SelectionPayload[];
   previewAll: boolean;
   fileDownloadStatus: {
@@ -20,6 +21,7 @@ interface LibraryState {
 
 function getInitialState(): LibraryState {
   return {
+    openCart: false,
     selectedPaths: [],
     previewAll: false,
     fileDownloadStatus: {},
@@ -47,6 +49,7 @@ export enum Types {
   SET_FOLDER_DOWNLOAD_STATUS = "SET_FOLDER_DOWNLOAD_STATUS",
   CLEAR_DOWNLOAD_FILE_STATUS = "CLEAR_DOWNLOAD_FILE_STATUS",
   CLEAR_DOWNLOAD_FOLDER_STATUS = "CLEAR_DOWNLOAD_FOLDER_STATUS",
+  SET_TOGGLE_CART = "SET_TOGGLE_CART",
 }
 
 export enum DownloadTypes {
@@ -89,8 +92,13 @@ export type LibraryPayload = {
     status: FolderDownloadTypes;
   };
 
-  [Types.CLEAR_DOWNLOAD_FILE_STATUS]: null;
-  [Types.CLEAR_DOWNLOAD_FOLDER_STATUS]: null;
+  [Types.CLEAR_DOWNLOAD_FILE_STATUS]: {
+    id: string;
+  };
+  [Types.CLEAR_DOWNLOAD_FOLDER_STATUS]: {
+    id: string;
+  };
+  [Types.SET_TOGGLE_CART]: null;
 };
 
 export type LibraryActions =
@@ -117,6 +125,28 @@ export const libraryReducer = (
           ...state.fileDownloadStatus,
           [id]: status,
         },
+      };
+    }
+
+    case Types.CLEAR_DOWNLOAD_FILE_STATUS: {
+      const { id } = action.payload;
+      const fileDownloadStatus = { ...state.fileDownloadStatus };
+      delete fileDownloadStatus[id];
+
+      return {
+        ...state,
+        fileDownloadStatus,
+      };
+    }
+
+    case Types.CLEAR_DOWNLOAD_FOLDER_STATUS: {
+      const { id } = action.payload;
+      const folderDownloadStatus = { ...state.folderDownloadStatus };
+      delete folderDownloadStatus[id];
+
+      return {
+        ...state,
+        folderDownloadStatus,
       };
     }
 
@@ -153,22 +183,18 @@ export const libraryReducer = (
       return {
         ...state,
         selectedPaths: [],
-      };
-    }
-
-    case Types.CLEAR_DOWNLOAD_FILE_STATUS: {
-      return {
-        ...state,
         fileDownloadStatus: {},
-      };
-    }
-
-    case Types.CLEAR_DOWNLOAD_FOLDER_STATUS: {
-      return {
-        ...state,
         folderDownloadStatus: {},
       };
     }
+
+    case Types.SET_TOGGLE_CART: {
+      return {
+        ...state,
+        openCart: !state.openCart,
+      };
+    }
+
     default:
       return state;
   }
