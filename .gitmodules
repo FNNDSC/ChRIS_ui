@@ -1,0 +1,3 @@
+[submodule "miniChRIS"]
+	path = testing/miniChRIS
+	url = https://github.com/FNNDSC/miniChRIS-docker.git
