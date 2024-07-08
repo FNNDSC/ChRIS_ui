@@ -1,6 +1,6 @@
 import React from "react";
+import BUILD_VERSION from "../../getBuildVersion";
 import { useDispatch } from "react-redux";
-import preval from "preval.macro";
 import WrapperConnect from "../Wrapper";
 import { PageSection, Grid, GridItem } from "@patternfly/react-core";
 import { Typography } from "antd";
@@ -29,11 +29,6 @@ const DashboardPage = (props: DashboardProps) => {
     );
   }, [dispatch]);
 
-  const buildVersion = preval`
-    const { execSync } = require('child_process')
-    module.exports = execSync('npm run -s print-version', {encoding: 'utf-8'})
-  `;
-
   return (
     <WrapperConnect>
       <PageSection hasShadowBottom>
@@ -47,7 +42,7 @@ const DashboardPage = (props: DashboardProps) => {
                 <b> Let&apos;s get started.</b>
               </p>
               <p>
-                Build: <code className="build-version">{buildVersion}</code>
+                Build: <code className="build-version">{BUILD_VERSION}</code>
               </p>
             </Paragraph>
           }
