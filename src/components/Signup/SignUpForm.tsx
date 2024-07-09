@@ -136,6 +136,10 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             path: "/",
             maxAge: oneDayToSeconds,
           });
+          setCookie("isStaff", user.data.is_staff, {
+            path: "/",
+            maxAge: oneDayToSeconds,
+          });
           setAuthTokenSuccess({
             token,
             username: user.data.username,
