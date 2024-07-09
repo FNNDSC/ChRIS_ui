@@ -91,17 +91,9 @@ const Sidebar: React.FC<AllProps> = ({
             {renderLink("/dataset", "Volume View", "dataset")}
           </NavItem>
 
-          {/*
-            !isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
-            <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
-              {renderLink("/store", "Explore", "store")}
-            </NavItem>
-          )}
-          */}
-
           {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
-              {renderLink("/store", "Explore", "store")}
+              {renderLink("/store", "Store", "store")}
             </NavItem>
           )}
         </NavGroup>
@@ -153,6 +145,12 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
             <Link to="/dataset">Volume View</Link>
           </NavItem>
+
+          {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
+            <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
+              <Link to="store">Store</Link>
+            </NavItem>
+          )}
         </NavGroup>
       </NavList>
     </Nav>

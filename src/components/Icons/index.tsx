@@ -29,6 +29,7 @@ import {
   EllipsisVIcon,
   EditIcon,
   FileArchiveIcon as PatternflyArchiveIcon,
+  CheckCircleIcon,
 } from "@patternfly/react-icons";
 
 const MergeIcon = () => {
@@ -262,6 +263,7 @@ export {
   ExpandArrowsAltIcon,
   CloseIcon,
   CubesIcon,
+  CheckCircleIcon,
   UploadIcon,
   CogsIcon as SettingsIcon,
   AngleDoubleLeftIcon as RotateLeft,

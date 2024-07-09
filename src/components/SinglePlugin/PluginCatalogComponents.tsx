@@ -446,9 +446,10 @@ export const HeaderSidebar = ({
 
     if (parameterPayload?.url) {
       const decodedURL = encodeURIComponent(parameterPayload?.url);
-      const url = `${trimmedValue}/install?uri=${decodedURL}`;
+      const url = `${trimmedValue}/install?uri=${decodedURL}&plugin=${currentPluginMeta.data.name}`;
       setInstallModal(!installModal);
       setValue("");
+      //Set Cookie for url's being used
       window.open(url, "_blank");
     }
   };

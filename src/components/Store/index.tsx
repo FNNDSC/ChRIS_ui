@@ -9,6 +9,7 @@ import {
   FormGroup,
   Grid,
   GridItem,
+  Icon,
   MenuToggle,
   MenuToggleElement,
   Modal,
@@ -17,22 +18,33 @@ import {
   SelectOption,
   Split,
   SplitItem,
+  Text,
   TextInput,
+  TextInputGroup,
+  TextInputGroupMain,
+  TextVariants,
 } from "@patternfly/react-core";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Spin, Typography, notification } from "antd";
 import { format } from "date-fns";
 import { isEmpty } from "lodash";
 import { Ref, useEffect, useState } from "react";
+import { Cookies, useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { useTypedSelector } from "../../store/hooks";
 import { setSidebarActive } from "../../store/ui/actions";
 import { InfoIcon, SpinContainer } from "../Common";
+import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
 import WrapperConnect from "../Wrapper";
 
 const { Paragraph } = Typography;
 
 const Store = () => {
+  const isStaff = useTypedSelector((state) => state.user.isStaff);
+  const queryClient = useQueryClient();
+  const [_cookie, setCookie] = useCookies();
   const [api, contextHolder] = notification.useNotification();
   const dispatch = useDispatch();
   const [version, setVersion] = useState<{
@@ -47,7 +59,7 @@ const Store = () => {
   const [enterAdminCred, setEnterAdminCred] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [url, setUrl] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     document.title = "Store Catalog";
@@ -58,21 +70,39 @@ const Store = () => {
     );
   }, [dispatch]);
 
-  const fetchPlugins = async () => {
+  useEffect(() => {
+    const cookies = new Cookies();
+
+    if (cookies.get("admin_username")) {
+      setUsername(cookies.get("admin_username"));
+    }
+
+    if (cookies.get("admin_password")) {
+      setPassword(cookies.get("admin_password"));
+    }
+  }, []);
+
+  const fetchPlugins = async (search: string) => {
     const url = import.meta.env.VITE_CHRIS_STORE_URL;
     if (!url) {
       throw new Error("No url found for a store");
     }
     const client = new Client(url);
+
     try {
-      const pluginMetaList = await client.getPluginMetas({ limit: 1000 });
+      const pluginMetaList = await client.getPluginMetas({
+        limit: 1000,
+        name: search.trim().toLowerCase(),
+      });
 
       const pluginMetas = pluginMetaList.getItems() || [];
 
       if (pluginMetas.length > 0) {
         const newPluginPayload = await Promise.all(
           pluginMetas.map(async (plugin) => {
-            const plugins = await plugin.getPlugins({ limit: 1000 });
+            const plugins = await plugin.getPlugins({
+              limit: 1000,
+            });
             const pluginItems = plugins.getItems();
             let version = "";
             if (pluginItems && pluginItems.length > 0) {
@@ -103,16 +133,52 @@ const Store = () => {
     }
   };
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["storePlugins"],
-    queryFn: fetchPlugins,
-  });
+  const fetchExistingPlugins = async () => {
+    const existingClient = ChrisAPIClient.getClient();
+    const exisitingPluginMetaList = await existingClient.getPluginMetas({
+      limit: 1000,
+    });
+    const plugins = exisitingPluginMetaList.getItems();
+
+    if (plugins) {
+      const newPluginPayload = Promise.all(
+        plugins.map(async (plugin) => {
+          const plugins = await plugin.getPlugins({ limit: 1000 });
+          const pluginItems = plugins.getItems();
+          return {
+            data: {
+              ...plugin.data,
+              items: pluginItems.map((plugin: any) => plugin.data.version),
+            },
+          };
+        }),
+      );
+
+      return newPluginPayload;
+    }
+  };
 
   const handleInstall = async (selectedPlugin: Plugin) => {
+    const adminURL = import.meta.env.VITE_CHRIS_UI_URL;
+    const url = adminURL.replace("/api/v1/", "/chris-admin/api/v1/");
     if (!url) {
       throw new Error("Please provide a link to your chris-admin url");
     }
-    const credentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
+
+    if (!username) {
+      throw new Error("Please provide a username");
+    }
+    if (!password) {
+      throw new Error("Please enter a password");
+    }
+
+    const client = ChrisAPIClient.getClient();
+    const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
+    const nonAdminCredentials = `Token ${client.auth.token}`;
+    const authorization = isStaff
+      ? `Basic ${adminCredentials}`
+      : nonAdminCredentials;
+
     const pluginData = {
       compute_names: "host",
       name: selectedPlugin.data.name,
@@ -124,7 +190,7 @@ const Store = () => {
       const response = await fetch(url, {
         method: "POST",
         headers: {
-          Authorization: `Basic ${credentials}`,
+          Authorization: authorization,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(pluginData),
@@ -133,6 +199,16 @@ const Store = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      const oneDayToSeconds = 24 * 60 * 60;
+      setCookie("admin_username", username, {
+        path: "/",
+        maxAge: oneDayToSeconds,
+      });
+
+      setCookie("admin_password", password, {
+        path: "/",
+        maxAge: oneDayToSeconds,
+      });
 
       const data = await response.json();
 
@@ -154,22 +230,33 @@ const Store = () => {
     },
   });
 
-  const handleSave = () => {
-    if (installingPlugin) {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["storePlugins", search],
+    queryFn: () => {
+      return fetchPlugins(search);
+    },
+  });
+
+  const { data: existingPlugins } = useQuery({
+    queryKey: ["existingStorePlugins"],
+    queryFn: () => {
+      return fetchExistingPlugins();
+    },
+  });
+
+  const handleSave = (passedPlugin?: any) => {
+    const plugin = passedPlugin || installingPlugin;
+    if (plugin) {
       let selectedPlugin: Plugin | undefined = undefined;
       if (!isEmpty(version)) {
-        const findPlugin = installingPlugin.data.plugins.find(
-          (pluginMeta: any) => {
-            return (
-              pluginMeta.data.version === version[installingPlugin.data.id]
-            );
-          },
-        );
+        const findPlugin = plugin.data.plugins.find((pluginMeta: any) => {
+          return pluginMeta.data.version === version[plugin.data.id];
+        });
         if (findPlugin) {
           selectedPlugin = findPlugin;
         }
       } else {
-        selectedPlugin = installingPlugin.data.plugins[0];
+        selectedPlugin = plugin.data.plugins[0];
       }
 
       if (selectedPlugin) {
@@ -180,6 +267,9 @@ const Store = () => {
 
   useEffect(() => {
     if (handleInstallMutation.isSuccess) {
+      queryClient.invalidateQueries({
+        queryKey: ["existingStorePlugins"],
+      });
       api.success({
         message: "Plugin Successfully installed...",
       });
@@ -230,27 +320,12 @@ const Store = () => {
             />
           </FormGroup>
 
-          <FormGroup
-            label="Enter the url to your chris-admin dashboard"
-            isRequired
-          >
-            <TextInput
-              id="url"
-              isRequired
-              type="url"
-              value={url}
-              onChange={(_event, value: string) => {
-                setUrl(value);
-              }}
-              placeholder="eg: http://localhost:8000/chris-admin/api/v1/"
-            />
-          </FormGroup>
           <ActionGroup>
             <Button
               onClick={() => {
                 handleSave();
               }}
-              isDisabled={!(username && password && url)}
+              isDisabled={!(username && password)}
               variant="primary"
               icon={handleInstallMutation.isPending && <Spin />}
             >
@@ -288,81 +363,140 @@ const Store = () => {
             </Paragraph>
           }
         />
+        <Text component={TextVariants.h6}>
+          You are currently viewing plugins fetched from{" "}
+          {import.meta.env.VITE_CHRIS_STORE_URL}
+        </Text>
       </PageSection>
       <PageSection>
+        <Grid>
+          <GridItem span={4}>
+            <TextInputGroup>
+              <TextInputGroupMain
+                value={search}
+                onChange={(_e, value: string) => setSearch(value)}
+                icon={<SearchIcon />}
+                placeholder="Search for plugins by name"
+              />
+            </TextInputGroup>
+          </GridItem>
+        </Grid>
+
         {isLoading && <SpinContainer title="Fetching Plugins" />}
         {isError && <Alert type="error" description={error.message} />}
+
         {data && (
           <Grid hasGutter={true}>
-            {data.pluginMetaList.map((plugin) => (
-              <GridItem key={plugin.data.id} span={6}>
-                <Card className="plugin-item-card">
-                  <CardBody className="plugin-item-card-body">
-                    <Split>
-                      <SplitItem isFilled>
-                        <p
+            {data.pluginMetaList.map((plugin) => {
+              const currentVersion =
+                version[plugin.data.id] || plugin.data.version;
+              const isInstalled = existingPlugins?.some(
+                (existingPlugin) =>
+                  existingPlugin.data.name === plugin.data.name &&
+                  existingPlugin.data.items.includes(currentVersion),
+              );
+              return (
+                <GridItem key={plugin.data.id} span={6}>
+                  <Card className="plugin-item-card">
+                    <CardBody className="plugin-item-card-body">
+                      <Split>
+                        <SplitItem isFilled>
+                          <p
+                            style={{
+                              fontSize: "0.9em",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {plugin.data.name}
+                          </p>
+                        </SplitItem>
+                        <SplitItem>
+                          <Badge isRead>{plugin.data.category}</Badge>
+                        </SplitItem>
+                      </Split>
+                      <div className="plugin-item-name">
+                        {plugin.data.title}
+                      </div>
+
+                      <div className="plugin-item-author">
+                        {plugin.data.authors}
+                      </div>
+                      <p
+                        style={{
+                          fontSize: "0.90rem",
+                        }}
+                      >
+                        {format(
+                          new Date(plugin.data.modification_date),
+                          "do MMMM, yyyy",
+                        )}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: "0.90rem",
+                          marginTop: "1em",
+                        }}
+                      >
+                        Version:{" "}
+                        <VersionSelect
+                          handlePluginVersion={(selectedVersion: any) => {
+                            setVersion({
+                              [plugin.data.id]: selectedVersion,
+                            });
+                          }}
+                          currentVersion={
+                            version[plugin.data.id] || plugin.data.version
+                          }
+                          plugins={plugin.data.plugins}
+                        />
+                      </p>
+
+                      {isInstalled ? (
+                        <div
                           style={{
-                            fontSize: "0.9em",
-                            fontWeight: "bold",
+                            marginTop: "1em",
+                            display: "flex",
+                            alignItems: "center",
                           }}
                         >
-                          {plugin.data.name}
-                        </p>
-                      </SplitItem>
-                      <SplitItem>
-                        <Badge isRead>{plugin.data.category}</Badge>
-                      </SplitItem>
-                    </Split>
-                    <div className="plugin-item-name">{plugin.data.title}</div>
-
-                    <div className="plugin-item-author">
-                      {plugin.data.authors}
-                    </div>
-                    <p
-                      style={{
-                        fontSize: "0.90rem",
-                      }}
-                    >
-                      {format(
-                        new Date(plugin.data.modification_date),
-                        "do MMMM, yyyy",
+                          <Icon
+                            style={{
+                              marginRight: "0.5em",
+                            }}
+                            status="success"
+                          >
+                            {" "}
+                            <CheckCircleIcon />
+                          </Icon>
+                          <div>Installed</div>
+                        </div>
+                      ) : (
+                        <Button
+                          icon={
+                            isStaff &&
+                            installingPlugin?.data.id === plugin.data.id &&
+                            handleInstallMutation.isPending && <Spin />
+                          }
+                          style={{
+                            marginTop: "1em",
+                          }}
+                          onClick={() => {
+                            setInstallingPlugin(plugin);
+                            if (isStaff) {
+                              handleSave(plugin);
+                            } else {
+                              setEnterAdminCred(!enterAdminCred);
+                            }
+                          }}
+                        >
+                          Install
+                        </Button>
                       )}
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "0.90rem",
-                        marginTop: "1em",
-                      }}
-                    >
-                      Version:{" "}
-                      <VersionSelect
-                        handlePluginVersion={(selectedVersion: any) => {
-                          setVersion({
-                            [plugin.data.id]: selectedVersion,
-                          });
-                        }}
-                        currentVersion={
-                          version[plugin.data.id] || plugin.data.version
-                        }
-                        plugins={plugin.data.plugins}
-                      />
-                    </p>
-
-                    <Button
-                      style={{
-                        marginTop: "1em",
-                      }}
-                      onClick={() => {
-                        setEnterAdminCred(!enterAdminCred);
-                        setInstallingPlugin(plugin);
-                      }}
-                    >
-                      Install
-                    </Button>
-                  </CardBody>
-                </Card>
-              </GridItem>
-            ))}
+                    </CardBody>
+                  </Card>
+                </GridItem>
+              );
+            })}
           </Grid>
         )}
       </PageSection>
@@ -399,9 +533,7 @@ const VersionSelect = ({
       ref={toggleRef}
       onClick={onToggleClick}
       isExpanded={isOpen}
-      style={{
-        width: "200px",
-      }}
+      style={{ width: "200px" }}
     >
       {currentVersion}
     </MenuToggle>
