@@ -175,7 +175,7 @@ const Store = () => {
     const client = ChrisAPIClient.getClient();
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
     const nonAdminCredentials = `Token ${client.auth.token}`;
-    const authorization = isStaff
+    const authorization = !isStaff
       ? `Basic ${adminCredentials}`
       : nonAdminCredentials;
 

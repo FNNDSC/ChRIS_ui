@@ -161,7 +161,7 @@ const PluginInstall = () => {
           mutate();
         }}
       >
-        Confirm
+        Click to Install
       </Button>
     </Card>
   );
@@ -193,7 +193,9 @@ const PluginInstall = () => {
         footerListVariants={ListVariant.inline}
         backgroundImgSrc="/assets/images/pfbg-icon.svg"
         textContent="You can now install plugins from our public servers with the click of a button. All you need are the credentials to your admin account."
-        loginTitle={!isStaff ? "Admin Login" : "Great! Let's install a plugin."}
+        loginTitle={
+          !isStaff ? "Admin Login" : "Great! Let's install the plugin."
+        }
         loginSubtitle={`${
           pluginName
             ? `You are trying to install ${pluginName} from one of our remote servers`
