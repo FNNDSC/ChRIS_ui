@@ -68,6 +68,10 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
       path: "/",
     });
 
+    removeCookie("isStaff", {
+      path: "/",
+    });
+
     setLogoutSuccess();
   };
 
