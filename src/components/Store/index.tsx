@@ -23,6 +23,8 @@ import {
   TextInputGroup,
   TextInputGroupMain,
   TextVariants,
+  HelperText,
+  HelperTextItem,
 } from "@patternfly/react-core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Spin, Typography, notification } from "antd";
@@ -44,7 +46,7 @@ const { Paragraph } = Typography;
 const Store = () => {
   const isStaff = useTypedSelector((state) => state.user.isStaff);
   const queryClient = useQueryClient();
-  const [_cookie, setCookie] = useCookies();
+  const [_cookie, setCookie, removeCookie] = useCookies();
   const [api, contextHolder] = notification.useNotification();
   const dispatch = useDispatch();
   const [version, setVersion] = useState<{
@@ -60,7 +62,8 @@ const Store = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [search, setSearch] = useState("");
-  console.log("IsStaff", isStaff);
+  const [configureStoreValue, setConfigureStoreValue] = useState("");
+  const [configureStore, setConfigureStore] = useState(false);
 
   useEffect(() => {
     document.title = "Store Catalog";
@@ -81,10 +84,14 @@ const Store = () => {
     if (cookies.get("admin_password")) {
       setPassword(cookies.get("admin_password"));
     }
+
+    if (cookies.get("configure_url")) {
+      setConfigureStoreValue(cookies.get("configure_url"));
+    }
   }, []);
 
   const fetchPlugins = async (search: string) => {
-    const url = import.meta.env.VITE_CHRIS_STORE_URL;
+    const url = configureStoreValue || import.meta.env.VITE_CHRIS_STORE_URL;
     if (!url) {
       throw new Error("No url found for a store");
     }
@@ -95,39 +102,16 @@ const Store = () => {
         limit: 1000,
         name: search.trim().toLowerCase(),
       });
-
       const pluginMetas = pluginMetaList.getItems() || [];
-
-      if (pluginMetas.length > 0) {
-        const newPluginPayload = await Promise.all(
-          pluginMetas.map(async (plugin) => {
-            const plugins = await plugin.getPlugins({
-              limit: 1000,
-            });
-            const pluginItems = plugins.getItems();
-            let version = "";
-            if (pluginItems && pluginItems.length > 0) {
-              version = pluginItems[0].data.version;
-            }
-            return {
-              data: {
-                ...plugin.data,
-                version,
-                plugins: pluginItems,
-              },
-            };
-          }),
-        );
-        return {
-          pluginMetaList: newPluginPayload,
-          client: client,
-        };
-      }
-
-      return {
-        pluginMetaList: [],
-        client: client,
-      };
+      const newPluginPayload = await Promise.all(
+        pluginMetas.map(async (plugin) => {
+          const plugins = await plugin.getPlugins({ limit: 1000 });
+          const pluginItems = plugins.getItems();
+          const version = pluginItems?.[0]?.data.version || "";
+          return { data: { ...plugin.data, version, plugins: pluginItems } };
+        }),
+      );
+      return { pluginMetaList: newPluginPayload, client };
     } catch (error) {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
@@ -154,24 +138,19 @@ const Store = () => {
           };
         }),
       );
-
       return newPluginPayload;
     }
   };
 
   const handleInstall = async (selectedPlugin: Plugin) => {
-    const adminURL = import.meta.env.VITE_CHRIS_UI_URL;
-    const url = adminURL.replace("/api/v1/", "/chris-admin/api/v1/");
-    if (!url) {
+    const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
+      "/api/v1/",
+      "/chris-admin/api/v1/",
+    );
+    if (!adminURL)
       throw new Error("Please provide a link to your chris-admin url");
-    }
-
-    if (!username) {
-      throw new Error("Please provide a username");
-    }
-    if (!password) {
-      throw new Error("Please enter a password");
-    }
+    if (!username || !password)
+      throw new Error("Please provide both username and password");
 
     const client = ChrisAPIClient.getClient();
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
@@ -188,7 +167,7 @@ const Store = () => {
     };
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(adminURL, {
         method: "POST",
         headers: {
           Authorization: authorization,
@@ -200,18 +179,10 @@ const Store = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const oneDayToSeconds = 24 * 60 * 60;
-      setCookie("admin_username", username, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
-
-      setCookie("admin_password", password, {
-        path: "/",
-        maxAge: oneDayToSeconds,
-      });
 
       const data = await response.json();
+      setCookie("admin_username", username, { path: "/", maxAge: 86400 });
+      setCookie("admin_password", password, { path: "/", maxAge: 86400 });
 
       return data;
     } catch (error) {
@@ -247,23 +218,13 @@ const Store = () => {
 
   const handleSave = (passedPlugin?: any) => {
     const plugin = passedPlugin || installingPlugin;
-    if (plugin) {
-      let selectedPlugin: Plugin | undefined = undefined;
-      if (!isEmpty(version)) {
-        const findPlugin = plugin.data.plugins.find((pluginMeta: any) => {
-          return pluginMeta.data.version === version[plugin.data.id];
-        });
-        if (findPlugin) {
-          selectedPlugin = findPlugin;
-        }
-      } else {
-        selectedPlugin = plugin.data.plugins[0];
-      }
+    const selectedPlugin = version[plugin?.data.id]
+      ? plugin?.data.plugins.find(
+          (p: any) => p.data.version === version[plugin.data.id],
+        )
+      : plugin?.data.plugins[0];
 
-      if (selectedPlugin) {
-        handleInstallMutation.mutate(selectedPlugin);
-      }
-    }
+    if (selectedPlugin) handleInstallMutation.mutate(selectedPlugin);
   };
 
   useEffect(() => {
@@ -320,7 +281,6 @@ const Store = () => {
               }}
             />
           </FormGroup>
-
           <ActionGroup>
             <Button
               onClick={() => {
@@ -349,25 +309,101 @@ const Store = () => {
         </Form>
       </Modal>
 
+      <Modal
+        isOpen={configureStore}
+        variant="small"
+        aria-label="Configure a store"
+        onClose={() => {
+          setConfigureStore(!configureStore);
+        }}
+      >
+        <Form isWidthLimited>
+          <FormGroup label="Enter the URL to your store" isRequired>
+            <TextInput
+              value={configureStoreValue}
+              onChange={(_e, value) => {
+                setConfigureStoreValue(value);
+              }}
+              name="configureStore"
+            />
+          </FormGroup>
+          <HelperText>
+            <HelperTextItem>
+              Example: http://rc-live.tch.harvard.edu:32222/api/v1/
+            </HelperTextItem>
+          </HelperText>
+          <ActionGroup>
+            <Button
+              onClick={() => {
+                setCookie("configure_url", configureStoreValue, {
+                  path: "/",
+                });
+                setConfigureStoreValue(configureStoreValue);
+                setConfigureStore(!configureStore);
+                queryClient.resetQueries({
+                  queryKey: ["storePlugins"],
+                });
+              }}
+            >
+              Confirm
+            </Button>
+            <Button
+              variant="link"
+              onClick={() => {
+                setConfigureStore(false);
+              }}
+            >
+              Cancel
+            </Button>
+          </ActionGroup>
+        </Form>
+      </Modal>
+
       <PageSection
         style={{
           marginBottom: "0",
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
-        <InfoIcon
-          title="Plugin Store"
-          p1={
-            <Paragraph>
-              <p>
-                This is a global store from where you can install your plugins.
-              </p>
-            </Paragraph>
-          }
-        />
-        <Text component={TextVariants.h6}>
-          You are currently viewing plugins fetched from{" "}
-          {import.meta.env.VITE_CHRIS_STORE_URL}
-        </Text>
+        <div>
+          <InfoIcon
+            title="Plugin Store"
+            p1={
+              <Paragraph>
+                <p>
+                  This is a global store from where you can install your
+                  plugins.
+                </p>
+              </Paragraph>
+            }
+          />
+          <Text component={TextVariants.h6}>
+            You are currently viewing plugins fetched from{" "}
+            {configureStoreValue || import.meta.env.VITE_CHRIS_STORE_URL}
+          </Text>
+        </div>
+
+        <Button
+          variant="secondary"
+          onClick={() => {
+            if (configureStoreValue) {
+              setConfigureStoreValue("");
+              removeCookie("configure_url", {
+                path: "/",
+              });
+              queryClient.resetQueries({
+                queryKey: ["storePlugins"],
+              });
+            } else {
+              setConfigureStore(!configureStore);
+            }
+          }}
+        >
+          {configureStoreValue
+            ? "Reset to the Default Store"
+            : "Configure your own store"}
+        </Button>
       </PageSection>
       <PageSection>
         <Grid>
