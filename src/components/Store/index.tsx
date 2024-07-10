@@ -402,7 +402,7 @@ const Store = () => {
         >
           {configureStoreValue
             ? "Reset to the Default Store"
-            : "Configure your own store"}
+            : "Connect to a different Store"}
         </Button>
       </PageSection>
       <PageSection>
