@@ -72,7 +72,7 @@ const Sidebar: React.FC<AllProps> = ({
             )}
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            {renderLink("/catalog", "Plugins", "catalog")}
+            {renderLink("/catalog", "Installed Plugins", "catalog")}
           </NavItem>
           <NavItem itemId="compute" isActive={sidebarActiveItem === "compute"}>
             {renderLink("/compute", "Compute", "compute")}
@@ -124,7 +124,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
             <Link to="/feeds?type=public">New and Existing Analyses</Link>
           </NavItem>
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            <Link to="/catalog">Plugins</Link>
+            <Link to="/catalog">Installed Plugins</Link>
           </NavItem>
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
             <Link to="/dataset">Volume View</Link>
