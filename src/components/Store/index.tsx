@@ -1,4 +1,4 @@
-import Client, { Plugin } from "@fnndsc/chrisapi";
+import Client, { Plugin, PluginMeta } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Badge,
@@ -40,6 +40,7 @@ import { InfoIcon, SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
 import WrapperConnect from "../Wrapper";
+import { fetchResource } from "../../api/common";
 
 const { Paragraph } = Typography;
 
@@ -98,11 +99,18 @@ const Store = () => {
     const client = new Client(url);
 
     try {
-      const pluginMetaList = await client.getPluginMetas({
-        limit: 1000,
+      const params = {
+        limit: 20,
+        offset: 0,
         name: search.trim().toLowerCase(),
-      });
-      const pluginMetas = pluginMetaList.getItems() || [];
+      };
+      const fn = client.getPluginMetas;
+      const boundFn = fn.bind(client);
+      const { resource: pluginMetas } = await fetchResource<PluginMeta>(
+        params,
+        boundFn,
+      );
+
       const newPluginPayload = await Promise.all(
         pluginMetas.map(async (plugin) => {
           const plugins = await plugin.getPlugins({ limit: 1000 });
@@ -120,11 +128,16 @@ const Store = () => {
 
   const fetchExistingPlugins = async () => {
     const existingClient = ChrisAPIClient.getClient();
-    const exisitingPluginMetaList = await existingClient.getPluginMetas({
-      limit: 1000,
-    });
-    const plugins = exisitingPluginMetaList.getItems();
-
+    const params = {
+      limit: 20,
+      offset: 0,
+    };
+    const fn = existingClient.getPluginMetas;
+    const boundFn = fn.bind(existingClient);
+    const { resource: plugins } = await fetchResource<PluginMeta>(
+      params,
+      boundFn,
+    );
     if (plugins) {
       const newPluginPayload = Promise.all(
         plugins.map(async (plugin) => {
@@ -133,7 +146,7 @@ const Store = () => {
           return {
             data: {
               ...plugin.data,
-              items: pluginItems.map((plugin: any) => plugin.data.version),
+              items: pluginItems?.map((plugin: any) => plugin.data.version),
             },
           };
         }),
