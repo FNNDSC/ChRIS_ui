@@ -60,6 +60,7 @@ const Store = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [search, setSearch] = useState("");
+  console.log("IsStaff", isStaff);
 
   useEffect(() => {
     document.title = "Store Catalog";
