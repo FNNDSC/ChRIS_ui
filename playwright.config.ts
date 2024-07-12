@@ -77,7 +77,7 @@ export default defineConfig({
     ...SAFARI_BROWSERS
   ],
   webServer: {
-    command: `env USE_BABEL_PLUGIN_ISTANBUL=y npm run ${UI_SCRIPT}`,
+    command: `env USE_BABEL_PLUGIN_ISTANBUL=y CI=true npm run ${UI_SCRIPT}`,
     url: `http://localhost:${UI_PORT}`,
     reuseExistingServer:true
   },
