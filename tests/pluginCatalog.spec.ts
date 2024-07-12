@@ -28,7 +28,7 @@ test.describe("Plugin catalog page", () => {
       await page.getByPlaceholder("Name").focus();
       await clipboard.ctrlV(page);
       await expect(page.getByPlaceholder("Name")).toHaveValue(
-        /https:\/\/.+\/api\/v1\/plugins\/\d+\//,
+        /http(s)?:\/\/.+\/api\/v1\/plugins\/\d+\//,
       );
     }
   });

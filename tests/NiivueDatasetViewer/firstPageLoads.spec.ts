@@ -18,11 +18,18 @@ async function gotoVolumeView({
   page,
   isMobile,
   browserName,
-}: { page: Page; isMobile: boolean; browserName: string }) {
-  if (isFirefoxInGitHubActions(browserName)) {
-    test.skip();
-  }
-
+  baseURL,
+}: {
+  page: Page;
+  isMobile: boolean;
+  browserName: string;
+  baseURL: string | undefined;
+}) {
+  test.skip(isFirefoxInGitHubActions(browserName), "GitHub Actions bug.");
+  test.skip(
+    baseURL?.includes("localhost") || false,
+    "Depends on global test server data.",
+  );
   await page.goto("/");
   if (isMobile) {
     await retryExpandSidebar(page);
