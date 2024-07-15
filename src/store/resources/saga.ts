@@ -1,61 +1,73 @@
-import { all, fork, takeEvery, put, delay } from "@redux-saga/core/effects";
-import { Task } from "redux-saga";
-import { IActionTypeParam } from "../../api/model";
-import { ResourceTypes, PluginStatusLabels } from "./types";
+import type {
+  PluginInstance,
+  FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
+} from "@fnndsc/chrisapi";
+import { all, delay, fork, put, takeEvery } from "@redux-saga/core/effects";
+import { inflate, inflateRaw } from "pako";
+import type { Task } from "redux-saga";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { fetchResource } from "../../api/common";
+import type { IActionTypeParam } from "../../api/model";
 import { PluginInstanceTypes } from "../pluginInstance/types";
 import {
-  FileBrowserPathFileList,
-  PluginInstance,
-  FileBrowserPath,
-} from "@fnndsc/chrisapi";
-import { inflate, inflateRaw } from "pako";
-import {
+  getPluginFilesError,
+  getPluginFilesSuccess,
   getPluginInstanceResourceSuccess,
+  getPluginInstanceStatusSuccess,
   stopFetchingPluginResources,
   stopFetchingStatusResources,
-  getPluginFilesSuccess,
-  getPluginFilesError,
-  getPluginInstanceStatusSuccess,
 } from "./actions";
-import { fetchResource } from "../../api/common";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import {
+  type FetchFileResult,
+  type PluginStatusLabels,
+  ResourceTypes,
+} from "./types";
 
-export function* getPluginFiles(plugin: PluginInstance) {
-  const params = { limit: 200, offset: 0 };
-  const fn = plugin.getFiles;
-  const boundFn = fn.bind(plugin);
-  const { resource: files } = yield fetchResource<any>(params, boundFn);
-  return files;
-}
-
-export const fetchFilesFromAPath = async (path: string) => {
+export const fetchFilesFromAPath = async (
+  path: string,
+): Promise<FetchFileResult> => {
   const client = ChrisAPIClient.getClient();
-  const foldersList: FileBrowserPathFileList = await client.getFileBrowserPaths(
-    {
-      path,
-    },
-  );
-  let folders: string[] = [];
-  const pathList: FileBrowserPath = await client.getFileBrowserPath(path);
-  const fetchFileFn = pathList.getFiles;
-  const boundFetchFileFn = fetchFileFn.bind(pathList);
-  const params = { limit: 100, offset: 0 };
-  let files: any[] = [];
+  const foldersList = await client.getFileBrowserFolders({
+    path,
+  });
 
-  const { resource } = await fetchResource(params, boundFetchFileFn);
-  files = resource;
+  const folders = foldersList.getItems();
 
-  if (
-    foldersList.data &&
-    foldersList.data[0].subfolders &&
-    foldersList.data[0].subfolders.length > 0
-  ) {
-    folders = JSON.parse(foldersList.data[0].subfolders);
+  if (folders) {
+    const folder = folders[0];
+    if (folder) {
+      const pagination = { limit: 100, offset: 0 };
+      const fetchChildren = folder.getChildren;
+      const boundChildren = fetchChildren.bind(folder);
+      const { resource: children } = await fetchResource(
+        pagination,
+        boundChildren,
+      );
+      const linkFilesFn = folder.getLinkFiles;
+      const boundLinkFilesFn = linkFilesFn.bind(folder);
+      const { resource: linkFiles } =
+        await fetchResource<FileBrowserFolderLinkFile>(
+          pagination,
+          boundLinkFilesFn,
+        );
+      const filesFn = folder.getFiles;
+      const boundFilesFn = filesFn.bind(folder);
+      const { resource: folderFiles } =
+        await fetchResource<FileBrowserFolderFile>(pagination, boundFilesFn);
+
+      return {
+        folderFiles: folderFiles,
+        linkFiles: linkFiles,
+        children: children,
+      };
+    }
   }
 
   return {
-    files,
-    folders,
+    folderFiles: [],
+    linkFiles: [],
+    children: [],
   };
 };
 
@@ -63,11 +75,14 @@ function* fetchPluginFiles(action: IActionTypeParam) {
   const { id, path } = action.payload;
 
   try {
-    const { files, folders } = yield fetchFilesFromAPath(path);
+    const { folderFiles, linkFiles, children }: FetchFileResult =
+      yield fetchFilesFromAPath(path);
+
     const payload = {
       id,
-      files,
-      folders,
+      folderFiles,
+      linkFiles,
+      children,
       path,
     };
     yield put(getPluginFilesSuccess(payload));
@@ -187,7 +202,7 @@ function cancelStatusPolling(task: Task) {
 }
 
 function* watchCancelPoll(pollTask: Task) {
-  yield takeEvery(ResourceTypes.STOP_FETCHING_PLUGIN_RESOURCES, function () {
+  yield takeEvery(ResourceTypes.STOP_FETCHING_PLUGIN_RESOURCES, () => {
     cancelPolling(pollTask);
   });
 }
@@ -195,7 +210,7 @@ function* watchCancelPoll(pollTask: Task) {
 function* watchStatusCancelPoll(pollTask: PollTask) {
   yield takeEvery(
     ResourceTypes.STOP_FETCHING_STATUS_RESOURCES,
-    function (action: IActionTypeParam) {
+    (action: IActionTypeParam) => {
       const id = action.payload;
       const taskToCancel = pollTask[id];
       cancelStatusPolling(taskToCancel);
