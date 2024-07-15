@@ -1,5 +1,5 @@
-import { Reducer } from "redux";
-import { IResourceState, ResourceTypes } from "./types";
+import type { Reducer } from "redux";
+import { type IResourceState, ResourceTypes } from "./types";
 import { getStatusLabels } from "./utils";
 
 export const initialState: IResourceState = {
@@ -10,7 +10,7 @@ export const initialState: IResourceState = {
   loading: false,
 };
 
-const reducer: Reducer<IResourceState> = (
+const reducer: Reducer<IResourceState, typeof ResourceTypes> = (
   state = initialState,
   action: typeof ResourceTypes,
 ) => {
@@ -58,15 +58,16 @@ const reducer: Reducer<IResourceState> = (
     }
 
     case ResourceTypes.GET_PLUGIN_FILES_SUCCESS: {
-      const { id, files, folders, path } = action.payload;
+      const { id, folderFiles, linkFiles, children, path } = action.payload;
 
       return {
         ...state,
         loading: false,
         pluginFiles: {
           [id]: {
-            files,
-            folders,
+            folderFiles,
+            children,
+            linkFiles,
             error: "",
             path,
           },
@@ -82,7 +83,7 @@ const reducer: Reducer<IResourceState> = (
         pluginFiles: {
           ...state.pluginFiles,
           [id]: {
-            files: [],
+            ...state.pluginFiles[id],
             error,
           },
         },
