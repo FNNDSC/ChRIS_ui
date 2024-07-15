@@ -5,7 +5,7 @@ import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
-import LibraryCopyPage from "./components/LibraryCopy";
+import LibraryCopyPage from "./components/NewLibrary";
 import LibrarySearch from "./components/LibrarySearch";
 import Login from "./components/Login";
 import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
