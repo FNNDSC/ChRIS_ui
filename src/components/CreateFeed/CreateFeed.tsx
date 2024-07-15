@@ -1,4 +1,4 @@
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import {
   Button,
   Modal,
@@ -71,14 +71,13 @@ export default function CreateFeed() {
     router.actions.clearFeedData();
   };
 
-  const enableSave =
+  const enableSave = !!(
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
     Object.keys(requiredInput).length > 0 ||
     Object.keys(dropdownInput).length > 0 ||
     pluginMeta !== undefined
-      ? true
-      : false;
+  );
 
   const handleSave = async () => {
     setFeedProcessing(true);
@@ -120,10 +119,16 @@ export default function CreateFeed() {
           name: state.data.feedName,
         });
 
-        // Set analysis tags
-        for (const tag of state.data.tags) {
+        /**
+         * @deprecated
+         * The following code is deprecated and should not be used.
+         * It sets analysis tags on the feed.
+        
+          
+          for (const tag of state.data.tags) {
           feed.tagFeed(tag.data.id);
-        }
+           }
+          */
 
         // Set analysis description
         const note = await feed.getNote();
@@ -200,11 +205,8 @@ export default function CreateFeed() {
     [handleDispatch],
   );
 
-  const allRequiredFieldsNotEmpty: boolean = selectedConfig.includes(
-    "fs_plugin",
-  )
-    ? true
-    : false;
+  const allRequiredFieldsNotEmpty: boolean =
+    !!selectedConfig.includes("fs_plugin");
 
   const filesChoosen = data.chrisFiles.length > 0 || data.localFiles.length > 0;
 
@@ -256,7 +258,7 @@ export default function CreateFeed() {
             id={1}
             name="Basic-Information"
             footer={{
-              isNextDisabled: data.feedName ? false : true,
+              isNextDisabled: !data.feedName,
               isBackDisabled: true,
             }}
           >
@@ -266,17 +268,14 @@ export default function CreateFeed() {
             id={2}
             name="Analysis Data Selection"
             footer={{
-              isNextDisabled:
-                filesChoosen || allRequiredFieldsNotEmpty ? false : true,
+              isNextDisabled: !(filesChoosen || allRequiredFieldsNotEmpty),
             }}
           >
             {withSelectionAlert(
               <ChooseConfig
                 user={user}
                 handleFileUpload={handleChoseFilesClick}
-                showAlert={
-                  filesChoosen || allRequiredFieldsNotEmpty ? false : true
-                }
+                showAlert={!(filesChoosen || allRequiredFieldsNotEmpty)}
               />,
             )}
           </WizardStep>
@@ -289,7 +288,7 @@ export default function CreateFeed() {
             footer={{
               onNext: handleSave,
               nextButtonText: "Create Analysis",
-              isNextDisabled: !enableSave || feedProcessing ? true : false,
+              isNextDisabled: !!(!enableSave || feedProcessing),
             }}
           >
             <Review handleSave={handleSave} />
