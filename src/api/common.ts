@@ -1,9 +1,9 @@
 import * as React from "react";
-import axios, { AxiosProgressEvent } from "axios";
+import axios, { type AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
-import {
+import type {
   Pipeline,
-  type PipelineList,
+  PipelineList,
   PluginPiping,
   Feed,
   Plugin,
@@ -61,7 +61,7 @@ function useAsync(initialState?: any) {
     (promise: any) => {
       if (!promise || !promise.then) {
         throw new Error(
-          `The argument passed to useAsync().run must be a promise`,
+          "The argument passed to useAsync().run must be a promise",
         );
       }
       safeSetState({ status: "pending" });
@@ -247,8 +247,9 @@ export const generatePipelineWithName = async (pipelineName: string) => {
     name: pipelineName,
   });
   const pipelineInstanceId = pipelineInstanceList.data[0].id;
-  const pipelineInstance: Pipeline =
-    await client.getPipeline(pipelineInstanceId);
+  const pipelineInstance: Pipeline = (await client.getPipeline(
+    pipelineInstanceId,
+  )) as Pipeline;
   const resources = await fetchResources(pipelineInstance);
   return {
     resources,
@@ -400,7 +401,7 @@ export const uploadWrapper = (
   token: string,
   onUploadProgress?: (file: any, progressEvent: AxiosProgressEvent) => void,
 ) => {
-  const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
+  const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
   return localFiles.map((file) => {
     const onUploadProgressWrap = (progressEvent: AxiosProgressEvent) => {
       onUploadProgress?.(file, progressEvent);
