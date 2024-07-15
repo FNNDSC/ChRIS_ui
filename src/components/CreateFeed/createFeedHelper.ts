@@ -1,4 +1,4 @@
-import {
+import type {
   Feed,
   Plugin,
   PluginInstance,
@@ -10,10 +10,10 @@ import {
   limitConcurrency,
   uploadWrapper,
 } from "../../api/common";
-import { InputType } from "../AddNode/types";
+import type { InputType } from "../AddNode/types";
 import { unpackParametersIntoObject } from "../AddNode/utils";
-import { PipelineState } from "../PipelinesCopy/context";
-import { CreateFeedData } from "./types/feed";
+import type { PipelineState } from "../PipelinesCopy/context";
+import type { CreateFeedData } from "./types/feed";
 
 export const createFeed = async (
   data: CreateFeedData,
@@ -24,16 +24,16 @@ export const createFeed = async (
 ) => {
   const { chrisFiles, localFiles } = data;
 
-  let dirpath: string[] = [];
+  const dirpath: string[] = [];
   let feed: Feed;
 
   if (selectedConfig.includes("swift_storage")) {
-    dirpath = chrisFiles.map((path: string) => path);
+    dirpath.push(...chrisFiles);
   }
 
   if (selectedConfig.includes("local_select")) {
     const generateUnique = generatePathForLocalFile(data);
-    const path = `${username}/uploads/${generateUnique}`;
+    const path = `home/${username}/uploads/${generateUnique}`;
     dirpath.push(path);
 
     try {
@@ -46,53 +46,55 @@ export const createFeed = async (
 
   try {
     const client = ChrisAPIClient.getClient();
+
     const dircopy = await getPlugin("pl-dircopy");
 
-    if (dircopy) {
-      const createdInstance = await client.createPluginInstance(
-        dircopy.data.id,
-        {
-          //@ts-ignore
-          dir: dirpath.join(","),
-        },
-      );
-      const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
-      const id = pipelineToAdd?.data.id;
-      const resources = selectedPipeline?.[id];
-      if (createdInstance) {
-        if (resources) {
-          const { parameters } = resources;
+    if (!dircopy) {
+      throw new Error("Failed to find pl-dircopy. Is pl-dircopy installed? ");
+    }
 
-          const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
+    const createdInstance = await client.createPluginInstance(dircopy.data.id, {
+      //@ts-ignore
+      dir: dirpath.join(","),
+    });
 
-          for (const node of nodes_info) {
-            // Set compute info
-            const activeNode = computeInfo?.[id][node.piping_id];
-            // Set Title
-            const titleSet = titleInfo?.[id][node.piping_id];
-
-            if (activeNode) {
-              const compute_node = activeNode.currentlySelected;
-              node.compute_resource_name = compute_node;
-            }
-
-            if (titleSet) {
-              node.title = titleSet;
-            }
-          }
-
-          await client.createWorkflow(id, {
-            previous_plugin_inst_id: createdInstance.data.id,
-            nodes_info: JSON.stringify(nodes_info),
-          });
-        }
-
-        feed = (await createdInstance.getFeed()) as Feed;
-        return feed;
-      }
+    if (!createdInstance) {
       throw new Error("Failed to create a dircopy instance");
     }
-    return undefined;
+
+    const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
+    const id = pipelineToAdd?.data.id;
+    const resources = selectedPipeline?.[id];
+
+    if (resources) {
+      const { parameters } = resources;
+
+      const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
+
+      for (const node of nodes_info) {
+        // Set compute info
+        const activeNode = computeInfo?.[id][node.piping_id];
+        // Set Title
+        const titleSet = titleInfo?.[id][node.piping_id];
+
+        if (activeNode) {
+          const compute_node = activeNode.currentlySelected;
+          node.compute_resource_name = compute_node;
+        }
+
+        if (titleSet) {
+          node.title = titleSet;
+        }
+      }
+
+      await client.createWorkflow(id, {
+        previous_plugin_inst_id: createdInstance.data.id,
+        nodes_info: JSON.stringify(nodes_info),
+      });
+    }
+
+    feed = (await createdInstance.getFeed()) as Feed;
+    return feed;
   } catch (e: any) {
     // biome-ignore lint/complexity/noUselessCatch: <explanation>
     throw e;
