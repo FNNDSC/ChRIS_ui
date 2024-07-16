@@ -27,6 +27,7 @@ export const downloadPublicFile = async (file: FileBrowserFolderFile) => {
 };
 
 export const downloadFile = async (file: FileBrowserFolderFile) => {
+  console.log("File", file);
   const fileName = getFileName(file.data.fname);
   const client = ChrisAPIClient.getClient();
   const response = await client.createDownloadToken();
