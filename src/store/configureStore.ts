@@ -5,13 +5,13 @@
  *   Author:         ChRIS UI
  */
 import {
-  Store,
+  type Store,
   legacy_createStore as createStore,
   applyMiddleware,
 } from "redux";
 import { createLogger } from "redux-logger";
 import createSagaMiddleware from "redux-saga";
-import { RootState } from "./root/applicationState";
+import type { RootState } from "./root/applicationState";
 import rootReducer from "./root/rootReducer";
 import { rootSaga } from "./root/rootSaga";
 import { composeWithDevTools } from "redux-devtools-extension";

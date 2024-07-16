@@ -131,7 +131,9 @@ function generatePathForLocalFile(data: CreateFeedData) {
   return `${normalizedFeedName}-upload-${randomCode}`;
 }
 
-export const getPlugin = async (pluginName: string) => {
+export const getPlugin = async (
+  pluginName: string,
+): Promise<Plugin | undefined> => {
   const client = ChrisAPIClient.getClient();
 
   try {
