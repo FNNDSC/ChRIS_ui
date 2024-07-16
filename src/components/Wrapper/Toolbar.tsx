@@ -1,29 +1,30 @@
-import * as React from "react";
-import { connect } from "react-redux";
-import { useNavigate, useLocation } from "react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { Dispatch } from "redux";
-import FeedDetails from "../FeedDetails";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { IUserState } from "../../store/user/types";
-import { onDropdownSelect } from "../../store/ui/actions";
-import { setLogoutSuccess } from "../../store/user/actions";
 import {
+  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
   MenuToggle,
+  Switch,
   Toolbar,
   ToolbarGroup,
   ToolbarItem,
-  Switch,
-  Button,
 } from "@patternfly/react-core";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { ThemeContext } from "../DarkTheme/useTheme";
+import { useQueryClient } from "@tanstack/react-query";
+import * as React from "react";
 import { useCookies } from "react-cookie";
+import { connect } from "react-redux";
+import { useLocation, useNavigate } from "react-router";
+import type { Dispatch } from "redux";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
+import type { ApplicationState } from "../../store/root/applicationState";
+import { onDropdownSelect } from "../../store/ui/actions";
+import type { IUiState } from "../../store/ui/types";
+import { setLogoutSuccess } from "../../store/user/actions";
+import type { IUserState } from "../../store/user/types";
+import { ThemeContext } from "../DarkTheme/useTheme";
+import FeedDetails from "../FeedDetails";
+import CartNotify from "./CartNotify";
 
 interface IPropsFromDispatch {
   onDropdownSelect: typeof onDropdownSelect;
@@ -98,6 +99,9 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
         {props.showToolbar && !fullScreen && <FeedDetails />}
       </ToolbarGroup>
       <ToolbarGroup className="authentication">
+        <ToolbarItem>
+          <CartNotify />
+        </ToolbarItem>
         <ToolbarItem>
           <Switch
             id="simple switch"

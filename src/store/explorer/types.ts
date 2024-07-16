@@ -4,7 +4,7 @@
  *  Author:          ChRIS UI
  *  Notes:           Work in progres ...
  */
-import { FeedFile } from "@fnndsc/chrisapi";
+import type { FeedFile } from "@fnndsc/chrisapi";
 import keyMirror from "keymirror";
 
 export type Key = string | number;

@@ -5,14 +5,15 @@ import { useContext } from "react";
 import { CookiesProvider } from "react-cookie";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-import { Store } from "redux";
+import type { Store } from "redux";
 //@ts-ignore
 import useAckee from "use-ackee";
 import "./app.css";
 import { ThemeContext } from "./components/DarkTheme/useTheme";
 import "./components/Feeds/Feeds.css";
 import Routes from "./routes";
-import { RootState } from "./store/root/applicationState";
+import type { RootState } from "./store/root/applicationState";
+import Cart from "./components/NewLibrary/components/Cart";
 
 interface AllProps {
   store: Store<RootState>;
@@ -57,6 +58,7 @@ function App(props: AllProps) {
                     : theme.defaultAlgorithm,
                 }}
               >
+                <Cart />
                 <Routes />
               </ConfigProvider>
             </QueryClientProvider>

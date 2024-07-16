@@ -14,6 +14,7 @@ import { EmptyStateComponent, SpinContainer, InfoIcon } from "../Common";
 import WrapperConnect from "../Wrapper";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
+import Cart from "./components/Cart";
 
 const { Paragraph } = Typography;
 
