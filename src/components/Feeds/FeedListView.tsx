@@ -13,7 +13,7 @@ import {
   Skeleton,
   ToggleGroup,
   ToggleGroupItem,
-  ToggleGroupItemProps,
+  type ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -379,7 +379,7 @@ function TableRow({
 
   const feedProgressText = feedResources[id]?.details.feedProgressText;
 
-  let threshold = Infinity;
+  let threshold = Number.POSITIVE_INFINITY;
 
   // If error in a feed => reflect in progres
 

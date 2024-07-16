@@ -26,6 +26,7 @@ import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 import {
   DownloadIcon,
+  ExternalLinkSquareAltIcon,
   FileIcon,
   FileImageIcon,
   FilePdfIcon,
@@ -331,6 +332,12 @@ const getIcon = (type: string) => {
       return <FileTxtIcon />;
     case "pdf":
       return <FilePdfIcon />;
+
+    case "link":
+      return <ExternalLinkSquareAltIcon />;
+    case "folder":
+      return <FolderIcon />;
+
     default:
       return <FileIcon />;
   }
