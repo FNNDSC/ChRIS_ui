@@ -3,24 +3,26 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Grid } from "@patternfly/react-core";
+import { Button, Grid, PageSection } from "@patternfly/react-core";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { Alert, Typography } from "antd";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { EmptyStateComponent } from "../Common";
+import { EmptyStateComponent, SpinContainer, InfoIcon } from "../Common";
 import WrapperConnect from "../Wrapper";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
+
+const { Paragraph } = Typography;
 
 const NewLibrary = () => {
   async function fetchFolders(computedPath: string, pageNumber: number) {
     const client = ChrisAPIClient.getClient();
     await client.setUrls();
     const pagination = {
-      limit: 30,
+      limit: pageNumber * 50,
       offset: 0,
     };
 
@@ -80,15 +82,9 @@ const NewLibrary = () => {
       throw e;
     }
   }
-
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
   const [pageNumber, setPageNumber] = useState(1);
-  const [cardLayout, setCardLayout] = useState(true);
-
-  const [uploadFileModal, setUploadFileModal] = useState(false);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
@@ -103,10 +99,6 @@ const NewLibrary = () => {
     const url = `${decodedPath}/${folder}`;
     navigate(url);
   }, 500);
-
-  const handleBreadcrumbClick = (path: string) => {
-    navigate(`/library${path}`);
-  };
 
   const handlePagination = () => {
     setPageNumber((prevState) => prevState + 1);
@@ -142,23 +134,74 @@ const NewLibrary = () => {
 
   return (
     <WrapperConnect>
-      {data ? (
-        <Grid hasGutter={true}>
-          <FolderCard
-            folders={data.subFoldersMap}
-            handleFolderClick={handleFolderClick}
-            computedPath={computedPath}
-            pagination={data.foldersPagination}
-          />
-          <LinkCard
-            linkFiles={data.linkFilesMap}
-            pagination={data.linksPagination}
-          />
-          <FilesCard files={data.filesMap} pagination={data.filesPagination} />
-        </Grid>
-      ) : (
-        <EmptyStateComponent title="No data fetched yet..." />
-      )}
+      <PageSection>
+        <InfoIcon
+          title="Your Library"
+          p1={
+            <Paragraph>
+              <p>
+                The Library provides a card-focused mechanism for browsing,
+                viewing, and interacting with data in the ChRIS system. A card
+                is analogous to a file or folder in a convention filesystem, and
+                multiple cards can be grouped into a shopping cart to allow for
+                bulk operations. Simply long press and release a card to add it
+                to the cart. Bulk operations include: <b>Download</b> (which
+                will copy all cart contents to your local filesystem),{" "}
+                <b>Delete</b> (which will permanently remove all data in the
+                cards from ChRIS), and <b>Create</b> which will seed a new
+                analysis with a new root node containing each card as a
+                subdirectory.
+              </p>
+            </Paragraph>
+          }
+        />
+      </PageSection>
+
+      <PageSection>
+        {isLoading && <SpinContainer title="Fetching Resources..." />}
+        {isError && <Alert type="error" description={error.message} />}
+        {data &&
+          data.subFoldersMap.length === 0 &&
+          data.linkFilesMap.length === 0 &&
+          data.filesMap.length === 0 && (
+            <EmptyStateComponent title="No data found under this path..." />
+          )}
+        {data ? (
+          <Grid hasGutter={true}>
+            <FolderCard
+              folders={data.subFoldersMap}
+              handleFolderClick={handleFolderClick}
+              computedPath={computedPath}
+              pagination={data.foldersPagination}
+            />
+            <LinkCard
+              linkFiles={data.linkFilesMap}
+              pagination={data.linksPagination}
+            />
+            <FilesCard
+              files={data.filesMap}
+              pagination={data.filesPagination}
+            />
+            {fetchMore && !isLoading && (
+              <Button onClick={handlePagination} variant="link">
+                {" "}
+                Load more data...
+              </Button>
+            )}
+            {
+              // This code needs to be revisited
+              <div
+                style={{
+                  height: "10px",
+                }}
+                ref={observerTarget}
+              />
+            }
+          </Grid>
+        ) : (
+          <EmptyStateComponent title="No data fetched yet..." />
+        )}
+      </PageSection>
     </WrapperConnect>
   );
 };
