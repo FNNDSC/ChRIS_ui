@@ -4,6 +4,8 @@ import { type ICartState, ICartActionTypes } from "./types";
 const initialState: ICartState = {
   selectedPaths: [],
   openCart: false,
+  folderDownloadStatus: {},
+  fileDownloadStatus: {},
 };
 
 const reducer: Reducer<ICartState> = (
@@ -19,7 +21,7 @@ const reducer: Reducer<ICartState> = (
     }
     case ICartActionTypes.CLEAR_SELECTED_PATHS: {
       const newSelectedPaths = state.selectedPaths.filter((pathObj) => {
-        return pathObj.path !== action.payload.path;
+        return pathObj.path !== action.payload;
       });
       return {
         ...state,

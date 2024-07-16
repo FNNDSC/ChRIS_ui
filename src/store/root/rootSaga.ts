@@ -11,7 +11,13 @@ import { all, fork } from "redux-saga/effects";
 import { pluginSaga } from "../plugin/saga";
 import { pluginInstanceSaga } from "../pluginInstance/saga";
 import { resourceSaga } from "../resources/saga";
+import { cartSaga } from "../cart/saga";
 
 export function* rootSaga() {
-  yield all([fork(pluginSaga), fork(pluginInstanceSaga), fork(resourceSaga)]);
+  yield all([
+    fork(pluginSaga),
+    fork(pluginInstanceSaga),
+    fork(resourceSaga),
+    fork(cartSaga),
+  ]);
 }
