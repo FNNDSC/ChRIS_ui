@@ -1,14 +1,14 @@
-import * as React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { IUserState } from "../../store/user/types";
-import { onSidebarToggle, setIsNavOpen } from "../../store/ui/actions";
 import { Page } from "@patternfly/react-core";
+import type * as React from "react";
+import { connect } from "react-redux";
+import type { Dispatch } from "redux";
+import { useTypedSelector } from "../../store/hooks";
+import type { ApplicationState } from "../../store/root/applicationState";
+import { onSidebarToggle, setIsNavOpen } from "../../store/ui/actions";
+import type { IUiState } from "../../store/ui/types";
+import type { IUserState } from "../../store/user/types";
 import Header from "./Header";
 import Sidebar, { AnonSidebar } from "./Sidebar";
-import { useTypedSelector } from "../../store/hooks";
 import "./wrapper.css";
 
 interface IOtherProps {

@@ -1,7 +1,7 @@
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { all, fork, put, takeEvery } from "@redux-saga/core/effects";
 import { catchError, fetchResource } from "../../api/common";
-import { IActionTypeParam } from "../../api/model";
+import type { IActionTypeParam } from "../../api/model";
 import { getPluginInstanceStatusRequest } from "../resources/actions";
 import {
   addNodeSuccess,
