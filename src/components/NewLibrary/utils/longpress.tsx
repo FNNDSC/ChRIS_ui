@@ -51,7 +51,7 @@ export default function useLongPress() {
           setSelectFolder({
             path: pathForCart,
             type,
-            userSelection: payload,
+            payload,
           }),
         );
       } else {
@@ -66,7 +66,7 @@ export default function useLongPress() {
           setSelectFolder({
             path: pathForCart,
             type,
-            userSelection: payload,
+            payload,
           }),
         );
       } else {
