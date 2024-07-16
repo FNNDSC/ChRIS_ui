@@ -1,5 +1,9 @@
-import { Reducer } from "redux";
-import { DrawerActionTypes, IDrawerState, DrawerPayloadType } from "./types";
+import type { Reducer } from "redux";
+import {
+  DrawerActionTypes,
+  type DrawerPayloadType,
+  type IDrawerState,
+} from "./types";
 
 const initialState: IDrawerState = {
   graph: {

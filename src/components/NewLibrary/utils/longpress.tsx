@@ -1,10 +1,14 @@
-import { useState, useRef, useContext } from "react";
-import { LibraryContext } from "../context";
-import { setSelectFolder, clearSelectFolder } from "../context/actions";
+import { useState, useRef } from "react";
+import {
+  setSelectFolder,
+  clearSelectFolder,
+} from "../../../store/cart/actionts";
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
 } from "@fnndsc/chrisapi";
+import { useTypedSelector } from "../../../store/hooks";
+import { useDispatch } from "react-redux";
 
 export function elipses(str: string, len: number) {
   if (str.length <= len) return str;
@@ -12,8 +16,9 @@ export function elipses(str: string, len: number) {
 }
 
 export default function useLongPress() {
+  const dispatch = useDispatch();
   const [action, setAction] = useState<string>();
-  const { state, dispatch } = useContext(LibraryContext);
+  const state = useTypedSelector((state) => state.cart);
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>();
   const isLongPress = useRef<boolean>();
 
@@ -42,7 +47,13 @@ export default function useLongPress() {
 
     if (isLongPress.current) {
       if (isExist === -1) {
-        dispatch(setSelectFolder(pathForCart, type, payload));
+        dispatch(
+          setSelectFolder({
+            path: pathForCart,
+            type,
+            userSelection: payload,
+          }),
+        );
       } else {
         dispatch(clearSelectFolder(pathForCart));
       }
@@ -51,7 +62,13 @@ export default function useLongPress() {
 
     if (e.ctrlKey || e.shiftKey || e.metaKey) {
       if (isExist === -1) {
-        dispatch(setSelectFolder(pathForCart, type, payload));
+        dispatch(
+          setSelectFolder({
+            path: pathForCart,
+            type,
+            userSelection: payload,
+          }),
+        );
       } else {
         dispatch(clearSelectFolder(pathForCart));
       }
