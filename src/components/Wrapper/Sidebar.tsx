@@ -1,21 +1,21 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import {
-  PageSidebar,
   Nav,
+  NavGroup,
   NavItem,
   NavList,
-  NavGroup,
+  PageSidebar,
   PageSidebarBody,
 } from "@patternfly/react-core";
-import { setSidebarActive } from "../../store/ui/actions";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { IUserState } from "../../store/user/types";
-import { useTypedSelector } from "../../store/hooks";
 import { isEmpty } from "lodash";
+import type * as React from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import type { Dispatch } from "redux";
+import { useTypedSelector } from "../../store/hooks";
+import type { ApplicationState } from "../../store/root/applicationState";
+import { setSidebarActive } from "../../store/ui/actions";
+import type { IUiState } from "../../store/ui/types";
+import type { IUserState } from "../../store/user/types";
 
 type ReduxProp = {
   setSidebarActive: (active: { activeItem: string }) => void;
