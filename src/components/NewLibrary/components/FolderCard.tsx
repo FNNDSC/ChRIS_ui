@@ -93,7 +93,7 @@ export const SubFolderCard = ({
           }}
           key="action"
         >
-          Zip and Download
+          Share
         </DropdownItem>
       </DropdownList>
     </Dropdown>
