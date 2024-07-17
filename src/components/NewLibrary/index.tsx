@@ -10,11 +10,11 @@ import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { EmptyStateComponent, SpinContainer, InfoIcon } from "../Common";
+import { EmptyStateComponent, InfoIcon, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
-import Cart from "./components/Cart";
+import Operations from "./components/Operations";
 
 const { Paragraph } = Typography;
 
@@ -156,9 +156,12 @@ const NewLibrary = () => {
             </Paragraph>
           }
         />
+        <div style={{ marginTop: "1em" }}>
+          <Operations />
+        </div>
       </PageSection>
 
-      <PageSection>
+      <PageSection style={{ paddingBlockStart: "0" }}>
         {isLoading && <SpinContainer title="Fetching Resources..." />}
         {isError && <Alert type="error" description={error.message} />}
         {data &&

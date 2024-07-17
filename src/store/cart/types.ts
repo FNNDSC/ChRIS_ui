@@ -10,6 +10,23 @@ export interface SelectionPayload {
   payload: FileBrowserFolderFile | FileBrowserFolder;
 }
 
+export interface FolderUpload {
+  [key: string]: {
+    currentStep: string;
+    done: number;
+    total: number;
+    controller: AbortController;
+  };
+}
+
+export interface FileUpload {
+  [key: string]: {
+    currentStep: string;
+    progress: number;
+    controller: AbortController;
+  };
+}
+
 export interface ICartState {
   selectedPaths: SelectionPayload[];
   openCart: boolean;
@@ -19,6 +36,14 @@ export interface ICartState {
   fileDownloadStatus: {
     [key: string]: string;
   };
+  folderUploadStatus: FolderUpload;
+  fileUploadStatus: FileUpload;
+}
+
+export interface UploadPayload {
+  files: File[];
+  isFolder: boolean;
+  currentPath: string;
 }
 
 export const ICartActionTypes = keyMirror({
@@ -29,4 +54,7 @@ export const ICartActionTypes = keyMirror({
   START_DOWNLOAD: null,
   SET_FILE_DOWNLOAD_STATUS: null,
   SET_FOLDER_DOWNLOAD_STATUS: null,
+  START_UPLOAD: null,
+  SET_FILE_UPLOAD_STATUS: null,
+  SET_FOLDER_UPLOAD_STATUS: null,
 });

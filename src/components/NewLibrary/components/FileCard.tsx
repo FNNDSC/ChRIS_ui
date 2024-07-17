@@ -141,6 +141,14 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
       >
         Download
       </DropdownItem>
+      <DropdownItem
+        onClick={(e) => {
+          console.log("Share", e);
+        }}
+        key="action"
+      >
+        Share
+      </DropdownItem>
     </>
   );
 
