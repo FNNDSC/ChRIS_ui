@@ -1,19 +1,22 @@
 import type {
-  FileBrowserFolderFile,
-  FileBrowserFolder,
-  PipelineList,
-  Pipeline,
   Feed,
+  FileBrowserFolder,
+  FileBrowserFolderFile,
+  FileBrowserFolderFileList,
+  ItemResource,
+  Pipeline,
+  PipelineList,
   Plugin,
   PluginInstance,
+  PluginInstanceList,
 } from "@fnndsc/chrisapi";
 import { all, fork, put, takeEvery } from "redux-saga/effects";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import type { IActionTypeParam } from "../../api/model";
+import { getPlugin } from "../../components/CreateFeed/createFeedHelper";
 import { downloadFile } from "../hooks";
 import { setFileDownloadStatus, setFolderDownloadStatus } from "./actionts";
 import { ICartActionTypes, type SelectionPayload } from "./types";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { getPlugin } from "../../components/CreateFeed/createFeedHelper";
 
 function* downloadFolder(payload: FileBrowserFolder) {
   const path = payload.data.path;
@@ -70,6 +73,47 @@ function* downloadFolder(payload: FileBrowserFolder) {
 
   if (!workflow) {
     throw new Error("Failed to create a workflow");
+  }
+
+  const pluginInstancesList: PluginInstanceList =
+    yield workflow.getPluginInstances();
+
+  const pluginInstances = pluginInstancesList.getItems() as PluginInstance[];
+  if (pluginInstances.length > 0) {
+    const zipInstance = pluginInstances[0];
+    const filePath = `home/chris/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+    const statusResource: ItemResource = yield zipInstance.get();
+    let status = statusResource.data.status;
+
+    while (status !== "finishedSuccessfully") {
+      yield new Promise((resolve) => setTimeout(resolve, 5000)); // Polling every 5 seconds
+      const statusReq: ItemResource = yield zipInstance.get();
+      status = statusReq.data.status;
+    }
+
+    if (status === "finishedSuccessfully") {
+      const folderList: FileBrowserFolderFileList =
+        yield client.getFileBrowserFolders({
+          path: filePath,
+        });
+
+      if (!folderList) {
+        throw new Error(`Failed to find the files under this path ${filePath}`);
+      }
+
+      const folders = folderList.getItems();
+
+      if (folders) {
+        const folder = folders[0];
+        const files: FileBrowserFolderFileList = yield folder.getFiles();
+        const fileItems = files.getItems() as FileBrowserFolderFile[];
+        if (!fileItems) {
+          throw new Error("Failed to find the zip file");
+        }
+        const fileToZip = fileItems[0];
+        yield downloadFile(fileToZip);
+      }
+    }
   }
 }
 
