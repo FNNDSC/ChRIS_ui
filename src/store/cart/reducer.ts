@@ -6,6 +6,8 @@ const initialState: ICartState = {
   openCart: false,
   folderDownloadStatus: {},
   fileDownloadStatus: {},
+  folderUploadStatus: {},
+  fileUploadStatus: {},
 };
 
 const reducer: Reducer<ICartState> = (
@@ -33,6 +35,62 @@ const reducer: Reducer<ICartState> = (
       return {
         ...state,
         openCart: !state.openCart,
+      };
+    }
+
+    case ICartActionTypes.SET_FILE_DOWNLOAD_STATUS: {
+      const { id, step } = action.payload;
+      return {
+        ...state,
+        fileDownloadStatus: {
+          ...state.fileDownloadStatus,
+          [id]: step,
+        },
+      };
+    }
+
+    case ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS: {
+      const { id, step } = action.payload;
+
+      return {
+        ...state,
+        folderDownloadStatus: {
+          ...state.folderDownloadStatus,
+          [id]: step,
+        },
+      };
+    }
+
+    case ICartActionTypes.SET_FILE_UPLOAD_STATUS: {
+      const { step, fileName, progress, controller } = action.payload;
+
+      return {
+        ...state,
+        fileUploadStatus: {
+          ...state.fileUploadStatus,
+          [fileName]: {
+            currentStep: step,
+            progress,
+            controller,
+          },
+        },
+      };
+    }
+
+    case ICartActionTypes.SET_FOLDER_UPLOAD_STATUS: {
+      const { step, fileName, totalCount, currentCount, controller } =
+        action.payload;
+      return {
+        ...state,
+        folderUploadStatus: {
+          ...state.folderDownloadStatus,
+          [fileName]: {
+            currentStep: step,
+            done: currentCount,
+            total: totalCount,
+            controller,
+          },
+        },
       };
     }
 

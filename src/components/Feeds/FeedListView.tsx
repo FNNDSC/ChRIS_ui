@@ -75,6 +75,7 @@ const TableSelectable: React.FunctionComponent = () => {
     queryKey: ["feeds", searchFolderData],
     queryFn: () => fetchFeeds(searchFolderData),
     enabled: type === "private",
+    refetchOnMount: true,
   });
 
   const {
@@ -85,6 +86,7 @@ const TableSelectable: React.FunctionComponent = () => {
     queryKey: ["publicFeeds", searchFolderData],
     queryFn: () => fetchPublicFeeds(searchFolderData),
     enabled: type === "public",
+    refetchOnMount: true,
   });
 
   const authenticatedFeeds = data ? data.feeds : [];

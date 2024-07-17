@@ -1,3 +1,5 @@
+import axios, { type AxiosProgressEvent } from "axios";
+
 import type {
   Feed,
   FileBrowserFolder,
@@ -10,20 +12,41 @@ import type {
   PluginInstance,
   PluginInstanceList,
 } from "@fnndsc/chrisapi";
-import { all, fork, put, takeEvery } from "redux-saga/effects";
+import { call, all, fork, put, takeEvery } from "redux-saga/effects";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type { IActionTypeParam } from "../../api/model";
 import { getPlugin } from "../../components/CreateFeed/createFeedHelper";
 import { downloadFile } from "../hooks";
-import { setFileDownloadStatus, setFolderDownloadStatus } from "./actionts";
-import { ICartActionTypes, type SelectionPayload } from "./types";
+import {
+  setFileDownloadStatus,
+  setFileUploadStatus,
+  setFolderDownloadStatus,
+  setFolderUploadStatus,
+} from "./actionts";
+import {
+  ICartActionTypes,
+  type SelectionPayload,
+  type UploadPayload,
+} from "./types";
+
+function* setStatus(
+  type: string,
+  id: number,
+  step: "started" | "processing" | "finished" | "cancelled",
+) {
+  if (type === "file") {
+    yield put(setFileDownloadStatus({ id, step }));
+  } else {
+    yield put(setFolderDownloadStatus({ id, step }));
+  }
+}
 
 function* downloadFolder(payload: FileBrowserFolder) {
+  const { id } = payload.data;
   const path = payload.data.path;
   const client = ChrisAPIClient.getClient();
 
-  //Check if pipeline exists
-
+  // Check if pipeline exists
   const pipelineList: PipelineList = yield client.getPipelines({
     name: "zip v20240311",
   });
@@ -32,7 +55,8 @@ function* downloadFolder(payload: FileBrowserFolder) {
     throw new Error("Failed to find the pipeline");
   }
 
-  yield put(setFileDownloadStatus("processing"));
+  yield setStatus("folder", id, "processing");
+
   const pipelines = pipelineList.getItems() as unknown as Pipeline[];
   const currentPipeline = pipelines[0];
 
@@ -119,24 +143,18 @@ function* downloadFolder(payload: FileBrowserFolder) {
 
 function* handleIndividualDownload(path: SelectionPayload) {
   const { type, payload } = path;
+  const { id } = payload.data;
 
-  if (type === "file") {
-    try {
-      yield put(setFileDownloadStatus("started"));
+  try {
+    yield setStatus(type, id, "started");
+    if (type === "file") {
       yield downloadFile(payload as FileBrowserFolderFile);
-      yield put(setFileDownloadStatus("finished"));
-    } catch (e) {
-      yield put(setFileDownloadStatus("cancelled"));
-    }
-  }
-  if (type === "folder") {
-    try {
-      yield put(setFolderDownloadStatus("started"));
+    } else if (type === "folder") {
       yield downloadFolder(payload as FileBrowserFolder);
-      yield put(setFolderDownloadStatus("finished"));
-    } catch (e) {
-      yield put(setFolderDownloadStatus("cancelled"));
     }
+    yield setStatus(type, id, "finished");
+  } catch (e) {
+    yield setStatus(type, id, "cancelled");
   }
 }
 
@@ -148,10 +166,112 @@ function* handleDownload(action: IActionTypeParam) {
   }
 }
 
+function createUploadConfig(
+  client: any,
+  file: File,
+  currentPath: string,
+  isFolder: boolean,
+  controller: AbortController,
+) {
+  const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
+  const formData = new FormData();
+  const name = isFolder ? file.webkitRelativePath : file.name;
+  formData.append("upload_path", `${currentPath}/${name}`);
+  formData.append("fname", file, file.name);
+
+  return {
+    headers: { Authorization: `Token ${client.auth.token}` },
+    signal: controller.signal,
+    url,
+    data: formData,
+    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+      console.log("ProgressEvent", progressEvent);
+      if (progressEvent?.progress) {
+        const progress = Math.round(progressEvent.progress * 100);
+        if (!isFolder) {
+          // Dispatch action to set file upload status
+          put(
+            setFileUploadStatus({
+              step: "Uploading",
+              fileName: file.name,
+              progress,
+              controller,
+            }),
+          );
+
+          if (progress === 100) {
+            put(
+              setFileUploadStatus({
+                step: "Upload Complete",
+                fileName: file.name,
+                progress,
+                controller,
+              }),
+            );
+          }
+        } else {
+          if (progress === 100) {
+            // Update folder upload status
+            put(
+              setFolderUploadStatus({
+                step: "Uploading",
+                fileName: name.split("/")[0],
+                totalCount: 1,
+                currentCount: 1,
+                controller,
+              }),
+            );
+
+            put(
+              setFolderUploadStatus({
+                step: "Upload Complete",
+                fileName: name.split("/")[0],
+                totalCount: 1,
+                currentCount: 1,
+                controller,
+              }),
+            );
+          }
+        }
+      }
+    },
+  };
+}
+
+function* handleUpload(action: { payload: UploadPayload }) {
+  const { files, isFolder, currentPath } = action.payload;
+  const client = ChrisAPIClient.getClient();
+
+  try {
+    yield all(
+      files.map((file) => {
+        const controller = new AbortController();
+        const config = createUploadConfig(
+          client,
+          file,
+          currentPath,
+          isFolder,
+          controller,
+        );
+
+        return call(axios.post, config.url, config.data, config);
+      }),
+    );
+  } catch (error) {
+    console.error("Error uploading files:", error);
+  }
+}
+
+export default handleUpload;
+
 function* watchDownload() {
   yield takeEvery(ICartActionTypes.START_DOWNLOAD, handleDownload);
 }
 
+function* watchUpload() {
+  yield takeEvery(ICartActionTypes.START_UPLOAD, handleUpload);
+}
+
 export function* cartSaga() {
-  yield all([fork(watchDownload)]);
+  yield all([fork(watchDownload), fork(watchUpload)]);
 }
