@@ -273,7 +273,7 @@ function* uploadFile(
                 setFolderUploadStatus({
                   step: "Upload Complete",
                   fileName: name.split("/")[0],
-                  totalCount: 1,
+                  totalCount: files.length,
                   currentCount: count[fileName],
                   controller,
                 }),
@@ -302,6 +302,8 @@ function* uploadFile(
 function* handleUpload(action: IActionTypeParam) {
   const { files, isFolder, currentPath }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
+
+  console.log("HandleUpload", files, isFolder);
 
   try {
     yield all(

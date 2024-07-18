@@ -43,6 +43,7 @@ const Operations = () => {
   const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
+
     dispatch(
       startUpload({
         files: files,

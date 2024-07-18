@@ -8,15 +8,15 @@ import {
 } from "../../../store/cart/actionts";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
-import { DotsIndicator } from "../../Common";
+import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, FileIcon, FolderIcon } from "../../Icons";
+import "./Cart.css";
+import { isEmpty } from "lodash";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const { openCart, selectedPaths, fileUploadStatus, folderUploadStatus } =
     useTypedSelector((state) => state.cart);
-
-  console.log("Folder Upload Status", folderUploadStatus);
 
   return (
     <Drawer
@@ -58,8 +58,8 @@ const Cart = () => {
       }
     >
       <List
+        className="operation-cart"
         dataSource={selectedPaths}
-        bordered
         renderItem={(item) => {
           return (
             <List.Item
@@ -94,8 +94,8 @@ const Cart = () => {
       />
 
       <List
+        className="operation-cart"
         dataSource={Object.entries(fileUploadStatus)}
-        bordered
         renderItem={([name, status]) => (
           <List.Item
             key={name}
@@ -121,6 +121,41 @@ const Cart = () => {
           </List.Item>
         )}
       />
+
+      <List
+        className="operation-cart"
+        dataSource={Object.entries(folderUploadStatus)}
+        renderItem={([name, status]) => (
+          <List.Item
+            key={name}
+            actions={[
+              <div key={`status-${name}`}>
+                {status.done}/{status.total}
+              </div>,
+              <Button
+                onClick={() => {
+                  status.controller.abort();
+                }}
+                variant="secondary"
+                size="sm"
+                key={`a-${name}`}
+              >
+                Cancel
+              </Button>,
+            ]}
+          >
+            <List.Item.Meta
+              avatar={<FolderIcon />}
+              title={name}
+              description={`Step: ${status.currentStep}`}
+            />
+          </List.Item>
+        )}
+      />
+
+      {isEmpty(folderUploadStatus) &&
+        isEmpty(fileUploadStatus) &&
+        isEmpty(selectedPaths) && <EmptyStateComponent title="No data..." />}
     </Drawer>
   );
 };

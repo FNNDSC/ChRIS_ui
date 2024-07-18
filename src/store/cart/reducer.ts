@@ -15,6 +15,13 @@ const reducer: Reducer<ICartState> = (
   action: typeof ICartActionTypes,
 ) => {
   switch (action.type) {
+    case ICartActionTypes.START_UPLOAD: {
+      return {
+        ...state,
+        openCart: true,
+      };
+    }
+
     case ICartActionTypes.SET_SELECTED_PATHS: {
       return {
         ...state,
@@ -83,7 +90,7 @@ const reducer: Reducer<ICartState> = (
       return {
         ...state,
         folderUploadStatus: {
-          ...state.folderDownloadStatus,
+          ...state.folderUploadStatus,
           [fileName]: {
             currentStep: step,
             done: currentCount,
