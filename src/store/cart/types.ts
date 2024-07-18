@@ -16,6 +16,8 @@ export interface FolderUpload {
     done: number;
     total: number;
     controller: AbortController;
+    path: string;
+    type: string;
   };
 }
 
@@ -24,6 +26,8 @@ export interface FileUpload {
     currentStep: string;
     progress: number;
     controller: AbortController;
+    path: string;
+    type: string;
   };
 }
 
@@ -48,6 +52,7 @@ export interface UploadPayload {
 
 export const ICartActionTypes = keyMirror({
   SET_SELECTED_PATHS: null,
+  SET_BULK_SELECTED_PATHS: null,
   CLEAR_SELECTED_PATHS: null,
   CLEAR_CART: null,
   SET_TOGGLE_CART: null,
@@ -55,6 +60,7 @@ export const ICartActionTypes = keyMirror({
   SET_FILE_DOWNLOAD_STATUS: null,
   SET_FOLDER_DOWNLOAD_STATUS: null,
   START_UPLOAD: null,
+  START_ANONYMIZE: null,
   SET_FILE_UPLOAD_STATUS: null,
   SET_FOLDER_UPLOAD_STATUS: null,
 });
