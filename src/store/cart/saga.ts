@@ -1,5 +1,4 @@
 import axios, { type AxiosProgressEvent } from "axios";
-
 import type {
   Feed,
   FileBrowserFolder,
@@ -12,15 +11,16 @@ import type {
   PluginInstance,
   PluginInstanceList,
 } from "@fnndsc/chrisapi";
-import { call, all, fork, put, takeEvery } from "redux-saga/effects";
+import { take, call, all, fork, put, takeEvery } from "redux-saga/effects";
+import { type EventChannel, eventChannel, END } from "redux-saga";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type { IActionTypeParam } from "../../api/model";
 import { getPlugin } from "../../components/CreateFeed/createFeedHelper";
 import { downloadFile } from "../hooks";
 import {
   setFileDownloadStatus,
-  setFileUploadStatus,
   setFolderDownloadStatus,
+  setFileUploadStatus,
   setFolderUploadStatus,
 } from "./actionts";
 import {
@@ -28,6 +28,7 @@ import {
   type SelectionPayload,
   type UploadPayload,
 } from "./types";
+import type Client from "@fnndsc/chrisapi";
 
 function* setStatus(
   type: string,
@@ -166,9 +167,45 @@ function* handleDownload(action: IActionTypeParam) {
   }
 }
 
-function createUploadConfig(
-  client: any,
+function createUploadChannel(config: any) {
+  return eventChannel((emitter) => {
+    const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
+      //@ts-ignore
+      const progress = Math.round(progressEvent.progress * 100);
+      emitter({ progress });
+    };
+
+    const axiosConfig = {
+      headers: config.headers,
+      signal: config.signal,
+      onUploadProgress,
+    };
+
+    axios
+      .post(config.url, config.data, axiosConfig)
+      .then((response) => {
+        // Assuming that data is created
+        const progress = 100;
+        emitter({ response, progress });
+        emitter(END);
+      })
+      .catch((error) => {
+        emitter({ error });
+        emitter(END);
+      });
+
+    return () => {};
+  });
+}
+
+const count: {
+  [key: string]: number;
+} = {};
+
+function* uploadFile(
+  client: Client,
   file: File,
+  files: File[],
   currentPath: string,
   isFolder: boolean,
   controller: AbortController,
@@ -179,18 +216,24 @@ function createUploadConfig(
   formData.append("upload_path", `${currentPath}/${name}`);
   formData.append("fname", file, file.name);
 
-  return {
+  const config = {
     headers: { Authorization: `Token ${client.auth.token}` },
     signal: controller.signal,
     url,
     data: formData,
-    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-      console.log("ProgressEvent", progressEvent);
-      if (progressEvent?.progress) {
-        const progress = Math.round(progressEvent.progress * 100);
+  };
+
+  const uploadChannel: EventChannel<any> = yield call(
+    createUploadChannel,
+    config,
+  );
+  try {
+    while (true) {
+      const { progress, response, error } = yield take(uploadChannel);
+
+      if (progress !== undefined) {
         if (!isFolder) {
-          // Dispatch action to set file upload status
-          put(
+          yield put(
             setFileUploadStatus({
               step: "Uploading",
               fileName: file.name,
@@ -200,7 +243,7 @@ function createUploadConfig(
           );
 
           if (progress === 100) {
-            put(
+            yield put(
               setFileUploadStatus({
                 step: "Upload Complete",
                 fileName: file.name,
@@ -211,58 +254,74 @@ function createUploadConfig(
           }
         } else {
           if (progress === 100) {
-            // Update folder upload status
-            put(
+            const fileName = name.split("/")[0];
+
+            count[fileName] = count[fileName] ? count[fileName] + 1 : 1;
+
+            yield put(
               setFolderUploadStatus({
                 step: "Uploading",
                 fileName: name.split("/")[0],
-                totalCount: 1,
-                currentCount: 1,
+                totalCount: files.length,
+                currentCount: count[fileName],
                 controller,
               }),
             );
 
-            put(
-              setFolderUploadStatus({
-                step: "Upload Complete",
-                fileName: name.split("/")[0],
-                totalCount: 1,
-                currentCount: 1,
-                controller,
-              }),
-            );
+            if (count[fileName] === files.length) {
+              yield put(
+                setFolderUploadStatus({
+                  step: "Upload Complete",
+                  fileName: name.split("/")[0],
+                  totalCount: 1,
+                  currentCount: count[fileName],
+                  controller,
+                }),
+              );
+              delete count[fileName];
+            }
           }
         }
       }
-    },
-  };
+
+      if (response) {
+        // Handle successful response if needed
+        break;
+      }
+
+      if (error) {
+        // Handle error if needed
+        throw new Error(`Error uploading file: ${file.name}`);
+      }
+    }
+  } finally {
+    uploadChannel.close();
+  }
 }
 
-function* handleUpload(action: { payload: UploadPayload }) {
-  const { files, isFolder, currentPath } = action.payload;
+function* handleUpload(action: IActionTypeParam) {
+  const { files, isFolder, currentPath }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
 
   try {
     yield all(
-      files.map((file) => {
+      files.map((file: File) => {
         const controller = new AbortController();
-        const config = createUploadConfig(
+        return call(
+          uploadFile,
           client,
           file,
+          files,
           currentPath,
           isFolder,
           controller,
         );
-
-        return call(axios.post, config.url, config.data, config);
       }),
     );
   } catch (error) {
     console.error("Error uploading files:", error);
   }
 }
-
-export default handleUpload;
 
 function* watchDownload() {
   yield takeEvery(ICartActionTypes.START_DOWNLOAD, handleDownload);
