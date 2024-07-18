@@ -162,8 +162,7 @@ const Store = () => {
     );
     if (!adminURL)
       throw new Error("Please provide a link to your chris-admin url");
-    if (!username || !password)
-      throw new Error("Please provide both username and password");
+    
 
     const client = ChrisAPIClient.getClient();
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
