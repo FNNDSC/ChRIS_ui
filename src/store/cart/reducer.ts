@@ -28,6 +28,14 @@ const reducer: Reducer<ICartState> = (
         selectedPaths: [...state.selectedPaths, action.payload],
       };
     }
+
+    case ICartActionTypes.SET_BULK_SELECTED_PATHS: {
+      return {
+        ...state,
+        selectedPaths: [...state.selectedPaths, ...action.payload],
+      };
+    }
+
     case ICartActionTypes.CLEAR_SELECTED_PATHS: {
       const newSelectedPaths = state.selectedPaths.filter((pathObj) => {
         return pathObj.path !== action.payload;
@@ -69,7 +77,8 @@ const reducer: Reducer<ICartState> = (
     }
 
     case ICartActionTypes.SET_FILE_UPLOAD_STATUS: {
-      const { step, fileName, progress, controller } = action.payload;
+      const { step, fileName, progress, controller, path, type } =
+        action.payload;
 
       return {
         ...state,
@@ -79,14 +88,23 @@ const reducer: Reducer<ICartState> = (
             currentStep: step,
             progress,
             controller,
+            path,
+            type,
           },
         },
       };
     }
 
     case ICartActionTypes.SET_FOLDER_UPLOAD_STATUS: {
-      const { step, fileName, totalCount, currentCount, controller } =
-        action.payload;
+      const {
+        step,
+        fileName,
+        totalCount,
+        currentCount,
+        controller,
+        path,
+        type,
+      } = action.payload;
       return {
         ...state,
         folderUploadStatus: {
@@ -96,6 +114,8 @@ const reducer: Reducer<ICartState> = (
             done: currentCount,
             total: totalCount,
             controller,
+            path,
+            type,
           },
         },
       };

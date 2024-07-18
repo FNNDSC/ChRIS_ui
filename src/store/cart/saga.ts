@@ -4,12 +4,15 @@ import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderFileList,
+  FileBrowserFolderList,
   ItemResource,
   Pipeline,
   PipelineList,
   Plugin,
   PluginInstance,
   PluginInstanceList,
+  UserFile,
+  UserFileList,
 } from "@fnndsc/chrisapi";
 import { take, call, all, fork, put, takeEvery } from "redux-saga/effects";
 import { type EventChannel, eventChannel, END } from "redux-saga";
@@ -22,8 +25,13 @@ import {
   setFolderDownloadStatus,
   setFileUploadStatus,
   setFolderUploadStatus,
+  startDownload,
+  setSelectFolder,
+  setBulkSelectPaths,
 } from "./actionts";
 import {
+  type FileUpload,
+  type FolderUpload,
   ICartActionTypes,
   type SelectionPayload,
   type UploadPayload,
@@ -213,7 +221,8 @@ function* uploadFile(
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
   const formData = new FormData();
   const name = isFolder ? file.webkitRelativePath : file.name;
-  formData.append("upload_path", `${currentPath}/${name}`);
+  const path = `${currentPath}/${name}`;
+  formData.append("upload_path", path);
   formData.append("fname", file, file.name);
 
   const config = {
@@ -239,6 +248,8 @@ function* uploadFile(
               fileName: file.name,
               progress,
               controller,
+              path,
+              type: "file",
             }),
           );
 
@@ -249,22 +260,28 @@ function* uploadFile(
                 fileName: file.name,
                 progress,
                 controller,
+                path,
+                type: "file",
               }),
             );
           }
         } else {
           if (progress === 100) {
-            const fileName = name.split("/")[0];
+            const nameSplit = name.split("/");
+            const fileName = nameSplit[0];
+            const folderPath = `${currentPath}/${fileName}`;
 
             count[fileName] = count[fileName] ? count[fileName] + 1 : 1;
 
             yield put(
               setFolderUploadStatus({
                 step: "Uploading",
-                fileName: name.split("/")[0],
+                fileName,
                 totalCount: files.length,
                 currentCount: count[fileName],
                 controller,
+                path: folderPath,
+                type: "folder",
               }),
             );
 
@@ -272,10 +289,12 @@ function* uploadFile(
               yield put(
                 setFolderUploadStatus({
                   step: "Upload Complete",
-                  fileName: name.split("/")[0],
+                  fileName,
                   totalCount: files.length,
                   currentCount: count[fileName],
                   controller,
+                  path: folderPath,
+                  type: "folder",
                 }),
               );
               delete count[fileName];
@@ -303,8 +322,6 @@ function* handleUpload(action: IActionTypeParam) {
   const { files, isFolder, currentPath }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
 
-  console.log("HandleUpload", files, isFolder);
-
   try {
     yield all(
       files.map((file: File) => {
@@ -325,6 +342,79 @@ function* handleUpload(action: IActionTypeParam) {
   }
 }
 
+function* handleAnonymize(action: IActionTypeParam) {
+  const {
+    fileUpload,
+    folderUpload,
+  }: {
+    fileUpload: FileUpload;
+    folderUpload: FolderUpload;
+  } = action.payload;
+
+  const client = ChrisAPIClient.getClient();
+
+  const filePaths = Object.entries(fileUpload).map(([_name, status]) => {
+    return {
+      type: status.type,
+      path: status.path,
+    };
+  });
+
+  const folderPaths = Object.entries(folderUpload).map(([_name, status]) => {
+    return {
+      type: status.type,
+      path: status.path,
+    };
+  });
+
+  console.log("FolderPaths", folderPaths);
+
+  const createFileSelectionPayload: {
+    payload: UserFile;
+    type: string;
+    path: string;
+  }[] = yield all(
+    filePaths.map(async (file) => {
+      const userFileList: UserFileList = await client.getUserFiles({
+        fname_exact: file.path,
+        limit: 1,
+      });
+
+      const userFiles = userFileList.getItems() as UserFile[];
+
+      return {
+        payload: userFiles[0],
+        type: file.type,
+        path: file.path,
+      };
+    }),
+  );
+
+  const createFolderSelectionPayload: {
+    payload: FileBrowserFolder | FileBrowserFolderFile;
+    type: string;
+    path: string;
+  }[] = yield all(
+    folderPaths.map(async (folder) => {
+      const folderToAnon: FileBrowserFolder =
+        (await client.getFileBrowserFolderByPath(
+          folder.path,
+        )) as unknown as FileBrowserFolder;
+
+      return {
+        payload: folderToAnon,
+        type: folder.type,
+        path: folderToAnon.data.path,
+      };
+    }),
+  );
+
+  yield put(setBulkSelectPaths(createFolderSelectionPayload));
+  yield put(setBulkSelectPaths(createFileSelectionPayload));
+  yield put(startDownload(createFolderSelectionPayload));
+  yield put(startDownload(createFileSelectionPayload));
+}
+
 function* watchDownload() {
   yield takeEvery(ICartActionTypes.START_DOWNLOAD, handleDownload);
 }
@@ -333,6 +423,10 @@ function* watchUpload() {
   yield takeEvery(ICartActionTypes.START_UPLOAD, handleUpload);
 }
 
+function* watchAnonymize() {
+  yield takeEvery(ICartActionTypes.START_ANONYMIZE, handleAnonymize);
+}
+
 export function* cartSaga() {
-  yield all([fork(watchDownload), fork(watchUpload)]);
+  yield all([fork(watchDownload), fork(watchUpload), fork(watchAnonymize)]);
 }

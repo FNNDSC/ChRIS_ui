@@ -39,16 +39,29 @@ export const setFolderDownloadStatus = (payload: {
 export const startUpload = (payload: UploadPayload) =>
   action(ICartActionTypes.START_UPLOAD, payload);
 
+export const startAnonymize = (payload: {
+  fileUpload: FileUpload;
+  folderUpload: FolderUpload;
+}) => action(ICartActionTypes.START_ANONYMIZE, payload);
+
 export const setFileUploadStatus = (payload: {
   step: string;
   fileName: string;
   progress: number;
   controller: AbortController;
+  path: string;
+  type: string;
 }) => action(ICartActionTypes.SET_FILE_UPLOAD_STATUS, payload);
+
 export const setFolderUploadStatus = (payload: {
   step: string;
   fileName: string;
   totalCount: number;
   currentCount: number;
   controller: AbortController;
+  path: string;
+  type: string;
 }) => action(ICartActionTypes.SET_FOLDER_UPLOAD_STATUS, payload);
+
+export const setBulkSelectPaths = (payload: SelectionPayload[]) =>
+  action(ICartActionTypes.SET_BULK_SELECTED_PATHS, payload);
