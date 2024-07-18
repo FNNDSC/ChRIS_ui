@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import {
   clearSelectFolder,
   setToggleCart,
+  startAnonymize,
   startDownload,
 } from "../../../store/cart/actionts";
 import type { SelectionPayload } from "../../../store/cart/types";
@@ -20,23 +21,44 @@ const Cart = () => {
 
   return (
     <Drawer
-      width={"500px"}
+      width={"600px"}
       title={
         <>
           <Button
             style={{
               marginRight: "1em",
             }}
+            size="sm"
           >
             Create Feed
           </Button>
           <Button
+            style={{
+              marginRight: "1em",
+            }}
             onClick={() => {
               dispatch(startDownload(selectedPaths));
             }}
+            size="sm"
           >
             Download
           </Button>
+
+          {(!isEmpty(fileUploadStatus) || !isEmpty(folderUploadStatus)) && (
+            <Button
+              size="sm"
+              onClick={() => {
+                dispatch(
+                  startAnonymize({
+                    fileUpload: fileUploadStatus,
+                    folderUpload: folderUploadStatus,
+                  }),
+                );
+              }}
+            >
+              Anonymize
+            </Button>
+          )}
         </>
       }
       open={openCart}

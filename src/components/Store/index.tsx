@@ -1,4 +1,4 @@
-import Client, { Plugin, PluginMeta } from "@fnndsc/chrisapi";
+import Client, { type Plugin, type PluginMeta } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Badge,
@@ -11,7 +11,7 @@ import {
   GridItem,
   Icon,
   MenuToggle,
-  MenuToggleElement,
+  type MenuToggleElement,
   Modal,
   PageSection,
   Select,
@@ -30,7 +30,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Spin, Typography, notification } from "antd";
 import { format } from "date-fns";
 import { isEmpty } from "lodash";
-import { Ref, useEffect, useState } from "react";
+import { type Ref, useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -46,6 +46,7 @@ const { Paragraph } = Typography;
 
 const Store = () => {
   const isStaff = useTypedSelector((state) => state.user.isStaff);
+
   const queryClient = useQueryClient();
   const [_cookie, setCookie, removeCookie] = useCookies();
   const [api, contextHolder] = notification.useNotification();
@@ -162,7 +163,7 @@ const Store = () => {
     );
     if (!adminURL)
       throw new Error("Please provide a link to your chris-admin url");
-  
+
     const client = ChrisAPIClient.getClient();
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
     const nonAdminCredentials = `Token ${client.auth.token}`;
@@ -249,8 +250,10 @@ const Store = () => {
     }
 
     if (handleInstallMutation.isError) {
+      console.log();
       api.error({
         message: "Unable to install this plugin...",
+        description: handleInstallMutation.error.message,
       });
     }
   }, [handleInstallMutation.isSuccess, handleInstallMutation.isError, api]);
