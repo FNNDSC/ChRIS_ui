@@ -26,7 +26,6 @@ import {
   setFileUploadStatus,
   setFolderUploadStatus,
   startDownload,
-  setSelectFolder,
   setBulkSelectPaths,
 } from "./actionts";
 import {
@@ -366,8 +365,6 @@ function* handleAnonymize(action: IActionTypeParam) {
       path: status.path,
     };
   });
-
-  console.log("FolderPaths", folderPaths);
 
   const createFileSelectionPayload: {
     payload: UserFile;
