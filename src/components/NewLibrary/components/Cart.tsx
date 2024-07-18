@@ -10,12 +10,13 @@ import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator } from "../../Common";
 import { CheckCircleIcon, FileIcon, FolderIcon } from "../../Icons";
-import { isEmpty } from "lodash";
 
 const Cart = () => {
   const dispatch = useDispatch();
   const { openCart, selectedPaths, fileUploadStatus, folderUploadStatus } =
     useTypedSelector((state) => state.cart);
+
+  console.log("Folder Upload Status", folderUploadStatus);
 
   return (
     <Drawer
@@ -134,11 +135,15 @@ export enum DownloadTypes {
 }
 
 export const Status = ({ item }: { item: SelectionPayload }) => {
-  const state = useTypedSelector((state) => state.cart);
+  const fileDownloadStatus = useTypedSelector(
+    (state) => state.cart.fileDownloadStatus,
+  );
+  const folderDownloadStatus = useTypedSelector(
+    (state) => state.cart.folderDownloadStatus,
+  );
 
   const { type, payload } = item;
   const { id } = payload.data;
-  const { fileDownloadStatus, folderDownloadStatus } = state;
 
   if (type === "file") {
     const currentStatus = fileDownloadStatus[id];
