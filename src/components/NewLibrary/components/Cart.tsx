@@ -1,12 +1,7 @@
 import { Button, Text, Tooltip } from "@patternfly/react-core";
 import { Drawer, List, Space } from "antd";
 import { useDispatch } from "react-redux";
-import {
-  clearSelectFolder,
-  setToggleCart,
-  startAnonymize,
-  startDownload,
-} from "../../../store/cart/actionts";
+import { clearSelectFolder, setToggleCart } from "../../../store/cart/actions";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
@@ -22,45 +17,7 @@ const Cart = () => {
   return (
     <Drawer
       width={"600px"}
-      title={
-        <>
-          <Button
-            style={{
-              marginRight: "1em",
-            }}
-            size="sm"
-          >
-            Create Feed
-          </Button>
-          <Button
-            style={{
-              marginRight: "1em",
-            }}
-            onClick={() => {
-              dispatch(startDownload(selectedPaths));
-            }}
-            size="sm"
-          >
-            Download
-          </Button>
-
-          {(!isEmpty(fileUploadStatus) || !isEmpty(folderUploadStatus)) && (
-            <Button
-              size="sm"
-              onClick={() => {
-                dispatch(
-                  startAnonymize({
-                    fileUpload: fileUploadStatus,
-                    folderUpload: folderUploadStatus,
-                  }),
-                );
-              }}
-            >
-              Anonymize
-            </Button>
-          )}
-        </>
-      }
+      title={<>Notification Panel</>}
       open={openCart}
       onClose={() => {
         dispatch(setToggleCart());

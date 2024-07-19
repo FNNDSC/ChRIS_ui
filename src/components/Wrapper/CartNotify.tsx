@@ -3,7 +3,7 @@ import { isEmpty } from "lodash";
 import { useTypedSelector } from "../../store/hooks";
 import { CartIcon } from "../Icons";
 import { useDispatch } from "react-redux";
-import { setToggleCart } from "../../store/cart/actionts";
+import { setToggleCart } from "../../store/cart/actions";
 import { Button } from "@patternfly/react-core";
 
 const CartNotify = () => {
