@@ -22,18 +22,11 @@ npm run dev:public
 
 ## Development
 
-We support development on **Linux** only.
+There are two modes of development:
 
-#### 0. Have the [_ChRIS_ backend](https://github.com/FNNDSC/ChRIS_ultron_backEnd) running (Optional)
-
-For local development, use [Docker Compose](https://docs.docker.com/compose/) and [miniChRIS-docker](https://github.com/FNNDSC/miniChRIS-docker). Open a terminal and run
-
-```shell
-git clone https://github.com/FNNDSC/miniChRIS-docker.git
-cd miniChRIS-docker
-./minichris.sh
-```
-
+- "local": runs the _ChRIS_ backend locally. Requires Docker, and uses more disk space + slower startup time.
+- "public": use the global, public testing server. This is the easier option, especially for non-Linux OS.
+ 
 <details>
 <summary>
   <strong>
@@ -64,51 +57,28 @@ $ ./unmake.sh
 If your backend is accessible from a host other than localhost, e.g. you are using a cloud or remote development
 server, run `cp .env .env.development.local` then edit `.env.development.local` with your backend API URL.
 
-#### 1. Install Dependencies
+### 1. Dependencies
 
 You need Node version 20 or 21.
 
 ```shell
 git clone https://github.com/FNNDSC/ChRIS_ui.git
 cd ChRIS_ui
-npm i
+npm ci
 ```
 
-<details>
-<summary>
-<strong>
-Alternatively, using Docker (click to expand)
-</strong>
-</summary>
+### 2. Run the development server
 
-These instructions are no longer supported.
-
-Open a new terminal on your system and follow these steps:
-
-```bash
-git clone https://github.com/FNNDSC/ChRIS_ui.git
-cd ChRIS_ui
-docker build -t localhost/fnndsc/chris_ui:dev -f Dockerfile_dev .
-docker run --rm -it -v $PWD:/home/localuser -p 3000:3000 -u $(id -u):$(id -g) --userns=host --name chris_ui localhost/fnndsc/chris_ui:dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-</details>
-
-
-#### 2. Run the development server
-
-If you are running and have configured a backend in step 0, run
-
-```shell
-npm run dev
-```
-
-Otherwise, you can use our public testing backend instance. Run
+Either using the "public" server:
 
 ```shell
 npm run dev:public
+```
+
+Or, start a local backend and run the "local" server:
+
+```shell
+npm run dev:local
 ```
 
 ## Build for production
@@ -142,16 +112,15 @@ npm test
 
 ### End-to-End Tests
 
-> [!IMPORTANT]
-> End-to-end (E2E) tests are configured to run against our public testing backend instance, which is prepopulated with data.
+End-to-end tests are located under `tests/`.
 
-E2E tests are located under `tests/`.
-
-Playwright requires some system dependencies. On first run, you will be prompted to install these dependencies.
-With Playwright installed, run
+The end-to-end testing framework, Playwright, requires some system dependencies.
+On first run, you will be prompted to install these dependencies.
 
 ```shell
-npm run test:e2e
+npm run test:e2e  # run tests using "public" backend
+
+npm run test:e2e:local  # run tests using "local" backend
 ```
 
 For more information, consult the wiki:

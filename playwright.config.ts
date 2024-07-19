@@ -1,3 +1,5 @@
+// See https://github.com/FNNDSC/ChRIS_ui/wiki/E2E-Testing-with-Playwright#local-tests
+
 import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
 
 const SAFARI_BROWSERS: PlaywrightTestConfig["projects"] = [];

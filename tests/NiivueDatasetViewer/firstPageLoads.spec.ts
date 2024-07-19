@@ -27,7 +27,7 @@ async function gotoVolumeView({
 }) {
   test.skip(isFirefoxInGitHubActions(browserName), "GitHub Actions bug.");
   test.skip(
-    baseURL?.includes("localhost") || false,
+    baseURL?.includes("localhost:5173") || false,
     "Depends on global test server data.",
   );
   await page.goto("/");
