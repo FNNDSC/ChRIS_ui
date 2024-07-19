@@ -27,7 +27,7 @@ import {
   setFolderUploadStatus,
   startDownload,
   setBulkSelectPaths,
-} from "./actionts";
+} from "./actions";
 import {
   type FileUpload,
   type FolderUpload,
