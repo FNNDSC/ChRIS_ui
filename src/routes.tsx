@@ -154,10 +154,12 @@ export const MainRouter: React.FC = () => {
       path: "dataset/:feedName?",
       element: <DatasetRedirect />,
     },
+    /*
     {
       path: "niivue/:plinstId",
       element: <NiivueDatasetViewerPage />,
     },
+    */
     {
       path: "store",
       element: <Store />,
