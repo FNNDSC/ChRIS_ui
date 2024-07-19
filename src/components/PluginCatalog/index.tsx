@@ -26,7 +26,7 @@ const CatalogPage = () => {
     <WrapperConnect>
       <PageSection>
         <InfoIcon
-          title="Plugins"
+          title="Installed Plugins"
           p1={
             <Paragraph>
               <p>

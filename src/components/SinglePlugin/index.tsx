@@ -1,26 +1,26 @@
-import React from "react";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
 import {
   Plugin,
+  PluginInstance,
   PluginMeta,
   PluginParameter,
-  PluginInstance,
 } from "@fnndsc/chrisapi";
+import { useQuery } from "@tanstack/react-query";
+import { Alert } from "antd";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
+import React from "react";
+import { useParams } from "react-router";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
+import { useTypedSelector } from "../../store/hooks";
 import { unpackParametersIntoString } from "../AddNode/utils";
+import { EmptyStateComponent, SpinContainer } from "../Common";
+import WrapperConnect from "../Wrapper";
 import {
   HeaderCardPlugin,
   HeaderSinglePlugin,
   ParameterPayload,
 } from "./PluginCatalogComponents";
-import { useTypedSelector } from "../../store/hooks";
-import WrapperConnect from "../Wrapper";
-import { EmptyStateComponent, SpinContainer } from "../Common";
-import { Alert } from "antd";
 import "./singlePlugin.css";
 
 const SinglePlugin = () => {

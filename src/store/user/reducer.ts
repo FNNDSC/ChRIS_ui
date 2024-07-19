@@ -5,6 +5,7 @@ import { Cookies } from "react-cookie";
 const cookie = new Cookies();
 const user = cookie.get("username");
 const token = cookie.get(`${user}_token`);
+const isStaff = cookie.get("isStaff");
 
 // Type-safe initialState
 const initialState: IUserState = {
@@ -12,7 +13,7 @@ const initialState: IUserState = {
   token: token,
   isRememberMe: false,
   isLoggedIn: token ? true : false,
-  isStaff: false,
+  isStaff: isStaff || false,
 };
 
 // ***** NOTE: Working *****
@@ -31,10 +32,22 @@ const reducer: Reducer<IUserState> = (
       };
     }
     case UserActionTypes.SET_TOKEN_ERROR: {
-      return { ...state, username: null, token: null, isLoggedIn: false };
+      return {
+        ...state,
+        username: null,
+        token: null,
+        isLoggedIn: false,
+        isStaff: false,
+      };
     }
     case UserActionTypes.SET_LOGOUT_USER_SUCCESS: {
-      return { ...state, username: null, token: null, isLoggedIn: false };
+      return {
+        ...state,
+        username: null,
+        token: null,
+        isLoggedIn: false,
+        isStaff: false,
+      };
     }
     default: {
       return state;

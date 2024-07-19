@@ -63,6 +63,10 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
 
         const client = ChrisAPIClient.getClient();
         const user = await client.getUser();
+        setCookie("isStaff", user.data.is_staff, {
+          path: "/",
+          maxAge: oneDayToSeconds,
+        });
 
         dispatch(
           setAuthTokenSuccess({

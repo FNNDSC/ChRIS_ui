@@ -1,15 +1,24 @@
-import { ListVariant, LoginForm, LoginPage } from "@patternfly/react-core";
+import {
+  Button,
+  Card,
+  ListVariant,
+  LoginForm,
+  LoginPage,
+} from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
+import { Alert } from "antd";
 import React from "react";
+import { Cookies, useCookies } from "react-cookie";
+import { useNavigate } from "react-router";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { useTypedSelector } from "../../store/hooks";
+import { SpinContainer } from "../Common";
 import { useSearchQueryParams } from "../Feeds/usePaginate";
 import { ExclamationCircleIcon } from "../Icons";
 import WrapperConnect from "../Wrapper";
-import { Alert } from "antd";
-import { SpinContainer } from "../Common";
-import { useNavigate } from "react-router";
-import { useCookies, Cookies } from "react-cookie";
 
 const PluginInstall = () => {
+  const isStaff = useTypedSelector((state) => state.user.isStaff);
   const [_cookie, setCookie] = useCookies();
   const navigate = useNavigate();
   const [showHelperText, setShowHelperText] = React.useState(false);
@@ -21,6 +30,7 @@ const PluginInstall = () => {
 
   const query = useSearchQueryParams();
   const url = query.get("uri");
+  const pluginName = query.get("plugin");
   let decodedURL = "";
   if (url) {
     decodedURL = decodeURIComponent(url);
@@ -34,7 +44,13 @@ const PluginInstall = () => {
     }
 
     const modifiedURL = adminURL.replace("/api/v1/", "/chris-admin/api/v1/");
-    const credentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
+
+    const client = ChrisAPIClient.getClient();
+    const admin = client.auth.token;
+    const nonAdmin = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
+
+    const authorization = isStaff ? `Token ${admin}` : `Basic ${nonAdmin}`;
+
     const pluginData = {
       compute_names: "host",
       plugin_store_url: decodedURL,
@@ -44,7 +60,7 @@ const PluginInstall = () => {
       const response = await fetch(modifiedURL, {
         method: "POST",
         headers: {
-          Authorization: `Basic ${credentials}`,
+          Authorization: authorization,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(pluginData),
@@ -79,7 +95,13 @@ const PluginInstall = () => {
   React.useEffect(() => {
     if (isSuccess) {
       if (data) {
-        const id = data.collection.items[0].data[0].value;
+        const url = data.collection.items[0].links[0].href;
+
+        const regex = /\/(\d+)\//;
+        const match = url.match(regex);
+        //convert id into number and check if it is valid
+        const id = match ? +match[1] : null;
+
         if (typeof id === "number" && !Number.isNaN(id)) {
           if (isRememberMeChecked) {
             const oneDayToSeconds = 24 * 60 * 60;
@@ -92,7 +114,10 @@ const PluginInstall = () => {
               maxAge: oneDayToSeconds,
             });
           }
-          navigate(`/plugin/${id}`);
+
+          setTimeout(() => {
+            navigate(`/plugin/${id}`);
+          }, 1500);
         }
       }
     }
@@ -129,6 +154,18 @@ const PluginInstall = () => {
     }
   };
 
+  const nonLoginForm = (
+    <Card>
+      <Button
+        onClick={() => {
+          mutate();
+        }}
+      >
+        Click to Install
+      </Button>
+    </Card>
+  );
+
   const loginForm = (
     <LoginForm
       showHelperText={showHelperText}
@@ -155,11 +192,17 @@ const PluginInstall = () => {
       <LoginPage
         footerListVariants={ListVariant.inline}
         backgroundImgSrc="/assets/images/pfbg-icon.svg"
-        textContent="You can now install plugins from our public servers with the click of a button. All you need are the credentials for your admin account"
-        loginTitle="Admin Login"
-        loginSubtitle="Enter your admin credentials."
+        textContent="You can now install plugins from our public servers with the click of a button. All you need are the credentials to your admin account."
+        loginTitle={
+          !isStaff ? "Admin Login" : "Great! Let's install the plugin."
+        }
+        loginSubtitle={`${
+          pluginName
+            ? `You are trying to install ${pluginName} from one of our remote servers`
+            : ""
+        } ${!isStaff ? "Enter your admin credentials" : ""}`}
       >
-        {loginForm}
+        {!isStaff ? loginForm : nonLoginForm}
         <div
           style={{
             marginTop: "1rem",
@@ -170,7 +213,7 @@ const PluginInstall = () => {
           {isSuccess && (
             <Alert
               type="success"
-              description="Plugin installed successfully..."
+              description="Plugin installed successfully Redirecting you to the plugin page..."
             />
           )}
         </div>

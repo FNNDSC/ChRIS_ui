@@ -13,7 +13,7 @@ const PluginCatalog = () => {
     itemCount: 0,
   });
 
-  const { page, perPage, search, searchType, itemCount } = pageState;
+  const { page, perPage, search, searchType } = pageState;
   const [selectedPlugin, setSelectedPlugin] = React.useState<any>();
 
   const onSetPage = (_event: any, page: number) => {
