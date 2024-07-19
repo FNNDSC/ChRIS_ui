@@ -1,14 +1,14 @@
-import { useState, useRef } from "react";
-import {
-  setSelectFolder,
-  clearSelectFolder,
-} from "../../../store/cart/actionts";
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
 } from "@fnndsc/chrisapi";
-import { useTypedSelector } from "../../../store/hooks";
+import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import {
+  clearSelectFolder,
+  setSelectFolder,
+} from "../../../store/cart/actions"; // Make sure the path is correct
+import { useTypedSelector } from "../../../store/hooks";
 
 export function elipses(str: string, len: number) {
   if (str.length <= len) return str;
@@ -26,11 +26,24 @@ export default function useLongPress() {
 
   function startPressTimer() {
     isLongPress.current = false;
+
     //@ts-ignore
     timerRef.current = window.setTimeout(() => {
       isLongPress.current = true;
       setAction("longpress");
     }, 600);
+  }
+
+  function clearPressTimer() {
+    clearTimeout(timerRef.current);
+  }
+
+  function selectFolder(pathForCart: string, type: string, payload: any) {
+    dispatch(setSelectFolder({ path: pathForCart, type, payload }));
+  }
+
+  function deselectFolder(pathForCart: string) {
+    dispatch(clearSelectFolder(pathForCart));
   }
 
   function handleOnClick(
@@ -41,41 +54,17 @@ export default function useLongPress() {
     type: string,
     cbFolder?: (path: string) => void,
   ) {
-    const isExist = selectedPaths.findIndex(
+    const isExist = selectedPaths.some(
       (item: any) => item.path === pathForCart,
     );
 
-    if (isLongPress.current) {
-      if (isExist === -1) {
-        dispatch(
-          setSelectFolder({
-            path: pathForCart,
-            type,
-            payload,
-          }),
-        );
+    if (isLongPress.current || e.ctrlKey || e.shiftKey || e.metaKey) {
+      if (!isExist) {
+        selectFolder(pathForCart, type, payload);
       } else {
-        dispatch(clearSelectFolder(pathForCart));
+        deselectFolder(pathForCart);
       }
-      return;
-    }
-
-    if (e.ctrlKey || e.shiftKey || e.metaKey) {
-      if (isExist === -1) {
-        dispatch(
-          setSelectFolder({
-            path: pathForCart,
-            type,
-            payload,
-          }),
-        );
-      } else {
-        dispatch(clearSelectFolder(pathForCart));
-      }
-      return;
-    }
-
-    if (!(e.ctrlKey || e.shiftKey || e.detail === 2) && e.detail === 1) {
+    } else if (e.detail === 1) {
       cbFolder?.(path);
     }
   }
@@ -85,8 +74,7 @@ export default function useLongPress() {
   }
 
   function handleOnMouseUp() {
-    //@ts-ignore
-    clearTimeout(timerRef.current);
+    clearPressTimer();
   }
 
   function handleOnTouchStart() {
@@ -96,8 +84,7 @@ export default function useLongPress() {
   function handleOnTouchEnd() {
     if (action === "longpress") return;
 
-    //@ts-ignore
-    clearTimeout(timerRef.current);
+    clearPressTimer();
   }
 
   return {
@@ -105,9 +92,9 @@ export default function useLongPress() {
     handlers: {
       handleOnClick,
       handleOnMouseDown,
-      onMouseUp: handleOnMouseUp,
-      onTouchStart: handleOnTouchStart,
-      onTouchEnd: handleOnTouchEnd,
+      handleOnMouseUp,
+      handleOnTouchStart,
+      handleOnTouchEnd,
     },
   };
 }

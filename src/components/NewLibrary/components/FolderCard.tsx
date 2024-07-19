@@ -11,11 +11,12 @@ import {
   Split,
   SplitItem,
 } from "@patternfly/react-core";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import { EllipsisVIcon, FolderIcon } from "../../Icons";
 import { elipses } from "../../LibraryCopy/utils";
 import useLongPress from "../utils/longpress";
+import { useTypedSelector } from "../../../store/hooks";
 
 type Pagination = {
   totalCount: number;
@@ -57,6 +58,7 @@ export const SubFolderCard = ({
   computedPath: string;
   handleFolderClick: (path: string) => void;
 }) => {
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
   const [isOpen, setIsOpen] = useState(false);
@@ -103,12 +105,16 @@ export const SubFolderCard = ({
   const pathName = folderSplitList[folderSplitList.length - 1];
   const folderName = computedPath === "/" ? folder.data.path : pathName;
   const creation_date = folder.data.creation_date;
+  const isSelected = selectedPaths.some(
+    (payload) => payload.path === folder.data.path,
+  );
 
   return (
     <GridItem xl={3} lg={4} xl2={3} md={6} sm={12} key={folder.data.id}>
       <Card
-        isCompact
+        isSelected={isSelected}
         isSelectable
+        isCompact
         isClickable
         isFlat
         onClick={(e) => {
@@ -126,7 +132,10 @@ export const SubFolderCard = ({
         }}
         isRounded
       >
-        <CardHeader actions={{ actions: headerActions }}>
+        <CardHeader
+
+        // actions={{ actions: headerActions }}
+        >
           <Split>
             <SplitItem style={{ marginRight: "1em" }}>
               <FolderIcon />

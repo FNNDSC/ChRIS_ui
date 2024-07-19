@@ -5,15 +5,24 @@ import {
   FormGroup,
   Modal,
   TextInput,
+  Toolbar,
+  ToolbarItem,
+  ToolbarContent,
 } from "@patternfly/react-core";
 import type { MenuProps } from "antd";
 import { Dropdown } from "antd";
 import { AddIcon } from "../../Icons";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { startUpload } from "../../../store/cart/actionts";
+import {
+  startDownload,
+  startUpload,
+  startAnonymize,
+} from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import ChrisAPIClient from "../../../api/chrisapiclient";
+import { Fragment } from "react";
+import { isEmpty } from "lodash";
 
 const items: MenuProps["items"] = [
   {
@@ -35,6 +44,8 @@ const items: MenuProps["items"] = [
 ];
 
 const Operations = () => {
+  const { selectedPaths, fileUploadStatus, folderUploadStatus } =
+    useTypedSelector((state) => state.cart);
   const [groupModal, setGroupModal] = useState(false);
   const [groupName, setGroupName] = useState("");
   const username = useTypedSelector((state) => state.user.username);
@@ -67,40 +78,82 @@ const Operations = () => {
     );
   };
 
+  const toolbarItems = (
+    <Fragment>
+      <ToolbarItem>
+        <Dropdown
+          menu={{
+            items,
+            selectable: true,
+            onClick: (info) => {
+              if (info.key === "3") {
+                folderInput.current?.click();
+              }
+              if (info.key === "2") {
+                fileInput.current?.click();
+              }
+
+              if (info.key === "4") {
+                setGroupModal(!groupModal);
+              }
+            },
+          }}
+        >
+          <Button
+            icon={
+              <AddIcon
+                style={{
+                  color: "inherit",
+                  height: "1em",
+                  width: "1em",
+                }}
+              />
+            }
+          >
+            New
+          </Button>
+        </Dropdown>
+      </ToolbarItem>
+      {selectedPaths.length > 0 && (
+        <>
+          <ToolbarItem>
+            <Button>Create Feed</Button>
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              onClick={() => {
+                dispatch(startDownload(selectedPaths));
+              }}
+            >
+              Download
+            </Button>
+          </ToolbarItem>
+        </>
+      )}
+      {(!isEmpty(fileUploadStatus) || !isEmpty(folderUploadStatus)) && (
+        <Button
+          size="sm"
+          onClick={() => {
+            dispatch(
+              startAnonymize({
+                fileUpload: fileUploadStatus,
+                folderUpload: folderUploadStatus,
+              }),
+            );
+          }}
+        >
+          Anonymize
+        </Button>
+      )}
+    </Fragment>
+  );
+
   return (
     <>
-      <Dropdown
-        menu={{
-          items,
-          selectable: true,
-          onClick: (info) => {
-            if (info.key === "3") {
-              folderInput.current?.click();
-            }
-            if (info.key === "2") {
-              fileInput.current?.click();
-            }
+      <Toolbar id="action-tray">
+        <ToolbarContent>{toolbarItems}</ToolbarContent>
+      </Toolbar>
 
-            if (info.key === "4") {
-              setGroupModal(!groupModal);
-            }
-          },
-        }}
-      >
-        <Button
-          icon={
-            <AddIcon
-              style={{
-                color: "inherit",
-                height: "1em",
-                width: "1em",
-              }}
-            />
-          }
-        >
-          New
-        </Button>
-      </Dropdown>
       <input
         ref={folderInput}
         style={{ display: "none" }}
