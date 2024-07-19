@@ -187,17 +187,12 @@ const QueryBuilder = () => {
             },
           });
 
-          // This is just for production instances where PACSDCM is the default service always.
-          const findIndex = list.findIndex(
-            (listItem: string) => listItem === "PACSDCM",
-          );
+          const selectedPacsService = getDefaultPacsService(list);
 
-          if (!service) {
+          if (!service && selectedPacsService) {
             dispatch({
               type: Types.SET_SELECTED_PACS_SERVICE,
-              payload: {
-                selectedPacsService: findIndex >= 1 ? list[findIndex] : list[0],
-              },
+              payload: { selectedPacsService },
             });
           }
         }
@@ -546,3 +541,25 @@ const Results: React.FC = () => {
     </div>
   );
 };
+
+/**
+ * Selects the default PACS service (which is usually not the PACS service literally called "default").
+ *
+ * 1. Selects the hard-coded "PACSDCM"
+ * 2. Attempts to select the first value which is not "default" (a useless, legacy pfdcm behavior)
+ * 3. Selects the first value
+ */
+function getDefaultPacsService(services: ReadonlyArray<string>): string | null {
+  if (services.includes("PACSDCM")) {
+    return "PACSDCM";
+  }
+  for (const service of services) {
+    if (service !== "default") {
+      return service;
+    }
+  }
+  if (services) {
+    return services[0];
+  }
+  return null;
+}
