@@ -22,7 +22,7 @@ class PfdcmClient {
     this.url = import.meta.env.VITE_PFDCM_URL || "";
   }
 
-  async getPacsServices() {
+  async getPacsServices(): Promise<ReadonlyArray<string>> {
     try {
       if (!this.url) {
         throw new Error(

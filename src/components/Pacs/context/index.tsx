@@ -61,7 +61,7 @@ type PacsQueryPayload = {
   };
 
   [Types.SET_LIST_PACS_SERVICES]: {
-    pacsServices: string[];
+    pacsServices: ReadonlyArray<string>;
   };
 
   [Types.SET_CURRENT_QUERY_TYPE]: {
