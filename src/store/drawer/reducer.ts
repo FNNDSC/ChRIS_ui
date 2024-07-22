@@ -1,3 +1,4 @@
+import { produce } from "immer";
 import type { Reducer } from "redux";
 import {
   DrawerActionTypes,
@@ -28,93 +29,75 @@ const initialState: IDrawerState = {
   },
 };
 
-const reducer: Reducer<IDrawerState> = (
-  state = initialState,
-  action: typeof DrawerActionTypes,
-) => {
-  switch (action.type) {
-    case DrawerActionTypes.SET_DRAWER_STATE: {
-      let newState = {};
-      if (action.payload.maximized === true) {
-        newState = getMaximizedObject(state, action.payload);
-      } else if (action.payload.minimized === true) {
-        newState = getMinimizedObject(state, action.payload);
-      } else {
-        newState = {
-          ...state,
-          [action.payload.actionType]: {
-            ...state[action.payload.actionType],
+const reducer: Reducer<IDrawerState> = produce(
+  (draft: IDrawerState, action: typeof DrawerActionTypes) => {
+    switch (action.type) {
+      case DrawerActionTypes.SET_DRAWER_STATE: {
+        if (action.payload.maximized === true) {
+          getMaximizedObject(draft, action.payload);
+        } else if (action.payload.minimized === true) {
+          getMinimizedObject(draft, action.payload);
+        } else {
+          draft[action.payload.actionType] = {
+            ...draft[action.payload.actionType],
             open: action.payload.open,
             maximized: action.payload.maximized,
-          },
-        };
+          };
+        }
+        break;
       }
 
-      return {
-        ...newState,
-      };
-    }
-
-    case DrawerActionTypes.SET_PREVIEW_PANEL: {
-      return {
-        ...state,
-        preview: {
+      case DrawerActionTypes.SET_PREVIEW_PANEL: {
+        draft.preview = {
           open: true,
           maximized: false,
           currentlyActive: "preview",
-        },
-      };
-    }
+        };
+        break;
+      }
 
-    case DrawerActionTypes.SET_CURRENTLY_ACTIVE: {
-      return {
-        ...state,
-        [action.payload.panel]: {
-          ...state[action.payload.panel],
-          currentlyActive: action.payload.currentlyActive,
-        },
-      };
-    }
+      case DrawerActionTypes.SET_CURRENTLY_ACTIVE: {
+        draft[action.payload.panel].currentlyActive =
+          action.payload.currentlyActive;
+        break;
+      }
 
-    default: {
-      return state;
+      default: {
+        return draft;
+      }
     }
-  }
-};
+  },
+  initialState,
+);
 
 export { reducer as drawerReducer };
 
 export const getMaximizedObject = (
-  state: IDrawerState,
+  draft: IDrawerState,
   payload: DrawerPayloadType,
 ) => {
-  const newState = { ...state };
-  for (const property in newState) {
+  for (const property in draft) {
     if (property !== payload.actionType) {
-      newState[property].open = false;
-      newState[property].maximized = false;
+      draft[property].open = false;
+      draft[property].maximized = false;
     } else {
-      newState[property].open = payload.open;
-      newState[property].maximized = payload.maximized;
+      draft[property].open = payload.open;
+      draft[property].maximized = payload.maximized;
     }
   }
-  return newState;
 };
 
 export const getMinimizedObject = (
-  state: IDrawerState,
+  draft: IDrawerState,
   payload: DrawerPayloadType,
 ) => {
-  const newState = { ...state };
-
-  for (const property in newState) {
+  for (const property in draft) {
     if (property !== payload.actionType) {
-      newState[property].open = true;
-      newState[property].maximized = false;
+      draft[property].open = true;
+      draft[property].maximized = false;
     } else {
-      newState[property].open = payload.open;
-      newState[property].maximized = payload.maximized;
+      draft[property].open = payload.open;
+      draft[property].maximized = payload.maximized;
     }
   }
-  return newState;
 };

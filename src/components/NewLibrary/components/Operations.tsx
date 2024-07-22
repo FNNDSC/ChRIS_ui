@@ -12,18 +12,17 @@ import {
 } from "@patternfly/react-core";
 import type { MenuProps } from "antd";
 import { Dropdown } from "antd";
-import { AddIcon } from "../../Icons";
+import { AddIcon, CloseIcon } from "../../Icons";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   startDownload,
   startUpload,
-  startAnonymize,
+  clearCart,
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { Fragment } from "react";
-import { isEmpty } from "lodash";
 
 const items: MenuProps["items"] = [
   {
@@ -137,9 +136,18 @@ const Operations = () => {
       {selectedPathsCount > 0 && (
         <ToolbarItem
           style={{
-            alignSelf: "center",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
           }}
         >
+          <Button
+            onClick={() => {
+              dispatch(clearCart());
+            }}
+            variant="link"
+            icon={<CloseIcon />}
+          />
           <Text>{selectedPathsCount} selected</Text>
         </ToolbarItem>
       )}
