@@ -1,4 +1,5 @@
 import type { Reducer } from "redux";
+import { produce } from "immer";
 import { type ICartState, ICartActionTypes } from "./types";
 
 const initialState: ICartState = {
@@ -10,132 +11,99 @@ const initialState: ICartState = {
   fileUploadStatus: {},
 };
 
-const reducer: Reducer<ICartState> = (
-  state = initialState,
-  action: typeof ICartActionTypes,
-) => {
-  switch (action.type) {
-    case ICartActionTypes.START_UPLOAD: {
-      return {
-        ...state,
-        openCart: true,
-      };
+const reducer: Reducer<ICartState> = produce(
+  (draft: ICartState, action: typeof ICartActionTypes) => {
+    switch (action.type) {
+      case ICartActionTypes.START_UPLOAD: {
+        draft.openCart = true;
+        break;
+      }
+
+      case ICartActionTypes.SET_SELECTED_PATHS: {
+        draft.selectedPaths.push(action.payload);
+        break;
+      }
+
+      case ICartActionTypes.SET_BULK_SELECTED_PATHS: {
+        draft.selectedPaths.push(...action.payload);
+        break;
+      }
+
+      case ICartActionTypes.CLEAR_SELECTED_PATHS: {
+        draft.selectedPaths = draft.selectedPaths.filter(
+          (pathObj) => pathObj.path !== action.payload,
+        );
+        break;
+      }
+
+      case ICartActionTypes.CLEAR_DOWNLOAD_STATUS: {
+        const { path } = action.payload;
+        delete draft.folderDownloadStatus[path];
+        break;
+      }
+
+      case ICartActionTypes.SET_TOGGLE_CART: {
+        draft.openCart = !draft.openCart;
+        break;
+      }
+
+      case ICartActionTypes.SET_FILE_DOWNLOAD_STATUS: {
+        const { id, step } = action.payload;
+        draft.fileDownloadStatus[id] = step;
+        break;
+      }
+
+      case ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS: {
+        const { id, step } = action.payload;
+        draft.folderDownloadStatus[id] = step;
+        break;
+      }
+
+      case ICartActionTypes.SET_FILE_UPLOAD_STATUS: {
+        const { step, fileName, progress, controller, path, type } =
+          action.payload;
+        draft.fileUploadStatus[fileName] = {
+          currentStep: step,
+          progress,
+          controller,
+          path,
+          type,
+        };
+        break;
+      }
+
+      case ICartActionTypes.SET_FOLDER_UPLOAD_STATUS: {
+        const {
+          step,
+          fileName,
+          totalCount,
+          currentCount,
+          controller,
+          path,
+          type,
+        } = action.payload;
+        draft.folderUploadStatus[fileName] = {
+          currentStep: step,
+          done: currentCount,
+          total: totalCount,
+          controller,
+          path,
+          type,
+        };
+        break;
+      }
+
+      case ICartActionTypes.CLEAR_CART: {
+        draft.selectedPaths = [];
+        break;
+      }
+
+      default: {
+        return draft;
+      }
     }
-
-    case ICartActionTypes.SET_SELECTED_PATHS: {
-      return {
-        ...state,
-        selectedPaths: [...state.selectedPaths, action.payload],
-      };
-    }
-
-    case ICartActionTypes.SET_BULK_SELECTED_PATHS: {
-      return {
-        ...state,
-        selectedPaths: [...state.selectedPaths, ...action.payload],
-      };
-    }
-
-    case ICartActionTypes.CLEAR_SELECTED_PATHS: {
-      const newSelectedPaths = state.selectedPaths.filter((pathObj) => {
-        return pathObj.path !== action.payload;
-      });
-      return {
-        ...state,
-        selectedPaths: newSelectedPaths,
-      };
-    }
-
-    case ICartActionTypes.CLEAR_DOWNLOAD_STATUS: {
-      const { path } = action.payload;
-      const newFolderDownloadStatus = { ...state.folderDownloadStatus };
-      delete newFolderDownloadStatus[path];
-
-      return {
-        ...state,
-        folderDownloadStatus: newFolderDownloadStatus,
-      };
-    }
-
-    case ICartActionTypes.SET_TOGGLE_CART: {
-      return {
-        ...state,
-        openCart: !state.openCart,
-      };
-    }
-
-    case ICartActionTypes.SET_FILE_DOWNLOAD_STATUS: {
-      const { id, step } = action.payload;
-      return {
-        ...state,
-        fileDownloadStatus: {
-          ...state.fileDownloadStatus,
-          [id]: step,
-        },
-      };
-    }
-
-    case ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS: {
-      const { id, step } = action.payload;
-
-      return {
-        ...state,
-        folderDownloadStatus: {
-          ...state.folderDownloadStatus,
-          [id]: step,
-        },
-      };
-    }
-
-    case ICartActionTypes.SET_FILE_UPLOAD_STATUS: {
-      const { step, fileName, progress, controller, path, type } =
-        action.payload;
-
-      return {
-        ...state,
-        fileUploadStatus: {
-          ...state.fileUploadStatus,
-          [fileName]: {
-            currentStep: step,
-            progress,
-            controller,
-            path,
-            type,
-          },
-        },
-      };
-    }
-
-    case ICartActionTypes.SET_FOLDER_UPLOAD_STATUS: {
-      const {
-        step,
-        fileName,
-        totalCount,
-        currentCount,
-        controller,
-        path,
-        type,
-      } = action.payload;
-      return {
-        ...state,
-        folderUploadStatus: {
-          ...state.folderUploadStatus,
-          [fileName]: {
-            currentStep: step,
-            done: currentCount,
-            total: totalCount,
-            controller,
-            path,
-            type,
-          },
-        },
-      };
-    }
-
-    default: {
-      return state;
-    }
-  }
-};
+  },
+  initialState,
+);
 
 export { reducer as cartReducer };
