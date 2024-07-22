@@ -1,10 +1,8 @@
-import axios, { type AxiosProgressEvent } from "axios";
 import type {
   Feed,
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderFileList,
-  FileBrowserFolderList,
   ItemResource,
   Pipeline,
   PipelineList,
@@ -13,20 +11,22 @@ import type {
   PluginInstanceList,
   UserFile,
   UserFileList,
+  Workflow,
 } from "@fnndsc/chrisapi";
-import { take, call, all, fork, put, takeEvery } from "redux-saga/effects";
-import { type EventChannel, eventChannel, END } from "redux-saga";
+import type Client from "@fnndsc/chrisapi";
+import axios, { type AxiosProgressEvent } from "axios";
+import { END, type EventChannel, eventChannel } from "redux-saga";
+import { all, call, fork, put, take, takeEvery } from "redux-saga/effects";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type { IActionTypeParam } from "../../api/model";
 import { getPlugin } from "../../components/CreateFeed/createFeedHelper";
 import { downloadFile } from "../hooks";
 import {
-  setFileDownloadStatus,
-  setFolderDownloadStatus,
-  setFileUploadStatus,
-  setFolderUploadStatus,
-  startDownload,
   setBulkSelectPaths,
+  setFileDownloadStatus,
+  setFileUploadStatus,
+  setFolderDownloadStatus,
+  setFolderUploadStatus,
 } from "./actions";
 import {
   type FileUpload,
@@ -35,7 +35,6 @@ import {
   type SelectionPayload,
   type UploadPayload,
 } from "./types";
-import type Client from "@fnndsc/chrisapi";
 
 function* setStatus(
   type: string,
@@ -49,14 +48,18 @@ function* setStatus(
   }
 }
 
-function* downloadFolder(payload: FileBrowserFolder) {
+function* downloadFolder(payload: FileBrowserFolder, pipelineType: string) {
   const { id } = payload.data;
   const path = payload.data.path;
   const client = ChrisAPIClient.getClient();
 
-  // Check if pipeline exists
+  const pipelineName =
+    pipelineType === "Download Pipeline"
+      ? "zip v20240311"
+      : "DICOM anonymization simple v20230926";
+
   const pipelineList: PipelineList = yield client.getPipelines({
-    name: "zip v20240311",
+    name: pipelineName,
   });
 
   if (!pipelineList || !pipelineList.data) {
@@ -78,10 +81,8 @@ function* downloadFolder(payload: FileBrowserFolder) {
 
   const createdInstance: PluginInstance = yield client.createPluginInstance(
     dircopy.data.id,
-    {
-      //@ts-ignore
-      dir: path,
-    },
+    //@ts-ignore
+    { dir: path },
   ) as Promise<PluginInstance>;
 
   if (!createdInstance) {
@@ -94,14 +95,20 @@ function* downloadFolder(payload: FileBrowserFolder) {
     throw new Error("Failed to create a Feed");
   }
 
-  yield feed.put({
-    name: "Library Download",
-  });
+  const feedName =
+    pipelineType === "Download Pipeline"
+      ? "Library Download"
+      : "Library Anonymize";
 
-  //@ts-ignore
-  const workflow = yield client.createWorkflow(currentPipeline.data.id, {
-    previous_plugin_inst_id: createdInstance.data.id,
-  });
+  yield feed.put({ name: feedName });
+
+  const workflow: Workflow = yield client.createWorkflow(
+    currentPipeline.data.id,
+    //@ts-ignore
+    {
+      previous_plugin_inst_id: createdInstance.data.id,
+    },
+  );
 
   if (!workflow) {
     throw new Error("Failed to create a workflow");
@@ -109,11 +116,18 @@ function* downloadFolder(payload: FileBrowserFolder) {
 
   const pluginInstancesList: PluginInstanceList =
     yield workflow.getPluginInstances();
-
   const pluginInstances = pluginInstancesList.getItems() as PluginInstance[];
   if (pluginInstances.length > 0) {
     const zipInstance = pluginInstances[0];
-    const filePath = `home/chris/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+    let filePath = "";
+
+    if (pipelineType === "Download Pipeline") {
+      filePath = `home/chris/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+    } else {
+      const headerEditInstance = pluginInstances[1];
+      filePath = `home/chris/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-dicom_headeredit_${headerEditInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+    }
+
     const statusResource: ItemResource = yield zipInstance.get();
     let status = statusResource.data.status;
 
@@ -125,9 +139,7 @@ function* downloadFolder(payload: FileBrowserFolder) {
 
     if (status === "finishedSuccessfully") {
       const folderList: FileBrowserFolderFileList =
-        yield client.getFileBrowserFolders({
-          path: filePath,
-        });
+        yield client.getFileBrowserFolders({ path: filePath });
 
       if (!folderList) {
         throw new Error(`Failed to find the files under this path ${filePath}`);
@@ -149,7 +161,10 @@ function* downloadFolder(payload: FileBrowserFolder) {
   }
 }
 
-function* handleIndividualDownload(path: SelectionPayload) {
+function* handleIndividualDownload(
+  path: SelectionPayload,
+  pipelineType: string,
+) {
   const { type, payload } = path;
   const { id } = payload.data;
 
@@ -158,10 +173,11 @@ function* handleIndividualDownload(path: SelectionPayload) {
     if (type === "file") {
       yield downloadFile(payload as FileBrowserFolderFile);
     } else if (type === "folder") {
-      yield downloadFolder(payload as FileBrowserFolder);
+      yield downloadFolder(payload as FileBrowserFolder, pipelineType);
     }
     yield setStatus(type, id, "finished");
   } catch (e) {
+    console.error(e);
     yield setStatus(type, id, "cancelled");
   }
 }
@@ -170,7 +186,13 @@ function* handleDownload(action: IActionTypeParam) {
   const paths = action.payload;
 
   for (const path of paths) {
-    yield fork(handleIndividualDownload, path);
+    yield fork(handleIndividualDownload, path, "Download Pipeline");
+  }
+}
+
+function* handleAnonymizationPayload(paths: SelectionPayload[]) {
+  for (const path of paths) {
+    yield fork(handleIndividualDownload, path, "Anonymization Pipeline");
   }
 }
 
@@ -205,9 +227,7 @@ function createUploadChannel(config: any) {
   });
 }
 
-const count: {
-  [key: string]: number;
-} = {};
+const count: { [key: string]: number } = {};
 
 function* uploadFile(
   client: Client,
@@ -223,6 +243,9 @@ function* uploadFile(
   const path = `${currentPath}/${name}`;
   formData.append("upload_path", path);
   formData.append("fname", file, file.name);
+
+  const fileName = name.split("/")[0];
+  const folderPath = `${currentPath}/${fileName}`;
 
   const config = {
     headers: { Authorization: `Token ${client.auth.token}` },
@@ -243,7 +266,7 @@ function* uploadFile(
         if (!isFolder) {
           yield put(
             setFileUploadStatus({
-              step: "Uploading",
+              step: progress === 100 ? "Upload Complete" : "Uploading",
               fileName: file.name,
               progress,
               controller,
@@ -251,53 +274,25 @@ function* uploadFile(
               type: "file",
             }),
           );
-
-          if (progress === 100) {
-            yield put(
-              setFileUploadStatus({
-                step: "Upload Complete",
-                fileName: file.name,
-                progress,
-                controller,
-                path,
-                type: "file",
-              }),
-            );
-          }
         } else {
-          if (progress === 100) {
-            const nameSplit = name.split("/");
-            const fileName = nameSplit[0];
-            const folderPath = `${currentPath}/${fileName}`;
+          count[fileName] = count[fileName] ? count[fileName] + 1 : 1;
+          yield put(
+            setFolderUploadStatus({
+              step:
+                progress === 100 && count[fileName] === files.length
+                  ? "Upload Complete"
+                  : "Uploading",
+              fileName,
+              totalCount: files.length,
+              currentCount: count[fileName],
+              controller,
+              path: folderPath,
+              type: "folder",
+            }),
+          );
 
-            count[fileName] = count[fileName] ? count[fileName] + 1 : 1;
-
-            yield put(
-              setFolderUploadStatus({
-                step: "Uploading",
-                fileName,
-                totalCount: files.length,
-                currentCount: count[fileName],
-                controller,
-                path: folderPath,
-                type: "folder",
-              }),
-            );
-
-            if (count[fileName] === files.length) {
-              yield put(
-                setFolderUploadStatus({
-                  step: "Upload Complete",
-                  fileName,
-                  totalCount: files.length,
-                  currentCount: count[fileName],
-                  controller,
-                  path: folderPath,
-                  type: "folder",
-                }),
-              );
-              delete count[fileName];
-            }
+          if (progress === 100 && count[fileName] === files.length) {
+            delete count[fileName];
           }
         }
       }
@@ -309,6 +304,7 @@ function* uploadFile(
 
       if (error) {
         // Handle error if needed
+        delete count[fileName];
         throw new Error(`Error uploading file: ${file.name}`);
       }
     }
@@ -345,26 +341,19 @@ function* handleAnonymize(action: IActionTypeParam) {
   const {
     fileUpload,
     folderUpload,
-  }: {
-    fileUpload: FileUpload;
-    folderUpload: FolderUpload;
-  } = action.payload;
+  }: { fileUpload: FileUpload; folderUpload: FolderUpload } = action.payload;
 
   const client = ChrisAPIClient.getClient();
 
-  const filePaths = Object.entries(fileUpload).map(([_name, status]) => {
-    return {
-      type: status.type,
-      path: status.path,
-    };
-  });
+  const filePaths = Object.entries(fileUpload).map(([_name, status]) => ({
+    type: status.type,
+    path: status.path,
+  }));
 
-  const folderPaths = Object.entries(folderUpload).map(([_name, status]) => {
-    return {
-      type: status.type,
-      path: status.path,
-    };
-  });
+  const folderPaths = Object.entries(folderUpload).map(([_name, status]) => ({
+    type: status.type,
+    path: status.path,
+  }));
 
   const createFileSelectionPayload: {
     payload: UserFile;
@@ -396,7 +385,7 @@ function* handleAnonymize(action: IActionTypeParam) {
       const folderToAnon: FileBrowserFolder =
         (await client.getFileBrowserFolderByPath(
           folder.path,
-        )) as unknown as FileBrowserFolder;
+        )) as FileBrowserFolder;
 
       return {
         payload: folderToAnon,
@@ -408,8 +397,10 @@ function* handleAnonymize(action: IActionTypeParam) {
 
   yield put(setBulkSelectPaths(createFolderSelectionPayload));
   yield put(setBulkSelectPaths(createFileSelectionPayload));
-  yield put(startDownload(createFolderSelectionPayload));
-  yield put(startDownload(createFileSelectionPayload));
+  yield call(handleAnonymizationPayload, [
+    ...createFileSelectionPayload,
+    ...createFolderSelectionPayload,
+  ]);
 }
 
 function* watchDownload() {

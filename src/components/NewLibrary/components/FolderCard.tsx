@@ -11,12 +11,13 @@ import {
   Split,
   SplitItem,
 } from "@patternfly/react-core";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import { EllipsisVIcon, FolderIcon } from "../../Icons";
 import { elipses } from "../../LibraryCopy/utils";
-import useLongPress from "../utils/longpress";
+import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 import { useTypedSelector } from "../../../store/hooks";
+import { ThemeContext } from "../../DarkTheme/useTheme";
 
 type Pagination = {
   totalCount: number;
@@ -58,49 +59,10 @@ export const SubFolderCard = ({
   computedPath: string;
   handleFolderClick: (path: string) => void;
 }) => {
+  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
-  const [isOpen, setIsOpen] = useState(false);
-
-  const onSelect = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setIsOpen(!isOpen);
-  };
-
-  const headerActions = (
-    <Dropdown
-      onSelect={onSelect}
-      toggle={(toggleRef) => (
-        <MenuToggle
-          ref={toggleRef}
-          isExpanded={isOpen}
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(!isOpen);
-          }}
-          variant="plain"
-          aria-label="Card header images and actions example kebab toggle"
-        >
-          <EllipsisVIcon aria-hidden="true" />
-        </MenuToggle>
-      )}
-      isOpen={isOpen}
-      onOpenChange={(isOpen) => setIsOpen(isOpen)}
-    >
-      <DropdownList>
-        <DropdownItem
-          onClick={async (e) => {
-            e.stopPropagation();
-          }}
-          key="action"
-        >
-          Share
-        </DropdownItem>
-      </DropdownList>
-    </Dropdown>
-  );
-
   const folderSplitList = folder.data.path.split("/");
   const pathName = folderSplitList[folderSplitList.length - 1];
   const folderName = computedPath === "/" ? folder.data.path : pathName;
@@ -109,9 +71,14 @@ export const SubFolderCard = ({
     (payload) => payload.path === folder.data.path,
   );
 
+  const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+
   return (
     <GridItem xl={3} lg={4} xl2={3} md={6} sm={12} key={folder.data.id}>
       <Card
+        style={{
+          background: selectedBgRow,
+        }}
         isSelected={isSelected}
         isSelectable
         isCompact
@@ -132,10 +99,7 @@ export const SubFolderCard = ({
         }}
         isRounded
       >
-        <CardHeader
-
-        // actions={{ actions: headerActions }}
-        >
+        <CardHeader>
           <Split>
             <SplitItem style={{ marginRight: "1em" }}>
               <FolderIcon />

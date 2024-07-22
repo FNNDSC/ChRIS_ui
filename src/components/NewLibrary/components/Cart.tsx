@@ -1,18 +1,34 @@
 import { Button, Text, Tooltip } from "@patternfly/react-core";
 import { Drawer, List, Space } from "antd";
 import { useDispatch } from "react-redux";
-import { clearSelectFolder, setToggleCart } from "../../../store/cart/actions";
+import {
+  clearSelectFolder,
+  clearDownloadStatus,
+  setToggleCart,
+  startAnonymize,
+} from "../../../store/cart/actions";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
-import { CheckCircleIcon, FileIcon, FolderIcon } from "../../Icons";
+import {
+  CheckCircleIcon,
+  DownloadIcon,
+  FileIcon,
+  FolderIcon,
+} from "../../Icons";
 import "./Cart.css";
 import { isEmpty } from "lodash";
 
 const Cart = () => {
   const dispatch = useDispatch();
-  const { openCart, selectedPaths, fileUploadStatus, folderUploadStatus } =
-    useTypedSelector((state) => state.cart);
+  const {
+    openCart,
+    selectedPaths,
+    fileUploadStatus,
+    folderUploadStatus,
+    fileDownloadStatus,
+    folderDownloadStatus,
+  } = useTypedSelector((state) => state.cart);
 
   return (
     <Drawer
@@ -36,41 +52,46 @@ const Cart = () => {
         </Space>
       }
     >
-      <List
-        className="operation-cart"
-        dataSource={selectedPaths}
-        renderItem={(item) => {
-          return (
-            <List.Item
-              key={item.path}
-              actions={[
-                <Status key={`s-${item.path}`} item={item} />,
-                <Button
-                  onClick={() => {
-                    dispatch(clearSelectFolder(item.path));
-                  }}
-                  variant="secondary"
-                  size="sm"
-                  key={`a-${item.path}`}
-                >
-                  Clear
-                </Button>,
-              ]}
-            >
-              <List.Item.Meta
-                avatar={item.type === "folder" ? <FolderIcon /> : <FileIcon />}
-                title={
-                  <Tooltip content={item.path}>
-                    <a href="http://" style={{ color: "inherit" }}>
-                      {item.path}
-                    </a>
-                  </Tooltip>
-                }
-              />
-            </List.Item>
-          );
-        }}
-      />
+      {(!isEmpty(fileDownloadStatus) || !isEmpty(folderDownloadStatus)) && (
+        <List
+          className="operation-cart"
+          dataSource={selectedPaths}
+          renderItem={(item) => {
+            return (
+              <List.Item
+                key={item.path}
+                actions={[
+                  <Status key={`s-${item.path}`} item={item} />,
+                  <Button
+                    onClick={() => {
+                      dispatch(clearSelectFolder(item.path));
+                      dispatch(clearDownloadStatus(item.path));
+                    }}
+                    variant="secondary"
+                    size="sm"
+                    key={`a-${item.path}`}
+                  >
+                    Clear
+                  </Button>,
+                ]}
+              >
+                <List.Item.Meta
+                  avatar={
+                    item.type === "folder" ? <FolderIcon /> : <FileIcon />
+                  }
+                  title={
+                    <Tooltip content={item.path}>
+                      <a href="http://" style={{ color: "inherit" }}>
+                        {item.path}
+                      </a>
+                    </Tooltip>
+                  }
+                />
+              </List.Item>
+            );
+          }}
+        />
+      )}
 
       <List
         className="operation-cart"
@@ -80,6 +101,21 @@ const Cart = () => {
             key={name}
             actions={[
               <div key={`status-${name}`}>{status.progress}</div>,
+
+              <Tooltip key={`anon-${name}`} content="Anonymize and Download">
+                <Button
+                  onClick={() => {
+                    dispatch(
+                      startAnonymize({
+                        fileUpload: fileUploadStatus,
+                        folderUpload: {},
+                      }),
+                    );
+                  }}
+                  variant="link"
+                  icon={<DownloadIcon />}
+                />
+              </Tooltip>,
               <Button
                 onClick={() => {
                   status.controller.abort();
@@ -111,6 +147,20 @@ const Cart = () => {
               <div key={`status-${name}`}>
                 {status.done}/{status.total}
               </div>,
+              <Tooltip key={`anon-${name}`} content="Anonymize and Download">
+                <Button
+                  onClick={() => {
+                    dispatch(
+                      startAnonymize({
+                        fileUpload: {},
+                        folderUpload: folderUploadStatus,
+                      }),
+                    );
+                  }}
+                  variant="link"
+                  icon={<DownloadIcon />}
+                />
+              </Tooltip>,
               <Button
                 onClick={() => {
                   status.controller.abort();
