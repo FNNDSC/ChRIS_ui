@@ -7,6 +7,8 @@ import {
   Card,
   CardHeader,
   GridItem,
+  Modal,
+  ModalVariant,
   Split,
   SplitItem,
 } from "@patternfly/react-core";
@@ -15,12 +17,13 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Fragment } from "react/jsx-runtime";
 import useDownload, { useTypedSelector } from "../../../store/hooks";
+import { ThemeContext } from "../../DarkTheme/useTheme";
 import { ExternalLinkSquareAltIcon, FileIcon } from "../../Icons";
+import FileDetailView from "../../Preview/FileDetailView";
 import useLongPress, {
   elipses,
   getBackgroundRowColor,
 } from "../utils/longpress";
-import { ThemeContext } from "../../DarkTheme/useTheme";
 
 type Pagination = {
   totalCount: number;
@@ -179,7 +182,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
           </Split>
         </CardHeader>
       </Card>
-      {/*
+      {
         <Modal
           className="library-preview"
           variant={ModalVariant.large}
@@ -190,7 +193,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
         >
           <FileDetailView selectedFile={file} preview="large" />
         </Modal>
-        */}
+      }
     </GridItem>
   );
 };
