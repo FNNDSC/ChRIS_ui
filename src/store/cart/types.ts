@@ -63,4 +63,5 @@ export const ICartActionTypes = keyMirror({
   START_ANONYMIZE: null,
   SET_FILE_UPLOAD_STATUS: null,
   SET_FOLDER_UPLOAD_STATUS: null,
+  CLEAR_DOWNLOAD_STATUS: null,
 });

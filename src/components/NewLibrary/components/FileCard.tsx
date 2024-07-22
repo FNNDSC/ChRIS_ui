@@ -6,23 +6,21 @@ import {
   Button,
   Card,
   CardHeader,
-  Dropdown,
-  DropdownItem,
-  DropdownList,
   GridItem,
-  MenuToggle,
-  type MenuToggleElement,
   Split,
   SplitItem,
 } from "@patternfly/react-core";
 import { notification } from "antd";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Fragment } from "react/jsx-runtime";
-import useDownload from "../../../store/hooks";
+import useDownload, { useTypedSelector } from "../../../store/hooks";
 import { ExternalLinkSquareAltIcon, FileIcon } from "../../Icons";
-import { EllipsisVIcon } from "../../Icons";
-import useLongPress, { elipses } from "../utils/longpress";
+import useLongPress, {
+  elipses,
+  getBackgroundRowColor,
+} from "../utils/longpress";
+import { ThemeContext } from "../../DarkTheme/useTheme";
 
 type Pagination = {
   totalCount: number;
@@ -83,27 +81,30 @@ export const FilesCard = ({
   return (
     <Fragment>
       {files.map((file) => {
-        return (
-          <GridItem xl={4} lg={5} xl2={3} md={6} sm={12} key={file.data.fname}>
-            <SubFileCard file={file} />
-          </GridItem>
-        );
+        return <SubFileCard key={file.data.fname} file={file} />;
       })}
     </Fragment>
   );
 };
 
 export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
+  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
+
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const listOfPaths = file.data.fname.split("/");
   const fileName = listOfPaths[listOfPaths.length - 1];
   const creation_date = file.data.creation_date;
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
+
+  const isSelected = selectedPaths.some((payload) => {
+    payload.path === file.data.fname;
+  });
+  const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
 
   useEffect(() => {
     if (isSuccess) {
@@ -126,61 +127,12 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
     }
   }, [isSuccess, isError, downloadError]);
 
-  const onSelect = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const dropdownItems = (
-    <>
-      <DropdownItem
-        onClick={async (e) => {
-          e.stopPropagation();
-          handleDownloadMutation.mutate(file);
-        }}
-        key="action"
-      >
-        Download
-      </DropdownItem>
-      <DropdownItem
-        onClick={(e) => {
-          console.log("Share", e);
-        }}
-        key="action"
-      >
-        Share
-      </DropdownItem>
-    </>
-  );
-
-  const headerActions = (
-    <>
-      <Dropdown
-        onSelect={onSelect}
-        toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-          <MenuToggle
-            ref={toggleRef}
-            isExpanded={isOpen}
-            onClick={(e) => {
-              e?.stopPropagation();
-              setIsOpen(!isOpen);
-            }}
-            variant="plain"
-            aria-label="Card header images and actions example kebab toggle"
-          >
-            <EllipsisVIcon aria-hidden="true" />
-          </MenuToggle>
-        )}
-        isOpen={isOpen}
-        onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
-      >
-        <DropdownList>{dropdownItems}</DropdownList>
-      </Dropdown>
-    </>
-  );
-
   return (
-    <>
+    <GridItem xl={4} lg={5} xl2={3} md={6} sm={12} key={file.data.fname}>
       <Card
+        style={{
+          background: selectedBgRow,
+        }}
         isCompact
         isSelectable
         isClickable
@@ -207,7 +159,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
         isRounded
       >
         {contextHolder}
-        <CardHeader actions={{ actions: headerActions }}>
+        <CardHeader>
           <Split>
             <SplitItem style={{ marginRight: "1em" }}>
               <FileIcon />
@@ -239,6 +191,6 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
           <FileDetailView selectedFile={file} preview="large" />
         </Modal>
         */}
-    </>
+    </GridItem>
   );
 };

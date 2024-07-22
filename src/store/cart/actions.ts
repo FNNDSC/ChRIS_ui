@@ -65,3 +65,6 @@ export const setFolderUploadStatus = (payload: {
 
 export const setBulkSelectPaths = (payload: SelectionPayload[]) =>
   action(ICartActionTypes.SET_BULK_SELECTED_PATHS, payload);
+
+export const clearDownloadStatus = (path: string) =>
+  action(ICartActionTypes.CLEAR_DOWNLOAD_STATUS, path);

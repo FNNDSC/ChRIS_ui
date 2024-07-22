@@ -9,9 +9,22 @@ import { Button } from "@patternfly/react-core";
 const CartNotify = () => {
   const dispatch = useDispatch();
   const state = useTypedSelector((state) => state.cart);
-  const { selectedPaths } = state;
+  const {
+    fileDownloadStatus,
+    fileUploadStatus,
+    folderDownloadStatus,
+    folderUploadStatus,
+  } = state;
+
+  const showNotification = !isEmpty({
+    ...fileDownloadStatus,
+    ...fileUploadStatus,
+    ...folderDownloadStatus,
+    ...folderUploadStatus,
+  });
+
   return (
-    <Badge dot={!isEmpty(selectedPaths)}>
+    <Badge dot={showNotification}>
       <Button
         variant="tertiary"
         icon={<CartIcon />}
