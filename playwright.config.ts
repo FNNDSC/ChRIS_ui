@@ -2,22 +2,62 @@
 
 import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
 
-const SAFARI_BROWSERS: PlaywrightTestConfig["projects"] = [];
-
 const SHOULD_TEST_SAFARI = getBoolEnvVar('TEST_SAFARI');
 const SHOULD_TEST_LOCALLY = getBoolEnvVar('TEST_LOCAL');
 
-if (SHOULD_TEST_SAFARI) {
-  SAFARI_BROWSERS.push(
+/**
+  * List of browsers to test against.
+  * 
+  * - Use Safari if indicated by `TEST_SAFARI=y`
+  * - Use only one browser (Desktop Chrome) if testing locally. Tests against a local
+  *   backend use features which modify global state, so we can only use one browser.
+  * - Use multiple browsers and mobile browsers if testing against the public testing server.
+  */
+const BROWSERS: PlaywrightTestConfig["projects"] = [];
+
+if (SHOULD_TEST_LOCALLY) {
+  if (SHOULD_TEST_SAFARI) {
+    BROWSERS.push(
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+      },
+    );
+  } else {
+    BROWSERS.push(
+      {
+        name: "chromium",
+        use: { ...devices["Desktop Chrome"] },
+      },
+    );
+  }
+} else {
+  BROWSERS.push(
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
     },
   );
+  if (SHOULD_TEST_SAFARI) {
+    BROWSERS.push(
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+      },
+      {
+        name: 'Mobile Safari',
+        use: { ...devices['iPhone 12'] },
+      },
+    );
+  }
 }
 
 /**
@@ -59,25 +99,7 @@ export default defineConfig({
   },
 
   /* Configure projects for major browsers */
-  projects: [
-    // NOTE: our goal here isn't to extensively test Niivue, all we need is a working WebGL2!
-    {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
-    },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-
-    ...SAFARI_BROWSERS
-  ],
+  projects: BROWSERS,
   webServer: {
     command: `env USE_BABEL_PLUGIN_ISTANBUL=y CI=true npm run ${UI_SCRIPT}`,
     url: `http://localhost:${UI_PORT}`,
