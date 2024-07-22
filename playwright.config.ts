@@ -103,7 +103,8 @@ export default defineConfig({
   webServer: {
     command: `env USE_BABEL_PLUGIN_ISTANBUL=y CI=true npm run ${UI_SCRIPT}`,
     url: `http://localhost:${UI_PORT}`,
-    reuseExistingServer:true
+    reuseExistingServer:true,
+    timeout: SHOULD_TEST_LOCALLY ? 5 * 60_000 : 60_000  // more time is needed for local testing web server, to download container images and example data
   },
 });
 
