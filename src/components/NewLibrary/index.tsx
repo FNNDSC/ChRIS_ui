@@ -12,6 +12,7 @@ import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { EmptyStateComponent, InfoIcon, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
+import BreadcrumbContainer from "./components/BreadcrumbContainer";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import Operations from "./components/Operations";
@@ -156,8 +157,16 @@ const NewLibrary = () => {
             </Paragraph>
           }
         />
-        <div style={{ marginTop: "1em" }}>
+        <div>
           <Operations />
+        </div>
+        <div>
+          <BreadcrumbContainer
+            path={computedPath}
+            handleFolderClick={(path: string) => {
+              navigate(path);
+            }}
+          />
         </div>
       </PageSection>
 
