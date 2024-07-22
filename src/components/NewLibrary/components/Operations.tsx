@@ -8,6 +8,7 @@ import {
   Toolbar,
   ToolbarItem,
   ToolbarContent,
+  Text,
 } from "@patternfly/react-core";
 import type { MenuProps } from "antd";
 import { Dropdown } from "antd";
@@ -52,6 +53,8 @@ const Operations = () => {
   const dispatch = useDispatch();
   const folderInput = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  const selectedPathsCount = selectedPaths.length;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
@@ -130,20 +133,15 @@ const Operations = () => {
           </ToolbarItem>
         </>
       )}
-      {(!isEmpty(fileUploadStatus) || !isEmpty(folderUploadStatus)) && (
-        <Button
-          size="sm"
-          onClick={() => {
-            dispatch(
-              startAnonymize({
-                fileUpload: fileUploadStatus,
-                folderUpload: folderUploadStatus,
-              }),
-            );
+
+      {selectedPathsCount > 0 && (
+        <ToolbarItem
+          style={{
+            alignSelf: "center",
           }}
         >
-          Anonymize
-        </Button>
+          <Text>{selectedPathsCount} selected</Text>
+        </ToolbarItem>
       )}
     </Fragment>
   );

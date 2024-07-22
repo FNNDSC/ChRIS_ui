@@ -46,6 +46,17 @@ const reducer: Reducer<ICartState> = (
       };
     }
 
+    case ICartActionTypes.CLEAR_DOWNLOAD_STATUS: {
+      const { path } = action.payload;
+      const newFolderDownloadStatus = { ...state.folderDownloadStatus };
+      delete newFolderDownloadStatus[path];
+
+      return {
+        ...state,
+        folderDownloadStatus: newFolderDownloadStatus,
+      };
+    }
+
     case ICartActionTypes.SET_TOGGLE_CART: {
       return {
         ...state,

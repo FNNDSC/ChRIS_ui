@@ -1,11 +1,11 @@
-import { ReactNode } from "react";
 import {
   Button,
-  Tooltip,
+  DrawerActions,
   DrawerCloseButton,
   DrawerHead,
-  DrawerActions,
+  Tooltip,
 } from "@patternfly/react-core";
+import type { ReactNode } from "react";
 import { CompressArrowsAltIcon, ExpandArrowsAltIcon } from "../Icons";
 
 interface ButtonProps {
