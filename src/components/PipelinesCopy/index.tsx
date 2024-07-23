@@ -7,21 +7,22 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Collapse } from "antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
+import { usePaginate } from "../Feeds/usePaginate";
 import "./Pipelines.css";
 import PipelinesComponent from "./PipelinesComponent";
+import PipelineUpload from "./PipelineUpload";
 import {
   PIPELINEQueryTypes,
-  PerPipelinePayload,
+  type PerPipelinePayload,
   PipelineContext,
   Types,
 } from "./context";
-import { usePaginate } from "../Feeds/usePaginate";
 
 type LoadingResources = {
   [key: string]: boolean;
@@ -31,6 +32,7 @@ type LoadingResourceError = {
 };
 
 const PipelinesCopy = () => {
+  const queryClient = useQueryClient();
   const { state, dispatch } = useContext(PipelineContext);
   const { isDarkTheme } = useContext(ThemeContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
@@ -66,6 +68,12 @@ const PipelinesCopy = () => {
 
   const onToggle = () => {
     setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const fetchPipelinesAgain = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["pipelines"],
+    });
   };
 
   const handleChange = async (key: string | string[]) => {
@@ -165,9 +173,16 @@ const PipelinesCopy = () => {
         style={{
           display: "flex",
           justifyContent: "space-between",
+          alignItems: "flex-end",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "flex-end",
+          }}
+        >
           <Dropdown
             onSelect={onSelect}
             toggle={(toggleRef) => {
@@ -192,6 +207,7 @@ const PipelinesCopy = () => {
             }}
           />
         </div>
+
         <Pagination
           itemCount={data?.totalCount ? data.totalCount : 0}
           perPage={pageState.perPage}
@@ -200,6 +216,8 @@ const PipelinesCopy = () => {
           onPerPageSelect={handlePerPageSet}
         />
       </div>
+
+      <PipelineUpload fetchPipelinesAgain={fetchPipelinesAgain} />
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />
