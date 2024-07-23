@@ -9,6 +9,8 @@ import {
   FormGroup,
   Grid,
   GridItem,
+  HelperText,
+  HelperTextItem,
   Icon,
   MenuToggle,
   type MenuToggleElement,
@@ -23,8 +25,6 @@ import {
   TextInputGroup,
   TextInputGroupMain,
   TextVariants,
-  HelperText,
-  HelperTextItem,
 } from "@patternfly/react-core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Alert, Spin, Typography, notification } from "antd";
@@ -40,7 +40,12 @@ import { InfoIcon, SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
 import WrapperConnect from "../Wrapper";
-import { fetchResource } from "../../api/common";
+
+import {
+  fetchPluginForMeta,
+  fetchPluginMetas,
+  handleInstallPlugin,
+} from "../PipelinesCopy/utils";
 
 const { Paragraph } = Typography;
 
@@ -98,24 +103,17 @@ const Store = () => {
       throw new Error("No url found for a store");
     }
     const client = new Client(url);
-
     try {
       const params = {
         limit: 20,
         offset: 0,
         name: search.trim().toLowerCase(),
       };
-      const fn = client.getPluginMetas;
-      const boundFn = fn.bind(client);
-      const { resource: pluginMetas } = await fetchResource<PluginMeta>(
-        params,
-        boundFn,
-      );
+      const pluginMetas = await fetchPluginMetas(client, params);
 
       const newPluginPayload = await Promise.all(
         pluginMetas.map(async (plugin) => {
-          const plugins = await plugin.getPlugins({ limit: 1000 });
-          const pluginItems = plugins.getItems();
+          const pluginItems = await fetchPluginForMeta(plugin);
           const version = pluginItems?.[0]?.data.version || "";
           return { data: { ...plugin.data, version, plugins: pluginItems } };
         }),
@@ -129,21 +127,13 @@ const Store = () => {
 
   const fetchExistingPlugins = async () => {
     const existingClient = ChrisAPIClient.getClient();
-    const params = {
-      limit: 20,
-      offset: 0,
-    };
-    const fn = existingClient.getPluginMetas;
-    const boundFn = fn.bind(existingClient);
-    const { resource: plugins } = await fetchResource<PluginMeta>(
-      params,
-      boundFn,
-    );
+
+    const plugins = await fetchPluginMetas(existingClient);
+
     if (plugins) {
       const newPluginPayload = Promise.all(
         plugins.map(async (plugin) => {
-          const plugins = await plugin.getPlugins({ limit: 1000 });
-          const pluginItems = plugins.getItems();
+          const pluginItems = await fetchPluginForMeta(plugin);
           return {
             data: {
               ...plugin.data,
@@ -157,13 +147,6 @@ const Store = () => {
   };
 
   const handleInstall = async (selectedPlugin: Plugin) => {
-    const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
-      "/api/v1/",
-      "/chris-admin/api/v1/",
-    );
-    if (!adminURL)
-      throw new Error("Please provide a link to your chris-admin url");
-
     const client = ChrisAPIClient.getClient();
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
     const nonAdminCredentials = `Token ${client.auth.token}`;
@@ -171,28 +154,8 @@ const Store = () => {
       ? `Basic ${adminCredentials}`
       : nonAdminCredentials;
 
-    const pluginData = {
-      compute_names: "host",
-      name: selectedPlugin.data.name,
-      version: selectedPlugin.data.version,
-      plugin_store_url: selectedPlugin.url,
-    };
-
     try {
-      const response = await fetch(adminURL, {
-        method: "POST",
-        headers: {
-          Authorization: authorization,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(pluginData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await handleInstallPlugin(authorization, selectedPlugin);
       setCookie("admin_username", username, { path: "/", maxAge: 86400 });
       setCookie("admin_password", password, { path: "/", maxAge: 86400 });
 
@@ -250,7 +213,6 @@ const Store = () => {
     }
 
     if (handleInstallMutation.isError) {
-      console.log();
       api.error({
         message: "Unable to install this plugin...",
         description: handleInstallMutation.error.message,
