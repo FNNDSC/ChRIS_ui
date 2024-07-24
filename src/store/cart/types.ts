@@ -31,14 +31,21 @@ export interface FileUpload {
   };
 }
 
+export enum DownloadTypes {
+  started = "started",
+  progress = "progress",
+  finished = "finished",
+  cancelled = "cancelled",
+}
+
 export interface ICartState {
   selectedPaths: SelectionPayload[];
   openCart: boolean;
   folderDownloadStatus: {
-    [key: string]: string;
+    [key: string]: DownloadTypes;
   };
   fileDownloadStatus: {
-    [key: string]: string;
+    [key: string]: DownloadTypes;
   };
   folderUploadStatus: FolderUpload;
   fileUploadStatus: FileUpload;
