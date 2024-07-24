@@ -12,12 +12,15 @@ import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import {
   CheckCircleIcon,
+  CloseIcon,
   DownloadIcon,
   FileIcon,
   FolderIcon,
 } from "../../Icons";
 import "./Cart.css";
 import { isEmpty } from "lodash";
+import ProgressRing from "./RadialProgress";
+import { DownloadTypes } from "../../../store/cart/types";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -92,7 +95,6 @@ const Cart = () => {
           }}
         />
       )}
-
       <List
         className="operation-cart"
         dataSource={Object.entries(fileUploadStatus)}
@@ -100,22 +102,38 @@ const Cart = () => {
           <List.Item
             key={name}
             actions={[
-              <div key={`status-${name}`}>{status.progress}</div>,
-
-              <Tooltip key={`anon-${name}`} content="Anonymize and Download">
-                <Button
-                  onClick={() => {
-                    dispatch(
-                      startAnonymize({
-                        fileUpload: fileUploadStatus,
-                        folderUpload: {},
-                      }),
-                    );
-                  }}
-                  variant="link"
-                  icon={<DownloadIcon />}
+              status.currentStep === "Upload Complete" ||
+              status.progress === 100 ? (
+                <Tooltip key={`anon-${name}`} content="Anonymize and Download">
+                  <Button
+                    onClick={() => {
+                      dispatch(
+                        startAnonymize({
+                          fileUpload: fileUploadStatus,
+                          folderUpload: {},
+                        }),
+                      );
+                    }}
+                    variant="link"
+                    icon={<DownloadIcon />}
+                  />
+                </Tooltip>
+              ) : null,
+              <div key={`status-${name}`}>{status.currentStep}</div>,
+              status.progress === 100 ||
+              status.currentStep === "UploadComplete" ? (
+                <CheckCircleIcon
+                  key={`anon-${name}-progress`}
+                  color="#3E8635"
+                  width="2em"
+                  height="2em"
                 />
-              </Tooltip>,
+              ) : (
+                <ProgressRing
+                  key={`anon-${name}-progress`}
+                  value={status.progress}
+                />
+              ),
               <Button
                 onClick={() => {
                   status.controller.abort();
@@ -128,11 +146,7 @@ const Cart = () => {
               </Button>,
             ]}
           >
-            <List.Item.Meta
-              avatar={<FileIcon />}
-              title={name}
-              description={`Progress: ${status.progress}% - Step: ${status.currentStep}`}
-            />
+            <List.Item.Meta avatar={<FileIcon />} title={name} />
           </List.Item>
         )}
       />
@@ -144,23 +158,44 @@ const Cart = () => {
           <List.Item
             key={name}
             actions={[
-              <div key={`status-${name}`}>
-                {status.done}/{status.total}
-              </div>,
-              <Tooltip key={`anon-${name}`} content="Anonymize and Download">
-                <Button
-                  onClick={() => {
-                    dispatch(
-                      startAnonymize({
-                        fileUpload: {},
-                        folderUpload: folderUploadStatus,
-                      }),
-                    );
-                  }}
-                  variant="link"
-                  icon={<DownloadIcon />}
+              status.currentStep === "Upload Complete" ||
+              status.done === status.total ? (
+                <Tooltip key={`anon-${name}`} content="Anonymize and Download">
+                  <Button
+                    onClick={() => {
+                      dispatch(
+                        startAnonymize({
+                          fileUpload: {},
+                          folderUpload: folderUploadStatus,
+                        }),
+                      );
+                    }}
+                    variant="link"
+                    icon={<DownloadIcon />}
+                  />
+                </Tooltip>
+              ) : null,
+              <div key={`anon-${name}-progress`}>{status.currentStep}</div>,
+              status.done === status.total ||
+              status.currentStep === "UploadComplete" ? (
+                <CheckCircleIcon
+                  key={`anon-${name}-progress`}
+                  color="#3E8635"
+                  width="2em"
+                  height="2em"
                 />
-              </Tooltip>,
+              ) : status.currentStep.includes("Cancelled") ? (
+                <CloseIcon
+                  color="red"
+                  width="2em"
+                  height="2em"
+                  key={`anon-${name}-cancel`}
+                />
+              ) : (
+                <div key={`anon-${name}-progress`}>
+                  {status.done}/{status.total}
+                </div>
+              ),
               <Button
                 onClick={() => {
                   status.controller.abort();
@@ -173,15 +208,10 @@ const Cart = () => {
               </Button>,
             ]}
           >
-            <List.Item.Meta
-              avatar={<FolderIcon />}
-              title={name}
-              description={`Step: ${status.currentStep}`}
-            />
+            <List.Item.Meta avatar={<FolderIcon />} title={name} />
           </List.Item>
         )}
       />
-
       {isEmpty(folderUploadStatus) &&
         isEmpty(fileUploadStatus) &&
         isEmpty(selectedPaths) && <EmptyStateComponent title="No data..." />}
@@ -190,13 +220,6 @@ const Cart = () => {
 };
 
 export default Cart;
-
-export enum DownloadTypes {
-  started = "started",
-  progress = "progress",
-  finished = "finished",
-  cancelled = "cancelled",
-}
 
 export const Status = ({ item }: { item: SelectionPayload }) => {
   const fileDownloadStatus = useTypedSelector(
@@ -209,39 +232,31 @@ export const Status = ({ item }: { item: SelectionPayload }) => {
   const { type, payload } = item;
   const { id } = payload.data;
 
-  if (type === "file") {
-    const currentStatus = fileDownloadStatus[id];
-
-    return (
-      <>
-        {currentStatus === DownloadTypes.started ? (
-          <DotsIndicator title="" />
-        ) : currentStatus === DownloadTypes.finished ? (
+  const getStatusIcon = (currentStatus: DownloadTypes | undefined) => {
+    switch (currentStatus) {
+      case DownloadTypes.started:
+        return <DotsIndicator title="" />;
+      case DownloadTypes.finished:
+        return (
           <Button
             variant="plain"
             icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
           />
-        ) : null}
-      </>
-    );
+        );
+      case DownloadTypes.cancelled:
+        return <Text>Cancelled</Text>;
+      default:
+        return currentStatus ? <DotsIndicator title={currentStatus} /> : null;
+    }
+  };
+
+  if (type === "file") {
+    return getStatusIcon(fileDownloadStatus[id]);
   }
 
   if (type === "folder") {
-    const currentStatus = folderDownloadStatus[id];
-
-    return (
-      <>
-        {currentStatus === DownloadTypes.finished ? (
-          <Button
-            variant="plain"
-            icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
-          />
-        ) : currentStatus === DownloadTypes.cancelled ? (
-          <Text>Cancelled</Text>
-        ) : currentStatus ? (
-          <DotsIndicator title={currentStatus} />
-        ) : null}
-      </>
-    );
+    return getStatusIcon(folderDownloadStatus[id]);
   }
+
+  return null;
 };
