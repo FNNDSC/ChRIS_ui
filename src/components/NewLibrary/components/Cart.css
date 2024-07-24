@@ -2,3 +2,16 @@
     display: none !important ;
 } 
 
+.progress-ring {
+    transition: 0.35s stroke-dashoffset;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    height:2em;
+    width:2em
+  }
+  
+  .progress-ring__circle {
+    transition: 0.35s stroke-dashoffset;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }

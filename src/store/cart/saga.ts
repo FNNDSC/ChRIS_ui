@@ -35,6 +35,7 @@ import {
   type SelectionPayload,
   type UploadPayload,
 } from "./types";
+import { isEmpty, chunk } from "lodash";
 
 function* setStatus(
   type: string,
@@ -199,9 +200,10 @@ function* handleAnonymizationPayload(paths: SelectionPayload[]) {
 function createUploadChannel(config: any) {
   return eventChannel((emitter) => {
     const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
-      //@ts-ignore
-      const progress = Math.round(progressEvent.progress * 100);
-      emitter({ progress });
+      if (progressEvent.progress) {
+        const progress = Math.round(progressEvent.progress * 100);
+        emitter({ progress });
+      }
     };
 
     const axiosConfig = {
@@ -215,11 +217,17 @@ function createUploadChannel(config: any) {
       .then((response) => {
         // Assuming that data is created
         const progress = 100;
-        emitter({ response, progress });
+        emitter({ progress, response });
         emitter(END);
       })
       .catch((error) => {
-        emitter({ error });
+        let message = "Unexpected Error while upload the file";
+        if (axios.isAxiosError(error)) {
+          message = !isEmpty(error.response?.data)
+            ? error.response?.data
+            : error.message;
+        }
+        emitter({ error: message });
         emitter(END);
       });
 
@@ -227,114 +235,103 @@ function createUploadChannel(config: any) {
   });
 }
 
-const count: { [key: string]: number } = {};
-
-function* uploadFile(
+function* uploadFileBatch(
   client: Client,
-  file: File,
   files: File[],
   currentPath: string,
   isFolder: boolean,
-  controller: AbortController,
+  batchSize: number,
 ) {
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
-  const formData = new FormData();
-  const name = isFolder ? file.webkitRelativePath : file.name;
-  const path = `${currentPath}/${name}`;
-  formData.append("upload_path", path);
-  formData.append("fname", file, file.name);
+  const batches = chunk(files, batchSize);
+  const totalFiles = files.length;
+  let uploadedFilesCount = 0;
 
-  const fileName = name.split("/")[0];
-  const folderPath = `${currentPath}/${fileName}`;
+  for (const batch of batches) {
+    const controllers: AbortController[] = [];
 
-  const config = {
-    headers: { Authorization: `Token ${client.auth.token}` },
-    signal: controller.signal,
-    url,
-    data: formData,
-  };
+    yield all(
+      batch.map((file) => {
+        const formData = new FormData();
+        const name = isFolder ? file.webkitRelativePath : file.name;
+        const path = `${currentPath}/${name}`;
 
-  const uploadChannel: EventChannel<any> = yield call(
-    createUploadChannel,
-    config,
-  );
-  try {
-    while (true) {
-      const { progress, response, error } = yield take(uploadChannel);
+        formData.append("upload_path", path);
+        formData.append("fname", file, file.name);
 
-      if (progress !== undefined) {
-        if (!isFolder) {
-          yield put(
-            setFileUploadStatus({
-              step: progress === 100 ? "Upload Complete" : "Uploading",
-              fileName: file.name,
-              progress,
-              controller,
-              path,
-              type: "file",
-            }),
-          );
-        } else {
-          count[fileName] = count[fileName] ? count[fileName] + 1 : 1;
-          yield put(
-            setFolderUploadStatus({
-              step:
-                progress === 100 && count[fileName] === files.length
-                  ? "Upload Complete"
-                  : "Uploading",
-              fileName,
-              totalCount: files.length,
-              currentCount: count[fileName],
-              controller,
-              path: folderPath,
-              type: "folder",
-            }),
-          );
+        const controller = new AbortController();
+        controllers.push(controller);
 
-          if (progress === 100 && count[fileName] === files.length) {
-            delete count[fileName];
+        const config = {
+          headers: { Authorization: `Token ${client.auth.token}` },
+          signal: controller.signal,
+          url,
+          data: formData,
+        };
+
+        const uploadChannel: EventChannel<any> = createUploadChannel(config);
+
+        return call(function* () {
+          try {
+            while (true) {
+              const { progress, response, error } = yield take(uploadChannel);
+
+              if (progress !== undefined) {
+                yield put(
+                  setFileUploadStatus({
+                    step:
+                      progress === 100 && response
+                        ? "Upload Complete"
+                        : "Uploading...",
+                    fileName: file.name,
+                    progress: progress,
+                    controller: controllers[0],
+                    path: currentPath,
+                    type: "file",
+                  }),
+                );
+              }
+
+              if (response || error) {
+                break;
+              }
+            }
+          } finally {
+            uploadChannel.close();
           }
-        }
-      }
+        });
+      }),
+    );
 
-      if (response) {
-        // Handle successful response if needed
-        break;
-      }
+    uploadedFilesCount += batch.length;
 
-      if (error) {
-        // Handle error if needed
-        delete count[fileName];
-        throw new Error(`Error uploading file: ${file.name}`);
-      }
+    if (isFolder) {
+      const name = files[0].webkitRelativePath;
+      const fileName = name.split("/")[0];
+      yield put(
+        setFolderUploadStatus({
+          step:
+            uploadedFilesCount === totalFiles
+              ? "Upload Complete"
+              : "Uploading...",
+          fileName: fileName,
+          totalCount: totalFiles,
+          currentCount: uploadedFilesCount,
+          controller: controllers[0],
+          path: currentPath,
+          type: "folder",
+        }),
+      );
     }
-  } finally {
-    uploadChannel.close();
   }
 }
 
 function* handleUpload(action: IActionTypeParam) {
   const { files, isFolder, currentPath }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
+  const batchSize = files.length > 500 ? 100 : 50; // Adjust the batch size as needed
 
-  try {
-    yield all(
-      files.map((file: File) => {
-        const controller = new AbortController();
-        return call(
-          uploadFile,
-          client,
-          file,
-          files,
-          currentPath,
-          isFolder,
-          controller,
-        );
-      }),
-    );
-  } catch (error) {
-    console.error("Error uploading files:", error);
-  }
+  yield call(uploadFileBatch, client, files, currentPath, isFolder, batchSize);
 }
 
 function* handleAnonymize(action: IActionTypeParam) {
