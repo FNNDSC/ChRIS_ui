@@ -5,23 +5,12 @@ import axios from "axios";
 import { isEmpty } from "lodash";
 import { useRef, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { fetchPluginMetas, handleInstallPlugin } from "./utils";
-
-// Function to extract plugin name and version from error message
-const extractPluginInfo = (
-  errorMessage: string,
-): { name: string; version: string } | null => {
-  // Regular expression to match plugin name and version
-  const regex = /Couldn't find any plugin with name (\S+) and version (\S+)./;
-  const match = errorMessage.match(regex);
-
-  if (match) {
-    const [, name, version] = match;
-    return { name, version };
-  }
-
-  return null;
-};
+import {
+  fetchPluginMetasFromStore,
+  handleInstallPlugin,
+  uploadPipelineSourceFile,
+  extractPluginInfo,
+} from "./utils";
 
 interface Notification {
   type: "warning" | "success" | "info" | "error" | undefined;
@@ -39,44 +28,34 @@ const PipelineUpload = ({
     description: "",
   });
 
+  /**
+   * Installs a specified plugin by its name and version.
+   * @param {string} name - The name of the plugin to install.
+   * @param {string} version - The version of the plugin to install.
+   * @throws Will throw an error if the store URL is not set or if the plugin installation fails.
+   */
   const installPlugin = async (name: string, version: string) => {
     setNotification({
       type: "info",
       description: `Installing plugin: ${name} version: ${version}`,
     });
+
     const storeUrl = import.meta.env.VITE_CHRIS_STORE_URL;
     if (!storeUrl) {
       throw new Error("Failed to connect to a remote store");
     }
+
     const storeClient = new Client(storeUrl);
-    const pluginMetas = await fetchPluginMetas(storeClient, {
-      limit: 1,
-      offset: 0,
-      name_exact: name,
-    });
 
-    if (!pluginMetas || !pluginMetas.length) {
-      throw new Error(`Failed to find ${name} in the store...`);
-    }
-
-    const pluginMeta = pluginMetas[0];
-    const pluginList = await pluginMeta.getPlugins({ limit: 1000 });
-    const plugins = pluginList.getItems();
-
-    if (!plugins) {
-      throw new Error(
-        "Failed to fetch plugins assosciated with this plugin meta...",
-      );
-    }
-
-    const selectedPlugin = plugins.find(
-      (plugin: Plugin) => plugin.data.version === version,
+    // Fetch plugin metadata from the store
+    const selectedPlugin = await fetchPluginMetasFromStore(
+      storeClient,
+      name,
+      version,
     );
-    if (!selectedPlugin) {
-      throw new Error(`Failed to find the ${version} of ${name} in the store`);
-    }
 
-    // This feature is only available to logged in users
+    // This feature is only available to logged-in users with a valid token
+    // If you have a token, install the plugin by making a request to the admin URL
     const client = ChrisAPIClient.getClient();
     const nonAdminCredentials = `Token ${client.auth.token}`;
     try {
@@ -88,19 +67,13 @@ const PipelineUpload = ({
     }
   };
 
-  const retryUpload = async (file: File) => {
-    const client = ChrisAPIClient.getClient();
-    const url = `${import.meta.env.VITE_CHRIS_UI_URL}pipelines/sourcefiles/`;
-    const formData = new FormData();
-    formData.append("fname", file, file.name);
-    const config = {
-      headers: { Authorization: `Token ${client.auth.token}` },
-    };
-    await axios.post(url, formData, config);
-  };
-
+  /**
+   * Handles file changes and attempts to upload the selected files.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The file input change event.
+   */
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+    const client = ChrisAPIClient.getClient();
 
     if (files) {
       for (const file of Array.from(files)) {
@@ -108,42 +81,66 @@ const PipelineUpload = ({
 
         while (retryUploadFile) {
           try {
-            // Attempt to upload the file
-            await retryUpload(file);
+            // First attempt to upload the file
+            await uploadPipelineSourceFile(client, file);
+
+            // Pipeline uploaded successfully
             setNotification({
               type: "success",
               description: "Pipeline uploaded successfully",
             });
+
+            // Reset the cache key to show the updated list
             fetchPipelinesAgain();
-            retryUploadFile = false; // Exit loop if upload was successful
+
+            retryUploadFile = false; // Exit the loop if the upload was successful
           } catch (error) {
             if (axios.isAxiosError(error)) {
               const errorDictionary = error.response?.data;
 
-              if (errorDictionary) {
-                const plugin_tree_errors = errorDictionary.plugin_tree;
-                const extractedInfo = extractPluginInfo(plugin_tree_errors[0]);
+              // Handle specific errors returned by the server
+              if (!isEmpty(errorDictionary?.name)) {
+                // This handles the case where a pipeline with the same name has been registered before
+                const message = errorDictionary.name[0];
+                setNotification({
+                  type: "error",
+                  description: `Error: ${message}.`,
+                });
+                retryUploadFile = false;
+              }
 
+              if (!isEmpty(errorDictionary?.plugin_tree)) {
+                // This handles the case when the pipeline has plugins with versions missing in the store. CUBE throws missing plugin errors one at a time, so we reattempt the upload and install the missing plugins until the pipeline is uploaded successfully.
+                const plugin_tree_errors = errorDictionary.plugin_tree;
+                // Extract the missing plugin's name and version from the error message
+                const extractedInfo = extractPluginInfo(plugin_tree_errors[0]);
                 if (extractedInfo) {
                   const { name, version } = extractedInfo;
 
                   setNotification({
                     type: "error",
-                    description: `Pipeline requires plugin:${name} with version:${version}`,
+                    description: `Error: Pipeline requires plugin "${name}" with version "${version}". Attempting to install the required plugin.`,
                   });
 
                   try {
-                    // Attempt to install the plugin
+                    // Attempt to install the plugin from the registered store
                     await installPlugin(name, version);
                   } catch (installError: any) {
                     setNotification({
                       type: "error",
-                      description: `${installError.message}. You can install this plugin by connecting to a different store`,
+                      description: `Failed to install plugin "${name}" version "${version}". ${installError.message}. You may need to connect to a different store to install this plugin.`,
                     });
                     retryUploadFile = false; // Stop retrying if plugin installation fails
                   }
                 }
               }
+            } else {
+              // Handle unexpected errors
+              setNotification({
+                type: "error",
+                description: "An unexpected error occurred",
+              });
+              retryUploadFile = false;
             }
           }
         }
