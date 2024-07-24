@@ -44,8 +44,7 @@ const items: MenuProps["items"] = [
 ];
 
 const Operations = () => {
-  const { selectedPaths, fileUploadStatus, folderUploadStatus } =
-    useTypedSelector((state) => state.cart);
+  const { selectedPaths } = useTypedSelector((state) => state.cart);
   const [groupModal, setGroupModal] = useState(false);
   const [groupName, setGroupName] = useState("");
   const username = useTypedSelector((state) => state.user.username);
@@ -65,6 +64,11 @@ const Operations = () => {
         currentPath: `home/${username}/uploads/test-upload-cart`,
       }),
     );
+
+    // Reset file input
+    if (fileInput.current) {
+      fileInput.current.value = "";
+    }
   };
 
   const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +82,10 @@ const Operations = () => {
         currentPath: `home/${username}/uploads`,
       }),
     );
+    // Reset folder input
+    if (folderInput.current) {
+      folderInput.current.value = "";
+    }
   };
 
   const toolbarItems = (
@@ -162,10 +170,11 @@ const Operations = () => {
 
       <input
         ref={folderInput}
-        style={{ display: "none" }}
         type="file"
+        style={{ display: "none" }}
         //@ts-ignore
         webkitdirectory="true"
+        directory=""
         onChange={handleFolderChange}
         multiple
       />
