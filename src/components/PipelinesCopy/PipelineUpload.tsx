@@ -1,4 +1,4 @@
-import Client, { type Plugin } from "@fnndsc/chrisapi";
+import Client from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import { Alert } from "antd";
 import axios from "axios";
@@ -145,6 +145,11 @@ const PipelineUpload = ({
           }
         }
       }
+    }
+
+    // Reset the file input value to allow re-uploading the same file
+    if (fileInput.current) {
+      fileInput.current.value = "";
     }
   };
 
