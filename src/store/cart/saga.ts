@@ -178,7 +178,6 @@ function* handleIndividualDownload(
     }
     yield setStatus(type, id, "finished");
   } catch (e) {
-    console.error(e);
     yield setStatus(type, id, "cancelled");
   }
 }
