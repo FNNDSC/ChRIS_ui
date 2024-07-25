@@ -157,17 +157,14 @@ const NewLibrary = () => {
             </Paragraph>
           }
         />
-        <div>
-          <Operations />
-        </div>
-        <div>
-          <BreadcrumbContainer
-            path={computedPath}
-            handleFolderClick={(path: string) => {
-              navigate(path);
-            }}
-          />
-        </div>
+
+        <Operations />
+        <BreadcrumbContainer
+          path={computedPath}
+          handleFolderClick={(path: string) => {
+            navigate(path);
+          }}
+        />
       </PageSection>
 
       <PageSection style={{ paddingBlockStart: "0" }}>

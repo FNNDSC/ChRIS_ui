@@ -164,8 +164,19 @@ const Operations = () => {
 
   return (
     <>
-      <Toolbar id="action-tray">
-        <ToolbarContent>{toolbarItems}</ToolbarContent>
+      <Toolbar
+        style={{
+          paddingLeft: "0",
+        }}
+        id="action-tray"
+      >
+        <ToolbarContent
+          style={{
+            paddingInlineStart: "0",
+          }}
+        >
+          {toolbarItems}
+        </ToolbarContent>
       </Toolbar>
 
       <input
