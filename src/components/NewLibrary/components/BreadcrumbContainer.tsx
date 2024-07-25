@@ -24,7 +24,7 @@ const BreadcrumbContainer = ({
   };
 
   return (
-    <Toolbar>
+    <Toolbar style={{ paddingTop: "0", paddingLeft: "0" }}>
       <ToolbarContent>
         <ToolbarItem>
           <Breadcrumb>
