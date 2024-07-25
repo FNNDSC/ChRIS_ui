@@ -4,12 +4,12 @@ export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 import type { Feed, FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
 import ChrisAPIClient from "../api/chrisapiclient";
-import { getFileName } from "../components/FeedOutputBrowser/FileBrowser";
+import { getFileName } from "../api/common";
 
 export const createLinkAndDownload = (url: string, fileName: string) => {
   const link = document.createElement("a");
   link.href = url;
-  //link.target = 'blank';
+  link.target = "blank";
   link.download = fileName;
   document.body.appendChild(link);
   link.click();
@@ -27,7 +27,6 @@ export const downloadPublicFile = async (file: FileBrowserFolderFile) => {
 };
 
 export const downloadFile = async (file: FileBrowserFolderFile) => {
-  console.log("File", file);
   const fileName = getFileName(file.data.fname);
   const client = ChrisAPIClient.getClient();
   const response = await client.createDownloadToken();

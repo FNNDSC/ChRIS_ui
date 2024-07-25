@@ -454,3 +454,7 @@ export function needsQuoting(value: string) {
   const quotedValue = quote(value);
   return quotedValue !== value;
 }
+
+export const getFileName = (name: string) => {
+  return name.split("/").slice(-1).join("");
+};
