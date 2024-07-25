@@ -46,9 +46,7 @@ const Cart = () => {
           <Button
             style={{ color: "inherit" }}
             variant="danger"
-            onClick={() => {
-              console.log("Clicked");
-            }}
+            onClick={() => {}}
           >
             Clear Cart
           </Button>

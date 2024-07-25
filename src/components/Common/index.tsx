@@ -1,5 +1,5 @@
-import { InfoIcon as InfoIconComponent } from "../Icons";
 import {
+  ClipboardCopy,
   ClipboardCopyButton,
   Dropdown,
   DropdownItem,
@@ -14,12 +14,22 @@ import {
   Hint,
   MenuToggle,
   TextInput,
-  ClipboardCopy,
 } from "@patternfly/react-core";
-import { CubesIcon, SearchIcon } from "../Icons";
 import { Alert, Popover, Spin, Typography } from "antd";
-import React, { ReactNode, useState } from "react";
+import React, { type ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
+import {
+  ArchiveIcon,
+  CubesIcon,
+  ExternalLinkSquareAltIcon,
+  FileIcon,
+  FileImageIcon,
+  FilePdfIcon,
+  FileTxtIcon,
+  FolderIcon,
+  InfoIcon as InfoIconComponent,
+  SearchIcon,
+} from "../Icons";
 import "react-activity/dist/library.css";
 import { Cookies } from "react-cookie";
 import ReactJson from "react-json-view";
@@ -349,4 +359,27 @@ export const ClipboardCopyFixed = ({
       {value}
     </ClipboardCopy>
   );
+};
+
+export const getIcon = (type: string) => {
+  switch (type.toLowerCase()) {
+    case "dir":
+      return <FolderIcon />;
+    case "dcm":
+    case "jpg":
+    case "png":
+      return <FileImageIcon />;
+    case "txt":
+      return <FileTxtIcon />;
+    case "pdf":
+      return <FilePdfIcon />;
+    case "zip":
+      return <ArchiveIcon />;
+    case "link":
+      return <ExternalLinkSquareAltIcon />;
+    case "folder":
+      return <FolderIcon />;
+    default:
+      return <FileIcon />;
+  }
 };

@@ -1,5 +1,9 @@
 import _ from "lodash";
-import type { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
+import type {
+  FileBrowserFolderFile,
+  PACSFile,
+  PluginInstance,
+} from "@fnndsc/chrisapi";
 
 export interface IActionTypeParam {
   type: string;
@@ -162,7 +166,7 @@ export class TreeModel {
 
 export interface IFileBlob {
   blob?: Blob;
-  file?: FeedFile;
+  file?: FileBrowserFolderFile | PACSFile;
   url?: string;
   fileType: string;
 }
@@ -175,6 +179,7 @@ export const fileViewerMap: any = {
   html: "IframeDisplay",
   pdf: "PdfDisplay",
   csv: "TextDisplay",
+  md: "TextDisplay",
   ctab: "TextDisplay",
   json: "JsonDisplay",
   png: "ImageDisplay",
@@ -209,7 +214,7 @@ export function getFileExtension(filename: string) {
 }
 
 export class FileViewerModel {
-  public getFileName(item: FeedFile) {
+  public getFileName(item: FileBrowserFolderFile) {
     const splitString = item.data.fname.split("/");
     const filename = splitString[splitString.length - 1];
     return filename;

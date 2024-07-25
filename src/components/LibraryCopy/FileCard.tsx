@@ -11,7 +11,7 @@ import {
 } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
-import axios, { AxiosProgressEvent } from "axios";
+import axios, { type AxiosProgressEvent } from "axios";
 import { useContext, useEffect, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { FileViewerModel } from "../../api/model";
