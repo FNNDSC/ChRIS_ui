@@ -11,7 +11,14 @@ import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
 import * as dicomParser from "dicom-parser";
-import React, { Fragment, type ReactElement } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactElement,
+} from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { fileViewerMap, getFileExtension } from "../../api/model";
 import { useTypedSelector } from "../../store/hooks";
@@ -47,42 +54,45 @@ export interface ActionState {
 const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
 
 const FileDetailView = (props: AllProps) => {
-  const [tagInfo, setTagInfo] = React.useState<any>();
-  const [actionState, setActionState] = React.useState<ActionState>({
+  const [tagInfo, setTagInfo] = useState<any>();
+  const [actionState, setActionState] = useState<ActionState>({
     Zoom: false,
     previouslyActive: "",
   });
-  const [parsingError, setParsingError] = React.useState<string>("");
+  const [parsingError, setParsingError] = useState<string>("");
   const drawerState = useTypedSelector((state) => state.drawers);
 
-  const handleKeyboardEvents = (event: any) => {
-    switch (event.keyCode) {
-      case 39: {
-        event.preventDefault();
-        props.handleNext?.();
-        break;
+  const handleKeyboardEvents = useCallback(
+    (event: any) => {
+      switch (event.keyCode) {
+        case 39: {
+          event.preventDefault();
+          props.handleNext?.();
+          break;
+        }
+
+        case 37: {
+          event.preventDefault();
+          props.handlePrevious?.();
+          break;
+        }
+
+        default:
+          break;
       }
+    },
+    [props],
+  );
 
-      case 37: {
-        event.preventDefault();
-        props.handlePrevious?.();
-        break;
-      }
-
-      default:
-        break;
-    }
-  };
-
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("keydown", handleKeyboardEvents);
 
     return () => {
       window.removeEventListener("keydown", handleKeyboardEvents);
     };
-  });
+  }, [handleKeyboardEvents]);
 
-  const displayTagInfo = async (result: any) => {
+  const displayTagInfo = useCallback(async (result: any) => {
     const reader = new FileReader();
 
     reader.onloadend = async () => {
@@ -111,7 +121,7 @@ const FileDetailView = (props: AllProps) => {
     if (result) {
       reader.readAsArrayBuffer(result);
     }
-  };
+  }, []);
 
   const mutation = useMutation({
     mutationFn: displayTagInfo,
@@ -122,45 +132,53 @@ const FileDetailView = (props: AllProps) => {
 
   const { selectedFile, preview } = props;
 
-  const fetchData = async (selectedFile?: FileBrowserFolderFile | PACSFile) => {
-    if (!selectedFile) {
-      throw new Error("Please select a file to preview");
-    }
-    const fileName = selectedFile.data.fname;
-    const fileType = getFileExtension(fileName);
-
-    if (props.isPublic && !fileTypes.includes(fileType)) {
-      return {
-        blob: undefined,
-        file: selectedFile,
-        fileType,
-        url: selectedFile?.collection.items[0].links[0].href,
-      };
-    }
-
-    try {
-      const blob = await selectedFile.getFileBlob();
-
-      if (blob.size > 500 * 1024 * 1024 && !fileTypes.includes(fileType)) {
-        throw new Error(
-          "Unsupported file format. File size exceeds 500mb and can lead to a browser crash if displayed as Text",
-        );
+  const fetchData = useCallback(
+    async (selectedFile?: FileBrowserFolderFile | PACSFile) => {
+      console.log("Fetch Data");
+      if (!selectedFile) {
+        throw new Error("Please select a file to preview");
       }
-      return {
-        blob,
-        file: selectedFile,
-        fileType,
-        url: "",
-      };
-    } catch (error: any) {
-      throw error?.message ? error.message : "Failed to fetch this file format";
-    }
-  };
+      const fileName = selectedFile.data.fname;
+      const fileType = getFileExtension(fileName);
+
+      if (props.isPublic && !fileTypes.includes(fileType)) {
+        return {
+          blob: undefined,
+          file: selectedFile,
+          fileType,
+          url: selectedFile?.collection.items[0].links[0].href,
+        };
+      }
+
+      try {
+        const blob = await selectedFile.getFileBlob();
+
+        if (blob.size > 500 * 1024 * 1024 && !fileTypes.includes(fileType)) {
+          throw new Error(
+            "Unsupported file format. File size exceeds 500mb and can lead to a browser crash if displayed as Text",
+          );
+        }
+        return {
+          blob,
+          file: selectedFile,
+          fileType,
+          url: "",
+        };
+      } catch (error: any) {
+        // biome-ignore lint/complexity/noUselessCatch: <explanation>
+        throw error;
+      }
+    },
+    [selectedFile],
+  );
+
+  const queryKey = useMemo(() => ["preview", selectedFile], [selectedFile]);
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["preview", selectedFile],
+    queryKey,
     queryFn: () => fetchData(selectedFile),
-    enabled: !!selectedFile,
+    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
+    retry: false,
   });
 
   let viewerName = "";
