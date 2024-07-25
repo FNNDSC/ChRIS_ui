@@ -185,7 +185,7 @@ const Operations = () => {
         style={{ display: "none" }}
         //@ts-ignore
         webkitdirectory="true"
-        directory=""
+        directory="true"
         onChange={handleFolderChange}
         multiple
       />
@@ -193,6 +193,7 @@ const Operations = () => {
         ref={fileInput}
         style={{ display: "none" }}
         type="file"
+        accept="files"
         onChange={handleFileChange}
         multiple
       />
