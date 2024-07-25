@@ -20,28 +20,16 @@ import {
   setSelectedFile,
 } from "../../store/explorer/actions";
 import useDownload, { useTypedSelector } from "../../store/hooks";
-import { ClipboardCopyContainer, SpinContainer } from "../Common";
+import { ClipboardCopyContainer, SpinContainer, getIcon } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
-import {
-  DownloadIcon,
-  ExternalLinkSquareAltIcon,
-  FileIcon,
-  FileImageIcon,
-  FilePdfIcon,
-  FileTxtIcon,
-  FolderIcon,
-  HomeIcon,
-} from "../Icons";
+import { DownloadIcon, HomeIcon } from "../Icons";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
-
-export const getFileName = (name: string) => {
-  return name.split("/").slice(-1).join("");
-};
+import { getFileExtension } from "../../api/model";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -193,7 +181,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
     fileName = pathList[pathList.length - 1];
     if (type === "file" && fileName.indexOf(".") > -1) {
-      iconType = getFileName(fileName)[0].toUpperCase();
+      iconType = getFileExtension(fileName);
       fsize = bytesToSize(item.data.fsize);
     } else {
       iconType = type;
@@ -316,29 +304,3 @@ const FileBrowser = (props: FileBrowserProps) => {
 };
 
 export default FileBrowser;
-
-const getIcon = (type: string) => {
-  switch (type.toLowerCase()) {
-    case "dir":
-      return <FolderIcon />;
-    case "dcm":
-    case "jpg":
-    case "png":
-      return <FileImageIcon />;
-    case "html":
-    case "json":
-      return <FileIcon />;
-    case "txt":
-      return <FileTxtIcon />;
-    case "pdf":
-      return <FilePdfIcon />;
-
-    case "link":
-      return <ExternalLinkSquareAltIcon />;
-    case "folder":
-      return <FolderIcon />;
-
-    default:
-      return <FileIcon />;
-  }
-};

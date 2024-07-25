@@ -24,6 +24,8 @@ import useLongPress, {
   elipses,
   getBackgroundRowColor,
 } from "../utils/longpress";
+import { getFileExtension } from "../../../api/model";
+import { getIcon } from "../../Common";
 
 type Pagination = {
   totalCount: number;
@@ -43,7 +45,7 @@ export const LinkCard = ({
         const linkName = pathList[pathList.length - 1];
         const creation_date = val.data.creation_date;
         return (
-          <GridItem xl={5} lg={4} xl2={5} md={3} sm={1} key={val.data.fname}>
+          <GridItem xl={4} lg={5} xl2={3} md={6} sm={12} key={val.data.fname}>
             <Card
               isCompact
               isSelectable
@@ -105,9 +107,12 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
 
   const isSelected = selectedPaths.some((payload) => {
-    payload.path === file.data.fname;
+    return payload.path === file.data.fname;
   });
+
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+  const ext = getFileExtension(file.data.fname);
+  const icon = getIcon(ext);
 
   useEffect(() => {
     if (isSuccess) {
@@ -164,9 +169,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
         {contextHolder}
         <CardHeader>
           <Split>
-            <SplitItem style={{ marginRight: "1em" }}>
-              <FileIcon />
-            </SplitItem>
+            <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
 
             <SplitItem>
               <Button
