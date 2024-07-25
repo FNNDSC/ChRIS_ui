@@ -1,6 +1,6 @@
-import { Reducer } from "redux";
-import { IPluginInstanceState, PluginInstanceTypes } from "./types";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import { produce } from "immer";
+import type { Reducer } from "redux";
+import { type IPluginInstanceState, PluginInstanceTypes } from "./types";
 
 export const initialState: IPluginInstanceState = {
   selectedPlugin: undefined,
@@ -12,138 +12,84 @@ export const initialState: IPluginInstanceState = {
   selectedD3Node: undefined,
 };
 
-const reducer: Reducer<IPluginInstanceState> = (
-  state = initialState,
-  action: typeof PluginInstanceTypes,
-) => {
-  switch (action.type) {
-    case PluginInstanceTypes.GET_SELECTED_D3_NODE: {
-      return {
-        ...state,
-        selectedD3Node: action.payload,
-      };
-    }
+const reducer: Reducer<IPluginInstanceState> = produce(
+  (
+    draft: IPluginInstanceState,
+    action: { type: keyof typeof PluginInstanceTypes; payload?: any },
+  ) => {
+    switch (action.type) {
+      case PluginInstanceTypes.GET_SELECTED_D3_NODE: {
+        draft.selectedD3Node = action.payload;
+        break;
+      }
 
-    case PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST: {
-      return {
-        ...state,
-        pluginInstances: {
-          ...state.pluginInstances,
-          loading: true,
-        },
-      };
-    }
+      case PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST: {
+        draft.pluginInstances.loading = true;
+        break;
+      }
 
-    case PluginInstanceTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
-      return {
-        ...state,
-        selectedPlugin: action.payload.selected,
-        pluginInstances: {
+      case PluginInstanceTypes.GET_PLUGIN_INSTANCES_SUCCESS: {
+        draft.selectedPlugin = action.payload.selected;
+        draft.pluginInstances = {
           data: action.payload.pluginInstances,
           error: "",
           loading: false,
-        },
-      };
-    }
+        };
+        break;
+      }
 
-    case PluginInstanceTypes.GET_PLUGIN_INSTANCES_ERROR: {
-      return {
-        ...state,
-        pluginInstances: {
+      case PluginInstanceTypes.GET_PLUGIN_INSTANCES_ERROR: {
+        draft.pluginInstances = {
           data: undefined,
           error: action.payload,
           loading: false,
-        },
-      };
-    }
-
-    case PluginInstanceTypes.GET_SELECTED_PLUGIN: {
-      return {
-        ...state,
-        selectedPlugin: action.payload,
-      };
-    }
-
-    case PluginInstanceTypes.SET_PLUGIN_TITLE: {
-      let cloneInstances: PluginInstance[] = [];
-      if (state.pluginInstances.data) {
-        const instances = state.pluginInstances.data;
-        const foundIndex = instances.findIndex(
-          (instance) => instance.data.id === action.payload.data.id,
-        );
-        cloneInstances = [...instances];
-
-        cloneInstances[foundIndex] = action.payload;
-        return {
-          ...state,
-          pluginInstances: {
-            ...state.pluginInstances,
-            data: cloneInstances,
-          },
-          selectedPlugin: action.payload,
         };
+        break;
       }
-      return { ...state };
-    }
 
-    case PluginInstanceTypes.ADD_NODE_REQUEST: {
-      return {
-        ...state,
-        loadingAddNode: true,
-      };
-    }
-
-    case PluginInstanceTypes.ADD_NODE_SUCCESS: {
-      if (state.pluginInstances.data) {
-        const pluginList = [...state.pluginInstances.data, action.payload];
-        return {
-          ...state,
-          pluginInstances: {
-            data: pluginList,
-            error: "",
-            loading: false,
-          },
-          loadingAddNode: false,
-        };
+      case PluginInstanceTypes.GET_SELECTED_PLUGIN: {
+        draft.selectedPlugin = action.payload;
+        break;
       }
-      return {
-        ...state,
-        pluginInstances: {
-          data: action.payload,
-          error: "",
-          loading: false,
-        },
-        loadingAddNode: false,
-      };
-    }
 
-    case PluginInstanceTypes.ADD_SPLIT_NODES_SUCCESS: {
-      const pluginInstances = state.pluginInstances.data;
-      if (pluginInstances) {
-        const newList: PluginInstance[] = [
-          ...pluginInstances,
-          ...action.payload,
-        ];
-        return {
-          ...state,
-          pluginInstances: {
-            data: newList,
-            error: "",
-            loading: false,
-          },
-        };
+      case PluginInstanceTypes.SET_PLUGIN_TITLE: {
+        if (draft.pluginInstances.data) {
+          const foundIndex = draft.pluginInstances.data.findIndex(
+            (instance) => instance.data.id === action.payload.data.id,
+          );
+          if (foundIndex !== -1) {
+            draft.pluginInstances.data[foundIndex] = action.payload;
+            draft.selectedPlugin = action.payload;
+          }
+        }
+        break;
       }
-      return state;
-    }
 
-    case PluginInstanceTypes.RESET_PLUGIN_INSTANCES: {
-      return {
-        ...initialState,
-      };
+      case PluginInstanceTypes.ADD_NODE_SUCCESS: {
+        if (draft.pluginInstances.data) {
+          draft.pluginInstances.data.push(action.payload);
+        } else {
+          draft.pluginInstances.data = [action.payload];
+        }
+        break;
+      }
+
+      case PluginInstanceTypes.ADD_SPLIT_NODES_SUCCESS: {
+        if (draft.pluginInstances.data) {
+          draft.pluginInstances.data.push(...action.payload);
+        }
+        break;
+      }
+
+      case PluginInstanceTypes.RESET_PLUGIN_INSTANCES: {
+        return initialState;
+      }
+
+      default:
+        return draft; // Ensure draft is returned in default case
     }
-    default:
-      return state;
-  }
-};
+  },
+  initialState,
+);
 
 export { reducer as pluginInstanceReducer };
