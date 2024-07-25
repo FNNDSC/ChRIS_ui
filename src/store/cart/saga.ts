@@ -275,7 +275,8 @@ function* uploadFileBatch(
             while (true) {
               const { progress, response, error } = yield take(uploadChannel);
 
-              if (progress !== undefined) {
+              if (progress !== undefined && !isFolder) {
+                // Only do this for files
                 yield put(
                   setFileUploadStatus({
                     step:
