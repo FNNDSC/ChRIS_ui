@@ -122,7 +122,11 @@ const FileCard = ({ file }: { file: any }) => {
               overflow: "hidden",
             }}
           >
-            <FileDetailView selectedFile={file} preview="small" />
+            {file ? (
+              <FileDetailView selectedFile={file} preview="small" />
+            ) : (
+              <div>File is not available for preview</div>
+            )}
           </div>
         )}
         <div>
@@ -155,7 +159,7 @@ const FileCard = ({ file }: { file: any }) => {
           )}
         </div>
       </CardBody>
-      {largePreview && (
+      {largePreview && file && (
         <Modal
           className="library-preview"
           variant={ModalVariant.large}
