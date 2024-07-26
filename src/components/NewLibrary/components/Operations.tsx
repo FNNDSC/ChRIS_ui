@@ -136,9 +136,9 @@ const Operations = ({
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
 
-    if (!computedPath.startsWith(`home/${username}`)) {
+    if (!computedPath.startsWith(`home/${username}/uploads`)) {
       setUserErrors(
-        `You don't have permissions to uploads at this level. You need to be under home/${username}`,
+        `You don't have permissions to uploads at this level. You need to be under home/${username}/uploads`,
       );
       return;
     }

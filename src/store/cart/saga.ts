@@ -342,14 +342,14 @@ function* handleAnonymize(action: IActionTypeParam) {
 
   const client = ChrisAPIClient.getClient();
 
-  const filePaths = Object.entries(fileUpload).map(([_name, status]) => ({
+  const filePaths = Object.entries(fileUpload).map(([name, status]) => ({
     type: status.type,
-    path: status.path,
+    path: `${status.path}/${name}`,
   }));
 
-  const folderPaths = Object.entries(folderUpload).map(([_name, status]) => ({
+  const folderPaths = Object.entries(folderUpload).map(([name, status]) => ({
     type: status.type,
-    path: status.path,
+    path: `${status.path}/${name}`,
   }));
 
   const createFileSelectionPayload: {
