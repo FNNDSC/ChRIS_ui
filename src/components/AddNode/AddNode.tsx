@@ -10,7 +10,7 @@ import {
 } from "@patternfly/react-core";
 import React, { useContext, useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
-import { Dispatch } from "redux";
+import type { Dispatch } from "redux";
 import { catchError } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations, getParams } from "../../store/plugin/actions";
