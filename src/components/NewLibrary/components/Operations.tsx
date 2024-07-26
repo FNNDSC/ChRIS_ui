@@ -54,13 +54,18 @@ const AddModal = ({
 }) => {
   const [inputValue, setInputValue] = useState("");
 
+  const handleClose = () => {
+    setInputValue("");
+    onClose();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       variant="small"
       aria-label={modalTitle}
       title={modalTitle}
-      onClose={onClose}
+      onClose={handleClose}
     >
       <Form>
         <FormGroup>
@@ -79,14 +84,7 @@ const AddModal = ({
           >
             Confirm
           </Button>
-          <Button
-            onClick={() => {
-              setInputValue("");
-              onClose();
-            }}
-          >
-            Cancel
-          </Button>
+          <Button onClick={handleClose}>Cancel</Button>
         </ActionGroup>
 
         {indicators.isError && (
@@ -189,12 +187,6 @@ const Operations = ({
       const client = ChrisAPIClient.getClient();
       await client.adminCreateGroup({ name: inputValue });
     } else if (modalInfo.type === "folder") {
-      if (!computedPath.startsWith("home")) {
-        throw new Error(
-          "You do not have permission to create a folder at this level. Please navigate to the home to create a folder.",
-        );
-      }
-
       const finalPath = `${computedPath}/${inputValue}`;
       try {
         await folderList?.post({
