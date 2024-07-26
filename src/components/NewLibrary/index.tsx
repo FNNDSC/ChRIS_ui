@@ -32,6 +32,7 @@ const NewLibrary = () => {
       const folderList = await client.getFileBrowserFolders({
         path: computedPath,
       });
+
       const folders = folderList.getItems();
       let subFoldersMap: FileBrowserFolder[] = [];
       let linkFilesMap: FileBrowserFolderLinkFile[] = [];
@@ -78,6 +79,7 @@ const NewLibrary = () => {
         filesPagination,
         foldersPagination,
         linksPagination,
+        folderList, // return folderList as you can make a post request to this resource to create a new folder
       };
     } catch (e) {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
@@ -158,7 +160,7 @@ const NewLibrary = () => {
           }
         />
 
-        <Operations />
+        <Operations folderList={data?.folderList} computedPath={computedPath} />
         <BreadcrumbContainer
           path={computedPath}
           handleFolderClick={(path: string) => {
