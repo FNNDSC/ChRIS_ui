@@ -256,7 +256,7 @@ function* uploadFileBatch(
         const path = `${currentPath}/${name}`;
 
         formData.append("upload_path", path);
-        formData.append("fname", file, file.name);
+        formData.append("fname", file, name);
 
         const controller = new AbortController();
         controllers.push(controller);
@@ -283,7 +283,7 @@ function* uploadFileBatch(
                       progress === 100 && response
                         ? "Upload Complete"
                         : "Uploading...",
-                    fileName: file.name,
+                    fileName: name,
                     progress: progress,
                     controller: controllers[0],
                     path: currentPath,

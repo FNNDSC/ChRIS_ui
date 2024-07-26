@@ -1,4 +1,4 @@
-import {
+import type {
   Plugin,
   PluginInstance,
   PluginMeta,
@@ -19,7 +19,7 @@ import WrapperConnect from "../Wrapper";
 import {
   HeaderCardPlugin,
   HeaderSinglePlugin,
-  ParameterPayload,
+  type ParameterPayload,
 } from "./PluginCatalogComponents";
 import "./singlePlugin.css";
 
@@ -30,8 +30,7 @@ const SinglePlugin = () => {
     React.useState<ParameterPayload>();
 
   // Function to fetch the Readme from the Repo.
-  const fetchReadme = async (currentPluginMeta?: PluginMeta) => {
-    if (!currentPluginMeta) return;
+  const fetchReadme = async (currentPluginMeta: PluginMeta) => {
     const repo = currentPluginMeta.data.public_repo.split("github.com/")[1];
     const ghreadme = await fetch(`https://api.github.com/repos/${repo}/readme`);
     if (!ghreadme.ok) {
@@ -60,6 +59,9 @@ const SinglePlugin = () => {
 
     try {
       const pluginMeta = await client.getPluginMeta(id);
+
+      if (!pluginMeta) throw new Error("Failed to fetch the plugin meta");
+
       document.title = pluginMeta.data.name;
 
       const fn = pluginMeta.getPlugins;
@@ -77,7 +79,9 @@ const SinglePlugin = () => {
         readme,
       };
     } catch (error: any) {
-      throw new Error(error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
     }
   };
 
