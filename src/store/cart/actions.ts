@@ -69,4 +69,7 @@ export const setBulkSelectPaths = (payload: SelectionPayload[]) =>
 export const clearDownloadStatus = (path: string) =>
   action(ICartActionTypes.CLEAR_DOWNLOAD_STATUS, path);
 
+export const removeIndividualSelection = (payload: SelectionPayload) =>
+  action(ICartActionTypes.REMOVE_SELECTED_PAYLOAD, payload);
+
 export const clearCart = () => action(ICartActionTypes.CLEAR_CART);

@@ -93,6 +93,13 @@ const reducer: Reducer<ICartState> = produce(
         break;
       }
 
+      case ICartActionTypes.REMOVE_SELECTED_PAYLOAD: {
+        draft.selectedPaths = draft.selectedPaths.filter((currentPayload) => {
+          return currentPayload.path !== action.payload.path;
+        });
+        break;
+      }
+
       case ICartActionTypes.CLEAR_CART: {
         draft.selectedPaths = [];
         break;
