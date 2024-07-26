@@ -1,28 +1,31 @@
 import {
   ActionGroup,
   Button,
+  Chip,
+  ChipGroup,
   Form,
   FormGroup,
   Modal,
   TextInput,
   Toolbar,
-  ToolbarItem,
   ToolbarContent,
-  Text,
+  ToolbarItem,
 } from "@patternfly/react-core";
 import type { MenuProps } from "antd";
 import { Dropdown } from "antd";
-import { AddIcon, CloseIcon } from "../../Icons";
 import { useRef, useState } from "react";
+import { Fragment } from "react";
 import { useDispatch } from "react-redux";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import { getFileName, getTimestamp } from "../../../api/common";
 import {
+  clearCart,
+  removeIndividualSelection,
   startDownload,
   startUpload,
-  clearCart,
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
-import ChrisAPIClient from "../../../api/chrisapiclient";
-import { Fragment } from "react";
+import { AddIcon } from "../../Icons";
 
 const items: MenuProps["items"] = [
   {
@@ -57,11 +60,15 @@ const Operations = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
+
+    // Setting the directory name to a default timestamp. Might need to swap out this code to allow users to provide directory name
+    const directoryName = getTimestamp();
+
     dispatch(
       startUpload({
         files: files,
         isFolder: false,
-        currentPath: `home/${username}/uploads/test-upload-cart`,
+        currentPath: `home/${username}/uploads/${directoryName}`,
       }),
     );
 
@@ -149,14 +156,28 @@ const Operations = () => {
             alignItems: "center",
           }}
         >
-          <Button
+          <ChipGroup
+            numChips={3}
+            isClosable
             onClick={() => {
               dispatch(clearCart());
             }}
-            variant="link"
-            icon={<CloseIcon />}
-          />
-          <Text>{selectedPathsCount} selected</Text>
+            className="chip-group-for-paths"
+            expandedText="Show Less"
+          >
+            {selectedPaths.map((payload) => {
+              return (
+                <Chip
+                  onClick={() => {
+                    dispatch(removeIndividualSelection(payload));
+                  }}
+                  key={payload.payload.data.id}
+                >
+                  {getFileName(payload.path)}
+                </Chip>
+              );
+            })}
+          </ChipGroup>
         </ToolbarItem>
       )}
     </Fragment>
@@ -198,6 +219,7 @@ const Operations = () => {
         multiple
       />
       {
+        /** This code is incomplete and under construction. */
         <Modal
           isOpen={groupModal}
           variant="small"
@@ -217,10 +239,9 @@ const Operations = () => {
               <Button
                 onClick={async () => {
                   const client = ChrisAPIClient.getClient();
-                  const response = await client.adminCreateGroup({
+                  await client.adminCreateGroup({
                     name: groupName,
                   });
-                  console.log("Response", response);
                 }}
               >
                 Confirm

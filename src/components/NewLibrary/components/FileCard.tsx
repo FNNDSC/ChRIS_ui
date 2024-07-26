@@ -11,21 +11,22 @@ import {
   ModalVariant,
   Split,
   SplitItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import { notification } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Fragment } from "react/jsx-runtime";
+import { getFileExtension } from "../../../api/model";
 import useDownload, { useTypedSelector } from "../../../store/hooks";
+import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
-import { ExternalLinkSquareAltIcon, FileIcon } from "../../Icons";
+import { ExternalLinkSquareAltIcon } from "../../Icons";
 import FileDetailView from "../../Preview/FileDetailView";
 import useLongPress, {
   elipses,
   getBackgroundRowColor,
 } from "../utils/longpress";
-import { getFileExtension } from "../../../api/model";
-import { getIcon } from "../../Common";
 
 type Pagination = {
   totalCount: number;
@@ -47,6 +48,9 @@ export const LinkCard = ({
         return (
           <GridItem xl={4} lg={5} xl2={3} md={6} sm={12} key={val.data.fname}>
             <Card
+              style={{
+                cursor: "pointer",
+              }}
               isCompact
               isSelectable
               isClickable
@@ -62,9 +66,11 @@ export const LinkCard = ({
                     <ExternalLinkSquareAltIcon />
                   </SplitItem>
                   <SplitItem>
-                    <Button variant="link" style={{ padding: 0 }}>
-                      {elipses(linkName, 40)}
-                    </Button>
+                    <Tooltip content={linkName}>
+                      <Button variant="link" style={{ padding: 0 }}>
+                        {elipses(linkName, 40)}
+                      </Button>
+                    </Tooltip>
                     <div>{new Date(creation_date).toDateString()}</div>
                   </SplitItem>
                 </Split>
@@ -140,6 +146,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
       <Card
         style={{
           background: selectedBgRow,
+          cursor: "pointer",
         }}
         isCompact
         isSelectable
@@ -172,14 +179,17 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
             <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
 
             <SplitItem>
-              <Button
-                variant="link"
-                style={{
-                  padding: 0,
-                }}
-              >
-                {elipses(fileName, 40)}
-              </Button>
+              <Tooltip content={fileName}>
+                <Button
+                  variant="link"
+                  style={{
+                    padding: 0,
+                  }}
+                >
+                  {elipses(fileName, 40)}
+                </Button>
+              </Tooltip>
+
               <div>{new Date(creation_date).toDateString()}</div>
             </SplitItem>
           </Split>

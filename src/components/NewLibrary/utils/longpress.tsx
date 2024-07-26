@@ -7,8 +7,12 @@ import { useDispatch } from "react-redux";
 import {
   clearSelectFolder,
   setSelectFolder,
+  setToggleCart,
 } from "../../../store/cart/actions"; // Make sure the path is correct
 import { useTypedSelector } from "../../../store/hooks";
+import { Button, Tooltip } from "@patternfly/react-core";
+import { FolderIcon } from "../../Icons";
+import { useNavigate } from "react-router";
 
 export function elipses(str: string, len: number) {
   if (str.length <= len) return str;
@@ -109,4 +113,32 @@ export function getBackgroundRowColor(
   const selectedBgRow = isSelected ? backgroundColor : backgroundRow;
 
   return selectedBgRow;
+}
+
+export function TitleNameClipped({ name }: { name: string }) {
+  const clippedName = elipses(name, 40);
+
+  return (
+    <Tooltip content={name}>
+      <span>{clippedName}</span>
+    </Tooltip>
+  );
+}
+
+export function ShowInFolder({ path }: { path: string }) {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  return (
+    <Tooltip content={"Show in Folder"}>
+      <Button
+        onClick={() => {
+          navigate(`/library/${path}`);
+          // Close the cart once the user wants to navigate away
+          dispatch(setToggleCart());
+        }}
+        variant="link"
+        icon={<FolderIcon />}
+      />
+    </Tooltip>
+  );
 }

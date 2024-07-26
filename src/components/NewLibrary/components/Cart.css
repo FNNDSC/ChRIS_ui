@@ -16,3 +16,9 @@
     transform-origin: 50% 50%;
   }
 
+
+  .chip-group-for-paths {
+    .pf-v5-c-chip__text {
+      font-size:1rem
+    }
+  }

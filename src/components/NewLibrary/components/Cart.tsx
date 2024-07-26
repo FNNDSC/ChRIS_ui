@@ -1,9 +1,9 @@
-import { Button, Text, Tooltip } from "@patternfly/react-core";
+import { Button, Text, Title, Tooltip } from "@patternfly/react-core";
 import { Drawer, List, Space } from "antd";
 import { useDispatch } from "react-redux";
 import {
-  clearSelectFolder,
   clearDownloadStatus,
+  clearSelectFolder,
   setToggleCart,
   startAnonymize,
 } from "../../../store/cart/actions";
@@ -19,8 +19,10 @@ import {
 } from "../../Icons";
 import "./Cart.css";
 import { isEmpty } from "lodash";
-import ProgressRing from "./RadialProgress";
+import { getFileName } from "../../../api/common";
 import { DownloadTypes } from "../../../store/cart/types";
+import { ShowInFolder, TitleNameClipped } from "../utils/longpress";
+import ProgressRing from "./RadialProgress";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -35,7 +37,7 @@ const Cart = () => {
 
   return (
     <Drawer
-      width={"600px"}
+      width={"700px"}
       title={<>Notification Panel</>}
       open={openCart}
       onClose={() => {
@@ -53,6 +55,7 @@ const Cart = () => {
         </Space>
       }
     >
+      {/** Code for File and Folder Downloads */}
       {(!isEmpty(fileDownloadStatus) || !isEmpty(folderDownloadStatus)) && (
         <List
           className="operation-cart"
@@ -80,19 +83,15 @@ const Cart = () => {
                   avatar={
                     item.type === "folder" ? <FolderIcon /> : <FileIcon />
                   }
-                  title={
-                    <Tooltip content={item.path}>
-                      <a href="http://" style={{ color: "inherit" }}>
-                        {item.path}
-                      </a>
-                    </Tooltip>
-                  }
+                  title={<TitleNameClipped name={getFileName(item.path)} />}
                 />
               </List.Item>
             );
           }}
         />
       )}
+
+      {/** Code for File and Folder Uploads */}
       <List
         className="operation-cart"
         dataSource={Object.entries(fileUploadStatus)}
@@ -100,6 +99,21 @@ const Cart = () => {
           <List.Item
             key={name}
             actions={[
+              <div key={`status-${name}`}>{status.currentStep}</div>,
+              status.progress === 100 ||
+              status.currentStep === "UploadComplete" ? (
+                <CheckCircleIcon
+                  key={`anon-${name}-progress`}
+                  color="#3E8635"
+                  width="2em"
+                  height="2em"
+                />
+              ) : (
+                <ProgressRing
+                  key={`anon-${name}-progress`}
+                  value={status.progress}
+                />
+              ),
               status.currentStep === "Upload Complete" ||
               status.progress === 100 ? (
                 <Tooltip key={`anon-${name}`} content="Anonymize and Download">
@@ -117,21 +131,7 @@ const Cart = () => {
                   />
                 </Tooltip>
               ) : null,
-              <div key={`status-${name}`}>{status.currentStep}</div>,
-              status.progress === 100 ||
-              status.currentStep === "UploadComplete" ? (
-                <CheckCircleIcon
-                  key={`anon-${name}-progress`}
-                  color="#3E8635"
-                  width="2em"
-                  height="2em"
-                />
-              ) : (
-                <ProgressRing
-                  key={`anon-${name}-progress`}
-                  value={status.progress}
-                />
-              ),
+              <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
               <Button
                 onClick={() => {
                   status.controller.abort();
@@ -144,7 +144,10 @@ const Cart = () => {
               </Button>,
             ]}
           >
-            <List.Item.Meta avatar={<FileIcon />} title={name} />
+            <List.Item.Meta
+              avatar={<FileIcon />}
+              title={<TitleNameClipped name={name} />}
+            />
           </List.Item>
         )}
       />
@@ -156,23 +159,6 @@ const Cart = () => {
           <List.Item
             key={name}
             actions={[
-              status.currentStep === "Upload Complete" ||
-              status.done === status.total ? (
-                <Tooltip key={`anon-${name}`} content="Anonymize and Download">
-                  <Button
-                    onClick={() => {
-                      dispatch(
-                        startAnonymize({
-                          fileUpload: {},
-                          folderUpload: folderUploadStatus,
-                        }),
-                      );
-                    }}
-                    variant="link"
-                    icon={<DownloadIcon />}
-                  />
-                </Tooltip>
-              ) : null,
               <div key={`anon-${name}-progress`}>{status.currentStep}</div>,
               status.done === status.total ||
               status.currentStep === "UploadComplete" ? (
@@ -194,6 +180,24 @@ const Cart = () => {
                   {status.done}/{status.total}
                 </div>
               ),
+              status.currentStep === "Upload Complete" ||
+              status.done === status.total ? (
+                <Tooltip key={`anon-${name}`} content="Anonymize and Download">
+                  <Button
+                    onClick={() => {
+                      dispatch(
+                        startAnonymize({
+                          fileUpload: {},
+                          folderUpload: folderUploadStatus,
+                        }),
+                      );
+                    }}
+                    variant="link"
+                    icon={<DownloadIcon />}
+                  />
+                </Tooltip>
+              ) : null,
+              <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
               <Button
                 onClick={() => {
                   status.controller.abort();
@@ -206,7 +210,10 @@ const Cart = () => {
               </Button>,
             ]}
           >
-            <List.Item.Meta avatar={<FolderIcon />} title={name} />
+            <List.Item.Meta
+              avatar={<FolderIcon />}
+              title={<TitleNameClipped name={name} />}
+            />
           </List.Item>
         )}
       />

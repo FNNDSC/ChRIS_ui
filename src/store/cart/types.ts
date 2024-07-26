@@ -71,4 +71,5 @@ export const ICartActionTypes = keyMirror({
   SET_FILE_UPLOAD_STATUS: null,
   SET_FOLDER_UPLOAD_STATUS: null,
   CLEAR_DOWNLOAD_STATUS: null,
+  REMOVE_SELECTED_PAYLOAD: null,
 });

@@ -9,11 +9,11 @@ import {
 } from "@patternfly/react-core";
 import { useContext } from "react";
 import { Fragment } from "react/jsx-runtime";
+import { useTypedSelector } from "../../../store/hooks";
+import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
 import { elipses } from "../../LibraryCopy/utils";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
-import { useTypedSelector } from "../../../store/hooks";
-import { ThemeContext } from "../../DarkTheme/useTheme";
 
 type Pagination = {
   totalCount: number;
@@ -74,6 +74,7 @@ export const SubFolderCard = ({
       <Card
         style={{
           background: selectedBgRow,
+          cursor: "pointer",
         }}
         isSelected={isSelected}
         isSelectable
