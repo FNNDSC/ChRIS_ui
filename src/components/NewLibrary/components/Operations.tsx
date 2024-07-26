@@ -1,3 +1,4 @@
+import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Button,
@@ -11,10 +12,15 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
+import {
+  type DefaultError,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import type { MenuProps } from "antd";
-import { Dropdown } from "antd";
-import { useRef, useState } from "react";
-import { Fragment } from "react";
+import { Alert, Dropdown, Spin } from "antd";
+import axios from "axios";
+import { Fragment, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { getFileName, getTimestamp } from "../../../api/common";
@@ -26,6 +32,63 @@ import {
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import { AddIcon } from "../../Icons";
+
+const AddModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  modalTitle,
+  inputLabel,
+  indicators,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (inputValue: string) => void;
+  modalTitle: string;
+  inputLabel: string;
+  indicators: {
+    isPending: boolean;
+    isError: boolean;
+    error: DefaultError | null;
+  };
+}) => {
+  const [inputValue, setInputValue] = useState("");
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      variant="small"
+      aria-label={modalTitle}
+      title={modalTitle}
+      onClose={onClose}
+    >
+      <Form>
+        <FormGroup>
+          <TextInput
+            name="input"
+            value={inputValue}
+            onChange={(_e, value) => setInputValue(value)}
+            aria-label={inputLabel}
+            placeholder={inputLabel}
+          />
+        </FormGroup>
+        <ActionGroup>
+          <Button
+            icon={indicators.isPending && <Spin />}
+            onClick={() => onSubmit(inputValue)}
+          >
+            Confirm
+          </Button>
+          <Button onClick={onClose}>Cancel</Button>
+        </ActionGroup>
+
+        {indicators.isError && (
+          <Alert type="error" description={indicators.error?.message} />
+        )}
+      </Form>
+    </Modal>
+  );
+};
 
 const items: MenuProps["items"] = [
   {
@@ -46,10 +109,17 @@ const items: MenuProps["items"] = [
   },
 ];
 
-const Operations = () => {
+const Operations = ({
+  folderList,
+  computedPath,
+}: { folderList?: FileBrowserFolderList; computedPath: string }) => {
+  const queryClient = useQueryClient();
   const { selectedPaths } = useTypedSelector((state) => state.cart);
-  const [groupModal, setGroupModal] = useState(false);
-  const [groupName, setGroupName] = useState("");
+  const [modalInfo, setModalInfo] = useState({
+    isOpen: false,
+    type: "", // "group" or "folder"
+  });
+
   const username = useTypedSelector((state) => state.user.username);
   const dispatch = useDispatch();
   const folderInput = useRef<HTMLInputElement>(null);
@@ -95,6 +165,46 @@ const Operations = () => {
     }
   };
 
+  const handleModalSubmit = async (inputValue: string) => {
+    if (modalInfo.type === "group") {
+      const client = ChrisAPIClient.getClient();
+      await client.adminCreateGroup({ name: inputValue });
+    } else if (modalInfo.type === "folder") {
+      //Folders cannot be created inside the root directory
+      // Logic to create a new folder using folderList
+      // If the compute path is "/", the user may be trying to create a directory in the root path. Throw an error
+      if (!computedPath.startsWith("home")) {
+        throw new Error(
+          "You need be inside the home directory to create folders...",
+        );
+      }
+
+      const finalPath = `${computedPath}/${inputValue}`;
+      try {
+        await folderList?.post({
+          path: finalPath,
+        });
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const errorMessage = error.response?.data || error.message;
+          throw new Error(errorMessage);
+        }
+      }
+    }
+    setModalInfo({ isOpen: false, type: "" });
+  };
+
+  const handleModalSubmitMutation = useMutation({
+    mutationFn: (inputValue: string) => handleModalSubmit(inputValue),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["folders"],
+      });
+    },
+  });
+
+  const { isPending, isError, error } = handleModalSubmitMutation;
+
   const toolbarItems = (
     <Fragment>
       <ToolbarItem>
@@ -103,6 +213,10 @@ const Operations = () => {
             items,
             selectable: true,
             onClick: (info) => {
+              if (info.key === "1") {
+                setModalInfo({ isOpen: true, type: "folder" });
+              }
+
               if (info.key === "3") {
                 folderInput.current?.click();
               }
@@ -111,7 +225,7 @@ const Operations = () => {
               }
 
               if (info.key === "4") {
-                setGroupModal(!groupModal);
+                setModalInfo({ isOpen: true, type: "group" });
               }
             },
           }}
@@ -218,39 +332,23 @@ const Operations = () => {
         onChange={handleFileChange}
         multiple
       />
-      {
-        /** This code is incomplete and under construction. */
-        <Modal
-          isOpen={groupModal}
-          variant="small"
-          aria-label="set group"
-          onClose={() => setGroupModal(!groupModal)}
-        >
-          <FormGroup>
-            <Form>
-              <TextInput
-                name="group"
-                value={groupName}
-                onChange={(_e, value) => setGroupName(value)}
-                aria-label="Set Group Name"
-              />
-            </Form>
-            <ActionGroup>
-              <Button
-                onClick={async () => {
-                  const client = ChrisAPIClient.getClient();
-                  await client.adminCreateGroup({
-                    name: groupName,
-                  });
-                }}
-              >
-                Confirm
-              </Button>
-              <Button onClick={() => setGroupModal(!groupModal)}>Cancel</Button>
-            </ActionGroup>
-          </FormGroup>
-        </Modal>
-      }
+
+      <AddModal
+        isOpen={modalInfo.isOpen}
+        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        onSubmit={(inputValue) => {
+          handleModalSubmitMutation.mutate(inputValue);
+        }}
+        modalTitle={
+          modalInfo.type === "group" ? "Create Group" : "Create Folder"
+        }
+        inputLabel={modalInfo.type === "group" ? "Group Name" : "Folder Name"}
+        indicators={{
+          isPending,
+          isError,
+          error,
+        }}
+      />
     </>
   );
 };

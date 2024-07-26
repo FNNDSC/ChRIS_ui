@@ -2,17 +2,17 @@ import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
 } from "@fnndsc/chrisapi";
+import { Button, Tooltip } from "@patternfly/react-core";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 import {
   clearSelectFolder,
   setSelectFolder,
   setToggleCart,
-} from "../../../store/cart/actions"; // Make sure the path is correct
+} from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
-import { Button, Tooltip } from "@patternfly/react-core";
 import { FolderIcon } from "../../Icons";
-import { useNavigate } from "react-router";
 
 export function elipses(str: string, len: number) {
   if (str.length <= len) return str;
