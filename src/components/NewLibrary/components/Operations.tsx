@@ -175,7 +175,7 @@ const Operations = ({
       // If the compute path is "/", the user may be trying to create a directory in the root path. Throw an error
       if (!computedPath.startsWith("home")) {
         throw new Error(
-          "You need be inside the home directory to create folders...",
+          "You don't have permissions to create a folder at this level. Please navigate to the home folders to create a folder.",
         );
       }
 
