@@ -19,7 +19,6 @@ import {
 } from "@tanstack/react-query";
 import type { MenuProps } from "antd";
 import { Alert, Dropdown, Spin } from "antd";
-import axios from "axios";
 import { Fragment, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -32,6 +31,7 @@ import {
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import { AddIcon } from "../../Icons";
+import { isEmpty } from "lodash";
 
 const AddModal = ({
   isOpen,
@@ -79,7 +79,14 @@ const AddModal = ({
           >
             Confirm
           </Button>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setInputValue("");
+              onClose();
+            }}
+          >
+            Cancel
+          </Button>
         </ActionGroup>
 
         {indicators.isError && (
@@ -119,50 +126,62 @@ const Operations = ({
     isOpen: false,
     type: "", // "group" or "folder"
   });
+  const [userError, setUserErrors] = useState("");
 
   const username = useTypedSelector((state) => state.user.username);
   const dispatch = useDispatch();
   const folderInput = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-
   const selectedPathsCount = selectedPaths.length;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
 
-    // Setting the directory name to a default timestamp. Might need to swap out this code to allow users to provide directory name
-    const directoryName = getTimestamp();
+    if (!computedPath.startsWith(`home/${username}`)) {
+      setUserErrors(
+        `You don't have permissions to uploads at this level. You need to be under home/${username}`,
+      );
+      return;
+    }
 
     dispatch(
       startUpload({
         files: files,
         isFolder: false,
-        currentPath: `home/${username}/uploads/${directoryName}`,
+        currentPath: `${computedPath}`,
       }),
     );
 
-    // Reset file input
-    if (fileInput.current) {
-      fileInput.current.value = "";
-    }
+    // Reset to see your file in action
+    queryClient.invalidateQueries({
+      queryKey: ["folders"],
+    });
   };
 
   const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
 
+    if (!computedPath.startsWith(`home/${username}`)) {
+      setUserErrors(
+        `You don't have permissions to uploads at this level. You need to be under home/${username}`,
+      );
+      return;
+    }
+
     dispatch(
       startUpload({
         files: files,
         isFolder: true,
-        currentPath: `home/${username}/uploads`,
+        currentPath: computedPath,
       }),
     );
-    // Reset folder input
-    if (folderInput.current) {
-      folderInput.current.value = "";
-    }
+
+    // Reset to see your folder in action
+    queryClient.invalidateQueries({
+      queryKey: ["folders"],
+    });
   };
 
   const handleModalSubmit = async (inputValue: string) => {
@@ -170,12 +189,9 @@ const Operations = ({
       const client = ChrisAPIClient.getClient();
       await client.adminCreateGroup({ name: inputValue });
     } else if (modalInfo.type === "folder") {
-      //Folders cannot be created inside the root directory
-      // Logic to create a new folder using folderList
-      // If the compute path is "/", the user may be trying to create a directory in the root path. Throw an error
       if (!computedPath.startsWith("home")) {
         throw new Error(
-          "You don't have permissions to create a folder at this level. Please navigate to the home folders to create a folder.",
+          "You do not have permission to create a folder at this level. Please navigate to the home to create a folder.",
         );
       }
 
@@ -184,11 +200,10 @@ const Operations = ({
         await folderList?.post({
           path: finalPath,
         });
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const errorMessage = error.response?.data || error.message;
-          throw new Error(errorMessage);
-        }
+      } catch (error: any) {
+        const path = error?.response?.data?.path;
+        const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
+        throw new Error(message);
       }
     }
     setModalInfo({ isOpen: false, type: "" });
@@ -244,6 +259,15 @@ const Operations = ({
             New
           </Button>
         </Dropdown>
+        {userError && (
+          <Alert
+            style={{ marginLeft: "1rem" }}
+            type="error"
+            description={userError}
+            closable
+            onClose={() => setUserErrors("")}
+          />
+        )}
       </ToolbarItem>
       {selectedPaths.length > 0 && (
         <>
@@ -321,7 +345,19 @@ const Operations = ({
         //@ts-ignore
         webkitdirectory="true"
         directory="true"
-        onChange={handleFolderChange}
+        onChange={(e) => {
+          try {
+            handleFolderChange(e);
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              setUserErrors(error.message);
+            }
+          } finally {
+            if (folderInput.current) {
+              folderInput.current.value = "";
+            }
+          }
+        }}
         multiple
       />
       <input
@@ -329,13 +365,28 @@ const Operations = ({
         style={{ display: "none" }}
         type="file"
         accept="files"
-        onChange={handleFileChange}
+        onChange={(e) => {
+          try {
+            handleFileChange(e);
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              setUserErrors(error.message);
+            }
+          } finally {
+            if (fileInput.current) {
+              fileInput.current.value = "";
+            }
+          }
+        }}
         multiple
       />
 
       <AddModal
         isOpen={modalInfo.isOpen}
-        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        onClose={() => {
+          setModalInfo({ isOpen: false, type: "" });
+          handleModalSubmitMutation.reset();
+        }}
         onSubmit={(inputValue) => {
           handleModalSubmitMutation.mutate(inputValue);
         }}
