@@ -28,7 +28,7 @@
     "@cornerstonejs/dicom-image-loader": "^1.82.4",
     "@cornerstonejs/streaming-image-volume-loader": "^1.82.4",
     "@cornerstonejs/tools": "^1.82.4",
-    "@fnndsc/chrisapi": "^1.21.0",
+    "@fnndsc/chrisapi": "^1.22.0",
     "@niivue/niivue": "^0.41.1",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.3.0",
