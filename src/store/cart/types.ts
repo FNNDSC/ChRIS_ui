@@ -38,15 +38,18 @@ export enum DownloadTypes {
   cancelled = "cancelled",
 }
 
+export type DownloadStatus = {
+  [key: string]: {
+    step: DownloadTypes;
+    error?: string;
+  };
+};
+
 export interface ICartState {
   selectedPaths: SelectionPayload[];
   openCart: boolean;
-  folderDownloadStatus: {
-    [key: string]: DownloadTypes;
-  };
-  fileDownloadStatus: {
-    [key: string]: DownloadTypes;
-  };
+  folderDownloadStatus: DownloadStatus;
+  fileDownloadStatus: DownloadStatus;
   folderUploadStatus: FolderUpload;
   fileUploadStatus: FileUpload;
 }

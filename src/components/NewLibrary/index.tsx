@@ -16,6 +16,7 @@ import BreadcrumbContainer from "./components/BreadcrumbContainer";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import Operations from "./components/Operations";
+import { useTypedSelector } from "../../store/hooks";
 
 const { Paragraph } = Typography;
 
@@ -89,6 +90,7 @@ const NewLibrary = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
+  const username = useTypedSelector((state) => state.user.username);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
@@ -135,6 +137,12 @@ const NewLibrary = () => {
       }
     };
   }, [fetchMore]);
+
+  useEffect(() => {
+    if (pathname === "/library") {
+      navigate(`/library/home/${username}`);
+    }
+  });
 
   return (
     <WrapperConnect>
@@ -188,6 +196,7 @@ const NewLibrary = () => {
             />
             <LinkCard
               linkFiles={data.linkFilesMap}
+              showServicesFolder={pathname === `/library/home/${username}`}
               pagination={data.linksPagination}
             />
             <FilesCard

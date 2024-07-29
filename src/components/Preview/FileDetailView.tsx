@@ -134,7 +134,6 @@ const FileDetailView = (props: AllProps) => {
 
   const fetchData = useCallback(
     async (selectedFile?: FileBrowserFolderFile | PACSFile) => {
-      console.log("Fetch Data");
       if (!selectedFile) {
         throw new Error("Please select a file to preview");
       }

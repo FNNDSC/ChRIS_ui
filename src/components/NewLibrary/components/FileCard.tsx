@@ -14,6 +14,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { notification } from "antd";
+import { isEmpty } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Fragment } from "react/jsx-runtime";
@@ -32,13 +33,67 @@ type Pagination = {
   totalCount: number;
   hasNextPage: boolean;
 };
+
+type ComponentProps = {
+  name: string;
+  date: string;
+  onClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onMouseDown?: () => void;
+  icon: React.ReactElement;
+  bgRow?: string;
+};
+
+const PresentationComponent = ({
+  name,
+  date,
+  onClick,
+  onMouseDown,
+  icon,
+  bgRow,
+}: ComponentProps) => {
+  return (
+    <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
+      <Card
+        style={{
+          cursor: "pointer",
+          background: bgRow ? bgRow : "inherit",
+        }}
+        isCompact
+        isSelectable
+        isClickable
+        isFlat
+        onClick={(e) => onClick(e)}
+        onMouseDown={onMouseDown}
+        isRounded
+      >
+        <CardHeader>
+          <Split>
+            <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
+            <SplitItem>
+              <Tooltip content={name}>
+                <Button variant="link" style={{ padding: 0 }}>
+                  {elipses(name, 40)}
+                </Button>
+              </Tooltip>
+              <div>{!isEmpty(date) ? new Date(date).toDateString() : ""}</div>
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
+    </GridItem>
+  );
+};
+
 export const LinkCard = ({
   linkFiles,
+  showServicesFolder,
 }: {
   linkFiles: FileBrowserFolderLinkFile[];
+  showServicesFolder: boolean;
   pagination?: Pagination;
 }) => {
   const navigate = useNavigate();
+
   return (
     <Fragment>
       {linkFiles.map((val) => {
@@ -46,39 +101,28 @@ export const LinkCard = ({
         const linkName = pathList[pathList.length - 1];
         const creation_date = val.data.creation_date;
         return (
-          <GridItem xl={4} lg={5} xl2={3} md={6} sm={12} key={val.data.fname}>
-            <Card
-              style={{
-                cursor: "pointer",
-              }}
-              isCompact
-              isSelectable
-              isClickable
-              isFlat
-              onClick={() => {
-                navigate(val.data.path);
-              }}
-              isRounded
-            >
-              <CardHeader>
-                <Split>
-                  <SplitItem style={{ marginRight: "1em" }}>
-                    <ExternalLinkSquareAltIcon />
-                  </SplitItem>
-                  <SplitItem>
-                    <Tooltip content={linkName}>
-                      <Button variant="link" style={{ padding: 0 }}>
-                        {elipses(linkName, 40)}
-                      </Button>
-                    </Tooltip>
-                    <div>{new Date(creation_date).toDateString()}</div>
-                  </SplitItem>
-                </Split>
-              </CardHeader>
-            </Card>
-          </GridItem>
+          <PresentationComponent
+            icon={<ExternalLinkSquareAltIcon />}
+            name={linkName}
+            date={creation_date}
+            key={val.data.fname}
+            onClick={() => {
+              navigate(val.data.path);
+            }}
+          />
         );
       })}
+      {showServicesFolder && (
+        <PresentationComponent
+          icon={<ExternalLinkSquareAltIcon />}
+          name="SERVICES"
+          date=""
+          key={"SERVICES"}
+          onClick={() => {
+            navigate("SERVICES");
+          }}
+        />
+      )}
     </Fragment>
   );
 };
@@ -102,7 +146,6 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
-
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown } = handlers;
   const [api, contextHolder] = notification.useNotification();
@@ -142,16 +185,9 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   }, [isSuccess, isError, downloadError]);
 
   return (
-    <GridItem xl={4} lg={5} xl2={3} md={6} sm={12} key={file.data.fname}>
-      <Card
-        style={{
-          background: selectedBgRow,
-          cursor: "pointer",
-        }}
-        isCompact
-        isSelectable
-        isClickable
-        isFlat
+    <>
+      {contextHolder}
+      <PresentationComponent
         onClick={(e) => {
           if (!preview) {
             handleOnClick(
@@ -171,30 +207,12 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
             handleOnMouseDown();
           }
         }}
-        isRounded
-      >
-        {contextHolder}
-        <CardHeader>
-          <Split>
-            <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
+        name={fileName}
+        date={creation_date}
+        icon={icon}
+        bgRow={selectedBgRow}
+      />
 
-            <SplitItem>
-              <Tooltip content={fileName}>
-                <Button
-                  variant="link"
-                  style={{
-                    padding: 0,
-                  }}
-                >
-                  {elipses(fileName, 40)}
-                </Button>
-              </Tooltip>
-
-              <div>{new Date(creation_date).toDateString()}</div>
-            </SplitItem>
-          </Split>
-        </CardHeader>
-      </Card>
       {
         <Modal
           className="library-preview"
@@ -207,6 +225,6 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
           <FileDetailView selectedFile={file} preview="large" />
         </Modal>
       }
-    </GridItem>
+    </>
   );
 };
