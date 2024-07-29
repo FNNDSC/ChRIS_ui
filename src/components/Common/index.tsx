@@ -350,7 +350,6 @@ export const ClipboardCopyFixed = ({
 
   return (
     <ClipboardCopy
-      isReadOnly
       hoverTip="Copy"
       clickTip="Copied"
       onCopy={(event) => handleCopy(event, value)}
