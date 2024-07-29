@@ -1,5 +1,5 @@
 import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
-import { PluginInstanceParameter } from "@fnndsc/chrisapi";
+import type { PluginInstanceParameter } from "@fnndsc/chrisapi";
 import {
   Button,
   Card,
@@ -33,7 +33,7 @@ import ComputeEnvironments from "./ComputeEnvironment";
 import RequiredParam from "./RequiredParam";
 import SimpleDropdown from "./SimpleDropdown";
 import { AddNodeContext } from "./context";
-import { InputIndex, Types } from "./types";
+import { type InputIndex, Types } from "./types";
 import { handleGetTokens, unpackParametersIntoString } from "./utils";
 
 const advancedConfigList = [
@@ -153,6 +153,7 @@ const GuidedConfig = () => {
 
   const renderDropdowns = () => {
     return componentList.map((id, index) => {
+      // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
       return <SimpleDropdown key={index} params={params} id={id} />;
     });
   };
@@ -647,6 +648,7 @@ const AdvancedConfiguration = () => {
                 <HelperText style={{ marginTop: "0.25em" }}>
                   <HelperTextItem>
                     <div
+                      // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                       dangerouslySetInnerHTML={{
                         __html: `${config.helper_text}`,
                       }}
