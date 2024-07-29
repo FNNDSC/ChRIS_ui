@@ -23,6 +23,7 @@ import {
   PipelineContext,
   Types,
 } from "./context";
+import { useTypedSelector } from "../../store/hooks";
 
 type LoadingResources = {
   [key: string]: boolean;
@@ -37,19 +38,18 @@ const PipelinesCopy = () => {
   const { isDarkTheme } = useContext(ThemeContext);
   const [loadingResources, setLoadingResources] = useState<LoadingResources>();
   const [resourceError, setResourceError] = useState<LoadingResourceError>();
-
   const {
     filterState: pageState,
     handlePageSet,
     handlePerPageSet,
     handleFilterChange,
   } = usePaginate();
-
   const { perPage, page, search } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dropdownValue, setDropdownValue] = useState<string>(
     PIPELINEQueryTypes.NAME[0],
   );
+  const isStaff = useTypedSelector((state) => state.user.isStaff);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["pipelines", perPage, page, search, dropdownValue],
@@ -60,7 +60,6 @@ const PipelinesCopy = () => {
         search,
         dropdownValue.toLowerCase(),
       );
-
       return fetchedData;
     },
     refetchOnMount: true,
@@ -217,7 +216,7 @@ const PipelinesCopy = () => {
         />
       </div>
 
-      <PipelineUpload fetchPipelinesAgain={fetchPipelinesAgain} />
+      {isStaff && <PipelineUpload fetchPipelinesAgain={fetchPipelinesAgain} />}
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />

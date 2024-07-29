@@ -300,7 +300,7 @@ export async function fetchComputeInfo(
       return computeEnvData;
     }
   } catch (e) {
-    throw new Error("Error fetching the compoute Environment");
+    throw new Error("Error fetching the compute Environment");
   }
 }
 
@@ -312,7 +312,9 @@ export function catchError(errorRequest: any) {
   if (errorRequest.message) {
     return { error_message: errorRequest.message as string };
   }
-  return { error_message: errorRequest as string };
+  return {
+    error_message: "Unexpected Error: Please report at @devbabymri.org",
+  };
 }
 
 // A function to limit concurrency using Promise.allSettled.

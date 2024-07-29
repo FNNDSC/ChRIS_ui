@@ -1,26 +1,20 @@
-import { Button, Text, Title, Tooltip } from "@patternfly/react-core";
+import { Button, Text, Tooltip } from "@patternfly/react-core";
 import { Drawer, List, Space } from "antd";
 import { useDispatch } from "react-redux";
 import {
   clearDownloadStatus,
   clearSelectFolder,
   setToggleCart,
-  startAnonymize,
 } from "../../../store/cart/actions";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
-import {
-  CheckCircleIcon,
-  CloseIcon,
-  DownloadIcon,
-  FileIcon,
-  FolderIcon,
-} from "../../Icons";
+import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
 import "./Cart.css";
 import { isEmpty } from "lodash";
 import { getFileName } from "../../../api/common";
 import { DownloadTypes } from "../../../store/cart/types";
+import { elipses } from "../../LibraryCopy/utils";
 import { ShowInFolder, TitleNameClipped } from "../utils/longpress";
 import ProgressRing from "./RadialProgress";
 
@@ -114,23 +108,6 @@ const Cart = () => {
                   value={status.progress}
                 />
               ),
-              status.currentStep === "Upload Complete" ||
-              status.progress === 100 ? (
-                <Tooltip key={`anon-${name}`} content="Anonymize and Download">
-                  <Button
-                    onClick={() => {
-                      dispatch(
-                        startAnonymize({
-                          fileUpload: fileUploadStatus,
-                          folderUpload: {},
-                        }),
-                      );
-                    }}
-                    variant="link"
-                    icon={<DownloadIcon />}
-                  />
-                </Tooltip>
-              ) : null,
               <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
               <Button
                 onClick={() => {
@@ -180,23 +157,6 @@ const Cart = () => {
                   {status.done}/{status.total}
                 </div>
               ),
-              status.currentStep === "Upload Complete" ||
-              status.done === status.total ? (
-                <Tooltip key={`anon-${name}`} content="Anonymize and Download">
-                  <Button
-                    onClick={() => {
-                      dispatch(
-                        startAnonymize({
-                          fileUpload: {},
-                          folderUpload: folderUploadStatus,
-                        }),
-                      );
-                    }}
-                    variant="link"
-                    icon={<DownloadIcon />}
-                  />
-                </Tooltip>
-              ) : null,
               <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
               <Button
                 onClick={() => {
@@ -237,8 +197,12 @@ export const Status = ({ item }: { item: SelectionPayload }) => {
   const { type, payload } = item;
   const { id } = payload.data;
 
-  const getStatusIcon = (currentStatus: DownloadTypes | undefined) => {
-    switch (currentStatus) {
+  const getStatusIcon = (currentStatus: {
+    step: DownloadTypes;
+    error?: string;
+  }) => {
+    const { step, error } = currentStatus;
+    switch (step) {
       case DownloadTypes.started:
         return <DotsIndicator title="" />;
       case DownloadTypes.finished:
@@ -249,9 +213,13 @@ export const Status = ({ item }: { item: SelectionPayload }) => {
           />
         );
       case DownloadTypes.cancelled:
-        return <Text>Cancelled</Text>;
+        return (
+          <Tooltip content={error}>
+            <Text>{error ? elipses(error, 45) : "Uncaught error"}</Text>
+          </Tooltip>
+        );
       default:
-        return currentStatus ? <DotsIndicator title={currentStatus} /> : null;
+        return currentStatus ? <DotsIndicator title={step} /> : null;
     }
   };
 

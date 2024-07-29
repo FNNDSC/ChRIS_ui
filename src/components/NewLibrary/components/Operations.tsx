@@ -19,19 +19,20 @@ import {
 } from "@tanstack/react-query";
 import type { MenuProps } from "antd";
 import { Alert, Dropdown, Spin } from "antd";
+import { isEmpty } from "lodash";
 import { Fragment, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { getFileName, getTimestamp } from "../../../api/common";
+import { getFileName } from "../../../api/common";
 import {
   clearCart,
   removeIndividualSelection,
+  startAnonymize,
   startDownload,
   startUpload,
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import { AddIcon } from "../../Icons";
-import { isEmpty } from "lodash";
 
 const AddModal = ({
   isOpen,
@@ -136,13 +137,6 @@ const Operations = ({
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
 
-    if (!computedPath.startsWith(`home/${username}/uploads`)) {
-      setUserErrors(
-        `You don't have permissions to uploads at this level. You need to be under home/${username}/uploads`,
-      );
-      return;
-    }
-
     dispatch(
       startUpload({
         files: files,
@@ -160,13 +154,6 @@ const Operations = ({
   const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
-
-    if (!computedPath.startsWith(`home/${username}`)) {
-      setUserErrors(
-        `You don't have permissions to uploads at this level. You need to be under home/${username}`,
-      );
-      return;
-    }
 
     dispatch(
       startUpload({
@@ -238,6 +225,7 @@ const Operations = ({
           }}
         >
           <Button
+            size="sm"
             icon={
               <AddIcon
                 style={{
@@ -264,15 +252,26 @@ const Operations = ({
       {selectedPaths.length > 0 && (
         <>
           <ToolbarItem>
-            <Button>Create Feed</Button>
+            <Button size="sm">Create Feed</Button>
           </ToolbarItem>
           <ToolbarItem>
             <Button
+              size="sm"
               onClick={() => {
                 dispatch(startDownload(selectedPaths));
               }}
             >
               Download
+            </Button>
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              size="sm"
+              onClick={() => {
+                dispatch(startAnonymize(selectedPaths));
+              }}
+            >
+              Anonymize
             </Button>
           </ToolbarItem>
         </>

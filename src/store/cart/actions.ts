@@ -29,20 +29,20 @@ export const startDownload = (paths: SelectionPayload[]) =>
 export const setFileDownloadStatus = (payload: {
   id: number;
   step: string;
+  error?: string;
 }) => action(ICartActionTypes.SET_FILE_DOWNLOAD_STATUS, payload);
 
 export const setFolderDownloadStatus = (payload: {
   id: number;
   step: string;
+  error?: string;
 }) => action(ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS, payload);
 
 export const startUpload = (payload: UploadPayload) =>
   action(ICartActionTypes.START_UPLOAD, payload);
 
-export const startAnonymize = (payload: {
-  fileUpload: FileUpload;
-  folderUpload: FolderUpload;
-}) => action(ICartActionTypes.START_ANONYMIZE, payload);
+export const startAnonymize = (payload: SelectionPayload[]) =>
+  action(ICartActionTypes.START_ANONYMIZE, payload);
 
 export const setFileUploadStatus = (payload: {
   step: string;
