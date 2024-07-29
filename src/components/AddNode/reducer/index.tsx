@@ -1,167 +1,110 @@
+import { produce } from "immer";
 import { getInitialNodeState } from "../context";
-import { AddNodeState, Types, InputType } from "../types";
+import { Types, type AddNodeState, type InputType } from "../types";
 
-export const addNodeReducer = (state: AddNodeState, action: any) => {
+export const addNodeReducer = produce((draft: AddNodeState, action: any) => {
   switch (action.type) {
     case Types.SetStepIdReached: {
       const { id } = action.payload;
 
       if (id === 1) {
-        return {
-          ...state,
-          dropdownInput: {},
-          requiredInput: {},
-          stepIdReached: id,
-          showPreviousRun: false,
-        };
+        draft.dropdownInput = {};
+        draft.requiredInput = {};
+        draft.stepIdReached = id;
+        draft.showPreviousRun = false;
+      } else {
+        draft.stepIdReached = id;
       }
-      return {
-        ...state,
-        stepIdReached: id,
-      };
+      break;
     }
 
     case Types.SetPluginMeta: {
-      return {
-        ...state,
-        pluginMeta: action.payload.pluginMeta,
-      };
+      draft.pluginMeta = action.payload.pluginMeta;
+      break;
     }
 
     case Types.DeleteComponentList: {
       const id = action.payload.id;
-      const filteredList = state.componentList.filter((key) => {
-        return key !== id;
-      });
-      const newObject = Object.entries(state.dropdownInput)
-        .filter(([key]) => {
-          return key !== id;
-        })
+      draft.componentList = draft.componentList.filter((key) => key !== id);
+      draft.dropdownInput = Object.entries(draft.dropdownInput)
+        .filter(([key]) => key !== id)
         .reduce((acc: InputType, [key, value]) => {
           acc[key] = value;
           return acc;
         }, {});
-
-      return {
-        ...state,
-        componentList: filteredList,
-        dropdownInput: newObject,
-      };
+      break;
     }
 
     case Types.SetComponentList: {
-      return {
-        ...state,
-        componentList: action.payload.componentList,
-      };
+      draft.componentList = action.payload.componentList;
+      break;
     }
 
     case Types.SetSelectedPluginFromMeta: {
-      return {
-        ...state,
-        selectedPluginFromMeta: action.payload.plugin,
-      };
+      draft.selectedPluginFromMeta = action.payload.plugin;
+      break;
     }
 
     case Types.SetToggleWizard: {
-      return {
-        ...state,
-        isOpen: action.payload.isOpen,
-      };
+      draft.isOpen = action.payload.isOpen;
+      break;
     }
 
     case Types.DropdownInput: {
       const { input, editorValue } = action.payload;
-
       if (editorValue) {
-        return {
-          ...state,
-          dropdownInput: input,
-        };
+        draft.dropdownInput = input;
+      } else {
+        Object.assign(draft.dropdownInput, input);
       }
-      return {
-        ...state,
-        dropdownInput: {
-          ...state.dropdownInput,
-          ...input,
-        },
-      };
+      break;
     }
 
     case Types.RequiredInput: {
       const { input, editorValue } = action.payload;
-
       if (editorValue) {
-        return {
-          ...state,
-          requiredInput: input,
-        };
+        draft.requiredInput = input;
+      } else {
+        Object.assign(draft.requiredInput, input);
       }
-      return {
-        ...state,
-        requiredInput: {
-          ...state.requiredInput,
-          ...input,
-        },
-      };
+      break;
     }
 
     case Types.SetEditorValue: {
-      return {
-        ...state,
-        editorValue: action.payload.value,
-      };
+      draft.editorValue = action.payload.value;
+      break;
     }
 
     case Types.SetComputeEnv: {
-      return {
-        ...state,
-        selectedComputeEnv: action.payload.computeEnv,
-      };
+      draft.selectedComputeEnv = action.payload.computeEnv;
+      break;
     }
 
     case Types.SetShowPreviousRun: {
-      return {
-        ...state,
-        showPreviousRun: action.payload.showPreviousRun,
-      };
+      draft.showPreviousRun = action.payload.showPreviousRun;
+      break;
     }
 
     case Types.SetError: {
-      return {
-        ...state,
-        errors: {
-          ...action.payload.error,
-        },
-      };
+      draft.errors = action.payload.error;
+      break;
     }
 
     case Types.AdvancedConfiguration: {
-      return {
-        ...state,
-        advancedConfig: {
-          ...state.advancedConfig,
-          [action.payload.key]: action.payload.value,
-        },
-      };
+      draft.advancedConfig[action.payload.key] = action.payload.value;
+      break;
     }
 
     case Types.MemoryLimitUnit: {
-      return {
-        ...state,
-        memoryLimit: action.payload.value,
-      };
+      draft.memoryLimit = action.payload.value;
+      break;
     }
 
     case Types.ResetState: {
-      const newState = getInitialNodeState();
-
-      return {
-        ...newState,
-      };
+      return getInitialNodeState();
     }
 
     default:
-      return state;
+      return draft;
   }
-};
+}, getInitialNodeState());

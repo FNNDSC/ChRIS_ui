@@ -1,6 +1,6 @@
-import { Reducer } from "redux";
-
-import { PluginActionTypes, IPluginState } from "./types";
+import { produce } from "immer";
+import type { Reducer } from "redux";
+import { PluginActionTypes, type IPluginState } from "./types";
 
 // Type-safe initialState
 const initialState: IPluginState = {
@@ -18,42 +18,32 @@ const initialState: IPluginState = {
   },
 };
 
-const reducer: Reducer<IPluginState> = (
-  state = initialState,
-  action: typeof PluginActionTypes,
-) => {
-  switch (action.type) {
-    case PluginActionTypes.GET_NODE_OPERATIONS: {
-      return {
-        ...state,
-        nodeOperations: {
-          ...state.nodeOperations,
-          [action.payload]: !state.nodeOperations[action.payload],
-        },
-      };
-    }
+const reducer: Reducer<IPluginState> = produce(
+  (draft: IPluginState, action: typeof PluginActionTypes) => {
+    switch (action.type) {
+      case PluginActionTypes.GET_NODE_OPERATIONS: {
+        draft.nodeOperations[action.payload] =
+          !draft.nodeOperations[action.payload];
+        break;
+      }
 
-    case PluginActionTypes.GET_PARAMS_SUCCESS: {
-      return {
-        ...state,
-        parameters: {
-          required: action.payload.required,
-          dropdown: action.payload.dropdown,
-        },
-      };
-    }
+      case PluginActionTypes.GET_PARAMS_SUCCESS: {
+        draft.parameters.required = action.payload.required;
+        draft.parameters.dropdown = action.payload.dropdown;
+        break;
+      }
 
-    case PluginActionTypes.GET_COMPUTE_ENV_SUCCESS: {
-      return {
-        ...state,
-        computeEnv: action.payload,
-      };
-    }
+      case PluginActionTypes.GET_COMPUTE_ENV_SUCCESS: {
+        draft.computeEnv = action.payload;
+        break;
+      }
 
-    default: {
-      return state;
+      default: {
+        return draft;
+      }
     }
-  }
-};
+  },
+  initialState,
+);
 
 export { reducer as pluginReducer };

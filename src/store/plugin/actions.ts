@@ -1,7 +1,7 @@
 import { action } from "typesafe-actions";
 import { PluginActionTypes } from "./types";
 
-import { PluginParameter, Plugin } from "@fnndsc/chrisapi";
+import type { PluginParameter, Plugin } from "@fnndsc/chrisapi";
 
 export const getParams = (plugin: Plugin) =>
   action(PluginActionTypes.GET_PARAMS, plugin);

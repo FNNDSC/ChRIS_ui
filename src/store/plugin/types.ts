@@ -5,10 +5,10 @@
  *  Notes:           .
  */
 import keyMirror from "keymirror";
-import { PluginParameter } from "@fnndsc/chrisapi";
+import type { PluginParameter } from "@fnndsc/chrisapi";
 
 export interface IPluginState {
-  parameters?: {
+  parameters: {
     required: PluginParameter[];
     dropdown: PluginParameter[];
   };

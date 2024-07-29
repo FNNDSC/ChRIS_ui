@@ -1,6 +1,7 @@
-import React, { createContext, useReducer } from "react";
+import type React from "react";
+import { createContext, useReducer } from "react";
 import { addNodeReducer } from "../reducer";
-import { AddNodeState } from "../types";
+import type { AddNodeState } from "../types";
 
 export function getInitialNodeState(): AddNodeState {
   return {
@@ -15,7 +16,6 @@ export function getInitialNodeState(): AddNodeState {
     loading: false,
     errors: undefined,
     isOpen: false,
-
     componentList: [],
     showPreviousRun: false,
     advancedConfig: {},

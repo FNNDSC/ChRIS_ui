@@ -10,13 +10,13 @@ import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { useTypedSelector } from "../../store/hooks";
 import { EmptyStateComponent, InfoIcon, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./components/BreadcrumbContainer";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import Operations from "./components/Operations";
-import { useTypedSelector } from "../../store/hooks";
 
 const { Paragraph } = Typography;
 
@@ -184,7 +184,7 @@ const NewLibrary = () => {
           data.subFoldersMap.length === 0 &&
           data.linkFilesMap.length === 0 &&
           data.filesMap.length === 0 && (
-            <EmptyStateComponent title="No data found under this path..." />
+            <EmptyStateComponent title="This folder is empty" />
           )}
         {data ? (
           <Grid hasGutter={true}>

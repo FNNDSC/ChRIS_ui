@@ -1,29 +1,19 @@
-import React, { useContext, useEffect, useRef } from "react";
 import { Form, FormGroup, TextInput } from "@patternfly/react-core";
-import type { PluginParameter } from "@fnndsc/chrisapi";
-import { RequiredParamProp } from "./types";
+import type React from "react";
+import { type FormEvent, useContext, useEffect, useRef } from "react";
 import { AddNodeContext } from "./context";
+import type { RequiredParamProp } from "./types";
 import { Types } from "./types";
 
-const RequiredParam: React.FC<RequiredParamProp> = ({
-  param,
-}: RequiredParamProp) => {
+const RequiredParam: React.FC<RequiredParamProp> = ({ param }) => {
   const { state, dispatch } = useContext(AddNodeContext);
-
   const { requiredInput } = state;
+  const inputElement = useRef<HTMLInputElement>(null);
 
-  const value =
-    requiredInput &&
-    requiredInput[param.data.id] &&
-    requiredInput[param.data.id]["value"];
+  const value = requiredInput?.[param.data.id]?.value ?? "";
 
-  const inputElement = useRef<any>();
-
-  const handleInputChange = (param: PluginParameter, value: string) => {
-    const id = `${param.data.id}`;
-    const flag = param.data.flag;
-    const placeholder = param.data.help;
-    const type = param.data.type;
+  const handleInputChange = (value: string) => {
+    const { id, flag, help: placeholder, type } = param.data;
 
     dispatch({
       type: Types.RequiredInput,
@@ -42,20 +32,15 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
   };
 
   useEffect(() => {
-    if (inputElement.current) {
-      inputElement.current.focus();
-    }
+    inputElement.current?.focus();
   }, []);
 
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+  };
+
   return (
-    <Form
-      onSubmit={(event: any) => {
-        event.preventDefault();
-      }}
-      className="required-params"
-      key={param.data.id}
-      isHorizontal
-    >
+    <Form onSubmit={handleSubmit} className="required-params" isHorizontal>
       <FormGroup style={{ width: "100%" }} isRequired label={param.data.flag}>
         <TextInput
           className="required-params__textInput"
@@ -63,9 +48,9 @@ const RequiredParam: React.FC<RequiredParamProp> = ({
           type="text"
           aria-label="required-parameters"
           placeholder={param.data.help}
-          value={value ? value : ""}
+          value={value}
           id={param.data.name}
-          onChange={(_event, value: string) => handleInputChange(param, value)}
+          onChange={(_e, value: string) => handleInputChange(value)}
         />
       </FormGroup>
     </Form>

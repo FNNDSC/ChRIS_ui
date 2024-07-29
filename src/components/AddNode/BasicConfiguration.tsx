@@ -1,4 +1,4 @@
-import { PluginMeta } from "@fnndsc/chrisapi";
+import type { PluginMeta } from "@fnndsc/chrisapi";
 import {
   Accordion,
   AccordionContent,
@@ -10,27 +10,34 @@ import {
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
-import React, { useCallback, useContext, useRef, useState } from "react";
+import type React from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { AddNodeContext } from "./context";
-import { BasicConfigurationProps, PluginMetaSelectState, Types } from "./types";
+import {
+  type BasicConfigurationProps,
+  type PluginMetaSelectState,
+  Types,
+} from "./types";
 
+// Component for basic configuration
 const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
   selectedPlugin,
 }) => {
-  const value = selectedPlugin.data.title || selectedPlugin.data.plugin_name;
+  const pluginName =
+    selectedPlugin.data.title || selectedPlugin.data.plugin_name;
 
   return (
     <div className="screen-one">
       <Title headingLevel="h1">Plugin Selection</Title>
       <FormGroup label="Parent node:" fieldId="parent-node">
         <TextInput
-          value={`${value} v.${selectedPlugin.data.plugin_version}`}
+          value={`${pluginName} v.${selectedPlugin.data.plugin_version}`}
           aria-label="Selected Plugin Name"
-          readOnly={true}
+          readOnly
         />
       </FormGroup>
 
@@ -43,44 +50,38 @@ const BasicConfiguration: React.FC<BasicConfigurationProps> = ({
 
 export default BasicConfiguration;
 
+// Component for plugin selection
 const PluginSelect: React.FC = () => {
   const [expanded, setExpanded] =
     useState<PluginMetaSelectState["expanded"]>("all-toggle");
 
+  // Function to fetch all plugins
   const fetchAllPlugins = async () => {
     const client = ChrisAPIClient.getClient();
     const params = { limit: 25, offset: 0 };
-    const fn = client.getPluginMetas;
-    const boundFn = fn.bind(client);
 
     try {
-      let { resource: pluginMetas } = await fetchResource<PluginMeta>(
+      const { resource: pluginMetas } = await fetchResource<PluginMeta>(
         params,
-        boundFn,
+        client.getPluginMetas.bind(client),
       );
-
-      pluginMetas = pluginMetas?.filter(
-        (pluginMeta) => pluginMeta.data.type !== "fs",
-      );
-
-      return pluginMetas;
-    } catch (e) {
-      throw e;
+      return pluginMetas?.filter((pluginMeta) => pluginMeta.data.type !== "fs");
+    } catch (error) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
+      throw error;
     }
   };
 
+  // Query to fetch all plugins
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["pluginList"],
     queryFn: () => fetchAllPlugins(),
     refetchOnMount: true,
   });
 
-  const handleAccordionToggle = (_expanded: string) => {
-    if (_expanded === expanded) {
-      setExpanded("");
-    } else {
-      setExpanded(_expanded);
-    }
+  // Handle accordion toggle
+  const handleAccordionToggle = (toggleId: string) => {
+    setExpanded((prev) => (prev === toggleId ? "" : toggleId));
   };
 
   return (
@@ -109,33 +110,34 @@ const PluginSelect: React.FC = () => {
   );
 };
 
-const PluginList = ({ pluginMetas }: { pluginMetas: PluginMeta[] }) => {
+// Component to render the plugin list
+const PluginList: React.FC<{ pluginMetas: PluginMeta[] }> = ({
+  pluginMetas,
+}) => {
   const { isDarkTheme } = useContext(ThemeContext);
-  const listRef = useRef<any>();
+  const listRef = useRef<HTMLUListElement>(null);
   const [filter, setFilter] = useState("");
   const { state, dispatch } = useContext(AddNodeContext);
   const { pluginMeta } = state;
 
+  // Handle filter change
   const handleFilterChange = (
     _event: React.FormEvent<HTMLInputElement>,
-    filter: string,
-  ) => setFilter(filter);
+    value: string,
+  ) => {
+    setFilter(value);
+  };
+
+  // Filter plugins based on the filter input
   const matchesFilter = useCallback(
     (pluginMeta: PluginMeta) =>
-      pluginMeta.data.name
-        .toLowerCase()
-        .trim()
-        .includes(filter.toLowerCase().trim()),
+      pluginMeta.data.name.toLowerCase().includes(filter.toLowerCase().trim()),
     [filter],
   );
 
-  const getPluginFromMeta = async (pluginMeta: PluginMeta) => {
-    dispatch({
-      type: Types.SetPluginMeta,
-      payload: {
-        pluginMeta,
-      },
-    });
+  // Select a plugin from the meta list
+  const selectPlugin = async (pluginMeta: PluginMeta) => {
+    dispatch({ type: Types.SetPluginMeta, payload: { pluginMeta } });
   };
 
   const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
@@ -162,12 +164,12 @@ const PluginList = ({ pluginMetas }: { pluginMetas: PluginMeta[] }) => {
               style={{
                 backgroundColor: isSelected ? backgroundColor : "inherit",
               }}
-              onKeyDown={(event: any) => {
+              onKeyDown={(event: React.KeyboardEvent) => {
                 if (event.key === "Enter") {
-                  getPluginFromMeta(item);
+                  selectPlugin(item);
                 }
               }}
-              onClick={() => getPluginFromMeta(item)}
+              onClick={() => selectPlugin(item)}
             >
               <span>{name}</span>
               <span className="description">Description: {title}</span>
