@@ -5,7 +5,7 @@
  *  Notes:           Work in progres ...
  */
 import keyMirror from "keymirror";
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 
 export interface FeedPayload {
   data?: Feed;

@@ -18,7 +18,6 @@ import {
   Tooltip,
   useWizardContext,
 } from "@patternfly/react-core";
-import { SettingsIcon, DeleteIcon as TrashIcon, UploadIcon } from "../Icons";
 import { Alert, Steps, notification } from "antd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useTypedSelector } from "../../store/hooks";
@@ -26,6 +25,7 @@ import GuidedConfig from "../AddNode/GuidedConfig";
 import { AddNodeContext } from "../AddNode/context";
 import { Types as AddNodeTypes, chooseConfigProps } from "../AddNode/types";
 import DragAndUpload from "../DragFileUpload";
+import { SettingsIcon, DeleteIcon as TrashIcon, UploadIcon } from "../Icons";
 import ChrisFileSelect from "./ChrisFileSelect";
 import DataPacks from "./DataPacks";
 import { FileList } from "./HelperComponent";
@@ -81,7 +81,7 @@ const ChooseConfig = ({
         case "ArrowRight":
           if (
             selectedConfig.includes("fs_plugin") &&
-            params?.required.length != Object.keys(requiredInput).length
+            params?.required.length !== Object.keys(requiredInput).length
           ) {
             return;
           }
