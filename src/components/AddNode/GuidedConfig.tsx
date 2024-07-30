@@ -1,5 +1,11 @@
-import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
-import type { PluginInstanceParameter } from "@fnndsc/chrisapi";
+import type {
+  Plugin,
+  PluginInstanceList,
+  PluginInstanceParameter,
+  PluginMetaList,
+  PluginMetaPluginList,
+  PluginParameter,
+} from "@fnndsc/chrisapi";
 import {
   Button,
   Card,
@@ -21,6 +27,8 @@ import {
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";
+import { useMutation } from "@tanstack/react-query";
+import { Alert, Spin } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { quote } from "shlex";
@@ -28,7 +36,7 @@ import { v4 } from "uuid";
 import { fetchResource, needsQuoting } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getParams } from "../../store/plugin/actions";
-import { ClipboardCopyFixed, ErrorAlert } from "../Common";
+import { ClipboardCopyFixed, ErrorAlert, SpinContainer } from "../Common";
 import ComputeEnvironments from "./ComputeEnvironment";
 import RequiredParam from "./RequiredParam";
 import SimpleDropdown from "./SimpleDropdown";
@@ -74,20 +82,25 @@ const GuidedConfig = () => {
 
   useEffect(() => {
     const fetchPluginVersions = async () => {
-      const pluginList = await pluginMeta?.getPlugins({
-        limit: 1000,
-      });
+      // Todo: Use an already available helper here from the Store component
+      const pluginList: PluginMetaPluginList | undefined =
+        await pluginMeta?.getPlugins({
+          limit: 1000,
+        });
 
       if (pluginList) {
         const pluginItems = pluginList.getItems() as unknown as Plugin[];
         setPlugins(pluginItems);
         const plugin = pluginItems[0];
+        // Select the first plugin in the list as default
         nodeDispatch({
           type: Types.SetSelectedPluginFromMeta,
           payload: {
             plugin,
           },
         });
+
+        // Fetch the parameters for this particular plugin to display as a form.
         dispatch(getParams(plugin));
       }
     };
@@ -95,6 +108,7 @@ const GuidedConfig = () => {
   }, [dispatch, pluginMeta, nodeDispatch]);
 
   useEffect(() => {
+    //Construct the dropdown components as the input for optional parameters change
     let defaultComponentList = [];
     if (Object.keys(dropdownInput).length > 0) {
       defaultComponentList = Object.entries(dropdownInput).map(([key]) => {
@@ -114,6 +128,7 @@ const GuidedConfig = () => {
   }, [dropdownInput, nodeDispatch, params]);
 
   useEffect(() => {
+    // Construct the value for the copy/paste editor as the required and optional values are edited
     let derivedValue = "";
 
     if (requiredInput) {
@@ -142,6 +157,7 @@ const GuidedConfig = () => {
   }, [nodeDispatch]);
 
   const renderRequiredParams = (params: PluginParameter[]) => {
+    // Component to render required parameters
     return params.map((param) => {
       return (
         <div key={param.data.id}>
@@ -152,6 +168,7 @@ const GuidedConfig = () => {
   };
 
   const renderDropdowns = () => {
+    // Component to render optional parameters
     return componentList.map((id, index) => {
       // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
       return <SimpleDropdown key={index} params={params} id={id} />;
@@ -159,6 +176,7 @@ const GuidedConfig = () => {
   };
 
   const renderComputeEnvs = () => {
+    // Component to render computer enviroments
     return (
       <div className="configure-compute">
         <span className="configure-compute__label">
@@ -170,6 +188,7 @@ const GuidedConfig = () => {
   };
 
   const renderPluginVersions = () => {
+    // Component to render plugin versions
     return (
       <div className="configure-compute">
         <span className="configure-compute__label">
@@ -244,6 +263,7 @@ const GuidedConfig = () => {
       </CardComponent>
       <AdvancedConfiguration />
 
+      {/* Error handling */}
       {errors && Object.keys(errors).length > 0 && (
         <ErrorAlert
           errors={errors}
@@ -272,21 +292,31 @@ const CardComponent = ({ children }: { children: React.ReactElement }) => {
 };
 
 const CheckboxComponent = () => {
+  // This component automatically constructs the Form and the Editor Value from a previous run of a plugin instance
   const params = useTypedSelector((state) => state.plugin.parameters);
   const { state, dispatch } = useContext(AddNodeContext);
   const { showPreviousRun, selectedPluginFromMeta } = state;
 
   const handleCheckboxChange = async () => {
-    const pluginInstanceList = await selectedPluginFromMeta?.getPluginInstances(
-      {
-        limit: 10,
-      },
-    );
+    // Todo: This list needs to use a helper and be paginated
+    const pluginInstanceList: PluginInstanceList | undefined =
+      await selectedPluginFromMeta?.getPluginInstances({
+        limit: 1000,
+      });
 
     const pluginInstances = pluginInstanceList?.getItems();
 
+    if (!pluginInstances) {
+      throw new Error(
+        "Failed to fetch the parameters from a latest run of this plugin instance",
+      );
+    }
+
     if (pluginInstances && pluginInstances.length > 0) {
+      // Assuming this is the latest run. The first plugin instance in the list is assumed to be the latest instance that was run
       const pluginInstance = pluginInstances[0];
+
+      // Code to fetch all the parameters assosciated with this instance
       const paramsToFn = { limit: 10, offset: 0 };
       const fn = pluginInstance.getParameters;
       const boundFn = fn.bind(pluginInstance);
@@ -295,6 +325,8 @@ const CheckboxComponent = () => {
 
       const requiredInput: { [id: string]: InputIndex } = {};
       const dropdownInput: { [id: string]: InputIndex } = {};
+
+      // Construct both the required and optional parts of the form
 
       const paramsRequiredFetched = params?.required.reduce(
         (acc: any, param) => {
@@ -357,38 +389,55 @@ const CheckboxComponent = () => {
     }
   };
 
+  const { isPending, isError, error, mutate, reset } = useMutation({
+    mutationFn: () => handleCheckboxChange(),
+  });
+
   return (
-    <Checkbox
-      isChecked={showPreviousRun ?? false}
-      id="fill-parameters"
-      label="Fill the form using a latest run of this plugin"
-      onChange={(_event, checked) => {
-        if (checked) {
-          handleCheckboxChange();
-        } else {
+    <>
+      <Checkbox
+        isChecked={showPreviousRun ?? false}
+        id="fill-parameters"
+        label="Fill the form using a latest run of this plugin"
+        onChange={(_event, checked) => {
+          if (checked) {
+            //handleCheckboxChange();
+            mutate();
+          } else {
+            reset();
+            dispatch({
+              type: Types.RequiredInput,
+              payload: {
+                input: {},
+                editorValue: true,
+              },
+            });
+            dispatch({
+              type: Types.DropdownInput,
+              payload: {
+                input: {},
+                editorValue: true,
+              },
+            });
+          }
+
+          // Store the checkbox state in the reducer
           dispatch({
-            type: Types.RequiredInput,
+            type: Types.SetShowPreviousRun,
             payload: {
-              input: {},
-              editorValue: true,
+              showPreviousRun: checked,
             },
           });
-          dispatch({
-            type: Types.DropdownInput,
-            payload: {
-              input: {},
-              editorValue: true,
-            },
-          });
-        }
-        dispatch({
-          type: Types.SetShowPreviousRun,
-          payload: {
-            showPreviousRun: checked,
-          },
-        });
-      }}
-    />
+        }}
+      />
+      {isPending && (
+        <div style={{ marginTop: "0.75em" }}>
+          <Spin />{" "}
+          <span style={{ marginLeft: "0.75em" }}>Contructing the form...</span>
+        </div>
+      )}
+      {isError && <Alert type="error" description={error.message} />}
+    </>
   );
 };
 
@@ -484,6 +533,7 @@ const EditorValue = ({
     dropdown: PluginParameter[];
   };
 }) => {
+  // This component allows the user to copy paste the values directly into a clipboard, validate it and run the plugin
   const { state, dispatch } = useContext(AddNodeContext);
   const { editorValue } = state;
   const [validating, setValidating] = React.useState(false);
