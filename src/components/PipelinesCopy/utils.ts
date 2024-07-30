@@ -50,8 +50,13 @@ export const fetchPluginForMeta = async (pluginMeta: PluginMeta) => {
   try {
     const { resource: plugins } = await fetchResource(defaultParams, boundFn);
     return plugins as Plugin[];
-  } catch (e) {
-    throw new Error("Failed to fetch the plugins associated with this meta");
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error(
+      "Unhandled Error. Please reach out to @devbabymri.org to report this error",
+    );
   }
 };
 

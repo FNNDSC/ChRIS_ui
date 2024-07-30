@@ -2,7 +2,6 @@ import type {
   Plugin,
   PluginInstanceList,
   PluginInstanceParameter,
-  PluginMetaList,
   PluginMetaPluginList,
   PluginParameter,
 } from "@fnndsc/chrisapi";
@@ -36,7 +35,7 @@ import { v4 } from "uuid";
 import { fetchResource, needsQuoting } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getParams } from "../../store/plugin/actions";
-import { ClipboardCopyFixed, ErrorAlert, SpinContainer } from "../Common";
+import { ClipboardCopyFixed, ErrorAlert } from "../Common";
 import ComputeEnvironments from "./ComputeEnvironment";
 import RequiredParam from "./RequiredParam";
 import SimpleDropdown from "./SimpleDropdown";
@@ -75,7 +74,6 @@ const GuidedConfig = () => {
     const el = document.querySelector(".react-json-view");
 
     if (el) {
-      //@ts-ignore
       el!.scrollIntoView({ block: "center", behavior: "smooth" });
     }
   });

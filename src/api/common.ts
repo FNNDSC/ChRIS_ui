@@ -104,26 +104,32 @@ async function fetchResource<T>(
   },
   fn: any,
 ) {
-  let resourceList = await fn(params);
-  let resource: T[] = [];
-  if (resourceList.getItems()) {
-    resource = resourceList.getItems() as T[];
-  }
-  while (resourceList.hasNextPage) {
-    try {
+  try {
+    let resourceList = await fn(params);
+    let resource: T[] = [];
+    if (resourceList.getItems()) {
+      resource = resourceList.getItems() as T[];
+    }
+    while (resourceList.hasNextPage) {
       params.offset += params.limit;
       resourceList = await fn(params);
       if (resourceList.getItems()) {
         resource.push(...(resourceList.getItems() as T[]));
       }
-    } catch (e) {
-      console.error(e);
     }
+
+    return {
+      resource,
+      totalCount: resourceList.totalCount as number,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
   }
-  return {
-    resource,
-    totalCount: resourceList.totalCount as number,
-  };
 }
 
 export { useAsync, fetchResource };
@@ -226,18 +232,28 @@ export async function fetchResources(pipelineInstance: Pipeline) {
     params,
     boundPipelineFn,
   );
-  const { resource: pipelinePlugins }: { resource: Plugin[] } =
-    await fetchResource(params, boundPipelinePluginFn);
-  const parameters: PipelinePipingDefaultParameterList =
-    await pipelineInstance.getDefaultParameters({
-      limit: 1000,
-    });
 
-  return {
-    parameters,
-    pluginPipings,
-    pipelinePlugins,
-  };
+  try {
+    const { resource: pipelinePlugins }: { resource: Plugin[] } =
+      await fetchResource(params, boundPipelinePluginFn);
+    const parameters: PipelinePipingDefaultParameterList =
+      await pipelineInstance.getDefaultParameters({
+        limit: 1000,
+      });
+
+    return {
+      parameters,
+      pluginPipings,
+      pipelinePlugins,
+    };
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
+    // Handles api errors
+    const message = catchError(e).error_message;
+    throw new Error(message);
+  }
 }
 
 export const generatePipelineWithName = async (pipelineName: string) => {
@@ -250,21 +266,43 @@ export const generatePipelineWithName = async (pipelineName: string) => {
   const pipelineInstance: Pipeline = (await client.getPipeline(
     pipelineInstanceId,
   )) as Pipeline;
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 export const generatePipelineWithData = async (data: any) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstance: Pipeline = await client.createPipeline(data);
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 export async function fetchComputeInfo(

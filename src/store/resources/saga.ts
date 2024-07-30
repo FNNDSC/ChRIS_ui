@@ -7,7 +7,7 @@ import { all, delay, fork, put, takeEvery } from "@redux-saga/core/effects";
 import { inflate, inflateRaw } from "pako";
 import type { Task } from "redux-saga";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { fetchResource } from "../../api/common";
+import { catchError, fetchResource } from "../../api/common";
 import type { IActionTypeParam } from "../../api/model";
 import { PluginInstanceTypes } from "../pluginInstance/types";
 import {
@@ -40,27 +40,36 @@ export const fetchFilesFromAPath = async (
       const pagination = { limit: 100, offset: 0 };
       const fetchChildren = folder.getChildren;
       const boundChildren = fetchChildren.bind(folder);
-      const { resource: children } = await fetchResource(
-        pagination,
-        boundChildren,
-      );
-      const linkFilesFn = folder.getLinkFiles;
-      const boundLinkFilesFn = linkFilesFn.bind(folder);
-      const { resource: linkFiles } =
-        await fetchResource<FileBrowserFolderLinkFile>(
-          pagination,
-          boundLinkFilesFn,
-        );
-      const filesFn = folder.getFiles;
-      const boundFilesFn = filesFn.bind(folder);
-      const { resource: folderFiles } =
-        await fetchResource<FileBrowserFolderFile>(pagination, boundFilesFn);
 
-      return {
-        folderFiles: folderFiles,
-        linkFiles: linkFiles,
-        children: children,
-      };
+      try {
+        const { resource: children } = await fetchResource(
+          pagination,
+          boundChildren,
+        );
+        const linkFilesFn = folder.getLinkFiles;
+        const boundLinkFilesFn = linkFilesFn.bind(folder);
+        const { resource: linkFiles } =
+          await fetchResource<FileBrowserFolderLinkFile>(
+            pagination,
+            boundLinkFilesFn,
+          );
+        const filesFn = folder.getFiles;
+        const boundFilesFn = filesFn.bind(folder);
+        const { resource: folderFiles } =
+          await fetchResource<FileBrowserFolderFile>(pagination, boundFilesFn);
+
+        return {
+          folderFiles: folderFiles,
+          linkFiles: linkFiles,
+          children: children,
+        };
+      } catch (error) {
+        if (error instanceof Error) {
+          throw new Error(error.message);
+        }
+        const errorMessage = catchError(error).error_message;
+        throw new Error(errorMessage);
+      }
     }
   }
 
@@ -87,9 +96,10 @@ function* fetchPluginFiles(action: IActionTypeParam) {
     };
     yield put(getPluginFilesSuccess(payload));
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : error;
     const payload = {
       id,
-      error,
+      error: errorMessage,
     };
     yield put(getPluginFilesError(payload));
   }

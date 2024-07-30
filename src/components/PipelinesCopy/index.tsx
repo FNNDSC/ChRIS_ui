@@ -120,10 +120,15 @@ const PipelinesCopy = () => {
               },
             });
             setLoadingResources((prev) => ({ ...prev, [id]: false }));
-          } catch {
+          } catch (e) {
+            let error_message =
+              "Failed to fetch the resources for this pipeline...";
+            if (e instanceof Error) {
+              error_message = e.message;
+            }
             setResourceError((prev) => ({
               ...prev,
-              [id]: "Error fetching resources for this pipeline",
+              [id]: error_message,
             }));
             setLoadingResources((prev) => ({ ...prev, [id]: false }));
           }
