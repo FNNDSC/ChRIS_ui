@@ -109,7 +109,7 @@ function getLatestPACSFile(pacsFiles: PACSFile["data"][]) {
 
 /**
  * The browser's limit on the number of concurrent connections to the same domain, which can result in requests being blocked if too many are fired simultaneously.
- * To manage this, weimplement a queue system to control the concurrency of your async requests.
+ * To manage this, we implement a queue system to control the concurrency of your async requests.
  */
 
 const queue = new PQueue({ concurrency: 10 }); // Set concurrency limit here
