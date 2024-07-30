@@ -28,11 +28,12 @@ import {
 } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
 import { Alert, Spin } from "antd";
+import { isEmpty } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { quote } from "shlex";
 import { v4 } from "uuid";
-import { fetchResource, needsQuoting } from "../../api/common";
+import { catchError, fetchResource, needsQuoting } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getParams } from "../../store/plugin/actions";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
@@ -64,7 +65,9 @@ const memory_limit = ["Mi", "Gi"];
 const GuidedConfig = () => {
   const dispatch = useDispatch();
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
-  const params = useTypedSelector((state) => state.plugin.parameters);
+  const { parameters: params, resourceError } = useTypedSelector(
+    (state) => state.plugin,
+  );
   const { pluginMeta, dropdownInput, requiredInput, componentList, errors } =
     state;
 
@@ -80,26 +83,38 @@ const GuidedConfig = () => {
 
   useEffect(() => {
     const fetchPluginVersions = async () => {
-      // Todo: Use an already available helper here from the Store component
-      const pluginList: PluginMetaPluginList | undefined =
-        await pluginMeta?.getPlugins({
-          limit: 1000,
-        });
+      try {
+        // Todo: Use an already available helper here from the Store component
+        const pluginList: PluginMetaPluginList | undefined =
+          await pluginMeta?.getPlugins({
+            limit: 1000,
+          });
 
-      if (pluginList) {
-        const pluginItems = pluginList.getItems() as unknown as Plugin[];
-        setPlugins(pluginItems);
-        const plugin = pluginItems[0];
-        // Select the first plugin in the list as default
-        nodeDispatch({
-          type: Types.SetSelectedPluginFromMeta,
+        if (pluginList) {
+          const pluginItems = pluginList.getItems() as unknown as Plugin[];
+          setPlugins(pluginItems);
+          const plugin = pluginItems[0];
+          // Select the first plugin in the list as default
+          nodeDispatch({
+            type: Types.SetSelectedPluginFromMeta,
+            payload: {
+              plugin,
+            },
+          });
+
+          // Fetch the parameters for this particular plugin to display as a form.
+          dispatch(getParams(plugin));
+        }
+      } catch (e) {
+        const error_message = catchError(e).error_message;
+        dispatch({
+          type: Types.SetError,
           payload: {
-            plugin,
+            error: !isEmpty(error_message)
+              ? error_message
+              : "Failed to fetch plugin versions.",
           },
         });
-
-        // Fetch the parameters for this particular plugin to display as a form.
-        dispatch(getParams(plugin));
       }
     };
     fetchPluginVersions();
@@ -275,6 +290,8 @@ const GuidedConfig = () => {
           }}
         />
       )}
+
+      {resourceError && <Alert type="error" description={resourceError} />}
     </div>
   );
 };
@@ -291,7 +308,9 @@ const CardComponent = ({ children }: { children: React.ReactElement }) => {
 
 const CheckboxComponent = () => {
   // This component automatically constructs the Form and the Editor Value from a previous run of a plugin instance
-  const params = useTypedSelector((state) => state.plugin.parameters);
+  const { parameters: params, resourceError } = useTypedSelector(
+    (state) => state.plugin,
+  );
   const { state, dispatch } = useContext(AddNodeContext);
   const { showPreviousRun, selectedPluginFromMeta } = state;
 
@@ -394,6 +413,7 @@ const CheckboxComponent = () => {
   return (
     <>
       <Checkbox
+        isDisabled={!!resourceError}
         isChecked={showPreviousRun ?? false}
         id="fill-parameters"
         label="Fill the form using a latest run of this plugin"

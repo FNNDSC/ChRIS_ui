@@ -1,4 +1,4 @@
-import React, { useContext, useCallback } from "react";
+import React, { useContext, useCallback, useState, useEffect } from "react";
 import {
   MenuItemAction,
   MenuToggle,
@@ -9,29 +9,20 @@ import {
 import { AddNodeContext } from "./context";
 import { useTypedSelector } from "../../store/hooks";
 import { Types } from "./types";
-
-function getInititalState() {
-  return {
-    isOpen: false,
-    toggleTemplateText: "",
-  };
-}
+import { Alert } from "antd";
 
 const ComputeEnvironment: React.FC = () => {
-  const { computeEnv: computeEnvs } = useTypedSelector((state) => state.plugin);
+  const { computeEnv: computeEnvs, resourceError } = useTypedSelector(
+    (state) => state.plugin,
+  );
   const { state, dispatch } = useContext(AddNodeContext);
   const { selectedComputeEnv } = state;
-  const [menuState, setMenuState] = React.useState(getInititalState);
-  const { isOpen, toggleTemplateText } = menuState;
+  const [isOpen, setIsOpen] = useState(false);
+  const [toggleTemplateText, setToggleTemplateText] = useState("");
 
   const setStates = useCallback(
     (currentComputeEnv: string) => {
-      setMenuState((menuState) => {
-        return {
-          ...menuState,
-          toggleTemplateText: currentComputeEnv,
-        };
-      });
+      setToggleTemplateText(currentComputeEnv);
       dispatch({
         type: Types.SetComputeEnv,
         payload: {
@@ -42,50 +33,44 @@ const ComputeEnvironment: React.FC = () => {
     [dispatch],
   );
 
-  React.useEffect(() => {
-    if (computeEnvs) {
+  useEffect(() => {
+    if (computeEnvs && computeEnvs.length > 0) {
       const currentComputeEnv = computeEnvs[0].data.name;
       setStates(currentComputeEnv);
     }
   }, [computeEnvs, setStates]);
 
   const onToggle = () => {
-    setMenuState({
-      ...menuState,
-      isOpen: !isOpen,
-    });
+    setIsOpen((prevState) => !prevState);
   };
 
   const onSelect = (
     event?: React.MouseEvent<HTMLAnchorElement> | React.KeyboardEvent,
   ) => {
     const id = event?.currentTarget.id;
-
     if (id) {
       setStates(id);
     }
+    setIsOpen(false);
   };
 
   const menuItems = computeEnvs
-    ? computeEnvs.map((computeEnv) => {
-        return (
-          <SelectOption
-            actions={<MenuItemAction aria-label={computeEnv} />}
-            isSelected={selectedComputeEnv === computeEnv.data.name}
-            id={computeEnv.data.name}
-            key={computeEnv.data.id}
-            onClick={onSelect}
-          >
-            {computeEnv.data.name}
-          </SelectOption>
-        );
-      })
+    ? computeEnvs.map((computeEnv) => (
+        <SelectOption
+          isSelected={selectedComputeEnv === computeEnv.data.name}
+          id={computeEnv.data.name}
+          key={computeEnv.data.id}
+          onClick={onSelect}
+        >
+          {computeEnv.data.name}
+        </SelectOption>
+      ))
     : [];
 
-  return (
+  return !resourceError ? (
     <Select
       isOpen={isOpen}
-      toggle={(toggleRef: any) => (
+      toggle={(toggleRef) => (
         <MenuToggle ref={toggleRef} onClick={onToggle} isExpanded={isOpen}>
           {toggleTemplateText}
         </MenuToggle>
@@ -93,6 +78,8 @@ const ComputeEnvironment: React.FC = () => {
     >
       <SelectList>{menuItems}</SelectList>
     </Select>
+  ) : (
+    <Alert type="error" description={resourceError} />
   );
 };
 

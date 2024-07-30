@@ -9,6 +9,7 @@ const initialState: IPluginState = {
     required: [],
   },
   computeEnv: undefined,
+  resourceError: "",
   nodeOperations: {
     terminal: false,
     childNode: false,
@@ -35,6 +36,11 @@ const reducer: Reducer<IPluginState> = produce(
 
       case PluginActionTypes.GET_COMPUTE_ENV_SUCCESS: {
         draft.computeEnv = action.payload;
+        break;
+      }
+
+      case PluginActionTypes.GET_RESOURCE_ERROR: {
+        draft.resourceError = action.payload;
         break;
       }
 
