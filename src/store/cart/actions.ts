@@ -4,12 +4,15 @@ import type {
 } from "@fnndsc/chrisapi";
 import { action } from "typesafe-actions";
 import {
-  type FileUpload,
-  type FolderUpload,
   ICartActionTypes,
   type SelectionPayload,
   type UploadPayload,
 } from "./types";
+
+type OperationPayload = {
+  paths: SelectionPayload[];
+  username: string;
+};
 
 //Type to be determined
 export const setSelectFolder = (selectPayload: {
@@ -23,8 +26,8 @@ export const clearSelectFolder = (path: string) =>
 
 export const setToggleCart = () => action(ICartActionTypes.SET_TOGGLE_CART);
 
-export const startDownload = (paths: SelectionPayload[]) =>
-  action(ICartActionTypes.START_DOWNLOAD, paths);
+export const startDownload = (payload: OperationPayload) =>
+  action(ICartActionTypes.START_DOWNLOAD, payload);
 
 export const setFileDownloadStatus = (payload: {
   id: number;
@@ -41,7 +44,7 @@ export const setFolderDownloadStatus = (payload: {
 export const startUpload = (payload: UploadPayload) =>
   action(ICartActionTypes.START_UPLOAD, payload);
 
-export const startAnonymize = (payload: SelectionPayload[]) =>
+export const startAnonymize = (payload: OperationPayload) =>
   action(ICartActionTypes.START_ANONYMIZE, payload);
 
 export const setFileUploadStatus = (payload: {

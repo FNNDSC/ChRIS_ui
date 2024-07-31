@@ -121,6 +121,7 @@ const Operations = ({
 }: { folderList?: FileBrowserFolderList; computedPath: string }) => {
   const queryClient = useQueryClient();
   const { selectedPaths } = useTypedSelector((state) => state.cart);
+  const username = useTypedSelector((state) => state.user.username);
   const [modalInfo, setModalInfo] = useState({
     isOpen: false,
     type: "", // "group" or "folder"
@@ -259,7 +260,12 @@ const Operations = ({
             <Button
               size="sm"
               onClick={() => {
-                dispatch(startDownload(selectedPaths));
+                dispatch(
+                  startDownload({
+                    paths: selectedPaths,
+                    username: username as string,
+                  }),
+                );
               }}
             >
               Download
@@ -269,7 +275,12 @@ const Operations = ({
             <Button
               size="sm"
               onClick={() => {
-                dispatch(startAnonymize(selectedPaths));
+                dispatch(
+                  startAnonymize({
+                    paths: selectedPaths,
+                    username: username as string,
+                  }),
+                );
               }}
             >
               Anonymize
