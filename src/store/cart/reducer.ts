@@ -48,14 +48,14 @@ const reducer: Reducer<ICartState> = produce(
       }
 
       case ICartActionTypes.SET_FILE_DOWNLOAD_STATUS: {
-        const { id, step, error } = action.payload;
-        draft.fileDownloadStatus[id] = { step, error };
+        const { id, step, error, fileName } = action.payload;
+        draft.fileDownloadStatus[id] = { step, fileName, error };
         break;
       }
 
       case ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS: {
-        const { id, step, error } = action.payload;
-        draft.folderDownloadStatus[id] = { step, error };
+        const { id, step, error, fileName } = action.payload;
+        draft.folderDownloadStatus[id] = { step, fileName, error };
         break;
       }
 

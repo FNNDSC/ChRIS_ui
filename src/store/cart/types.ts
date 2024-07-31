@@ -42,6 +42,7 @@ export type DownloadStatus = {
   [key: string]: {
     step: DownloadTypes;
     error?: string;
+    fileName: string;
   };
 };
 

@@ -32,12 +32,14 @@ export const startDownload = (payload: OperationPayload) =>
 export const setFileDownloadStatus = (payload: {
   id: number;
   step: string;
+  fileName: string;
   error?: string;
 }) => action(ICartActionTypes.SET_FILE_DOWNLOAD_STATUS, payload);
 
 export const setFolderDownloadStatus = (payload: {
   id: number;
   step: string;
+  fileName?: string;
   error?: string;
 }) => action(ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS, payload);
 

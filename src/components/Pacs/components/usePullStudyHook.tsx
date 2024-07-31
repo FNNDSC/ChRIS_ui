@@ -1,6 +1,7 @@
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import axios from "axios";
 import { useTypedSelector } from "../../../store/hooks";
+import { catchError } from "../../../api/common";
 
 const usePullStudyHook = () => {
   const userName = useTypedSelector((state) => state.user.username);
@@ -40,7 +41,8 @@ const usePullStudyHook = () => {
       const response = await axios.post(url, formData, config);
       return response;
     } catch (error) {
-      throw error;
+      const error_message = catchError(error).error_message;
+      throw new Error(error_message);
     }
   };
 
@@ -78,7 +80,11 @@ const usePullStudyHook = () => {
       }
       throw new Error("Failed to fetch the file...");
     } catch (error) {
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      const error_message = catchError(error).error_message;
+      throw new Error(error_message);
     }
   };
 
@@ -101,11 +107,11 @@ const usePullStudyHook = () => {
             return response.data;
           }
         } catch (error) {
-          throw error;
+          if (error instanceof Error) throw new Error(error.message);
         }
       }
     } catch (error) {
-      throw error;
+      if (error instanceof Error) throw new Error(error.message);
     }
   };
 
