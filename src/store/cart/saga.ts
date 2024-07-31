@@ -17,6 +17,7 @@ import { chunk, isEmpty } from "lodash";
 import { END, type EventChannel, eventChannel } from "redux-saga";
 import { all, call, fork, put, take, takeEvery } from "redux-saga/effects";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { getFileName } from "../../api/common";
 import type { IActionTypeParam } from "../../api/model";
 import { getPlugin } from "../../components/CreateFeed/createFeedHelper";
 import { downloadFile } from "../hooks";
@@ -36,12 +37,13 @@ function* setStatus(
   type: string,
   id: number,
   step: "started" | "processing" | "finished" | "cancelled",
+  fileName: string,
   error?: string,
 ) {
   if (type === "file") {
-    yield put(setFileDownloadStatus({ id, step, error }));
+    yield put(setFileDownloadStatus({ id, step, fileName, error }));
   } else {
-    yield put(setFolderDownloadStatus({ id, step, error }));
+    yield put(setFolderDownloadStatus({ id, step, fileName, error }));
   }
 }
 
@@ -55,9 +57,10 @@ function* downloadFolder(
   pipelineType: string,
 ) {
   const { id } = payload.data;
-  const path = isFileBrowserFolder(payload)
-    ? payload.data.path
-    : payload.data.fname;
+  const isFolder = isFileBrowserFolder(payload);
+  const path = isFolder ? payload.data.path : payload.data.fname;
+  const type = isFolder ? "folder" : "file";
+  const folderNameForFeed = getFileName(path);
   const client = ChrisAPIClient.getClient();
 
   const pipelineName =
@@ -75,7 +78,7 @@ function* downloadFolder(
     );
   }
 
-  yield setStatus("folder", id, "processing");
+  yield setStatus(type, id, "processing", path);
 
   const pipelines = pipelineList.getItems() as unknown as Pipeline[];
   const currentPipeline = pipelines[0];
@@ -106,8 +109,8 @@ function* downloadFolder(
 
   const feedName =
     pipelineType === "Download Pipeline"
-      ? "Library Download"
-      : "Library Anonymize";
+      ? `Library Download for ${folderNameForFeed}`
+      : `Library Anonymize for ${folderNameForFeed}`;
 
   yield feed.put({ name: feedName });
 
@@ -150,7 +153,6 @@ function* downloadFolder(
     }
 
     if (status === "finishedSuccessfully") {
-      console.log("FilePath:", filePath);
       const folderList: FileBrowserFolderFileList =
         yield client.getFileBrowserFolders({ path: filePath });
 
@@ -160,7 +162,7 @@ function* downloadFolder(
 
       const folders = folderList.getItems();
 
-      if (folders) {
+      if (folders && folders.length > 0) {
         const folder = folders[0];
         const files: FileBrowserFolderFileList = yield folder.getFiles();
         const fileItems = files.getItems() as FileBrowserFolderFile[];
@@ -169,6 +171,8 @@ function* downloadFolder(
         }
         const fileToZip = fileItems[0];
         yield downloadFile(fileToZip);
+      } else {
+        throw new Error(`Failed to find a folder for this path: ${filePath}`);
       }
     }
   }
@@ -182,8 +186,10 @@ function* handleIndividualDownload(
   const { type, payload } = path;
   const { id } = payload.data;
 
+  const pathForState = type === "file" ? payload.data.fname : payload.data.path;
+
   try {
-    yield setStatus(type, id, "started");
+    yield setStatus(type, id, "started", pathForState);
     if (type === "file" && pipelineType === "Download Pipeline") {
       yield downloadFile(payload as FileBrowserFolderFile);
     } else {
@@ -193,10 +199,10 @@ function* handleIndividualDownload(
         pipelineType,
       );
     }
-    yield setStatus(type, id, "finished");
+    yield setStatus(type, id, "finished", pathForState);
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : "Uknown error";
-    yield setStatus(type, id, "cancelled", errMsg);
+    yield setStatus(type, id, "cancelled", pathForState, errMsg);
   }
 }
 

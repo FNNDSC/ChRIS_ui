@@ -20,6 +20,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
 import axios from "axios";
+import PQueue from "p-queue";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -36,7 +37,6 @@ import { PacsQueryContext, Types } from "../context";
 import PFDCMClient, { type DataFetchQuery } from "../pfdcmClient";
 import useSettings from "../useSettings";
 import { CardHeaderComponent } from "./SettingsComponents";
-import PQueue from "p-queue";
 
 async function getPacsFile(file: PACSFile["data"]) {
   const { id } = file;
@@ -620,6 +620,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
       {data?.fileToPreview && largeFilePreview}
 
+      {/* Error handling for fetching a pacs file for preview */}
       {pacsFileError && <Alert type="error" description={pacsFileError} />}
     </Card>
   );

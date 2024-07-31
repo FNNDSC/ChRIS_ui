@@ -8,7 +8,6 @@ import {
   clearSelectFolder,
   setToggleCart,
 } from "../../../store/cart/actions";
-import type { SelectionPayload } from "../../../store/cart/types";
 import { DownloadTypes } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
@@ -22,7 +21,6 @@ const Cart = () => {
   const dispatch = useDispatch();
   const {
     openCart,
-    selectedPaths,
     fileUploadStatus,
     folderUploadStatus,
     fileDownloadStatus,
@@ -42,7 +40,9 @@ const Cart = () => {
           <Button
             style={{ color: "inherit" }}
             variant="danger"
-            onClick={() => {}}
+            onClick={() => {
+              // Implement clear cart logic here
+            }}
           >
             Clear Cart
           </Button>
@@ -50,38 +50,64 @@ const Cart = () => {
       }
     >
       {/** Code for File and Folder Downloads */}
-      {(!isEmpty(fileDownloadStatus) || !isEmpty(folderDownloadStatus)) && (
+      {!isEmpty(fileDownloadStatus) && (
         <List
           className="operation-cart"
-          dataSource={selectedPaths}
-          renderItem={(item) => {
-            return (
-              <List.Item
-                key={item.path}
-                actions={[
-                  <Status key={`s-${item.path}`} item={item} />,
-                  <Button
-                    onClick={() => {
-                      dispatch(clearSelectFolder(item.path));
-                      dispatch(clearDownloadStatus(item.path));
-                    }}
-                    variant="secondary"
-                    size="sm"
-                    key={`a-${item.path}`}
-                  >
-                    Clear
-                  </Button>,
-                ]}
-              >
-                <List.Item.Meta
-                  avatar={
-                    item.type === "folder" ? <FolderIcon /> : <FileIcon />
-                  }
-                  title={<TitleNameClipped name={getFileName(item.path)} />}
-                />
-              </List.Item>
-            );
-          }}
+          dataSource={Object.entries(fileDownloadStatus)}
+          renderItem={([id, status]) => (
+            <List.Item
+              key={id}
+              actions={[
+                <Status key={`status-${id}`} currentStatus={status} />,
+                <Button
+                  onClick={() => {
+                    dispatch(clearDownloadStatus(id));
+                  }}
+                  variant="secondary"
+                  size="sm"
+                  key={`a-${id}`}
+                >
+                  Clear
+                </Button>,
+              ]}
+            >
+              <List.Item.Meta
+                avatar={<FileIcon />}
+                title={<TitleNameClipped name={getFileName(status.fileName)} />}
+              />
+            </List.Item>
+          )}
+        />
+      )}
+
+      {/** Code for Folder Downloads */}
+      {!isEmpty(folderDownloadStatus) && (
+        <List
+          className="operation-cart"
+          dataSource={Object.entries(folderDownloadStatus)}
+          renderItem={([id, status]) => (
+            <List.Item
+              key={id}
+              actions={[
+                <Status key={`status-${id}`} currentStatus={status} />,
+                <Button
+                  onClick={() => {
+                    dispatch(clearDownloadStatus(id));
+                  }}
+                  variant="secondary"
+                  size="sm"
+                  key={`a-${id}`}
+                >
+                  Clear
+                </Button>,
+              ]}
+            >
+              <List.Item.Meta
+                avatar={<FolderIcon />}
+                title={<TitleNameClipped name={getFileName(status.fileName)} />}
+              />
+            </List.Item>
+          )}
         />
       )}
 
@@ -179,57 +205,39 @@ const Cart = () => {
       />
       {isEmpty(folderUploadStatus) &&
         isEmpty(fileUploadStatus) &&
-        isEmpty(selectedPaths) && <EmptyStateComponent title="No data..." />}
+        isEmpty(fileDownloadStatus) &&
+        isEmpty(folderDownloadStatus) && (
+          <EmptyStateComponent title="No data..." />
+        )}
     </Drawer>
   );
 };
 
 export default Cart;
 
-export const Status = ({ item }: { item: SelectionPayload }) => {
-  const fileDownloadStatus = useTypedSelector(
-    (state) => state.cart.fileDownloadStatus,
-  );
-  const folderDownloadStatus = useTypedSelector(
-    (state) => state.cart.folderDownloadStatus,
-  );
-
-  const { type, payload } = item;
-  const { id } = payload.data;
-
-  const getStatusIcon = (currentStatus: {
-    step: DownloadTypes;
-    error?: string;
-  }) => {
-    const { step, error } = currentStatus;
-    switch (step) {
-      case DownloadTypes.started:
-        return <DotsIndicator title="" />;
-      case DownloadTypes.finished:
-        return (
-          <Button
-            variant="plain"
-            icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
-          />
-        );
-      case DownloadTypes.cancelled:
-        return (
-          <Tooltip content={error}>
-            <Text>{error ? elipses(error, 45) : "Uncaught error"}</Text>
-          </Tooltip>
-        );
-      default:
-        return currentStatus ? <DotsIndicator title={step} /> : null;
-    }
-  };
-
-  if (type === "file") {
-    return getStatusIcon(fileDownloadStatus[id]);
+export const Status = ({
+  currentStatus,
+}: {
+  currentStatus: { step: DownloadTypes; error?: string };
+}) => {
+  const { step, error } = currentStatus;
+  switch (step) {
+    case DownloadTypes.started:
+      return <DotsIndicator title="" />;
+    case DownloadTypes.finished:
+      return (
+        <Button
+          variant="plain"
+          icon={<CheckCircleIcon color="#3E8635" width="2em" height="2em" />}
+        />
+      );
+    case DownloadTypes.cancelled:
+      return (
+        <Tooltip content={error}>
+          <Text>{error ? elipses(error, 45) : "Uncaught error"}</Text>
+        </Tooltip>
+      );
+    default:
+      return currentStatus ? <DotsIndicator title={step} /> : null;
   }
-
-  if (type === "folder") {
-    return getStatusIcon(folderDownloadStatus[id]);
-  }
-
-  return null;
 };
