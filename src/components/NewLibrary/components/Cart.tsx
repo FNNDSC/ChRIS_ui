@@ -1,21 +1,21 @@
 import { Button, Text, Tooltip } from "@patternfly/react-core";
 import { Drawer, List, Space } from "antd";
+import { isEmpty } from "lodash";
 import { useDispatch } from "react-redux";
+import { getFileName } from "../../../api/common";
 import {
   clearDownloadStatus,
   clearSelectFolder,
   setToggleCart,
 } from "../../../store/cart/actions";
 import type { SelectionPayload } from "../../../store/cart/types";
+import { DownloadTypes } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
-import "./Cart.css";
-import { isEmpty } from "lodash";
-import { getFileName } from "../../../api/common";
-import { DownloadTypes } from "../../../store/cart/types";
 import { elipses } from "../../LibraryCopy/utils";
 import { ShowInFolder, TitleNameClipped } from "../utils/longpress";
+import "./Cart.css";
 import ProgressRing from "./RadialProgress";
 
 const Cart = () => {

@@ -126,12 +126,12 @@ const Operations = ({
     type: "", // "group" or "folder"
   });
   const [userError, setUserErrors] = useState("");
-
-  const username = useTypedSelector((state) => state.user.username);
   const dispatch = useDispatch();
   const folderInput = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const selectedPathsCount = selectedPaths.length;
+
+  const isDisabled = computedPath === "/" || computedPath === "home";
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
@@ -225,6 +225,7 @@ const Operations = ({
           }}
         >
           <Button
+            isDisabled={isDisabled}
             size="sm"
             icon={
               <AddIcon
