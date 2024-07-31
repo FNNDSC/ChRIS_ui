@@ -90,6 +90,7 @@ const NewLibrary = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const username = useTypedSelector((state) => state.user.username);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
@@ -101,16 +102,13 @@ const NewLibrary = () => {
     structuralSharing: true,
   });
 
-  const handleFolderClick = debounce((folder: string) => {
-    const url = `${decodedPath}/${folder}`;
-    navigate(url);
-  }, 500);
-
-  const handlePagination = () => {
-    setPageNumber((prevState) => prevState + 1);
-  };
-
-  const observerTarget = useRef(null);
+  // Redirect to /library/home/username if pathname is /library and it's the first load
+  useEffect(() => {
+    if (isFirstLoad && pathname === "/library") {
+      navigate(`/library/home/${username}`, { replace: true });
+      setIsFirstLoad(false);
+    }
+  }, [isFirstLoad, pathname, username, navigate]);
 
   const fetchMore =
     data?.foldersPagination.hasNextPage ||
@@ -138,12 +136,21 @@ const NewLibrary = () => {
     };
   }, [fetchMore]);
 
-  useEffect(() => {
-    if (pathname === "/library") {
-      navigate(`/library/home/${username}`);
-    }
-  });
+  const handleFolderClick = debounce((folder: string) => {
+    const url = `${decodedPath}/${folder}`;
+    navigate(url);
+  }, 500);
 
+  const handlePagination = () => {
+    setPageNumber((prevState) => prevState + 1);
+  };
+
+  const observerTarget = useRef(null);
+
+  // Prevent initial render if redirecting
+  if (isFirstLoad && pathname === "/library") {
+    return null;
+  }
   return (
     <WrapperConnect>
       <PageSection>
@@ -196,7 +203,6 @@ const NewLibrary = () => {
             />
             <LinkCard
               linkFiles={data.linkFilesMap}
-              showServicesFolder={pathname === `/library/home/${username}`}
               pagination={data.linksPagination}
             />
             <FilesCard

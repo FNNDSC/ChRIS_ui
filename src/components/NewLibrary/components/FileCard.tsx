@@ -86,10 +86,8 @@ const PresentationComponent = ({
 
 export const LinkCard = ({
   linkFiles,
-  showServicesFolder,
 }: {
   linkFiles: FileBrowserFolderLinkFile[];
-  showServicesFolder: boolean;
   pagination?: Pagination;
 }) => {
   const navigate = useNavigate();
@@ -112,17 +110,6 @@ export const LinkCard = ({
           />
         );
       })}
-      {showServicesFolder && (
-        <PresentationComponent
-          icon={<ExternalLinkSquareAltIcon />}
-          name="SERVICES"
-          date=""
-          key={"SERVICES"}
-          onClick={() => {
-            navigate("SERVICES");
-          }}
-        />
-      )}
     </Fragment>
   );
 };

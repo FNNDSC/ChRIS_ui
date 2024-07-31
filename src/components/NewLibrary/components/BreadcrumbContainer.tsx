@@ -40,7 +40,7 @@ const BreadcrumbContainer = ({
               return (
                 <BreadcrumbItem
                   style={style}
-                  key={`breadcrumb-${segment}-${index}`}
+                  key={`breadcrumb-${segment}`}
                   onClick={() => handleFolderClick(newPath)}
                 >
                   {segment}
