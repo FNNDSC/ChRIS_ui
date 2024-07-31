@@ -301,14 +301,17 @@ const ChooseConfig = ({
           <Grid style={navigationButtonStyle}>
             {currentStep === 0 && (
               <Button
+                size="sm"
                 onClick={() => nextStep()}
                 isDisabled={pluginMeta === undefined}
               >
-                Next
+                Next Page
               </Button>
             )}
             {currentStep > 0 && (
-              <Button onClick={() => prevStep()}>Previous</Button>
+              <Button size="sm" onClick={() => prevStep()}>
+                Previous Page
+              </Button>
             )}
           </Grid>
         </DrawerPanelBody>
@@ -338,7 +341,13 @@ const ChooseConfig = ({
   }, [localFiles.length]);
 
   return (
-    <Drawer isExpanded={isRightDrawerExpand} position="right">
+    <Drawer
+      style={{
+        height: "100vh",
+      }}
+      isExpanded={isRightDrawerExpand}
+      position="right"
+    >
       <DrawerContent panelContent={panelContent}>
         <Flex
           className="pf-v5-c-wizard__main-body"
@@ -495,7 +504,10 @@ const ChooseConfig = ({
             </Grid>
             {showAlert && (
               <Alert
-                type="warning"
+                style={{
+                  marginTop: "1rem",
+                }}
+                type="info"
                 closable
                 description="Please select a data source to create a feed"
               />
