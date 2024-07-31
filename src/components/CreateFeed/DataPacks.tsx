@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext, useRef, useCallback } from "react";
-import { PluginMeta } from "@fnndsc/chrisapi";
+import type { PluginMeta } from "@fnndsc/chrisapi";
 import {
   Pagination,
   ToolbarItem,
@@ -101,7 +101,7 @@ const DataPacks = ({ next }: { next: () => any }) => {
       });
 
       notification.info({
-        message: `Plugin Selected`,
+        message: "Plugin Selected",
         description: `${plugin.data.name} plugin unselected`,
         duration: 1,
       });
@@ -127,19 +127,21 @@ const DataPacks = ({ next }: { next: () => any }) => {
     (e: any, plugin: any = null) => {
       if (e.target.closest("INPUT#filter_plugin")) {
         return;
-      } else if (
+      }
+      if (
         e.target.closest("BUTTON") &&
         !e.target.closest("BUTTON.pf-c-button.pf-m-secondary") &&
         !e.target.closest("BUTTON.pf-c-button.pf-m-primary")
       ) {
         return;
-      } else if (e.code == "Enter" && e.target.closest("DIV.pf-c-radio")) {
+      }
+      if (e.code == "Enter" && e.target.closest("DIV.pf-c-radio")) {
         e.preventDefault();
-        if (pluginMeta == undefined) handleOnChange(true, plugin);
+        if (pluginMeta === undefined) handleOnChange(true, plugin);
         onNext();
       } else if (pluginMeta && e.code == "ArrowRight") {
         onNext();
-      } else if (e.code == "ArrowLeft") {
+      } else if (e.code === "ArrowLeft") {
         onBack();
       }
     },

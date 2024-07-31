@@ -46,7 +46,6 @@ export const createFeed = async (
 
   try {
     const client = ChrisAPIClient.getClient();
-
     const dircopy = await getPlugin("pl-dircopy");
 
     if (!dircopy) {
@@ -95,9 +94,12 @@ export const createFeed = async (
 
     feed = (await createdInstance.getFeed()) as Feed;
     return feed;
-  } catch (e: any) {
-    // biome-ignore lint/complexity/noUselessCatch: <explanation>
-    throw e;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
+
+    throw new Error("Unhandled error. Failed to create a Feed.");
   }
 };
 
@@ -147,8 +149,9 @@ export const getPlugin = async (
     }
     return undefined;
   } catch (e) {
-    // biome-ignore lint/complexity/noUselessCatch: <explanation>
-    throw e;
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
   }
 };
 

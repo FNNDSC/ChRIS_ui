@@ -1,13 +1,13 @@
-import { InputType, InputIndex } from "./types";
-import { PluginParameter } from "@fnndsc/chrisapi";
+import type { InputType, InputIndex } from "./types";
+import type { PluginParameter } from "@fnndsc/chrisapi";
 import { v4 } from "uuid";
 
 export const unPackForKeyValue = (input: InputIndex) => {
-  const flag = input ? input["flag"] : "";
-  const value = input ? input["value"] : "";
-  const type = input ? input["type"] : "";
-  const placeholder = input ? input["placeholder"] : "";
-  const paramName = input ? input["paramName"] : "";
+  const flag = input ? input.flag : "";
+  const value = input ? input.value : "";
+  const type = input ? input.type : "";
+  const placeholder = input ? input.placeholder : "";
+  const paramName = input ? input.paramName : "";
   return [flag, value, type, placeholder, paramName];
 };
 
@@ -45,7 +45,7 @@ export const getRequiredParams = (params: PluginParameter[]) => {
     .map((param) => {
       if (param.data.optional === false) {
         return param.data.flag;
-      } else return undefined;
+      }
     })
     .filter((element) => element !== undefined);
 };
@@ -57,10 +57,10 @@ export const getAllParamsWithName = (
   placeholder: string,
 ) => {
   const result: InputIndex = {};
-  result["flag"] = flag;
-  result["value"] = value;
-  result["type"] = type;
-  result["placeholder"] = placeholder;
+  result.flag = flag;
+  result.value = value;
+  result.type = type;
+  result.placeholder = placeholder;
   return result;
 };
 
@@ -71,10 +71,10 @@ export function getRequiredParamsWithName(
   placeholder: string,
 ) {
   const result: InputIndex = {};
-  result["flag"] = flag;
-  result["value"] = value;
-  result["type"] = type;
-  result["placeholder"] = placeholder;
+  result.flag = flag;
+  result.value = value;
+  result.type = type;
+  result.placeholder = placeholder;
   return result;
 }
 
@@ -93,19 +93,17 @@ export const handleGetTokens = (
   let dropdownInput: InputType = {};
   let specialCharIndex = undefined;
 
-  const flags = totalParams && totalParams.map((param) => param.data.flag);
-  const helperValues =
-    totalParams &&
-    totalParams.map((param) => {
-      return {
-        id: param.data.id,
-        flag: param.data.flag,
-        placeholder: param.data.help,
-        type: param.data.type,
-        required: param.data.optional,
-        value: "",
-      };
-    });
+  const flags = totalParams?.map((param) => param.data.flag);
+  const helperValues = totalParams?.map((param) => {
+    return {
+      id: param.data.id,
+      flag: param.data.flag,
+      placeholder: param.data.help,
+      type: param.data.type,
+      required: param.data.optional,
+      value: "",
+    };
+  });
 
   const values = userValue.match(/(?:[^\s'"]+|"[^"]*"|'[^']*')+/g) || [];
   for (let i = 0; i < values.length; i++) {
@@ -148,13 +146,12 @@ export const handleGetTokens = (
   for (const flag in dictionary) {
     const input: InputIndex = {};
     const value = dictionary[flag];
-    const findValue =
-      helperValues && helperValues.find((param) => param.flag === flag);
+    const findValue = helperValues?.find((param) => param.flag === flag);
     if (findValue) {
-      input["flag"] = flag;
-      input["placeholder"] = findValue.placeholder;
-      input["type"] = findValue.type;
-      input["value"] = value;
+      input.flag = flag;
+      input.placeholder = findValue.placeholder;
+      input.type = findValue.type;
+      input.value = value;
 
       if (findValue.required) {
         dropdownInput = {
