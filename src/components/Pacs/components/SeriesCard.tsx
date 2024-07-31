@@ -1,4 +1,4 @@
-import { PACSFile, PACSFileList } from "@fnndsc/chrisapi";
+import type { PACSFile } from "@fnndsc/chrisapi";
 import {
   Badge,
   Button,
@@ -19,6 +19,7 @@ import {
 } from "@patternfly/react-core";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
+import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -32,31 +33,90 @@ import {
 } from "../../Icons";
 import FileDetailView from "../../Preview/FileDetailView";
 import { PacsQueryContext, Types } from "../context";
-import PFDCMClient, { DataFetchQuery } from "../pfdcmClient";
+import PFDCMClient, { type DataFetchQuery } from "../pfdcmClient";
 import useSettings from "../useSettings";
 import { CardHeaderComponent } from "./SettingsComponents";
+import PQueue from "p-queue";
 
-async function getPACSData(
-  pacsIdentifier: string,
-  pullQuery: DataFetchQuery,
-  additionalParams = {},
-) {
-  const cubeClient = ChrisAPIClient.getClient();
+async function getPacsFile(file: PACSFile["data"]) {
+  const { id } = file;
+  const client = ChrisAPIClient.getClient();
   try {
-    const data: PACSFileList = await cubeClient.getPACSFiles({
-      //@ts-ignore
-      pacs_identifier: pacsIdentifier,
-      ...pullQuery,
-      ...additionalParams,
-    });
-    return data;
-  } catch (error) {
-    throw error;
+    const pacs_file = await client.getPACSFile(id);
+    return pacs_file;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
   }
 }
 
+async function getTestData(
+  pacsIdentifier: string,
+  pullQuery: DataFetchQuery,
+  protocolName?: string,
+  offset?: number,
+) {
+  const cubeClient = ChrisAPIClient.getClient();
+  try {
+    let url = `${
+      import.meta.env.VITE_CHRIS_UI_URL
+    }pacsfiles/search/?pacs_identifier=${pacsIdentifier}&StudyInstanceUID=${
+      pullQuery.StudyInstanceUID
+    }&SeriesInstanceUID=${pullQuery.SeriesInstanceUID}`;
+
+    if (protocolName) {
+      url += `&ProtocolName=${protocolName}`;
+    }
+    if (offset) {
+      url += `&offset=${offset}`;
+    }
+
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Token ${cubeClient.auth.token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        throw new Error(
+          `Error: ${error.response.status} - ${error.response.data}`,
+        );
+      }
+      if (error.request) {
+        throw new Error("Error: No response received from server.");
+      }
+      // Something else happened while setting up the request
+
+      throw new Error(`Error: ${error.message}`);
+    }
+
+    throw new Error("An unexpected error occurred.");
+  }
+}
+
+function getLatestPACSFile(pacsFiles: PACSFile["data"][]) {
+  return pacsFiles.reduce((latestFile, currentFile) => {
+    const latestDate = new Date(latestFile.creation_date);
+    const currentDate = new Date(currentFile.creation_date);
+
+    return currentDate > latestDate ? currentFile : latestFile;
+  });
+}
+
+/**
+ * The browser's limit on the number of concurrent connections to the same domain, which can result in requests being blocked if too many are fired simultaneously.
+ * To manage this, we implement a queue system to control the concurrency of your async requests.
+ */
+
+const queue = new PQueue({ concurrency: 10 }); // Set concurrency limit here
+
 const SeriesCardCopy = ({ series }: { series: any }) => {
   const navigate = useNavigate();
+  const { state, dispatch } = useContext(PacsQueryContext);
   // Load user Preference Data
   const {
     data: userPreferenceData,
@@ -66,7 +126,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const userPreferences = userPreferenceData?.series;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
 
-  const { state, dispatch } = useContext(PacsQueryContext);
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const { selectedPacsService, pullStudy, preview } = state;
   const client = new PFDCMClient();
@@ -76,7 +135,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     NumberOfSeriesRelatedInstances,
     AccessionNumber,
   } = series;
-  const seriesInstances = parseInt(NumberOfSeriesRelatedInstances.value);
+  const seriesInstances = +NumberOfSeriesRelatedInstances.value;
   const studyInstanceUID = StudyInstanceUID.value;
   const seriesInstanceUID = SeriesInstanceUID.value;
   const accessionNumber = AccessionNumber.value;
@@ -87,6 +146,9 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
+  const [filePreviewForViewer, setFilePreviewForViewer] =
+    useState<PACSFile | null>(null);
+  const [pacsFileError, setPacsFileError] = useState("");
 
   const pullQuery: DataFetchQuery = {
     StudyInstanceUID: studyInstanceUID,
@@ -101,6 +163,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         setIsFetching(true);
       } catch (e) {
         // Don't poll if the request fails
+        // biome-ignore lint/complexity/noUselessCatch: <explanation>
         throw e;
       }
     },
@@ -113,44 +176,68 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   } = handleRetrieveMutation;
 
   // Polling cube files after a successful retrieve request from pfdcm;
+
   async function fetchCubeFiles() {
     try {
       if (isDisabled) {
         // Cancel polling for files that have zero number of series instances
         setIsFetching(false);
+        return {
+          fileToPreview: null,
+          totalCount: 0,
+        };
       }
 
       const middleValue = Math.floor(seriesInstances / 2);
 
-      // Get the total file count current in cube
-      const files = await getPACSData(selectedPacsService, pullQuery, {
-        limit: 1,
-        offset: isPreviewFileAvailable ? middleValue : 0,
-      });
+      // Perform these three requests in parallel
+      const [response, seriesRelatedInstance, pushCountInstance] =
+        await Promise.all([
+          queue.add(() =>
+            getTestData(
+              selectedPacsService,
+              pullQuery,
+              "",
+              isPreviewFileAvailable ? middleValue : 0,
+            ),
+          ),
+          queue.add(() =>
+            getTestData(
+              "org.fnndsc.oxidicom",
+              pullQuery,
+              "NumberOfSeriesRelatedInstances",
+            ),
+          ),
+          queue.add(() =>
+            getTestData(
+              "org.fnndsc.oxidicom",
+              pullQuery,
+              "OxidicomAttemptedPushCount",
+            ),
+          ),
+        ]);
 
-      // Setting files to preview
-      const fileItems: PACSFile[] = files.getItems() as never as PACSFile[];
+      // Process the response
+      const fileItems = response.results;
       let fileToPreview: PACSFile | null = null;
-      if (fileItems) {
+      if (fileItems.length > 0) {
         fileToPreview = fileItems[0];
       }
 
+      const totalFilesCount = response.count;
+
+      if (totalFilesCount >= middleValue) {
+        // Pick the middle image of the stack for preview. Set to true if that file is available
+        setIsPreviewFileAvailable(true);
+      }
+
       // Get the series related instance in cube
-      const seriesRelatedInstance = await getPACSData(
-        "org.fnndsc.oxidicom",
-        pullQuery,
-        {
-          limit: 1,
-          ProtocolName: "NumberOfSeriesRelatedInstances",
-        },
-      );
+      const seriesRelatedInstanceList = seriesRelatedInstance.results;
+      const pushCountInstanceList = pushCountInstance.results;
 
-      const seriesCountCheck = seriesRelatedInstance.getItems();
-
-      let seriesCount = 0;
-      if (seriesCountCheck && seriesCountCheck.length > 0) {
-        seriesCount = +seriesCountCheck[0].data.SeriesDescription;
-
+      if (seriesRelatedInstanceList.length > 0) {
+        const seriesCountLatest = getLatestPACSFile(seriesRelatedInstanceList);
+        const seriesCount = +seriesCountLatest.SeriesDescription;
         if (seriesCount !== seriesInstances) {
           throw new Error(
             "The number of series related instances in cube does not match the number in pfdcm.",
@@ -158,47 +245,30 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         }
       }
 
-      const pushCountInstance = await getPACSData(
-        "org.fnndsc.oxidicom",
-        pullQuery,
-        {
-          limit: 10,
-          ProtocolName: "OxidicomAttemptedPushCount",
-        },
-      );
-
-      const pushCountCheck = pushCountInstance.getItems();
       let pushCount = 0;
-      if (pushCountCheck && pushCountCheck.length > 0) {
-        pushCount = +pushCountCheck[0].data.SeriesDescription;
+      if (pushCountInstanceList.length > 0) {
+        const pushCountLatest = getLatestPACSFile(pushCountInstanceList);
+        pushCount = +pushCountLatest.SeriesDescription;
+
+        if (pushCount > 0 && pushCount === totalFilesCount && isFetching) {
+          // This means oxidicom is done pushing as the push count file is available
+          // Cancel polling
+          setIsFetching(false);
+        }
       }
 
-      const totalFilesCount = files.totalCount;
-
-      if (totalFilesCount >= middleValue) {
-        // Pick the middle image of the stack for preview. Set to true if that file is available
-        setIsPreviewFileAvailable(true);
-      }
-
-      // setting the study instance tracker if pull study is clicked
+      // Setting the study instance tracker if pull study is clicked
       if (pullStudy?.[accessionNumber]) {
         dispatch({
           type: Types.SET_STUDY_PULL_TRACKER,
           payload: {
             seriesInstanceUID: SeriesInstanceUID.value,
             studyInstanceUID: accessionNumber,
-            currentProgress:
+            currentProgress: !!(
               seriesInstances === 0 || totalFilesCount === pushCount
-                ? true
-                : false,
+            ),
           },
         });
-      }
-
-      if (pushCount > 0 && pushCount === totalFilesCount && isFetching) {
-        // This means oxidicom is done pushing as the push count file is available
-        // cancel polling
-        setIsFetching(false);
       }
 
       return {
@@ -247,6 +317,27 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     }
   }, [data]);
 
+  useEffect(() => {
+    // This is the preview all mode clicked on the study card
+
+    async function fetchPacsFile() {
+      try {
+        const file = await getPacsFile(data?.fileToPreview);
+
+        if (file) {
+          setFilePreviewForViewer(file);
+        }
+      } catch (e) {
+        //handle error
+        if (e instanceof Error) {
+          setPacsFileError(e.message);
+        }
+      }
+    }
+
+    preview && data?.fileToPreview && fetchPacsFile();
+  }, [preview]);
+
   // Error and loading state indicators for retrieving from pfdcm and polling cube for files.
   const isResourceBeingFetched = filesLoading || retrieveLoading;
   const resourceErrorFound = filesError || retrieveFetchError;
@@ -262,7 +353,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </HelperText>
   );
 
-  const largeFilePreview = data?.fileToPreview && (
+  // This is opened when the 'preview' button is clicked
+  const largeFilePreview = filePreviewForViewer && (
     <Modal
       variant={ModalVariant.large}
       title="Preview"
@@ -270,7 +362,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       isOpen={openSeriesPreview}
       onClose={() => setOpenSeriesPreview(false)}
     >
-      <FileDetailView preview="large" selectedFile={data.fileToPreview} />
+      <FileDetailView
+        preview="large"
+        selectedFile={filePreviewForViewer as PACSFile}
+      />
     </Modal>
   );
 
@@ -287,14 +382,22 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           style={{ marginRight: "0.25em" }}
           size="sm"
           icon={<CodeBranchIcon />}
-          onClick={() => {
+          onClick={async () => {
             if (data?.fileToPreview) {
-              const file = data.fileToPreview;
-              const cubeSeriesPath = file.data.fname
-                .split("/")
-                .slice(0, -1)
-                .join("/");
-              createFeed([cubeSeriesPath]);
+              try {
+                const file = await getPacsFile(data?.fileToPreview);
+                if (file) {
+                  const cubeSeriesPath = file.data.fname
+                    .split("/")
+                    .slice(0, -1)
+                    .join("/");
+                  createFeed([cubeSeriesPath]);
+                }
+              } catch (e) {
+                if (e instanceof Error) {
+                  setPacsFileError(e.message);
+                }
+              }
             }
           }}
           variant="tertiary"
@@ -306,8 +409,18 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           style={{ marginRight: "0.25em" }}
           size="sm"
           icon={<PreviewIcon />}
-          onClick={() => {
-            setOpenSeriesPreview(true);
+          onClick={async () => {
+            try {
+              const file = await getPacsFile(data?.fileToPreview);
+              if (file) {
+                setFilePreviewForViewer(file);
+                setOpenSeriesPreview(true);
+              }
+            } catch (e) {
+              if (e instanceof Error) {
+                setPacsFileError(e.message);
+              }
+            }
           }}
           variant="tertiary"
         />
@@ -318,11 +431,23 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           size="sm"
           icon={<LibraryIcon />}
           variant="tertiary"
-          onClick={() => {
+          onClick={async () => {
             if (data?.fileToPreview) {
-              const pathSplit = data.fileToPreview.data.fname.split("/");
-              const url = pathSplit.slice(0, pathSplit.length - 1).join("/");
-              navigate(`/library/${url}`);
+              try {
+                const file = await getPacsFile(data.fileToPreview);
+                if (file) {
+                  const pathSplit = file.data.fname.split("/");
+                  const url = pathSplit
+                    .slice(0, pathSplit.length - 1)
+                    .join("/");
+                  navigate(`/library/${url}`);
+                }
+              } catch (e) {
+                // Handle Error
+                if (e instanceof Error) {
+                  setPacsFileError(e.message);
+                }
+              }
             }
           }}
         />
@@ -334,7 +459,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     <CardBody style={{ position: "relative", height: "400px" }}>
       <FileDetailView
         preview="large"
-        selectedFile={data?.fileToPreview as PACSFile}
+        selectedFile={filePreviewForViewer as PACSFile}
       />
       <div className="series-actions">
         <div className="action-button-container">
@@ -494,6 +619,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     >
       {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
       {data?.fileToPreview && largeFilePreview}
+
+      {pacsFileError && <Alert type="error" description={pacsFileError} />}
     </Card>
   );
 };
