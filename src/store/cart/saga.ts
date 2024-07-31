@@ -51,6 +51,7 @@ const isFileBrowserFolder = (payload: any): payload is FileBrowserFolder => {
 
 function* downloadFolder(
   payload: FileBrowserFolder | FileBrowserFolderFile,
+  username: string,
   pipelineType: string,
 ) {
   const { id } = payload.data;
@@ -129,10 +130,10 @@ function* downloadFolder(
     const zipInstance = pluginInstances[0];
     let filePath = "";
     if (pipelineType === "Download Pipeline") {
-      filePath = `home/chris/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+      filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
     } else {
       const headerEditInstance = pluginInstances[1];
-      filePath = `home/chris/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-dicom_headeredit_${headerEditInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+      filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-dicom_headeredit_${headerEditInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
     }
 
     const statusResource: ItemResource = yield zipInstance.get();
@@ -149,6 +150,7 @@ function* downloadFolder(
     }
 
     if (status === "finishedSuccessfully") {
+      console.log("FilePath:", filePath);
       const folderList: FileBrowserFolderFileList =
         yield client.getFileBrowserFolders({ path: filePath });
 
@@ -174,6 +176,7 @@ function* downloadFolder(
 
 function* handleIndividualDownload(
   path: SelectionPayload,
+  username: string,
   pipelineType: string,
 ) {
   const { type, payload } = path;
@@ -184,7 +187,11 @@ function* handleIndividualDownload(
     if (type === "file" && pipelineType === "Download Pipeline") {
       yield downloadFile(payload as FileBrowserFolderFile);
     } else {
-      yield downloadFolder(payload as FileBrowserFolder, pipelineType);
+      yield downloadFolder(
+        payload as FileBrowserFolder,
+        username,
+        pipelineType,
+      );
     }
     yield setStatus(type, id, "finished");
   } catch (error) {
@@ -194,10 +201,10 @@ function* handleIndividualDownload(
 }
 
 function* handleDownload(action: IActionTypeParam) {
-  const paths = action.payload;
+  const { paths, username } = action.payload;
 
   for (const path of paths) {
-    yield fork(handleIndividualDownload, path, "Download Pipeline");
+    yield fork(handleIndividualDownload, path, username, "Download Pipeline");
   }
 }
 
@@ -340,9 +347,9 @@ function* handleUpload(action: IActionTypeParam) {
 }
 
 function* handleAnonymize(action: IActionTypeParam) {
-  const paths = action.payload;
+  const { paths, username } = action.payload;
   for (const path of paths) {
-    yield fork(handleIndividualDownload, path, "Anonymize Pipeline");
+    yield fork(handleIndividualDownload, path, username, "Anonymize Pipeline");
   }
 }
 

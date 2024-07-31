@@ -1,10 +1,11 @@
+import { Button } from "@patternfly/react-core";
 import { Badge } from "antd";
 import { isEmpty } from "lodash";
-import { useTypedSelector } from "../../store/hooks";
-import { BrainIcon } from "../Icons";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { setToggleCart } from "../../store/cart/actions";
-import { Button } from "@patternfly/react-core";
+import { useTypedSelector } from "../../store/hooks";
+import { BrainIcon } from "../Icons";
 
 const CartNotify = () => {
   const dispatch = useDispatch();
@@ -16,12 +17,22 @@ const CartNotify = () => {
     folderUploadStatus,
   } = state;
 
-  const showNotification = !isEmpty({
-    ...fileDownloadStatus,
-    ...fileUploadStatus,
-    ...folderDownloadStatus,
-    ...folderUploadStatus,
-  });
+  const [showNotification, setShowNotification] = useState(false);
+
+  useEffect(() => {
+    const showNotification = !isEmpty({
+      ...fileDownloadStatus,
+      ...fileUploadStatus,
+      ...folderDownloadStatus,
+      ...folderUploadStatus,
+    });
+    setShowNotification(showNotification);
+  }, [
+    fileDownloadStatus,
+    folderDownloadStatus,
+    fileUploadStatus,
+    folderUploadStatus,
+  ]);
 
   return (
     <Badge dot={showNotification}>
