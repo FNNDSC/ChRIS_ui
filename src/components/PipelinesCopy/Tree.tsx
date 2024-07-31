@@ -1,13 +1,13 @@
-import { Pipeline } from "@fnndsc/chrisapi";
+import type { Pipeline } from "@fnndsc/chrisapi";
 import {
-  HierarchyPointLink,
-  HierarchyPointNode,
+  type HierarchyPointLink,
+  type HierarchyPointNode,
   hierarchy,
   tree,
 } from "d3-hierarchy";
-import { event, select } from "d3-selection";
+import { type Selection, select } from "d3-selection";
 import { linkVertical } from "d3-shape";
-import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
+import { type ZoomBehavior, zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import React, {
   Fragment,
   useContext,
@@ -15,19 +15,19 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { getFeedTree, type TreeNode } from "../../api/common";
+import { type TreeNode, getFeedTree } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import {
-  getTsNodesWithPipings,
   type Point,
   type Separation,
+  getTsNodesWithPipings,
 } from "../FeedTree/data";
 import useSize from "../FeedTree/useSize";
 import NodeData from "./NodeData";
-import { PipelineContext } from "./context";
 import SelectAllCompute from "./SelectAllCompute";
+import { PipelineContext } from "./context";
 
 const nodeSize = { x: 120, y: 80 };
 const scale = 1;
@@ -67,26 +67,28 @@ const Tree = (props: TreeProps) => {
   const { zoom, scaleExtent } = props;
 
   const bindZoomListener = React.useCallback(() => {
-    const svg = select(`.${svgClassName}`);
-    const g = select(`.${graphClassName}`);
-
-    svg.call(
-      //@ts-ignore
-      d3Zoom().transform,
-      zoomIdentity
-        .translate(translate.x, translate.y)
-        //@ts-ignore
-        .scale(zoom),
+    const svg: Selection<SVGSVGElement, unknown, HTMLElement, any> = select(
+      `.${svgClassName}`,
+    );
+    const g: Selection<SVGGElement, unknown, HTMLElement, any> = select(
+      `.${graphClassName}`,
     );
 
-    svg.call(
-      //@ts-ignore
-      d3Zoom()
-        .scaleExtent([scaleExtent.min, scaleExtent.max])
-        .on("zoom", () => {
-          g.attr("transform", event.transform);
-        }),
-    );
+    const zoom: ZoomBehavior<SVGSVGElement, unknown> = d3Zoom<
+      SVGSVGElement,
+      unknown
+    >()
+      .scaleExtent([scaleExtent.min, scaleExtent.max])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+
+    svg
+      .call(zoom)
+      .call(
+        zoom.transform,
+        zoomIdentity.translate(translate.x, translate.y).scale(scale),
+      );
   }, [zoom, scaleExtent, translate.x, translate.y]);
 
   React.useEffect(() => {
