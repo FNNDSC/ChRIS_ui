@@ -20,10 +20,11 @@ import {
 import type { MenuProps } from "antd";
 import { Alert, Dropdown, Spin } from "antd";
 import { isEmpty } from "lodash";
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { getFileName } from "../../../api/common";
+import { MainRouterContext } from "../../../routes";
 import {
   clearCart,
   removeIndividualSelection,
@@ -120,6 +121,7 @@ const Operations = ({
   computedPath,
 }: { folderList?: FileBrowserFolderList; computedPath: string }) => {
   const queryClient = useQueryClient();
+  const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
   const username = useTypedSelector((state) => state.user.username);
   const [modalInfo, setModalInfo] = useState({
@@ -254,7 +256,17 @@ const Operations = ({
       {selectedPaths.length > 0 && (
         <>
           <ToolbarItem>
-            <Button size="sm">Create Feed</Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                // Create a feed
+
+                const paths = selectedPaths.map((payload) => payload.path);
+                router.actions.createFeedWithData(paths);
+              }}
+            >
+              Create Feed
+            </Button>
           </ToolbarItem>
           <ToolbarItem>
             <Button
