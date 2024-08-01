@@ -12,6 +12,11 @@ import type {
 } from "@fnndsc/chrisapi";
 import { quote } from "shlex";
 
+export function elipses(str: string, len: number) {
+  if (str.length <= len) return str;
+  return `${str.slice(0, len - 3)}...`;
+}
+
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
   React.useLayoutEffect(() => {

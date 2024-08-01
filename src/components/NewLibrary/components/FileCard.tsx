@@ -142,9 +142,11 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const creation_date = file.data.creation_date;
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
 
-  const isSelected = selectedPaths.some((payload) => {
-    return payload.path === file.data.fname;
-  });
+  const isSelected =
+    selectedPaths.length > 0 &&
+    selectedPaths.some((payload) => {
+      return payload.path === file.data.fname;
+    });
 
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
   const ext = getFileExtension(file.data.fname);

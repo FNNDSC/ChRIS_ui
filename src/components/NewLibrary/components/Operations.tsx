@@ -18,12 +18,12 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import type { MenuProps } from "antd";
-import { Alert, Dropdown, Spin } from "antd";
-import { isEmpty } from "lodash";
-import { Fragment, useContext, useRef, useState } from "react";
+import { Alert, Dropdown, Spin, notification } from "antd";
+import { isEmpty, isEqual } from "lodash";
+import { Fragment, useContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { getFileName } from "../../../api/common";
+import { catchError, getFileName } from "../../../api/common";
 import { MainRouterContext } from "../../../routes";
 import {
   clearCart,
@@ -31,9 +31,14 @@ import {
   startAnonymize,
   startDownload,
   startUpload,
+  clearSelectFolder,
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import { AddIcon } from "../../Icons";
+import type { SelectionPayload } from "../../../store/cart/types";
+import { ErrorAlert } from "../../Common";
+import axios from "axios";
+import useDeletePayload from "../utils/useDeletePayload";
 
 const AddModal = ({
   isOpen,
@@ -124,52 +129,42 @@ const Operations = ({
   const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
   const username = useTypedSelector((state) => state.user.username);
-  const [modalInfo, setModalInfo] = useState({
-    isOpen: false,
-    type: "", // "group" or "folder"
-  });
+  const [modalInfo, setModalInfo] = useState({ isOpen: false, type: "" });
   const [userError, setUserErrors] = useState("");
   const dispatch = useDispatch();
   const folderInput = useRef<HTMLInputElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const selectedPathsCount = selectedPaths.length;
+  const [api, contextHolder] = notification.useNotification();
 
-  const isDisabled = computedPath === "/" || computedPath === "home";
+  const deleteMutation = useDeletePayload(computedPath, api); // Pass the notification API
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files || [];
-    const files = Array.from(fileList);
-
-    dispatch(
-      startUpload({
-        files: files,
-        isFolder: false,
-        currentPath: `${computedPath}`,
-      }),
-    );
-
-    // Reset to see your file in action
-    queryClient.invalidateQueries({
-      queryKey: ["folders"],
+  const invalidateFolders = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ["library_folders", computedPath],
     });
   };
 
-  const handleFolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
-
     dispatch(
-      startUpload({
-        files: files,
-        isFolder: true,
-        currentPath: computedPath,
-      }),
+      startUpload({ files, isFolder: false, currentPath: `${computedPath}` }),
     );
+    if (fileInput.current) {
+      fileInput.current.value = "";
+    }
+    await invalidateFolders();
+  };
 
-    // Reset to see your folder in action
-    queryClient.invalidateQueries({
-      queryKey: ["folders"],
-    });
+  const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const fileList = e.target.files || [];
+    const files = Array.from(fileList);
+    dispatch(startUpload({ files, isFolder: true, currentPath: computedPath }));
+    if (folderInput.current) {
+      folderInput.current.value = "";
+    }
+    await invalidateFolders();
   };
 
   const handleModalSubmit = async (inputValue: string) => {
@@ -179,9 +174,7 @@ const Operations = ({
     } else if (modalInfo.type === "folder") {
       const finalPath = `${computedPath}/${inputValue}`;
       try {
-        await folderList?.post({
-          path: finalPath,
-        });
+        await folderList?.post({ path: finalPath });
       } catch (error: any) {
         const path = error?.response?.data?.path;
         const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
@@ -193,17 +186,16 @@ const Operations = ({
 
   const handleModalSubmitMutation = useMutation({
     mutationFn: (inputValue: string) => handleModalSubmit(inputValue),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["folders"],
-      });
+    onSuccess: async () => {
+      await invalidateFolders();
     },
   });
 
-  const { isPending, isError, error } = handleModalSubmitMutation;
+  const isDisabled = computedPath === "/" || computedPath === "home";
 
   const toolbarItems = (
     <Fragment>
+      {contextHolder}
       <ToolbarItem>
         <Dropdown
           menu={{
@@ -232,11 +224,7 @@ const Operations = ({
             size="sm"
             icon={
               <AddIcon
-                style={{
-                  color: "inherit",
-                  height: "1em",
-                  width: "1em",
-                }}
+                style={{ color: "inherit", height: "1em", width: "1em" }}
               />
             }
           >
@@ -259,8 +247,6 @@ const Operations = ({
             <Button
               size="sm"
               onClick={() => {
-                // Create a feed
-
                 const paths = selectedPaths.map((payload) => payload.path);
                 router.actions.createFeedWithData(paths);
               }}
@@ -298,6 +284,17 @@ const Operations = ({
               Anonymize
             </Button>
           </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              onClick={() => {
+                deleteMutation.mutate(selectedPaths);
+              }}
+              size="sm"
+              variant="danger"
+            >
+              Delete
+            </Button>
+          </ToolbarItem>
         </>
       )}
 
@@ -318,18 +315,16 @@ const Operations = ({
             className="chip-group-for-paths"
             expandedText="Show Less"
           >
-            {selectedPaths.map((payload) => {
-              return (
-                <Chip
-                  onClick={() => {
-                    dispatch(removeIndividualSelection(payload));
-                  }}
-                  key={payload.payload.data.id}
-                >
-                  {getFileName(payload.path)}
-                </Chip>
-              );
-            })}
+            {selectedPaths.map((payload) => (
+              <Chip
+                onClick={() => {
+                  dispatch(removeIndividualSelection(payload));
+                }}
+                key={payload.payload.data.id}
+              >
+                {getFileName(payload.path)}
+              </Chip>
+            ))}
           </ChipGroup>
         </ToolbarItem>
       )}
@@ -338,81 +333,44 @@ const Operations = ({
 
   return (
     <>
-      <Toolbar
-        style={{
-          paddingLeft: "0",
-        }}
-        id="action-tray"
-      >
-        <ToolbarContent
-          style={{
-            paddingInlineStart: "0",
-          }}
-        >
+      <Toolbar style={{ paddingLeft: "0" }} id="action-tray">
+        <ToolbarContent style={{ paddingInlineStart: "0" }}>
           {toolbarItems}
         </ToolbarContent>
       </Toolbar>
 
       <input
-        ref={folderInput}
         type="file"
-        style={{ display: "none" }}
-        //@ts-ignore
-        webkitdirectory="true"
-        directory="true"
-        onChange={(e) => {
-          try {
-            handleFolderChange(e);
-          } catch (error: unknown) {
-            if (error instanceof Error) {
-              setUserErrors(error.message);
-            }
-          } finally {
-            if (folderInput.current) {
-              folderInput.current.value = "";
-            }
-          }
-        }}
+        ref={fileInput}
+        onChange={handleFileChange}
         multiple
+        style={{ display: "none" }}
       />
       <input
-        ref={fileInput}
-        style={{ display: "none" }}
         type="file"
-        accept="files"
-        onChange={(e) => {
-          try {
-            handleFileChange(e);
-          } catch (error: unknown) {
-            if (error instanceof Error) {
-              setUserErrors(error.message);
-            }
-          } finally {
-            if (fileInput.current) {
-              fileInput.current.value = "";
-            }
-          }
-        }}
-        multiple
+        ref={folderInput}
+        onChange={handleFolderChange}
+        //@ts-ignore
+        webkitdirectory="true"
+        mozdirectory="true"
+        msdirectory="true"
+        odirectory="true"
+        directory="true"
+        style={{ display: "none" }}
       />
 
       <AddModal
         isOpen={modalInfo.isOpen}
-        onClose={() => {
-          setModalInfo({ isOpen: false, type: "" });
-          handleModalSubmitMutation.reset();
-        }}
-        onSubmit={(inputValue) => {
-          handleModalSubmitMutation.mutate(inputValue);
-        }}
+        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        onSubmit={handleModalSubmit}
         modalTitle={
-          modalInfo.type === "group" ? "Create Group" : "Create Folder"
+          modalInfo.type === "folder" ? "Create Folder" : "Create Group"
         }
-        inputLabel={modalInfo.type === "group" ? "Group Name" : "Folder Name"}
+        inputLabel={modalInfo.type === "folder" ? "Folder Name" : "Group Name"}
         indicators={{
-          isPending,
-          isError,
-          error,
+          isPending: handleModalSubmitMutation.isPending,
+          isError: handleModalSubmitMutation.isError,
+          error: handleModalSubmitMutation.error,
         }}
       />
     </>
