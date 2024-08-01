@@ -19,11 +19,11 @@ import {
 } from "@tanstack/react-query";
 import type { MenuProps } from "antd";
 import { Alert, Dropdown, Spin, notification } from "antd";
-import { isEmpty, isEqual } from "lodash";
-import { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { isEmpty } from "lodash";
+import { Fragment, useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { catchError, getFileName } from "../../../api/common";
+import { getFileName } from "../../../api/common";
 import { MainRouterContext } from "../../../routes";
 import {
   clearCart,
@@ -31,13 +31,9 @@ import {
   startAnonymize,
   startDownload,
   startUpload,
-  clearSelectFolder,
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import { AddIcon } from "../../Icons";
-import type { SelectionPayload } from "../../../store/cart/types";
-import { ErrorAlert } from "../../Common";
-import axios from "axios";
 import useDeletePayload from "../utils/useDeletePayload";
 
 const AddModal = ({
@@ -80,6 +76,12 @@ const AddModal = ({
             name="input"
             value={inputValue}
             onChange={(_e, value) => setInputValue(value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault(); // Prevent the default form submission
+                onSubmit(inputValue);
+              }
+            }}
             aria-label={inputLabel}
             placeholder={inputLabel}
           />
@@ -171,10 +173,12 @@ const Operations = ({
     if (modalInfo.type === "group") {
       const client = ChrisAPIClient.getClient();
       await client.adminCreateGroup({ name: inputValue });
+      // Todo: Error Handling
     } else if (modalInfo.type === "folder") {
       const finalPath = `${computedPath}/${inputValue}`;
       try {
         await folderList?.post({ path: finalPath });
+        await invalidateFolders();
       } catch (error: any) {
         const path = error?.response?.data?.path;
         const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
@@ -186,9 +190,6 @@ const Operations = ({
 
   const handleModalSubmitMutation = useMutation({
     mutationFn: (inputValue: string) => handleModalSubmit(inputValue),
-    onSuccess: async () => {
-      await invalidateFolders();
-    },
   });
 
   const isDisabled = computedPath === "/" || computedPath === "home";
@@ -361,8 +362,13 @@ const Operations = ({
 
       <AddModal
         isOpen={modalInfo.isOpen}
-        onClose={() => setModalInfo({ isOpen: false, type: "" })}
-        onSubmit={handleModalSubmit}
+        onClose={() => {
+          handleModalSubmitMutation.reset();
+          setModalInfo({ isOpen: false, type: "" });
+        }}
+        onSubmit={(inputValue: string) =>
+          handleModalSubmitMutation.mutate(inputValue)
+        }
         modalTitle={
           modalInfo.type === "folder" ? "Create Folder" : "Create Group"
         }
