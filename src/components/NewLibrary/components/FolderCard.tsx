@@ -12,7 +12,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useTypedSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
-import { elipses } from "../../LibraryCopy/utils";
+import { elipses } from "../../../api/common";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 
 type Pagination = {
@@ -63,9 +63,9 @@ export const SubFolderCard = ({
   const pathName = folderSplitList[folderSplitList.length - 1];
   const folderName = computedPath === "/" ? folder.data.path : pathName;
   const creation_date = folder.data.creation_date;
-  const isSelected = selectedPaths.some(
-    (payload) => payload.path === folder.data.path,
-  );
+  const isSelected =
+    selectedPaths.length > 0 &&
+    selectedPaths.some((payload) => payload.path === folder.data.path);
 
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
 

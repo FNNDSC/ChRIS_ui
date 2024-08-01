@@ -5,14 +5,13 @@ import { useDispatch } from "react-redux";
 import { getFileName } from "../../../api/common";
 import {
   clearDownloadStatus,
-  clearSelectFolder,
   setToggleCart,
 } from "../../../store/cart/actions";
 import { DownloadTypes } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
-import { elipses } from "../../LibraryCopy/utils";
+import { elipses } from "../utils/longpress";
 import { ShowInFolder, TitleNameClipped } from "../utils/longpress";
 import "./Cart.css";
 import ProgressRing from "./RadialProgress";

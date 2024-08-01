@@ -5,7 +5,6 @@ import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
-import LibrarySearch from "./components/LibrarySearch";
 import Login from "./components/Login";
 import LibraryCopyPage from "./components/NewLibrary";
 import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
@@ -75,19 +74,6 @@ export const MainRouter: React.FC = () => {
             context={MainRouterContext}
           >
             <LibraryCopyPage />
-          </RouterProvider>
-        </PrivateRoute>
-      ),
-    },
-    {
-      path: "librarysearch/*",
-      element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <LibrarySearch />
           </RouterProvider>
         </PrivateRoute>
       ),
