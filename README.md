@@ -67,6 +67,35 @@ cd ChRIS_ui
 npm ci
 ```
 
+#### Local Development Dependencies
+
+No extra dependencies are required when using the "public" server.
+
+If you intend on developing with the "local" server, you need to install extra dependencies which are used for downloading sample data files and utility scripts. These dependencies are:
+
+- [GNU coreutils](https://www.gnu.org/software/coreutils/)
+- [GNU bash](https://www.gnu.org/software/bash/)
+- [GNU parallel](https://www.gnu.org/software/parallel/)
+- [GNU make](https://www.gnu.org/software/make/)
+- [find](https://www.gnu.org/software/findutils/)
+- [curl](https://curl.se/)
+
+Here are the installation instructions for various Linux distros.
+
+```shell
+# for Ubuntu, Debian
+sudo apt install -y make parallel curl
+
+# for Arch Linux
+sudo pacman -S make parallel curl
+
+# for NixOS or home-manger
+nix-shell -p coreutils findutils bash gnumake parallel curl
+
+# MacOS or Linux using homebrew
+brew install coreutils findutils bash make parallel curl
+```
+
 ### 2. Run the development server
 
 Either using the "public" server:
