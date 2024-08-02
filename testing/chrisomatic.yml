@@ -1,0 +1,32 @@
+version: 1.2
+
+on:
+  cube_url: http://localhost:8000/api/v1/
+  chris_superuser:
+    username: chris
+    password: chris1234
+
+cube:
+  compute_resource:
+    - name: host
+      url: http://pfcon.host:5005/api/v1/
+      username: pfcon
+      password: pfcon1234
+      description: Local compute environment
+      innetwork: true
+  plugins:
+      # essential plugins
+    - name: pl-dircopy
+      version: 2.1.2
+    - name: pl-tsdircopy
+      version: 1.2.1
+    - name: pl-topologicalcopy
+      version: 1.0.2
+    - name: pl-simpledsapp
+      version: 2.1.0
+    - name: pl-unstack-folders
+      version: 1.0.0
+
+      # needed by test
+    - name: pl-mri10yr06mo01da_normal
+      version: 1.1.4

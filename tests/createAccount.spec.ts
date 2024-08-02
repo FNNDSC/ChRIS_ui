@@ -2,8 +2,9 @@ import { test, expect } from "./fixtures/notLoggedIn.ts";
 import createAccountHelper from "./helpers/createAccount.ts";
 import { faker } from "@faker-js/faker";
 
-test("Can create new user accounts", async ({ page }) => {
+test("Can create new user accounts", async ({ page, baseURL }) => {
   test.slow();
+
   const username = faker.internet.userName();
   const email = faker.internet.email();
   const password = "testuser1234";

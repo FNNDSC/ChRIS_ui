@@ -1,0 +1,6 @@
+[submodule "miniChRIS"]
+	path = testing/miniChRIS
+	url = https://github.com/FNNDSC/miniChRIS-docker.git
+[submodule "testing/sample_dicoms"]
+	path = testing/sample_dicoms
+	url = https://github.com/FNNDSC/sample_dicom_downloader.git
