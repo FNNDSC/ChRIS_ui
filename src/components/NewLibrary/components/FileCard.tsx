@@ -184,7 +184,6 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
     if (isError) {
       api.error({
         message: "Download Error",
-        //@ts-ignore
         description: downloadError.message,
       });
     }

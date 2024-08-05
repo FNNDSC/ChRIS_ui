@@ -28,6 +28,7 @@ import { MainRouterContext } from "../../../routes";
 import {
   clearCart,
   removeIndividualSelection,
+  setToggleCart,
   startAnonymize,
   startDownload,
   startUpload,
@@ -259,6 +260,8 @@ const Operations = ({
             <Button
               size="sm"
               onClick={() => {
+                // Send an action to open the cart as well
+                dispatch(setToggleCart());
                 dispatch(
                   startDownload({
                     paths: selectedPaths,
@@ -274,6 +277,8 @@ const Operations = ({
             <Button
               size="sm"
               onClick={() => {
+                // Send an action to open the cart as well
+                dispatch(setToggleCart());
                 dispatch(
                   startAnonymize({
                     paths: selectedPaths,

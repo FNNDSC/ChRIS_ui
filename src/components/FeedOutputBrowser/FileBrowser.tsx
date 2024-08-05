@@ -109,7 +109,7 @@ const FileBrowser = (props: FileBrowserProps) => {
         onClick={() => {
           shouldNotClick ? undefined : onClick();
         }}
-        to={index === breadcrumb.length - 1 ? undefined : "#"}
+        to={index === breadcrumb.length - 1 || shouldNotClick ? undefined : "#"}
       >
         {value}
       </BreadcrumbItem>
@@ -263,7 +263,9 @@ const FileBrowser = (props: FileBrowserProps) => {
                           onClick={() => handleFileClick(currentPath)}
                           variant="link"
                           icon={<HomeIcon />}
-                        />
+                        >
+                          Back
+                        </Button>
                       </Tooltip>
                     )}
                 </div>
