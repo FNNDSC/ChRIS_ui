@@ -64,11 +64,11 @@ const MergeIcon = () => {
   );
 };
 
-const ArchiveIcon = () => {
+const ArchiveIcon = ({ className }: { className?: string }) => {
   return (
     <svg
       fill="currentColor"
-      className="pf-v5-svg"
+      className={`pf-v5-svg ${className && className}`}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 384 512"
     >

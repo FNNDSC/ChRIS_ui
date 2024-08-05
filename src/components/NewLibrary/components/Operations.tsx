@@ -12,32 +12,24 @@ import {
   ToolbarContent,
   ToolbarItem,
 } from "@patternfly/react-core";
-import {
-  type DefaultError,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
-import type { MenuProps } from "antd";
-import { Alert, Dropdown, Spin, notification } from "antd";
-import { isEmpty } from "lodash";
-import { Fragment, useContext, useRef, useState } from "react";
+import type { DefaultError } from "@tanstack/react-query";
+import { Alert, Dropdown, Spin } from "antd";
+import React, { Fragment, useImperativeHandle, useState } from "react";
 import { useDispatch } from "react-redux";
-import ChrisAPIClient from "../../../api/chrisapiclient";
 import { getFileName } from "../../../api/common";
-import { MainRouterContext } from "../../../routes";
-import {
-  clearCart,
-  removeIndividualSelection,
-  setToggleCart,
-  startAnonymize,
-  startDownload,
-  startUpload,
-} from "../../../store/cart/actions";
+import { removeIndividualSelection } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
-import { AddIcon } from "../../Icons";
-import useDeletePayload from "../utils/useDeletePayload";
 
-const AddModal = ({
+import {
+  AddIcon,
+  ArchiveIcon,
+  CodeBranchIcon,
+  DeleteIcon,
+  DownloadIcon,
+} from "../../Icons";
+import { useFolderOperations } from "../utils/useOperations";
+
+export const AddModal = ({
   isOpen,
   onClose,
   onSubmit,
@@ -79,7 +71,7 @@ const AddModal = ({
             onChange={(_e, value) => setInputValue(value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                e.preventDefault(); // Prevent the default form submission
+                e.preventDefault();
                 onSubmit(inputValue);
               }
             }}
@@ -96,7 +88,6 @@ const AddModal = ({
           </Button>
           <Button onClick={handleClose}>Cancel</Button>
         </ActionGroup>
-
         {indicators.isError && (
           <Alert type="error" description={indicators.error?.message} />
         )}
@@ -105,287 +96,182 @@ const AddModal = ({
   );
 };
 
-const items: MenuProps["items"] = [
-  {
-    key: "1",
-    label: "New Folder",
-  },
-  {
-    key: "2",
-    label: "File Upload",
-  },
-  {
-    key: "3",
-    label: "Folder Upload",
-  },
-  {
-    key: "4",
-    label: "Create a Group",
-  },
+const items = [
+  { key: "newFolder", label: "New Folder" },
+  { key: "fileUpload", label: "File Upload" },
+  { key: "folderUpload", label: "Folder Upload" },
+  { key: "createGroup", label: "Create a Group" },
 ];
 
-const Operations = ({
-  folderList,
-  computedPath,
-}: { folderList?: FileBrowserFolderList; computedPath: string }) => {
-  const queryClient = useQueryClient();
-  const router = useContext(MainRouterContext);
-  const { selectedPaths } = useTypedSelector((state) => state.cart);
-  const username = useTypedSelector((state) => state.user.username);
-  const [modalInfo, setModalInfo] = useState({ isOpen: false, type: "" });
-  const [userError, setUserErrors] = useState("");
-  const dispatch = useDispatch();
-  const folderInput = useRef<HTMLInputElement>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
-  const selectedPathsCount = selectedPaths.length;
-  const [api, contextHolder] = notification.useNotification();
+const Operations = React.forwardRef(
+  (
+    {
+      folderList,
+      computedPath,
+    }: { folderList?: FileBrowserFolderList; computedPath: string },
+    ref,
+  ) => {
+    const dispatch = useDispatch();
+    const {
+      modalInfo,
+      userError,
+      folderInput,
+      fileInput,
+      handleFileChange,
+      handleFolderChange,
+      handleModalSubmitMutation,
+      handleOperations,
+      contextHolder,
+      setUserErrors,
+      setModalInfo,
+    } = useFolderOperations(computedPath, folderList);
 
-  const deleteMutation = useDeletePayload(computedPath, api); // Pass the notification API
+    useImperativeHandle(ref, () => ({
+      triggerFileUpload: () => {
+        fileInput.current?.click();
+      },
+      triggerFolderUpload: () => {
+        folderInput.current?.click();
+      },
+    }));
 
-  const invalidateFolders = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ["library_folders", computedPath],
-    });
-  };
+    const { selectedPaths } = useTypedSelector((state) => state.cart);
+    const selectedPathsCount = selectedPaths.length;
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files || [];
-    const files = Array.from(fileList);
-    dispatch(
-      startUpload({ files, isFolder: false, currentPath: `${computedPath}` }),
-    );
-    if (fileInput.current) {
-      fileInput.current.value = "";
-    }
-    await invalidateFolders();
-  };
-
-  const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileList = e.target.files || [];
-    const files = Array.from(fileList);
-    dispatch(startUpload({ files, isFolder: true, currentPath: computedPath }));
-    if (folderInput.current) {
-      folderInput.current.value = "";
-    }
-    await invalidateFolders();
-  };
-
-  const handleModalSubmit = async (inputValue: string) => {
-    if (modalInfo.type === "group") {
-      const client = ChrisAPIClient.getClient();
-      await client.adminCreateGroup({ name: inputValue });
-      // Todo: Error Handling
-    } else if (modalInfo.type === "folder") {
-      const finalPath = `${computedPath}/${inputValue}`;
-      try {
-        await folderList?.post({ path: finalPath });
-        await invalidateFolders();
-      } catch (error: any) {
-        const path = error?.response?.data?.path;
-        const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
-        throw new Error(message);
-      }
-    }
-    setModalInfo({ isOpen: false, type: "" });
-  };
-
-  const handleModalSubmitMutation = useMutation({
-    mutationFn: (inputValue: string) => handleModalSubmit(inputValue),
-  });
-
-  const isDisabled = computedPath === "/" || computedPath === "home";
-
-  const toolbarItems = (
-    <Fragment>
-      {contextHolder}
-      <ToolbarItem>
-        <Dropdown
-          menu={{
-            items,
-            selectable: true,
-            onClick: (info) => {
-              if (info.key === "1") {
-                setModalInfo({ isOpen: true, type: "folder" });
-              }
-
-              if (info.key === "3") {
-                folderInput.current?.click();
-              }
-              if (info.key === "2") {
-                fileInput.current?.click();
-              }
-
-              if (info.key === "4") {
-                setModalInfo({ isOpen: true, type: "group" });
-              }
-            },
-          }}
-        >
-          <Button
-            isDisabled={isDisabled}
-            size="sm"
-            icon={
-              <AddIcon
-                style={{ color: "inherit", height: "1em", width: "1em" }}
-              />
-            }
-          >
-            New
-          </Button>
-        </Dropdown>
-        {userError && (
-          <Alert
-            style={{ marginLeft: "1rem" }}
-            type="error"
-            description={userError}
-            closable
-            onClose={() => setUserErrors("")}
-          />
-        )}
-      </ToolbarItem>
-      {selectedPaths.length > 0 && (
-        <>
-          <ToolbarItem>
-            <Button
-              size="sm"
-              onClick={() => {
-                const paths = selectedPaths.map((payload) => payload.path);
-                router.actions.createFeedWithData(paths);
-              }}
-            >
-              Create Feed
-            </Button>
-          </ToolbarItem>
-          <ToolbarItem>
-            <Button
-              size="sm"
-              onClick={() => {
-                // Send an action to open the cart as well
-                dispatch(setToggleCart());
-                dispatch(
-                  startDownload({
-                    paths: selectedPaths,
-                    username: username as string,
-                  }),
-                );
-              }}
-            >
-              Download
-            </Button>
-          </ToolbarItem>
-          <ToolbarItem>
-            <Button
-              size="sm"
-              onClick={() => {
-                // Send an action to open the cart as well
-                dispatch(setToggleCart());
-                dispatch(
-                  startAnonymize({
-                    paths: selectedPaths,
-                    username: username as string,
-                  }),
-                );
-              }}
-            >
-              Anonymize
-            </Button>
-          </ToolbarItem>
-          <ToolbarItem>
-            <Button
-              onClick={() => {
-                deleteMutation.mutate(selectedPaths);
-              }}
-              size="sm"
-              variant="danger"
-            >
-              Delete
-            </Button>
-          </ToolbarItem>
-        </>
-      )}
-
-      {selectedPathsCount > 0 && (
-        <ToolbarItem
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <ChipGroup
-            numChips={3}
-            isClosable
-            onClick={() => {
-              dispatch(clearCart());
+    const toolbarItems = (
+      <Fragment>
+        {contextHolder}
+        <ToolbarItem>
+          <Dropdown
+            menu={{
+              items,
+              selectable: true,
+              onClick: (info) => {
+                handleOperations(info.key);
+              },
             }}
-            className="chip-group-for-paths"
-            expandedText="Show Less"
           >
-            {selectedPaths.map((payload) => (
-              <Chip
-                onClick={() => {
-                  dispatch(removeIndividualSelection(payload));
-                }}
-                key={payload.payload.data.id}
-              >
-                {getFileName(payload.path)}
-              </Chip>
-            ))}
-          </ChipGroup>
+            <Button
+              size="sm"
+              icon={
+                <AddIcon
+                  style={{ color: "inherit", height: "1em", width: "1em" }}
+                />
+              }
+            >
+              New
+            </Button>
+          </Dropdown>
+          {userError && (
+            <Alert
+              style={{ marginLeft: "1rem" }}
+              type="error"
+              description={userError}
+              closable
+              onClose={() => setUserErrors("")}
+            />
+          )}
         </ToolbarItem>
-      )}
-    </Fragment>
-  );
+        {selectedPathsCount > 0 && (
+          <>
+            <ToolbarItem>
+              <Button
+                icon={<CodeBranchIcon />}
+                size="sm"
+                onClick={() => handleOperations("createFeed")}
+              >
+                Create Feed
+              </Button>
+            </ToolbarItem>
+            <ToolbarItem>
+              <Button
+                icon={<DownloadIcon />}
+                size="sm"
+                onClick={() => handleOperations("download")}
+              >
+                Download
+              </Button>
+            </ToolbarItem>
+            <ToolbarItem>
+              <Button
+                icon={<ArchiveIcon />}
+                size="sm"
+                onClick={() => handleOperations("anonymize")}
+              >
+                Anonymize
+              </Button>
+            </ToolbarItem>
+            <ToolbarItem>
+              <Button
+                icon={<DeleteIcon />}
+                variant="danger"
+                size="sm"
+                onClick={() => handleOperations("delete")}
+              >
+                Delete
+              </Button>
+            </ToolbarItem>
+            <ToolbarItem>
+              <ChipGroup>
+                {selectedPaths.map((selection) => (
+                  <Chip
+                    key={selection.path}
+                    onClick={() =>
+                      dispatch(removeIndividualSelection(selection))
+                    }
+                  >
+                    {getFileName(selection.path)}
+                  </Chip>
+                ))}
+              </ChipGroup>
+            </ToolbarItem>
+          </>
+        )}
+      </Fragment>
+    );
 
-  return (
-    <>
-      <Toolbar style={{ paddingLeft: "0" }} id="action-tray">
-        <ToolbarContent style={{ paddingInlineStart: "0" }}>
-          {toolbarItems}
-        </ToolbarContent>
-      </Toolbar>
-
-      <input
-        type="file"
-        ref={fileInput}
-        onChange={handleFileChange}
-        multiple
-        style={{ display: "none" }}
-      />
-      <input
-        type="file"
-        ref={folderInput}
-        onChange={handleFolderChange}
-        //@ts-ignore
-        webkitdirectory="true"
-        mozdirectory="true"
-        msdirectory="true"
-        odirectory="true"
-        directory="true"
-        style={{ display: "none" }}
-      />
-
-      <AddModal
-        isOpen={modalInfo.isOpen}
-        onClose={() => {
-          handleModalSubmitMutation.reset();
-          setModalInfo({ isOpen: false, type: "" });
-        }}
-        onSubmit={(inputValue: string) =>
-          handleModalSubmitMutation.mutate(inputValue)
-        }
-        modalTitle={
-          modalInfo.type === "folder" ? "Create Folder" : "Create Group"
-        }
-        inputLabel={modalInfo.type === "folder" ? "Folder Name" : "Group Name"}
-        indicators={{
-          isPending: handleModalSubmitMutation.isPending,
-          isError: handleModalSubmitMutation.isError,
-          error: handleModalSubmitMutation.error,
-        }}
-      />
-    </>
-  );
-};
+    return (
+      <>
+        <AddModal
+          isOpen={modalInfo.isOpen}
+          onClose={() => setModalInfo({ isOpen: false, type: "" })}
+          onSubmit={(inputValue) =>
+            handleModalSubmitMutation.mutate(inputValue)
+          }
+          modalTitle={
+            modalInfo.type === "group"
+              ? "Create a new Group"
+              : "Create a new Folder"
+          }
+          inputLabel={modalInfo.type === "group" ? "Group Name" : "Folder Name"}
+          indicators={{
+            isPending: handleModalSubmitMutation.isPending,
+            isError: handleModalSubmitMutation.isError,
+            error: handleModalSubmitMutation.error as DefaultError,
+          }}
+        />
+        <input
+          ref={fileInput}
+          multiple={true}
+          type="file"
+          hidden
+          onChange={handleFileChange}
+        />
+        <input
+          ref={folderInput}
+          multiple={true}
+          type="file"
+          //@ts-ignore
+          webkitdirectory="true"
+          hidden
+          onChange={handleFolderChange}
+        />
+        <Toolbar>
+          <ToolbarContent>{toolbarItems}</ToolbarContent>
+        </Toolbar>
+      </>
+    );
+  },
+);
 
 export default Operations;
