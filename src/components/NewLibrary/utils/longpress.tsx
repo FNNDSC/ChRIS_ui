@@ -73,6 +73,26 @@ export default function useLongPress() {
     }
   }
 
+  const handleCheckboxChange = (
+    e: React.FormEvent<HTMLInputElement>,
+    path: string,
+    payload: FileBrowserFolder | FileBrowserFolderFile,
+    type: string,
+  ) => {
+    e.stopPropagation();
+    if (e.currentTarget.checked) {
+      dispatch(
+        setSelectFolder({
+          path,
+          type,
+          payload,
+        }),
+      );
+    } else {
+      dispatch(clearSelectFolder(path));
+    }
+  };
+
   function handleOnMouseDown() {
     startPressTimer();
   }
@@ -99,6 +119,7 @@ export default function useLongPress() {
       handleOnMouseUp,
       handleOnTouchStart,
       handleOnTouchEnd,
+      handleCheckboxChange,
     },
   };
 }

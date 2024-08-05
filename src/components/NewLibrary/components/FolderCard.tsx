@@ -3,16 +3,17 @@ import {
   Button,
   Card,
   CardHeader,
+  Checkbox,
   GridItem,
   Split,
   SplitItem,
 } from "@patternfly/react-core";
 import { useContext } from "react";
 import { Fragment } from "react/jsx-runtime";
+import { elipses } from "../../../api/common";
 import { useTypedSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
-import { elipses } from "../../../api/common";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 
 type Pagination = {
@@ -58,7 +59,7 @@ export const SubFolderCard = ({
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
-  const { handleOnClick, handleOnMouseDown } = handlers;
+  const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
   const folderSplitList = folder.data.path.split("/");
   const pathName = folderSplitList[folderSplitList.length - 1];
   const folderName = computedPath === "/" ? folder.data.path : pathName;
@@ -77,9 +78,9 @@ export const SubFolderCard = ({
           cursor: "pointer",
         }}
         isSelected={isSelected}
+        isClickable
         isSelectable
         isCompact
-        isClickable
         isFlat
         onClick={(e) => {
           handleOnClick(
@@ -96,7 +97,23 @@ export const SubFolderCard = ({
         }}
         isRounded
       >
-        <CardHeader>
+        <CardHeader
+          actions={{
+            actions: (
+              <Checkbox
+                className="large-checkbox"
+                isChecked={isSelected}
+                id={folder.data.id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                onChange={(e) => {
+                  handleCheckboxChange(e, folder.data.path, folder, "folder");
+                }}
+              />
+            ),
+          }}
+        >
           <Split>
             <SplitItem style={{ marginRight: "1em" }}>
               <FolderIcon />

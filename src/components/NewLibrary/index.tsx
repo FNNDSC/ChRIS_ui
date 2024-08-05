@@ -14,10 +14,10 @@ import { useTypedSelector } from "../../store/hooks";
 import { EmptyStateComponent, InfoIcon, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./components/BreadcrumbContainer";
+import "./components/Card.css";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import Operations from "./components/Operations";
-
 const { Paragraph } = Typography;
 
 const NewLibrary = () => {

@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardHeader,
+  Checkbox,
   GridItem,
   Modal,
   ModalVariant,
@@ -39,6 +40,8 @@ type ComponentProps = {
   date: string;
   onClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onMouseDown?: () => void;
+  onCheckboxChange?: (e: React.FormEvent<HTMLInputElement>) => void;
+  isChecked?: boolean;
   icon: React.ReactElement;
   bgRow?: string;
 };
@@ -48,6 +51,8 @@ const PresentationComponent = ({
   date,
   onClick,
   onMouseDown,
+  onCheckboxChange,
+  isChecked,
   icon,
   bgRow,
 }: ComponentProps) => {
@@ -66,7 +71,19 @@ const PresentationComponent = ({
         onMouseDown={onMouseDown}
         isRounded
       >
-        <CardHeader>
+        <CardHeader
+          actions={{
+            actions: (
+              <Checkbox
+                className="large-checkbox"
+                isChecked={isChecked}
+                id={name}
+                onClick={(e) => e.stopPropagation()}
+                onChange={(e) => onCheckboxChange?.(e)}
+              />
+            ),
+          }}
+        >
           <Split>
             <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
             <SplitItem>
@@ -134,7 +151,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
   const { handlers } = useLongPress();
-  const { handleOnClick, handleOnMouseDown } = handlers;
+  const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
   const listOfPaths = file.data.fname.split("/");
@@ -196,6 +213,11 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
             handleOnMouseDown();
           }
         }}
+        onCheckboxChange={(e) => {
+          e.stopPropagation();
+          handleCheckboxChange(e, file.data.fname, file, "file");
+        }}
+        isChecked={isSelected}
         name={fileName}
         date={creation_date}
         icon={icon}
