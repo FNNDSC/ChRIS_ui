@@ -15,6 +15,7 @@ import { useTypedSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
+import { FolderContextMenu } from "./ContextMenu";
 
 type Pagination = {
   totalCount: number;
@@ -72,61 +73,63 @@ export const SubFolderCard = ({
 
   return (
     <GridItem xl={3} lg={4} xl2={3} md={6} sm={12} key={folder.data.id}>
-      <Card
-        style={{
-          background: selectedBgRow,
-          cursor: "pointer",
-        }}
-        isSelected={isSelected}
-        isClickable
-        isSelectable
-        isCompact
-        isFlat
-        onClick={(e) => {
-          handleOnClick(
-            e,
-            folder,
-            folderName,
-            folder.data.path,
-            "folder",
-            handleFolderClick,
-          );
-        }}
-        onMouseDown={() => {
-          handleOnMouseDown();
-        }}
-        isRounded
-      >
-        <CardHeader
-          actions={{
-            actions: (
-              <Checkbox
-                className="large-checkbox"
-                isChecked={isSelected}
-                id={folder.data.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                onChange={(e) => {
-                  handleCheckboxChange(e, folder.data.path, folder, "folder");
-                }}
-              />
-            ),
+      <FolderContextMenu folderPath={folder.data.path}>
+        <Card
+          style={{
+            background: selectedBgRow,
+            cursor: "pointer",
           }}
+          isSelected={isSelected}
+          isClickable
+          isSelectable
+          isCompact
+          isFlat
+          onClick={(e) => {
+            handleOnClick(
+              e,
+              folder,
+              folderName,
+              folder.data.path,
+              "folder",
+              handleFolderClick,
+            );
+          }}
+          onMouseDown={() => {
+            handleOnMouseDown();
+          }}
+          isRounded
         >
-          <Split>
-            <SplitItem style={{ marginRight: "1em" }}>
-              <FolderIcon />
-            </SplitItem>
-            <SplitItem>
-              <Button variant="link" style={{ padding: 0 }}>
-                {elipses(folderName, 40)}
-              </Button>
-              <div>{new Date(creation_date).toDateString()}</div>
-            </SplitItem>
-          </Split>
-        </CardHeader>
-      </Card>
+          <CardHeader
+            actions={{
+              actions: (
+                <Checkbox
+                  className="large-checkbox"
+                  isChecked={isSelected}
+                  id={folder.data.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  onChange={(e) => {
+                    handleCheckboxChange(e, folder.data.path, folder, "folder");
+                  }}
+                />
+              ),
+            }}
+          >
+            <Split>
+              <SplitItem style={{ marginRight: "1em" }}>
+                <FolderIcon />
+              </SplitItem>
+              <SplitItem>
+                <Button variant="link" style={{ padding: 0 }}>
+                  {elipses(folderName, 40)}
+                </Button>
+                <div>{new Date(creation_date).toDateString()}</div>
+              </SplitItem>
+            </Split>
+          </CardHeader>
+        </Card>
+      </FolderContextMenu>
     </GridItem>
   );
 };

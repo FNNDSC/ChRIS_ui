@@ -1,5 +1,5 @@
 import { Button, Text, Tooltip } from "@patternfly/react-core";
-import { Drawer, List, Space, Popconfirm } from "antd";
+import { Drawer, List, Popconfirm, Space } from "antd";
 import { isEmpty } from "lodash";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -12,7 +12,7 @@ import { DownloadTypes } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
-import { elipses, ShowInFolder, TitleNameClipped } from "../utils/longpress";
+import { ShowInFolder, TitleNameClipped, elipses } from "../utils/longpress";
 import "./Cart.css";
 import ProgressRing from "./RadialProgress";
 
