@@ -204,9 +204,11 @@ const NewLibrary = () => {
             <LinkCard
               linkFiles={data.linkFilesMap}
               pagination={data.linksPagination}
+              computedPath={computedPath}
             />
             <FilesCard
               files={data.filesMap}
+              computedPath={computedPath}
               pagination={data.filesPagination}
             />
             {fetchMore && !isLoading && (

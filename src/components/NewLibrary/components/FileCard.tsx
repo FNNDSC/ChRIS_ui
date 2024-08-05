@@ -29,6 +29,7 @@ import useLongPress, {
   elipses,
   getBackgroundRowColor,
 } from "../utils/longpress";
+import { FolderContextMenu } from "./ContextMenu";
 
 type Pagination = {
   totalCount: number;
@@ -37,6 +38,7 @@ type Pagination = {
 
 type ComponentProps = {
   name: string;
+  computedPath: string;
   date: string;
   onClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onMouseDown?: () => void;
@@ -48,6 +50,7 @@ type ComponentProps = {
 
 const PresentationComponent = ({
   name,
+  computedPath,
   date,
   onClick,
   onMouseDown,
@@ -58,53 +61,57 @@ const PresentationComponent = ({
 }: ComponentProps) => {
   return (
     <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
-      <Card
-        style={{
-          cursor: "pointer",
-          background: bgRow ? bgRow : "inherit",
-        }}
-        isCompact
-        isSelectable
-        isClickable
-        isFlat
-        onClick={(e) => onClick(e)}
-        onMouseDown={onMouseDown}
-        isRounded
-      >
-        <CardHeader
-          actions={{
-            actions: (
-              <Checkbox
-                className="large-checkbox"
-                isChecked={isChecked}
-                id={name}
-                onClick={(e) => e.stopPropagation()}
-                onChange={(e) => onCheckboxChange?.(e)}
-              />
-            ),
+      <FolderContextMenu folderPath={computedPath}>
+        <Card
+          style={{
+            cursor: "pointer",
+            background: bgRow ? bgRow : "inherit",
           }}
+          isCompact
+          isSelectable
+          isClickable
+          isFlat
+          onClick={(e) => onClick(e)}
+          onMouseDown={onMouseDown}
+          isRounded
         >
-          <Split>
-            <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
-            <SplitItem>
-              <Tooltip content={name}>
-                <Button variant="link" style={{ padding: 0 }}>
-                  {elipses(name, 40)}
-                </Button>
-              </Tooltip>
-              <div>{!isEmpty(date) ? new Date(date).toDateString() : ""}</div>
-            </SplitItem>
-          </Split>
-        </CardHeader>
-      </Card>
+          <CardHeader
+            actions={{
+              actions: (
+                <Checkbox
+                  className="large-checkbox"
+                  isChecked={isChecked}
+                  id={name}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => onCheckboxChange?.(e)}
+                />
+              ),
+            }}
+          >
+            <Split>
+              <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
+              <SplitItem>
+                <Tooltip content={name}>
+                  <Button variant="link" style={{ padding: 0 }}>
+                    {elipses(name, 40)}
+                  </Button>
+                </Tooltip>
+                <div>{!isEmpty(date) ? new Date(date).toDateString() : ""}</div>
+              </SplitItem>
+            </Split>
+          </CardHeader>
+        </Card>
+      </FolderContextMenu>
     </GridItem>
   );
 };
 
 export const LinkCard = ({
   linkFiles,
+  computedPath,
 }: {
   linkFiles: FileBrowserFolderLinkFile[];
+  computedPath: string;
   pagination?: Pagination;
 }) => {
   const navigate = useNavigate();
@@ -117,10 +124,11 @@ export const LinkCard = ({
         const creation_date = val.data.creation_date;
         return (
           <PresentationComponent
+            key={val.data.fname}
             icon={<ExternalLinkSquareAltIcon />}
             name={linkName}
             date={creation_date}
-            key={val.data.fname}
+            computedPath={computedPath}
             onClick={() => {
               navigate(val.data.path);
             }}
@@ -133,20 +141,31 @@ export const LinkCard = ({
 
 export const FilesCard = ({
   files,
+  computedPath,
 }: {
   files: FileBrowserFolderFile[];
+  computedPath: string;
   pagination?: Pagination;
 }) => {
   return (
     <Fragment>
       {files.map((file) => {
-        return <SubFileCard key={file.data.fname} file={file} />;
+        return (
+          <SubFileCard
+            key={file.data.fname}
+            file={file}
+            computedPath={computedPath}
+          />
+        );
       })}
     </Fragment>
   );
 };
 
-export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
+export const SubFileCard = ({
+  file,
+  computedPath,
+}: { file: FileBrowserFolderFile; computedPath: string }) => {
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
@@ -216,6 +235,7 @@ export const SubFileCard = ({ file }: { file: FileBrowserFolderFile }) => {
           e.stopPropagation();
           handleCheckboxChange(e, file.data.fname, file, "file");
         }}
+        computedPath={computedPath}
         isChecked={isSelected}
         name={fileName}
         date={creation_date}
