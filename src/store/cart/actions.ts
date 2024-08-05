@@ -1,4 +1,5 @@
 import type {
+  Feed,
   FileBrowserFolder,
   FileBrowserFolderFile,
 } from "@fnndsc/chrisapi";
@@ -41,6 +42,7 @@ export const setFolderDownloadStatus = (payload: {
   step: string;
   fileName?: string;
   error?: string;
+  feed?: Feed;
 }) => action(ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS, payload);
 
 export const startUpload = (payload: UploadPayload) =>
@@ -71,8 +73,10 @@ export const setFolderUploadStatus = (payload: {
 export const setBulkSelectPaths = (payload: SelectionPayload[]) =>
   action(ICartActionTypes.SET_BULK_SELECTED_PATHS, payload);
 
-export const clearDownloadStatus = (path: string) =>
-  action(ICartActionTypes.CLEAR_DOWNLOAD_STATUS, path);
+export const clearDownloadStatus = (payload: {
+  path: string;
+  type: string;
+}) => action(ICartActionTypes.CLEAR_DOWNLOAD_STATUS, payload);
 
 export const removeIndividualSelection = (payload: SelectionPayload) =>
   action(ICartActionTypes.REMOVE_SELECTED_PAYLOAD, payload);

@@ -1,5 +1,6 @@
 import keyMirror from "keymirror";
 import type {
+  Feed,
   FileBrowserFolder,
   FileBrowserFolderFile,
 } from "@fnndsc/chrisapi";
@@ -33,7 +34,7 @@ export interface FileUpload {
 
 export enum DownloadTypes {
   started = "started",
-  progress = "progress",
+  progress = "processing",
   finished = "finished",
   cancelled = "cancelled",
 }
@@ -43,6 +44,7 @@ export type DownloadStatus = {
     step: DownloadTypes;
     error?: string;
     fileName: string;
+    feed?: Feed;
   };
 };
 

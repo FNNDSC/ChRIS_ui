@@ -37,8 +37,9 @@ const reducer: Reducer<ICartState> = produce(
       }
 
       case ICartActionTypes.CLEAR_DOWNLOAD_STATUS: {
-        const { path } = action.payload;
-        delete draft.folderDownloadStatus[path];
+        const { path, type } = action.payload;
+        type === "folder" && delete draft.folderDownloadStatus[path];
+        type === "file" && delete draft.fileDownloadStatus[path];
         break;
       }
 
@@ -54,8 +55,9 @@ const reducer: Reducer<ICartState> = produce(
       }
 
       case ICartActionTypes.SET_FOLDER_DOWNLOAD_STATUS: {
-        const { id, step, error, fileName } = action.payload;
-        draft.folderDownloadStatus[id] = { step, fileName, error };
+        const { id, step, error, fileName, feed } = action.payload;
+
+        draft.folderDownloadStatus[id] = { step, fileName, error, feed };
         break;
       }
 

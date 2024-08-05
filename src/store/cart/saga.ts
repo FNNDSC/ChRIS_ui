@@ -39,11 +39,12 @@ function* setStatus(
   step: "started" | "processing" | "finished" | "cancelled",
   fileName: string,
   error?: string,
+  feed?: Feed,
 ) {
   if (type === "file") {
     yield put(setFileDownloadStatus({ id, step, fileName, error }));
   } else {
-    yield put(setFolderDownloadStatus({ id, step, fileName, error }));
+    yield put(setFolderDownloadStatus({ id, step, fileName, error, feed }));
   }
 }
 
@@ -114,6 +115,10 @@ function* downloadFolder(
 
   yield feed.put({ name: feedName });
 
+  // Set Status
+  yield setStatus(type, id, "processing", path, "", feed);
+
+  // Add a workflow
   const workflow: Workflow = yield client.createWorkflow(
     currentPipeline.data.id,
     //@ts-ignore
