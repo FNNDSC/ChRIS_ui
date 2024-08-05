@@ -13,6 +13,7 @@ const useDeletePayload = (computedPath: string, api: any) => {
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const [deletionErrors, setDeletionErrors] = useState<DeletionErrors>([]);
+  const [notificationKey, setNotificationKey] = useState<string | null>(null);
 
   const invalidateFolders = async () => {
     await queryClient.invalidateQueries({
@@ -55,13 +56,18 @@ const useDeletePayload = (computedPath: string, api: any) => {
   const mutation = useMutation({
     mutationFn: (paths: SelectionPayload[]) => handleDelete(paths),
     onMutate: () => {
+      const key = `open${Date.now()}`;
+      setNotificationKey(key);
       api.info({
-        message: "Deletion in Progress",
-        description:
-          "The deletion of selected files and folders is in progress.",
+        message: "Deletion in progress...",
+        key,
+        type: "info",
+        description: "Testing",
+        onClose: () => {
+          if (mutation.isSuccess) return true;
+        },
       });
     },
-
     onSuccess: (data) => {
       if (data && data.length > 0) {
         api.error({
@@ -81,6 +87,9 @@ const useDeletePayload = (computedPath: string, api: any) => {
           closable: true,
         });
       } else {
+        if (notificationKey) {
+          api.destroy(notificationKey);
+        }
         api.success({
           message: "Deletion Successful",
           description: "Selected files and folders were successfully deleted.",
@@ -89,6 +98,9 @@ const useDeletePayload = (computedPath: string, api: any) => {
       }
     },
     onError: (error) => {
+      if (notificationKey) {
+        api.destroy(notificationKey);
+      }
       api.error({
         message: "Deletion Failed",
         description: error.message,
@@ -97,6 +109,7 @@ const useDeletePayload = (computedPath: string, api: any) => {
     },
     onSettled: () => {
       setDeletionErrors([]);
+      api.destroy(notificationKey);
       mutation.reset();
     },
   });
