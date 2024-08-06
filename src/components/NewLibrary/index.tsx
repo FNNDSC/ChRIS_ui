@@ -181,6 +181,7 @@ const NewLibrary = () => {
           handleFolderClick={(path: string) => {
             navigate(path);
           }}
+          username={username as string}
         />
       </PageSection>
 
