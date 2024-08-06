@@ -43,6 +43,7 @@ type ComponentProps = {
   onClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onMouseDown?: () => void;
   onCheckboxChange?: (e: React.FormEvent<HTMLInputElement>) => void;
+  onContextMenuClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   isChecked?: boolean;
   icon: React.ReactElement;
   bgRow?: string;
@@ -55,6 +56,7 @@ const PresentationComponent = ({
   onClick,
   onMouseDown,
   onCheckboxChange,
+  onContextMenuClick,
   isChecked,
   icon,
   bgRow,
@@ -73,6 +75,7 @@ const PresentationComponent = ({
           isFlat
           onClick={(e) => onClick(e)}
           onMouseDown={onMouseDown}
+          onContextMenu={(e) => onContextMenuClick?.(e)}
           isRounded
         >
           <CardHeader
@@ -234,6 +237,9 @@ export const SubFileCard = ({
         onCheckboxChange={(e) => {
           e.stopPropagation();
           handleCheckboxChange(e, file.data.fname, file, "file");
+        }}
+        onContextMenuClick={(e) => {
+          handleOnClick(e, file, file.data.fname, file.data.fname, "file");
         }}
         computedPath={computedPath}
         isChecked={isSelected}

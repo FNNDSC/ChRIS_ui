@@ -11,25 +11,29 @@ export interface SelectionPayload {
   payload: FileBrowserFolderFile | FileBrowserFolder;
 }
 
+export type FolderUploadObject = {
+  currentStep: string;
+  done: number;
+  total: number;
+  controller: AbortController;
+  path: string;
+  type: string;
+};
+
+export type FileUploadObject = {
+  currentStep: string;
+  progress: number;
+  controller: AbortController;
+  path: string;
+  type: string;
+};
+
 export interface FolderUpload {
-  [key: string]: {
-    currentStep: string;
-    done: number;
-    total: number;
-    controller: AbortController;
-    path: string;
-    type: string;
-  };
+  [key: string]: FolderUploadObject;
 }
 
 export interface FileUpload {
-  [key: string]: {
-    currentStep: string;
-    progress: number;
-    controller: AbortController;
-    path: string;
-    type: string;
-  };
+  [key: string]: FileUploadObject;
 }
 
 export enum DownloadTypes {
@@ -68,6 +72,7 @@ export const ICartActionTypes = keyMirror({
   SET_BULK_SELECTED_PATHS: null,
   CLEAR_SELECTED_PATHS: null,
   CLEAR_CART: null,
+  CLEAR_UPLOAD_STATE: null,
   SET_TOGGLE_CART: null,
   START_DOWNLOAD: null,
   SET_FILE_DOWNLOAD_STATUS: null,
@@ -78,4 +83,5 @@ export const ICartActionTypes = keyMirror({
   SET_FOLDER_UPLOAD_STATUS: null,
   CLEAR_DOWNLOAD_STATUS: null,
   REMOVE_SELECTED_PAYLOAD: null,
+  CANCEL_UPLOAD: null,
 });

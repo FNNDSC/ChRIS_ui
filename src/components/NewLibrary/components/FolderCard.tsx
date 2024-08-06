@@ -94,6 +94,9 @@ export const SubFolderCard = ({
               handleFolderClick,
             );
           }}
+          onContextMenu={(e) => {
+            handleOnClick(e, folder, folderName, folder.data.path, "folder");
+          }}
           onMouseDown={() => {
             handleOnMouseDown();
           }}

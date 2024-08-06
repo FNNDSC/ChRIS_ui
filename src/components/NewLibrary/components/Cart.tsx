@@ -5,7 +5,9 @@ import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { getFileName } from "../../../api/common";
 import {
+  cancelUpload,
   clearDownloadStatus,
+  clearUploadState,
   setToggleCart,
 } from "../../../store/cart/actions";
 import { DownloadTypes } from "../../../store/cart/types";
@@ -191,13 +193,27 @@ const Cart = () => {
               <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
               <Button
                 onClick={() => {
-                  status.controller.abort();
+                  if (status.currentStep === "Uploading...") {
+                    dispatch(
+                      cancelUpload({
+                        type: status.type,
+                        id: name,
+                      }),
+                    );
+                  } else {
+                    dispatch(
+                      clearUploadState({
+                        type: status.type,
+                        id: name,
+                      }),
+                    );
+                  }
                 }}
                 variant="secondary"
                 size="sm"
                 key={`a-${name}`}
               >
-                Cancel
+                {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
               </Button>,
             ]}
           >
@@ -240,13 +256,27 @@ const Cart = () => {
               <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
               <Button
                 onClick={() => {
-                  status.controller.abort();
+                  if (status.currentStep === "Uploading...") {
+                    dispatch(
+                      cancelUpload({
+                        type: status.type,
+                        id: name,
+                      }),
+                    );
+                  } else {
+                    dispatch(
+                      clearUploadState({
+                        type: status.type,
+                        id: name,
+                      }),
+                    );
+                  }
                 }}
                 variant="secondary"
                 size="sm"
                 key={`a-${name}`}
               >
-                Cancel
+                {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
               </Button>,
             ]}
           >
