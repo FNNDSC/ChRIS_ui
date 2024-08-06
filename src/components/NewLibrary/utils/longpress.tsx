@@ -51,24 +51,30 @@ export default function useLongPress() {
   }
 
   function handleOnClick(
-    e: any,
+    e: React.MouseEvent | React.TouchEvent,
     payload: FileBrowserFolder | FileBrowserFolderFile,
     path: string,
     pathForCart: string,
     type: string,
     cbFolder?: (path: string) => void,
   ) {
-    const isExist = selectedPaths.some(
-      (item: any) => item.path === pathForCart,
-    );
+    const isExist = selectedPaths.some((item) => item.path === pathForCart);
 
-    if (isLongPress.current || e.ctrlKey || e.shiftKey || e.metaKey) {
+    if (e.type === "contextmenu") {
+      // Handle right-click (context menu)
+      e.preventDefault(); // Prevent the default context menu from appearing
+      if (!isExist) {
+        selectFolder(pathForCart, type, payload);
+      }
+    } else if (isLongPress.current || e.ctrlKey || e.shiftKey || e.metaKey) {
+      // Handle long press or modifier keys
       if (!isExist) {
         selectFolder(pathForCart, type, payload);
       } else {
         deselectFolder(pathForCart);
       }
     } else if (e.detail === 1) {
+      // Handle single left click
       cbFolder?.(path);
     }
   }

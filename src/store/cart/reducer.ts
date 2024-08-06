@@ -102,6 +102,17 @@ const reducer: Reducer<ICartState> = produce(
         break;
       }
 
+      case ICartActionTypes.CLEAR_UPLOAD_STATE: {
+        const { id, type } = action.payload;
+
+        if (type === "folder") {
+          delete draft.folderUploadStatus[id];
+        } else {
+          delete draft.fileUploadStatus[id];
+        }
+        break;
+      }
+
       case ICartActionTypes.CLEAR_CART: {
         draft.selectedPaths = [];
         break;

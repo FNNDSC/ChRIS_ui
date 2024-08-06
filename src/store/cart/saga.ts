@@ -15,7 +15,15 @@ import type Client from "@fnndsc/chrisapi";
 import axios, { type AxiosProgressEvent } from "axios";
 import { chunk, isEmpty } from "lodash";
 import { END, type EventChannel, eventChannel } from "redux-saga";
-import { all, call, fork, put, take, takeEvery } from "redux-saga/effects";
+import {
+  all,
+  call,
+  fork,
+  put,
+  take,
+  takeEvery,
+  select,
+} from "redux-saga/effects";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { getFileName } from "../../api/common";
 import type { IActionTypeParam } from "../../api/model";
@@ -28,6 +36,8 @@ import {
   setFolderUploadStatus,
 } from "./actions";
 import {
+  type FileUploadObject,
+  type FolderUploadObject,
   ICartActionTypes,
   type SelectionPayload,
   type UploadPayload,
@@ -228,11 +238,19 @@ function createUploadChannel(config: any) {
       }
     };
 
+    const source = axios.CancelToken.source();
+
     const axiosConfig = {
       headers: config.headers,
-      signal: config.signal,
       onUploadProgress,
+      cancelToken: source.token,
+      ...config,
     };
+
+    const cancelHandler = () => {
+      source.cancel("Operation canceled by the user.");
+    };
+    axiosConfig.signal.addEventListener("abort", cancelHandler);
 
     axios
       .post(config.url, config.data, axiosConfig)
@@ -244,6 +262,12 @@ function createUploadChannel(config: any) {
       })
       .catch((error) => {
         let message = "Unexpected Error while upload the file";
+
+        if (axios.isCancel(error)) {
+          emitter({
+            cancelled: true,
+          });
+        }
         if (axios.isAxiosError(error)) {
           message = !isEmpty(error.response?.data)
             ? error.response?.data
@@ -253,7 +277,9 @@ function createUploadChannel(config: any) {
         emitter(END);
       });
 
-    return () => {};
+    return () => {
+      axiosConfig.signal.removeEventListener("abort", cancelHandler);
+    };
   });
 }
 
@@ -268,10 +294,10 @@ function* uploadFileBatch(
   const batches = chunk(files, batchSize);
   const totalFiles = files.length;
   let uploadedFilesCount = 0;
+  let cancelledUploads = false;
 
+  const folderController = new AbortController();
   for (const batch of batches) {
-    const controllers: AbortController[] = [];
-
     yield all(
       batch.map((file) => {
         const formData = new FormData();
@@ -282,11 +308,9 @@ function* uploadFileBatch(
         formData.append("fname", file, name);
 
         const controller = new AbortController();
-        controllers.push(controller);
-
         const config = {
           headers: { Authorization: `Token ${client.auth.token}` },
-          signal: controller.signal,
+          signal: isFolder ? folderController.signal : controller.signal,
           url,
           data: formData,
         };
@@ -296,10 +320,35 @@ function* uploadFileBatch(
         return call(function* () {
           try {
             while (true) {
-              const { progress, response, error } = yield take(uploadChannel);
+              const { progress, response, error, cancelled } =
+                yield take(uploadChannel);
 
-              if (progress !== undefined && !isFolder) {
-                // Only do this for files
+              if (cancelled) {
+                cancelledUploads = true;
+                yield put(
+                  isFolder
+                    ? setFolderUploadStatus({
+                        step: "Upload Cancelled",
+                        fileName: name.split("/")[0],
+                        totalCount: totalFiles,
+                        currentCount: uploadedFilesCount,
+                        controller: null,
+                        path: currentPath,
+                        type: "folder",
+                      })
+                    : setFileUploadStatus({
+                        step: "Upload Cancelled",
+                        fileName: name,
+                        progress: progress || 0,
+                        controller: null,
+                        path: currentPath,
+                        type: "file",
+                      }),
+                );
+                break;
+              }
+
+              if (progress !== undefined && !isFolder && !error && !cancelled) {
                 yield put(
                   setFileUploadStatus({
                     step:
@@ -308,7 +357,7 @@ function* uploadFileBatch(
                         : "Uploading...",
                     fileName: name,
                     progress: progress,
-                    controller: controllers[0],
+                    controller,
                     path: currentPath,
                     type: "file",
                   }),
@@ -326,29 +375,30 @@ function* uploadFileBatch(
       }),
     );
 
-    uploadedFilesCount += batch.length;
+    if (!cancelledUploads) {
+      uploadedFilesCount += batch.length;
 
-    if (isFolder) {
-      const name = files[0].webkitRelativePath;
-      const fileName = name.split("/")[0];
-      yield put(
-        setFolderUploadStatus({
-          step:
-            uploadedFilesCount === totalFiles
-              ? "Upload Complete"
-              : "Uploading...",
-          fileName: fileName,
-          totalCount: totalFiles,
-          currentCount: uploadedFilesCount,
-          controller: controllers[0],
-          path: currentPath,
-          type: "folder",
-        }),
-      );
+      if (isFolder) {
+        const name = files[0].webkitRelativePath;
+        const fileName = name.split("/")[0];
+        yield put(
+          setFolderUploadStatus({
+            step:
+              uploadedFilesCount === totalFiles
+                ? "Upload Complete"
+                : "Uploading...",
+            fileName: fileName,
+            totalCount: totalFiles,
+            currentCount: uploadedFilesCount,
+            controller: folderController,
+            path: currentPath,
+            type: "folder",
+          }),
+        );
+      }
     }
   }
 }
-
 function* handleUpload(action: IActionTypeParam) {
   const { files, isFolder, currentPath }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
@@ -376,6 +426,33 @@ function* watchAnonymize() {
   yield takeEvery(ICartActionTypes.START_ANONYMIZE, handleAnonymize);
 }
 
+function* watchCancelUpload() {
+  yield takeEvery(ICartActionTypes.CANCEL_UPLOAD, function* (action: any) {
+    const { id: fileName, type } = action.payload;
+
+    if (type === "folder") {
+      const folderStatus: FolderUploadObject = yield select(
+        (state) => state.cart.folderUploadStatus[fileName],
+      );
+      if (folderStatus?.controller) {
+        folderStatus.controller.abort();
+      }
+    } else {
+      const fileStatus: FileUploadObject = yield select(
+        (state) => state.cart.fileUploadStatus[fileName],
+      );
+      if (fileStatus?.controller) {
+        fileStatus.controller.abort();
+      }
+    }
+  });
+}
+
 export function* cartSaga() {
-  yield all([fork(watchDownload), fork(watchUpload), fork(watchAnonymize)]);
+  yield all([
+    fork(watchDownload),
+    fork(watchUpload),
+    fork(watchAnonymize),
+    fork(watchCancelUpload),
+  ]);
 }

@@ -55,7 +55,7 @@ export const setFileUploadStatus = (payload: {
   step: string;
   fileName: string;
   progress: number;
-  controller: AbortController;
+  controller: AbortController | null;
   path: string;
   type: string;
 }) => action(ICartActionTypes.SET_FILE_UPLOAD_STATUS, payload);
@@ -65,7 +65,7 @@ export const setFolderUploadStatus = (payload: {
   fileName: string;
   totalCount: number;
   currentCount: number;
-  controller: AbortController;
+  controller: AbortController | null;
   path: string;
   type: string;
 }) => action(ICartActionTypes.SET_FOLDER_UPLOAD_STATUS, payload);
@@ -81,4 +81,9 @@ export const clearDownloadStatus = (payload: {
 export const removeIndividualSelection = (payload: SelectionPayload) =>
   action(ICartActionTypes.REMOVE_SELECTED_PAYLOAD, payload);
 
+export const clearUploadState = (payload: { type: string; id: string }) =>
+  action(ICartActionTypes.CLEAR_UPLOAD_STATE, payload);
+
+export const cancelUpload = (payload: { type: string; id: string }) =>
+  action(ICartActionTypes.CANCEL_UPLOAD, payload);
 export const clearCart = () => action(ICartActionTypes.CLEAR_CART);
