@@ -73,7 +73,7 @@ export const SubFolderCard = ({
 
   return (
     <GridItem xl={3} lg={4} xl2={3} md={6} sm={12} key={folder.data.id}>
-      <FolderContextMenu folderPath={folder.data.path}>
+      <FolderContextMenu folderPath={computedPath}>
         <Card
           style={{
             background: selectedBgRow,
