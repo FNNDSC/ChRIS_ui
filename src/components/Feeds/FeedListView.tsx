@@ -21,7 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Typography } from "antd";
 import { cujs } from "chris-utility";
 import { format } from "date-fns";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import {
@@ -43,22 +43,15 @@ import { fetchFeeds, fetchPublicFeeds } from "./utilties";
 
 const { Paragraph } = Typography;
 
-function useSearchQuery(query: URLSearchParams) {
-  const page = query.get("page") || 1;
-  const search = query.get("search") || "";
-  const searchType = query.get("searchType") || "name";
-  const perPage = query.get("perPage") || 14;
-  const type = query.get("type") || "public";
+const useSearchQuery = (query: URLSearchParams) => ({
+  page: query.get("page") || "1",
+  search: query.get("search") || "",
+  searchType: query.get("searchType") || "name",
+  perPage: query.get("perPage") || "14",
+  type: query.get("type") || "public",
+});
 
-  return {
-    page,
-    perPage,
-    search,
-    searchType,
-    type,
-  };
-}
-const TableSelectable: React.FunctionComponent = () => {
+const TableSelectable: React.FC = () => {
   const query = useSearchQueryParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -85,18 +78,15 @@ const TableSelectable: React.FunctionComponent = () => {
     refetchOnMount: true,
   });
 
-  const authenticatedFeeds = data ? data.feeds : [];
-  const publicFeedsToDisplay = publicFeeds ? publicFeeds.feeds : [];
-
   const feedsToDisplay =
-    type === "private" ? authenticatedFeeds : publicFeedsToDisplay;
+    type === "private" ? data?.feeds || [] : publicFeeds?.feeds || [];
 
   const { selectAllToggle, bulkSelect } = useTypedSelector(
     (state) => state.feed,
   );
 
   const onSetPage = (
-    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPage: number,
   ) => {
     navigate(
@@ -105,7 +95,7 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   const onPerPageSelect = (
-    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPerPage: number,
     newPage: number,
   ) => {
@@ -118,33 +108,25 @@ const TableSelectable: React.FunctionComponent = () => {
     navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
   };
 
-  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (
-    event,
-    _isSelected,
-  ) => {
+  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
     const id = event.currentTarget.id;
-
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${1}&perPage=${perPage}&type=${id}`,
+      `/feeds?search=${search}&searchType=${searchType}&page=1&perPage=${perPage}&type=${id}`,
     );
   };
 
-  const bulkData = React.useRef<Feed[]>();
+  const bulkData = useRef<Feed[]>();
   bulkData.current = bulkSelect;
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.title = "All Analyses - ChRIS UI ";
-    dispatch(
-      setSidebarActive({
-        activeItem: "analyses",
-      }),
-    );
+    dispatch(setSidebarActive({ activeItem: "analyses" }));
     if (bulkData?.current) {
       dispatch(removeAllSelect(bulkData.current));
     }
   }, [dispatch]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!type || (!isLoggedIn && type === "private")) {
       navigate(
         `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=public`,
@@ -163,13 +145,7 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   const feedCount =
-    type === "private"
-      ? data?.totalFeedsCount === -1
-        ? 0
-        : data?.totalFeedsCount
-      : publicFeeds?.totalFeedsCount === -1
-        ? 0
-        : publicFeeds?.totalFeedsCount;
+    type === "private" ? data?.totalFeedsCount : publicFeeds?.totalFeedsCount;
 
   const loadingFeedState =
     isLoading || isFetching || publicFeedLoading || publicFeedFetching;
@@ -191,106 +167,94 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   return (
-    <React.Fragment>
-      <WrapperConnect>
-        <PageSection className="feed-header">
-          <InfoIcon
-            data-test-id="analysis-count"
-            title={`New and Existing Analyses (${
-              !feedCount && loadingFeedState
-                ? "Fetching..."
-                : feedCount === -1
-                  ? 0
-                  : feedCount
-            })`}
-            p1={
-              <Paragraph>
-                Analyses (aka ChRIS feeds) are computational experiments where
-                data are organized and processed by ChRIS plugins. In this view
-                you may view your analyses and also the ones shared with you.
-              </Paragraph>
-            }
+    <WrapperConnect>
+      <PageSection className="feed-header">
+        <InfoIcon
+          data-test-id="analysis-count"
+          title={`New and Existing Analyses (${
+            !feedCount && loadingFeedState
+              ? "Fetching..."
+              : feedCount === -1
+                ? 0
+                : feedCount
+          })`}
+          p1={
+            <Paragraph>
+              Analyses (aka ChRIS feeds) are computational experiments where
+              data are organized and processed by ChRIS plugins. In this view
+              you may view your analyses and also the ones shared with you.
+            </Paragraph>
+          }
+        />
+      </PageSection>
+      <PageSection>
+        <ToggleGroup aria-label="Default with single selectable">
+          <ToggleGroupItem
+            text="Private Feeds"
+            buttonId="private"
+            isSelected={type === "private"}
+            onChange={onExampleTypeChange}
+            isDisabled={!isLoggedIn}
           />
-        </PageSection>
-        <PageSection>
-          <ToggleGroup aria-label="Default with single selectable">
-            <ToggleGroupItem
-              text="Private Feeds"
-              buttonId="private"
-              isSelected={type === "private"}
-              onChange={onExampleTypeChange}
-              isDisabled={!isLoggedIn}
-            />
-            <ToggleGroupItem
-              text="Public Feeds"
-              buttonId="public"
-              isSelected={type === "public"}
-              onChange={onExampleTypeChange}
-            />
-          </ToggleGroup>
-          <DataTableToolbar
-            onSearch={handleFilterChange}
-            label="Filter by name"
-            searchType={searchType}
-            search={search}
+          <ToggleGroupItem
+            text="Public Feeds"
+            buttonId="public"
+            isSelected={type === "public"}
+            onChange={onExampleTypeChange}
           />
-          <Operations computedPath="" />
-          {loadingFeedState ? (
-            <LoadingTable />
-          ) : feedsToDisplay.length > 0 ? (
-            <Table variant="compact" aria-label="Feed Table">
-              <Thead>
-                <Tr>
-                  <Th>
-                    <Checkbox
-                      id="test"
-                      isChecked={selectAllToggle}
-                      onChange={() => {
-                        if (!selectAllToggle) {
-                          if (data) {
-                            dispatch(setAllSelect(feedsToDisplay));
-                          }
-                          dispatch(toggleSelectAll(true));
-                        } else {
-                          if (data) {
-                            dispatch(removeAllSelect(feedsToDisplay));
-                          }
-                          dispatch(toggleSelectAll(false));
-                        }
-                      }}
-                    />
-                  </Th>
-                  <Th>{columnNames.id}</Th>
-                  <Th>{columnNames.analysis}</Th>
-                  <Th>{columnNames.created}</Th>
-                  <Th>{columnNames.creator}</Th>
-                  <Th>{columnNames.runtime}</Th>
-                  <Th>{columnNames.size}</Th>
-                  <Th>{columnNames.status}</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {feedsToDisplay.map((feed, rowIndex) => {
-                  return (
-                    <TableRow
-                      key={feed.data.id}
-                      feed={feed}
-                      rowIndex={rowIndex}
-                      bulkSelect={bulkSelect}
-                      columnNames={columnNames}
-                      allFeeds={feedsToDisplay}
-                      type={type}
-                    />
-                  );
-                })}
-              </Tbody>
-            </Table>
-          ) : (
-            <EmptyStateTable />
-          )}
-        </PageSection>
-      </WrapperConnect>
-    </React.Fragment>
+        </ToggleGroup>
+        <DataTableToolbar
+          onSearch={handleFilterChange}
+          label="Filter by name"
+          searchType={searchType}
+          search={search}
+        />
+        <Operations computedPath="" />
+        {loadingFeedState ? (
+          <LoadingTable />
+        ) : feedsToDisplay.length > 0 ? (
+          <Table variant="compact" aria-label="Feed Table">
+            <Thead>
+              <Tr>
+                <Th>
+                  <Checkbox
+                    id="test"
+                    isChecked={selectAllToggle}
+                    onChange={() => {
+                      dispatch(toggleSelectAll(!selectAllToggle));
+                      dispatch(
+                        selectAllToggle
+                          ? removeAllSelect(feedsToDisplay)
+                          : setAllSelect(feedsToDisplay),
+                      );
+                    }}
+                  />
+                </Th>
+                {Object.values(columnNames).map((name) => (
+                  <Th key={name}>{name}</Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {feedsToDisplay.map((feed, rowIndex) => (
+                <TableRow
+                  key={feed.data.id}
+                  feed={feed}
+                  rowIndex={rowIndex}
+                  bulkSelect={bulkSelect}
+                  columnNames={columnNames}
+                  allFeeds={feedsToDisplay}
+                  type={type}
+                />
+              ))}
+            </Tbody>
+          </Table>
+        ) : (
+          <EmptyStateTable />
+        )}
+        {generatePagination(feedCount)}
+      </PageSection>
+    </WrapperConnect>
   );
 };
 
