@@ -438,6 +438,7 @@ function TableRow({ feed, columnNames, type }: TableRowProps) {
       isChecked={isSelected}
       id={feed.data.id}
       aria-label={`${feed.data.name}-checkbox`}
+      onClick={(e) => e.stopPropagation()}
       onChange={async (event) => {
         const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
         const payload = await getFolderForThisFeed();
