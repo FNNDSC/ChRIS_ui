@@ -135,8 +135,11 @@ export function getBackgroundRowColor(
   return selectedBgRow;
 }
 
-export function TitleNameClipped({ name }: { name: string }) {
-  const clippedName = elipses(name, 40);
+export function TitleNameClipped({
+  name,
+  value,
+}: { name: string; value: number }) {
+  const clippedName = elipses(name, value);
 
   return (
     <Tooltip content={name}>
