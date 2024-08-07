@@ -79,7 +79,12 @@ const Cart = () => {
             >
               <List.Item.Meta
                 avatar={<FileIcon />}
-                title={<TitleNameClipped name={getFileName(status.fileName)} />}
+                title={
+                  <TitleNameClipped
+                    name={getFileName(status.fileName)}
+                    value={40}
+                  />
+                }
               />
             </List.Item>
           )}
@@ -158,7 +163,10 @@ const Cart = () => {
                 <List.Item.Meta
                   avatar={<FolderIcon />}
                   title={
-                    <TitleNameClipped name={getFileName(status.fileName)} />
+                    <TitleNameClipped
+                      name={getFileName(status.fileName)}
+                      value={40}
+                    />
                   }
                 />
               </List.Item>
@@ -175,7 +183,9 @@ const Cart = () => {
           <List.Item
             key={name}
             actions={[
-              <div key={`status-${name}`}>{status.currentStep}</div>,
+              <div key={`status-${name}`}>
+                {<TitleNameClipped value={35} name={status.currentStep} />}
+              </div>,
               status.progress === 100 ||
               status.currentStep === "UploadComplete" ? (
                 <CheckCircleIcon
@@ -183,6 +193,14 @@ const Cart = () => {
                   color="#3E8635"
                   width="2em"
                   height="2em"
+                />
+              ) : status.currentStep.includes("Cancelled") ||
+                status.currentStep.startsWith("Error") ? (
+                <CloseIcon
+                  color="red"
+                  width="2em"
+                  height="2em"
+                  key={`anon-${name}-cancel`}
                 />
               ) : (
                 <ProgressRing
@@ -219,7 +237,7 @@ const Cart = () => {
           >
             <List.Item.Meta
               avatar={<FileIcon />}
-              title={<TitleNameClipped name={name} />}
+              title={<TitleNameClipped name={name} value={35} />}
             />
           </List.Item>
         )}
@@ -241,7 +259,8 @@ const Cart = () => {
                   width="2em"
                   height="2em"
                 />
-              ) : status.currentStep.includes("Cancelled") ? (
+              ) : status.currentStep.includes("Cancelled") ||
+                status.currentStep.startsWith("Error") ? (
                 <CloseIcon
                   color="red"
                   width="2em"
@@ -282,7 +301,7 @@ const Cart = () => {
           >
             <List.Item.Meta
               avatar={<FolderIcon />}
-              title={<TitleNameClipped name={name} />}
+              title={<TitleNameClipped name={name} value={30} />}
             />
           </List.Item>
         )}

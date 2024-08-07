@@ -255,22 +255,18 @@ function createUploadChannel(config: any) {
     axios
       .post(config.url, config.data, axiosConfig)
       .then((response) => {
-        // Assuming that data is created
         const progress = 100;
         emitter({ progress, response });
         emitter(END);
       })
       .catch((error) => {
-        let message = "Unexpected Error while upload the file";
+        let message = "Unexpected Error while uploading the file";
 
         if (axios.isCancel(error)) {
-          emitter({
-            cancelled: true,
-          });
-        }
-        if (axios.isAxiosError(error)) {
-          message = !isEmpty(error.response?.data)
-            ? error.response?.data
+          emitter({ cancelled: true });
+        } else if (axios.isAxiosError(error)) {
+          message = !isEmpty(error.response?.data.upload_path)
+            ? error.response?.data.upload_path[0]
             : error.message;
         }
         emitter({ error: message });
@@ -295,6 +291,8 @@ function* uploadFileBatch(
   const totalFiles = files.length;
   let uploadedFilesCount = 0;
   let cancelledUploads = false;
+  let errorOccurred = false;
+  let lastError = "";
 
   const folderController = new AbortController();
   for (const batch of batches) {
@@ -328,7 +326,9 @@ function* uploadFileBatch(
                 yield put(
                   isFolder
                     ? setFolderUploadStatus({
-                        step: "Upload Cancelled",
+                        step: errorOccurred
+                          ? `Error: ${lastError}`
+                          : "Upload Cancelled",
                         fileName: name.split("/")[0],
                         totalCount: totalFiles,
                         currentCount: uploadedFilesCount,
@@ -337,7 +337,9 @@ function* uploadFileBatch(
                         type: "folder",
                       })
                     : setFileUploadStatus({
-                        step: "Upload Cancelled",
+                        step: errorOccurred
+                          ? `Error: ${lastError}`
+                          : "Upload Cancelled",
                         fileName: name,
                         progress: progress || 0,
                         controller: null,
@@ -348,7 +350,34 @@ function* uploadFileBatch(
                 break;
               }
 
-              if (progress !== undefined && !isFolder && !error && !cancelled) {
+              if (error) {
+                if (error.includes("Invalid path.")) {
+                  errorOccurred = true;
+                  lastError = error; // Store the last error message
+
+                  // We need to cancel the folder upload manually since it will upload other files in the list.
+                  // If it's an upload path error, all the files in the list are going to be errored so it's safe to cancel the entire upload.
+                  isFolder && folderController.abort();
+
+                  if (!isFolder) {
+                    // No need to manually cancel the upload for a single file as the request will fail.
+                    yield put(
+                      setFileUploadStatus({
+                        step: `Error: ${lastError}`,
+                        fileName: name,
+                        progress: progress || 0,
+                        controller: null,
+                        path: currentPath,
+                        type: "file",
+                      }),
+                    );
+                  }
+
+                  break;
+                }
+              }
+
+              if (progress !== undefined && !isFolder && !cancelled && !error) {
                 yield put(
                   setFileUploadStatus({
                     step:
@@ -399,6 +428,7 @@ function* uploadFileBatch(
     }
   }
 }
+
 function* handleUpload(action: IActionTypeParam) {
   const { files, isFolder, currentPath }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
