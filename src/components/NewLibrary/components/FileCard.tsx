@@ -16,9 +16,9 @@ import {
 } from "@patternfly/react-core";
 import { notification } from "antd";
 import { isEmpty } from "lodash";
+import type React from "react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Fragment } from "react/jsx-runtime";
 import { getFileExtension } from "../../../api/model";
 import useDownload, { useTypedSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
@@ -40,227 +40,212 @@ type ComponentProps = {
   name: string;
   computedPath: string;
   date: string;
-  onClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onMouseDown?: () => void;
   onCheckboxChange?: (e: React.FormEvent<HTMLInputElement>) => void;
   onContextMenuClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onNavigate: () => void;
   isChecked?: boolean;
   icon: React.ReactElement;
   bgRow?: string;
 };
 
-const PresentationComponent = ({
+const PresentationComponent: React.FC<ComponentProps> = ({
   name,
   computedPath,
   date,
   onClick,
+  onNavigate,
   onMouseDown,
   onCheckboxChange,
   onContextMenuClick,
   isChecked,
   icon,
   bgRow,
-}: ComponentProps) => {
-  return (
-    <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
-      <FolderContextMenu folderPath={computedPath}>
-        <Card
-          style={{
-            cursor: "pointer",
-            background: bgRow ? bgRow : "inherit",
+}) => (
+  <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
+    <FolderContextMenu folderPath={computedPath}>
+      <Card
+        style={{ cursor: "pointer", background: bgRow || "inherit" }}
+        isCompact
+        isSelectable
+        isClickable
+        isFlat
+        isRounded
+        onClick={onClick}
+        onMouseDown={onMouseDown}
+        onContextMenu={onContextMenuClick}
+      >
+        <CardHeader
+          actions={{
+            actions: (
+              <Checkbox
+                className="large-checkbox"
+                isChecked={isChecked}
+                id={name}
+                onClick={(e) => e.stopPropagation()}
+                onChange={onCheckboxChange}
+              />
+            ),
           }}
-          isCompact
-          isSelectable
-          isClickable
-          isFlat
-          onClick={(e) => onClick(e)}
-          onMouseDown={onMouseDown}
-          onContextMenu={(e) => onContextMenuClick?.(e)}
-          isRounded
         >
-          <CardHeader
-            actions={{
-              actions: (
-                <Checkbox
-                  className="large-checkbox"
-                  isChecked={isChecked}
-                  id={name}
-                  onClick={(e) => e.stopPropagation()}
-                  onChange={(e) => onCheckboxChange?.(e)}
-                />
-              ),
-            }}
-          >
-            <Split>
-              <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
-              <SplitItem>
-                <Tooltip content={name}>
-                  <Button variant="link" style={{ padding: 0 }}>
-                    {elipses(name, 40)}
-                  </Button>
-                </Tooltip>
-                <div>{!isEmpty(date) ? new Date(date).toDateString() : ""}</div>
-              </SplitItem>
-            </Split>
-          </CardHeader>
-        </Card>
-      </FolderContextMenu>
-    </GridItem>
-  );
-};
+          <Split>
+            <SplitItem style={{ marginRight: "1em" }}>{icon}</SplitItem>
+            <SplitItem>
+              <Tooltip content={name}>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate();
+                  }}
+                  variant="link"
+                  style={{ padding: 0 }}
+                >
+                  {elipses(name, 40)}
+                </Button>
+              </Tooltip>
+              <div>{!isEmpty(date) ? new Date(date).toDateString() : ""}</div>
+            </SplitItem>
+          </Split>
+        </CardHeader>
+      </Card>
+    </FolderContextMenu>
+  </GridItem>
+);
 
-export const LinkCard = ({
-  linkFiles,
-  computedPath,
-}: {
+type LinkCardProps = {
   linkFiles: FileBrowserFolderLinkFile[];
   computedPath: string;
   pagination?: Pagination;
+};
+
+export const LinkCard: React.FC<LinkCardProps> = ({
+  linkFiles,
+  computedPath,
 }) => {
   const navigate = useNavigate();
 
   return (
-    <Fragment>
+    <>
       {linkFiles.map((val) => {
         const pathList = val.data.path.split("/");
         const linkName = pathList[pathList.length - 1];
-        const creation_date = val.data.creation_date;
         return (
           <PresentationComponent
             key={val.data.fname}
             icon={<ExternalLinkSquareAltIcon />}
             name={linkName}
-            date={creation_date}
+            date={val.data.creation_date}
             computedPath={computedPath}
-            onClick={() => {
-              navigate(val.data.path);
-            }}
+            onNavigate={() => navigate(val.data.path)}
           />
         );
       })}
-    </Fragment>
+    </>
   );
 };
 
-export const FilesCard = ({
-  files,
-  computedPath,
-}: {
+type FilesCardProps = {
   files: FileBrowserFolderFile[];
   computedPath: string;
   pagination?: Pagination;
-}) => {
-  return (
-    <Fragment>
-      {files.map((file) => {
-        return (
-          <SubFileCard
-            key={file.data.fname}
-            file={file}
-            computedPath={computedPath}
-          />
-        );
-      })}
-    </Fragment>
-  );
 };
 
-export const SubFileCard = ({
+export const FilesCard: React.FC<FilesCardProps> = ({
+  files,
+  computedPath,
+}) => (
+  <>
+    {files.map((file) => (
+      <SubFileCard
+        key={file.data.fname}
+        file={file}
+        computedPath={computedPath}
+      />
+    ))}
+  </>
+);
+
+type SubFileCardProps = {
+  file: FileBrowserFolderFile;
+  computedPath: string;
+};
+
+export const SubFileCard: React.FC<SubFileCardProps> = ({
   file,
   computedPath,
-}: { file: FileBrowserFolderFile; computedPath: string }) => {
-  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
+}) => {
+  const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
   const { handlers } = useLongPress();
-  const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
-  const listOfPaths = file.data.fname.split("/");
-  const fileName = listOfPaths[listOfPaths.length - 1];
-  const creation_date = file.data.creation_date;
-  const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
 
-  const isSelected =
-    selectedPaths.length > 0 &&
-    selectedPaths.some((payload) => {
-      return payload.path === file.data.fname;
-    });
-
+  const fileName = file.data.fname.split("/").pop() || "";
+  const isSelected = selectedPaths.some(
+    (payload) => payload.path === file.data.fname,
+  );
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
   const ext = getFileExtension(file.data.fname);
   const icon = getIcon(ext);
 
   useEffect(() => {
-    if (isSuccess) {
+    if (handleDownloadMutation.isSuccess) {
       api.success({
         message: "Successfully Triggered the Download",
         duration: 1,
       });
-
-      setTimeout(() => {
-        handleDownloadMutation.reset();
-      }, 1000);
+      setTimeout(() => handleDownloadMutation.reset(), 1000);
     }
 
-    if (isError) {
+    if (handleDownloadMutation.isError) {
       api.error({
         message: "Download Error",
-        description: downloadError.message,
+        description: handleDownloadMutation.error?.message,
       });
     }
-  }, [isSuccess, isError, downloadError]);
+  }, [
+    handleDownloadMutation.isSuccess,
+    handleDownloadMutation.isError,
+    api,
+    handleDownloadMutation,
+  ]);
+
+  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) =>
+    handlers.handleOnClick(e, file, file.data.fname, "file");
+
+  const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    handlers.handleCheckboxChange(e, file.data.fname, file, "file");
+  };
 
   return (
     <>
       {contextHolder}
       <PresentationComponent
-        onClick={(e) => {
-          if (!preview) {
-            handleOnClick(
-              e,
-              file,
-              file.data.fname,
-              file.data.fname,
-              "file",
-              () => {
-                setIsPreview(!preview);
-              },
-            );
-          }
-        }}
-        onMouseDown={() => {
-          if (!preview) {
-            handleOnMouseDown();
-          }
-        }}
-        onCheckboxChange={(e) => {
-          e.stopPropagation();
-          handleCheckboxChange(e, file.data.fname, file, "file");
-        }}
-        onContextMenuClick={(e) => {
-          handleOnClick(e, file, file.data.fname, file.data.fname, "file");
-        }}
+        onClick={handleClick}
+        onMouseDown={handlers.handleOnMouseDown}
+        onCheckboxChange={handleCheckboxChange}
+        onContextMenuClick={handleClick}
+        onNavigate={() => setIsPreview(!preview)}
         computedPath={computedPath}
         isChecked={isSelected}
         name={fileName}
-        date={creation_date}
+        date={file.data.creation_date}
         icon={icon}
         bgRow={selectedBgRow}
       />
-
-      {
-        <Modal
-          className="library-preview"
-          variant={ModalVariant.large}
-          title="Preview"
-          aria-label="viewer"
-          isOpen={preview}
-          onClose={() => setIsPreview(false)}
-        >
-          <FileDetailView selectedFile={file} preview="large" />
-        </Modal>
-      }
+      <Modal
+        className="library-preview"
+        variant={ModalVariant.large}
+        title="Preview"
+        aria-label="viewer"
+        isOpen={preview}
+        onClose={() => setIsPreview(false)}
+      >
+        <FileDetailView selectedFile={file} preview="large" />
+      </Modal>
     </>
   );
 };

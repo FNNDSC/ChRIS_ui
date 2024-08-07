@@ -53,10 +53,8 @@ export default function useLongPress() {
   function handleOnClick(
     e: React.MouseEvent | React.TouchEvent,
     payload: FileBrowserFolder | FileBrowserFolderFile,
-    path: string,
     pathForCart: string,
     type: string,
-    cbFolder?: (path: string) => void,
   ) {
     const isExist = selectedPaths.some((item) => item.path === pathForCart);
 
@@ -66,16 +64,13 @@ export default function useLongPress() {
       if (!isExist) {
         selectFolder(pathForCart, type, payload);
       }
-    } else if (isLongPress.current || e.ctrlKey || e.shiftKey || e.metaKey) {
-      // Handle long press or modifier keys
+    } else {
+      // Handle every click on the card
       if (!isExist) {
         selectFolder(pathForCart, type, payload);
       } else {
         deselectFolder(pathForCart);
       }
-    } else if (e.detail === 1) {
-      // Handle single left click
-      cbFolder?.(path);
     }
   }
 
@@ -113,7 +108,6 @@ export default function useLongPress() {
 
   function handleOnTouchEnd() {
     if (action === "longpress") return;
-
     clearPressTimer();
   }
 
