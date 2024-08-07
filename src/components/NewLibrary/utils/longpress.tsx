@@ -57,7 +57,6 @@ export default function useLongPress() {
     type: string,
   ) {
     const isExist = selectedPaths.some((item) => item.path === pathForCart);
-
     if (e.type === "contextmenu") {
       // Handle right-click (context menu)
       e.preventDefault(); // Prevent the default context menu from appearing
