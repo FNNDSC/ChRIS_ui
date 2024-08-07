@@ -1,4 +1,4 @@
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import {
   Button,
   Checkbox,
@@ -14,7 +14,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Alert, Spin } from "antd";
 import { cujs } from "chris-utility";
-import React, { ReactElement } from "react";
+import React, { type ReactElement } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { setBulkSelect } from "../../store/feed/actions";
@@ -52,6 +52,12 @@ const getInitialState = () => {
 };
 
 const IconContainer = () => {
+  return <div>Icon Container</div>;
+};
+
+export default IconContainer;
+
+/*
   const queryClient = useQueryClient();
   const { bulkSelect } = useTypedSelector((state) => {
     return state.feed;
@@ -460,3 +466,4 @@ const ToolGroupContainer = ({
     />
   );
 };
+*/

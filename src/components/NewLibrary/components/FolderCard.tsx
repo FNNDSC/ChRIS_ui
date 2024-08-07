@@ -85,17 +85,11 @@ export const SubFolderCard = ({
           isCompact
           isFlat
           onClick={(e) => {
-            handleOnClick(
-              e,
-              folder,
-              folderName,
-              folder.data.path,
-              "folder",
-              handleFolderClick,
-            );
+            console.log("E", e.detail);
+            handleOnClick(e, folder, folder.data.path, "folder");
           }}
           onContextMenu={(e) => {
-            handleOnClick(e, folder, folderName, folder.data.path, "folder");
+            handleOnClick(e, folder, folder.data.path, "folder");
           }}
           onMouseDown={() => {
             handleOnMouseDown();
@@ -124,7 +118,14 @@ export const SubFolderCard = ({
                 <FolderIcon />
               </SplitItem>
               <SplitItem>
-                <Button variant="link" style={{ padding: 0 }}>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFolderClick(folderName);
+                  }}
+                  variant="link"
+                  style={{ padding: 0 }}
+                >
                   {elipses(folderName, 40)}
                 </Button>
                 <div>{new Date(creation_date).toDateString()}</div>
