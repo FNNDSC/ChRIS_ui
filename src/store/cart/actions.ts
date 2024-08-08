@@ -51,6 +51,11 @@ export const startUpload = (payload: UploadPayload) =>
 export const startAnonymize = (payload: OperationPayload) =>
   action(ICartActionTypes.START_ANONYMIZE, payload);
 
+export const createFeed = (payload: {
+  payload: SelectionPayload[];
+  type: string;
+}) => action(ICartActionTypes.CREATE_FEED, payload);
+
 export const setFileUploadStatus = (payload: {
   step: string;
   fileName: string;

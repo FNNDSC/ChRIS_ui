@@ -26,6 +26,8 @@ import {
   CodeBranchIcon,
   DeleteIcon,
   DownloadIcon,
+  DuplicateIcon,
+  MergeIcon,
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
 
@@ -100,15 +102,19 @@ const items = [
   { key: "newFolder", label: "New Folder" },
   { key: "fileUpload", label: "File Upload" },
   { key: "folderUpload", label: "Folder Upload" },
-  { key: "createGroup", label: "Create a Group" },
 ];
 
 const Operations = React.forwardRef(
   (
     {
-      folderList,
+      inValidateFolders,
       computedPath,
-    }: { folderList?: FileBrowserFolderList; computedPath: string },
+      folderList,
+    }: {
+      inValidateFolders: () => void;
+      computedPath?: string;
+      folderList?: FileBrowserFolderList;
+    },
     ref,
   ) => {
     const dispatch = useDispatch();
@@ -124,7 +130,7 @@ const Operations = React.forwardRef(
       contextHolder,
       setUserErrors,
       setModalInfo,
-    } = useFolderOperations(computedPath, folderList);
+    } = useFolderOperations(inValidateFolders, computedPath, folderList);
 
     useImperativeHandle(ref, () => ({
       triggerFileUpload: () => {
@@ -199,6 +205,26 @@ const Operations = React.forwardRef(
                 onClick={() => handleOperations("anonymize")}
               >
                 Anonymize
+              </Button>
+            </ToolbarItem>
+            <ToolbarItem>
+              <Button
+                icon={<MergeIcon />}
+                variant="primary"
+                onClick={() => handleOperations("merge")}
+                size="sm"
+              >
+                Merge
+              </Button>
+            </ToolbarItem>
+            <ToolbarItem>
+              <Button
+                icon={<DuplicateIcon />}
+                variant="primary"
+                size="sm"
+                onClick={() => handleOperations("duplicate")}
+              >
+                Make a copy
               </Button>
             </ToolbarItem>
             <ToolbarItem>

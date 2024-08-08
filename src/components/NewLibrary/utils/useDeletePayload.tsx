@@ -9,18 +9,10 @@ import { ErrorAlert } from "../../Common";
 
 type DeletionErrors = { path: string; message: string }[];
 
-const useDeletePayload = (computedPath: string, api: any) => {
-  const queryClient = useQueryClient();
+const useDeletePayload = (inValidateFolders: () => void, api: any) => {
   const dispatch = useDispatch();
   const [deletionErrors, setDeletionErrors] = useState<DeletionErrors>([]);
   const [notificationKey, setNotificationKey] = useState<string | null>(null);
-
-  const invalidateFolders = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ["library_folders", computedPath],
-    });
-  };
-
   const handleDelete = async (paths: SelectionPayload[]) => {
     const errors: DeletionErrors = [];
     const successfulPaths: string[] = [];
@@ -47,7 +39,7 @@ const useDeletePayload = (computedPath: string, api: any) => {
       }),
     );
 
-    await invalidateFolders();
+    inValidateFolders();
     successfulPaths.forEach((path) => dispatch(clearSelectFolder(path)));
 
     return errors.length > 0 ? errors : null;

@@ -16,6 +16,7 @@ import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Pagination = {
   totalCount: number;
@@ -57,6 +58,7 @@ export const SubFolderCard = ({
   computedPath: string;
   handleFolderClick: (path: string) => void;
 }) => {
+  const queryClient = useQueryClient();
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
@@ -73,7 +75,13 @@ export const SubFolderCard = ({
 
   return (
     <GridItem xl={3} lg={4} xl2={3} md={6} sm={12} key={folder.data.id}>
-      <FolderContextMenu folderPath={computedPath}>
+      <FolderContextMenu
+        inValidateFolders={() => {
+          queryClient.invalidateQueries({
+            queryKey: ["library_folders", computedPath],
+          });
+        }}
+      >
         <Card
           style={{
             background: selectedBgRow,
@@ -85,7 +93,6 @@ export const SubFolderCard = ({
           isCompact
           isFlat
           onClick={(e) => {
-            console.log("E", e.detail);
             handleOnClick(e, folder, folder.data.path, "folder");
           }}
           onContextMenu={(e) => {

@@ -4,7 +4,11 @@ import type {
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import { Button, Grid, PageSection } from "@patternfly/react-core";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Alert, Typography } from "antd";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
@@ -14,13 +18,14 @@ import { useTypedSelector } from "../../store/hooks";
 import { EmptyStateComponent, InfoIcon, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./components/BreadcrumbContainer";
-import "./components/Card.css";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import Operations from "./components/Operations";
+
 const { Paragraph } = Typography;
 
 const NewLibrary = () => {
+  // Fetch folders from the server
   async function fetchFolders(computedPath: string, pageNumber: number) {
     const client = ChrisAPIClient.getClient();
     await client.setUrls();
@@ -87,7 +92,9 @@ const NewLibrary = () => {
       throw e;
     }
   }
+
   const { pathname } = useLocation();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -102,7 +109,7 @@ const NewLibrary = () => {
     structuralSharing: true,
   });
 
-  // Redirect to /library/home/username if pathname is /library and it's the first load
+  // Redirect to /library/home/username if the pathname is /library and  this is the first load of the page
   useEffect(() => {
     if (isFirstLoad && pathname === "/library") {
       navigate(`/library/home/${username}`, { replace: true });
@@ -115,6 +122,7 @@ const NewLibrary = () => {
     data?.filesPagination.hasNextPage ||
     data?.linksPagination.hasNextPage;
 
+  // Set up an intersection observer to load more data when the user scrolls to the bottom of the page
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -136,11 +144,13 @@ const NewLibrary = () => {
     };
   }, [fetchMore]);
 
+  // Debounce the folder click event to avoid multiple clicks
   const handleFolderClick = debounce((folder: string) => {
     const url = `${decodedPath}/${folder}`;
     navigate(url);
   }, 500);
 
+  // Handle pagination by incrementing the page number
   const handlePagination = () => {
     setPageNumber((prevState) => prevState + 1);
   };
@@ -151,6 +161,7 @@ const NewLibrary = () => {
   if (isFirstLoad && pathname === "/library") {
     return null;
   }
+
   return (
     <WrapperConnect>
       <PageSection>
@@ -175,7 +186,15 @@ const NewLibrary = () => {
           }
         />
 
-        <Operations folderList={data?.folderList} computedPath={computedPath} />
+        <Operations
+          inValidateFolders={() => {
+            queryClient.invalidateQueries({
+              queryKey: ["library_folders", computedPath],
+            });
+          }}
+          computedPath={computedPath}
+          folderList={data?.folderList}
+        />
         <BreadcrumbContainer
           path={computedPath}
           handleFolderClick={(path: string) => {
@@ -218,15 +237,12 @@ const NewLibrary = () => {
                 Load more data...
               </Button>
             )}
-            {
-              // This code needs to be revisited
-              <div
-                style={{
-                  height: "10px",
-                }}
-                ref={observerTarget}
-              />
-            }
+            <div
+              style={{
+                height: "10px",
+              }}
+              ref={observerTarget}
+            />
           </Grid>
         ) : (
           <EmptyStateComponent title="No data fetched yet..." />

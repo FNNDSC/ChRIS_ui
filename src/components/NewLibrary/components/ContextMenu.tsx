@@ -12,11 +12,11 @@ import { AddModal } from "./Operations";
 
 export const FolderContextMenu = ({
   children,
-  folderPath,
+  inValidateFolders,
   folderList,
 }: {
   children: React.ReactElement;
-  folderPath: string;
+  inValidateFolders: () => void;
   folderList?: FileBrowserFolderList;
 }) => {
   const {
@@ -27,7 +27,7 @@ export const FolderContextMenu = ({
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(folderPath, folderList);
+  } = useFolderOperations(inValidateFolders, "", folderList);
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
