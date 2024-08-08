@@ -1,7 +1,7 @@
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
-import { HierarchyPointNode } from "d3-hierarchy";
+import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { Fragment, memo, useContext, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
@@ -19,9 +19,10 @@ import AddPipeline from "../AddPipeline/AddPipeline";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import DeleteNode from "../DeleteNode";
 import { PipelineProvider } from "../PipelinesCopy/context";
-import { FeedTreeScaleType } from "./Controls";
+import type { FeedTreeScaleType } from "./Controls";
 import DropdownMenu from "./DropdownMenu";
-import TreeNodeDatum, { Datum, Point } from "./data";
+import type TreeNodeDatum from "./data";
+import type { Datum, Point } from "./data";
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[];

@@ -1,6 +1,7 @@
-import { Reducer } from "redux";
-import { IUserState, UserActionTypes } from "./types";
+import { produce } from "immer";
 import { Cookies } from "react-cookie";
+import type { Reducer } from "redux";
+import { type IUserState, UserActionTypes } from "./types";
 
 const cookie = new Cookies();
 const user = cookie.get("username");
@@ -12,47 +13,39 @@ const initialState: IUserState = {
   username: user,
   token: token,
   isRememberMe: false,
-  isLoggedIn: token ? true : false,
-  isStaff: isStaff || false,
+  isLoggedIn: !!token,
+  isStaff: !!isStaff,
 };
 
-// ***** NOTE: Working *****
-const reducer: Reducer<IUserState> = (
-  state = initialState,
-  action: typeof UserActionTypes,
-) => {
-  switch (action.type) {
-    case UserActionTypes.SET_TOKEN_SUCCESS: {
-      return {
-        ...state,
-        username: action.payload.username,
-        token: action.payload.token,
-        isLoggedIn: true,
-        isStaff: action.payload.isStaff,
-      };
+const reducer: Reducer<IUserState, { type: string; payload?: any }> = produce(
+  (draft: IUserState, action) => {
+    switch (action.type) {
+      case UserActionTypes.SET_TOKEN_SUCCESS: {
+        draft.username = action.payload.username;
+        draft.token = action.payload.token;
+        draft.isLoggedIn = true;
+        draft.isStaff = action.payload.isStaff;
+        break;
+      }
+      case UserActionTypes.SET_TOKEN_ERROR: {
+        draft.username = null;
+        draft.token = null;
+        draft.isLoggedIn = false;
+        draft.isStaff = false;
+        break;
+      }
+      case UserActionTypes.SET_LOGOUT_USER_SUCCESS: {
+        draft.username = null;
+        draft.token = null;
+        draft.isLoggedIn = false;
+        draft.isStaff = false;
+        break;
+      }
+      default:
+        return draft;
     }
-    case UserActionTypes.SET_TOKEN_ERROR: {
-      return {
-        ...state,
-        username: null,
-        token: null,
-        isLoggedIn: false,
-        isStaff: false,
-      };
-    }
-    case UserActionTypes.SET_LOGOUT_USER_SUCCESS: {
-      return {
-        ...state,
-        username: null,
-        token: null,
-        isLoggedIn: false,
-        isStaff: false,
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-};
+  },
+  initialState,
+);
 
 export { reducer as userReducer };

@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import type React from "react";
+import { createContext, useContext, useReducer, useEffect } from "react";
 
 interface ThemeContextType {
   isDarkTheme: boolean;
@@ -36,8 +37,7 @@ const themeReducer = (
 
 const ThemeContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [themeState, dispatch] = useReducer(themeReducer, {
-    isDarkTheme:
-      localStorage.getItem(THEME_STORAGE_KEY) === "light" ? false : true,
+    isDarkTheme: localStorage.getItem(THEME_STORAGE_KEY) !== "light",
   });
 
   // Add a useEffect to update the HTML class and local storage based on the theme state

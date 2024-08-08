@@ -5,9 +5,8 @@ import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
-import LibraryCopyPage from "./components/LibraryCopy";
-import LibrarySearch from "./components/LibrarySearch";
 import Login from "./components/Login";
+import LibraryCopyPage from "./components/NewLibrary";
 import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import NotFound from "./components/NotFound";
 import Pacs from "./components/Pacs";
@@ -79,19 +78,6 @@ export const MainRouter: React.FC = () => {
         </PrivateRoute>
       ),
     },
-    {
-      path: "librarysearch/*",
-      element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <LibrarySearch />
-          </RouterProvider>
-        </PrivateRoute>
-      ),
-    },
 
     {
       path: "feeds/*",
@@ -154,10 +140,12 @@ export const MainRouter: React.FC = () => {
       path: "dataset/:feedName?",
       element: <DatasetRedirect />,
     },
+
     {
       path: "niivue/:plinstId",
       element: <NiivueDatasetViewerPage />,
     },
+
     {
       path: "store",
       element: <Store />,

@@ -5,7 +5,12 @@
  *  Notes:           Work in progres ...
  */
 import keyMirror from "keymirror";
-import { PluginInstance, FeedFile } from "@fnndsc/chrisapi";
+
+import type {
+  PluginInstance,
+  FileBrowserFolderLinkFile,
+  FileBrowserFolderFile,
+} from "@fnndsc/chrisapi";
 
 type Return = {
   status: boolean;
@@ -53,10 +58,17 @@ export interface ResourcePayload {
   pluginLog?: Logs;
 }
 
+export interface FetchFileResult {
+  folderFiles: FileBrowserFolderFile[];
+  linkFiles: FileBrowserFolderLinkFile[];
+  children: any[];
+}
+
 export interface FilesPayload {
   [id: string]: {
-    files: FeedFile[];
-    folders: string[];
+    folderFiles: FileBrowserFolderFile[];
+    children: any[];
+    linkFiles: FileBrowserFolderLinkFile[];
     error: any;
     path: string;
   };

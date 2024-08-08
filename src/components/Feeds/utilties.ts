@@ -1,4 +1,4 @@
-import { DrawerPayloadType, IDrawerState } from "../../store/drawer/types";
+import type { DrawerPayloadType, IDrawerState } from "../../store/drawer/types";
 import { setDrawerState } from "../../store/drawer/actions";
 import type { Dispatch } from "redux";
 import ChrisAPIClient from "../../api/chrisapiclient";

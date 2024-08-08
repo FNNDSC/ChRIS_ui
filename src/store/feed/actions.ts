@@ -1,5 +1,5 @@
 import { action } from "typesafe-actions";
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import { FeedActionTypes } from "./types";
 
 export const getFeedSuccess = (item: Feed) =>
@@ -12,7 +12,6 @@ export const setTranslate = (translate: { x: number; y: number }) =>
   action(FeedActionTypes.TRANSLATE_PROP, translate);
 
 export const setFeedLayout = () => action(FeedActionTypes.SET_LAYOUT);
-
 export const resetFeed = () => action(FeedActionTypes.RESET_FEED);
 
 export const setBulkSelect = (feeds: Feed[], selectAllToggle: boolean) =>

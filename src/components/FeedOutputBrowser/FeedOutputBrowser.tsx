@@ -4,7 +4,6 @@ import {
   EmptyStateVariant,
   Title,
 } from "@patternfly/react-core";
-import React from "react";
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import FileBrowser from "./FileBrowser";
 import { SpinContainer } from "../Common";

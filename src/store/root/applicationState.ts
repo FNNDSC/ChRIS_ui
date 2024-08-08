@@ -1,18 +1,19 @@
+import type { ICartState } from "../cart/types";
 /*
  *   File:           applicationState.ts
  *   Description:    this is where the ApplicationState and supporting interfaces comes together:
  *   Author:         ChRIS UI
  */
-import { IDrawerState } from "../drawer/types";
-import { IExplorerState } from "../explorer/types";
-import { IFeedState } from "../feed/types";
-import { IPluginState } from "../plugin/types";
-import { IPluginInstanceState } from "../pluginInstance/types";
-import { IResourceState } from "../resources/types";
-import { ITSPluginState } from "../tsplugins/types";
-import { IUiState } from "../ui/types";
-import { IUserState } from "../user/types";
-import rootReducer from "./rootReducer";
+import type { IDrawerState } from "../drawer/types";
+import type { IExplorerState } from "../explorer/types";
+import type { IFeedState } from "../feed/types";
+import type { IPluginState } from "../plugin/types";
+import type { IPluginInstanceState } from "../pluginInstance/types";
+import type { IResourceState } from "../resources/types";
+import type { ITSPluginState } from "../tsplugins/types";
+import type { IUiState } from "../ui/types";
+import type { IUserState } from "../user/types";
+import type rootReducer from "./rootReducer";
 
 export interface ApplicationState {
   ui: IUiState;
@@ -24,6 +25,7 @@ export interface ApplicationState {
   tsPlugins: ITSPluginState;
   drawerState: IDrawerState;
   explorer: IExplorerState;
+  cart: ICartState;
 }
 
 export type RootState = ReturnType<typeof rootReducer>;

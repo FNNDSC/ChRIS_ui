@@ -1,4 +1,4 @@
-import type { Feed } from "@fnndsc/chrisapi";
+import type { Feed, FileBrowserFolder } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
   Bullseye,
@@ -13,24 +13,17 @@ import {
   Skeleton,
   ToggleGroup,
   ToggleGroupItem,
-  ToggleGroupItemProps,
-  Tooltip,
+  type ToggleGroupItemProps,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useQuery } from "@tanstack/react-query";
-import { Typography } from "antd";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Tooltip, Typography } from "antd";
 import { cujs } from "chris-utility";
 import { format } from "date-fns";
-import React, { useContext } from "react";
+import type React from "react";
+import { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import {
-  removeAllSelect,
-  removeBulkSelect,
-  setAllSelect,
-  setBulkSelect,
-  toggleSelectAll,
-} from "../../store/feed/actions";
 import { useTypedSelector } from "../../store/hooks";
 import { setSidebarActive } from "../../store/ui/actions";
 import { AddNodeProvider } from "../AddNode/context";
@@ -38,31 +31,26 @@ import { DataTableToolbar, InfoIcon } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import IconContainer from "../IconContainer";
-import { SearchIcon } from "../Icons";
+import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
+import Operations from "../NewLibrary/components/Operations";
+import useLongPress from "../NewLibrary/utils/longpress";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
-import { usePaginate, useSearchQueryParams } from "./usePaginate";
+import { useSearchQueryParams } from "./usePaginate";
 import { fetchFeeds, fetchPublicFeeds } from "./utilties";
 
 const { Paragraph } = Typography;
 
-function useSearchQuery(query: URLSearchParams) {
-  const page = query.get("page") || 1;
-  const search = query.get("search") || "";
-  const searchType = query.get("searchType") || "name";
-  const perPage = query.get("perPage") || 14;
-  const type = query.get("type") || "public";
+const useSearchQuery = (query: URLSearchParams) => ({
+  page: query.get("page") || "1",
+  search: query.get("search") || "",
+  searchType: query.get("searchType") || "name",
+  perPage: query.get("perPage") || "14",
+  type: query.get("type") || "public",
+});
 
-  return {
-    page,
-    perPage,
-    search,
-    searchType,
-    type,
-  };
-}
-const TableSelectable: React.FunctionComponent = () => {
+const TableSelectable: React.FC = () => {
+  const queryClient = useQueryClient();
   const query = useSearchQueryParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -72,9 +60,10 @@ const TableSelectable: React.FunctionComponent = () => {
   const { perPage, page, type, search, searchType } = searchFolderData;
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["feeds", searchFolderData],
+    queryKey: ["feeds", perPage, page, type, search, searchType],
     queryFn: () => fetchFeeds(searchFolderData),
     enabled: type === "private",
+    refetchOnMount: true,
   });
 
   const {
@@ -82,23 +71,17 @@ const TableSelectable: React.FunctionComponent = () => {
     isLoading: publicFeedLoading,
     isFetching: publicFeedFetching,
   } = useQuery({
-    queryKey: ["publicFeeds", searchFolderData],
+    queryKey: ["publicFeeds", perPage, page, type, search, searchType],
     queryFn: () => fetchPublicFeeds(searchFolderData),
     enabled: type === "public",
+    refetchOnMount: true,
   });
 
-  const authenticatedFeeds = data ? data.feeds : [];
-  const publicFeedsToDisplay = publicFeeds ? publicFeeds.feeds : [];
-
   const feedsToDisplay =
-    type === "private" ? authenticatedFeeds : publicFeedsToDisplay;
-
-  const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed,
-  );
+    type === "private" ? data?.feeds || [] : publicFeeds?.feeds || [];
 
   const onSetPage = (
-    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPage: number,
   ) => {
     navigate(
@@ -107,7 +90,7 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   const onPerPageSelect = (
-    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPerPage: number,
     newPage: number,
   ) => {
@@ -120,33 +103,19 @@ const TableSelectable: React.FunctionComponent = () => {
     navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
   };
 
-  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (
-    event,
-    _isSelected,
-  ) => {
+  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
     const id = event.currentTarget.id;
-
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${1}&perPage=${perPage}&type=${id}`,
+      `/feeds?search=${search}&searchType=${searchType}&page=1&perPage=${perPage}&type=${id}`,
     );
   };
 
-  const bulkData = React.useRef<Feed[]>();
-  bulkData.current = bulkSelect;
-
-  React.useEffect(() => {
+  useEffect(() => {
     document.title = "All Analyses - ChRIS UI ";
-    dispatch(
-      setSidebarActive({
-        activeItem: "analyses",
-      }),
-    );
-    if (bulkData?.current) {
-      dispatch(removeAllSelect(bulkData.current));
-    }
+    dispatch(setSidebarActive({ activeItem: "analyses" }));
   }, [dispatch]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!type || (!isLoggedIn && type === "private")) {
       navigate(
         `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=public`,
@@ -165,16 +134,16 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   const feedCount =
-    type === "private"
-      ? data?.totalFeedsCount === -1
-        ? 0
-        : data?.totalFeedsCount
-      : publicFeeds?.totalFeedsCount === -1
-        ? 0
-        : publicFeeds?.totalFeedsCount;
+    type === "private" ? data?.totalFeedsCount : publicFeeds?.totalFeedsCount;
 
   const loadingFeedState =
     isLoading || isFetching || publicFeedLoading || publicFeedFetching;
+
+  const inValidateFolders = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["feeds"],
+    });
+  };
 
   const generatePagination = (feedCount?: number) => {
     if (!feedCount && loadingFeedState) {
@@ -193,122 +162,88 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   return (
-    <React.Fragment>
-      <WrapperConnect>
-        <PageSection className="feed-header">
-          <InfoIcon
-            data-test-id="analysis-count"
-            title={`New and Existing Analyses (${
-              !feedCount && loadingFeedState
-                ? "Fetching..."
-                : feedCount === -1
-                  ? 0
-                  : feedCount
-            })`}
-            p1={
-              <Paragraph>
-                Analyses (aka ChRIS feeds) are computational experiments where
-                data are organized and processed by ChRIS plugins. In this view
-                you may view your analyses and also the ones shared with you.
-              </Paragraph>
-            }
+    <WrapperConnect>
+      <PageSection className="feed-header">
+        <InfoIcon
+          data-test-id="analysis-count"
+          title={`New and Existing Analyses (${
+            !feedCount && loadingFeedState
+              ? "Fetching..."
+              : feedCount === -1
+                ? 0
+                : feedCount
+          })`}
+          p1={
+            <Paragraph>
+              Analyses (aka ChRIS feeds) are computational experiments where
+              data are organized and processed by ChRIS plugins. In this view
+              you may view your analyses and also the ones shared with you.
+            </Paragraph>
+          }
+        />
+        <CreateFeedProvider>
+          <PipelineProvider>
+            <AddNodeProvider>
+              <CreateFeed />
+            </AddNodeProvider>
+          </PipelineProvider>
+        </CreateFeedProvider>
+      </PageSection>
+      <PageSection>
+        <ToggleGroup aria-label="Default with single selectable">
+          <ToggleGroupItem
+            text="Private Feeds"
+            buttonId="private"
+            isSelected={type === "private"}
+            onChange={onExampleTypeChange}
+            isDisabled={!isLoggedIn}
           />
-          <CreateFeedProvider>
-            <PipelineProvider>
-              <AddNodeProvider>
-                <CreateFeed />
-              </AddNodeProvider>
-            </PipelineProvider>
-          </CreateFeedProvider>
-        </PageSection>
-        <PageSection className="feed-list">
-          <div className="feed-list__split">
-            <div>
-              <ToggleGroup aria-label="Default with single selectable">
-                <ToggleGroupItem
-                  text="Private Feeds"
-                  buttonId="private"
-                  isSelected={type === "private"}
-                  onChange={onExampleTypeChange}
-                  isDisabled={!isLoggedIn}
+          <ToggleGroupItem
+            text="Public Feeds"
+            buttonId="public"
+            isSelected={type === "public"}
+            onChange={onExampleTypeChange}
+          />
+        </ToggleGroup>
+        <DataTableToolbar
+          onSearch={handleFilterChange}
+          label="Filter by name"
+          searchType={searchType}
+          search={search}
+        />
+        <Operations inValidateFolders={inValidateFolders} />
+        {loadingFeedState ? (
+          <LoadingTable />
+        ) : feedsToDisplay.length > 0 ? (
+          <Table variant="compact" aria-label="Feed Table">
+            <Thead>
+              <Tr>
+                <Th />
+                {Object.values(columnNames).map((name) => (
+                  <Th key={name}>{name}</Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {feedsToDisplay.map((feed, rowIndex) => (
+                <TableRow
+                  key={feed.data.id}
+                  feed={feed}
+                  rowIndex={rowIndex}
+                  columnNames={columnNames}
+                  allFeeds={feedsToDisplay}
+                  type={type}
+                  inValidateFolders={inValidateFolders}
                 />
-                <ToggleGroupItem
-                  text="Public Feeds"
-                  buttonId="public"
-                  isSelected={type === "public"}
-                  onChange={onExampleTypeChange}
-                />
-              </ToggleGroup>
-            </div>
-            {generatePagination(feedCount)}
-          </div>
-          <div className="feed-list__split">
-            <DataTableToolbar
-              onSearch={handleFilterChange}
-              label="Filter by name"
-              searchType={searchType}
-              search={search}
-            />
-
-            {feedsToDisplay && <IconContainer />}
-          </div>
-          {loadingFeedState ? (
-            <LoadingTable />
-          ) : feedsToDisplay.length > 0 ? (
-            <Table variant="compact" aria-label="Feed Table">
-              <Thead>
-                <Tr>
-                  <Th>
-                    <Checkbox
-                      id="test"
-                      isChecked={selectAllToggle}
-                      onChange={() => {
-                        if (!selectAllToggle) {
-                          if (data) {
-                            dispatch(setAllSelect(feedsToDisplay));
-                          }
-
-                          dispatch(toggleSelectAll(true));
-                        } else {
-                          if (data) {
-                            dispatch(removeAllSelect(feedsToDisplay));
-                          }
-                          dispatch(toggleSelectAll(false));
-                        }
-                      }}
-                    />
-                  </Th>
-                  <Th>{columnNames.id}</Th>
-                  <Th>{columnNames.analysis}</Th>
-                  <Th>{columnNames.created}</Th>
-                  <Th>{columnNames.creator}</Th>
-                  <Th>{columnNames.runtime}</Th>
-                  <Th>{columnNames.size}</Th>
-                  <Th>{columnNames.status}</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {feedsToDisplay.map((feed, rowIndex) => {
-                  return (
-                    <TableRow
-                      key={feed.data.id}
-                      feed={feed}
-                      rowIndex={rowIndex}
-                      bulkSelect={bulkSelect}
-                      columnNames={columnNames}
-                      allFeeds={feedsToDisplay}
-                      type={type}
-                    />
-                  );
-                })}
-              </Tbody>
-            </Table>
-          ) : (
-            <EmptyStateTable />
-          )}
-        </PageSection>
-      </WrapperConnect>
-    </React.Fragment>
+              ))}
+            </Tbody>
+          </Table>
+        ) : (
+          <EmptyStateTable />
+        )}
+        {generatePagination(feedCount)}
+      </PageSection>
+    </WrapperConnect>
   );
 };
 
@@ -318,7 +253,6 @@ interface TableRowProps {
   rowIndex: number;
   feed: Feed;
   allFeeds: Feed[];
-  bulkSelect: Feed[];
   columnNames: {
     id: string;
     analysis: string;
@@ -329,17 +263,19 @@ interface TableRowProps {
     status: string;
   };
   type: string;
+  inValidateFolders: () => void;
 }
 
-function TableRow({
+const TableRow: React.FC<TableRowProps> = ({
   feed,
-  allFeeds,
-  bulkSelect,
   columnNames,
-  type,
-}: TableRowProps) {
+  inValidateFolders,
+}) => {
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const { handlers } = useLongPress();
+  const { handleOnClick } = handlers;
   const navigate = useNavigate();
-  const [intervalMs, setIntervalMs] = React.useState(2000);
+  const [intervalMs, setIntervalMs] = useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
 
   const { data } = useQuery({
@@ -362,30 +298,133 @@ function TableRow({
         return {};
       }
     },
-
     refetchInterval: intervalMs,
   });
 
-  const feedResources = data || {};
+  const getFolderForThisFeed = async () => {
+    const payload = await feed.getFolder();
+    return payload;
+  };
 
-  const { id, name: feedName, creation_date, creator_username } = feed.data;
+  const details = data?.[feed.data.id].details;
+  const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
+  const backgroundRow =
+    details && details.progress < 100 && !details.error
+      ? backgroundColor
+      : "inherit";
+  const isSelected =
+    selectedPaths.length > 0 &&
+    selectedPaths.some((payload) => payload.path === feed.data.folder_path);
+  const selectedBgRow = isSelected ? backgroundColor : backgroundRow;
 
-  const { dispatch } = usePaginate();
-  const progress = feedResources[id]?.details.progress;
+  const onFeedNameClick = () => {
+    navigate(
+      `/feeds/${feed.data.id}?type=${feed.data.public ? "public" : "private"}`,
+    );
+  };
 
-  const size = feedResources[id]?.details.size;
-  const feedError = feedResources[id]?.details.error;
-  const runtime = feedResources[id]?.details.time;
+  return (
+    <FolderContextMenu inValidateFolders={inValidateFolders}>
+      <Tr
+        key={feed.data.id}
+        style={{
+          backgroundColor: selectedBgRow,
+        }}
+        data-test-id={`${feed.data.name}-test`}
+        onContextMenu={async (e) => {
+          const payload = await getFolderForThisFeed();
+          handleOnClick(e, payload, feed.data.folder_path, "folder");
+        }}
+        onClick={async (e) => {
+          const payload = await getFolderForThisFeed();
+          handleOnClick(e, payload, feed.data.folder_path, "folder");
+        }}
+      >
+        <Td>
+          <BulkCheckbox
+            feed={feed}
+            getFolderForThisFeed={getFolderForThisFeed}
+            isSelected={isSelected}
+          />
+        </Td>
+        <Td dataLabel={columnNames.id}>{feed.data.id}</Td>
+        <Td dataLabel={columnNames.analysis}>
+          <FeedInfoColumn feed={feed} onClick={onFeedNameClick} />
+        </Td>
+        <Td dataLabel={columnNames.created}>
+          {format(new Date(feed.data.creation_date), "dd MMM yyyy, HH:mm")}
+        </Td>
+        <Td dataLabel={columnNames.creator}>{feed.data.owner_username}</Td>
+        <Td dataLabel={columnNames.runtime}>
+          {data?.[feed.data.id].details.time}
+        </Td>
+        <Td dataLabel={columnNames.size}>
+          {data?.[feed.data.id].details.size}
+        </Td>
+        <Td dataLabel={columnNames.status}>
+          <DonutUtilization details={data?.[feed.data.id].details} />
+        </Td>
+      </Tr>
+    </FolderContextMenu>
+  );
+};
 
-  const feedProgressText = feedResources[id]?.details.feedProgressText;
+const BulkCheckbox = ({
+  feed,
+  getFolderForThisFeed,
+  isSelected,
+}: {
+  feed: Feed;
+  getFolderForThisFeed: () => Promise<FileBrowserFolder>;
+  isSelected: boolean;
+}) => {
+  const { handlers } = useLongPress();
+  const handleCheckboxChange = handlers.handleCheckboxChange;
 
-  let threshold = Infinity;
+  return (
+    <Checkbox
+      className={`${feed.data.name}-checkbox`}
+      isChecked={isSelected}
+      id={feed.data.id}
+      aria-label={`${feed.data.name}-checkbox`}
+      onClick={(e) => e.stopPropagation()}
+      onChange={async (event) => {
+        const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
+        const payload = await getFolderForThisFeed();
 
-  // If error in a feed => reflect in progres
+        // Create a new event object with the captured properties
+        const newEvent = {
+          ...event,
+          stopPropagation: () => event.stopPropagation(),
+          preventDefault: () => event.preventDefault(),
+          currentTarget: { ...event.currentTarget, checked: isChecked },
+        };
 
+        // Pass the new event object to the handler function
+        handleCheckboxChange(
+          newEvent,
+          feed.data.folder_path,
+          payload,
+          "folder",
+        );
+      }}
+    />
+  );
+};
+
+const DonutUtilization = (props: {
+  details: any;
+}) => {
+  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
+  const { details } = props;
+
+  if (!details) {
+    return <div>N/A</div>;
+  }
+  let threshold = Number.POSITIVE_INFINITY;
+  const { progress, error: feedError, feedProgressText } = details;
   let title = `${progress ? progress : 0}%`;
   let color = "blue";
-
   if (feedError) {
     color = "#ff0000";
     threshold = progress;
@@ -396,7 +435,6 @@ function TableRow({
     color = "#00ff00";
     title = "❌";
   }
-
   // If progress less than 100%, display green
   if (progress < 100 && !feedError) {
     color = "#00ff00";
@@ -407,139 +445,63 @@ function TableRow({
   }
 
   const mode = isDarkTheme ? "dark" : "light";
-  const circularProgress = (
-    <div className={`chart ${mode}`}>
-      <ChartDonutUtilization
-        ariaTitle={feedProgressText}
-        data={{ x: "Analysis Progress", y: progress }}
-        height={125}
-        title={title}
-        thresholds={[{ value: threshold, color: color }]}
-        width={125}
-      />
-    </div>
-  );
 
-  const name = (
-    <Tooltip content={<div>View feed details</div>}>
-      <Button
-        variant="link"
-        onClick={() => {
-          navigate(`/feeds/${id}?type=${type}`);
-        }}
-      >
-        {feedName}
-      </Button>
+  return (
+    <Tooltip
+      placement="top"
+      title={`Progress: ${details.progress}%`}
+      overlayStyle={{ fontSize: "12px" }}
+    >
+      <div className={`chart ${mode}`}>
+        <ChartDonutUtilization
+          ariaTitle={feedProgressText}
+          data={{ x: "Analysis Progress", y: progress }}
+          height={125}
+          title={title}
+          thresholds={[{ value: threshold, color: color }]}
+          width={125}
+        />
+      </div>
     </Tooltip>
   );
+};
 
-  const created = (
-    <span>
-      {creation_date && (
-        <span>{format(new Date(creation_date), "dd MMM yyyy, HH:mm")}</span>
-      )}
-    </span>
+const EmptyStateTable = () => {
+  return (
+    <Bullseye>
+      <EmptyState variant={EmptyStateVariant.sm}>
+        <EmptyStateHeader
+          titleText="No results found"
+          icon={<EmptyStateIcon icon={InfoIcon} />}
+          headingLevel="h4"
+        />
+        <Button variant="link">Clear all filters and sorters</Button>
+      </EmptyState>
+    </Bullseye>
   );
-  const isSelected = (bulkSelect: any, feed: Feed) => {
-    for (const selectedFeed of bulkSelect) {
-      if (selectedFeed.data.id === feed.data.id) {
-        return true;
-      }
-    }
-    return false;
-  };
-  const bulkCheckbox = (
-    <Checkbox
-      isChecked={isSelected(bulkSelect, feed)}
-      id="check"
-      className={`${feed.data.name}-checkbox`}
-      aria-label={`${feed.data.name}-checkbox`}
-      onChange={() => {
-        if (!isSelected(bulkSelect, feed)) {
-          const newBulkSelect = [...bulkSelect, feed];
-          const selectAllToggle = newBulkSelect.length === allFeeds.length;
-          dispatch(setBulkSelect(newBulkSelect, selectAllToggle));
-        } else {
-          const filteredBulkSelect = bulkSelect.filter((selectedFeed) => {
-            return selectedFeed.data.id !== feed.data.id;
-          });
-          const selectAllToggle = filteredBulkSelect.length === allFeeds.length;
-          dispatch(removeBulkSelect(filteredBulkSelect, selectAllToggle));
-        }
-      }}
+};
+
+const LoadingTable = () => {
+  return (
+    <Skeleton
+      height="100%"
+      width="100%"
+      screenreaderText="Loading Feed Table"
     />
   );
+};
 
-  const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
-
-  const backgroundRow =
-    progress && progress < 100 && !feedError ? backgroundColor : "inherit";
-  const selectedBgRow = isSelected(bulkSelect, feed)
-    ? backgroundColor
-    : backgroundRow;
-
-  return (
-    <Tr
-      isSelectable
-      key={feed.data.id}
-      style={{
-        backgroundColor: selectedBgRow,
-      }}
-      data-test-id={`${feed.data.name}-test`}
-    >
-      <Td>{bulkCheckbox}</Td>
-      <Td dataLabel={columnNames.id}>{id}</Td>
-      <Td dataLabel={columnNames.analysis}>{name}</Td>
-      <Td dataLabel={columnNames.created}>{created}</Td>
-      <Td dataLabel={columnNames.creator}>{creator_username}</Td>
-      <Td dataLabel={columnNames.runtime}>{runtime}</Td>
-      <Td dataLabel={columnNames.size}>{size}</Td>
-      <Td dataLabel={columnNames.status}>{circularProgress}</Td>
-    </Tr>
-  );
-}
-
-function EmptyStateTable() {
-  return (
-    <Table variant="compact" aria-label="Empty Table">
-      <Thead>
-        <Tr>
-          <Th>ID</Th>
-          <Th>Analysis</Th>
-          <Th>Created</Th>
-          <Th>Creator</Th>
-          <Th>Run Time</Th>
-          <Th>Size</Th>
-          <Th>Status</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        <Tr>
-          <Td colSpan={12}>
-            <Bullseye>
-              <EmptyState variant={EmptyStateVariant.sm}>
-                <EmptyStateHeader
-                  icon={<EmptyStateIcon icon={SearchIcon} />}
-                  titleText="No results found"
-                  headingLevel="h2"
-                />
-              </EmptyState>
-            </Bullseye>
-          </Td>
-        </Tr>
-      </Tbody>
-    </Table>
-  );
-}
-
-function LoadingTable() {
-  return (
-    <div style={{ height: "100%" }}>
-      <Skeleton
-        aria-label="Loading Feed Table"
-        height="100%"
-        screenreaderText="Loading large rectangle contents"
-      />
-    </div>
-  );
-}
+const FeedInfoColumn = ({
+  feed,
+  onClick,
+}: { feed: Feed; onClick: (feed: Feed) => void }) => (
+  <Button
+    variant="link"
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick(feed);
+    }}
+  >
+    {feed.data.name}
+  </Button>
+);

@@ -1,5 +1,6 @@
-import { Reducer } from "redux";
-import { IFeedState, FeedActionTypes } from "./types";
+import { produce } from "immer";
+import type { Reducer } from "redux";
+import { type IFeedState, FeedActionTypes } from "./types";
 
 export const initialState: IFeedState = {
   currentFeed: {
@@ -24,123 +25,80 @@ export const initialState: IFeedState = {
   showToolbar: false,
 };
 
-const reducer: Reducer<IFeedState> = (
-  state = initialState,
-  action: typeof FeedActionTypes,
-) => {
-  switch (action.type) {
-    case FeedActionTypes.GET_FEED_SUCCESS: {
-      return {
-        ...state,
-        currentFeed: {
-          data: action.payload,
-          error: "",
-          loading: false,
-        },
-      };
+const reducer: Reducer<IFeedState> = produce(
+  (draft: IFeedState, action: typeof FeedActionTypes) => {
+    switch (action.type) {
+      case FeedActionTypes.GET_FEED_SUCCESS: {
+        draft.currentFeed.data = action.payload;
+        draft.currentFeed.error = "";
+        draft.currentFeed.loading = false;
+        break;
+      }
+
+      case FeedActionTypes.SET_LAYOUT: {
+        draft.currentLayout = !draft.currentLayout;
+        break;
+      }
+
+      case FeedActionTypes.TRANSLATE_PROP: {
+        draft.feedTreeProp.translate = action.payload;
+        break;
+      }
+
+      case FeedActionTypes.GET_FEED_TREE_PROP: {
+        const currentOrientation = action.payload;
+        draft.feedTreeProp.orientation =
+          currentOrientation === "horizontal" ? "vertical" : "horizontal";
+        break;
+      }
+
+      case FeedActionTypes.SET_ALL_SELECT: {
+        draft.bulkSelect = [...action.payload];
+        break;
+      }
+
+      case FeedActionTypes.BULK_SELECT: {
+        draft.bulkSelect = action.payload.feeds;
+        draft.selectAllToggle = action.payload.selectAllToggle;
+        break;
+      }
+
+      case FeedActionTypes.REMOVE_BULK_SELECT: {
+        draft.bulkSelect = action.payload.feeds;
+        draft.selectAllToggle = action.payload.selectAllToggle;
+        break;
+      }
+
+      case FeedActionTypes.SET_SEARCH_FILTER: {
+        draft.searchFilter.value = action.payload;
+        draft.searchFilter.status = !draft.searchFilter.status;
+        break;
+      }
+
+      case FeedActionTypes.TOGGLE_SELECT_ALL: {
+        draft.selectAllToggle = action.payload;
+        break;
+      }
+
+      case FeedActionTypes.REMOVE_ALL_SELECT: {
+        draft.bulkSelect = [];
+        break;
+      }
+
+      case FeedActionTypes.SHOW_TOOLBAR: {
+        draft.showToolbar = action.payload;
+        break;
+      }
+
+      case FeedActionTypes.RESET_FEED: {
+        return initialState;
+      }
+
+      default:
+        return draft;
     }
-
-    case FeedActionTypes.SET_LAYOUT: {
-      return {
-        ...state,
-        currentLayout: !state.currentLayout,
-      };
-    }
-
-    case FeedActionTypes.TRANSLATE_PROP: {
-      return {
-        ...state,
-        feedTreeProp: {
-          ...state.feedTreeProp,
-          translate: action.payload,
-        },
-      };
-    }
-
-    case FeedActionTypes.GET_FEED_TREE_PROP: {
-      const currentOrientation = action.payload;
-      if (currentOrientation === "horizontal")
-        return {
-          ...state,
-          feedTreeProp: {
-            ...state.feedTreeProp,
-            orientation: "vertical",
-          },
-        };
-
-      return {
-        ...state,
-        feedTreeProp: {
-          ...state.feedTreeProp,
-          orientation: "horizontal",
-        },
-      };
-    }
-
-    case FeedActionTypes.SET_ALL_SELECT: {
-      return {
-        ...state,
-        bulkSelect: [...action.payload],
-      };
-    }
-
-    case FeedActionTypes.BULK_SELECT: {
-      return {
-        ...state,
-        bulkSelect: action.payload.feeds,
-        selectAllToggle: action.payload.selectAllToggle,
-      };
-    }
-
-    case FeedActionTypes.REMOVE_BULK_SELECT: {
-      return {
-        ...state,
-        bulkSelect: action.payload.feeds,
-        selectAllToggle: action.payload.selectAllToggle,
-      };
-    }
-
-    case FeedActionTypes.SET_SEARCH_FILTER: {
-      return {
-        ...state,
-        searchFilter: {
-          ...state.searchFilter,
-          value: action.payload,
-          status: !state.searchFilter.status,
-        },
-      };
-    }
-
-    case FeedActionTypes.TOGGLE_SELECT_ALL: {
-      return {
-        ...state,
-        selectAllToggle: action.payload,
-      };
-    }
-
-    case FeedActionTypes.REMOVE_ALL_SELECT: {
-      return {
-        ...state,
-        bulkSelect: [],
-      };
-    }
-
-    case FeedActionTypes.SHOW_TOOLBAR: {
-      return {
-        ...state,
-        showToolbar: action.payload,
-      };
-    }
-
-    case FeedActionTypes.RESET_FEED: {
-      return {
-        ...initialState,
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+  },
+  initialState,
+);
 
 export { reducer as feedsReducer };

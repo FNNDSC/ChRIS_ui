@@ -1,6 +1,7 @@
-import { Reducer } from "redux";
-import { UiActionTypes, IUiState } from "./types";
+import { produce } from "immer";
+import type { Reducer } from "redux";
 import { UserActionTypes } from "../user/types";
+import { UiActionTypes, type IUiState } from "./types";
 
 // Type-safe initialState
 const initialState: IUiState = {
@@ -8,43 +9,39 @@ const initialState: IUiState = {
   progress: 0,
   isDropdownOpen: false,
   sidebarActiveItem: "overview",
-
   isNavOpen: true,
 };
 
-const reducer: Reducer<IUiState> = (
-  state = initialState,
-  action: typeof UserActionTypes,
-) => {
-  switch (action.type) {
-    case UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN: {
-      return { ...state, isDropdownOpen: action.payload };
-    }
+const reducer: Reducer<IUiState, { type: string; payload?: any }> = produce(
+  (draft: IUiState, action) => {
+    switch (action.type) {
+      case UiActionTypes.TOGGLE_TOOLBAR_DROPDOWN: {
+        draft.isDropdownOpen = action.payload;
+        break;
+      }
 
-    case UiActionTypes.TOGGLE_NAV: {
-      return { ...state, isNavOpen: action.payload };
-    }
-    case UiActionTypes.SET_SIDEBAR_ACTIVE_ITEM: {
-      return {
-        ...state,
-        sidebarActiveItem: action.payload.activeItem,
-      };
-    }
+      case UiActionTypes.TOGGLE_NAV: {
+        draft.isNavOpen = action.payload;
+        break;
+      }
 
-    case UserActionTypes.LOGOUT_USER: {
-      return {
-        ...state,
-        isDropdownOpen: false,
-        sidebarActiveItem: "overview",
-        sidebarActiveGroup: "overview",
-      };
-    }
+      case UiActionTypes.SET_SIDEBAR_ACTIVE_ITEM: {
+        draft.sidebarActiveItem = action.payload.activeItem;
+        break;
+      }
 
-    // TOGGLE_SIDEBAR
-    default: {
-      return state;
+      case UserActionTypes.LOGOUT_USER: {
+        draft.isDropdownOpen = false;
+        draft.sidebarActiveItem = "overview";
+        break;
+      }
+
+      default: {
+        return draft;
+      }
     }
-  }
-};
+  },
+  initialState,
+);
 
 export { reducer as uiReducer };

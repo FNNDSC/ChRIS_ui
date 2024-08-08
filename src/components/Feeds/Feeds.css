@@ -4,6 +4,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  padding-block-end: 0 !important;
 }
 
 .feed-list .error {

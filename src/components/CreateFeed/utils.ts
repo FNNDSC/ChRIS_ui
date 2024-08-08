@@ -1,9 +1,9 @@
-import type { PluginMeta, Tag, Pipeline, PluginPiping } from "@fnndsc/chrisapi";
-import { EventDataNode } from "rc-tree/lib/interface";
-import { DataBreadcrumb } from "./types/feed";
+import type { PluginMeta, Tag, Pipeline } from "@fnndsc/chrisapi";
+import type { EventDataNode } from "rc-tree/lib/interface";
+import type { DataBreadcrumb } from "./types/feed";
 import { fetchFilesFromAPath } from "../../store/resources/saga";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { fetchResource } from "../../api/common";
+import { fetchResource, fetchResources } from "../../api/common";
 
 export const fetchTagList = async () => {
   const client = ChrisAPIClient.getClient();
@@ -102,43 +102,23 @@ export const generateTreeNodes = async (
   return arr;
 };
 
-export async function fetchResources(pipelineInstance: Pipeline) {
-  const params = {
-    limit: 100,
-    offset: 0,
-  };
-
-  const pipelinePluginsFn = pipelineInstance.getPlugins;
-  const pipelineFn = pipelineInstance.getPluginPipings;
-  const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
-  const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const { resource: pluginPipings } = await fetchResource<PluginPiping>(
-    params,
-    boundPipelineFn,
-  );
-  const { resource: pipelinePlugins } = await fetchResource(
-    params,
-    boundPipelinePluginFn,
-  );
-  const parameters = await pipelineInstance.getDefaultParameters({
-    limit: 1000,
-  });
-
-  return {
-    parameters,
-    pluginPipings,
-    pipelinePlugins,
-  };
-}
-
 export const generatePipelineWithData = async (data: any) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstance: Pipeline = await client.createPipeline(data);
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 /**

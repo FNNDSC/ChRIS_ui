@@ -1,9 +1,9 @@
 import * as React from "react";
-import axios, { AxiosProgressEvent } from "axios";
+import axios, { type AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
-import {
+import type {
   Pipeline,
-  type PipelineList,
+  PipelineList,
   PluginPiping,
   Feed,
   Plugin,
@@ -11,6 +11,11 @@ import {
   ComputeResource,
 } from "@fnndsc/chrisapi";
 import { quote } from "shlex";
+
+export function elipses(str: string, len: number) {
+  if (str.length <= len) return str;
+  return `${str.slice(0, len - 3)}...`;
+}
 
 export function useSafeDispatch(dispatch: any) {
   const mounted = React.useRef(false);
@@ -61,7 +66,7 @@ function useAsync(initialState?: any) {
     (promise: any) => {
       if (!promise || !promise.then) {
         throw new Error(
-          `The argument passed to useAsync().run must be a promise`,
+          "The argument passed to useAsync().run must be a promise",
         );
       }
       safeSetState({ status: "pending" });
@@ -104,26 +109,32 @@ async function fetchResource<T>(
   },
   fn: any,
 ) {
-  let resourceList = await fn(params);
-  let resource: T[] = [];
-  if (resourceList.getItems()) {
-    resource = resourceList.getItems() as T[];
-  }
-  while (resourceList.hasNextPage) {
-    try {
+  try {
+    let resourceList = await fn(params);
+    let resource: T[] = [];
+    if (resourceList.getItems()) {
+      resource = resourceList.getItems() as T[];
+    }
+    while (resourceList.hasNextPage) {
       params.offset += params.limit;
       resourceList = await fn(params);
       if (resourceList.getItems()) {
         resource.push(...(resourceList.getItems() as T[]));
       }
-    } catch (e) {
-      console.error(e);
     }
+
+    return {
+      resource,
+      totalCount: resourceList.totalCount as number,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
   }
-  return {
-    resource,
-    totalCount: resourceList.totalCount as number,
-  };
 }
 
 export { useAsync, fetchResource };
@@ -226,18 +237,28 @@ export async function fetchResources(pipelineInstance: Pipeline) {
     params,
     boundPipelineFn,
   );
-  const { resource: pipelinePlugins }: { resource: Plugin[] } =
-    await fetchResource(params, boundPipelinePluginFn);
-  const parameters: PipelinePipingDefaultParameterList =
-    await pipelineInstance.getDefaultParameters({
-      limit: 1000,
-    });
 
-  return {
-    parameters,
-    pluginPipings,
-    pipelinePlugins,
-  };
+  try {
+    const { resource: pipelinePlugins }: { resource: Plugin[] } =
+      await fetchResource(params, boundPipelinePluginFn);
+    const parameters: PipelinePipingDefaultParameterList =
+      await pipelineInstance.getDefaultParameters({
+        limit: 1000,
+      });
+
+    return {
+      parameters,
+      pluginPipings,
+      pipelinePlugins,
+    };
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
+    // Handles api errors
+    const message = catchError(e).error_message;
+    throw new Error(message);
+  }
 }
 
 export const generatePipelineWithName = async (pipelineName: string) => {
@@ -247,23 +268,46 @@ export const generatePipelineWithName = async (pipelineName: string) => {
     name: pipelineName,
   });
   const pipelineInstanceId = pipelineInstanceList.data[0].id;
-  const pipelineInstance: Pipeline =
-    await client.getPipeline(pipelineInstanceId);
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+  const pipelineInstance: Pipeline = (await client.getPipeline(
+    pipelineInstanceId,
+  )) as Pipeline;
+
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 export const generatePipelineWithData = async (data: any) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstance: Pipeline = await client.createPipeline(data);
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 export async function fetchComputeInfo(
@@ -299,7 +343,7 @@ export async function fetchComputeInfo(
       return computeEnvData;
     }
   } catch (e) {
-    throw new Error("Error fetching the compoute Environment");
+    throw new Error("Error fetching the compute Environment");
   }
 }
 
@@ -311,7 +355,9 @@ export function catchError(errorRequest: any) {
   if (errorRequest.message) {
     return { error_message: errorRequest.message as string };
   }
-  return { error_message: errorRequest as string };
+  return {
+    error_message: "Unexpected Error: Please report at @devbabymri.org",
+  };
 }
 
 // A function to limit concurrency using Promise.allSettled.
@@ -400,7 +446,7 @@ export const uploadWrapper = (
   token: string,
   onUploadProgress?: (file: any, progressEvent: AxiosProgressEvent) => void,
 ) => {
-  const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
+  const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
   return localFiles.map((file) => {
     const onUploadProgressWrap = (progressEvent: AxiosProgressEvent) => {
       onUploadProgress?.(file, progressEvent);
@@ -453,3 +499,7 @@ export function needsQuoting(value: string) {
   const quotedValue = quote(value);
   return quotedValue !== value;
 }
+
+export const getFileName = (name: string) => {
+  return name.split("/").slice(-1).join("");
+};

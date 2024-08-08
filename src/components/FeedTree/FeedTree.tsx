@@ -1,13 +1,13 @@
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Alert, Switch, TextInput } from "@patternfly/react-core";
 import {
-  HierarchyPointLink,
-  HierarchyPointNode,
+  type HierarchyPointLink,
+  type HierarchyPointNode,
   hierarchy,
   tree,
 } from "d3-hierarchy";
-import { event, select } from "d3-selection";
-import { zoom as d3Zoom, zoomIdentity } from "d3-zoom";
+import { type Selection, select } from "d3-selection";
+import { type ZoomBehavior, zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { isEqual } from "lodash";
 import React, { useContext, useRef } from "react";
 import { useDispatch } from "react-redux";
@@ -20,11 +20,12 @@ import type { FeedTreeProp } from "../../store/feed/types";
 import { useTypedSelector } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { RotateLeft, RotateRight } from "../Icons";
-import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
+import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import Link from "./Link";
 import NodeWrapper from "./Node";
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
-import TreeNodeDatum, { OwnProps, Point } from "./data";
+import type TreeNodeDatum from "./data";
+import type { OwnProps, Point } from "./data";
 import useSize from "./useSize";
 
 type FeedTreeState = {
@@ -33,7 +34,6 @@ type FeedTreeState = {
     scale: number;
   };
   overlayScale: {
-    // overlay of individual nodes based on time or size
     enabled: boolean;
     type: FeedTreeScaleType;
   };
@@ -43,7 +43,7 @@ type FeedTreeState = {
 };
 
 function calculateD3Geometry(nextProps: OwnProps, feedTreeProp: FeedTreeProp) {
-  let scale: any;
+  let scale: number;
   if (nextProps.zoom > nextProps.scaleExtent.max) {
     scale = nextProps.scaleExtent.max;
   } else if (nextProps.zoom < nextProps.scaleExtent.min) {
@@ -200,13 +200,10 @@ const FeedTree = (props: OwnProps) => {
   );
 
   React.useEffect(() => {
-    //@ts-ignore
     if (size?.width) {
       if (orientation === "vertical") {
-        //@ts-ignore
         dispatch(setTranslate({ x: size.width / 2, y: 90 }));
       } else {
-        //@ts-ignore
         dispatch(setTranslate({ x: 180, y: size.height / 3 }));
       }
     }
@@ -218,29 +215,33 @@ const FeedTree = (props: OwnProps) => {
   );
 
   const { scale } = feedState.d3;
-  const { changeOrientation, zoom, scaleExtent } = props;
+  const { changeOrientation, scaleExtent } = props;
 
   const bindZoomListener = React.useCallback(() => {
     const { translate } = feedTreeProp;
-    const svg = select(`.${svgClassName}`);
-    const g = select(`.${graphClassName}`);
-
-    svg.call(
-      //@ts-ignore
-      d3Zoom().transform,
-      zoomIdentity.translate(translate.x, translate.y).scale(zoom),
+    const svg: Selection<SVGSVGElement, unknown, HTMLElement, any> = select(
+      `.${svgClassName}`,
+    );
+    const g: Selection<SVGGElement, unknown, HTMLElement, any> = select(
+      `.${graphClassName}`,
     );
 
-    svg.call(
-      //@ts-ignore
-      d3Zoom()
-        .scaleExtent([scaleExtent.min, scaleExtent.max])
-        .on("zoom", () => {
-          // This event is being imported from the d3 selection library
-          g.attr("transform", event.transform);
-        }),
-    );
-  }, [zoom, scaleExtent, feedTreeProp]);
+    const zoom: ZoomBehavior<SVGSVGElement, unknown> = d3Zoom<
+      SVGSVGElement,
+      unknown
+    >()
+      .scaleExtent([scaleExtent.min, scaleExtent.max])
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform);
+      });
+
+    svg
+      .call(zoom)
+      .call(
+        zoom.transform,
+        zoomIdentity.translate(translate.x, translate.y).scale(scale),
+      );
+  }, [scale, feedTreeProp]);
 
   React.useEffect(() => {
     bindZoomListener();
@@ -278,7 +279,6 @@ const FeedTree = (props: OwnProps) => {
     } else {
       setFeedState({
         ...feedState,
-        //@ts-ignore
         [feature]: !feedState[feature],
       });
     }

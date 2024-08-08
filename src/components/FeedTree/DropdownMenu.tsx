@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";
 import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
-import React from "react";
+import type React from "react";
 
 const DropdownMenu = ({
   children,

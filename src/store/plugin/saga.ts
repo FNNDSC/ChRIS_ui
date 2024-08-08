@@ -1,20 +1,20 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
+import type { IActionTypeParam } from "../../api/model";
 import { PluginActionTypes } from "./types";
-import { IActionTypeParam } from "../../api/model";
-
-import {
-  getParamsSuccess,
-  getComputeEnvSuccess,
-  getComputeEnvError,
-} from "./actions";
-import { PluginParameter } from "@fnndsc/chrisapi";
+import type { PluginParameter } from "@fnndsc/chrisapi";
 import { catchError, fetchResource } from "../../api/common";
+import {
+  getComputeEnvError,
+  getComputeEnvSuccess,
+  getParamsSuccess,
+} from "./actions";
 
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants, files and parameters on change
 // ------------------------------------------------------------------------
 
 function* handleGetParams(action: IActionTypeParam) {
+  // Todo: Seperate these fetch resources into seperate sagas
   try {
     const plugin = action.payload;
     const fn = plugin.getPluginParameters;
@@ -47,8 +47,12 @@ function* handleGetParams(action: IActionTypeParam) {
       put(getComputeEnvSuccess(computeEnvs)),
     ]);
   } catch (error: any) {
-    const errObject = catchError(error);
-    yield put(getComputeEnvError(errObject));
+    let errorMessage =
+      "Unhandled error. Please reach out to @devbabymri.org to report this error";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    yield put(getComputeEnvError(errorMessage));
   }
 }
 function* watchGetParams() {

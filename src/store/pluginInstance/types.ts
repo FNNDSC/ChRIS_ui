@@ -6,7 +6,7 @@
  */
 
 import keyMirror from "keymirror";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 
 export interface PluginInstanceObj {
   selected: PluginInstance;
@@ -15,7 +15,7 @@ export interface PluginInstanceObj {
 
 export interface PluginInstancePayload {
   data?: PluginInstance[];
-  error: any;
+  error: string;
   loading: boolean;
 }
 

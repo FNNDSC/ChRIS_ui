@@ -12,7 +12,7 @@ import {
 import brandImg from "../../assets/logo_chris_dashboard.png";
 import BarsIcon from "@patternfly/react-icons/dist/esm/icons/bars-icon";
 import ToolbarComponent from "./Toolbar";
-import { IUserState } from "../../store/user/types";
+import type { IUserState } from "../../store/user/types";
 import { useTypedSelector } from "../../store/hooks";
 
 const brand = (

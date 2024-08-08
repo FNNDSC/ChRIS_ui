@@ -1,10 +1,10 @@
-import { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { action } from "typesafe-actions";
 import {
-  AddNodePayload,
-  PluginInstanceObj,
+  type AddNodePayload,
+  type PluginInstanceObj,
   PluginInstanceTypes,
-  SplitNodesPayload,
+  type SplitNodesPayload,
 } from "./types";
 
 export const getSelectedPlugin = (item: PluginInstance) =>

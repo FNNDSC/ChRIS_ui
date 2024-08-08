@@ -1,10 +1,10 @@
 import { action } from "typesafe-actions";
 import {
   ResourceTypes,
-  PluginInstanceObj,
-  DestroyActiveResources,
+  type PluginInstanceObj,
+  type DestroyActiveResources,
 } from "./types";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 
 export const getPluginInstanceResources = (pluginInstances: PluginInstance[]) =>
   action(ResourceTypes.GET_PLUGIN_INSTANCE_RESOURCE_REQUEST, pluginInstances);
@@ -25,9 +25,7 @@ export const stopFetchingStatusResources = (id: number) =>
 export const getPluginFilesRequest = (payload: { id: number; path: string }) =>
   action(ResourceTypes.GET_PLUGIN_FILES_REQUEST, payload);
 export const getPluginFilesSuccess = (filesPayload: {
-  id: number;
-  files: any[];
-  folders: any[];
+  id: string;
   path: string;
 }) => action(ResourceTypes.GET_PLUGIN_FILES_SUCCESS, filesPayload);
 export const getPluginFilesError = (payload: { id: number; error: any }) =>

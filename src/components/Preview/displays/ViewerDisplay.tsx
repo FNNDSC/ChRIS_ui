@@ -1,18 +1,18 @@
-import * as React from "react";
-import { IFileBlob } from "../../../api/model";
+import type * as React from "react";
+import type { IFileBlob } from "../../../api/model";
+import type { ActionState } from "../FileDetailView";
 import {
   CatchallDisplay,
-  JsonDisplay,
+  DcmDisplay,
   IframeDisplay,
   ImageDisplay,
-  DcmDisplay,
-  PdfDisplay,
-  XtkDisplay,
-  TextDisplay,
+  JsonDisplay,
   NiiVueDisplay,
+  PdfDisplay,
+  TextDisplay,
   VideoDisplay,
+  XtkDisplay,
 } from "./index";
-import { ActionState } from "../FileDetailView";
 
 const components = {
   JsonDisplay,

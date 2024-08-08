@@ -1,4 +1,4 @@
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import keyMirror from "keymirror";
 
 export interface ITSPluginState {

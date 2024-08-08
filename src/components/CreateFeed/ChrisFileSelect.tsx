@@ -1,15 +1,15 @@
 import React, { useState, useContext, useCallback, useEffect } from "react";
 import { CreateFeedContext } from "./context";
 import { useWizardContext } from "@patternfly/react-core";
-import { EventDataNode, Key } from "rc-tree/lib/interface";
+import type { EventDataNode, Key } from "rc-tree/lib/interface";
 import { Tree, notification } from "antd";
 
 import {
   Types,
-  Info,
-  DataBreadcrumb,
-  ChrisFileSelectProp,
-  CheckedKeys,
+  type Info,
+  type DataBreadcrumb,
+  type ChrisFileSelectProp,
+  type CheckedKeys,
 } from "./types/feed";
 import { generateTreeNodes, getNewTreeData } from "./utils";
 import { isEmpty } from "lodash";
