@@ -75,6 +75,7 @@ export const ICartActionTypes = keyMirror({
   CLEAR_UPLOAD_STATE: null,
   SET_TOGGLE_CART: null,
   START_DOWNLOAD: null,
+  CREATE_FEED: null,
   SET_FILE_DOWNLOAD_STATUS: null,
   SET_FOLDER_DOWNLOAD_STATUS: null,
   START_UPLOAD: null,

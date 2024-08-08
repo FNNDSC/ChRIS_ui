@@ -62,6 +62,30 @@ const isFileBrowserFolder = (payload: any): payload is FileBrowserFolder => {
   return (payload as FileBrowserFolder).data?.path !== undefined;
 };
 
+function* createFeed(path: string[], feedName: string) {
+  const client = ChrisAPIClient.getClient();
+  const dircopy: Plugin | undefined = yield getPlugin("pl-dircopy") as Promise<
+    Plugin | undefined
+  >;
+  if (!dircopy) {
+    throw new Error("pl-dircopy was not registered");
+  }
+  const createdInstance: PluginInstance = yield client.createPluginInstance(
+    dircopy.data.id,
+    //@ts-ignore
+    { dir: path.length > 0 ? path.join(",") : path[0] },
+  ) as Promise<PluginInstance>;
+  if (!createdInstance) {
+    throw new Error("Failed to create an instance of pl-dircopy");
+  }
+  const feed = (yield createdInstance.getFeed()) as Feed;
+  if (!feed) {
+    throw new Error("Failed to create a Feed");
+  }
+  yield feed.put({ name: feedName });
+  return { createdInstance, feed };
+}
+
 function* downloadFolder(
   payload: FileBrowserFolder | FileBrowserFolderFile,
   username: string,
@@ -88,107 +112,79 @@ function* downloadFolder(
       `Failed to find the pipeline. Is this '${pipelineName}' registered?`,
     );
   }
-
   yield setStatus(type, id, "processing", path);
-
   const pipelines = pipelineList.getItems() as unknown as Pipeline[];
   const currentPipeline = pipelines[0];
+  try {
+    const feedName =
+      pipelineType === "Download Pipeline"
+        ? `Library Download for ${folderNameForFeed}`
+        : `Library Anonymize for ${folderNameForFeed}`;
+    const { feed, createdInstance } = yield call(createFeed, [path], feedName);
+    // Set Status
+    yield setStatus(type, id, "processing", path, "", feed);
+    // Add a workflow
+    const workflow: Workflow = yield client.createWorkflow(
+      currentPipeline.data.id,
+      //@ts-ignore
+      {
+        previous_plugin_inst_id: createdInstance.data.id,
+      },
+    );
 
-  const dircopy: Plugin | undefined = yield getPlugin("pl-dircopy") as Promise<
-    Plugin | undefined
-  >;
-
-  if (!dircopy) {
-    throw new Error("pl-dircopy was not registered");
-  }
-
-  const createdInstance: PluginInstance = yield client.createPluginInstance(
-    dircopy.data.id,
-    //@ts-ignore
-    { dir: path },
-  ) as Promise<PluginInstance>;
-
-  if (!createdInstance) {
-    throw new Error("Failed to create an instance of pl-dircopy");
-  }
-
-  const feed = (yield createdInstance.getFeed()) as Feed;
-
-  if (!feed) {
-    throw new Error("Failed to create a Feed");
-  }
-
-  const feedName =
-    pipelineType === "Download Pipeline"
-      ? `Library Download for ${folderNameForFeed}`
-      : `Library Anonymize for ${folderNameForFeed}`;
-
-  yield feed.put({ name: feedName });
-
-  // Set Status
-  yield setStatus(type, id, "processing", path, "", feed);
-
-  // Add a workflow
-  const workflow: Workflow = yield client.createWorkflow(
-    currentPipeline.data.id,
-    //@ts-ignore
-    {
-      previous_plugin_inst_id: createdInstance.data.id,
-    },
-  );
-
-  if (!workflow) {
-    throw new Error("Failed to create a workflow");
-  }
-
-  const pluginInstancesList: PluginInstanceList =
-    yield workflow.getPluginInstances();
-  const pluginInstances = pluginInstancesList.getItems() as PluginInstance[];
-  if (pluginInstances.length > 0) {
-    const zipInstance = pluginInstances[0];
-    let filePath = "";
-    if (pipelineType === "Download Pipeline") {
-      filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
-    } else {
-      const headerEditInstance = pluginInstances[1];
-      filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-dicom_headeredit_${headerEditInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
+    if (!workflow) {
+      throw new Error("Failed to create a workflow");
     }
-
-    const statusResource: ItemResource = yield zipInstance.get();
-    let status = statusResource.data.status;
-
-    while (status !== "finishedSuccessfully") {
-      yield new Promise((resolve) => setTimeout(resolve, 5000)); // Polling every 5 seconds
-      const statusReq: ItemResource = yield zipInstance.get();
-      status = statusReq.data.status;
-
-      if (status === "finishedWithError" || status === "cancelled") {
-        throw new Error("Download failed. Please try again...");
-      }
-    }
-
-    if (status === "finishedSuccessfully") {
-      const folderList: FileBrowserFolderFileList =
-        yield client.getFileBrowserFolders({ path: filePath });
-
-      if (!folderList) {
-        throw new Error(`Failed to find the files under this path ${filePath}`);
-      }
-
-      const folders = folderList.getItems();
-
-      if (folders && folders.length > 0) {
-        const folder = folders[0];
-        const files: FileBrowserFolderFileList = yield folder.getFiles();
-        const fileItems = files.getItems() as FileBrowserFolderFile[];
-        if (!fileItems) {
-          throw new Error("Failed to find the zip file");
-        }
-        const fileToZip = fileItems[0];
-        yield downloadFile(fileToZip);
+    const pluginInstancesList: PluginInstanceList =
+      yield workflow.getPluginInstances();
+    const pluginInstances = pluginInstancesList.getItems() as PluginInstance[];
+    if (pluginInstances.length > 0) {
+      const zipInstance = pluginInstances[0];
+      let filePath = "";
+      if (pipelineType === "Download Pipeline") {
+        filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
       } else {
-        throw new Error(`Failed to find a folder for this path: ${filePath}`);
+        const headerEditInstance = pluginInstances[1];
+        filePath = `home/${username}/feeds/feed_${feed.data.id}/pl-dircopy_${createdInstance.data.id}/pl-dicom_headeredit_${headerEditInstance.data.id}/pl-pfdorun_${zipInstance.data.id}/data`;
       }
+
+      const statusResource: ItemResource = yield zipInstance.get();
+      let status = statusResource.data.status;
+      while (status !== "finishedSuccessfully") {
+        yield new Promise((resolve) => setTimeout(resolve, 5000)); // Polling every 5 seconds
+        const statusReq: ItemResource = yield zipInstance.get();
+        status = statusReq.data.status;
+        if (status === "finishedWithError" || status === "cancelled") {
+          throw new Error("Download failed. Please try again...");
+        }
+      }
+      if (status === "finishedSuccessfully") {
+        const folderList: FileBrowserFolderFileList =
+          yield client.getFileBrowserFolders({ path: filePath });
+        if (!folderList) {
+          throw new Error(
+            `Failed to find the files under this path ${filePath}`,
+          );
+        }
+
+        const folders = folderList.getItems();
+        if (folders && folders.length > 0) {
+          const folder = folders[0];
+          const files: FileBrowserFolderFileList = yield folder.getFiles();
+          const fileItems = files.getItems() as FileBrowserFolderFile[];
+          if (!fileItems) {
+            throw new Error("Failed to find the zip file");
+          }
+          const fileToZip = fileItems[0];
+          yield downloadFile(fileToZip);
+        } else {
+          throw new Error(`Failed to find a folder for this path: ${filePath}`);
+        }
+      }
+    }
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
     }
   }
 }
@@ -358,7 +354,6 @@ function* uploadFileBatch(
                   // We need to cancel the folder upload manually since it will upload other files in the list.
                   // If it's an upload path error, all the files in the list are going to be errored so it's safe to cancel the entire upload.
                   isFolder && folderController.abort();
-
                   if (!isFolder) {
                     // No need to manually cancel the upload for a single file as the request will fail.
                     yield put(
@@ -372,7 +367,6 @@ function* uploadFileBatch(
                       }),
                     );
                   }
-
                   break;
                 }
               }
@@ -444,6 +438,15 @@ function* handleAnonymize(action: IActionTypeParam) {
   }
 }
 
+function* handleCreateFeed(action: IActionTypeParam) {
+  const { payload, type } = action.payload as {
+    payload: SelectionPayload[];
+    type: string;
+  };
+  const paths = payload.map((data) => data.path);
+  yield call(createFeed, paths, type);
+}
+
 function* watchDownload() {
   yield takeEvery(ICartActionTypes.START_DOWNLOAD, handleDownload);
 }
@@ -454,6 +457,10 @@ function* watchUpload() {
 
 function* watchAnonymize() {
   yield takeEvery(ICartActionTypes.START_ANONYMIZE, handleAnonymize);
+}
+
+function* watchCreateFeed() {
+  yield takeEvery(ICartActionTypes.CREATE_FEED, handleCreateFeed);
 }
 
 function* watchCancelUpload() {
@@ -484,5 +491,6 @@ export function* cartSaga() {
     fork(watchUpload),
     fork(watchAnonymize),
     fork(watchCancelUpload),
+    fork(watchCreateFeed),
   ]);
 }

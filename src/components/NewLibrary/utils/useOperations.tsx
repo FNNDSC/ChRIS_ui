@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { MainRouterContext } from "../../../routes";
 import {
+  createFeed,
   setToggleCart,
   startAnonymize,
   startDownload,
@@ -16,10 +17,10 @@ import { useTypedSelector } from "../../../store/hooks";
 import useDeletePayload from "../utils/useDeletePayload";
 
 export const useFolderOperations = (
-  computedPath: string,
+  inValidateFolders: () => void,
+  computedPath?: string, // This path is passed to for file upload and folder uploads in the library
   folderList?: FileBrowserFolderList,
 ) => {
-  const queryClient = useQueryClient();
   const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
   const username = useTypedSelector((state) => state.user.username);
@@ -30,13 +31,7 @@ export const useFolderOperations = (
   const fileInput = useRef<HTMLInputElement>(null);
   const [api, contextHolder] = notification.useNotification();
 
-  const deleteMutation = useDeletePayload(computedPath, api);
-
-  const invalidateFolders = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: ["library_folders", computedPath],
-    });
-  };
+  const deleteMutation = useDeletePayload(inValidateFolders, api);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
@@ -47,17 +42,23 @@ export const useFolderOperations = (
     if (fileInput.current) {
       fileInput.current.value = "";
     }
-    await invalidateFolders();
+    inValidateFolders();
   };
 
   const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
-    dispatch(startUpload({ files, isFolder: true, currentPath: computedPath }));
+    dispatch(
+      startUpload({
+        files,
+        isFolder: true,
+        currentPath: computedPath as string,
+      }),
+    );
     if (folderInput.current) {
       folderInput.current.value = "";
     }
-    await invalidateFolders();
+    inValidateFolders();
   };
 
   const handleModalSubmit = async (inputValue: string) => {
@@ -69,7 +70,7 @@ export const useFolderOperations = (
       const finalPath = `${computedPath}/${inputValue}`;
       try {
         await folderList?.post({ path: finalPath });
-        await invalidateFolders();
+        inValidateFolders();
       } catch (error: any) {
         const path = error?.response?.data?.path;
         const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
@@ -82,6 +83,14 @@ export const useFolderOperations = (
   const handleModalSubmitMutation = useMutation({
     mutationFn: (inputValue: string) => handleModalSubmit(inputValue),
   });
+
+  const handleMerge = () => {
+    dispatch(createFeed({ payload: selectedPaths, type: "Merge Feed" }));
+  };
+
+  const handleDuplicate = () => {
+    dispatch(createFeed({ payload: selectedPaths, type: "Duplicate Feed" }));
+  };
 
   const handleOperations = (key: string) => {
     switch (key) {
@@ -99,6 +108,7 @@ export const useFolderOperations = (
             username: username as string,
           }),
         );
+        inValidateFolders();
         break;
       case "anonymize":
         dispatch(setToggleCart());
@@ -124,6 +134,14 @@ export const useFolderOperations = (
       case "createGroup":
         setModalInfo({ isOpen: true, type: "group" });
         break;
+      case "merge": {
+        handleMerge();
+        break;
+      }
+      case "duplicate": {
+        handleDuplicate();
+        break;
+      }
     }
   };
 

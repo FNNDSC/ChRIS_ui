@@ -165,7 +165,7 @@ const Cart = () => {
                   title={
                     <TitleNameClipped
                       name={getFileName(status.fileName)}
-                      value={40}
+                      value={30}
                     />
                   }
                 />
@@ -237,7 +237,7 @@ const Cart = () => {
           >
             <List.Item.Meta
               avatar={<FileIcon />}
-              title={<TitleNameClipped name={name} value={35} />}
+              title={<TitleNameClipped name={name} value={30} />}
             />
           </List.Item>
         )}

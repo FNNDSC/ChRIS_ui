@@ -30,6 +30,7 @@ import useLongPress, {
   getBackgroundRowColor,
 } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Pagination = {
   totalCount: number;
@@ -42,6 +43,7 @@ type ComponentProps = {
   date: string;
   onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onMouseDown?: () => void;
+  inValidateFolders?: () => void;
   onCheckboxChange?: (e: React.FormEvent<HTMLInputElement>) => void;
   onContextMenuClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onNavigate: () => void;
@@ -52,7 +54,7 @@ type ComponentProps = {
 
 const PresentationComponent: React.FC<ComponentProps> = ({
   name,
-  computedPath,
+  inValidateFolders,
   date,
   onClick,
   onNavigate,
@@ -64,7 +66,7 @@ const PresentationComponent: React.FC<ComponentProps> = ({
   bgRow,
 }) => (
   <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
-    <FolderContextMenu folderPath={computedPath}>
+    <FolderContextMenu inValidateFolders={() => inValidateFolders?.()}>
       <Card
         style={{ cursor: "pointer", background: bgRow || "inherit" }}
         isCompact
@@ -175,6 +177,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   file,
   computedPath,
 }) => {
+  const queryClient = useQueryClient();
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
@@ -225,6 +228,11 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
       {contextHolder}
       <PresentationComponent
         onClick={handleClick}
+        inValidateFolders={() => {
+          queryClient.invalidateQueries({
+            queryKey: ["library_folders", computedPath],
+          });
+        }}
         onMouseDown={handlers.handleOnMouseDown}
         onCheckboxChange={handleCheckboxChange}
         onContextMenuClick={handleClick}
