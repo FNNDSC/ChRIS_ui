@@ -23,7 +23,7 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
           const filePath = getFileName(path);
           const idMatch = filePath.match(/feed_(\d+)/);
           const id = idMatch ? idMatch[1] : null;
-          let pathToFeed = path;
+          let pathToFeed = getFileName(path);
           if (id) {
             // this is feed duplicate
             const client = ChrisAPIClient.getClient();
@@ -51,7 +51,7 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
           const filePath = getFileName(path);
           const idMatch = filePath.match(/feed_(\d+)/);
           const id = idMatch ? idMatch[1] : null;
-          let pathToFeed = path;
+          let pathToFeed = getFileName(path);
 
           if (id) {
             // this is a feed merge
