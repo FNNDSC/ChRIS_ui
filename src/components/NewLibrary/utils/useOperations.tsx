@@ -1,5 +1,5 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import { isEmpty } from "lodash";
 import { useContext, useRef, useState } from "react";
@@ -7,7 +7,6 @@ import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { MainRouterContext } from "../../../routes";
 import {
-  createFeed,
   setToggleCart,
   startAnonymize,
   startDownload,
@@ -15,6 +14,7 @@ import {
 } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
 import useDeletePayload from "../utils/useDeletePayload";
+import useFeedOperations from "./useFeedOperations";
 
 export const useFolderOperations = (
   inValidateFolders: () => void,
@@ -32,6 +32,10 @@ export const useFolderOperations = (
   const [api, contextHolder] = notification.useNotification();
 
   const deleteMutation = useDeletePayload(inValidateFolders, api);
+  const { handleDuplicateMutation, handleMergeMutation } = useFeedOperations(
+    inValidateFolders,
+    api,
+  );
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
@@ -85,11 +89,11 @@ export const useFolderOperations = (
   });
 
   const handleMerge = () => {
-    dispatch(createFeed({ payload: selectedPaths, type: "Merge Feed" }));
+    handleMergeMutation.mutate();
   };
 
   const handleDuplicate = () => {
-    dispatch(createFeed({ payload: selectedPaths, type: "Duplicate Feed" }));
+    handleDuplicateMutation.mutate();
   };
 
   const handleOperations = (key: string) => {

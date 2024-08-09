@@ -18,7 +18,6 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Tooltip, Typography } from "antd";
-import { cujs } from "chris-utility";
 import { format } from "date-fns";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
@@ -37,7 +36,11 @@ import useLongPress from "../NewLibrary/utils/longpress";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import { useSearchQueryParams } from "./usePaginate";
-import { fetchFeeds, fetchPublicFeeds } from "./utilties";
+import {
+  fetchFeeds,
+  fetchPublicFeeds,
+  getPluginInstanceDetails,
+} from "./utilties";
 
 const { Paragraph } = Typography;
 
@@ -76,7 +79,6 @@ const TableSelectable: React.FC = () => {
     enabled: type === "public",
     refetchOnMount: true,
   });
-
   const feedsToDisplay =
     type === "private" ? data?.feeds || [] : publicFeeds?.feeds || [];
 
@@ -204,14 +206,21 @@ const TableSelectable: React.FC = () => {
             isSelected={type === "public"}
             onChange={onExampleTypeChange}
           />
+          <DataTableToolbar
+            onSearch={handleFilterChange}
+            label="Filter by name"
+            searchType={searchType}
+            search={search}
+            customStyle={{
+              paddingLeft: "0.5em",
+            }}
+          />
         </ToggleGroup>
-        <DataTableToolbar
-          onSearch={handleFilterChange}
-          label="Filter by name"
-          searchType={searchType}
-          search={search}
+
+        <Operations
+          inValidateFolders={inValidateFolders}
+          customStyle={{ paddingInlineStart: "0" }}
         />
-        <Operations inValidateFolders={inValidateFolders} />
         {loadingFeedState ? (
           <LoadingTable />
         ) : feedsToDisplay.length > 0 ? (
@@ -282,8 +291,7 @@ const TableRow: React.FC<TableRowProps> = ({
     queryKey: ["feedResources", feed],
     queryFn: async () => {
       try {
-        const res = await cujs.getPluginInstanceDetails(feed);
-
+        const res = await getPluginInstanceDetails(feed);
         if (res.progress === 100 || res.error === true) {
           setIntervalMs(0);
         }

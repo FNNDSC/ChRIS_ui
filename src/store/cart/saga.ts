@@ -62,27 +62,29 @@ const isFileBrowserFolder = (payload: any): payload is FileBrowserFolder => {
   return (payload as FileBrowserFolder).data?.path !== undefined;
 };
 
-function* createFeed(path: string[], feedName: string) {
+export async function createFeed(path: string[], feedName: string) {
   const client = ChrisAPIClient.getClient();
-  const dircopy: Plugin | undefined = yield getPlugin("pl-dircopy") as Promise<
-    Plugin | undefined
-  >;
+  const dircopy: Plugin | undefined = (await getPlugin("pl-dircopy")) as
+    | Plugin
+    | undefined;
+
   if (!dircopy) {
     throw new Error("pl-dircopy was not registered");
   }
-  const createdInstance: PluginInstance = yield client.createPluginInstance(
+  const createdInstance: PluginInstance = (await client.createPluginInstance(
     dircopy.data.id,
     //@ts-ignore
     { dir: path.length > 0 ? path.join(",") : path[0] },
-  ) as Promise<PluginInstance>;
+  )) as PluginInstance;
+
   if (!createdInstance) {
     throw new Error("Failed to create an instance of pl-dircopy");
   }
-  const feed = (yield createdInstance.getFeed()) as Feed;
+  const feed = (await createdInstance.getFeed()) as Feed;
   if (!feed) {
     throw new Error("Failed to create a Feed");
   }
-  yield feed.put({ name: feedName });
+  await feed.put({ name: feedName });
   return { createdInstance, feed };
 }
 
@@ -438,15 +440,6 @@ function* handleAnonymize(action: IActionTypeParam) {
   }
 }
 
-function* handleCreateFeed(action: IActionTypeParam) {
-  const { payload, type } = action.payload as {
-    payload: SelectionPayload[];
-    type: string;
-  };
-  const paths = payload.map((data) => data.path);
-  yield call(createFeed, paths, type);
-}
-
 function* watchDownload() {
   yield takeEvery(ICartActionTypes.START_DOWNLOAD, handleDownload);
 }
@@ -457,10 +450,6 @@ function* watchUpload() {
 
 function* watchAnonymize() {
   yield takeEvery(ICartActionTypes.START_ANONYMIZE, handleAnonymize);
-}
-
-function* watchCreateFeed() {
-  yield takeEvery(ICartActionTypes.CREATE_FEED, handleCreateFeed);
 }
 
 function* watchCancelUpload() {
@@ -491,6 +480,5 @@ export function* cartSaga() {
     fork(watchUpload),
     fork(watchAnonymize),
     fork(watchCancelUpload),
-    fork(watchCreateFeed),
   ]);
 }

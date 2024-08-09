@@ -179,6 +179,7 @@ type AllProps = {
   onSearch: (search: string, searchType: string) => void;
   search?: string;
   searchType?: string;
+  customStyle?: React.CSSProperties;
 };
 
 const FeedsQueryTypes: any = {
@@ -208,7 +209,7 @@ const FeedsQueryTypes: any = {
 export const DataTableToolbar: React.FunctionComponent<AllProps> = (
   props: AllProps,
 ) => {
-  const { searchType, search } = props;
+  const { searchType, search, customStyle } = props;
   const [value, setValue] = useState(search ? search : "");
   const [dropdownValue, setDropdownValue] = React.useState<string>(
     searchType?.toUpperCase() && FeedsQueryTypes[searchType]
@@ -254,7 +255,7 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
         style={{
           display: "flex",
           justifyContent: "space-between",
-          padding: "0.8rem 0rem",
+          ...customStyle,
         }}
       >
         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -279,7 +280,7 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
           <TextInput
             value={value}
             type="text"
-            placeholder={dropdownValue}
+            placeholder={`Search the resource by ${dropdownValue}`}
             customIcon={<SearchIcon />}
             aria-label="search"
             onChange={(_event, value: string) => {
