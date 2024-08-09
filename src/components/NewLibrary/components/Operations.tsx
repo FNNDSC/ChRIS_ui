@@ -11,15 +11,20 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
+  Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
 import { Alert, Dropdown, Spin } from "antd";
-import React, { Fragment, useImperativeHandle, useState } from "react";
+import React, {
+  Fragment,
+  useImperativeHandle,
+  useState,
+  useEffect,
+} from "react";
 import { useDispatch } from "react-redux";
 import { getFileName } from "../../../api/common";
 import { removeIndividualSelection } from "../../../store/cart/actions";
 import { useTypedSelector } from "../../../store/hooks";
-
 import {
   AddIcon,
   ArchiveIcon,
@@ -30,7 +35,6 @@ import {
   MergeIcon,
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
-import useFeedOperations from "../utils/useFeedOperations";
 
 interface AddModalProps {
   isOpen: boolean;
@@ -135,8 +139,40 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     },
   }));
 
-  const { selectedPaths } = useTypedSelector((state) => state.cart);
+  const { selectedPaths, fileUploadStatus, folderUploadStatus } =
+    useTypedSelector((state) => state.cart);
   const selectedPathsCount = selectedPaths.length;
+
+  useEffect(() => {
+    // Check if any file or folder upload has completed
+    const isUploadComplete = (status: any) =>
+      status.currentStep === "Upload Complete";
+
+    const hasFileUploadCompleted =
+      Object.values(fileUploadStatus).some(isUploadComplete);
+    const hasFolderUploadCompleted =
+      Object.values(folderUploadStatus).some(isUploadComplete);
+
+    if (hasFileUploadCompleted || hasFolderUploadCompleted) {
+      inValidateFolders();
+    }
+  }, [fileUploadStatus, folderUploadStatus, inValidateFolders]);
+
+  const renderOperationButton = (
+    icon: React.ReactNode,
+    operationKey: string,
+    ariaLabel: string,
+  ) => (
+    <Tooltip content={ariaLabel}>
+      <Button
+        icon={icon}
+        size="sm"
+        onClick={() => handleOperations(operationKey)}
+        variant="tertiary"
+        aria-label={ariaLabel}
+      />
+    </Tooltip>
+  );
 
   const toolbarItems = (
     <Fragment>
@@ -175,53 +211,46 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       {selectedPathsCount > 0 && (
         <>
           <ToolbarItem>
-            <Button
-              icon={<CodeBranchIcon />}
-              size="sm"
-              onClick={() => handleOperations("createFeed")}
-              variant="tertiary"
-            />
+            {renderOperationButton(
+              <CodeBranchIcon />,
+              "createFeed",
+              "Create a new feed",
+            )}
           </ToolbarItem>
           <ToolbarItem>
-            <Button
-              icon={<DownloadIcon />}
-              size="sm"
-              onClick={() => handleOperations("download")}
-              variant="tertiary"
-            />
+            {renderOperationButton(
+              <DownloadIcon />,
+              "download",
+              "Download selected items",
+            )}
           </ToolbarItem>
           <ToolbarItem>
-            <Button
-              icon={<ArchiveIcon />}
-              size="sm"
-              onClick={() => handleOperations("anonymize")}
-              variant="tertiary"
-            />
+            {renderOperationButton(
+              <ArchiveIcon />,
+              "anonymize",
+              "Anonymize selected items",
+            )}
           </ToolbarItem>
           <ToolbarItem>
-            <Button
-              icon={<MergeIcon />}
-              onClick={() => handleOperations("merge")}
-              size="sm"
-              variant="tertiary"
-            />
+            {renderOperationButton(
+              <MergeIcon />,
+              "merge",
+              "Merge selected items",
+            )}
           </ToolbarItem>
           <ToolbarItem>
-            <Button
-              icon={<DuplicateIcon />}
-              variant="tertiary"
-              size="sm"
-              onClick={() => handleOperations("duplicate")}
-              aria-label="Copy"
-            />
+            {renderOperationButton(
+              <DuplicateIcon />,
+              "duplicate",
+              "Copy selected items",
+            )}
           </ToolbarItem>
           <ToolbarItem>
-            <Button
-              icon={<DeleteIcon />}
-              variant="tertiary"
-              size="sm"
-              onClick={() => handleOperations("delete")}
-            />
+            {renderOperationButton(
+              <DeleteIcon />,
+              "delete",
+              "Delete selected items",
+            )}
           </ToolbarItem>
           <ToolbarItem>
             <ChipGroup>

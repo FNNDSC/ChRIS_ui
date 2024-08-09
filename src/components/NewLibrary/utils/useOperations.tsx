@@ -46,7 +46,7 @@ export const useFolderOperations = (
     if (fileInput.current) {
       fileInput.current.value = "";
     }
-    inValidateFolders();
+    //inValidateFolders();
   };
 
   const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +62,7 @@ export const useFolderOperations = (
     if (folderInput.current) {
       folderInput.current.value = "";
     }
-    inValidateFolders();
+    // inValidateFolders();
   };
 
   const handleModalSubmit = async (inputValue: string) => {
@@ -112,7 +112,12 @@ export const useFolderOperations = (
             username: username as string,
           }),
         );
-        inValidateFolders();
+        // Invalidate the folders after a time limit. This is poorly designed, as this part of the UI assumes
+        // that a feed will be created within a certain time frame. Mixing Redux and React Query isn't effective.
+        // A better design needs to be considered.
+        setTimeout(() => {
+          inValidateFolders();
+        }, 2000);
         break;
       case "anonymize":
         dispatch(setToggleCart());

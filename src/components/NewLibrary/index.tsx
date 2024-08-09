@@ -103,7 +103,7 @@ const NewLibrary = () => {
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["library_folders", computedPath, pageNumber],
+    queryKey: ["library_folders", computedPath],
     queryFn: () => fetchFolders(computedPath, pageNumber),
     placeholderData: keepPreviousData,
     structuralSharing: true,

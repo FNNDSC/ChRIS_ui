@@ -246,65 +246,67 @@ const Cart = () => {
       <List
         className="operation-cart"
         dataSource={Object.entries(folderUploadStatus)}
-        renderItem={([name, status]) => (
-          <List.Item
-            key={name}
-            actions={[
-              <div key={`anon-${name}-progress`}>{status.currentStep}</div>,
-              status.done === status.total ||
-              status.currentStep === "UploadComplete" ? (
-                <CheckCircleIcon
-                  key={`anon-${name}-progress`}
-                  color="#3E8635"
-                  width="2em"
-                  height="2em"
-                />
-              ) : status.currentStep.includes("Cancelled") ||
-                status.currentStep.startsWith("Error") ? (
-                <CloseIcon
-                  color="red"
-                  width="2em"
-                  height="2em"
-                  key={`anon-${name}-cancel`}
-                />
-              ) : (
-                <div key={`anon-${name}-progress`}>
-                  {status.done}/{status.total}
-                </div>
-              ),
-              <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
-              <Button
-                onClick={() => {
-                  if (status.currentStep === "Uploading...") {
-                    dispatch(
-                      cancelUpload({
-                        type: status.type,
-                        id: name,
-                      }),
-                    );
-                  } else {
-                    dispatch(
-                      clearUploadState({
-                        type: status.type,
-                        id: name,
-                      }),
-                    );
-                  }
-                }}
-                variant="secondary"
-                size="sm"
-                key={`a-${name}`}
-              >
-                {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
-              </Button>,
-            ]}
-          >
-            <List.Item.Meta
-              avatar={<FolderIcon />}
-              title={<TitleNameClipped name={name} value={30} />}
-            />
-          </List.Item>
-        )}
+        renderItem={([name, status]) => {
+          return (
+            <List.Item
+              key={name}
+              actions={[
+                <div key={`anon-${name}-progress`}>{status.currentStep}</div>,
+                status.done === status.total ||
+                status.currentStep === "UploadComplete" ? (
+                  <CheckCircleIcon
+                    key={`anon-${name}-progress`}
+                    color="#3E8635"
+                    width="2em"
+                    height="2em"
+                  />
+                ) : status.currentStep.includes("Cancelled") ||
+                  status.currentStep.startsWith("Error") ? (
+                  <CloseIcon
+                    color="red"
+                    width="2em"
+                    height="2em"
+                    key={`anon-${name}-cancel`}
+                  />
+                ) : (
+                  <div key={`anon-${name}-progress`}>
+                    {status.done}/{status.total}
+                  </div>
+                ),
+                <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
+                <Button
+                  onClick={() => {
+                    if (status.currentStep === "Uploading...") {
+                      dispatch(
+                        cancelUpload({
+                          type: status.type,
+                          id: name,
+                        }),
+                      );
+                    } else {
+                      dispatch(
+                        clearUploadState({
+                          type: status.type,
+                          id: name,
+                        }),
+                      );
+                    }
+                  }}
+                  variant="secondary"
+                  size="sm"
+                  key={`a-${name}`}
+                >
+                  {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
+                </Button>,
+              ]}
+            >
+              <List.Item.Meta
+                avatar={<FolderIcon />}
+                title={<TitleNameClipped name={name} value={30} />}
+              />
+            </List.Item>
+          );
+        }}
       />
       {isEmpty(folderUploadStatus) &&
         isEmpty(fileUploadStatus) &&
