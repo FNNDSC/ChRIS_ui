@@ -30,6 +30,7 @@ import { DataTableToolbar, InfoIcon } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
+import { SearchIcon } from "../Icons";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
 import Operations from "../NewLibrary/components/Operations";
 import useLongPress from "../NewLibrary/utils/longpress";
@@ -142,6 +143,7 @@ const TableSelectable: React.FC = () => {
     isLoading || isFetching || publicFeedLoading || publicFeedFetching;
 
   const inValidateFolders = () => {
+    console.log("InvalidateFolders Feeds:");
     queryClient.invalidateQueries({
       queryKey: ["feeds"],
     });
@@ -474,20 +476,38 @@ const DonutUtilization = (props: {
   );
 };
 
-const EmptyStateTable = () => {
+function EmptyStateTable() {
   return (
-    <Bullseye>
-      <EmptyState variant={EmptyStateVariant.sm}>
-        <EmptyStateHeader
-          titleText="No results found"
-          icon={<EmptyStateIcon icon={InfoIcon} />}
-          headingLevel="h4"
-        />
-        <Button variant="link">Clear all filters and sorters</Button>
-      </EmptyState>
-    </Bullseye>
+    <Table variant="compact" aria-label="Empty Table">
+      <Thead>
+        <Tr>
+          <Th>ID</Th>
+          <Th>Analysis</Th>
+          <Th>Created</Th>
+          <Th>Creator</Th>
+          <Th>Run Time</Th>
+          <Th>Size</Th>
+          <Th>Status</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Td colSpan={12}>
+            <Bullseye>
+              <EmptyState variant={EmptyStateVariant.sm}>
+                <EmptyStateHeader
+                  icon={<EmptyStateIcon icon={SearchIcon} />}
+                  titleText="No results found"
+                  headingLevel="h2"
+                />
+              </EmptyState>
+            </Bullseye>
+          </Td>
+        </Tr>
+      </Tbody>
+    </Table>
   );
-};
+}
 
 const LoadingTable = () => {
   return (
