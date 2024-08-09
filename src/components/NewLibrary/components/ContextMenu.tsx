@@ -6,19 +6,21 @@ import {
   CodeBranchIcon,
   DeleteIcon,
   DownloadIcon,
+  DuplicateIcon,
+  MergeIcon,
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
 import { AddModal } from "./Operations";
 
-export const FolderContextMenu = ({
-  children,
-  inValidateFolders,
-  folderList,
-}: {
+interface ContextMenuProps {
   children: React.ReactElement;
+  computedPath?: string;
   inValidateFolders: () => void;
   folderList?: FileBrowserFolderList;
-}) => {
+}
+
+export const FolderContextMenu = (props: ContextMenuProps) => {
+  const { children, inValidateFolders, folderList, computedPath } = props;
   const {
     modalInfo,
     userError,
@@ -27,12 +29,14 @@ export const FolderContextMenu = ({
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(inValidateFolders, "", folderList);
+  } = useFolderOperations(inValidateFolders, computedPath, folderList);
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
     { key: "download", label: "Download", icon: <DownloadIcon /> },
     { key: "anonymize", label: "Anonymize", icon: <ArchiveIcon /> },
+    { key: "merge", label: "Merge", icon: <MergeIcon /> },
+    { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
 

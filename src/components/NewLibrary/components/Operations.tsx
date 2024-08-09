@@ -30,15 +30,9 @@ import {
   MergeIcon,
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
+import useFeedOperations from "../utils/useFeedOperations";
 
-export const AddModal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  modalTitle,
-  inputLabel,
-  indicators,
-}: {
+interface AddModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (inputValue: string) => void;
@@ -49,7 +43,18 @@ export const AddModal = ({
     isError: boolean;
     error: DefaultError | null;
   };
-}) => {
+}
+
+interface OperationProps {
+  inValidateFolders: () => void;
+  computedPath?: string;
+  folderList?: FileBrowserFolderList;
+  customStyle?: React.CSSProperties;
+}
+
+export const AddModal = (props: AddModalProps) => {
+  const { isOpen, onClose, onSubmit, modalTitle, inputLabel, indicators } =
+    props;
   const [inputValue, setInputValue] = useState("");
 
   const handleClose = () => {
@@ -104,200 +109,178 @@ const items = [
   { key: "folderUpload", label: "Folder Upload" },
 ];
 
-const Operations = React.forwardRef(
-  (
-    {
-      inValidateFolders,
-      computedPath,
-      folderList,
-    }: {
-      inValidateFolders: () => void;
-      computedPath?: string;
-      folderList?: FileBrowserFolderList;
+const Operations = React.forwardRef((props: OperationProps, ref) => {
+  const { inValidateFolders, computedPath, folderList, customStyle } = props;
+  const dispatch = useDispatch();
+  const {
+    modalInfo,
+    userError,
+    folderInput,
+    fileInput,
+    handleFileChange,
+    handleFolderChange,
+    handleModalSubmitMutation,
+    handleOperations,
+    contextHolder,
+    setUserErrors,
+    setModalInfo,
+  } = useFolderOperations(inValidateFolders, computedPath, folderList);
+
+  useImperativeHandle(ref, () => ({
+    triggerFileUpload: () => {
+      fileInput.current?.click();
     },
-    ref,
-  ) => {
-    const dispatch = useDispatch();
-    const {
-      modalInfo,
-      userError,
-      folderInput,
-      fileInput,
-      handleFileChange,
-      handleFolderChange,
-      handleModalSubmitMutation,
-      handleOperations,
-      contextHolder,
-      setUserErrors,
-      setModalInfo,
-    } = useFolderOperations(inValidateFolders, computedPath, folderList);
+    triggerFolderUpload: () => {
+      folderInput.current?.click();
+    },
+  }));
 
-    useImperativeHandle(ref, () => ({
-      triggerFileUpload: () => {
-        fileInput.current?.click();
-      },
-      triggerFolderUpload: () => {
-        folderInput.current?.click();
-      },
-    }));
+  const { selectedPaths } = useTypedSelector((state) => state.cart);
+  const selectedPathsCount = selectedPaths.length;
 
-    const { selectedPaths } = useTypedSelector((state) => state.cart);
-    const selectedPathsCount = selectedPaths.length;
-
-    const toolbarItems = (
-      <Fragment>
-        {contextHolder}
-        <ToolbarItem>
-          <Dropdown
-            menu={{
-              items,
-              selectable: true,
-              onClick: (info) => {
-                handleOperations(info.key);
-              },
-            }}
-          >
-            <Button
-              size="sm"
-              icon={
-                <AddIcon
-                  style={{ color: "inherit", height: "1em", width: "1em" }}
-                />
-              }
-            >
-              New
-            </Button>
-          </Dropdown>
-          {userError && (
-            <Alert
-              style={{ marginLeft: "1rem" }}
-              type="error"
-              description={userError}
-              closable
-              onClose={() => setUserErrors("")}
-            />
-          )}
-        </ToolbarItem>
-        {selectedPathsCount > 0 && (
-          <>
-            <ToolbarItem>
-              <Button
-                icon={<CodeBranchIcon />}
-                size="sm"
-                onClick={() => handleOperations("createFeed")}
-              >
-                Create Feed
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
-              <Button
-                icon={<DownloadIcon />}
-                size="sm"
-                onClick={() => handleOperations("download")}
-              >
-                Download
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
-              <Button
-                icon={<ArchiveIcon />}
-                size="sm"
-                onClick={() => handleOperations("anonymize")}
-              >
-                Anonymize
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
-              <Button
-                icon={<MergeIcon />}
-                variant="primary"
-                onClick={() => handleOperations("merge")}
-                size="sm"
-              >
-                Merge
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
-              <Button
-                icon={<DuplicateIcon />}
-                variant="primary"
-                size="sm"
-                onClick={() => handleOperations("duplicate")}
-              >
-                Make a copy
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
-              <Button
-                icon={<DeleteIcon />}
-                variant="danger"
-                size="sm"
-                onClick={() => handleOperations("delete")}
-              >
-                Delete
-              </Button>
-            </ToolbarItem>
-            <ToolbarItem>
-              <ChipGroup>
-                {selectedPaths.map((selection) => (
-                  <Chip
-                    key={selection.path}
-                    onClick={() =>
-                      dispatch(removeIndividualSelection(selection))
-                    }
-                  >
-                    {getFileName(selection.path)}
-                  </Chip>
-                ))}
-              </ChipGroup>
-            </ToolbarItem>
-          </>
-        )}
-      </Fragment>
-    );
-
-    return (
-      <>
-        <AddModal
-          isOpen={modalInfo.isOpen}
-          onClose={() => setModalInfo({ isOpen: false, type: "" })}
-          onSubmit={(inputValue) =>
-            handleModalSubmitMutation.mutate(inputValue)
-          }
-          modalTitle={
-            modalInfo.type === "group"
-              ? "Create a new Group"
-              : "Create a new Folder"
-          }
-          inputLabel={modalInfo.type === "group" ? "Group Name" : "Folder Name"}
-          indicators={{
-            isPending: handleModalSubmitMutation.isPending,
-            isError: handleModalSubmitMutation.isError,
-            error: handleModalSubmitMutation.error as DefaultError,
+  const toolbarItems = (
+    <Fragment>
+      {contextHolder}
+      <ToolbarItem>
+        <Dropdown
+          menu={{
+            items,
+            selectable: true,
+            onClick: (info) => {
+              handleOperations(info.key);
+            },
           }}
-        />
-        <input
-          ref={fileInput}
-          multiple={true}
-          type="file"
-          hidden
-          onChange={handleFileChange}
-        />
-        <input
-          ref={folderInput}
-          multiple={true}
-          type="file"
-          //@ts-ignore
-          webkitdirectory="true"
-          hidden
-          onChange={handleFolderChange}
-        />
-        <Toolbar>
-          <ToolbarContent>{toolbarItems}</ToolbarContent>
-        </Toolbar>
-      </>
-    );
-  },
-);
+        >
+          <Button
+            size="sm"
+            icon={
+              <AddIcon
+                style={{ color: "inherit", height: "1em", width: "1em" }}
+              />
+            }
+          >
+            New
+          </Button>
+        </Dropdown>
+        {userError && (
+          <Alert
+            style={{ marginLeft: "1rem" }}
+            type="error"
+            description={userError}
+            closable
+            onClose={() => setUserErrors("")}
+          />
+        )}
+      </ToolbarItem>
+      {selectedPathsCount > 0 && (
+        <>
+          <ToolbarItem>
+            <Button
+              icon={<CodeBranchIcon />}
+              size="sm"
+              onClick={() => handleOperations("createFeed")}
+              variant="tertiary"
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              icon={<DownloadIcon />}
+              size="sm"
+              onClick={() => handleOperations("download")}
+              variant="tertiary"
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              icon={<ArchiveIcon />}
+              size="sm"
+              onClick={() => handleOperations("anonymize")}
+              variant="tertiary"
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              icon={<MergeIcon />}
+              onClick={() => handleOperations("merge")}
+              size="sm"
+              variant="tertiary"
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              icon={<DuplicateIcon />}
+              variant="tertiary"
+              size="sm"
+              onClick={() => handleOperations("duplicate")}
+              aria-label="Copy"
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <Button
+              icon={<DeleteIcon />}
+              variant="tertiary"
+              size="sm"
+              onClick={() => handleOperations("delete")}
+            />
+          </ToolbarItem>
+          <ToolbarItem>
+            <ChipGroup>
+              {selectedPaths.map((selection) => (
+                <Chip
+                  key={selection.path}
+                  onClick={() => dispatch(removeIndividualSelection(selection))}
+                >
+                  {getFileName(selection.path)}
+                </Chip>
+              ))}
+            </ChipGroup>
+          </ToolbarItem>
+        </>
+      )}
+    </Fragment>
+  );
+
+  return (
+    <>
+      <AddModal
+        isOpen={modalInfo.isOpen}
+        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        onSubmit={(inputValue) => handleModalSubmitMutation.mutate(inputValue)}
+        modalTitle={
+          modalInfo.type === "group"
+            ? "Create a new Group"
+            : "Create a new Folder"
+        }
+        inputLabel={modalInfo.type === "group" ? "Group Name" : "Folder Name"}
+        indicators={{
+          isPending: handleModalSubmitMutation.isPending,
+          isError: handleModalSubmitMutation.isError,
+          error: handleModalSubmitMutation.error as DefaultError,
+        }}
+      />
+      <input
+        ref={fileInput}
+        multiple={true}
+        type="file"
+        hidden
+        onChange={handleFileChange}
+      />
+      <input
+        ref={folderInput}
+        multiple={true}
+        type="file"
+        //@ts-ignore
+        webkitdirectory="true"
+        hidden
+        onChange={handleFolderChange}
+      />
+      <Toolbar>
+        <ToolbarContent style={{ ...customStyle }}>
+          {toolbarItems}
+        </ToolbarContent>
+      </Toolbar>
+    </>
+  );
+});
 
 export default Operations;

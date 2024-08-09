@@ -2,7 +2,13 @@ import type { DrawerPayloadType, IDrawerState } from "../../store/drawer/types";
 import { setDrawerState } from "../../store/drawer/actions";
 import type { Dispatch } from "redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import type { Feed, PublicFeedList, FeedList } from "@fnndsc/chrisapi";
+import type {
+  Feed,
+  PublicFeedList,
+  FeedList,
+  PluginInstance,
+} from "@fnndsc/chrisapi";
+import { fetchResource } from "../../api/common";
 
 export const handleDrawerActions = (
   actionType: string,
@@ -114,6 +120,7 @@ export async function fetchAuthenticatedFeed(id?: string) {
     }
     return feed;
   } catch (error) {
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
     throw error;
   }
 }
@@ -131,6 +138,126 @@ export async function fetchPublicFeed(id?: string) {
     }
     throw new Error("Failed to fetch this feed...");
   } catch (error) {
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
     throw error;
   }
 }
+
+type PluginInstanceStatus =
+  | "cancelled"
+  | "finishedWithError"
+  | "waiting"
+  | "scheduled"
+  | "started"
+  | "registeringFiles"
+  | "finishedSuccessfully";
+
+interface PluginInstanceDetails {
+  size: string;
+  progress: number;
+  time: string;
+  error: boolean;
+  feedProgressText: string;
+}
+
+const LOOKUP: Record<PluginInstanceStatus, number> = {
+  cancelled: 0,
+  finishedWithError: 0,
+  waiting: 1,
+  scheduled: 2,
+  started: 3,
+  registeringFiles: 4,
+  finishedSuccessfully: 5,
+};
+
+export const getPluginInstanceDetails = async (
+  feed: Feed,
+): Promise<PluginInstanceDetails> => {
+  const details: PluginInstanceDetails = {
+    size: "",
+    progress: 0,
+    time: "",
+    error: false,
+    feedProgressText: "",
+  };
+
+  let totalSize = 0;
+  let totalRunTime = 0;
+  let error = false;
+  let finishedCount = 0;
+  let errorCount = 0;
+
+  const params = { limit: 10000, offset: 0 };
+  const fn = feed.getPluginInstances;
+  const boundFn = fn.bind(feed);
+  const { resource: pluginInstances }: { resource: PluginInstance[] } =
+    await fetchResource(params, boundFn);
+
+  const totalMilestones = pluginInstances.length * LOOKUP.finishedSuccessfully;
+  let completedMilestones = 0;
+
+  for (const pluginInstance of pluginInstances) {
+    const startTime = new Date(pluginInstance.data.start_date).getTime();
+    const endTime = new Date(pluginInstance.data.end_date).getTime();
+
+    totalRunTime += endTime - startTime;
+    totalSize += pluginInstance.data.size;
+
+    const statusMilestone =
+      LOOKUP[pluginInstance.data.status as PluginInstanceStatus];
+    completedMilestones += statusMilestone;
+
+    if (
+      statusMilestone === LOOKUP.cancelled ||
+      statusMilestone === LOOKUP.finishedWithError
+    ) {
+      error = true;
+      errorCount += 1;
+      continue; // Skip further checks for this instance
+    }
+
+    if (pluginInstance.data.status === "finishedSuccessfully") {
+      finishedCount += 1;
+    }
+  }
+
+  const feedProgressText = error
+    ? `${errorCount}/${pluginInstances.length} jobs failed`
+    : `${finishedCount}/${pluginInstances.length} jobs completed`;
+
+  const progressPercentage = (completedMilestones / totalMilestones) * 100;
+
+  details.size = formatBytes(totalSize, 0);
+  details.progress = Math.floor(progressPercentage);
+  details.time = convertMsToHM(totalRunTime);
+  details.error = error;
+  details.feedProgressText = feedProgressText;
+
+  return details;
+};
+export const convertMsToHM = (milliseconds: number): string => {
+  let seconds = Math.floor(milliseconds / 1000);
+  let minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  seconds = seconds % 60;
+  minutes = minutes % 60;
+
+  return `${padTo2Digits(hours)}:${padTo2Digits(minutes)}:${padTo2Digits(seconds)}`;
+};
+
+export const padTo2Digits = (num: number): string => {
+  return num.toString().padStart(2, "0");
+};
+
+export const formatBytes = (bytes: number, decimals = 2): string => {
+  if (bytes === 0) return "0 B";
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["B", "kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return `${Number.parseFloat((bytes / k ** i).toFixed(dm))} ${sizes[i]}`;
+};

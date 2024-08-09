@@ -50,11 +50,11 @@ const CartIcon = ({
   );
 };
 
-const MergeIcon = () => {
+const MergeIcon = ({ className }: { className?: string }) => {
   return (
     <svg
       fill="currentColor"
-      className="pf-v5-svg"
+      className={`pf-v5-svg ${className && className}`}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 448 512"
     >
@@ -92,11 +92,11 @@ const ShareIcon = () => {
   );
 };
 
-const DuplicateIcon = () => {
+const DuplicateIcon = ({ className }: { className?: string }) => {
   return (
     <svg
       fill="currentColor"
-      className="pf-v5-svg"
+      className={`pf-v5-svg ${className && className}`}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 576 512"
     >

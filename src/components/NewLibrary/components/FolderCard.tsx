@@ -8,15 +8,16 @@ import {
   Split,
   SplitItem,
 } from "@patternfly/react-core";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
 import { Fragment } from "react/jsx-runtime";
+import ChrisAPIClient from "../../../api/chrisapiclient";
 import { elipses } from "../../../api/common";
 import { useTypedSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
-import { useQueryClient } from "@tanstack/react-query";
 
 type Pagination = {
   totalCount: number;
@@ -49,32 +50,53 @@ export const FolderCard = ({
   );
 };
 
-export const SubFolderCard = ({
-  folder,
-  computedPath,
-  handleFolderClick,
-}: {
+interface SubFolderCardProps {
   folder: FileBrowserFolder;
   computedPath: string;
   handleFolderClick: (path: string) => void;
-}) => {
+}
+
+export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
+  const { folder, computedPath, handleFolderClick } = props;
   const queryClient = useQueryClient();
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
-  const folderSplitList = folder.data.path.split("/");
-  const pathName = folderSplitList[folderSplitList.length - 1];
-  const folderName = computedPath === "/" ? folder.data.path : pathName;
-  const creation_date = folder.data.creation_date;
-  const isSelected =
-    selectedPaths.length > 0 &&
-    selectedPaths.some((payload) => payload.path === folder.data.path);
 
+  const folderPathParts = folder.data.path.split("/");
+  const pathName = folderPathParts[folderPathParts.length - 1];
+  const folderName = computedPath === "/" ? folder.data.path : pathName;
+  const creationDate = folder.data.creation_date;
+
+  const isSelected = selectedPaths.some(
+    (payload) => payload.path === folder.data.path,
+  );
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
 
+  // When users create an analysis, they have a specific name in mind. Showing the user the underlying
+  // folder path (e.g., feed_98) can be confusing if the analysis is titled 'Freesurfer Analysis'.
+  // Therefore, we perform an additional fetch to display the feed folders with their analysis titles.
+
+  const feedMatches = folderName.match(/feed_(\d+)/);
+  const { data, isLoading } = useQuery({
+    queryKey: ["AssociatedFeed", folder.data.path],
+    queryFn: async () => {
+      const id = feedMatches ? feedMatches[1] : null;
+
+      if (id) {
+        const client = ChrisAPIClient.getClient();
+        const feed = await client.getFeed(Number(id));
+        if (!feed) throw new Error("Failed to fetch the feed");
+        return feed.data.name;
+      }
+      return null;
+    },
+    enabled: feedMatches?.length > 0,
+  });
+
   return (
-    <GridItem xl={3} lg={4} xl2={3} md={6} sm={12} key={folder.data.id}>
+    <GridItem xl={3} lg={4} md={6} sm={12} key={folder.data.id}>
       <FolderContextMenu
         inValidateFolders={() => {
           queryClient.invalidateQueries({
@@ -83,24 +105,17 @@ export const SubFolderCard = ({
         }}
       >
         <Card
-          style={{
-            background: selectedBgRow,
-            cursor: "pointer",
-          }}
+          style={{ background: selectedBgRow, cursor: "pointer" }}
           isSelected={isSelected}
           isClickable
           isSelectable
           isCompact
           isFlat
-          onClick={(e) => {
-            handleOnClick(e, folder, folder.data.path, "folder");
-          }}
-          onContextMenu={(e) => {
-            handleOnClick(e, folder, folder.data.path, "folder");
-          }}
-          onMouseDown={() => {
-            handleOnMouseDown();
-          }}
+          onClick={(e) => handleOnClick(e, folder, folder.data.path, "folder")}
+          onContextMenu={(e) =>
+            handleOnClick(e, folder, folder.data.path, "folder")
+          }
+          onMouseDown={handleOnMouseDown}
           isRounded
         >
           <CardHeader
@@ -110,12 +125,10 @@ export const SubFolderCard = ({
                   className="large-checkbox"
                   isChecked={isSelected}
                   id={folder.data.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  onChange={(e) => {
-                    handleCheckboxChange(e, folder.data.path, folder, "folder");
-                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) =>
+                    handleCheckboxChange(e, folder.data.path, folder, "folder")
+                  }
                 />
               ),
             }}
@@ -133,9 +146,13 @@ export const SubFolderCard = ({
                   variant="link"
                   style={{ padding: 0 }}
                 >
-                  {elipses(folderName, 40)}
+                  {!data && !isLoading
+                    ? elipses(folderName, 40)
+                    : data
+                      ? elipses(data, 40)
+                      : "Fetching..."}
                 </Button>
-                <div>{new Date(creation_date).toDateString()}</div>
+                <div>{new Date(creationDate).toDateString()}</div>
               </SplitItem>
             </Split>
           </CardHeader>

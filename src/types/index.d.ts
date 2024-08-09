@@ -1,6 +1,5 @@
 declare module "keymirror";
 declare module "pako";
-declare module "chris-utility";
 declare module "@patternfly/react-log-viewer";
 declare module "cornerstone-core";
 declare module "cornerstone-tools";

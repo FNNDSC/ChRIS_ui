@@ -5,6 +5,7 @@ import type {
 } from "@fnndsc/chrisapi";
 import { action } from "typesafe-actions";
 import {
+  type FeedCreationStatus,
   ICartActionTypes,
   type SelectionPayload,
   type UploadPayload,
@@ -51,10 +52,8 @@ export const startUpload = (payload: UploadPayload) =>
 export const startAnonymize = (payload: OperationPayload) =>
   action(ICartActionTypes.START_ANONYMIZE, payload);
 
-export const createFeed = (payload: {
-  payload: SelectionPayload[];
-  type: string;
-}) => action(ICartActionTypes.CREATE_FEED, payload);
+export const clearFeedCreationStatus = () =>
+  action(ICartActionTypes.CLEAR_FEED_STATE);
 
 export const setFileUploadStatus = (payload: {
   step: string;
