@@ -67,7 +67,6 @@ const TableSelectable: React.FC = () => {
     queryKey: ["feeds", perPage, page, type, search, searchType],
     queryFn: () => fetchFeeds(searchFolderData),
     enabled: type === "private",
-    refetchOnMount: true,
   });
 
   const {
@@ -78,7 +77,6 @@ const TableSelectable: React.FC = () => {
     queryKey: ["publicFeeds", perPage, page, type, search, searchType],
     queryFn: () => fetchPublicFeeds(searchFolderData),
     enabled: type === "public",
-    refetchOnMount: true,
   });
   const feedsToDisplay =
     type === "private" ? data?.feeds || [] : publicFeeds?.feeds || [];

@@ -71,7 +71,9 @@ function* uploadFileBatch(
   batchSize: number,
 ) {
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
-  const batches = chunk(files, batchSize);
+  const firstBatch = files.slice(0, 1); // First batch with 1 file
+  const remainingBatches = chunk(files.slice(1), batchSize); // Remaining batches
+  const batches = [firstBatch, ...remainingBatches];
   const totalFiles = files.length;
   let uploadedFilesCount = 0;
   let cancelledUploads = false;
@@ -139,8 +141,7 @@ function* uploadFileBatch(
                   errorOccurred = true;
                   lastError = error; // Store the last error message
 
-                  // We need to cancel the folder upload manually since it will upload other files in the list.
-                  // If it's an upload path error, all the files in the list are going to be errored so it's safe to cancel the entire upload.
+                  // We need to cancel the folder upload manually since it will upload other files in the list and they will all error out due to the path being invalid path
                   isFolder && folderController.abort();
                   if (!isFolder) {
                     // No need to manually cancel the upload for a single file as the request will fail.
