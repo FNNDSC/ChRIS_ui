@@ -81,6 +81,7 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
         if (notificationKey) {
           api.destroy(notificationKey);
         }
+
         api.success({
           message: "Deletion Successful",
           description: "Selected files and folders were successfully deleted.",

@@ -1,5 +1,5 @@
 import React from "react";
-import { IFileBlob } from "../../../api/model";
+import type { IFileBlob } from "../../../api/model";
 
 type AllProps = {
   fileItem: IFileBlob;
