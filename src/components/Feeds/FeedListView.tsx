@@ -6,6 +6,7 @@ import {
   Checkbox,
   EmptyState,
   EmptyStateHeader,
+  Title,
   EmptyStateIcon,
   EmptyStateVariant,
   PageSection,
@@ -18,7 +19,6 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Typography } from "../Antd";
 import { format } from "date-fns";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
@@ -27,7 +27,8 @@ import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
 import { setSidebarActive } from "../../store/ui/actions";
 import { AddNodeProvider } from "../AddNode/context";
-import { DataTableToolbar, InfoIcon } from "../Common";
+import { Typography } from "../Antd";
+import { InfoIcon } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
@@ -50,7 +51,7 @@ const useSearchQuery = (query: URLSearchParams) => ({
   page: query.get("page") || "1",
   search: query.get("search") || "",
   searchType: query.get("searchType") || "name",
-  perPage: query.get("perPage") || "14",
+  perPage: query.get("perPage") || "15",
   type: query.get("type") || "public",
 });
 
@@ -156,6 +157,9 @@ const TableSelectable: React.FC = () => {
 
     return (
       <Pagination
+        style={{
+          marginTop: "0.5em",
+        }}
         itemCount={feedCount}
         perPage={+perPage}
         page={+page}
@@ -168,57 +172,61 @@ const TableSelectable: React.FC = () => {
   return (
     <WrapperConnect>
       <PageSection className="feed-header">
-        <InfoIcon
-          data-test-id="analysis-count"
-          title={`New and Existing Analyses (${
-            !feedCount && loadingFeedState
-              ? "Fetching..."
-              : feedCount === -1
-                ? 0
-                : feedCount
-          })`}
-          p1={
-            <Paragraph>
-              Analyses (aka ChRIS feeds) are computational experiments where
-              data are organized and processed by ChRIS plugins. In this view
-              you may view your analyses and also the ones shared with you.
-            </Paragraph>
-          }
-        />
-        <CreateFeedProvider>
-          <PipelineProvider>
-            <AddNodeProvider>
-              <CreateFeed />
-            </AddNodeProvider>
-          </PipelineProvider>
-        </CreateFeedProvider>
+        <div>
+          <InfoIcon
+            data-test-id="analysis-count"
+            title={`New and Existing Analyses (${
+              !feedCount && loadingFeedState
+                ? "Fetching..."
+                : feedCount === -1
+                  ? 0
+                  : feedCount
+            })`}
+            p1={
+              <Paragraph>
+                Analyses (aka ChRIS feeds) are computational experiments where
+                data are organized and processed by ChRIS plugins. In this view
+                you may view your analyses and also the ones shared with you.
+              </Paragraph>
+            }
+          />
+        </div>
+        {generatePagination(feedCount)}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <ToggleGroup
+            style={{ marginRight: "0.5em" }}
+            aria-label="Default with single selectable"
+          >
+            <ToggleGroupItem
+              text="Private Feeds"
+              buttonId="private"
+              isSelected={type === "private"}
+              onChange={onExampleTypeChange}
+              isDisabled={!isLoggedIn}
+            />
+            <ToggleGroupItem
+              text="Public Feeds"
+              buttonId="public"
+              isSelected={type === "public"}
+              onChange={onExampleTypeChange}
+            />
+          </ToggleGroup>
+          <CreateFeedProvider>
+            <PipelineProvider>
+              <AddNodeProvider>
+                <CreateFeed />
+              </AddNodeProvider>
+            </PipelineProvider>
+          </CreateFeedProvider>
+        </div>
       </PageSection>
-      <PageSection>
-        <ToggleGroup aria-label="Default with single selectable">
-          <ToggleGroupItem
-            text="Private Feeds"
-            buttonId="private"
-            isSelected={type === "private"}
-            onChange={onExampleTypeChange}
-            isDisabled={!isLoggedIn}
-          />
-          <ToggleGroupItem
-            text="Public Feeds"
-            buttonId="public"
-            isSelected={type === "public"}
-            onChange={onExampleTypeChange}
-          />
-          <DataTableToolbar
-            onSearch={handleFilterChange}
-            label="Filter by name"
-            searchType={searchType}
-            search={search}
-            customStyle={{
-              paddingLeft: "0.5em",
-            }}
-          />
-        </ToggleGroup>
-
+      <PageSection style={{ paddingBlockStart: "0.5em", height: "100%" }}>
         <Operations
           inValidateFolders={inValidateFolders}
           customStyle={{ paddingInlineStart: "0" }}
@@ -252,7 +260,6 @@ const TableSelectable: React.FC = () => {
         ) : (
           <EmptyStateTable />
         )}
-        {generatePagination(feedCount)}
       </PageSection>
     </WrapperConnect>
   );
@@ -472,49 +479,6 @@ const DonutUtilization = (props: {
   );
 };
 
-function EmptyStateTable() {
-  return (
-    <Table variant="compact" aria-label="Empty Table">
-      <Thead>
-        <Tr>
-          <Th>ID</Th>
-          <Th>Analysis</Th>
-          <Th>Created</Th>
-          <Th>Creator</Th>
-          <Th>Run Time</Th>
-          <Th>Size</Th>
-          <Th>Status</Th>
-        </Tr>
-      </Thead>
-      <Tbody>
-        <Tr>
-          <Td colSpan={12}>
-            <Bullseye>
-              <EmptyState variant={EmptyStateVariant.sm}>
-                <EmptyStateHeader
-                  icon={<EmptyStateIcon icon={SearchIcon} />}
-                  titleText="No results found"
-                  headingLevel="h2"
-                />
-              </EmptyState>
-            </Bullseye>
-          </Td>
-        </Tr>
-      </Tbody>
-    </Table>
-  );
-}
-
-const LoadingTable = () => {
-  return (
-    <Skeleton
-      height="100%"
-      width="100%"
-      screenreaderText="Loading Feed Table"
-    />
-  );
-};
-
 const FeedInfoColumn = ({
   feed,
   onClick,
@@ -529,3 +493,73 @@ const FeedInfoColumn = ({
     {feed.data.name}
   </Button>
 );
+
+const COLUMN_ORDER = [
+  { id: "id", label: "ID" },
+  { id: "analysis", label: "Analysis" },
+  { id: "created", label: "Created" },
+  { id: "creator", label: "Creator" },
+  { id: "runtime", label: "Run Time" },
+  { id: "size", label: "Size" },
+  { id: "status", label: "Status" },
+];
+
+function EmptyStateTable() {
+  return (
+    <Table variant="compact" aria-label="Empty Table">
+      <Thead>
+        <Tr>
+          <Th />
+          {COLUMN_ORDER.map(({ label }) => (
+            <Th key={label}>{label}</Th>
+          ))}
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Td colSpan={COLUMN_ORDER.length + 1}>
+            <EmptyState variant={EmptyStateVariant.full}>
+              <EmptyStateIcon icon={SearchIcon} />
+              <Title headingLevel="h4" size="lg">
+                No Data Available
+              </Title>
+              <Paragraph>
+                There are no analyses to display at this time. Please check back
+                later or adjust your filters.
+              </Paragraph>
+            </EmptyState>
+          </Td>
+        </Tr>
+      </Tbody>
+    </Table>
+  );
+}
+
+function LoadingTable() {
+  return (
+    <Table variant="compact" aria-label="Loading Table">
+      <Thead>
+        <Tr>
+          <Th />
+          {COLUMN_ORDER.map(({ label }) => (
+            <Th key={label}>{label}</Th>
+          ))}
+        </Tr>
+      </Thead>
+      <Tbody>
+        {Array.from({ length: 15 }).map((_, index) => (
+          <Tr key={index}>
+            <Td>
+              <Skeleton width="20px" height="40px" />
+            </Td>
+            {COLUMN_ORDER.map(({ id }) => (
+              <Td key={id}>
+                <Skeleton width="100px" height="40px" />
+              </Td>
+            ))}
+          </Tr>
+        ))}
+      </Tbody>
+    </Table>
+  );
+}
