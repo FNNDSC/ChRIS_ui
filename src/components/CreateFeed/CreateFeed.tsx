@@ -8,7 +8,7 @@ import {
   WizardStep,
 } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
-import { notification } from "antd";
+import { notification } from "../Antd";
 import * as React from "react";
 import { useContext } from "react";
 import { catchError } from "../../api/common";

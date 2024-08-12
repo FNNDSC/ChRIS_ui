@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
-import { HierarchyPointNode } from "d3-hierarchy";
+import { Alert } from "../Antd";
+import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import React, { useContext, useEffect, useRef } from "react";
-import { TreeNode, fetchComputeInfo } from "../../api/common";
+import { type TreeNode, fetchComputeInfo } from "../../api/common";
 import { stringToColour } from "../CreateFeed/utils";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { PipelineContext, Types, type ComputeInfoPayload } from "./context";

@@ -30,8 +30,6 @@ type NodeWrapperProps = {
   position: Point;
   parent: HierarchyPointNode<Datum> | null;
   onNodeClick: (node: any) => void;
-  onNodeClickTs: (node: PluginInstance) => void;
-
   orientation: "horizontal" | "vertical";
   overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
@@ -63,7 +61,6 @@ const Node = (props: NodeProps) => {
     position,
     data,
     onNodeClick,
-    onNodeClickTs,
     toggleLabel,
     status,
     currentId,
@@ -72,8 +69,7 @@ const Node = (props: NodeProps) => {
 
   const [api, contextHolder] = notification.useNotification();
   const dispatch = useDispatch();
-  const tsNodes = useTypedSelector((state) => state.tsPlugins.tsNodes);
-  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
+
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances.data,
   );
@@ -125,15 +121,6 @@ const Node = (props: NodeProps) => {
       data.item?.data.title?.toLowerCase().includes(value.toLowerCase()))
   ) {
     statusClass = "search";
-  }
-
-  if (mode === false && tsNodes && tsNodes.length > 0) {
-    if (data.item?.data.id) {
-      const node = tsNodes.find((node) => node.data.id === data.item?.data.id);
-      if (node) {
-        tsClass = "graphSelected";
-      }
-    }
   }
 
   const previous_id = data.item?.data?.previous_id;
@@ -206,6 +193,7 @@ const Node = (props: NodeProps) => {
       }
       return pipelines;
     } catch (error) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
   }
@@ -269,13 +257,7 @@ const Node = (props: NodeProps) => {
         id={`${data.id}`}
         ref={nodeRef}
         onClick={() => {
-          if (data.item) {
-            if (mode === false) {
-              onNodeClickTs(data.item);
-            } else {
-              onNodeClick(data);
-            }
-          }
+          onNodeClick(data);
         }}
       >
         <DropdownMenu

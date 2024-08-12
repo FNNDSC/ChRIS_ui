@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { Typography } from "antd";
+import { Typography } from "../Antd";
 import WrapperConnect from "../Wrapper";
 import PluginCatalog from "./PluginCatalog";
 import { InfoIcon } from "../Common/";

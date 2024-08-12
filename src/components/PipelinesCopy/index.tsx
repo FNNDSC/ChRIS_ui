@@ -8,7 +8,7 @@ import {
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Alert, Collapse } from "antd";
+import { Alert, Collapse } from "../Antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";

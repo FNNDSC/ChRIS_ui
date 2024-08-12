@@ -5,7 +5,7 @@ import type {
   PluginParameter,
 } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import React from "react";

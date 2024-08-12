@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
-import { Alert, Dropdown, Spin } from "antd";
+import { Alert, Dropdown, Spin } from "../../Antd";
 import React, {
   Fragment,
   useEffect,

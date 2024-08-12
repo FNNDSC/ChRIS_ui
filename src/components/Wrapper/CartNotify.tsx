@@ -1,5 +1,5 @@
 import { Button } from "@patternfly/react-core";
-import { Badge } from "antd";
+import { Badge } from "../Antd";
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";

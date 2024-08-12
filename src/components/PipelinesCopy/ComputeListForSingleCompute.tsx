@@ -1,5 +1,5 @@
-import { Pipeline } from "@fnndsc/chrisapi";
-import { Form } from "antd";
+import type { Pipeline } from "@fnndsc/chrisapi";
+import { Form } from "../Antd";
 import { useContext } from "react";
 import { EmptyStateComponent } from "../Common";
 import ListCompute from "./ListCompute";

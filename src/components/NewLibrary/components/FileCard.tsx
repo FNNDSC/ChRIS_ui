@@ -14,7 +14,7 @@ import {
   SplitItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { notification } from "antd";
+import { notification } from "../../Antd";
 import { isEmpty } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";

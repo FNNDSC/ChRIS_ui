@@ -9,7 +9,7 @@ import {
 } from "@patternfly/react-core";
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import * as dicomParser from "dicom-parser";
 import React, {
   Fragment,

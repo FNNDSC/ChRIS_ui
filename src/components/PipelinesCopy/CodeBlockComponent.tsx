@@ -1,4 +1,4 @@
-import { Pipeline } from "@fnndsc/chrisapi";
+import type { Pipeline } from "@fnndsc/chrisapi";
 import {
   ClipboardCopyButton,
   CodeBlock,
@@ -7,7 +7,7 @@ import {
   clipboardCopyFunc,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Form } from "antd";
+import { Alert, Form } from "../Antd";
 import { useContext, useState } from "react";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { PipelineContext } from "./context";

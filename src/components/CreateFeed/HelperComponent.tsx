@@ -5,7 +5,7 @@ import {
   Flex,
   FlexItem,
 } from "@patternfly/react-core";
-import { notification } from "antd";
+import { notification } from "../Antd";
 import { DeleteIcon as TrashIcon, FileIcon, FolderIcon } from "../Icons";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";

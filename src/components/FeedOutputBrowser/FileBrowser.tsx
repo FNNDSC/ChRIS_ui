@@ -11,15 +11,16 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { notification } from "antd";
 import { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { getFileExtension } from "../../api/model";
 import { setFilePreviewPanel } from "../../store/drawer/actions";
 import {
   clearSelectedFile,
   setSelectedFile,
 } from "../../store/explorer/actions";
 import useDownload, { useTypedSelector } from "../../store/hooks";
+import { notification } from "../Antd";
 import { ClipboardCopyContainer, SpinContainer, getIcon } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
@@ -29,7 +30,6 @@ import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
-import { getFileExtension } from "../../api/model";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 

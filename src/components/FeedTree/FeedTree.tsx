@@ -1,4 +1,3 @@
-import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Alert, Switch, TextInput } from "@patternfly/react-core";
 import {
   type HierarchyPointLink,
@@ -209,7 +208,6 @@ const FeedTree = (props: OwnProps) => {
     }
   }, [size, orientation, dispatch]);
 
-  const mode = useTypedSelector((state) => state.tsPlugins.treeMode);
   const [feedState, setFeedState] = React.useState<FeedTreeState>(
     getInitialState(props, feedTreeProp),
   );
@@ -288,19 +286,10 @@ const FeedTree = (props: OwnProps) => {
     props.onNodeClick(item);
   };
 
-  const handleNodeClickTs = (item: PluginInstance) => {
-    props.onNodeClickTs(item);
-  };
-
   const { nodes, links } = feedTree;
 
   return (
-    <div
-      className={`feed-tree setFlex grabbable mode_${
-        mode === false ? "graph" : "tree"
-      }`}
-      ref={divRef}
-    >
+    <div className="feed-tree setFlex grabbable mode_tree" ref={divRef}>
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
           {/* Suppressing this for now as we don't know how which key events to hook for changing orientations */}
@@ -385,15 +374,6 @@ const FeedTree = (props: OwnProps) => {
               />
             )}
           </div>
-
-          {mode === false && (
-            <div className="feed-tree__orientation">
-              <Alert
-                variant="info"
-                title="You are now in a ts node selection mode"
-              />
-            </div>
-          )}
         </div>
       </div>
 
@@ -429,7 +409,6 @@ const FeedTree = (props: OwnProps) => {
                   position={{ x, y }}
                   parent={parent}
                   onNodeClick={handleNodeClick}
-                  onNodeClickTs={handleNodeClickTs}
                   orientation={orientation}
                   toggleLabel={feedState.toggleLabel}
                   overlayScale={

@@ -1,6 +1,6 @@
 import { Button, Checkbox } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
-import { Popover } from "antd";
+import { Popover } from "../../Antd";
 import axios from "axios";
 import { useState } from "react";
 import ChrisApiClient from "../../../api/chrisapiclient";

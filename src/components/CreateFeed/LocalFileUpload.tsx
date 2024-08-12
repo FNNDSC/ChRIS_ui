@@ -3,7 +3,7 @@ import { WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
 import { LocalFileList } from "./HelperComponent";
-import { notification } from "antd";
+import { notification } from "../Antd";
 
 const LocalFileUpload = () => {
   const { state, dispatch } = useContext(CreateFeedContext);

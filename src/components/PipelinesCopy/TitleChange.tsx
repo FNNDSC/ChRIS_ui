@@ -1,7 +1,8 @@
-import { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
-import { Alert, Button, Form, Input, Space } from "antd";
+import type { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
+import { Alert, Form, Space } from "../Antd";
 import { useContext, useEffect, useState } from "react";
 import { PipelineContext, Types } from "./context";
+import { TextInput, Button } from "@patternfly/react-core";
 
 type OwnProps = {
   currentPipeline: Pipeline;
@@ -61,8 +62,11 @@ function TitleChange({ currentPipeline }: OwnProps) {
       <Form layout="vertical">
         <Form.Item label="Set a Title for the selected node">
           <Space.Compact>
-            <Input onChange={(e) => setValue(e.target.value)} value={value} />
-            <Button type="primary" onClick={handleSaveTitle}>
+            <TextInput
+              onChange={(_e, value) => setValue(value)}
+              value={value}
+            />
+            <Button size="sm" variant="primary" onClick={handleSaveTitle}>
               Save Title
             </Button>
           </Space.Compact>

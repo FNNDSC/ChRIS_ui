@@ -1,23 +1,23 @@
-import { useEffect, useState, useContext, useRef, useCallback } from "react";
 import type { PluginMeta } from "@fnndsc/chrisapi";
 import {
-  Pagination,
-  ToolbarItem,
-  Radio,
   Button,
   ButtonVariant,
   InputGroup,
+  Pagination,
+  Radio,
   TextInput,
+  ToolbarItem,
   useWizardContext,
 } from "@patternfly/react-core";
-import { SearchIcon } from "../Icons";
-import { Types as AddNodeTypes } from "../AddNode/types";
-import { Types } from "./types/feed";
-import { notification } from "antd";
 import debounce from "lodash/debounce";
-import { getPlugins } from "./utils";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { AddNodeContext } from "../AddNode/context";
+import { Types as AddNodeTypes } from "../AddNode/types";
+import { notification } from "../Antd";
+import { SearchIcon } from "../Icons";
 import { CreateFeedContext } from "./context";
+import { Types } from "./types/feed";
+import { getPlugins } from "./utils";
 
 interface FilterProps {
   perPage: number;

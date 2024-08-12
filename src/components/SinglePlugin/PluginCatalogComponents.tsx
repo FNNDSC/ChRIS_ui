@@ -32,11 +32,11 @@ import {
 } from "@patternfly/react-core";
 import { CheckCircleIcon, UserAltIcon } from "@patternfly/react-icons";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Spin } from "antd";
 import React from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import PluginImg from "../../assets/brainy-pointer.png";
+import { Alert, Spin } from "../Antd";
 import { ClipboardCopyFixed } from "../Common";
 
 export const HeaderComponent = ({

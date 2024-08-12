@@ -18,7 +18,7 @@ import {
   Tooltip,
   useWizardContext,
 } from "@patternfly/react-core";
-import { Alert, Steps, notification } from "antd";
+import { Alert, Steps, notification } from "../Antd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useTypedSelector } from "../../store/hooks";
 import GuidedConfig from "../AddNode/GuidedConfig";

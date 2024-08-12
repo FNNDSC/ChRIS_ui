@@ -1,10 +1,10 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "antd";
-import React, { useContext } from "react";
+import React, { useContext, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { fetchResource } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";
 import {
@@ -12,9 +12,8 @@ import {
   getSelectedPlugin,
 } from "../../store/pluginInstance/actions";
 import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
+import { Alert, Form, Tag } from "../Antd";
 import { SpinContainer } from "../Common";
-import { Form, Tag } from "antd";
-import { fetchResource } from "../../api/common";
 import Pipelines from "../PipelinesCopy";
 import { PipelineContext, Types } from "../PipelinesCopy/context";
 
@@ -121,10 +120,11 @@ const AddPipeline = () => {
     }
   });
 
-  const isButtonDisabled =
-    pipelineToAdd && computeInfo?.[pipelineToAdd.data.id] && !mutation.isPending
-      ? false
-      : true;
+  const isButtonDisabled = !(
+    pipelineToAdd &&
+    computeInfo?.[pipelineToAdd.data.id] &&
+    !mutation.isPending
+  );
 
   return (
     <Modal
@@ -145,7 +145,7 @@ const AddPipeline = () => {
         <Button key="cancel" variant="link" onClick={handleToggle}>
           Cancel
         </Button>,
-        <>
+        <Fragment key="status">
           {state.pipelineToAdd && (
             <div>
               <Form.Item
@@ -168,7 +168,7 @@ const AddPipeline = () => {
               </Form.Item>
             </div>
           )}
-        </>,
+        </Fragment>,
       ]}
     >
       <Pipelines />
