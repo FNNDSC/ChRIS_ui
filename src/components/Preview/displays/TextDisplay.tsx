@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { IFileBlob } from "../../../api/model";
+import type { IFileBlob } from "../../../api/model";
 import useSize from "../../FeedTree/useSize";
 
 type AllProps = {
