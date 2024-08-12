@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useMemo } from "react";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { getFileName } from "../../../api/common";
-import { createFeed } from "../../../store/cart/saga";
+import { createFeed } from "../../../store/cart/downloadSaga";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 

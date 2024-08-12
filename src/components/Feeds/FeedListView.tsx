@@ -143,7 +143,6 @@ const TableSelectable: React.FC = () => {
     isLoading || isFetching || publicFeedLoading || publicFeedFetching;
 
   const inValidateFolders = () => {
-    console.log("InvalidateFolders Feeds:");
     queryClient.invalidateQueries({
       queryKey: ["feeds"],
     });

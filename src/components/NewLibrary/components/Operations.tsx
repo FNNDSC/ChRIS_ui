@@ -17,9 +17,10 @@ import type { DefaultError } from "@tanstack/react-query";
 import { Alert, Dropdown, Spin } from "antd";
 import React, {
   Fragment,
-  useImperativeHandle,
-  useState,
   useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
 } from "react";
 import { useDispatch } from "react-redux";
 import { getFileName } from "../../../api/common";
@@ -174,99 +175,112 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     </Tooltip>
   );
 
-  const toolbarItems = (
-    <Fragment>
-      {contextHolder}
-      <ToolbarItem>
-        <Dropdown
-          menu={{
-            items,
-            selectable: true,
-            onClick: (info) => {
-              handleOperations(info.key);
-            },
-          }}
-        >
-          <Button
-            size="sm"
-            icon={
-              <AddIcon
-                style={{ color: "inherit", height: "1em", width: "1em" }}
-              />
-            }
+  const toolbarItems = useMemo(
+    () => (
+      <Fragment>
+        {contextHolder}
+        <ToolbarItem>
+          <Dropdown
+            menu={{
+              items,
+              selectable: true,
+              onClick: (info) => {
+                handleOperations(info.key);
+              },
+            }}
           >
-            New
-          </Button>
-        </Dropdown>
-        {userError && (
-          <Alert
-            style={{ marginLeft: "1rem" }}
-            type="error"
-            description={userError}
-            closable
-            onClose={() => setUserErrors("")}
-          />
+            <Button
+              size="sm"
+              icon={
+                <AddIcon
+                  style={{ color: "inherit", height: "1em", width: "1em" }}
+                />
+              }
+            >
+              New
+            </Button>
+          </Dropdown>
+          {userError && (
+            <Alert
+              style={{ marginLeft: "1rem" }}
+              type="error"
+              description={userError}
+              closable
+              onClose={() => setUserErrors("")}
+            />
+          )}
+        </ToolbarItem>
+        {selectedPathsCount > 0 && (
+          <>
+            <ToolbarItem>
+              {renderOperationButton(
+                <CodeBranchIcon />,
+                "createFeed",
+                "Create a new feed",
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              {renderOperationButton(
+                <DownloadIcon />,
+                "download",
+                "Download selected items",
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              {renderOperationButton(
+                <ArchiveIcon />,
+                "anonymize",
+                "Anonymize selected items",
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              {renderOperationButton(
+                <MergeIcon />,
+                "merge",
+                "Merge selected items",
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              {renderOperationButton(
+                <DuplicateIcon />,
+                "duplicate",
+                "Copy selected items",
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              {renderOperationButton(
+                <DeleteIcon />,
+                "delete",
+                "Delete selected items",
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              <ChipGroup>
+                {selectedPaths.map((selection) => (
+                  <Chip
+                    key={selection.path}
+                    onClick={() =>
+                      dispatch(removeIndividualSelection(selection))
+                    }
+                  >
+                    {getFileName(selection.path)}
+                  </Chip>
+                ))}
+              </ChipGroup>
+            </ToolbarItem>
+          </>
         )}
-      </ToolbarItem>
-      {selectedPathsCount > 0 && (
-        <>
-          <ToolbarItem>
-            {renderOperationButton(
-              <CodeBranchIcon />,
-              "createFeed",
-              "Create a new feed",
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {renderOperationButton(
-              <DownloadIcon />,
-              "download",
-              "Download selected items",
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {renderOperationButton(
-              <ArchiveIcon />,
-              "anonymize",
-              "Anonymize selected items",
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {renderOperationButton(
-              <MergeIcon />,
-              "merge",
-              "Merge selected items",
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {renderOperationButton(
-              <DuplicateIcon />,
-              "duplicate",
-              "Copy selected items",
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            {renderOperationButton(
-              <DeleteIcon />,
-              "delete",
-              "Delete selected items",
-            )}
-          </ToolbarItem>
-          <ToolbarItem>
-            <ChipGroup>
-              {selectedPaths.map((selection) => (
-                <Chip
-                  key={selection.path}
-                  onClick={() => dispatch(removeIndividualSelection(selection))}
-                >
-                  {getFileName(selection.path)}
-                </Chip>
-              ))}
-            </ChipGroup>
-          </ToolbarItem>
-        </>
-      )}
-    </Fragment>
+      </Fragment>
+    ),
+    [
+      contextHolder,
+      userError,
+      selectedPaths,
+      selectedPathsCount,
+      dispatch,
+      handleOperations,
+      setUserErrors,
+    ],
   );
 
   return (

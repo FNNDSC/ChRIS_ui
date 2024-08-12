@@ -46,7 +46,6 @@ export const useFolderOperations = (
     if (fileInput.current) {
       fileInput.current.value = "";
     }
-    //inValidateFolders();
   };
 
   const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,7 +61,6 @@ export const useFolderOperations = (
     if (folderInput.current) {
       folderInput.current.value = "";
     }
-    // inValidateFolders();
   };
 
   const handleModalSubmit = async (inputValue: string) => {
