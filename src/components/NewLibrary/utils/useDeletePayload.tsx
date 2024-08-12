@@ -54,7 +54,6 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
         message: "Deletion in progress...",
         key,
         type: "info",
-        description: "Testing",
         onClose: () => {
           if (mutation.isSuccess) return true;
         },
