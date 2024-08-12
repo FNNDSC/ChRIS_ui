@@ -27,7 +27,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Spin } from "antd";
+import { Alert, Spin } from "../Antd";
 import { isEmpty } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";

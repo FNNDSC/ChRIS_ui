@@ -1,6 +1,6 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import type { DefaultError } from "@tanstack/react-query";
-import { Alert, Dropdown, type MenuProps } from "antd";
+import { Alert, Dropdown, type MenuProps } from "../../Antd";
 import {
   ArchiveIcon,
   CodeBranchIcon,

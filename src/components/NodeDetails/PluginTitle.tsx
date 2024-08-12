@@ -7,7 +7,7 @@ import {
 } from "@patternfly/react-core";
 import { EditIcon } from "../Icons";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../store/hooks";
@@ -29,6 +29,7 @@ const PluginTitle = () => {
       if (!pluginItem) throw new Error("Failed to set title...");
       dispatch(setPluginTitle(pluginItem));
     } catch (e) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw e;
     }
   };

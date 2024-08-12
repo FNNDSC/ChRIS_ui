@@ -1,12 +1,11 @@
-import {
+import type {
   PipelinePipingDefaultParameterList,
   PluginInstance,
-  PluginInstanceParameter,
   PluginParameter,
   PluginPiping,
 } from "@fnndsc/chrisapi";
 import { fetchResource } from "../../api/common";
-import { TSID } from "./ParentComponent";
+import type { TSID } from "./ParentComponent";
 
 export interface Datum {
   id?: number;
@@ -39,7 +38,6 @@ export interface OwnProps {
   tsIds?: TSID;
   data: TreeNodeDatum[];
   onNodeClick: (node: any) => void;
-  onNodeClickTs: (node: PluginInstance) => void;
   translate?: Point;
   scaleExtent: {
     min: number;

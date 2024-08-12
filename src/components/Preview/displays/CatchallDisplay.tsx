@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Alert } from "antd";
+import { Alert } from "../../Antd";
 import type { IFileBlob } from "../../../api/model";
 
 type AllProps = {

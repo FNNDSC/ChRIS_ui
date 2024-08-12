@@ -2,7 +2,7 @@ import React, { useState, useContext, useCallback, useEffect } from "react";
 import { CreateFeedContext } from "./context";
 import { useWizardContext } from "@patternfly/react-core";
 import type { EventDataNode, Key } from "rc-tree/lib/interface";
-import { Tree, notification } from "antd";
+import { Tree, notification } from "../Antd";
 
 import {
   Types,

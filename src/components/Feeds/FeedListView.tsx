@@ -14,10 +14,11 @@ import {
   ToggleGroup,
   ToggleGroupItem,
   type ToggleGroupItemProps,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Tooltip, Typography } from "antd";
+import { Typography } from "../Antd";
 import { format } from "date-fns";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
@@ -454,11 +455,7 @@ const DonutUtilization = (props: {
   const mode = isDarkTheme ? "dark" : "light";
 
   return (
-    <Tooltip
-      placement="top"
-      title={`Progress: ${details.progress}%`}
-      overlayStyle={{ fontSize: "12px" }}
-    >
+    <Tooltip content={`Progress: ${details.progress}%`}>
       <div className={`chart ${mode}`}>
         <ChartDonutUtilization
           ariaTitle={feedProgressText}

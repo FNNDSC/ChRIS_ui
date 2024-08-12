@@ -1,11 +1,11 @@
-import React from "react";
-import { Typography } from "antd";
 import { PageSection } from "@patternfly/react-core";
-import ComputeCatalog from "./ComputeCatalog";
-import { InfoIcon } from "../Common";
-import { setSidebarActive } from "../../store/ui/actions";
+import React from "react";
 import { useDispatch } from "react-redux";
+import { setSidebarActive } from "../../store/ui/actions";
+import { Typography } from "../Antd";
+import { InfoIcon } from "../Common";
 import WrapperConnect from "../Wrapper";
+import ComputeCatalog from "./ComputeCatalog";
 
 const { Paragraph } = Typography;
 

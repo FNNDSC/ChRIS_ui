@@ -10,7 +10,7 @@ import type { IFeedState } from "../feed/types";
 import type { IPluginState } from "../plugin/types";
 import type { IPluginInstanceState } from "../pluginInstance/types";
 import type { IResourceState } from "../resources/types";
-import type { ITSPluginState } from "../tsplugins/types";
+
 import type { IUiState } from "../ui/types";
 import type { IUserState } from "../user/types";
 import type rootReducer from "./rootReducer";
@@ -22,7 +22,6 @@ export interface ApplicationState {
   plugin: IPluginState;
   instance: IPluginInstanceState;
   resource: IResourceState;
-  tsPlugins: ITSPluginState;
   drawerState: IDrawerState;
   explorer: IExplorerState;
   cart: ICartState;

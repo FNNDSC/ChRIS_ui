@@ -1,5 +1,5 @@
 import { Button, Text, Tooltip } from "@patternfly/react-core";
-import { Drawer, List, Popconfirm, Space } from "antd";
+import { Drawer, List, Popconfirm, Space } from "../../Antd";
 import { isEmpty } from "lodash";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";

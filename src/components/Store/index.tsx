@@ -27,7 +27,7 @@ import {
   TextVariants,
 } from "@patternfly/react-core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Alert, Spin, Typography, notification } from "antd";
+import { Alert, Spin, Typography, notification } from "../Antd";
 import { format } from "date-fns";
 import { isEmpty } from "lodash";
 import { type Ref, useEffect, useState } from "react";

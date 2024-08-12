@@ -1,9 +1,9 @@
-import { ReactNode } from "react";
 import { Button, Modal, ModalVariant, Tooltip } from "@patternfly/react-core";
-import { FeedFile } from "@fnndsc/chrisapi";
+import type { ReactNode } from "react";
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import ReactJson from "react-json-view";
+import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
-import { Alert } from "antd";
 
 export const GalleryButtonContainer = ({
   handleClick,
@@ -54,7 +54,7 @@ export const TagInfoModal = ({
   handleModalToggle: (event: string, value: boolean) => void;
   parsingError: string;
   output?: any[];
-  file?: FeedFile;
+  file?: FileBrowserFolderFile;
 }) => {
   return (
     <Modal

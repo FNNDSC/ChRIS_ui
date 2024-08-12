@@ -1,16 +1,15 @@
 import React from "react";
-import { Alert } from "antd";
 import { useDispatch } from "react-redux";
-import { PluginInstance } from "@fnndsc/chrisapi";
 import { setFeedTreeProp } from "../../store/feed/actions";
-import FeedTree from "./FeedTree";
-import TreeNodeDatum, { getFeedTree, getTsNodes } from "./data";
 import { useTypedSelector } from "../../store/hooks";
+import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
+import FeedTree from "./FeedTree";
+import type TreeNodeDatum from "./data";
+import { getFeedTree, getTsNodes } from "./data";
 import "./FeedTree.css";
 
 interface ParentComponentProps {
-  onNodeClickTs: (node: PluginInstance) => void;
   onNodeClick: (node: any) => void;
 }
 
@@ -19,7 +18,7 @@ export type TSID = {
 };
 
 const ParentComponent = (props: ParentComponentProps) => {
-  const { onNodeClick, onNodeClickTs } = props;
+  const { onNodeClick } = props;
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances,
   );
@@ -46,7 +45,6 @@ const ParentComponent = (props: ParentComponentProps) => {
 
   return data && data.length > 0 ? (
     <FeedTree
-      onNodeClickTs={onNodeClickTs}
       data={data}
       tsIds={tsIds}
       onNodeClick={onNodeClick}

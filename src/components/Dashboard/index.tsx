@@ -3,7 +3,7 @@ import BUILD_VERSION from "../../getBuildVersion";
 import { useDispatch } from "react-redux";
 import WrapperConnect from "../Wrapper";
 import { PageSection, Grid, GridItem } from "@patternfly/react-core";
-import { Typography } from "antd";
+import { Typography } from "../Antd";
 import { setSidebarActive } from "../../store/ui/actions";
 import { InfoIcon } from "../Common";
 import { CatalogTile } from "@patternfly/react-catalog-view-extension";

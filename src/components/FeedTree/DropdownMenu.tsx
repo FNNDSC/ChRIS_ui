@@ -1,4 +1,4 @@
-import { Dropdown, type MenuProps } from "antd";
+import { Dropdown, type MenuProps } from "../Antd";
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/actions";

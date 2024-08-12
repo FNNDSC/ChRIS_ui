@@ -12,7 +12,6 @@ import { pluginReducer } from "../plugin/reducer";
 import { pluginInstanceReducer } from "../pluginInstance/reducer";
 import { resourceReducer } from "../resources/reducer";
 import { drawerReducer } from "../drawer/reducer";
-import { tsPluginsReducer } from "../tsplugins/reducer";
 import { explorerReducer } from "../explorer/reducer";
 import { cartReducer } from "../cart/reducer";
 
@@ -24,7 +23,6 @@ const rootReducer = combineReducers({
   explorer: explorerReducer,
   instance: pluginInstanceReducer,
   resource: resourceReducer,
-  tsPlugins: tsPluginsReducer,
   drawers: drawerReducer,
   cart: cartReducer,
 });

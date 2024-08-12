@@ -1,4 +1,4 @@
-import { Steps, Spin } from "antd";
+import { Steps, Spin } from "../Antd";
 import usePluginInstanceResource from "./usePluginInstanceResource";
 
 const Status = () => {

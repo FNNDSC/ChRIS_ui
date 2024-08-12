@@ -9,7 +9,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Alert, Typography } from "antd";
+import { Alert, Typography } from "../Antd";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";

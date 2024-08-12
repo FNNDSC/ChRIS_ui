@@ -9,11 +9,11 @@ import {
   Title,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
 import type React from "react";
 import { useCallback, useContext, useRef, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
+import { Alert } from "../Antd";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { AddNodeContext } from "./context";

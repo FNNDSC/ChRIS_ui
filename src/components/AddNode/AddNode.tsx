@@ -16,10 +16,10 @@ import { getRequiredObject } from "../CreateFeed/createFeedHelper";
 import BasicConfiguration from "./BasicConfiguration";
 import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
-import { Alert } from "antd";
+import { useTypedSelector } from "../../store/hooks";
+import { Alert } from "../Antd";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
-import { useTypedSelector } from "../../store/hooks";
 
 const AddNode: React.FC = () => {
   const dispatch = useDispatch();

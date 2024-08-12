@@ -18,7 +18,7 @@ import {
   pluralize,
 } from "@patternfly/react-core";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../../Antd";
 import axios from "axios";
 import PQueue from "p-queue";
 import { useContext, useEffect, useState } from "react";

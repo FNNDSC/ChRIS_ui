@@ -1,10 +1,10 @@
 import { ToolbarItem } from "@patternfly/react-core";
-import { Badge } from "antd";
-import React, { ReactNode, useState } from "react";
+import { Badge } from "../Antd";
+import React, { type ReactNode, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchNote } from "../../api/common";
 import { setDrawerCurrentlyActive } from "../../store/drawer/actions";
-import { IDrawerState } from "../../store/drawer/types";
+import type { IDrawerState } from "../../store/drawer/types";
 import { useTypedSelector } from "../../store/hooks";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
 import { handleToggle } from "../Feeds/utilties";

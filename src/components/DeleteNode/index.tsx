@@ -1,7 +1,7 @@
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import { useEffect, Fragment } from "react";
 import { useDispatch } from "react-redux";
 import { fetchResource } from "../../api/common";

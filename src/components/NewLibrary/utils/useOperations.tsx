@@ -1,6 +1,6 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
-import { notification } from "antd";
+import { notification } from "../../Antd";
 import { isEmpty } from "lodash";
 import { useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";

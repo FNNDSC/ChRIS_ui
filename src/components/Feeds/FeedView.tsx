@@ -6,8 +6,7 @@ import {
   DrawerPanelContent,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import { notification } from "antd";
-import * as React from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { clearSelectedFile } from "../../store/explorer/actions";
@@ -25,8 +24,8 @@ import {
 } from "../../store/pluginInstance/actions";
 import { resetActiveResources } from "../../store/resources/actions";
 import type { DestroyActiveResources } from "../../store/resources/types";
-import { addTSNodes, resetTsNodes } from "../../store/tsplugins/actions";
 import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
+import { notification } from "../Antd";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
 import ParentComponent from "../FeedTree/ParentComponent";
@@ -124,7 +123,6 @@ export default function FeedView() {
       }
       dispatch(resetFeed());
       dispatch(resetPluginInstances());
-      dispatch(resetTsNodes());
       dispatch(clearSelectedFile());
       dispatch(setShowToolbar(false));
     };
@@ -153,10 +151,6 @@ export default function FeedView() {
   const onNodeBrowserClick = (node: PluginInstance) => {
     dispatch(clearSelectedFile());
     dispatch(getSelectedPlugin(node));
-  };
-
-  const onNodeClickTS = (node: PluginInstance) => {
-    dispatch(addTSNodes(node));
   };
 
   const handleDrawerAction = (mode: string) => {
@@ -202,10 +196,7 @@ export default function FeedView() {
 
         <DrawerContentBody>
           {!currentLayout ? (
-            <ParentComponent
-              onNodeClick={onNodeClick}
-              onNodeClickTs={onNodeClickTS}
-            />
+            <ParentComponent onNodeClick={onNodeClick} />
           ) : (
             <FeedGraph onNodeClick={onNodeClick} />
           )}

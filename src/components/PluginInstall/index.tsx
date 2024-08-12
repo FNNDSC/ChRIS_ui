@@ -6,7 +6,7 @@ import {
   LoginPage,
 } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import React from "react";
 import { Cookies, useCookies } from "react-cookie";
 import { useNavigate } from "react-router";

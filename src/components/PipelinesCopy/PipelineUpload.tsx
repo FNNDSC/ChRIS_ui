@@ -1,6 +1,6 @@
 import Client from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import axios from "axios";
 import { isEmpty } from "lodash";
 import { useRef, useState } from "react";
