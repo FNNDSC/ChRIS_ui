@@ -25,14 +25,12 @@ const FeedDetails = () => {
   const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
 
-  const node = drawerState.node.currentlyActive === "node" ? true : false;
-  const note = drawerState.node.currentlyActive === "note" ? true : false;
+  const node = drawerState.node.currentlyActive === "node";
+  const note = drawerState.node.currentlyActive === "note";
   const [showNoteBadge, setShowNoteBadge] = useState(false);
-  const terminal =
-    drawerState.node.currentlyActive === "terminal" ? true : false;
+  const terminal = drawerState.node.currentlyActive === "terminal";
 
-  const preview =
-    drawerState.preview.currentlyActive === "preview" ? true : false;
+  const preview = drawerState.preview.currentlyActive === "preview";
 
   React.useEffect(() => {
     fetchNote(currentFeed).then((feedNote) => {
@@ -116,9 +114,19 @@ const FeedDetails = () => {
             content={!node && terminal ? "Configuration Panel" : "Terminal"}
             onClick={() => {
               if (terminal) {
-                dispatch(setDrawerCurrentlyActive("node", "node"));
+                dispatch(
+                  setDrawerCurrentlyActive({
+                    panel: "node",
+                    currentlyActive: "node",
+                  }),
+                );
               } else {
-                dispatch(setDrawerCurrentlyActive("node", "terminal"));
+                dispatch(
+                  setDrawerCurrentlyActive({
+                    panel: "node",
+                    currentlyActive: "terminal",
+                  }),
+                );
               }
             }}
             Icon={
@@ -131,16 +139,26 @@ const FeedDetails = () => {
 
       <DrawerActionsToolbar
         button={
-          <Badge dot={showNoteBadge && !note ? true : false} offset={[-5, 0]}>
+          <Badge dot={!!(showNoteBadge && !note)} offset={[-5, 0]}>
             <ButtonWithTooltip
               className="button-style large-button"
               position="bottom"
               content={!note ? "Feed Note" : "Configuration Panel"}
               onClick={() => {
                 if (note) {
-                  dispatch(setDrawerCurrentlyActive("node", "node"));
+                  dispatch(
+                    setDrawerCurrentlyActive({
+                      panel: "node",
+                      currentlyActive: "node",
+                    }),
+                  );
                 } else {
-                  dispatch(setDrawerCurrentlyActive("node", "note"));
+                  dispatch(
+                    setDrawerCurrentlyActive({
+                      panel: "node",
+                      currentlyActive: "note",
+                    }),
+                  );
                 }
               }}
               Icon={
@@ -166,9 +184,19 @@ const FeedDetails = () => {
             content={preview ? "Visualization Panel" : "Preview Panel"}
             onClick={() => {
               if (preview) {
-                dispatch(setDrawerCurrentlyActive("preview", "xtk"));
+                dispatch(
+                  setDrawerCurrentlyActive({
+                    panel: "preview",
+                    currentlyActive: "xtk",
+                  }),
+                );
               } else {
-                dispatch(setDrawerCurrentlyActive("preview", "preview"));
+                dispatch(
+                  setDrawerCurrentlyActive({
+                    panel: "preview",
+                    currentlyActive: "preview",
+                  }),
+                );
               }
             }}
             Icon={preview ? <BrainIcon /> : <PreviewIcon />}
@@ -215,7 +243,7 @@ export const ButtonContainer = ({
   drawerState,
   isDisabled,
 }: {
-  action: string;
+  action: keyof IDrawerState;
   dispatch: any;
   Icon: React.ReactNode;
   title: string;
