@@ -27,15 +27,16 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Spin } from "../Antd";
 import { isEmpty } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { quote } from "shlex";
 import { v4 } from "uuid";
 import { catchError, fetchResource, needsQuoting } from "../../api/common";
+import type { AppDispatch } from "../../store/configureStore";
 import { useTypedSelector } from "../../store/hooks";
-import { getParams } from "../../store/plugin/pluginSlice";
+import { fetchParamsAndComputeEnv } from "../../store/plugin/pluginSlice";
+import { Alert, Spin } from "../Antd";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
 import ComputeEnvironments from "./ComputeEnvironment";
 import RequiredParam from "./RequiredParam";
@@ -63,7 +64,7 @@ const advancedConfigList = [
 const memory_limit = ["Mi", "Gi"];
 
 const GuidedConfig = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const { parameters: params, resourceError } = useTypedSelector(
     (state) => state.plugin,
@@ -103,11 +104,11 @@ const GuidedConfig = () => {
           });
 
           // Fetch the parameters for this particular plugin to display as a form.
-          dispatch(getParams(plugin));
+          dispatch(fetchParamsAndComputeEnv(plugin));
         }
       } catch (e) {
         const error_message = catchError(e).error_message;
-        dispatch({
+        nodeDispatch({
           type: Types.SetError,
           payload: {
             error: !isEmpty(error_message)
@@ -482,7 +483,7 @@ const ItalicsComponent = ({
 };
 
 const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [isopen, setIsOpen] = React.useState(false);
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const { selectedPluginFromMeta } = state;
@@ -498,7 +499,7 @@ const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
         plugin: selectedPlugin,
       },
     });
-    dispatch(getParams(selectedPlugin));
+    dispatch(fetchParamsAndComputeEnv(selectedPlugin));
   };
 
   const menuItems =

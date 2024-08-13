@@ -38,7 +38,7 @@ function configureAppStore() {
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
-        thunk: false, // Disabling thunk since we're using sagas
+        thunk: true, // Disabling thunk since we're using sagas
         serializableCheck: false, // Disable serializable check if necessary
       }).concat(sagaMiddleware),
     devTools: import.meta.env.NODE_ENV !== "production",

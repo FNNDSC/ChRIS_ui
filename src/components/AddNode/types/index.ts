@@ -4,7 +4,7 @@ import type {
   PluginMeta,
   PluginParameter,
 } from "@fnndsc/chrisapi";
-import type { IUserState } from "../../../store/user/types";
+import type { IUserState } from "../../../store/user/userSlice";
 
 export interface InputIndex {
   [key: string]: string;
@@ -51,24 +51,6 @@ export interface PluginSelectState {
 export interface PluginMetaSelectState {
   expanded: string;
   allPlugins?: PluginMeta[];
-}
-
-export interface AddNodeProps {
-  selectedPlugin?: PluginInstance;
-  pluginInstances?: {
-    data?: PluginInstance[];
-    error: string;
-    loading: boolean;
-  };
-  params?: {
-    dropdown: PluginParameter[];
-    required: PluginParameter[];
-  };
-  addNode: (item: {
-    pluginItem: PluginInstance;
-    nodes?: PluginInstance[];
-  }) => void;
-  getParams: (plugin: Plugin) => void;
 }
 
 export interface GuidedConfigState {

@@ -1,6 +1,12 @@
-import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
+import { fetchResource } from "../../api/common";
 
+// Define the initial state
 export interface IPluginState {
   parameters: {
     required: PluginParameter[];
@@ -13,7 +19,6 @@ export interface IPluginState {
   };
 }
 
-// Define the initial state
 const initialState: IPluginState = {
   parameters: {
     dropdown: [],
@@ -30,33 +35,48 @@ const initialState: IPluginState = {
   },
 };
 
-// Create a slice
+// Create async thunk to replace the saga
+export const fetchParamsAndComputeEnv = createAsyncThunk(
+  "plugin/fetchParamsAndComputeEnv",
+  async (plugin: Plugin, { rejectWithValue }) => {
+    try {
+      const fn = plugin.getPluginParameters;
+      const boundFn = fn.bind(plugin);
+      const { resource: params } = await fetchResource<PluginParameter>(
+        { limit: 20, offset: 0 },
+        boundFn,
+      );
+
+      const computeFn = plugin.getPluginComputeResources;
+      const boundComputeFn = computeFn.bind(plugin);
+      const { resource: computeEnvs } = await fetchResource<any>(
+        { limit: 20, offset: 0 },
+        boundComputeFn,
+      );
+
+      const required = params.filter(
+        (param: PluginParameter) => param.data.optional === false,
+      );
+      const dropdown = params.filter(
+        (param: PluginParameter) => param.data.optional === true,
+      );
+
+      return { required, dropdown, computeEnvs };
+    } catch (error: any) {
+      let errorMessage =
+        "Unhandled error. Please reach out to @devbabymri.org to report this error";
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      return rejectWithValue(errorMessage);
+    }
+  },
+);
+
 const pluginSlice = createSlice({
   name: "plugin",
   initialState,
   reducers: {
-    getParams(_state, _action: PayloadAction<Plugin>) {
-      // This action might be redundant if parameters are fetched in another way
-    },
-    getParamsSuccess(
-      state,
-      action: PayloadAction<{
-        required: PluginParameter[];
-        dropdown: PluginParameter[];
-      }>,
-    ) {
-      state.parameters.required = action.payload.required;
-      state.parameters.dropdown = action.payload.dropdown;
-    },
-    getComputeEnv(_state, _action: PayloadAction<PluginParameter[]>) {
-      // This action might be redundant if computeEnv is fetched in another way
-    },
-    getComputeEnvSuccess(state, action: PayloadAction<any[]>) {
-      state.computeEnv = action.payload;
-    },
-    getComputeEnvError(state, action: PayloadAction<string>) {
-      state.resourceError = action.payload;
-    },
     getNodeOperations(state, action: PayloadAction<string>) {
       const key = action.payload;
       if (key in state.nodeOperations) {
@@ -64,17 +84,21 @@ const pluginSlice = createSlice({
       }
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchParamsAndComputeEnv.fulfilled, (state, action) => {
+        state.parameters.required = action.payload.required;
+        state.parameters.dropdown = action.payload.dropdown;
+        state.computeEnv = action.payload.computeEnvs;
+      })
+      .addCase(fetchParamsAndComputeEnv.rejected, (state, action) => {
+        state.resourceError = action.payload as string;
+      });
+  },
 });
 
 // Export the actions
-export const {
-  getParams,
-  getParamsSuccess,
-  getComputeEnv,
-  getComputeEnvSuccess,
-  getComputeEnvError,
-  getNodeOperations,
-} = pluginSlice.actions;
+export const { getNodeOperations } = pluginSlice.actions;
 
 // Export the reducer
 export default pluginSlice.reducer;
