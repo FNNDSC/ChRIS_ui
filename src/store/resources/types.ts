@@ -4,7 +4,6 @@
  *  Author:          ChRIS UI
  *  Notes:           Work in progres ...
  */
-import keyMirror from "keymirror";
 
 import type {
   PluginInstance,
@@ -101,17 +100,3 @@ export interface IResourceState {
   url: string;
   loading: boolean;
 }
-
-export const ResourceTypes = keyMirror({
-  GET_PLUGIN_INSTANCE_RESOURCE_REQUEST: null,
-  GET_PLUGIN_INSTANCE_RESOURCE_SUCCESS: null,
-  GET_PLUGIN_STATUS_REQUEST: null,
-  GET_PLUGIN_STATUS_SUCCESS: null,
-  STOP_FETCHING_STATUS_RESOURCES: null,
-  STOP_FETCHING_PLUGIN_RESOURCES: null,
-  GET_PLUGIN_FILES_REQUEST: null,
-  GET_PLUGIN_FILES_SUCCESS: null,
-  GET_PLUGIN_FILES_ERROR: null,
-  RESET_ACTIVE_RESOURCES: null,
-  SET_CURRENT_URL: null,
-});

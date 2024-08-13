@@ -1,4 +1,4 @@
-import Client, { type Plugin, type PluginMeta } from "@fnndsc/chrisapi";
+import Client, { type Plugin } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Badge,
@@ -35,7 +35,7 @@ import { Cookies, useCookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { setSidebarActive } from "../../store/ui/actions";
+import { setSidebarActive } from "../../store/ui/uiSlice";
 import { InfoIcon, SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";

@@ -6,12 +6,12 @@ import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
-import { getNodeOperations } from "../../store/plugin/actions";
+import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import {
   getPluginInstancesSuccess,
   getSelectedPlugin,
-} from "../../store/pluginInstance/actions";
-import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
+} from "../../store/pluginInstance/pluginInstanceSlice";
+import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
 import { Alert, Form, Tag } from "../Antd";
 import { SpinContainer } from "../Common";
 import Pipelines from "../PipelinesCopy";

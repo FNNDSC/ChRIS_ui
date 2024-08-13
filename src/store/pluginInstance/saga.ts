@@ -2,15 +2,15 @@ import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { all, fork, put, takeEvery } from "@redux-saga/core/effects";
 import { catchError, fetchResource } from "../../api/common";
 import type { IActionTypeParam } from "../../api/model";
-import { getPluginInstanceStatusRequest } from "../resources/actions";
+import { getPluginInstanceStatusRequest } from "../resources/resourceSlice";
 import {
+  addNodeRequest,
   addNodeSuccess,
-  addSplitNodesSuccess,
   getPluginInstancesError,
+  getPluginInstancesRequest,
   getPluginInstancesSuccess,
   getSelectedPlugin,
-} from "./actions";
-import { PluginInstanceTypes } from "./types";
+} from "./pluginInstanceSlice";
 
 function* setPluginInstances(feed: Feed) {
   try {
@@ -34,7 +34,7 @@ function* setPluginInstances(feed: Feed) {
       put(getPluginInstanceStatusRequest(pluginInstanceObj)),
     ]);
   } catch (error: any) {
-    const errObj = catchError(error);
+    const errObj = catchError(error).error_message;
     yield put(getPluginInstancesError(errObj));
   }
 }
@@ -59,46 +59,18 @@ function* handleAddNode(action: IActionTypeParam) {
   }
 }
 
-function* handleSplitNode(action: IActionTypeParam) {
-  const items: PluginInstance[] = action.payload.nodes;
-  const splitNodes: PluginInstance[] = action.payload.splitNodes;
-  const selected: PluginInstance = action.payload.selectedPlugin;
-
-  const newList: PluginInstance[] = [...items, ...splitNodes];
-  yield all([
-    put(addSplitNodesSuccess(splitNodes)),
-    put(
-      getPluginInstanceStatusRequest({
-        selected,
-        pluginInstances: newList,
-      }),
-    ),
-  ]);
-}
-
 // ------------------------------------------------------------------------
 // Description: Delete a node
 // ------------------------------------------------------------------------
 
 function* watchGetPluginInstanceRequest() {
-  yield takeEvery(
-    PluginInstanceTypes.GET_PLUGIN_INSTANCES_REQUEST,
-    handleGetPluginInstances,
-  );
+  yield takeEvery(getPluginInstancesRequest.type, handleGetPluginInstances);
 }
 
 function* watchAddNode() {
-  yield takeEvery(PluginInstanceTypes.ADD_NODE_REQUEST, handleAddNode);
-}
-
-function* watchAddSplitNode() {
-  yield takeEvery(PluginInstanceTypes.ADD_SPLIT_NODES, handleSplitNode);
+  yield takeEvery(addNodeRequest.type, handleAddNode);
 }
 
 export function* pluginInstanceSaga() {
-  yield all([
-    fork(watchGetPluginInstanceRequest),
-    fork(watchAddNode),
-    fork(watchAddSplitNode),
-  ]);
+  yield all([fork(watchGetPluginInstanceRequest), fork(watchAddNode)]);
 }

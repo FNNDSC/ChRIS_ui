@@ -1,17 +1,17 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "../Antd";
-import { useEffect, Fragment } from "react";
+import { Fragment, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { fetchResource } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
-import { getNodeOperations } from "../../store/plugin/actions";
+import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import {
   getPluginInstancesSuccess,
   getSelectedPlugin,
-} from "../../store/pluginInstance/actions";
-import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
+} from "../../store/pluginInstance/pluginInstanceSlice";
+import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
+import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
 
 const DeleteNode = () => {

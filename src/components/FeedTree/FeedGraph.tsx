@@ -1,18 +1,18 @@
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Switch, Text } from "@patternfly/react-core";
 import React from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import ForceGraph2D, {
-  ForceGraphMethods,
-  NodeObject,
+  type ForceGraphMethods,
+  type NodeObject,
 } from "react-force-graph-2d";
 import { connect, useDispatch } from "react-redux";
 import { TreeModel } from "../../api/model";
-import { setFeedLayout } from "../../store/feed/actions";
+import { setFeedLayout } from "../../store/feed/feedSlice";
 import { useTypedSelector } from "../../store/hooks";
 import type { PluginInstancePayload } from "../../store/pluginInstance/types";
-import { ApplicationState } from "../../store/root/applicationState";
-import { FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
+import type { ApplicationState } from "../../store/root/applicationState";
+import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
 import useSize from "./useSize";
 

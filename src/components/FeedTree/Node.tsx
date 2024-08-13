@@ -11,8 +11,8 @@ import {
   getPluginInstancesSuccess,
   getSelectedD3Node,
   getSelectedPlugin,
-} from "../../store/pluginInstance/actions";
-import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
+} from "../../store/pluginInstance/pluginInstanceSlice";
+import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
 import AddNodeConnect from "../AddNode/AddNode";
 import { AddNodeProvider } from "../AddNode/context";
 import AddPipeline from "../AddPipeline/AddPipeline";

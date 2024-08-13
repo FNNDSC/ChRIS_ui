@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import WrapperConnect from "../Wrapper";
 import { PageSection, Grid, GridItem } from "@patternfly/react-core";
 import { Typography } from "../Antd";
-import { setSidebarActive } from "../../store/ui/actions";
+import { setSidebarActive } from "../../store/ui/uiSlice";
 import { InfoIcon } from "../Common";
 import { CatalogTile } from "@patternfly/react-catalog-view-extension";
 import "./dashboard.css";

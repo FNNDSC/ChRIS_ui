@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { clearSelectFolder } from "../../../store/cart/actions";
+import { clearSelectedPaths } from "../../../store/cart/cartSlice";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { ErrorAlert } from "../../Common";
 
@@ -40,7 +40,7 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
     );
 
     inValidateFolders();
-    successfulPaths.forEach((path) => dispatch(clearSelectFolder(path)));
+    successfulPaths.forEach((path) => dispatch(clearSelectedPaths(path)));
 
     return errors.length > 0 ? errors : null;
   };

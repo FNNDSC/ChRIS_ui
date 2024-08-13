@@ -11,7 +11,7 @@ import {
   startAnonymize,
   startDownload,
   startUpload,
-} from "../../../store/cart/actions";
+} from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
 import useDeletePayload from "../utils/useDeletePayload";
 import useFeedOperations from "./useFeedOperations";

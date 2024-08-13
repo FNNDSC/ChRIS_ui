@@ -7,10 +7,10 @@ import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import {
-  clearSelectFolder,
-  setSelectFolder,
+  clearSelectedPaths,
+  setSelectedPaths,
   setToggleCart,
-} from "../../../store/cart/actions";
+} from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
 import { FolderIcon } from "../../Icons";
 
@@ -43,11 +43,11 @@ export default function useLongPress() {
   }
 
   function selectFolder(pathForCart: string, type: string, payload: any) {
-    dispatch(setSelectFolder({ path: pathForCart, type, payload }));
+    dispatch(setSelectedPaths({ path: pathForCart, type, payload }));
   }
 
   function deselectFolder(pathForCart: string) {
-    dispatch(clearSelectFolder(pathForCart));
+    dispatch(clearSelectedPaths(pathForCart));
   }
 
   function handleOnClick(
@@ -82,14 +82,14 @@ export default function useLongPress() {
     e.stopPropagation();
     if (e.currentTarget.checked) {
       dispatch(
-        setSelectFolder({
+        setSelectedPaths({
           path,
           type,
           payload,
         }),
       );
     } else {
-      dispatch(clearSelectFolder(path));
+      dispatch(clearSelectedPaths(path));
     }
   };
 

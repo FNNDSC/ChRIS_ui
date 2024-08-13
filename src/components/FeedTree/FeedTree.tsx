@@ -14,7 +14,7 @@ import {
   setFeedLayout,
   setSearchFilter,
   setTranslate,
-} from "../../store/feed/actions";
+} from "../../store/feed/feedSlice";
 import type { FeedTreeProp } from "../../store/feed/types";
 import { useTypedSelector } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";

@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import Pipelines from "../PipelinesCopy";
 import WrapperConnect from "../Wrapper";
-import { setSidebarActive } from "../../store/ui/actions";
+import { setSidebarActive } from "../../store/ui/uiSlice";
 import { PageSection } from "@patternfly/react-core";
 
 const PipelinePage = () => {

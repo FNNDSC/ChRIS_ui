@@ -1,9 +1,9 @@
-import { Dropdown, type MenuProps } from "../Antd";
+import type React from "react";
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../store/hooks";
-import { getNodeOperations } from "../../store/plugin/actions";
+import { getNodeOperations } from "../../store/plugin/pluginSlice";
+import { Dropdown, type MenuProps } from "../Antd";
 import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
-import type React from "react";
 
 const DropdownMenu = ({
   children,

@@ -1,11 +1,9 @@
 import type { Feed, FileBrowserFolder } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
-  Bullseye,
   Button,
   Checkbox,
   EmptyState,
-  EmptyStateHeader,
   Title,
   EmptyStateIcon,
   EmptyStateVariant,
@@ -25,7 +23,7 @@ import { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
-import { setSidebarActive } from "../../store/ui/actions";
+import { setSidebarActive } from "../../store/ui/uiSlice";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
 import { InfoIcon } from "../Common";

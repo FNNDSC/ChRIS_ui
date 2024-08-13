@@ -9,22 +9,22 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router";
-import { clearSelectedFile } from "../../store/explorer/actions";
+import { clearSelectedFile } from "../../store/explorer/explorerSlice";
 import {
   getFeedSuccess,
   resetFeed,
   setShowToolbar,
-} from "../../store/feed/actions";
+} from "../../store/feed/feedSlice";
 import { useTypedSelector } from "../../store/hooks";
 import {
   getPluginInstancesRequest,
   getSelectedD3Node,
   getSelectedPlugin,
   resetPluginInstances,
-} from "../../store/pluginInstance/actions";
-import { resetActiveResources } from "../../store/resources/actions";
+} from "../../store/pluginInstance/pluginInstanceSlice";
+import { resetActiveResources } from "../../store/resources/resourceSlice";
 import type { DestroyActiveResources } from "../../store/resources/types";
-import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
+import { setSidebarActive } from "../../store/ui/uiSlice";
 import { notification } from "../Antd";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
@@ -129,7 +129,6 @@ export default function FeedView() {
   }, [dispatch]);
 
   React.useEffect(() => {
-    dispatch(setIsNavOpen(false));
     dispatch(setShowToolbar(true));
   }, [dispatch]);
 

@@ -1,49 +1,42 @@
-import React from "react";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { useNavigate } from "react-router-dom";
+import ChrisApiClient, { type User } from "@fnndsc/chrisapi";
 import {
-  Form,
-  FormGroup,
-  TextInput,
-  Button,
   ActionGroup,
-  FormAlert,
   Alert,
-  InputGroup,
+  Button,
+  Form,
+  FormAlert,
+  FormGroup,
   HelperText,
   HelperTextItem,
+  InputGroup,
+  TextInput,
 } from "@patternfly/react-core";
-import ChrisApiClient, { User } from "@fnndsc/chrisapi";
-import { Link } from "react-router-dom";
-import { has } from "lodash";
+import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 import { validate } from "email-validator";
-import { setAuthTokenSuccess } from "../../store/user/actions";
-import { EyeSlashIcon, EyeIcon } from "@patternfly/react-icons";
+import { has } from "lodash";
+import React from "react";
 import { useCookies } from "react-cookie";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { setAuthTokenSuccess } from "../../store/user/userSlice";
 
 type Validated = {
   error: undefined | "error" | "default" | "success" | "warning";
 };
 
 interface SignUpFormProps {
-  setAuthTokenSuccess: (auth: {
-    token: string;
-    username: string;
-    isStaff: boolean;
-  }) => void;
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
   hidePasswordAriaLabel?: string;
 }
 
 const SignUpForm: React.FC<SignUpFormProps> = ({
-  setAuthTokenSuccess,
   isShowPasswordEnabled = true,
   hidePasswordAriaLabel = "Hide password",
   showPasswordAriaLabel = "Show password",
 }: SignUpFormProps) => {
-  /* eslint-disable */
+  const dispatch = useDispatch();
   const [_cookies, setCookie] = useCookies<string>([""]);
   const [userState, setUserState] = React.useState<{
     username: string;
@@ -140,11 +133,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             path: "/",
             maxAge: oneDayToSeconds,
           });
-          setAuthTokenSuccess({
-            token,
-            username: user.data.username,
-            isStaff: user.data.is_staff,
-          });
+          dispatch(
+            setAuthTokenSuccess({
+              token,
+              username: user.data.username,
+              isStaff: user.data.is_staff,
+            }),
+          );
           const then = new URLSearchParams(location.search).get("then");
           if (then) navigate(then);
           else navigate("/");
@@ -310,12 +305,4 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setAuthTokenSuccess: (auth: {
-    token: string;
-    username: string;
-    isStaff: boolean;
-  }) => dispatch(setAuthTokenSuccess(auth)),
-});
-
-export default connect(null, mapDispatchToProps)(SignUpForm);
+export default SignUpForm;

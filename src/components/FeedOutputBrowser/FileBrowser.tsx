@@ -14,11 +14,11 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getFileExtension } from "../../api/model";
-import { setFilePreviewPanel } from "../../store/drawer/actions";
+import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
   clearSelectedFile,
   setSelectedFile,
-} from "../../store/explorer/actions";
+} from "../../store/explorer/explorerSlice";
 import useDownload, { useTypedSelector } from "../../store/hooks";
 import { notification } from "../Antd";
 import { ClipboardCopyContainer, SpinContainer, getIcon } from "../Common";
