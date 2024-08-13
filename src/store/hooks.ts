@@ -1,10 +1,10 @@
 import { type TypedUseSelectorHook, useSelector } from "react-redux";
 import type { RootState } from "./root/applicationState";
-export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 import type { Feed, FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { getFileName } from "../api/common";
+export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 export const createLinkAndDownload = (url: string, fileName: string) => {
   const link = document.createElement("a");
