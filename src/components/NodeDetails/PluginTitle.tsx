@@ -11,7 +11,7 @@ import { Alert } from "../Antd";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../store/hooks";
-import { setPluginTitle } from "../../store/pluginInstance/actions";
+import { setPluginTitle } from "../../store/pluginInstance/pluginInstanceSlice";
 import { SpinContainer } from "../Common";
 
 const PluginTitle = () => {

@@ -18,7 +18,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { pluralize } from "../../api/common";
-import { setSidebarActive } from "../../store/ui/actions";
+import { setSidebarActive } from "../../store/ui/uiSlice";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import PatientCard from "./components/PatientCard";

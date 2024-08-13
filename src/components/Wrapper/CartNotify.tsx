@@ -3,7 +3,7 @@ import { Badge } from "../Antd";
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { setToggleCart } from "../../store/cart/actions";
+import { setToggleCart } from "../../store/cart/cartSlice";
 import { useTypedSelector } from "../../store/hooks";
 import { BrainIcon } from "../Icons";
 

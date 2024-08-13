@@ -4,17 +4,18 @@ import { useDispatch } from "react-redux";
 import { PageSection } from "@patternfly/react-core";
 import WrapperConnect from "../Wrapper";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
-
-import { ChNVROptions, ChNVRVolume } from "./models";
+import { setIsNavOpen, setSidebarActive } from "../../store/ui/uiSlice";
+import type { ChNVROptions, ChNVRVolume } from "./models";
 import { DEFAULT_OPTIONS } from "./defaults";
 import HeaderOptionBar from "./components/HeaderOptionBar";
-import SizedNiivueCanvas, { CrosshairLocation } from "../SizedNiivueCanvas";
-import { Problem, TagsDictionary, VisualDataset } from "./types";
+import SizedNiivueCanvas, {
+  type CrosshairLocation,
+} from "../SizedNiivueCanvas";
+import type { Problem, TagsDictionary, VisualDataset } from "./types";
 import {
-  DatasetFile,
-  DatasetFilesClient,
-  DatasetPreClient,
+  type DatasetFile,
+  type DatasetFilesClient,
+  type DatasetPreClient,
   getDataset,
   getPreClient,
 } from "./client";
@@ -31,10 +32,10 @@ import {
 } from "./content";
 import { parsePluginInstanceId } from "./client/helpers";
 import { getFeedOf } from "./client/getDataset";
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import {
-  DatasetFileState,
-  DatasetVolume,
+  type DatasetFileState,
+  type DatasetVolume,
   files2states,
   volumeIsLoaded,
 } from "./statefulTypes";

@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { getPluginFilesRequest } from "../../store/resources/actions";
+import { getPluginFilesRequest } from "../../store/resources/resourceSlice";
 import { useTypedSelector } from "../../store/hooks";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];

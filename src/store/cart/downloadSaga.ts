@@ -17,13 +17,18 @@ import { getFileName } from "../../api/common";
 import type { IActionTypeParam } from "../../api/model";
 import { getPlugin } from "../../components/CreateFeed/createFeedHelper";
 import { downloadFile } from "../hooks";
-import { setFileDownloadStatus, setFolderDownloadStatus } from "./actions";
-import { ICartActionTypes, type SelectionPayload } from "./types";
+import {
+  setFileDownloadStatus,
+  setFolderDownloadStatus,
+  startDownload,
+  startAnonymize,
+} from "./cartSlice";
+import { DownloadTypes, type SelectionPayload } from "./types";
 
 export function* setStatus(
   type: string,
   id: number,
-  step: "started" | "processing" | "finished" | "cancelled",
+  step: DownloadTypes,
   fileName: string,
   error?: string,
   feed?: Feed,
@@ -91,7 +96,7 @@ function* downloadFolder(
       `Failed to find the pipeline. Is this '${pipelineName}' registered?`,
     );
   }
-  yield setStatus(type, id, "processing", path);
+  yield setStatus(type, id, DownloadTypes.progress, path);
   const pipelines = pipelineList.getItems() as unknown as Pipeline[];
   const currentPipeline = pipelines[0];
   try {
@@ -101,7 +106,7 @@ function* downloadFolder(
         : `Library Anonymize for ${folderNameForFeed}`;
     const { feed, createdInstance } = yield call(createFeed, [path], feedName);
     // Set Status
-    yield setStatus(type, id, "processing", path, "", feed);
+    yield setStatus(type, id, DownloadTypes.progress, path, "", feed);
     // Add a workflow
     const workflow: Workflow = yield client.createWorkflow(
       currentPipeline.data.id,
@@ -178,16 +183,23 @@ function* handleIndividualDownload(
   const pathForState = type === "file" ? payload.data.fname : payload.data.path;
 
   try {
-    yield call(setStatus, type, id, "started", pathForState);
+    yield call(setStatus, type, id, DownloadTypes.started, pathForState);
     if (type === "file" && pipelineType === "Download Pipeline") {
       yield call(downloadFile, payload as FileBrowserFolderFile);
     } else {
       yield call(downloadFolder, payload, username, pipelineType);
     }
-    yield call(setStatus, type, id, "finished", pathForState);
+    yield call(setStatus, type, id, DownloadTypes.finished, pathForState);
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : "Unknown error";
-    yield call(setStatus, type, id, "cancelled", pathForState, errMsg);
+    yield call(
+      setStatus,
+      type,
+      id,
+      DownloadTypes.cancelled,
+      pathForState,
+      errMsg,
+    );
   }
 }
 
@@ -206,9 +218,9 @@ function* handleAnonymize(action: IActionTypeParam) {
 }
 
 export function* watchAnonymize() {
-  yield takeEvery(ICartActionTypes.START_ANONYMIZE, handleAnonymize);
+  yield takeEvery(startAnonymize.type, handleAnonymize);
 }
 
 export function* watchDownload() {
-  yield takeEvery(ICartActionTypes.START_DOWNLOAD, handleDownload);
+  yield takeEvery(startDownload.type, handleDownload);
 }

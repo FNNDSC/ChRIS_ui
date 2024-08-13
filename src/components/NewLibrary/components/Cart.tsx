@@ -9,7 +9,7 @@ import {
   clearDownloadStatus,
   clearUploadState,
   setToggleCart,
-} from "../../../store/cart/actions";
+} from "../../../store/cart/cartSlice";
 import { DownloadTypes } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
@@ -81,7 +81,9 @@ const Cart = () => {
                 avatar={<FileIcon />}
                 title={
                   <TitleNameClipped
-                    name={getFileName(status.fileName)}
+                    name={
+                      status.fileName ? getFileName(status.fileName) : "N/A"
+                    }
                     value={40}
                   />
                 }

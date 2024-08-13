@@ -9,20 +9,19 @@ import type { Task } from "redux-saga";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { catchError, fetchResource } from "../../api/common";
 import type { IActionTypeParam } from "../../api/model";
-import { PluginInstanceTypes } from "../pluginInstance/types";
 import {
   getPluginFilesError,
+  getPluginFilesRequest,
   getPluginFilesSuccess,
   getPluginInstanceResourceSuccess,
   getPluginInstanceStatusSuccess,
+  resetActiveResources,
   stopFetchingPluginResources,
   stopFetchingStatusResources,
-} from "./actions";
-import {
-  type FetchFileResult,
-  type PluginStatusLabels,
-  ResourceTypes,
-} from "./types";
+  getPluginInstanceStatusRequest,
+} from "./resourceSlice";
+import type { FetchFileResult, PluginStatusLabels } from "./types";
+import { getSelectedPlugin } from "../pluginInstance/pluginInstanceSlice";
 
 export const fetchFilesFromAPath = async (
   path: string,
@@ -212,14 +211,14 @@ function cancelStatusPolling(task: Task) {
 }
 
 function* watchCancelPoll(pollTask: Task) {
-  yield takeEvery(ResourceTypes.STOP_FETCHING_PLUGIN_RESOURCES, () => {
+  yield takeEvery(stopFetchingPluginResources.type, () => {
     cancelPolling(pollTask);
   });
 }
 
 function* watchStatusCancelPoll(pollTask: PollTask) {
   yield takeEvery(
-    ResourceTypes.STOP_FETCHING_STATUS_RESOURCES,
+    stopFetchingStatusResources.type,
     (action: IActionTypeParam) => {
       const id = action.payload;
       const taskToCancel = pollTask[id];
@@ -253,28 +252,19 @@ function* pollInstanceEndpoints(action: IActionTypeParam) {
 }
 
 function* watchGetPluginFilesRequest() {
-  yield takeEvery(ResourceTypes.GET_PLUGIN_FILES_REQUEST, fetchPluginFiles);
+  yield takeEvery(getPluginFilesRequest.type, fetchPluginFiles);
 }
 
 function* watchGetPluginStatusRequest() {
-  yield takeEvery(
-    ResourceTypes.GET_PLUGIN_STATUS_REQUEST,
-    pollInstanceEndpoints,
-  );
+  yield takeEvery(getPluginInstanceStatusRequest.type, pollInstanceEndpoints);
 }
 
 function* watchResetActiveResources() {
-  yield takeEvery(
-    ResourceTypes.RESET_ACTIVE_RESOURCES,
-    handleResetActiveResources,
-  );
+  yield takeEvery(resetActiveResources.type, handleResetActiveResources);
 }
 
 function* watchSelectedPlugin() {
-  yield takeEvery(
-    PluginInstanceTypes.GET_SELECTED_PLUGIN,
-    pollorCancelEndpoints,
-  );
+  yield takeEvery(getSelectedPlugin.type, pollorCancelEndpoints);
 }
 
 export function* resourceSaga() {

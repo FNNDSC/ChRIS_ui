@@ -12,51 +12,43 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { useCookies } from "react-cookie";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
-import type { Dispatch } from "redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import type { ApplicationState } from "../../store/root/applicationState";
-import { onDropdownSelect } from "../../store/ui/actions";
-import type { IUiState } from "../../store/ui/types";
-import { setLogoutSuccess } from "../../store/user/actions";
-import type { IUserState } from "../../store/user/types";
+import { onDropdownSelect } from "../../store/ui/uiSlice";
+import { setLogoutSuccess } from "../../store/user/userSlice";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
 import CartNotify from "./CartNotify";
 
-interface IPropsFromDispatch {
-  onDropdownSelect: typeof onDropdownSelect;
-  setLogoutSuccess: typeof setLogoutSuccess;
-  token?: string | null;
-}
-
-interface ComponentProps {
+type ToolbarComponentProps = {
   showToolbar: boolean;
-}
-type AllProps = IUserState & IUiState & IPropsFromDispatch & ComponentProps;
+  token: string;
+};
 
-const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
+const ToolbarComponent: React.FC<ToolbarComponentProps> = (
+  props: ToolbarComponentProps,
+) => {
+  const { token } = props;
+  const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
-
   const fullScreen = drawerState?.preview.open && drawerState.preview.maximized;
   const navigate = useNavigate();
   const location = useLocation();
   const [_, _setCookie, removeCookie] = useCookies();
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
   const queryClient = useQueryClient();
-  const { setLogoutSuccess, token }: IPropsFromDispatch = props;
-  const { username, isDropdownOpen }: AllProps = props;
+  const username = useTypedSelector((state) => state.user.username);
+  const isDropdownOpen = useTypedSelector((state) => state.ui.isDropdownOpen);
+
   const onDropdownToggle = () => {
-    const { onDropdownSelect } = props;
-    onDropdownSelect(!props.isDropdownOpen);
+    dispatch(onDropdownSelect(!isDropdownOpen));
   };
 
   const handleChange = () => {
     toggleTheme();
   };
-
   // Description: Logout user
   const onLogout = () => {
     queryClient.clear();
@@ -64,16 +56,13 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
     removeCookie("username", {
       path: "/",
     });
-
     removeCookie(`${username}_token`, {
       path: "/",
     });
-
     removeCookie("isStaff", {
       path: "/",
     });
-
-    setLogoutSuccess();
+    dispatch(setLogoutSuccess());
   };
 
   const copyLoginCommand = () => {
@@ -161,14 +150,4 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
   );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
-  setLogoutSuccess: () => dispatch(setLogoutSuccess()),
-});
-
-const mapStateToProps = ({ ui, user }: ApplicationState) => ({
-  isDropdownOpen: ui.isDropdownOpen,
-  username: user.username,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ToolbarComponent);
+export default ToolbarComponent;

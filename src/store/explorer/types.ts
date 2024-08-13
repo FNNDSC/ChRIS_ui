@@ -9,7 +9,6 @@ import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
 } from "@fnndsc/chrisapi";
-import keyMirror from "keymirror";
 
 export type Key = string | number;
 
@@ -71,8 +70,3 @@ export type CheckInfo = {
 export interface IExplorerState {
   selectedFile?: FileBrowserFolderFile;
 }
-
-export const ExplorerActionTypes = keyMirror({
-  SET_SELECTED_FILE: null,
-  CLEAR_SELECTED_FILE: null,
-});

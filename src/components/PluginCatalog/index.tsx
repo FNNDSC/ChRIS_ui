@@ -4,7 +4,7 @@ import { Typography } from "../Antd";
 import WrapperConnect from "../Wrapper";
 import PluginCatalog from "./PluginCatalog";
 import { InfoIcon } from "../Common/";
-import { setSidebarActive } from "../../store/ui/actions";
+import { setSidebarActive } from "../../store/ui/uiSlice";
 import { PageSection } from "@patternfly/react-core";
 import "./plugin-catalog.css";
 

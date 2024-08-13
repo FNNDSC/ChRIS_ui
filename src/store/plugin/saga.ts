@@ -1,13 +1,13 @@
 import { all, fork, put, takeEvery } from "redux-saga/effects";
 import type { IActionTypeParam } from "../../api/model";
-import { PluginActionTypes } from "./types";
 import type { PluginParameter } from "@fnndsc/chrisapi";
-import { catchError, fetchResource } from "../../api/common";
+import { fetchResource } from "../../api/common";
 import {
   getComputeEnvError,
   getComputeEnvSuccess,
   getParamsSuccess,
-} from "./actions";
+} from "./pluginSlice";
+import { getParams } from "./pluginSlice";
 
 // ------------------------------------------------------------------------
 // Description: Get Plugin Descendants, files and parameters on change
@@ -56,7 +56,7 @@ function* handleGetParams(action: IActionTypeParam) {
   }
 }
 function* watchGetParams() {
-  yield takeEvery(PluginActionTypes.GET_PARAMS, handleGetParams);
+  yield takeEvery(getParams.type, handleGetParams);
 }
 
 // ------------------------------------------------------------------------

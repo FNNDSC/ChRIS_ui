@@ -8,32 +8,26 @@ import {
 } from "@patternfly/react-core";
 import { isEmpty } from "lodash";
 import type * as React from "react";
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-import type { Dispatch } from "redux";
 import { useTypedSelector } from "../../store/hooks";
-import type { ApplicationState } from "../../store/root/applicationState";
-import { setSidebarActive } from "../../store/ui/actions";
-import type { IUiState } from "../../store/ui/types";
-import type { IUserState } from "../../store/user/types";
+import type { IUiState } from "../../store/ui/uiSlice";
+import { setSidebarActive } from "../../store/ui/uiSlice";
+import type { IUserState } from "../../store/user/userSlice";
+import { useDispatch } from "react-redux";
 
-type ReduxProp = {
-  setSidebarActive: (active: { activeItem: string }) => void;
-};
+type AllProps = IUiState & IUserState;
 
-type AllProps = IUiState & IUserState & ReduxProp;
-
-const Sidebar: React.FC<AllProps> = ({
-  isNavOpen,
-  sidebarActiveItem,
-  setSidebarActive,
-}) => {
+const Sidebar: React.FC<AllProps> = () => {
+  const { sidebarActiveItem, isNavOpen } = useTypedSelector(
+    (state) => state.ui,
+  );
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const dispatch = useDispatch();
 
   const onSelect = (selectedItem: any) => {
     const { itemId } = selectedItem;
     if (sidebarActiveItem !== itemId) {
-      setSidebarActive({ activeItem: itemId });
+      dispatch(setSidebarActive({ activeItem: itemId }));
     }
   };
 
@@ -146,21 +140,6 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
   );
 };
 
-const mapStateToProps = ({ user, ui }: ApplicationState) => ({
-  isLoggedIn: user.isLoggedIn,
-  sidebarActiveItem: ui.sidebarActiveItem,
-});
+export { AnonSidebarImpl as AnonSidebar };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string }) =>
-    dispatch(setSidebarActive(active)),
-});
-
-const AnonSidebar = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(AnonSidebarImpl);
-export { AnonSidebar };
-
-const SidebarConnect = connect(mapStateToProps, mapDispatchToProps)(Sidebar);
-export default SidebarConnect;
+export default Sidebar;

@@ -24,7 +24,7 @@ import React, {
 } from "react";
 import { useDispatch } from "react-redux";
 import { getFileName } from "../../../api/common";
-import { removeIndividualSelection } from "../../../store/cart/actions";
+import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
 import {
   AddIcon,
@@ -259,9 +259,7 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
                 {selectedPaths.map((selection) => (
                   <Chip
                     key={selection.path}
-                    onClick={() =>
-                      dispatch(removeIndividualSelection(selection))
-                    }
+                    onClick={() => dispatch(removeSelectedPayload(selection))}
                   >
                     {getFileName(selection.path)}
                   </Chip>

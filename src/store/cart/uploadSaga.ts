@@ -5,12 +5,16 @@ import { END, type EventChannel, eventChannel } from "redux-saga";
 import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type { IActionTypeParam } from "../../api/model";
-import { setFileUploadStatus, setFolderUploadStatus } from "./actions";
 import {
-  type FileUploadObject,
-  type FolderUploadObject,
-  ICartActionTypes,
-  type UploadPayload,
+  cancelUpload,
+  setFileUploadStatus,
+  setFolderUploadStatus,
+  startUpload,
+} from "./cartSlice";
+import type {
+  FileUploadObject,
+  FolderUploadObject,
+  UploadPayload,
 } from "./types";
 
 function createUploadChannel(config: any) {
@@ -221,11 +225,11 @@ function* handleUpload(action: IActionTypeParam) {
 }
 
 export function* watchUpload() {
-  yield takeEvery(ICartActionTypes.START_UPLOAD, handleUpload);
+  yield takeEvery(startUpload.type, handleUpload);
 }
 
 export function* watchCancelUpload() {
-  yield takeEvery(ICartActionTypes.CANCEL_UPLOAD, function* (action: any) {
+  yield takeEvery(cancelUpload.type, function* (action: any) {
     const { id: fileName, type } = action.payload;
 
     if (type === "folder") {

@@ -35,7 +35,7 @@ import { quote } from "shlex";
 import { v4 } from "uuid";
 import { catchError, fetchResource, needsQuoting } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
-import { getParams } from "../../store/plugin/actions";
+import { getParams } from "../../store/plugin/pluginSlice";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
 import ComputeEnvironments from "./ComputeEnvironment";
 import RequiredParam from "./RequiredParam";

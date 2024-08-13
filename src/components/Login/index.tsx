@@ -18,7 +18,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 import ChRIS_Logo from "../../assets/chris-logo.png";
-import { setAuthTokenSuccess } from "../../store/user/actions";
+import { setAuthTokenSuccess } from "../../store/user/userSlice";
 import "./Login.css";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {

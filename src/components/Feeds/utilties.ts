@@ -1,6 +1,9 @@
-import type { DrawerPayloadType, IDrawerState } from "../../store/drawer/types";
-import { setDrawerState } from "../../store/drawer/actions";
-import type { Dispatch } from "redux";
+import type {
+  DrawerPayloadType,
+  IDrawerState,
+} from "../../store/drawer/drawerSlice";
+import { setDrawerState } from "../../store/drawer/drawerSlice";
+
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type {
   Feed,
@@ -11,15 +14,15 @@ import type {
 import { fetchResource } from "../../api/common";
 
 export const handleDrawerActions = (
-  actionType: string,
+  actionType: keyof IDrawerState,
   open: boolean,
   maximized: boolean,
   minimized: boolean,
-  dispatch: Dispatch,
+  dispatch: any,
   action: (action: DrawerPayloadType) => {
     type: any;
     payload: {
-      actionType: string;
+      actionType: keyof IDrawerState;
       open: boolean;
       maximized: boolean;
       minimized: boolean;
@@ -36,22 +39,28 @@ export const handleDrawerActions = (
   );
 };
 
-export const handleMaximize = (actionType: string, dispatch: Dispatch) => {
+export const handleMaximize = (
+  actionType: keyof IDrawerState,
+  dispatch: any,
+) => {
   handleDrawerActions(actionType, true, true, false, dispatch, setDrawerState);
 };
 
-export const handleMinimize = (actionType: string, dispatch: Dispatch) => {
+export const handleMinimize = (
+  actionType: keyof IDrawerState,
+  dispatch: any,
+) => {
   handleDrawerActions(actionType, true, false, true, dispatch, setDrawerState);
 };
 
-export const handleOpen = (actionType: string, dispatch: Dispatch) => {
+export const handleOpen = (actionType: keyof IDrawerState, dispatch: any) => {
   handleDrawerActions(actionType, true, false, false, dispatch, setDrawerState);
 };
 
 export const handleToggle = (
-  actionType: string,
+  actionType: keyof IDrawerState,
   drawerState: IDrawerState,
-  dispatch: Dispatch,
+  dispatch: any,
 ) => {
   handleDrawerActions(
     actionType,

@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { setFeedTreeProp } from "../../store/feed/actions";
+import { setFeedTreeProp } from "../../store/feed/feedSlice";
 import { useTypedSelector } from "../../store/hooks";
 import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
