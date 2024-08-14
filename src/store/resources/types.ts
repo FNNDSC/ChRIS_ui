@@ -97,6 +97,6 @@ export interface IResourceState {
   pluginInstanceStatus: PluginInstanceStatusPayload;
   pluginInstanceResource: PluginInstanceResourcePayload;
   pluginFiles: FilesPayload;
-  url: string;
+
   loading: boolean;
 }

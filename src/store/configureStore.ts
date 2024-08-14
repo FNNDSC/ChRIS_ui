@@ -5,6 +5,7 @@
  *   Author:         ChRIS UI
  */
 import { configureStore } from "@reduxjs/toolkit";
+import logger from "redux-logger";
 import createSagaMiddleware from "redux-saga";
 import cartReducer from "./cart/cartSlice";
 import drawerReducer from "./drawer/drawerSlice";
@@ -40,7 +41,7 @@ function configureAppStore() {
       getDefaultMiddleware({
         thunk: true, // Disabling thunk since we're using sagas
         serializableCheck: false, // Disable serializable check if necessary
-      }).concat(sagaMiddleware),
+      }).concat(logger, sagaMiddleware),
     devTools: import.meta.env.NODE_ENV !== "production",
   });
 

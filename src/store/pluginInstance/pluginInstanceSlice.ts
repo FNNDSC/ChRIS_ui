@@ -1,21 +1,79 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { catchError, fetchResource } from "../../api/common";
 import type {
   IPluginInstanceState,
   AddNodePayload,
   PluginInstanceObj,
 } from "./types";
-import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { getPluginInstanceStatusRequest } from "../resources/resourceSlice";
 
 // Define the initial state
 const initialState: IPluginInstanceState = {
   selectedPlugin: undefined,
   pluginInstances: {
-    data: undefined,
+    data: [],
     error: "",
     loading: false,
   },
-  selectedD3Node: undefined,
 };
+
+// Async thunk for fetching plugin instances
+export const fetchPluginInstances = createAsyncThunk<
+  PluginInstanceObj,
+  Feed,
+  { rejectValue: string }
+>(
+  "pluginInstance/fetchPluginInstances",
+  async (feed, { dispatch, rejectWithValue }) => {
+    try {
+      const params = { limit: 15, offset: 0 };
+      const fn = feed.getPluginInstances;
+      const boundFn = fn.bind(feed);
+
+      //fetch resource is a utility to fetch paginate resources
+      const { resource: pluginInstances } = await fetchResource<PluginInstance>(
+        params,
+        boundFn,
+      );
+
+      const selected = pluginInstances[pluginInstances.length - 1];
+      const pluginInstanceObj = {
+        selected,
+        pluginInstances,
+      };
+      //This action triggers a resource fetch in the resource saga
+      dispatch(getSelectedPlugin(selected));
+      dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
+      return { selected, pluginInstances };
+    } catch (error) {
+      const errMessage = catchError(error).error_message;
+      return rejectWithValue(errMessage);
+    }
+  },
+);
+
+// Async thunk for adding a node
+export const addNode = createAsyncThunk<
+  PluginInstanceObj,
+  AddNodePayload,
+  { rejectValue: string }
+>(
+  "pluginInstance/addNode",
+  async ({ pluginItem, nodes }, { dispatch, rejectWithValue }) => {
+    try {
+      const pluginInstances = [...nodes, pluginItem];
+      dispatch(getSelectedPlugin(pluginItem));
+      return { selected: pluginItem, pluginInstances };
+    } catch (error) {
+      return rejectWithValue("Failed to add node.");
+    }
+  },
+);
 
 // Create a slice
 const pluginInstanceSlice = createSlice({
@@ -25,37 +83,7 @@ const pluginInstanceSlice = createSlice({
     getSelectedPlugin(state, action: PayloadAction<PluginInstance>) {
       state.selectedPlugin = action.payload;
     },
-    getSelectedD3Node(state, action: PayloadAction<any>) {
-      state.selectedD3Node = action.payload;
-    },
-    getPluginInstancesRequest(state, _action: PayloadAction<Feed>) {
-      state.pluginInstances.loading = true;
-    },
-    getPluginInstancesSuccess(state, action: PayloadAction<PluginInstanceObj>) {
-      state.selectedPlugin = action.payload.selected;
-      state.pluginInstances = {
-        data: action.payload.pluginInstances,
-        error: "",
-        loading: false,
-      };
-    },
-    getPluginInstancesError(state, action: PayloadAction<string>) {
-      state.pluginInstances = {
-        data: undefined,
-        error: action.payload,
-        loading: false,
-      };
-    },
-    addNodeRequest(_state, _action: PayloadAction<AddNodePayload>) {
-      // This action might be redundant if node adding is handled in saga
-    },
-    addNodeSuccess(state, action: PayloadAction<PluginInstance>) {
-      if (state.pluginInstances.data) {
-        state.pluginInstances.data.push(action.payload);
-      } else {
-        state.pluginInstances.data = [action.payload];
-      }
-    },
+
     setPluginTitle(state, action: PayloadAction<PluginInstance>) {
       if (state.pluginInstances.data) {
         const foundIndex = state.pluginInstances.data.findIndex(
@@ -67,23 +95,63 @@ const pluginInstanceSlice = createSlice({
         }
       }
     },
+    setPluginInstancesAndSelectedPlugin(
+      state,
+      action: PayloadAction<{
+        selected: PluginInstance;
+        pluginInstances: PluginInstance[];
+      }>,
+    ) {
+      state.selectedPlugin = action.payload.selected;
+      state.pluginInstances.data = action.payload.pluginInstances;
+    },
     resetPluginInstances(_state) {
       return initialState;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchPluginInstances.pending, (state) => {
+        state.pluginInstances.loading = true;
+        state.pluginInstances.error = "";
+      })
+      .addCase(
+        fetchPluginInstances.fulfilled,
+        (state, action: PayloadAction<PluginInstanceObj>) => {
+          state.pluginInstances = {
+            data: action.payload.pluginInstances,
+            error: "",
+            loading: false,
+          };
+        },
+      )
+      .addCase(fetchPluginInstances.rejected, (state, action) => {
+        state.pluginInstances = {
+          data: [],
+          error: action.payload || "Failed to fetch plugin instances.",
+          loading: false,
+        };
+      })
+
+      .addCase(
+        addNode.fulfilled,
+        (state, action: PayloadAction<PluginInstanceObj>) => {
+          if (state.pluginInstances.data) {
+            state.pluginInstances.data.push(action.payload.selected);
+          } else {
+            state.pluginInstances.data = [action.payload.selected];
+          }
+        },
+      );
   },
 });
 
 // Export the actions
 export const {
   getSelectedPlugin,
-  getSelectedD3Node,
-  getPluginInstancesRequest,
-  getPluginInstancesSuccess,
-  getPluginInstancesError,
-  addNodeRequest,
-  addNodeSuccess,
   setPluginTitle,
   resetPluginInstances,
+  setPluginInstancesAndSelectedPlugin,
 } = pluginInstanceSlice.actions;
 
 // Export the reducer

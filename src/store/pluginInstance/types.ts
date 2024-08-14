@@ -13,14 +13,14 @@ export interface PluginInstanceObj {
 }
 
 export interface PluginInstancePayload {
-  data?: PluginInstance[];
+  data: PluginInstance[];
   error: string;
   loading: boolean;
 }
 
 export interface AddNodePayload {
   pluginItem: PluginInstance;
-  nodes?: PluginInstance[];
+  nodes: PluginInstance[];
 }
 
 export interface SplitNodesPayload {
@@ -32,5 +32,4 @@ export interface SplitNodesPayload {
 export interface IPluginInstanceState {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
-  selectedD3Node?: any;
 }
