@@ -1,6 +1,7 @@
 import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
+  FileBrowserFolderList,
   PluginInstance,
 } from "@fnndsc/chrisapi";
 import type { DataNode } from "../../store/explorer/types";
@@ -9,6 +10,7 @@ export interface FilesPayload {
   folderFiles: FileBrowserFolderFile[];
   children: any[];
   linkFiles: FileBrowserFolderLinkFile[];
+  folderList?: FileBrowserFolderList;
   path: string;
 }
 
