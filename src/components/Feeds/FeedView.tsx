@@ -116,7 +116,6 @@ const FeedView: React.FC = () => {
     dispatch(setShowToolbar(true));
 
     return () => {
-      console.log("Unmount called");
       if (dataRef.current?.selectedPlugin && dataRef.current.data) {
         dispatch(resetActiveResources(dataRef.current));
       }
