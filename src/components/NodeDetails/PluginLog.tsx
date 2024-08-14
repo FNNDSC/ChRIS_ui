@@ -1,5 +1,5 @@
 import React from "react";
-import { NodeDetailsProps } from "../../store/resources/types";
+import type { NodeDetailsProps } from "../../store/resources/types";
 import LogTerminal from "./LogTerminal";
 import { isEmpty } from "lodash";
 

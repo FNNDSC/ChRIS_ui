@@ -15,7 +15,7 @@ const initialState: IResourceState = {
   pluginInstanceStatus: {},
   pluginInstanceResource: {},
   pluginFiles: {},
-  url: "",
+
   loading: false,
 };
 
@@ -47,8 +47,9 @@ const resourceSlice = createSlice({
     },
     getPluginInstanceStatusRequest(
       _state,
-      _action: PayloadAction<PluginInstanceObj>,
+      action: PayloadAction<PluginInstanceObj>,
     ) {
+      console.log("DIspatch Called", action);
       // No state mutation needed for this action
     },
     getPluginInstanceStatusSuccess(
@@ -104,9 +105,6 @@ const resourceSlice = createSlice({
     ) {
       return initialState;
     },
-    setCurrentUrl(state, action: PayloadAction<string>) {
-      state.url = action.payload;
-    },
   },
 });
 
@@ -121,7 +119,6 @@ export const {
   getPluginFilesSuccess,
   getPluginFilesError,
   resetActiveResources,
-  setCurrentUrl,
 } = resourceSlice.actions;
 
 export default resourceSlice.reducer;

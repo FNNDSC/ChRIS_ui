@@ -297,7 +297,6 @@ function getLog(raw: string) {
   }
 
   // If both "deflate" and "zlib" fail, you may need to handle other compression methods here.
-
   console.error("Unable to inflate the data.");
   return null;
 }

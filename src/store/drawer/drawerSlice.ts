@@ -84,11 +84,18 @@ const drawerSlice = createSlice({
       const { panel, currentlyActive } = action.payload;
       state[panel].currentlyActive = currentlyActive;
     },
+    resetDrawerState: () => {
+      return initialState;
+    },
   },
 });
 
-export const { setDrawerState, setFilePreviewPanel, setDrawerCurrentlyActive } =
-  drawerSlice.actions;
+export const {
+  setDrawerState,
+  setFilePreviewPanel,
+  setDrawerCurrentlyActive,
+  resetDrawerState,
+} = drawerSlice.actions;
 export default drawerSlice.reducer;
 
 export const getMaximizedObject = (

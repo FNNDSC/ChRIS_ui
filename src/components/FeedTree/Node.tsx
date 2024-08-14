@@ -8,9 +8,8 @@ import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
 import {
-  getPluginInstancesSuccess,
-  getSelectedD3Node,
   getSelectedPlugin,
+  setPluginInstancesAndSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
 import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
 import AddNodeConnect from "../AddNode/AddNode";
@@ -183,7 +182,7 @@ const Node = (props: NodeProps) => {
             pluginInstances: completeList,
           };
 
-          dispatch(getPluginInstancesSuccess(pluginInstanceObj));
+          dispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
           dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
         }
       } else {
@@ -293,7 +292,6 @@ const Node = (props: NodeProps) => {
 const NodeMemoed = memo(Node);
 
 const NodeWrapper = (props: NodeWrapperProps) => {
-  const dispatch = useDispatch();
   const { data, overlayScale } = props;
   const status = useTypedSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
@@ -305,10 +303,6 @@ const NodeWrapper = (props: NodeWrapperProps) => {
     if (state.instance.selectedPlugin?.data.id === data.id) return true;
     return false;
   });
-
-  useEffect(() => {
-    if (currentId) dispatch(getSelectedD3Node(data));
-  }, [currentId, data, dispatch]);
 
   let scale: number | undefined; // undefined scale is treated as no indvidual scaling
   if (overlayScale === "time") {

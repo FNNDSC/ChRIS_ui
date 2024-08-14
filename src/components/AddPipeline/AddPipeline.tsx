@@ -1,15 +1,15 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import React, { useContext, Fragment } from "react";
+import React, { Fragment, useContext } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import {
-  getPluginInstancesSuccess,
   getSelectedPlugin,
+  setPluginInstancesAndSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
 import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
 import { Alert, Form, Tag } from "../Antd";
@@ -89,13 +89,11 @@ const AddPipeline = () => {
             selected: firstInstance,
             pluginInstances: completeList,
           };
-          reactDispatch(getPluginInstancesSuccess(pluginInstanceObj));
+          reactDispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
           reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
         }
-
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       } catch (e: any) {
-        throw new Error(e.message ? e.message : e);
+        if (e instanceof Error) throw new Error(e.message);
       }
     }
   };

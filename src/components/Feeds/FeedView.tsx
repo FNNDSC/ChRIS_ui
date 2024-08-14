@@ -6,9 +6,12 @@ import {
   DrawerPanelContent,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router";
+import type { AppDispatch } from "../../store/configureStore";
+import type { IDrawerState } from "../../store/drawer/drawerSlice";
+import { resetDrawerState } from "../../store/drawer/drawerSlice";
 import { clearSelectedFile } from "../../store/explorer/explorerSlice";
 import {
   getFeedSuccess,
@@ -17,8 +20,7 @@ import {
 } from "../../store/feed/feedSlice";
 import { useTypedSelector } from "../../store/hooks";
 import {
-  getPluginInstancesRequest,
-  getSelectedD3Node,
+  fetchPluginInstances,
   getSelectedPlugin,
   resetPluginInstances,
 } from "../../store/pluginInstance/pluginInstanceSlice";
@@ -40,31 +42,25 @@ import {
   handleMinimize,
 } from "./utilties";
 
-export default function FeedView() {
+const FeedView: React.FC = () => {
+  const drawerState = useTypedSelector((state) => state.drawers);
+  const { currentLayout } = useTypedSelector((state) => state.feed);
+  const dispatch = useDispatch<AppDispatch>();
   const query = useSearchQueryParams();
   const type = query.get("type");
-
   const params = useParams();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [api, contextHolder] = notification.useNotification();
   const { id } = params;
-  const selectedPlugin = useTypedSelector(
-    (state) => state.instance.selectedPlugin,
-  );
-
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-  const { currentLayout } = useTypedSelector((state) => state.feed);
-  const pluginInstances = useTypedSelector(
-    (state) => state.instance.pluginInstances,
+  const { selectedPlugin, pluginInstances } = useTypedSelector(
+    (state) => state.instance,
   );
-  const dataRef = React.useRef<DestroyActiveResources>();
-  const { data } = pluginInstances;
-  const drawerState = useTypedSelector((state) => state.drawers);
 
+  const dataRef = useRef<DestroyActiveResources>();
   dataRef.current = {
-    data,
+    data: pluginInstances.data,
     selectedPlugin,
   };
 
@@ -84,88 +80,81 @@ export default function FeedView() {
     enabled: type === "private" && isLoggedIn,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!type || (type === "private" && !isLoggedIn)) {
       const redirectTo = encodeURIComponent(
         `${location.pathname}${location.search}`,
       );
       navigate(`/login?redirectTo=${redirectTo}`);
     }
-  }, [type, navigate, isLoggedIn]);
+  }, [type, isLoggedIn, location, navigate]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isPrivateFeedError) {
-      // cube does not return a 404 error when the user fetches a
-      // feed with an incorrect token
       api.error({
         message: privateFeedError.message,
         duration: 1.5,
       });
-
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         navigate("/feeds?type=private");
       }, 2500);
+      return () => clearTimeout(timer);
     }
-  }, [isPrivateFeedError]);
+  }, [isPrivateFeedError, privateFeedError, api, navigate]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const feed: Feed | undefined = privateFeed || publicFeed;
     if (feed) {
       dispatch(getFeedSuccess(feed as Feed));
-      dispatch(getPluginInstancesRequest(feed));
+      dispatch(fetchPluginInstances(feed));
     }
   }, [privateFeed, publicFeed, dispatch]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    document.title = "My Analyses - CHRIS UI";
+    dispatch(setSidebarActive({ activeItem: "analyses" }));
+    dispatch(setShowToolbar(true));
+
     return () => {
+      console.log("Unmount called");
       if (dataRef.current?.selectedPlugin && dataRef.current.data) {
         dispatch(resetActiveResources(dataRef.current));
       }
-      dispatch(resetFeed());
       dispatch(resetPluginInstances());
+      dispatch(resetFeed());
       dispatch(clearSelectedFile());
+      dispatch(resetDrawerState());
       dispatch(setShowToolbar(false));
     };
   }, [dispatch]);
 
-  React.useEffect(() => {
-    dispatch(setShowToolbar(true));
-  }, [dispatch]);
+  const onNodeClick = useCallback(
+    (node: any) => {
+      dispatch(clearSelectedFile());
+      dispatch(getSelectedPlugin(node.item));
+    },
+    [dispatch],
+  );
 
-  React.useEffect(() => {
-    document.title = "My Analyses - ChRIS UI site";
-    dispatch(
-      setSidebarActive({
-        activeItem: "analyses",
-      }),
-    );
-  }, [dispatch]);
+  const onNodeBrowserClick = useCallback(
+    (node: PluginInstance) => {
+      dispatch(clearSelectedFile());
+      dispatch(getSelectedPlugin(node));
+    },
+    [dispatch],
+  );
 
-  const onNodeClick = (node: any) => {
-    dispatch(clearSelectedFile());
-    dispatch(getSelectedPlugin(node.item));
-    dispatch(getSelectedD3Node(node));
-  };
-
-  const onNodeBrowserClick = (node: PluginInstance) => {
-    dispatch(clearSelectedFile());
-    dispatch(getSelectedPlugin(node));
-  };
-
-  const handleDrawerAction = (mode: string) => {
-    return (
+  const handleDrawerAction = useCallback(
+    (mode: keyof IDrawerState) => (
       <DrawerActionButton
         content={mode}
-        handleMaximize={() => {
-          handleMaximize(mode, dispatch);
-        }}
-        handleMinimize={() => {
-          handleMinimize(mode, dispatch);
-        }}
+        handleMaximize={() => handleMaximize(mode, dispatch)}
+        handleMinimize={() => handleMinimize(mode, dispatch)}
         maximized={drawerState[mode].maximized}
       />
-    );
-  };
+    ),
+    [drawerState, dispatch],
+  );
 
   const feedTreeAndGraph = (
     <Drawer isInline position="right" isExpanded={drawerState.node.open}>
@@ -182,17 +171,7 @@ export default function FeedView() {
           </DrawerPanelContent>
         }
       >
-        <DrawerActionButton
-          content="Graph"
-          handleMaximize={() => {
-            handleMaximize("graph", dispatch);
-          }}
-          handleMinimize={() => {
-            handleMinimize("graph", dispatch);
-          }}
-          maximized={drawerState.graph.maximized}
-        />
-
+        {handleDrawerAction("graph")}
         <DrawerContentBody>
           {!currentLayout ? (
             <ParentComponent onNodeClick={onNodeClick} />
@@ -234,4 +213,6 @@ export default function FeedView() {
       </Drawer>
     </WrapperConnect>
   );
-}
+};
+
+export default React.memo(FeedView);

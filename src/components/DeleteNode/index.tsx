@@ -7,7 +7,7 @@ import { fetchResource } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import {
-  getPluginInstancesSuccess,
+  setPluginInstancesAndSelectedPlugin,
   getSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
 import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
@@ -55,11 +55,11 @@ const DeleteNode = () => {
           };
 
           dispatch(getSelectedPlugin(selected));
-          dispatch(getPluginInstancesSuccess(pluginInstanceObj));
+          dispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
           dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
         }
       } catch (e) {
-        throw e;
+        if (e instanceof Error) throw new Error(e.message);
       }
     } else {
       throw new Error("Please select a node to delete");
