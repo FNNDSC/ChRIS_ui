@@ -7,12 +7,9 @@ import { all, delay, fork, put, takeEvery } from "@redux-saga/core/effects";
 import { inflate, inflateRaw } from "pako";
 import type { Task } from "redux-saga";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { catchError, fetchResource } from "../../api/common";
+
 import type { IActionTypeParam } from "../../api/model";
 import {
-  getPluginFilesError,
-  getPluginFilesRequest,
-  getPluginFilesSuccess,
   getPluginInstanceResourceSuccess,
   getPluginInstanceStatusSuccess,
   resetActiveResources,
@@ -20,89 +17,8 @@ import {
   stopFetchingStatusResources,
   getPluginInstanceStatusRequest,
 } from "./resourceSlice";
-import type { FetchFileResult, PluginStatusLabels } from "./types";
+import type { PluginStatusLabels } from "./types";
 import { getSelectedPlugin } from "../pluginInstance/pluginInstanceSlice";
-
-export const fetchFilesFromAPath = async (
-  path: string,
-): Promise<FetchFileResult> => {
-  const client = ChrisAPIClient.getClient();
-  const foldersList = await client.getFileBrowserFolders({
-    path,
-  });
-
-  const folders = foldersList.getItems();
-
-  if (folders) {
-    const folder = folders[0];
-    if (folder) {
-      const pagination = { limit: 100, offset: 0 };
-      const fetchChildren = folder.getChildren;
-      const boundChildren = fetchChildren.bind(folder);
-
-      try {
-        const { resource: children } = await fetchResource(
-          pagination,
-          boundChildren,
-        );
-        const linkFilesFn = folder.getLinkFiles;
-        const boundLinkFilesFn = linkFilesFn.bind(folder);
-        const { resource: linkFiles } =
-          await fetchResource<FileBrowserFolderLinkFile>(
-            pagination,
-            boundLinkFilesFn,
-          );
-        const filesFn = folder.getFiles;
-        const boundFilesFn = filesFn.bind(folder);
-        const { resource: folderFiles } =
-          await fetchResource<FileBrowserFolderFile>(pagination, boundFilesFn);
-
-        return {
-          folderFiles: folderFiles,
-          linkFiles: linkFiles,
-          children: children,
-        };
-      } catch (error) {
-        if (error instanceof Error) {
-          throw new Error(error.message);
-        }
-        const errorMessage = catchError(error).error_message;
-        throw new Error(errorMessage);
-      }
-    }
-  }
-
-  return {
-    folderFiles: [],
-    linkFiles: [],
-    children: [],
-  };
-};
-
-function* fetchPluginFiles(action: IActionTypeParam) {
-  const { id, path } = action.payload;
-
-  try {
-    const { folderFiles, linkFiles, children }: FetchFileResult =
-      yield fetchFilesFromAPath(path);
-
-    const payload = {
-      id,
-      folderFiles,
-      linkFiles,
-      children,
-      path,
-    };
-    yield put(getPluginFilesSuccess(payload));
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : error;
-    const payload = {
-      id,
-      error: errorMessage,
-    };
-    yield put(getPluginFilesError(payload));
-  }
-}
 
 function* handleGetPluginStatus(instance: PluginInstance) {
   while (true) {
@@ -251,10 +167,6 @@ function* pollInstanceEndpoints(action: IActionTypeParam) {
   yield watchStatusCancelPoll(pollTask);
 }
 
-function* watchGetPluginFilesRequest() {
-  yield takeEvery(getPluginFilesRequest.type, fetchPluginFiles);
-}
-
 function* watchGetPluginStatusRequest() {
   yield takeEvery(getPluginInstanceStatusRequest.type, pollInstanceEndpoints);
 }
@@ -269,7 +181,6 @@ function* watchSelectedPlugin() {
 
 export function* resourceSaga() {
   yield all([
-    fork(watchGetPluginFilesRequest),
     fork(watchGetPluginStatusRequest),
     fork(watchResetActiveResources),
     fork(watchSelectedPlugin),

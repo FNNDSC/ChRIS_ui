@@ -1,7 +1,7 @@
 import type { PluginMeta, Tag, Pipeline } from "@fnndsc/chrisapi";
 import type { EventDataNode } from "rc-tree/lib/interface";
 import type { DataBreadcrumb } from "./types/feed";
-import { fetchFilesFromAPath } from "../../store/resources/saga";
+import { fetchFilesFromAPath } from "../FeedOutputBrowser/useFeedBrowser";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource, fetchResources } from "../../api/common";
 
@@ -72,29 +72,37 @@ export const generateTreeNodes = async (
     checkable: boolean;
   }[] = [];
   //@ts-ignore
-  const { files, folders } = await fetchFilesFromAPath(treeNode.breadcrumb);
-  const items = [...files, ...folders];
+  const { folderFiles, linkFiles, children } = await fetchFilesFromAPath(
+    treeNode.breadcrumb,
+  );
+  const items = [...folderFiles, ...linkFiles, ...children];
 
   for (let i = 0; i < items.length; i++) {
-    if (typeof items[i] === "object") {
-      const filePath = items[i].data.fname.split("/");
-      const fileName = filePath[filePath.length - 1];
+    const item = items[i];
+    if (item.data.path) {
+      // assume to be a folder or a link as files have fname's property
+      const path = item.data.path;
+      const fileNameList = path.split("/");
+      const fileName = fileNameList[fileNameList.length - 1];
+
+      arr.push({
+        breadcrumb: path,
+        title: fileName,
+        key: `${treeNode.key}-${i}`,
+        isLeaf: false,
+        checkable: true,
+      });
+    } else {
+      // assumed to be a file
+      const path = item.data.fname;
+      const fileNameList = path.split("/");
+      const fileName = fileNameList[fileNameList.length - 1];
       arr.push({
         breadcrumb: `${treeNode.breadcrumb}/${fileName}`,
         title: fileName,
         key: `${treeNode.key}-${i}`,
         isLeaf: true,
-        checkable: false,
-      });
-    } else {
-      const checkList = ["uploads", "SERVICES", "PACS"];
-      const isCheckable = !checkList.includes(items[i]);
-      arr.push({
-        breadcrumb: `${treeNode.breadcrumb}/${items[i]}`,
-        title: items[i],
-        key: `${treeNode.key}-${i}`,
-        isLeaf: false,
-        checkable: isCheckable,
+        checkable: true,
       });
     }
   }

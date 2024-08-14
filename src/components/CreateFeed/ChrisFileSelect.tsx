@@ -23,14 +23,14 @@ export function clearCache() {
 function getEmptyTree(username: string) {
   const node: DataBreadcrumb[] = [];
   node.push({
-    breadcrumb: username,
-    title: username,
+    breadcrumb: `home/${username}`,
+    title: `home/${username}`,
     checkable: false,
     key: "0-0",
   });
   node.push({
-    breadcrumb: "SERVICES",
-    title: "SERVICES",
+    breadcrumb: "/SERVICES",
+    title: "/SERVICES",
     checkable: false,
     key: "0-1",
   });
@@ -81,7 +81,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           },
         });
         notification.info({
-          message: `New File(s) added`,
+          message: "New File(s) added",
           description: `New ${path} file(s) added`,
           duration: 1,
         });
@@ -94,7 +94,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           },
         });
         notification.info({
-          message: `File(s) removed`,
+          message: "File(s) removed",
           description: `${path} file(s) removed`,
           duration: 1,
         });

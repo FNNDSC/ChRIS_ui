@@ -64,9 +64,13 @@ const MergeIcon = ({ className }: { className?: string }) => {
   );
 };
 
-const ArchiveIcon = ({ className }: { className?: string }) => {
+const ArchiveIcon = ({
+  className,
+  style,
+}: { className?: string; style?: React.CSSProperties }) => {
   return (
     <svg
+      style={style}
       fill="currentColor"
       className={`pf-v5-svg ${className && className}`}
       xmlns="http://www.w3.org/2000/svg"
@@ -162,9 +166,10 @@ const NoteEditIcon = () => {
   );
 };
 
-const FileImageIcon = () => {
+const FileImageIcon = ({ style }: { style?: React.CSSProperties }) => {
   return (
     <svg
+      style={style}
       fill="currentColor"
       className="pf-v5-svg"
       xmlns="http://www.w3.org/2000/svg"
@@ -176,9 +181,10 @@ const FileImageIcon = () => {
   );
 };
 
-const FileTxtIcon = () => {
+const FileTxtIcon = ({ style }: { style?: React.CSSProperties }) => {
   return (
     <svg
+      style={style}
       fill="currentColor"
       className="pf-v5-svg"
       xmlns="http://www.w3.org/2000/svg"
@@ -190,9 +196,10 @@ const FileTxtIcon = () => {
   );
 };
 
-const FilePdfIcon = () => {
+const FilePdfIcon = ({ style }: { style?: React.CSSProperties }) => {
   return (
     <svg
+      style={style}
       fill="currentColor"
       className="pf-v5-svg"
       xmlns="http://www.w3.org/2000/svg"

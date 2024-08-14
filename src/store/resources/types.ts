@@ -57,12 +57,6 @@ export interface ResourcePayload {
   pluginLog?: Logs;
 }
 
-export interface FetchFileResult {
-  folderFiles: FileBrowserFolderFile[];
-  linkFiles: FileBrowserFolderLinkFile[];
-  children: any[];
-}
-
 export interface FilesPayload {
   [id: string]: {
     folderFiles: FileBrowserFolderFile[];
@@ -96,7 +90,4 @@ export interface DestroyActiveResources {
 export interface IResourceState {
   pluginInstanceStatus: PluginInstanceStatusPayload;
   pluginInstanceResource: PluginInstanceResourcePayload;
-  pluginFiles: FilesPayload;
-
-  loading: boolean;
 }
