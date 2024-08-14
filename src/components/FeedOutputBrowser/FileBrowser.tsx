@@ -294,6 +294,7 @@ const FileBrowser = (props: FileBrowserProps) => {
               <Operations
                 inValidateFolders={inValidateFolders}
                 computedPath={path}
+                folderList={pluginFilesPayload.folderList}
               />
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">

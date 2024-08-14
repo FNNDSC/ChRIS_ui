@@ -23,7 +23,6 @@ const getInitialDownloadState = () => ({
 export const fetchFilesFromAPath = async (
   path: string,
 ): Promise<FilesPayload> => {
-  console.log("Path", path);
   const client = ChrisAPIClient.getClient();
   const foldersList = await client.getFileBrowserFolders({
     path,
@@ -59,6 +58,7 @@ export const fetchFilesFromAPath = async (
           folderFiles: folderFiles,
           linkFiles: linkFiles,
           children: children,
+          folderList: foldersList,
           path,
         };
       } catch (error) {
@@ -72,6 +72,7 @@ export const fetchFilesFromAPath = async (
     folderFiles: [],
     linkFiles: [],
     children: [],
+    folderList: undefined,
     path,
   };
 };
