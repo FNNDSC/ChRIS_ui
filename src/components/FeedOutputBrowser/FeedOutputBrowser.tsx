@@ -1,12 +1,12 @@
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import {
   EmptyState,
   EmptyStateBody,
   EmptyStateVariant,
   Title,
 } from "@patternfly/react-core";
-import type { PluginInstance } from "@fnndsc/chrisapi";
-import FileBrowser from "./FileBrowser";
 import { SpinContainer } from "../Common";
+import FileBrowser from "./FileBrowser";
 import { useFeedBrowser } from "./useFeedBrowser";
 
 import "./FeedOutputBrowser.css";

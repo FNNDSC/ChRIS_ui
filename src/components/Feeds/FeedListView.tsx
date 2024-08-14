@@ -546,6 +546,7 @@ function LoadingTable() {
       </Thead>
       <Tbody>
         {Array.from({ length: 15 }).map((_, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           <Tr key={index}>
             <Td colSpan={COLUMN_ORDER.length + 1}>
               <Skeleton width="100%" height="40px" />

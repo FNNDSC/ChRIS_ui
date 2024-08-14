@@ -401,7 +401,7 @@ const FeedTree = (props: OwnProps) => {
               );
             })}
 
-            {nodes?.map(({ data, x, y, parent }, i) => {
+            {nodes?.map(({ data, x, y, parent }) => {
               return (
                 <NodeWrapper
                   key={`node + ${data.id}`}
