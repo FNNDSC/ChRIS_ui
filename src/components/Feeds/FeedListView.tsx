@@ -232,7 +232,11 @@ const TableSelectable: React.FC = () => {
         {loadingFeedState ? (
           <LoadingTable />
         ) : feedsToDisplay.length > 0 ? (
-          <Table variant="compact" aria-label="Feed Table">
+          <Table
+            className="feed-table"
+            variant="compact"
+            aria-label="Feed Table"
+          >
             <Thead>
               <Tr>
                 <Th />

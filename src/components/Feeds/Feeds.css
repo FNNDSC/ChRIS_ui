@@ -35,5 +35,6 @@
     fill: white !important;
   }
 
-
-  
+  .feed-table tbody:where(.pf-v5-c-table__tbody) > tr:where(.pf-v5-c-table__tr) > * {
+    vertical-align:middle !important; 
+}
