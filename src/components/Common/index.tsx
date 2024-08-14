@@ -361,25 +361,27 @@ export const ClipboardCopyFixed = ({
   );
 };
 
-export const getIcon = (type: string) => {
+export const getIcon = (type: string, isDarkTheme: boolean) => {
+  const color = isDarkTheme ? "#FFFFFF" : "#000000"; // white for dark theme, black for light theme
+  const iconStyle = { color };
   switch (type.toLowerCase()) {
     case "dir":
-      return <FolderIcon />;
+      return <FolderIcon style={iconStyle} />;
     case "dcm":
     case "jpg":
     case "png":
-      return <FileImageIcon />;
+      return <FileImageIcon style={iconStyle} />;
     case "txt":
-      return <FileTxtIcon />;
+      return <FileTxtIcon style={iconStyle} />;
     case "pdf":
-      return <FilePdfIcon />;
+      return <FilePdfIcon style={iconStyle} />;
     case "zip":
-      return <ArchiveIcon />;
+      return <ArchiveIcon style={iconStyle} />;
     case "link":
-      return <ExternalLinkSquareAltIcon />;
+      return <ExternalLinkSquareAltIcon style={iconStyle} />;
     case "folder":
-      return <FolderIcon />;
+      return <FolderIcon style={iconStyle} />;
     default:
-      return <FileIcon />;
+      return <FileIcon style={iconStyle} />;
   }
 };

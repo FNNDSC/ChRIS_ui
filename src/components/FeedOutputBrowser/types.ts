@@ -5,17 +5,19 @@ import type {
 } from "@fnndsc/chrisapi";
 import type { DataNode } from "../../store/explorer/types";
 
+export interface FilesPayload {
+  folderFiles: FileBrowserFolderFile[];
+  children: any[];
+  linkFiles: FileBrowserFolderLinkFile[];
+  path: string;
+}
+
 export interface FileBrowserProps {
-  pluginFilesPayload: {
-    folderFiles: FileBrowserFolderFile[];
-    children: any[];
-    linkFiles: FileBrowserFolderLinkFile[];
-    error: any;
-    path: string;
-  };
+  pluginFilesPayload: FilesPayload;
   handleFileClick: (path: string) => void;
   selected: PluginInstance;
   filesLoading: boolean;
+  inValidateFolders: () => void;
 }
 
 export interface FileBrowserState {

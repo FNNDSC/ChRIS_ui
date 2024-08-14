@@ -1,97 +1,153 @@
+import type {
+  FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
+} from "@fnndsc/chrisapi";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { getPluginFilesRequest } from "../../store/resources/resourceSlice";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { fetchResource } from "../../api/common";
+import { catchError } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
+import type { FilesPayload } from "./types";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
-const getInitialDownloadState = () => {
+const getInitialDownloadState = () => ({
+  count: 0,
+  status: false,
+  plugin_name: "",
+  error: "",
+  fetchingFiles: false,
+});
+
+export const fetchFilesFromAPath = async (
+  path: string,
+): Promise<FilesPayload> => {
+  console.log("Path", path);
+  const client = ChrisAPIClient.getClient();
+  const foldersList = await client.getFileBrowserFolders({
+    path,
+  });
+
+  const folders = foldersList.getItems();
+
+  if (folders) {
+    const folder = folders[0];
+    if (folder) {
+      const pagination = { limit: 100, offset: 0 };
+      const fetchChildren = folder.getChildren;
+      const boundChildren = fetchChildren.bind(folder);
+
+      try {
+        const { resource: children } = await fetchResource(
+          pagination,
+          boundChildren,
+        );
+        const linkFilesFn = folder.getLinkFiles;
+        const boundLinkFilesFn = linkFilesFn.bind(folder);
+        const { resource: linkFiles } =
+          await fetchResource<FileBrowserFolderLinkFile>(
+            pagination,
+            boundLinkFilesFn,
+          );
+        const filesFn = folder.getFiles;
+        const boundFilesFn = filesFn.bind(folder);
+        const { resource: folderFiles } =
+          await fetchResource<FileBrowserFolderFile>(pagination, boundFilesFn);
+
+        return {
+          folderFiles: folderFiles,
+          linkFiles: linkFiles,
+          children: children,
+          path,
+        };
+      } catch (error) {
+        const errorMessage = catchError(error).error_message;
+        throw new Error(errorMessage);
+      }
+    }
+  }
+
   return {
-    count: 0,
-    status: false,
-    plugin_name: "",
-    error: "",
-    fetchingFiles: false,
+    folderFiles: [],
+    linkFiles: [],
+    children: [],
+    path,
   };
 };
 
 export const useFeedBrowser = () => {
-  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const drawerState = useTypedSelector((state) => state.drawers);
   const [download, setDownload] = React.useState(getInitialDownloadState);
+  const [currentPath, setCurrentPath] = React.useState("");
 
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances,
-  );
-  const { pluginFiles, loading: filesLoading } = useTypedSelector(
-    (state) => state.resource,
   );
 
   const selected = useTypedSelector((state) => state.instance.selectedPlugin);
   const { data: plugins } = pluginInstances;
 
-  const pluginFilesPayload = selected && pluginFiles[selected.data.id];
+  const {
+    data: pluginFilesPayload,
+    isLoading: filesLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["pluginFiles", currentPath],
+    queryFn: () => fetchFilesFromAPath(currentPath),
+    enabled: !!selected && !!currentPath,
+  });
 
   const statusTitle = useTypedSelector((state) => {
     if (selected) {
       const id = selected.data.id;
-      if (selected.data.id && state.resource.pluginInstanceStatus[id]) {
+      if (id && state.resource.pluginInstanceStatus[id]) {
         return state.resource.pluginInstanceStatus[id].status;
       }
     }
   });
 
-  const finished = selected && status.includes(selected.data.status);
+  const finished = selected && status.includes(selected?.data.status);
 
   React.useEffect(() => {
     if ((statusTitle && status.includes(statusTitle)) || finished) {
+      // User is trying to download a file before it is available
       if (download.error) {
-        setDownload((state) => {
-          return {
-            ...state,
-            error: "Files are ready for download now...",
-          };
-        });
-      }
+        setDownload((state) => ({
+          ...state,
+          error: "Files are not ready for download now...",
+        }));
 
-      if (selected && !pluginFilesPayload) {
-        dispatch(
-          getPluginFilesRequest({
-            id: selected.data.id,
-            path: selected.data.output_path,
-          }),
-        );
-      }
-
-      if (download.error) {
         setTimeout(() => {
           setDownload(getInitialDownloadState);
         }, 3000);
       }
     }
-  }, [
-    selected,
-    finished,
-    dispatch,
-    pluginFilesPayload,
-    statusTitle,
-    download.error,
-  ]);
+  }, [finished, pluginFilesPayload, statusTitle, download.error]);
+
+  React.useEffect(() => {
+    setCurrentPath(selected?.data.output_path);
+  }, [selected]);
 
   const handleFileClick = (path: string) => {
     if (selected) {
-      dispatch(
-        getPluginFilesRequest({
-          id: selected.data.id,
-          path,
-        }),
-      );
+      setCurrentPath(path);
     }
+  };
+
+  const inValidateFolders = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["pluginFiles", currentPath],
+    });
   };
 
   return {
     handleFileClick,
     filesLoading,
+    isError,
+    error,
     plugins,
     statusTitle,
     download,
@@ -99,5 +155,6 @@ export const useFeedBrowser = () => {
     pluginFilesPayload,
     filesStatus: drawerState.files,
     previewStatus: drawerState.preview,
+    inValidateFolders,
   };
 };

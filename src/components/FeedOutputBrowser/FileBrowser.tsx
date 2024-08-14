@@ -1,3 +1,7 @@
+import type {
+  FileBrowserFolder,
+  FileBrowserFolderFile,
+} from "@fnndsc/chrisapi";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,10 +30,15 @@ import { ThemeContext } from "../DarkTheme/useTheme";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 import { DownloadIcon, HomeIcon } from "../Icons";
+import useLongPress, {
+  getBackgroundRowColor,
+} from "../NewLibrary/utils/longpress";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
+import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
+import Operations from "../NewLibrary/components/Operations";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -39,16 +48,25 @@ const previewAnimationTiming = {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
+  const { handlers } = useLongPress();
+  const { handleOnClick } = handlers;
   const dispatch = useDispatch();
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const handleDownloadMutation = useDownload(feed);
   const [api, contextHolder] = notification.useNotification();
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
   const { isDarkTheme } = useContext(ThemeContext);
-  const { pluginFilesPayload, handleFileClick, selected, filesLoading } = props;
+  const {
+    pluginFilesPayload,
+    handleFileClick,
+    selected,
+    filesLoading,
+    inValidateFolders,
+  } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const username = useTypedSelector((state) => state.user.username);
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
   const columnNames = {
     name: "Name",
@@ -125,14 +143,17 @@ const FileBrowser = (props: FileBrowserProps) => {
       ?.animate(previewAnimation, previewAnimationTiming);
   };
 
-  const handleItem = (item: any, type: string) => {
+  const handleItem = (
+    item: FileBrowserFolderFile | FileBrowserFolder,
+    type: string,
+  ) => {
     if (type === "link" || type === "folder") {
       handleFileClick(item.data.path);
     }
 
     if (type === "file") {
       toggleAnimation();
-      dispatch(setSelectedFile(item));
+      dispatch(setSelectedFile(item as FileBrowserFolderFile));
       !drawerState.preview.open && dispatch(setFilePreviewPanel());
     }
   };
@@ -188,17 +209,30 @@ const FileBrowser = (props: FileBrowserProps) => {
     }
     const isPreviewing = selectedFile === item;
     const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
+    const path = type === "file" ? item.data.fname : item.data.path;
 
-    icon = getIcon(iconType);
+    const isSelected =
+      selectedPaths.length > 0 &&
+      selectedPaths.some((payload) => payload.path === path);
+    const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+
+    icon = getIcon(iconType, isDarkTheme);
     const fileNameComponent = (
       <div
-        className={"file-browser__table--fileName"}
         style={{
-          background: isPreviewing ? backgroundColor : "",
+          backgroundColor: isPreviewing ? backgroundColor : "inherit",
         }}
       >
-        <span>{icon}</span>
-        <span>{fileName}</span>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleItem(item, type);
+          }}
+          icon={icon}
+          variant="link"
+        >
+          {fileName}
+        </Button>
       </div>
     );
     const downloadComponent =
@@ -213,17 +247,27 @@ const FileBrowser = (props: FileBrowserProps) => {
           icon={<DownloadIcon />}
         />
       );
+
     return (
-      <Tr
-        onClick={() => {
-          handleItem(item, type);
+      <FolderContextMenu
+        key={path} // Assuming 'item' has an 'id' property
+        inValidateFolders={() => {
+          console.log("Test");
         }}
-        key={type === "file" ? item.data.fname : item.data.path} // Assuming 'item' has an 'id' property
       >
-        <Td dataLabel={columnNames.name}>{fileNameComponent}</Td>
-        <Td dataLabel={columnNames.size}>{fsize}</Td>
-        <Td dataLabel={columnNames.download}>{downloadComponent}</Td>
-      </Tr>
+        <Tr
+          style={{
+            background: selectedBgRow,
+          }}
+          onClick={(e) => {
+            handleOnClick(e, item, path, type);
+          }}
+        >
+          <Td dataLabel={columnNames.name}>{fileNameComponent}</Td>
+          <Td dataLabel={columnNames.size}>{fsize}</Td>
+          <Td dataLabel={columnNames.download}>{downloadComponent}</Td>
+        </Tr>
+      </FolderContextMenu>
     );
   };
 
@@ -247,6 +291,10 @@ const FileBrowser = (props: FileBrowserProps) => {
           />
           {drawerState.files.open && (
             <DrawerContentBody>
+              <Operations
+                inValidateFolders={inValidateFolders}
+                computedPath={path}
+              />
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">
                   <ClipboardCopyContainer path={path} />

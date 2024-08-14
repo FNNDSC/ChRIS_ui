@@ -5,18 +5,11 @@ import type {
   DestroyActiveResources,
 } from "./types";
 import { getStatusLabels } from "./utils";
-import type {
-  PluginInstance,
-  FileBrowserFolderFile,
-  FileBrowserFolderLinkFile,
-} from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 
 const initialState: IResourceState = {
   pluginInstanceStatus: {},
   pluginInstanceResource: {},
-  pluginFiles: {},
-
-  loading: false,
 };
 
 const resourceSlice = createSlice({
@@ -62,43 +55,7 @@ const resourceSlice = createSlice({
     stopFetchingStatusResources(_state, _action: PayloadAction<number>) {
       // No state mutation needed for this action
     },
-    getPluginFilesRequest(
-      state,
-      _action: PayloadAction<{ id: number; path: string }>,
-    ) {
-      state.loading = true;
-    },
-    getPluginFilesSuccess(
-      state,
-      action: PayloadAction<{
-        id: string;
-        folderFiles: FileBrowserFolderFile[];
-        linkFiles: FileBrowserFolderLinkFile[];
-        children: any[];
-        path: string;
-      }>,
-    ) {
-      const { id, folderFiles, linkFiles, children, path } = action.payload;
-      state.loading = false;
-      state.pluginFiles[id] = {
-        folderFiles,
-        children,
-        linkFiles,
-        error: "",
-        path,
-      };
-    },
-    getPluginFilesError(
-      state,
-      action: PayloadAction<{ id: number; error: any }>,
-    ) {
-      const { id, error } = action.payload;
-      state.loading = false;
-      state.pluginFiles[id] = {
-        ...state.pluginFiles[id],
-        error,
-      };
-    },
+
     resetActiveResources(
       _state,
       _action: PayloadAction<DestroyActiveResources>,
@@ -115,9 +72,7 @@ export const {
   getPluginInstanceStatusRequest,
   getPluginInstanceStatusSuccess,
   stopFetchingStatusResources,
-  getPluginFilesRequest,
-  getPluginFilesSuccess,
-  getPluginFilesError,
+
   resetActiveResources,
 } = resourceSlice.actions;
 
