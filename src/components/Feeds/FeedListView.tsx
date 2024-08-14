@@ -547,14 +547,9 @@ function LoadingTable() {
       <Tbody>
         {Array.from({ length: 15 }).map((_, index) => (
           <Tr key={index}>
-            <Td>
-              <Skeleton width="20px" height="40px" />
+            <Td colSpan={COLUMN_ORDER.length + 1}>
+              <Skeleton width="100%" height="40px" />
             </Td>
-            {COLUMN_ORDER.map(({ id }) => (
-              <Td key={id}>
-                <Skeleton width="100px" height="40px" />
-              </Td>
-            ))}
           </Tr>
         ))}
       </Tbody>
