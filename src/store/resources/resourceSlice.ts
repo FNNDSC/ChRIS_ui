@@ -40,9 +40,8 @@ const resourceSlice = createSlice({
     },
     getPluginInstanceStatusRequest(
       _state,
-      action: PayloadAction<PluginInstanceObj>,
+      _action: PayloadAction<PluginInstanceObj>,
     ) {
-      console.log("DIspatch Called", action);
       // No state mutation needed for this action
     },
     getPluginInstanceStatusSuccess(
