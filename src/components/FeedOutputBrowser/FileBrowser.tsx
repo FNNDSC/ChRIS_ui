@@ -29,7 +29,7 @@ import { ClipboardCopyContainer, SpinContainer, getIcon } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
-import { DownloadIcon, HomeIcon } from "../Icons";
+import { HomeIcon } from "../Icons";
 import useLongPress, {
   getBackgroundRowColor,
 } from "../NewLibrary/utils/longpress";
@@ -39,12 +39,19 @@ import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
 import Operations from "../NewLibrary/components/Operations";
+import { format } from "date-fns";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
 const previewAnimationTiming = {
   duration: 1000,
   iterations: 1,
+};
+const columnNames = {
+  name: "Name",
+  created: "Created",
+  creator: "Creator",
+  size: "Size",
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
@@ -68,11 +75,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const username = useTypedSelector((state) => state.user.username);
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
-  const columnNames = {
-    name: "Name",
-    size: "Size",
-    download: "",
-  };
+
   const breadcrumb = path.split("/");
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
 
@@ -235,25 +238,11 @@ const FileBrowser = (props: FileBrowserProps) => {
         </Button>
       </div>
     );
-    const downloadComponent =
-      type !== "file" ? undefined : (
-        <Button
-          variant="plain"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            handleDownloadMutation.mutate(item);
-          }}
-          icon={<DownloadIcon />}
-        />
-      );
 
     return (
       <FolderContextMenu
         key={path} // Assuming 'item' has an 'id' property
-        inValidateFolders={() => {
-          console.log("Test");
-        }}
+        inValidateFolders={inValidateFolders}
       >
         <Tr
           style={{
@@ -262,10 +251,16 @@ const FileBrowser = (props: FileBrowserProps) => {
           onClick={(e) => {
             handleOnClick(e, item, path, type);
           }}
+          onContextMenu={(e) => {
+            handleOnClick(e, item, path, type);
+          }}
         >
           <Td dataLabel={columnNames.name}>{fileNameComponent}</Td>
+          <Td dataLabel={columnNames.created}>
+            {format(new Date(item.data.creation_date), "dd MMM yyyy, HH:mm")}
+          </Td>
+          <Td dataLabel={columnNames.creator}>{item.data.owner_username}</Td>
           <Td dataLabel={columnNames.size}>{fsize}</Td>
-          <Td dataLabel={columnNames.download}>{downloadComponent}</Td>
         </Tr>
       </FolderContextMenu>
     );
@@ -292,6 +287,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           {drawerState.files.open && (
             <DrawerContentBody>
               <Operations
+                customClassName={{ toolbar: "remove-toolbar-padding" }}
                 inValidateFolders={inValidateFolders}
                 computedPath={path}
                 folderList={pluginFilesPayload.folderList}
@@ -320,11 +316,15 @@ const FileBrowser = (props: FileBrowserProps) => {
                 </div>
               </div>
               <Table aria-label="file-browser-table" variant="compact">
-                <Thead className="file-browser-table--head">
+                <Thead
+                  aria-label="file-browser-table"
+                  className="file-browser-table--head"
+                >
                   <Tr>
-                    <Th>{columnNames.name}</Th>
-                    <Th>{columnNames.size}</Th>
-                    <Th>{columnNames.download}</Th>
+                    <Th aria-label="file-name">{columnNames.name}</Th>
+                    <Th aria-label="file-creator">{columnNames.created}</Th>
+                    <Th aria-label="file-owner">{columnNames.creator}</Th>
+                    <Th aria-label="file-size">{columnNames.size}</Th>
                   </Tr>
                 </Thead>
                 {filesLoading ? (

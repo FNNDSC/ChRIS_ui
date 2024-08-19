@@ -227,7 +227,7 @@ const TableSelectable: React.FC = () => {
       <PageSection style={{ paddingBlockStart: "0.5em", height: "100%" }}>
         <Operations
           inValidateFolders={inValidateFolders}
-          customStyle={{ paddingInlineStart: "0" }}
+          customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
         />
         {loadingFeedState ? (
           <LoadingTable />

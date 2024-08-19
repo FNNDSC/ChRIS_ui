@@ -36,6 +36,7 @@ import {
   MergeIcon,
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
+import "./Operations.css";
 
 interface AddModalProps {
   isOpen: boolean;
@@ -54,7 +55,12 @@ interface OperationProps {
   inValidateFolders: () => void;
   computedPath?: string;
   folderList?: FileBrowserFolderList;
-  customStyle?: React.CSSProperties;
+  customStyle?: {
+    [key: string]: React.CSSProperties;
+  };
+  customClassName?: {
+    [key: string]: string;
+  };
 }
 
 export const AddModal = (props: AddModalProps) => {
@@ -115,7 +121,13 @@ const items = [
 ];
 
 const Operations = React.forwardRef((props: OperationProps, ref) => {
-  const { inValidateFolders, computedPath, folderList, customStyle } = props;
+  const {
+    inValidateFolders,
+    computedPath,
+    folderList,
+    customStyle,
+    customClassName,
+  } = props;
   const dispatch = useDispatch();
   const {
     modalInfo,
@@ -315,8 +327,8 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
         hidden
         onChange={handleFolderChange}
       />
-      <Toolbar>
-        <ToolbarContent style={{ ...customStyle }}>
+      <Toolbar className={customClassName?.toolbar}>
+        <ToolbarContent style={{ ...customStyle?.toolbarItem }}>
           {toolbarItems}
         </ToolbarContent>
       </Toolbar>
