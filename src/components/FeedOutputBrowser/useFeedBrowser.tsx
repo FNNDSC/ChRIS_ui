@@ -90,17 +90,6 @@ export const useFeedBrowser = () => {
   const selected = useTypedSelector((state) => state.instance.selectedPlugin);
   const { data: plugins } = pluginInstances;
 
-  const {
-    data: pluginFilesPayload,
-    isLoading: filesLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["pluginFiles", currentPath],
-    queryFn: () => fetchFilesFromAPath(currentPath),
-    enabled: !!selected && !!currentPath,
-  });
-
   const statusTitle = useTypedSelector((state) => {
     if (selected) {
       const id = selected.data.id;
@@ -110,7 +99,21 @@ export const useFeedBrowser = () => {
     }
   });
 
-  const finished = selected && status.includes(selected?.data.status);
+  const finished = !!(
+    (selected && status.includes(selected?.data.status)) ||
+    (statusTitle && status.includes(statusTitle))
+  );
+
+  const {
+    data: pluginFilesPayload,
+    isLoading: filesLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["pluginFiles", currentPath],
+    queryFn: () => fetchFilesFromAPath(currentPath),
+    enabled: !!selected && !!currentPath && finished,
+  });
 
   React.useEffect(() => {
     if ((statusTitle && status.includes(statusTitle)) || finished) {

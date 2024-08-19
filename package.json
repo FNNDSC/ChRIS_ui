@@ -60,7 +60,6 @@
     "niivue-react": "github:niivue/niivue-react",
     "npm": "^10.8.2",
     "p-queue": "^8.0.1",
-    "package.json": "^0.0.0",
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
     "query-string": "^9.0.0",
