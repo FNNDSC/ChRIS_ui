@@ -80,7 +80,7 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
 
   const feedMatches = folderName.match(/feed_(\d+)/);
   const { data, isLoading } = useQuery({
-    queryKey: ["AssociatedFeed", folder.data.path],
+    queryKey: ["associatedFeed", folder.data.path],
     queryFn: async () => {
       const id = feedMatches ? feedMatches[1] : null;
 

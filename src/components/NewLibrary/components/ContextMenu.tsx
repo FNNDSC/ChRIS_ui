@@ -8,19 +8,22 @@ import {
   DownloadIcon,
   DuplicateIcon,
   MergeIcon,
+  ShareIcon,
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
-import { AddModal } from "./Operations";
+import { AddModal, type ContextTypes } from "./Operations";
 
 interface ContextMenuProps {
   children: React.ReactElement;
   computedPath?: string;
   inValidateFolders: () => void;
   folderList?: FileBrowserFolderList;
+  context?: ContextTypes;
 }
 
 export const FolderContextMenu = (props: ContextMenuProps) => {
-  const { children, inValidateFolders, folderList, computedPath } = props;
+  const { children, inValidateFolders, folderList, computedPath, context } =
+    props;
   const {
     modalInfo,
     userError,
@@ -29,7 +32,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(inValidateFolders, computedPath, folderList);
+  } = useFolderOperations(inValidateFolders, computedPath, folderList, context);
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
@@ -37,6 +40,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "anonymize", label: "Anonymize", icon: <ArchiveIcon /> },
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
+    { key: "share", label: "Share", icon: <ShareIcon /> },
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
 
@@ -45,17 +49,31 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
       <AddModal
         isOpen={modalInfo.isOpen}
         onClose={() => setModalInfo({ isOpen: false, type: "" })}
-        onSubmit={(inputValue) => handleModalSubmitMutation.mutate(inputValue)}
+        onSubmit={(inputValue, additionalValues) =>
+          handleModalSubmitMutation.mutate({
+            inputValue,
+            additionalValues,
+          })
+        }
         modalTitle={
           modalInfo.type === "group"
             ? "Create a new Group"
-            : "Create a new Folder"
+            : modalInfo.type === "share"
+              ? "Share this Folder"
+              : "Create a new Folder"
         }
-        inputLabel={modalInfo.type === "group" ? "Group Name" : "Folder Name"}
+        inputLabel={
+          modalInfo.type === "group"
+            ? "Group Name"
+            : modalInfo.type === "share"
+              ? "User Name"
+              : "Folder Name"
+        }
         indicators={{
           isPending: handleModalSubmitMutation.isPending,
           isError: handleModalSubmitMutation.isError,
           error: handleModalSubmitMutation.error as DefaultError,
+          clearErrors: () => handleModalSubmitMutation.reset(),
         }}
       />
 

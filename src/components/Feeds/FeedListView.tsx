@@ -32,7 +32,7 @@ import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { SearchIcon } from "../Icons";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
-import Operations from "../NewLibrary/components/Operations";
+import Operations, { ContextTypes } from "../NewLibrary/components/Operations";
 import useLongPress from "../NewLibrary/utils/longpress";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
@@ -228,6 +228,7 @@ const TableSelectable: React.FC = () => {
         <Operations
           inValidateFolders={inValidateFolders}
           customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
+          context={ContextTypes.feed_table}
         />
         {loadingFeedState ? (
           <LoadingTable />
@@ -343,7 +344,10 @@ const TableRow: React.FC<TableRowProps> = ({
   };
 
   return (
-    <FolderContextMenu inValidateFolders={inValidateFolders}>
+    <FolderContextMenu
+      inValidateFolders={inValidateFolders}
+      context={ContextTypes.feed_table}
+    >
       <Tr
         key={feed.data.id}
         style={{
