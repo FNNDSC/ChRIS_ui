@@ -183,6 +183,10 @@ export const useFolderOperations = (
         setModalInfo({ isOpen: true, type: "share" });
         break;
       }
+      case "rename": {
+        setModalInfo({ isOpen: true, type: "rename" });
+        break;
+      }
       case "duplicate": {
         handleDuplicate();
         break;

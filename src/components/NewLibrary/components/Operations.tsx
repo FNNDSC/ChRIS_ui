@@ -54,6 +54,7 @@ export type AdditionalValues = {
 };
 
 interface AddModalProps {
+  operationType: string;
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (inputValue: string, additionalValues?: AdditionalValues) => void;
@@ -81,8 +82,15 @@ interface OperationProps {
 }
 
 export const AddModal = (props: AddModalProps) => {
-  const { isOpen, onClose, onSubmit, modalTitle, inputLabel, indicators } =
-    props;
+  const {
+    isOpen,
+    onClose,
+    onSubmit,
+    modalTitle,
+    inputLabel,
+    indicators,
+    operationType,
+  } = props;
   const [inputValue, setInputValue] = useState("");
   const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
     share: {
@@ -120,36 +128,39 @@ export const AddModal = (props: AddModalProps) => {
             placeholder={inputLabel}
           />
         </FormGroup>
-        <FormGroup>
-          <Checkbox
-            id="read"
-            isChecked={additionalValues?.share.read}
-            label="Read"
-            onChange={(_event, checked) => {
-              setAdditionalValues({
-                ...additionalValues,
-                share: {
-                  ...additionalValues?.share,
-                  read: checked,
-                },
-              });
-            }}
-          />
-          <Checkbox
-            id="write"
-            isChecked={additionalValues?.share.write}
-            label="Write"
-            onChange={(_event, checked) => {
-              setAdditionalValues({
-                ...additionalValues,
-                share: {
-                  ...additionalValues?.share,
-                  write: checked,
-                },
-              });
-            }}
-          />
-        </FormGroup>
+        {operationType === "share" && (
+          <FormGroup>
+            <Checkbox
+              id="read"
+              isChecked={additionalValues?.share.read}
+              label="Read"
+              onChange={(_event, checked) => {
+                setAdditionalValues({
+                  ...additionalValues,
+                  share: {
+                    ...additionalValues?.share,
+                    read: checked,
+                  },
+                });
+              }}
+            />
+            <Checkbox
+              id="write"
+              isChecked={additionalValues?.share.write}
+              label="Write"
+              onChange={(_event, checked) => {
+                setAdditionalValues({
+                  ...additionalValues,
+                  share: {
+                    ...additionalValues?.share,
+                    write: checked,
+                  },
+                });
+              }}
+            />
+          </FormGroup>
+        )}
+
         <ActionGroup>
           <Button
             icon={indicators.isPending && <Spin />}
@@ -360,9 +371,32 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     ],
   );
 
+  const modalTypeLabels: Record<
+    string,
+    { modalTitle: string; inputLabel: string }
+  > = {
+    group: {
+      modalTitle: "Create a new Group",
+      inputLabel: "Group Name",
+    },
+    share: {
+      modalTitle: "Share this Folder",
+      inputLabel: "User Name",
+    },
+    rename: {
+      modalTitle: "Rename this Folder",
+      inputLabel: "Rename Folder",
+    },
+    default: {
+      modalTitle: "Create a new Folder",
+      inputLabel: "Folder Name",
+    },
+  };
+
   return (
     <>
       <AddModal
+        operationType={modalInfo.type}
         isOpen={modalInfo.isOpen}
         onClose={() => setModalInfo({ isOpen: false, type: "" })}
         onSubmit={(inputValue, additionalValues) =>
@@ -372,18 +406,12 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
           })
         }
         modalTitle={
-          modalInfo.type === "group"
-            ? "Create a new Group"
-            : modalInfo.type === "share"
-              ? "Share this Folder"
-              : "Create a new Folder"
+          modalTypeLabels[modalInfo.type]?.modalTitle ??
+          modalTypeLabels.default.modalTitle
         }
         inputLabel={
-          modalInfo.type === "group"
-            ? "Group Name"
-            : modalInfo.type === "share"
-              ? "User Name"
-              : "Folder Name"
+          modalTypeLabels[modalInfo.type]?.inputLabel ??
+          modalTypeLabels.default.inputLabel
         }
         indicators={{
           isPending: handleModalSubmitMutation.isPending,

@@ -7,6 +7,7 @@ import {
   DeleteIcon,
   DownloadIcon,
   DuplicateIcon,
+  EditIcon,
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
@@ -41,12 +42,39 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
     { key: "share", label: "Share", icon: <ShareIcon /> },
+    { key: "rename", label: "Rename", icon: <EditIcon /> },
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
+
+  const modalTypeLabels: Record<
+    string,
+    { modalTitle: string; inputLabel: string }
+  > = {
+    group: {
+      modalTitle: "Create a new Group",
+      inputLabel: "Group Name",
+    },
+    share: {
+      modalTitle: "Share this Folder",
+      inputLabel: "User Name",
+    },
+    rename: {
+      modalTitle: "Rename this Folder",
+      inputLabel: "Rename",
+    },
+    default: {
+      modalTitle: "Create a new Folder",
+      inputLabel: "Folder Name",
+    },
+  };
+
+  const { modalTitle, inputLabel } =
+    modalTypeLabels[modalInfo.type] || modalTypeLabels.default;
 
   return (
     <>
       <AddModal
+        operationType={modalInfo.type}
         isOpen={modalInfo.isOpen}
         onClose={() => setModalInfo({ isOpen: false, type: "" })}
         onSubmit={(inputValue, additionalValues) =>
@@ -55,20 +83,8 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
             additionalValues,
           })
         }
-        modalTitle={
-          modalInfo.type === "group"
-            ? "Create a new Group"
-            : modalInfo.type === "share"
-              ? "Share this Folder"
-              : "Create a new Folder"
-        }
-        inputLabel={
-          modalInfo.type === "group"
-            ? "Group Name"
-            : modalInfo.type === "share"
-              ? "User Name"
-              : "Folder Name"
-        }
+        modalTitle={modalTitle}
+        inputLabel={inputLabel}
         indicators={{
           isPending: handleModalSubmitMutation.isPending,
           isError: handleModalSubmitMutation.isError,
