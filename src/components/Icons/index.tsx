@@ -82,11 +82,15 @@ const ArchiveIcon = ({
   );
 };
 
-const ShareIcon = () => {
+const ShareIcon = ({
+  className,
+  style,
+}: { className?: string; style?: React.CSSProperties }) => {
   return (
     <svg
+      style={style}
       fill="currentColor"
-      className="pf-v5-svg"
+      className={`pf-v5-svg ${className && className}`}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 448 512"
     >

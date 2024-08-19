@@ -191,7 +191,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   );
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
   const ext = getFileExtension(file.data.fname);
-  const icon = getIcon(ext);
+  const icon = getIcon(ext, isDarkTheme);
 
   useEffect(() => {
     if (handleDownloadMutation.isSuccess) {

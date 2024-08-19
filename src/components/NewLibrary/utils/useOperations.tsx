@@ -1,6 +1,5 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
-import { notification } from "../../Antd";
 import { isEmpty } from "lodash";
 import { useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -13,6 +12,8 @@ import {
   startUpload,
 } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
+import { notification } from "../../Antd";
+import type { AdditionalValues, ContextTypes } from "../components/Operations";
 import useDeletePayload from "../utils/useDeletePayload";
 import useFeedOperations from "./useFeedOperations";
 
@@ -20,6 +21,7 @@ export const useFolderOperations = (
   inValidateFolders: () => void,
   computedPath?: string, // This path is passed to for file upload and folder uploads in the library
   folderList?: FileBrowserFolderList,
+  _context?: ContextTypes,
 ) => {
   const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
@@ -63,7 +65,10 @@ export const useFolderOperations = (
     }
   };
 
-  const handleModalSubmit = async (inputValue: string) => {
+  const handleModalSubmit = async (
+    inputValue: string,
+    additionalValues?: AdditionalValues,
+  ) => {
     if (modalInfo.type === "group") {
       const client = ChrisAPIClient.getClient();
       await client.adminCreateGroup({ name: inputValue });
@@ -78,12 +83,41 @@ export const useFolderOperations = (
         const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
         throw new Error(message);
       }
+    } else if (modalInfo.type === "share") {
+      const permissions =
+        additionalValues?.share.read && additionalValues?.share.write
+          ? "rw"
+          : additionalValues?.share.read
+            ? "r"
+            : "w";
+      for (const selectedPayload of selectedPaths) {
+        const { payload } = selectedPayload;
+
+        try {
+          await payload.addUserPermission(inputValue, permissions);
+        } catch (e: any) {
+          const username = e?.response?.data?.username;
+          const non_field_errors = e?.response?.data?.non_field_errors;
+          const message = !isEmpty(username)
+            ? username[0]
+            : !isEmpty(non_field_errors)
+              ? non_field_errors[0]
+              : "Failed to share this folder.";
+          throw new Error(message);
+        }
+      }
     }
     setModalInfo({ isOpen: false, type: "" });
   };
 
   const handleModalSubmitMutation = useMutation({
-    mutationFn: (inputValue: string) => handleModalSubmit(inputValue),
+    mutationFn: ({
+      inputValue,
+      additionalValues,
+    }: {
+      inputValue: string;
+      additionalValues?: AdditionalValues;
+    }) => handleModalSubmit(inputValue, additionalValues),
   });
 
   const handleMerge = () => {
@@ -143,6 +177,10 @@ export const useFolderOperations = (
         break;
       case "merge": {
         handleMerge();
+        break;
+      }
+      case "share": {
+        setModalInfo({ isOpen: true, type: "share" });
         break;
       }
       case "duplicate": {

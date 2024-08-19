@@ -2,6 +2,7 @@ import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Button,
+  Checkbox,
   Chip,
   ChipGroup,
   Form,
@@ -14,7 +15,6 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
-import { Alert, Dropdown, Spin } from "../../Antd";
 import React, {
   Fragment,
   useEffect,
@@ -26,6 +26,7 @@ import { useDispatch } from "react-redux";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
+import { Alert, Dropdown, Spin } from "../../Antd";
 import {
   AddIcon,
   ArchiveIcon,
@@ -34,20 +35,35 @@ import {
   DownloadIcon,
   DuplicateIcon,
   MergeIcon,
+  ShareIcon,
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
 import "./Operations.css";
 
+export enum ContextTypes {
+  feed_table = "FEEDS_TABLE",
+  library_page = "LIBRARY_PAGE",
+  filebrowser_table = "FILEBROWSER_TABLE",
+}
+
+export type AdditionalValues = {
+  share: {
+    read?: boolean;
+    write?: boolean;
+  };
+};
+
 interface AddModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (inputValue: string) => void;
+  onSubmit: (inputValue: string, additionalValues?: AdditionalValues) => void;
   modalTitle: string;
   inputLabel: string;
   indicators: {
     isPending: boolean;
     isError: boolean;
     error: DefaultError | null;
+    clearErrors: () => void;
   };
 }
 
@@ -61,12 +77,19 @@ interface OperationProps {
   customClassName?: {
     [key: string]: string;
   };
+  context?: ContextTypes;
 }
 
 export const AddModal = (props: AddModalProps) => {
   const { isOpen, onClose, onSubmit, modalTitle, inputLabel, indicators } =
     props;
   const [inputValue, setInputValue] = useState("");
+  const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
+    share: {
+      read: false,
+      write: true,
+    },
+  });
 
   const handleClose = () => {
     setInputValue("");
@@ -97,6 +120,36 @@ export const AddModal = (props: AddModalProps) => {
             placeholder={inputLabel}
           />
         </FormGroup>
+        <FormGroup>
+          <Checkbox
+            id="read"
+            isChecked={additionalValues?.share.read}
+            label="Read"
+            onChange={(_event, checked) => {
+              setAdditionalValues({
+                ...additionalValues,
+                share: {
+                  ...additionalValues?.share,
+                  read: checked,
+                },
+              });
+            }}
+          />
+          <Checkbox
+            id="write"
+            isChecked={additionalValues?.share.write}
+            label="Write"
+            onChange={(_event, checked) => {
+              setAdditionalValues({
+                ...additionalValues,
+                share: {
+                  ...additionalValues?.share,
+                  write: checked,
+                },
+              });
+            }}
+          />
+        </FormGroup>
         <ActionGroup>
           <Button
             icon={indicators.isPending && <Spin />}
@@ -107,7 +160,12 @@ export const AddModal = (props: AddModalProps) => {
           <Button onClick={handleClose}>Cancel</Button>
         </ActionGroup>
         {indicators.isError && (
-          <Alert type="error" description={indicators.error?.message} />
+          <Alert
+            type="error"
+            description={indicators.error?.message}
+            closable
+            onClose={indicators.clearErrors}
+          />
         )}
       </Form>
     </Modal>
@@ -127,7 +185,9 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     folderList,
     customStyle,
     customClassName,
+    context,
   } = props;
+
   const dispatch = useDispatch();
   const {
     modalInfo,
@@ -141,7 +201,7 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(inValidateFolders, computedPath, folderList);
+  } = useFolderOperations(inValidateFolders, computedPath, folderList, context);
 
   useImperativeHandle(ref, () => ({
     triggerFileUpload: () => {
@@ -261,6 +321,13 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
             </ToolbarItem>
             <ToolbarItem>
               {renderOperationButton(
+                <ShareIcon />,
+                "share",
+                "Share selected items",
+              )}
+            </ToolbarItem>
+            <ToolbarItem>
+              {renderOperationButton(
                 <DeleteIcon />,
                 "delete",
                 "Delete selected items",
@@ -298,17 +365,31 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       <AddModal
         isOpen={modalInfo.isOpen}
         onClose={() => setModalInfo({ isOpen: false, type: "" })}
-        onSubmit={(inputValue) => handleModalSubmitMutation.mutate(inputValue)}
+        onSubmit={(inputValue, additionalValues) =>
+          handleModalSubmitMutation.mutate({
+            inputValue,
+            additionalValues,
+          })
+        }
         modalTitle={
           modalInfo.type === "group"
             ? "Create a new Group"
-            : "Create a new Folder"
+            : modalInfo.type === "share"
+              ? "Share this Folder"
+              : "Create a new Folder"
         }
-        inputLabel={modalInfo.type === "group" ? "Group Name" : "Folder Name"}
+        inputLabel={
+          modalInfo.type === "group"
+            ? "Group Name"
+            : modalInfo.type === "share"
+              ? "User Name"
+              : "Folder Name"
+        }
         indicators={{
           isPending: handleModalSubmitMutation.isPending,
           isError: handleModalSubmitMutation.isError,
           error: handleModalSubmitMutation.error as DefaultError,
+          clearErrors: () => handleModalSubmitMutation.reset(),
         }}
       />
       <input

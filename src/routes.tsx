@@ -92,7 +92,14 @@ export const MainRouter: React.FC = () => {
     },
     {
       path: "feeds/:id",
-      element: <FeedView />,
+      element: (
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <FeedView />
+        </RouterProvider>
+      ),
     },
     {
       path: "plugin/:id",
