@@ -14,11 +14,9 @@ import {
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { Alert, Spin } from "../Antd";
 import * as React from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { pluralize } from "../../api/common";
-import { setSidebarActive } from "../../store/ui/uiSlice";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import PatientCard from "./components/PatientCard";
@@ -34,16 +32,9 @@ const dropdownMatch: { [key: string]: string } = {
 };
 
 const PacsCopy = () => {
-  const dispatch = useDispatch();
-  document.title = "Data Library";
   React.useEffect(() => {
     document.title = "My Library";
-    dispatch(
-      setSidebarActive({
-        activeItem: "pacs",
-      }),
-    );
-  }, [dispatch]);
+  }, []);
 
   return (
     <WrapperConnect>
@@ -61,8 +52,6 @@ export default PacsCopy;
 
 const client = new PfdcmClient();
 const actions = ["Patient MRN", "Patient Name", "Accession Number"];
-
-const cache = [];
 
 const QueryBuilder = () => {
   const navigate = useNavigate();
@@ -523,14 +512,23 @@ const Results: React.FC = () => {
         queryResult.map((result: any, index: number) => {
           if (result && result.data.length > 0) {
             return (
-              <div key={`result_${index}`} className="result-grid">
+              <div
+                key={`result_${
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                  index
+                }`}
+                className="result-grid"
+              >
                 <PatientCard queryResult={result.data} />
               </div>
             );
           }
           return (
             <EmptyStateComponent
-              key={`result${index}`}
+              key={`result${
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                index
+              }`}
               title={`No results found for : ${result.args.PatientID} ${result.args.PatientName} ${result.args.AccessionNumber}`}
             />
           );

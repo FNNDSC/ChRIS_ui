@@ -8,7 +8,7 @@ import "./wrapper.css";
 import { setIsNavOpen } from "../../store/ui/uiSlice";
 
 type WrapperProps = {
-  children: React.ReactElement[];
+  children: React.ReactElement[] | React.ReactElement;
 };
 
 const Wrapper = (props: WrapperProps) => {

@@ -23,7 +23,6 @@ import { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
-import { setSidebarActive } from "../../store/ui/uiSlice";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
 import { InfoIcon } from "../Common";
@@ -49,7 +48,7 @@ const useSearchQuery = (query: URLSearchParams) => ({
   page: query.get("page") || "1",
   search: query.get("search") || "",
   searchType: query.get("searchType") || "name",
-  perPage: query.get("perPage") || "15",
+  perPage: query.get("perPage") || "16",
   type: query.get("type") || "public",
 });
 
@@ -113,11 +112,6 @@ const TableSelectable: React.FC = () => {
   };
 
   useEffect(() => {
-    document.title = "All Analyses - ChRIS UI ";
-    dispatch(setSidebarActive({ activeItem: "analyses" }));
-  }, [dispatch]);
-
-  useEffect(() => {
     if (!type || (!isLoggedIn && type === "private")) {
       navigate(
         `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=public`,
@@ -142,7 +136,7 @@ const TableSelectable: React.FC = () => {
     isLoading || isFetching || publicFeedLoading || publicFeedFetching;
 
   const inValidateFolders = () => {
-    queryClient.invalidateQueries({
+    queryClient.refetchQueries({
       queryKey: ["feeds"],
     });
   };

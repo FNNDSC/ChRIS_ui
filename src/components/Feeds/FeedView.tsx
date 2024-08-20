@@ -26,7 +26,6 @@ import {
 } from "../../store/pluginInstance/pluginInstanceSlice";
 import { resetActiveResources } from "../../store/resources/resourceSlice";
 import type { DestroyActiveResources } from "../../store/resources/types";
-import { setSidebarActive } from "../../store/ui/uiSlice";
 import { notification } from "../Antd";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
@@ -112,7 +111,7 @@ const FeedView: React.FC = () => {
 
   useEffect(() => {
     document.title = "My Analyses - CHRIS UI";
-    dispatch(setSidebarActive({ activeItem: "analyses" }));
+
     dispatch(setShowToolbar(true));
 
     return () => {

@@ -2,12 +2,18 @@ import type {
   Feed,
   FileBrowserFolder,
   FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
+
+export type PayloadTypes =
+  | FileBrowserFolder
+  | FileBrowserFolderFile
+  | FileBrowserFolderLinkFile;
 
 export interface SelectionPayload {
   path: string;
   type: string;
-  payload: FileBrowserFolderFile | FileBrowserFolder;
+  payload: PayloadTypes;
 }
 
 export type FolderUploadObject = {

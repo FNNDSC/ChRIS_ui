@@ -27,15 +27,13 @@ import {
   TextVariants,
 } from "@patternfly/react-core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Alert, Spin, Typography, notification } from "../Antd";
 import { format } from "date-fns";
 import { isEmpty } from "lodash";
 import { type Ref, useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
+import { Alert, Spin, Typography, notification } from "../Antd";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { setSidebarActive } from "../../store/ui/uiSlice";
 import { InfoIcon, SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
@@ -51,11 +49,10 @@ const { Paragraph } = Typography;
 
 const Store = () => {
   const isStaff = useTypedSelector((state) => state.user.isStaff);
-
   const queryClient = useQueryClient();
   const [_cookie, setCookie, removeCookie] = useCookies();
   const [api, contextHolder] = notification.useNotification();
-  const dispatch = useDispatch();
+
   const [version, setVersion] = useState<{
     [key: string]: any;
   }>({});
@@ -74,12 +71,7 @@ const Store = () => {
 
   useEffect(() => {
     document.title = "Store Catalog";
-    dispatch(
-      setSidebarActive({
-        activeItem: "store",
-      }),
-    );
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     const cookies = new Cookies();
@@ -316,7 +308,7 @@ const Store = () => {
                 });
                 setConfigureStoreValue(configureStoreValue);
                 setConfigureStore(!configureStore);
-                queryClient.resetQueries({
+                queryClient.refetchQueries({
                   queryKey: ["storePlugins"],
                 });
               }}
@@ -368,7 +360,7 @@ const Store = () => {
               removeCookie("configure_url", {
                 path: "/",
               });
-              queryClient.resetQueries({
+              queryClient.refetchQueries({
                 queryKey: ["storePlugins"],
               });
             } else {

@@ -125,24 +125,15 @@ export const LinkCard: React.FC<LinkCardProps> = ({
   linkFiles,
   computedPath,
 }) => {
-  const navigate = useNavigate();
-
   return (
     <>
-      {linkFiles.map((val) => {
-        const pathList = val.data.path.split("/");
-        const linkName = pathList[pathList.length - 1];
-        return (
-          <PresentationComponent
-            key={val.data.fname}
-            icon={<ExternalLinkSquareAltIcon />}
-            name={linkName}
-            date={val.data.creation_date}
-            computedPath={computedPath}
-            onNavigate={() => navigate(val.data.path)}
-          />
-        );
-      })}
+      {linkFiles.map((val) => (
+        <SubLinkCard
+          key={val.data.fname}
+          linkFile={val}
+          computedPath={computedPath}
+        />
+      ))}
     </>
   );
 };
@@ -229,7 +220,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
       <PresentationComponent
         onClick={handleClick}
         inValidateFolders={() => {
-          queryClient.invalidateQueries({
+          queryClient.refetchQueries({
             queryKey: ["library_folders", computedPath],
           });
         }}
@@ -254,6 +245,85 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
       >
         <FileDetailView selectedFile={file} preview="large" />
       </Modal>
+    </>
+  );
+};
+
+type SubLinkCardProps = {
+  linkFile: FileBrowserFolderLinkFile;
+  computedPath: string;
+};
+
+export const SubLinkCard: React.FC<SubLinkCardProps> = ({
+  linkFile,
+  computedPath,
+}) => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { isDarkTheme } = useContext(ThemeContext);
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const handleDownloadMutation = useDownload();
+  const { handlers } = useLongPress();
+  const [api, contextHolder] = notification.useNotification();
+
+  const linkName = linkFile.data.path.split("/").pop() || "";
+  const isSelected = selectedPaths.some(
+    (payload) => payload.path === linkFile.data.path,
+  );
+  const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+  const icon = <ExternalLinkSquareAltIcon />;
+
+  useEffect(() => {
+    if (handleDownloadMutation.isSuccess) {
+      api.success({
+        message: "Successfully Triggered the Download",
+        duration: 1,
+      });
+      setTimeout(() => handleDownloadMutation.reset(), 1000);
+    }
+
+    if (handleDownloadMutation.isError) {
+      api.error({
+        message: "Download Error",
+        description: handleDownloadMutation.error?.message,
+      });
+    }
+  }, [
+    handleDownloadMutation.isSuccess,
+    handleDownloadMutation.isError,
+    api,
+    handleDownloadMutation,
+  ]);
+
+  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) =>
+    handlers.handleOnClick(e, linkFile, linkFile.data.path, "linkFile");
+
+  const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    handlers.handleCheckboxChange(e, linkFile.data.path, linkFile, "linkFile");
+  };
+
+  return (
+    <>
+      {contextHolder}
+      <PresentationComponent
+        onClick={handleClick}
+        inValidateFolders={() => {
+          queryClient.refetchQueries({
+            queryKey: ["library_folders", computedPath],
+          });
+        }}
+        onMouseDown={handlers.handleOnMouseDown}
+        onCheckboxChange={handleCheckboxChange}
+        onContextMenuClick={handleClick}
+        onNavigate={() => navigate(linkFile.data.path)}
+        computedPath={computedPath}
+        isChecked={isSelected}
+        name={linkName}
+        date={linkFile.data.creation_date}
+        icon={icon}
+        bgRow={selectedBgRow}
+      />
     </>
   );
 };

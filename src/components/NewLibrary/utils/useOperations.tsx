@@ -39,15 +39,19 @@ export const useFolderOperations = (
     api,
   );
 
+  const resetInputField = (inputRef: React.RefObject<HTMLInputElement>) => {
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
     dispatch(
       startUpload({ files, isFolder: false, currentPath: `${computedPath}` }),
     );
-    if (fileInput.current) {
-      fileInput.current.value = "";
-    }
+    resetInputField(fileInput);
   };
 
   const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +64,46 @@ export const useFolderOperations = (
         currentPath: computedPath as string,
       }),
     );
-    if (folderInput.current) {
-      folderInput.current.value = "";
+    resetInputField(folderInput);
+  };
+
+  const createFolder = async (inputValue: string) => {
+    const finalPath = `${computedPath}/${inputValue}`;
+    try {
+      await folderList?.post({ path: finalPath });
+      inValidateFolders();
+    } catch (error: any) {
+      const path = error?.response?.data?.path;
+      const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
+      throw new Error(message);
+    }
+  };
+
+  const shareFolder = async (
+    inputValue: string,
+    additionalValues?: AdditionalValues,
+  ) => {
+    const permissions =
+      additionalValues?.share.read && additionalValues?.share.write
+        ? "rw"
+        : additionalValues?.share.read
+          ? "r"
+          : "w";
+
+    for (const selectedPayload of selectedPaths) {
+      const { payload } = selectedPayload;
+      try {
+        await payload.addUserPermission(inputValue, permissions);
+      } catch (e: any) {
+        const username = e?.response?.data?.username;
+        const non_field_errors = e?.response?.data?.non_field_errors;
+        const message = !isEmpty(username)
+          ? username[0]
+          : !isEmpty(non_field_errors)
+            ? non_field_errors[0]
+            : "Failed to share this folder.";
+        throw new Error(message);
+      }
     }
   };
 
@@ -74,38 +116,9 @@ export const useFolderOperations = (
       await client.adminCreateGroup({ name: inputValue });
       // Todo: Error Handling
     } else if (modalInfo.type === "folder") {
-      const finalPath = `${computedPath}/${inputValue}`;
-      try {
-        await folderList?.post({ path: finalPath });
-        inValidateFolders();
-      } catch (error: any) {
-        const path = error?.response?.data?.path;
-        const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
-        throw new Error(message);
-      }
+      await createFolder(inputValue);
     } else if (modalInfo.type === "share") {
-      const permissions =
-        additionalValues?.share.read && additionalValues?.share.write
-          ? "rw"
-          : additionalValues?.share.read
-            ? "r"
-            : "w";
-      for (const selectedPayload of selectedPaths) {
-        const { payload } = selectedPayload;
-
-        try {
-          await payload.addUserPermission(inputValue, permissions);
-        } catch (e: any) {
-          const username = e?.response?.data?.username;
-          const non_field_errors = e?.response?.data?.non_field_errors;
-          const message = !isEmpty(username)
-            ? username[0]
-            : !isEmpty(non_field_errors)
-              ? non_field_errors[0]
-              : "Failed to share this folder.";
-          throw new Error(message);
-        }
-      }
+      await shareFolder(inputValue, additionalValues);
     }
     setModalInfo({ isOpen: false, type: "" });
   };
@@ -183,10 +196,7 @@ export const useFolderOperations = (
         setModalInfo({ isOpen: true, type: "share" });
         break;
       }
-      case "rename": {
-        setModalInfo({ isOpen: true, type: "rename" });
-        break;
-      }
+
       case "duplicate": {
         handleDuplicate();
         break;

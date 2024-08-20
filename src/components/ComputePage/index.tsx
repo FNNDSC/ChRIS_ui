@@ -1,7 +1,5 @@
 import { PageSection } from "@patternfly/react-core";
 import React from "react";
-import { useDispatch } from "react-redux";
-import { setSidebarActive } from "../../store/ui/uiSlice";
 import { Typography } from "../Antd";
 import { InfoIcon } from "../Common";
 import WrapperConnect from "../Wrapper";
@@ -10,15 +8,9 @@ import ComputeCatalog from "./ComputeCatalog";
 const { Paragraph } = Typography;
 
 const ComputePage = () => {
-  const dispatch = useDispatch();
   React.useEffect(() => {
     document.title = "Compute Catalog";
-    dispatch(
-      setSidebarActive({
-        activeItem: "compute",
-      }),
-    );
-  });
+  }, []);
   return (
     <WrapperConnect>
       <PageSection>

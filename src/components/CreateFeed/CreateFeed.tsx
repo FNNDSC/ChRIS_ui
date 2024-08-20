@@ -138,7 +138,7 @@ export default function CreateFeed() {
           content: state.data.feedDescription,
         });
 
-        queryClient.invalidateQueries({
+        queryClient.refetchQueries({
           queryKey: ["feeds"],
         });
 

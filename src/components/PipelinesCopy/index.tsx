@@ -70,7 +70,7 @@ const PipelinesCopy = () => {
   };
 
   const fetchPipelinesAgain = () => {
-    queryClient.invalidateQueries({
+    queryClient.refetchQueries({
       queryKey: ["pipelines"],
     });
   };

@@ -42,7 +42,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
     { key: "share", label: "Share", icon: <ShareIcon /> },
-    { key: "rename", label: "Rename", icon: <EditIcon /> },
+
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
 
@@ -58,10 +58,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
       modalTitle: "Share this Folder",
       inputLabel: "User Name",
     },
-    rename: {
-      modalTitle: "Rename this Folder",
-      inputLabel: "Rename",
-    },
+
     default: {
       modalTitle: "Create a new Folder",
       inputLabel: "Folder Name",
