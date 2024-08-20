@@ -21,6 +21,7 @@ import BreadcrumbContainer from "./components/BreadcrumbContainer";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import Operations from "./components/Operations";
+import LibraryTable from "./components/LibraryTable";
 
 const { Paragraph } = Typography;
 
@@ -214,36 +215,46 @@ const NewLibrary = () => {
             <EmptyStateComponent title="This folder is empty" />
           )}
         {data ? (
-          <Grid hasGutter={true}>
-            <FolderCard
-              folders={data.subFoldersMap}
-              handleFolderClick={handleFolderClick}
-              computedPath={computedPath}
-              pagination={data.foldersPagination}
-            />
-            <LinkCard
-              linkFiles={data.linkFilesMap}
-              pagination={data.linksPagination}
-              computedPath={computedPath}
-            />
-            <FilesCard
-              files={data.filesMap}
-              computedPath={computedPath}
-              pagination={data.filesPagination}
-            />
-            {fetchMore && !isLoading && (
-              <Button onClick={handlePagination} variant="link">
-                {" "}
-                Load more data...
-              </Button>
-            )}
-            <div
-              style={{
-                height: "10px",
+          <>
+            <Grid hasGutter={true}>
+              <FolderCard
+                folders={data.subFoldersMap}
+                handleFolderClick={handleFolderClick}
+                computedPath={computedPath}
+                pagination={data.foldersPagination}
+              />
+              <LinkCard
+                linkFiles={data.linkFilesMap}
+                pagination={data.linksPagination}
+                computedPath={computedPath}
+              />
+              <FilesCard
+                files={data.filesMap}
+                computedPath={computedPath}
+                pagination={data.filesPagination}
+              />
+              {fetchMore && !isLoading && (
+                <Button onClick={handlePagination} variant="link">
+                  {" "}
+                  Load more data...
+                </Button>
+              )}
+              <div
+                style={{
+                  height: "10px",
+                }}
+                ref={observerTarget}
+              />
+            </Grid>
+            <LibraryTable
+              data={{
+                folders: data.subFoldersMap,
+                files: data.filesMap,
+                linkFiles: data.linkFilesMap,
               }}
-              ref={observerTarget}
+              computedPath={computedPath}
             />
-          </Grid>
+          </>
         ) : (
           <EmptyStateComponent title="No data fetched yet..." />
         )}

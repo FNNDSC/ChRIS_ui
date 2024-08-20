@@ -56,7 +56,7 @@ const TableSelectable: React.FC = () => {
   const queryClient = useQueryClient();
   const query = useSearchQueryParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
   const searchFolderData = useSearchQuery(query);
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
 

@@ -39,6 +39,8 @@ import {
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
 import "./Operations.css";
+import Client from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../../api/chrisapiclient";
 
 export enum ContextTypes {
   feed_table = "FEEDS_TABLE",
@@ -103,6 +105,13 @@ export const AddModal = (props: AddModalProps) => {
     setInputValue("");
     onClose();
   };
+
+  useEffect(() => {
+    async function fetchUsers() {}
+    if (modalTitle === "Share this Folder") {
+      fetchUsers();
+    }
+  }, [modalTitle]);
 
   return (
     <Modal

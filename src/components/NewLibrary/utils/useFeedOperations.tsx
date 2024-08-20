@@ -19,7 +19,6 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
       const feedList = await Promise.all(
         paths.map(async (path) => {
           // cube does not accept forward slashes in the feed name
-
           const filePath = getFileName(path);
           const idMatch = filePath.match(/feed_(\d+)/);
           const id = idMatch ? idMatch[1] : null;
@@ -32,7 +31,6 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
               pathToFeed = feed.data.name;
             }
           }
-
           const { feed } = await createFeed([path], `Copy of ${pathToFeed}`);
           return feed;
         }),
