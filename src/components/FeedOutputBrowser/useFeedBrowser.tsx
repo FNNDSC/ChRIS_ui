@@ -142,7 +142,7 @@ export const useFeedBrowser = () => {
   };
 
   const inValidateFolders = () => {
-    queryClient.invalidateQueries({
+    queryClient.refetchQueries({
       queryKey: ["pluginFiles", currentPath],
     });
   };

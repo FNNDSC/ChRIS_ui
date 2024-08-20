@@ -188,7 +188,7 @@ const NewLibrary = () => {
 
         <Operations
           inValidateFolders={() => {
-            queryClient.invalidateQueries({
+            queryClient.refetchQueries({
               queryKey: ["library_folders", computedPath],
             });
           }}

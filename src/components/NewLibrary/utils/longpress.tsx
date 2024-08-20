@@ -1,6 +1,7 @@
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import { Button, Tooltip } from "@patternfly/react-core";
 import { useRef, useState } from "react";
@@ -11,6 +12,7 @@ import {
   setSelectedPaths,
   setToggleCart,
 } from "../../../store/cart/cartSlice";
+import type { PayloadTypes } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { FolderIcon } from "../../Icons";
 
@@ -52,7 +54,7 @@ export default function useLongPress() {
 
   function handleOnClick(
     e: React.MouseEvent | React.TouchEvent,
-    payload: FileBrowserFolder | FileBrowserFolderFile,
+    payload: PayloadTypes,
     pathForCart: string,
     type: string,
   ) {
@@ -76,7 +78,10 @@ export default function useLongPress() {
   const handleCheckboxChange = (
     e: React.FormEvent<HTMLInputElement>,
     path: string,
-    payload: FileBrowserFolder | FileBrowserFolderFile,
+    payload:
+      | FileBrowserFolder
+      | FileBrowserFolderFile
+      | FileBrowserFolderLinkFile,
     type: string,
   ) => {
     e.stopPropagation();

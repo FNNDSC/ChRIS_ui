@@ -12,7 +12,7 @@ export interface FilterState {
 
 export const usePaginate = () => {
   const [filterState, setFilterState] = useState<FilterState>({
-    perPage: 15,
+    perPage: 16,
     page: 1,
     search: "",
     searchType: "name",

@@ -99,7 +99,7 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
     <GridItem xl={3} lg={4} md={6} sm={12} key={folder.data.id}>
       <FolderContextMenu
         inValidateFolders={() => {
-          queryClient.invalidateQueries({
+          queryClient.refetchQueries({
             queryKey: ["library_folders", computedPath],
           });
         }}

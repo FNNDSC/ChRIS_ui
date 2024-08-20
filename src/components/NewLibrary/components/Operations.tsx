@@ -383,10 +383,7 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       modalTitle: "Share this Folder",
       inputLabel: "User Name",
     },
-    rename: {
-      modalTitle: "Rename this Folder",
-      inputLabel: "Rename Folder",
-    },
+
     default: {
       modalTitle: "Create a new Folder",
       inputLabel: "Folder Name",

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useNavigate, useRoutes } from "react-router-dom";
+import { useNavigate, useRoutes, matchPath } from "react-router-dom";
 import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
@@ -22,6 +22,8 @@ import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
 import { useTypedSelector } from "./store/hooks";
+import { useDispatch } from "react-redux";
+import { setSidebarActive } from "./store/ui/uiSlice";
 
 interface IState {
   selectData?: Series;
@@ -41,6 +43,7 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
 });
 
 export const MainRouter: React.FC = () => {
+  const dispatch = useDispatch();
   const [state, setState] = React.useState(State);
   const [route, setRoute] = React.useState<string>();
   const navigate = useNavigate();
@@ -59,6 +62,55 @@ export const MainRouter: React.FC = () => {
       setState({ selectData: [] });
     },
   };
+
+  // Define the routes and their corresponding sidebar items
+  const routeToSidebarItem: Record<string, string> = {
+    "/": "overview",
+    "library/*": "lib",
+    "feeds/*": "analyses",
+    "feeds/:id": "analyses",
+    "plugin/:id": "catalog",
+    pacs: "pacs",
+    login: "login",
+    signup: "signup",
+    pipelines: "pipelines",
+    catalog: "catalog",
+    compute: "compute",
+    "dataset/:feedName?": "dataset",
+    "niivue/:plinstId": "niivue",
+    store: "store",
+    "install/*": "install",
+    "*": "notFound",
+  };
+
+  const matchRoute = (path: string) => {
+    const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+
+    // Exact match first
+    if (routeToSidebarItem[normalizedPath]) {
+      return routeToSidebarItem[normalizedPath];
+    }
+
+    // Wildcard match
+    for (const routePath of Object.keys(routeToSidebarItem)) {
+      if (matchPath({ path: routePath, end: true }, path)) {
+        return routeToSidebarItem[routePath];
+      }
+    }
+
+    // Default to notFound if no match
+    return routeToSidebarItem["*"];
+  };
+  // Update the active sidebar item based on the current route
+  React.useEffect(() => {
+    const currentPath = location.pathname;
+    const sidebarItem = matchRoute(currentPath);
+    dispatch(
+      setSidebarActive({
+        activeItem: sidebarItem,
+      }),
+    );
+  }, [location.pathname, dispatch]);
 
   const element = useRoutes([
     {

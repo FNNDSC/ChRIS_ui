@@ -1,26 +1,17 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { Typography } from "../Antd";
 import WrapperConnect from "../Wrapper";
 import PluginCatalog from "./PluginCatalog";
 import { InfoIcon } from "../Common/";
-import { setSidebarActive } from "../../store/ui/uiSlice";
 import { PageSection } from "@patternfly/react-core";
 import "./plugin-catalog.css";
 
 const { Paragraph } = Typography;
 
 const CatalogPage = () => {
-  const dispatch = useDispatch();
-
   React.useEffect(() => {
     document.title = "Analysis Catalog";
-    dispatch(
-      setSidebarActive({
-        activeItem: "catalog",
-      }),
-    );
-  });
+  }, []);
 
   return (
     <WrapperConnect>

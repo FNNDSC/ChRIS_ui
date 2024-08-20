@@ -1,12 +1,10 @@
 import React from "react";
 import BUILD_VERSION from "../../getBuildVersion";
-import { useDispatch } from "react-redux";
-import WrapperConnect from "../Wrapper";
-import { PageSection, Grid, GridItem } from "@patternfly/react-core";
+import { Grid, GridItem, PageSection } from "@patternfly/react-core";
 import { Typography } from "../Antd";
-import { setSidebarActive } from "../../store/ui/uiSlice";
-import { InfoIcon } from "../Common";
+import WrapperConnect from "../Wrapper";
 import { CatalogTile } from "@patternfly/react-catalog-view-extension";
+import { InfoIcon } from "../Common";
 import "./dashboard.css";
 
 const { Paragraph } = Typography;
@@ -16,18 +14,11 @@ interface DashboardProps {
 }
 
 const DashboardPage = (props: DashboardProps) => {
-  const dispatch = useDispatch();
-
   const { children } = props;
 
   React.useEffect(() => {
     document.title = "Overview";
-    dispatch(
-      setSidebarActive({
-        activeItem: "overview",
-      }),
-    );
-  }, [dispatch]);
+  }, []);
 
   return (
     <WrapperConnect>

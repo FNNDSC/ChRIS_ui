@@ -6,32 +6,38 @@ import {
   PageSidebar,
   PageSidebarBody,
 } from "@patternfly/react-core";
+import { useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
 import type * as React from "react";
 import { Link } from "react-router-dom";
 import { useTypedSelector } from "../../store/hooks";
 import type { IUiState } from "../../store/ui/uiSlice";
-import { setSidebarActive } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
-import { useDispatch } from "react-redux";
 
 type AllProps = IUiState & IUserState;
 
 const Sidebar: React.FC<AllProps> = () => {
+  const queryClient = useQueryClient();
   const { sidebarActiveItem, isNavOpen } = useTypedSelector(
     (state) => state.ui,
   );
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-  const dispatch = useDispatch();
-
-  const onSelect = (selectedItem: any) => {
-    const { itemId } = selectedItem;
-    if (sidebarActiveItem !== itemId) {
-      dispatch(setSidebarActive({ activeItem: itemId }));
-    }
-  };
 
   const urlParam = isLoggedIn ? "private" : "public";
+
+  const onSelect = (
+    _event: React.FormEvent<HTMLInputElement>,
+    selectedItem: any,
+  ) => {
+    const { itemId } = selectedItem;
+    // Invalidate feeds if "analyses" is selected
+    if (itemId === "analyses") {
+      const queryKey = isLoggedIn ? "feeds" : "publicFeeds";
+      queryClient.refetchQueries({
+        queryKey: [queryKey], // This assumes your query key for feeds is ["feeds"]
+      });
+    }
+  };
 
   const renderLink = (to: string, label: string, itemId: string) =>
     sidebarActiveItem === itemId && sidebarActiveItem !== "analyses" ? (
