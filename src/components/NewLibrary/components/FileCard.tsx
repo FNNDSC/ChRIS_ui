@@ -14,13 +14,15 @@ import {
   SplitItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { notification } from "../../Antd";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { isEmpty } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getFileExtension } from "../../../api/model";
 import useDownload, { useTypedSelector } from "../../../store/hooks";
+import { notification } from "../../Antd";
 import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { ExternalLinkSquareAltIcon } from "../../Icons";
@@ -30,7 +32,6 @@ import useLongPress, {
   getBackgroundRowColor,
 } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
-import { useQueryClient } from "@tanstack/react-query";
 
 type Pagination = {
   totalCount: number;
@@ -39,6 +40,7 @@ type Pagination = {
 
 type ComponentProps = {
   name: string;
+
   computedPath: string;
   date: string;
   onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
@@ -106,7 +108,18 @@ const PresentationComponent: React.FC<ComponentProps> = ({
                   {elipses(name, 40)}
                 </Button>
               </Tooltip>
-              <div>{!isEmpty(date) ? new Date(date).toDateString() : ""}</div>
+
+              <div
+                style={{
+                  fontSize: "0.85rem",
+                }}
+              >
+                <div>
+                  {!isEmpty(date)
+                    ? format(new Date(date), "dd MMM yyyy, HH:mm")
+                    : "N/A"}
+                </div>
+              </div>
             </SplitItem>
           </Split>
         </CardHeader>
@@ -164,6 +177,12 @@ type SubFileCardProps = {
   computedPath: string;
 };
 
+export const getFileName = (
+  file: FileBrowserFolderFile | FileBrowserFolderLinkFile,
+) => {
+  return file.data.fname.split("/").pop() || "";
+};
+
 export const SubFileCard: React.FC<SubFileCardProps> = ({
   file,
   computedPath,
@@ -175,8 +194,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   const { handlers } = useLongPress();
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
-
-  const fileName = file.data.fname.split("/").pop() || "";
+  const fileName = getFileName(file);
   const isSelected = selectedPaths.some(
     (payload) => payload.path === file.data.fname,
   );
@@ -254,6 +272,10 @@ type SubLinkCardProps = {
   computedPath: string;
 };
 
+export const getLinkFileName = (file: FileBrowserFolderLinkFile) => {
+  return file.data.path.split("/").pop() || "";
+};
+
 export const SubLinkCard: React.FC<SubLinkCardProps> = ({
   linkFile,
   computedPath,
@@ -266,7 +288,7 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
   const { handlers } = useLongPress();
   const [api, contextHolder] = notification.useNotification();
 
-  const linkName = linkFile.data.path.split("/").pop() || "";
+  const linkName = getLinkFileName(linkFile);
   const isSelected = selectedPaths.some(
     (payload) => payload.path === linkFile.data.path,
   );

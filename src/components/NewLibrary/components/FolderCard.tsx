@@ -9,6 +9,8 @@ import {
   SplitItem,
 } from "@patternfly/react-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { isEmpty } from "lodash";
 import { useContext } from "react";
 import { Fragment } from "react/jsx-runtime";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -56,6 +58,13 @@ interface SubFolderCardProps {
   handleFolderClick: (path: string) => void;
 }
 
+export function getFolderName(folder: FileBrowserFolder, computedPath: string) {
+  const folderPathParts = folder.data.path.split("/");
+  const pathName = folderPathParts[folderPathParts.length - 1];
+  const folderName = computedPath === "/" ? folder.data.path : pathName;
+  return folderName;
+}
+
 export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const { folder, computedPath, handleFolderClick } = props;
   const queryClient = useQueryClient();
@@ -63,10 +72,8 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
+  const folderName = getFolderName(folder, computedPath);
 
-  const folderPathParts = folder.data.path.split("/");
-  const pathName = folderPathParts[folderPathParts.length - 1];
-  const folderName = computedPath === "/" ? folder.data.path : pathName;
   const creationDate = folder.data.creation_date;
 
   const isSelected = selectedPaths.some(
@@ -152,7 +159,15 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
                       ? elipses(data, 40)
                       : "Fetching..."}
                 </Button>
-                <div>{new Date(creationDate).toDateString()}</div>
+                <div
+                  style={{
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  {!isEmpty(creationDate)
+                    ? format(new Date(creationDate), "dd MMM yyyy, HH:mm")
+                    : "N/A"}
+                </div>
               </SplitItem>
             </Split>
           </CardHeader>

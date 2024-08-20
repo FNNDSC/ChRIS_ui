@@ -33,7 +33,9 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
           if (axios.isAxiosError(e)) {
             const error_message = e.response?.data.non_field_errors
               ? e.response.data.non_field_errors[0]
-              : e.message;
+              : e.response?.data.detail
+                ? e.response?.data.detail
+                : e.message;
 
             errors.push({ path: path.path, message: error_message });
           }
