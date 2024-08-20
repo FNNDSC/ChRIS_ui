@@ -5,14 +5,13 @@ import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { clearSelectedPaths } from "../../../store/cart/cartSlice";
 import type { SelectionPayload } from "../../../store/cart/types";
-import { ErrorAlert } from "../../Common";
 
 type DeletionErrors = { path: string; message: string }[];
 
 const useDeletePayload = (inValidateFolders: () => void, api: any) => {
   const dispatch = useDispatch();
-  const [deletionErrors, setDeletionErrors] = useState<DeletionErrors>([]);
   const [notificationKey, setNotificationKey] = useState<string | null>(null);
+
   const handleDelete = async (paths: SelectionPayload[]) => {
     const errors: DeletionErrors = [];
     const successfulPaths: string[] = [];
@@ -32,7 +31,10 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
           successfulPaths.push(pathToClear);
         } catch (e) {
           if (axios.isAxiosError(e)) {
-            const error_message = e.response ? e.response.data : e.message;
+            const error_message = e.response?.data.non_field_errors
+              ? e.response.data.non_field_errors[0]
+              : e.message;
+
             errors.push({ path: path.path, message: error_message });
           }
         }
@@ -54,34 +56,27 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
         message: "Deletion in progress...",
         key,
         type: "info",
-        onClose: () => {
-          if (mutation.isSuccess) return true;
-        },
+        duration: 0, // Keep the notification open until manually closed
       });
     },
     onSuccess: (data) => {
+      if (notificationKey) {
+        api.destroy(notificationKey);
+      }
       if (data && data.length > 0) {
         api.error({
           message: "Error",
           description: data.map((error) => (
-            <ErrorAlert
-              key={error.path}
-              errors={error.message}
-              cleanUpErrors={() => {
-                const resetErrors = deletionErrors.filter(
-                  (error_state) => error_state.path !== error.path,
-                );
-                setDeletionErrors(resetErrors);
-              }}
-            />
+            <div key={error.message}>{error.message}</div>
           )),
           closable: true,
+          onClose: () => {
+            mutation.reset();
+          },
+          duration: 4,
+          placement: "topRight",
         });
       } else {
-        if (notificationKey) {
-          api.destroy(notificationKey);
-        }
-
         api.success({
           message: "Deletion Successful",
           description: "Selected files and folders were successfully deleted.",
@@ -100,8 +95,11 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
       });
     },
     onSettled: () => {
-      setDeletionErrors([]);
-      api.destroy(notificationKey);
+      // Remove the in-progress notification
+      if (notificationKey) {
+        api.destroy(notificationKey);
+        setNotificationKey(null); // Clear the notification key
+      }
       mutation.reset();
     },
   });

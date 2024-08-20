@@ -38,7 +38,9 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
         }),
       );
       return feedList;
-    } catch (e) {
+    } catch (e: any) {
+      const error_message = e?.response?.data?.value[0];
+      if (error_message) throw new Error(error_message);
       if (e instanceof Error) throw new Error(e.message);
     }
   };
@@ -73,7 +75,9 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
       // Create the merged feed with the final sanitized feed name
       const { feed } = await createFeed(paths, `Merge of ${feedName}`);
       return feed;
-    } catch (e) {
+    } catch (e: any) {
+      const error_message = e?.response?.data?.value[0];
+      if (error_message) throw new Error(error_message);
       if (e instanceof Error) throw new Error(e.message);
     }
   };

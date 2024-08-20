@@ -39,6 +39,20 @@ const BreadcrumbContainer = ({
       >
         <ToolbarContent>
           <ToolbarItem>
+            {showHomeButton && (
+              <Tooltip position="top" content="Go back to your home directory">
+                <Button
+                  onClick={() => {
+                    navigate(`home/${username}`);
+                  }}
+                  style={{ padding: 0 }}
+                  variant="link"
+                  icon={<HomeIcon />}
+                />
+              </Tooltip>
+            )}
+          </ToolbarItem>
+          <ToolbarItem>
             <Breadcrumb>
               <BreadcrumbItem
                 style={style}
@@ -63,18 +77,6 @@ const BreadcrumbContainer = ({
           </ToolbarItem>
         </ToolbarContent>
       </Toolbar>
-
-      {showHomeButton && (
-        <Tooltip content="Go to your home directory">
-          <Button
-            onClick={() => {
-              navigate(`home/${username}`);
-            }}
-            icon={<HomeIcon />}
-            variant="link"
-          />
-        </Tooltip>
-      )}
     </>
   );
 };
