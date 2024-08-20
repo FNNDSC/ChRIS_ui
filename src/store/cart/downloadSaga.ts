@@ -23,7 +23,11 @@ import {
   startDownload,
   startAnonymize,
 } from "./cartSlice";
-import { DownloadTypes, type SelectionPayload } from "./types";
+import {
+  DownloadTypes,
+  type PayloadTypes,
+  type SelectionPayload,
+} from "./types";
 
 export function* setStatus(
   type: string,
@@ -62,6 +66,7 @@ export async function createFeed(path: string[], feedName: string) {
   if (!createdInstance) {
     throw new Error("Failed to create an instance of pl-dircopy");
   }
+
   const feed = (await createdInstance.getFeed()) as Feed;
   if (!feed) {
     throw new Error("Failed to create a Feed");
@@ -71,7 +76,7 @@ export async function createFeed(path: string[], feedName: string) {
 }
 
 function* downloadFolder(
-  payload: FileBrowserFolder | FileBrowserFolderFile,
+  payload: PayloadTypes,
   username: string,
   pipelineType: string,
 ) {
