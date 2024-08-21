@@ -106,7 +106,7 @@ const NewLibrary = () => {
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["library_folders", computedPath],
+    queryKey: ["library_folders", computedPath, pageNumber],
     queryFn: () => fetchFolders(computedPath, pageNumber),
     placeholderData: keepPreviousData,
     structuralSharing: true,
@@ -223,15 +223,29 @@ const NewLibrary = () => {
             data.filesMap.length === 0 ? (
               <EmptyStateComponent title="This folder is empty" />
             ) : (
-              <LibraryTable
-                data={{
-                  folders: data?.subFoldersMap || [],
-                  files: data?.filesMap || [],
-                  linkFiles: data?.linkFilesMap || [],
-                }}
-                handleFolderClick={handleFolderClick}
-                computedPath={computedPath}
-              />
+              <>
+                <LibraryTable
+                  data={{
+                    folders: data?.subFoldersMap || [],
+                    files: data?.filesMap || [],
+                    linkFiles: data?.linkFilesMap || [],
+                  }}
+                  handleFolderClick={handleFolderClick}
+                  computedPath={computedPath}
+                />
+                {fetchMore && !isLoading && (
+                  <Button onClick={handlePagination} variant="link">
+                    Load more data...
+                  </Button>
+                )}
+                <div
+                  style={{
+                    height: "1px", // Ensure it's visible to the observer
+                    marginTop: "10px", // Ensure it's not blocked by other content
+                  }}
+                  ref={observerTarget}
+                />
+              </>
             )}
           </>
         ) : (
@@ -266,7 +280,8 @@ const NewLibrary = () => {
                 )}
                 <div
                   style={{
-                    height: "10px",
+                    height: "1px", // Ensure it's visible to the observer
+                    marginTop: "10px", // Ensure it's not blocked by other content
                   }}
                   ref={observerTarget}
                 />

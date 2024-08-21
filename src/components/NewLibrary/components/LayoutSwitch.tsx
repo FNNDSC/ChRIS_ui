@@ -23,12 +23,14 @@ const LayoutSwitch = () => {
     >
       <ToggleGroup>
         <ToggleGroupItem
+          aria-label="switch to a list layout"
           icon={<BarsIcon />}
           buttonId="list"
           onChange={handleChange}
           isSelected={currentLayout === "list"}
         />
         <ToggleGroupItem
+          aria-label="switch to a grid layout"
           buttonId="grid"
           icon={<GripVerticalIcon />}
           onChange={handleChange}
