@@ -165,8 +165,6 @@ const NewLibrary = () => {
     return null;
   }
 
-  console.log("Current Layout", currentLayout);
-
   return (
     <WrapperConnect>
       <PageSection>
