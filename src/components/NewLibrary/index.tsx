@@ -22,6 +22,7 @@ import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import Operations from "./components/Operations";
 import LibraryTable from "./components/LibraryTable";
+import LayoutSwitch from "./components/LayoutSwitch";
 
 const { Paragraph } = Typography;
 
@@ -100,6 +101,7 @@ const NewLibrary = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const username = useTypedSelector((state) => state.user.username);
+  const currentLayout = useTypedSelector((state) => state.cart.currentLayout);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
@@ -163,6 +165,8 @@ const NewLibrary = () => {
     return null;
   }
 
+  console.log("Current Layout", currentLayout);
+
   return (
     <WrapperConnect>
       <PageSection>
@@ -196,6 +200,9 @@ const NewLibrary = () => {
           computedPath={computedPath}
           folderList={data?.folderList}
         />
+
+        <LayoutSwitch />
+
         <BreadcrumbContainer
           path={computedPath}
           handleFolderClick={(path: string) => {
@@ -208,55 +215,66 @@ const NewLibrary = () => {
       <PageSection style={{ paddingBlockStart: "0" }}>
         {isLoading && <SpinContainer title="Fetching Resources..." />}
         {isError && <Alert type="error" description={error.message} />}
-        {data &&
-          data.subFoldersMap.length === 0 &&
-          data.linkFilesMap.length === 0 &&
-          data.filesMap.length === 0 && (
-            <EmptyStateComponent title="This folder is empty" />
-          )}
-        {data ? (
+
+        {/* Render based on currentLayout */}
+        {currentLayout === "list" ? (
           <>
-            <Grid hasGutter={true}>
-              <FolderCard
-                folders={data.subFoldersMap}
+            {data &&
+            data.subFoldersMap.length === 0 &&
+            data.linkFilesMap.length === 0 &&
+            data.filesMap.length === 0 ? (
+              <EmptyStateComponent title="This folder is empty" />
+            ) : (
+              <LibraryTable
+                data={{
+                  folders: data?.subFoldersMap || [],
+                  files: data?.filesMap || [],
+                  linkFiles: data?.linkFilesMap || [],
+                }}
                 handleFolderClick={handleFolderClick}
                 computedPath={computedPath}
-                pagination={data.foldersPagination}
               />
-              <LinkCard
-                linkFiles={data.linkFilesMap}
-                pagination={data.linksPagination}
-                computedPath={computedPath}
-              />
-              <FilesCard
-                files={data.filesMap}
-                computedPath={computedPath}
-                pagination={data.filesPagination}
-              />
-              {fetchMore && !isLoading && (
-                <Button onClick={handlePagination} variant="link">
-                  {" "}
-                  Load more data...
-                </Button>
-              )}
-              <div
-                style={{
-                  height: "10px",
-                }}
-                ref={observerTarget}
-              />
-            </Grid>
-            <LibraryTable
-              data={{
-                folders: data.subFoldersMap,
-                files: data.filesMap,
-                linkFiles: data.linkFilesMap,
-              }}
-              computedPath={computedPath}
-            />
+            )}
           </>
         ) : (
-          <EmptyStateComponent title="No data fetched yet..." />
+          <>
+            {data &&
+            data.subFoldersMap.length === 0 &&
+            data.linkFilesMap.length === 0 &&
+            data.filesMap.length === 0 ? (
+              <EmptyStateComponent title="This folder is empty" />
+            ) : (
+              <Grid hasGutter={true}>
+                <FolderCard
+                  folders={data?.subFoldersMap || []}
+                  handleFolderClick={handleFolderClick}
+                  computedPath={computedPath}
+                  pagination={data?.foldersPagination}
+                />
+                <LinkCard
+                  linkFiles={data?.linkFilesMap || []}
+                  pagination={data?.linksPagination}
+                  computedPath={computedPath}
+                />
+                <FilesCard
+                  files={data?.filesMap || []}
+                  computedPath={computedPath}
+                  pagination={data?.filesPagination}
+                />
+                {fetchMore && !isLoading && (
+                  <Button onClick={handlePagination} variant="link">
+                    Load more data...
+                  </Button>
+                )}
+                <div
+                  style={{
+                    height: "10px",
+                  }}
+                  ref={observerTarget}
+                />
+              </Grid>
+            )}
+          </>
         )}
       </PageSection>
     </WrapperConnect>

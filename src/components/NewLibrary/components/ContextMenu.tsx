@@ -7,7 +7,6 @@ import {
   DeleteIcon,
   DownloadIcon,
   DuplicateIcon,
-  EditIcon,
   MergeIcon,
   ShareIcon,
 } from "../../Icons";

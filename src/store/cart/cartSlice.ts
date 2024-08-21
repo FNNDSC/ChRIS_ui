@@ -9,6 +9,7 @@ import type {
 } from "./types";
 
 const initialState: ICartState = {
+  currentLayout: "grid",
   selectedPaths: [],
   openCart: false,
   folderDownloadStatus: {},
@@ -21,6 +22,9 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    switchLibraryLayout(state, action: PayloadAction<"grid" | "list">) {
+      state.currentLayout = action.payload;
+    },
     startUpload(state, _action: PayloadAction<UploadPayload>) {
       state.openCart = true;
     },
@@ -155,6 +159,7 @@ const cartSlice = createSlice({
 });
 
 export const {
+  switchLibraryLayout,
   startUpload,
   setSelectedPaths,
   setBulkSelectedPaths,

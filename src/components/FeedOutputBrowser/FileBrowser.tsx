@@ -207,6 +207,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     if (type === "file" && fileName.indexOf(".") > -1) {
       iconType = getFileExtension(fileName);
       fsize = bytesToSize(item.data.fsize);
+    } else if (type === "link") {
+      fsize = bytesToSize(item.data.fsize);
+      iconType = type;
     } else {
       iconType = type;
     }

@@ -64,6 +64,7 @@ export interface FeedCreationStatus {
 }
 
 export interface ICartState {
+  currentLayout: "grid" | "list";
   selectedPaths: SelectionPayload[];
   openCart: boolean;
   folderDownloadStatus: DownloadStatus;
