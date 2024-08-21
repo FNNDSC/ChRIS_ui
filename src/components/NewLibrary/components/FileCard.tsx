@@ -40,7 +40,6 @@ type Pagination = {
 
 type ComponentProps = {
   name: string;
-
   computedPath: string;
   date: string;
   onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;

@@ -45,7 +45,7 @@ const Cart = () => {
               // Implement clear cart logic here
             }}
           >
-            Clear Cart
+            Clear Notifications
           </Button>
         </Space>
       }

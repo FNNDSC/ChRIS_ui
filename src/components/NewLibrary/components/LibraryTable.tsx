@@ -1,20 +1,30 @@
-import React from "react";
-import {
-  Table,
-  Caption,
-  Thead,
-  Tr,
-  Th,
-  Tbody,
-  Td,
-} from "@patternfly/react-table";
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { getFolderName } from "./FolderCard";
+import { Button } from "@patternfly/react-core";
+import {
+  Caption,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router";
+import { useTypedSelector } from "../../../store/hooks";
+import { getIcon } from "../../Common";
+import { ThemeContext } from "../../DarkTheme/useTheme";
+import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
+import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
+import { getFolderName } from "./FolderCard";
+import { formatBytes } from "../../Feeds/utilties";
 
 interface TableProps {
   data: {
@@ -23,25 +33,115 @@ interface TableProps {
     linkFiles: FileBrowserFolderLinkFile[];
   };
   computedPath: string;
+  handleFolderClick: (folderName: string) => void;
 }
+
+const columnNames = {
+  name: "Name",
+  date: "Date",
+  owner: "Owner",
+  size: "Size",
+};
 
 const LibraryTable: React.FunctionComponent<TableProps> = (
   props: TableProps,
 ) => {
-  // In real usage, this data would come from some external source like an API via props.
+  const navigate = useNavigate();
+  const { handlers } = useLongPress();
+  const { handleOnClick } = handlers;
+  const queryClient = useQueryClient();
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
+  const { data, computedPath, handleFolderClick } = props;
 
-  const { data, computedPath } = props;
+  const renderRow = (
+    resource:
+      | FileBrowserFolder
+      | FileBrowserFolderFile
+      | FileBrowserFolderLinkFile,
+    name: string,
+    date: string,
+    owner: string,
+    size: number,
+    type: string,
+  ) => {
+    const isSelected =
+      selectedPaths.length > 0 &&
+      selectedPaths.some((payload) => payload.path === resource.data.path);
+    const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
 
-  const columnNames = {
-    name: "Name",
-    date: "Date",
-    owner: "Owner",
-    size: "Size",
+    const icon = getIcon(type, isDarkTheme);
+
+    const handleItem = (
+      item:
+        | FileBrowserFolderFile
+        | FileBrowserFolder
+        | FileBrowserFolderLinkFile,
+      type: string,
+    ) => {
+      if (type === "folder") {
+        handleFolderClick(name);
+      }
+
+      if (type === "link") {
+        navigate(item.data.path);
+      }
+
+      if (type === "file") {
+        // Show preview
+      }
+    };
+
+    const path = type === "file" ? resource.data.fname : resource.data.path;
+
+    return (
+      <FolderContextMenu
+        inValidateFolders={() => {
+          queryClient.refetchQueries({
+            queryKey: ["library_folders", computedPath],
+          });
+        }}
+        key={path}
+      >
+        <Tr
+          style={{ background: selectedBgRow }}
+          onClick={(e) => {
+            handleOnClick(e, resource, path, type);
+          }}
+          onContextMenu={(e) => {
+            handleOnClick(e, resource, path, type);
+          }}
+          key={name}
+        >
+          <Td dataLabel={columnNames.name}>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleItem(resource, type);
+              }}
+              style={{ padding: 0 }}
+              icon={icon}
+              variant="link"
+            >
+              {name}
+            </Button>
+          </Td>
+          <Td dataLabel={columnNames.date}>
+            {" "}
+            {format(new Date(date), "dd MMM yyyy, HH:mm")}
+          </Td>
+          <Td dataLabel={columnNames.owner}>{owner}</Td>
+          <Td dataLabel={columnNames.size}>
+            {size > 0 ? formatBytes(size, 0) : " "}
+          </Td>
+        </Tr>
+      </FolderContextMenu>
+    );
   };
 
   return (
     <React.Fragment>
-      <Table aria-label="Simple table" variant="compact">
+      <Table aria-label="Simple table">
         <Caption>Data Library</Caption>
         <Thead>
           <Tr>
@@ -54,46 +154,36 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
         <Tbody>
           {data.folders.map((resource: FileBrowserFolder) => {
             const folderName = getFolderName(resource, computedPath);
-            return (
-              <Tr key={folderName}>
-                <Td dataLabel={columnNames.name}>{folderName}</Td>
-                <Td dataLabel={columnNames.date}>
-                  {resource.data.creation_date}
-                </Td>
-                <Td dataLabel={columnNames.owner}>N/A</Td>
-                <Td dataLabel={columnNames.size}>Size</Td>
-              </Tr>
+            return renderRow(
+              resource,
+              folderName,
+              resource.data.creation_date,
+              " ",
+              // Size of the folder is not available yet
+              0,
+              "folder",
             );
           })}
-          {data.files.map((resource) => {
+          {data.files.map((resource: FileBrowserFolderFile) => {
             const fileName = getFileName(resource);
-            return (
-              <Tr key={fileName}>
-                <Td dataLabel={columnNames.name}>{fileName}</Td>
-                <Td dataLabel={columnNames.date}>
-                  {resource.data.creation_date}
-                </Td>
-                <Td dataLabel={columnNames.owner}>
-                  {resource.data.owner_username}
-                </Td>
-                <Td dataLabel={columnNames.size}>{resource.data.fsize}</Td>
-              </Tr>
+            return renderRow(
+              resource,
+              fileName,
+              resource.data.creation_date,
+              resource.data.owner_username,
+              resource.data.fsize,
+              "file",
             );
           })}
-
-          {data.linkFiles.map((resource) => {
+          {data.linkFiles.map((resource: FileBrowserFolderLinkFile) => {
             const fileName = getLinkFileName(resource);
-            return (
-              <Tr key={fileName}>
-                <Td dataLabel={columnNames.name}>{fileName}</Td>
-                <Td dataLabel={columnNames.date}>
-                  {resource.data.creation_date}
-                </Td>
-                <Td dataLabel={columnNames.owner}>
-                  {resource.data.owner_username}
-                </Td>
-                <Td dataLabel={columnNames.size}>{resource.data.fsize}</Td>
-              </Tr>
+            return renderRow(
+              resource,
+              fileName,
+              resource.data.creation_date,
+              resource.data.owner_username,
+              resource.data.fsize,
+              "link",
             );
           })}
         </Tbody>

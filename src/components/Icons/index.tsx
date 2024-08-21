@@ -30,6 +30,8 @@ import {
   EditIcon,
   FileArchiveIcon as PatternflyArchiveIcon,
   CheckCircleIcon,
+  BarsIcon,
+  GripVerticalIcon,
 } from "@patternfly/react-icons";
 
 const CartIcon = ({
@@ -304,4 +306,6 @@ export {
   EllipsisVIcon,
   EditIcon,
   RetryIcon,
+  BarsIcon,
+  GripVerticalIcon,
 };

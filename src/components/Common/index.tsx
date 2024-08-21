@@ -1,4 +1,5 @@
 import {
+  Bullseye,
   ClipboardCopy,
   ClipboardCopyButton,
   Dropdown,
@@ -15,6 +16,7 @@ import {
   MenuToggle,
   TextInput,
 } from "@patternfly/react-core";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { Alert, Popover, Spin, Typography } from "antd";
 import React, { type ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
@@ -99,7 +101,7 @@ export const ClipboardCopyContainer = ({ path }: { path: string }) => {
     _event: React.ClipboardEvent<HTMLDivElement>,
     text: string,
   ) => {
-    if (typeof navigator.clipboard == "undefined") {
+    if (typeof navigator.clipboard === "undefined") {
       const textArea = document.createElement("textarea");
       textArea.value = text;
       textArea.style.position = "fixed";
@@ -385,3 +387,43 @@ export const getIcon = (type: string, isDarkTheme: boolean) => {
       return <FileIcon style={iconStyle} />;
   }
 };
+
+// This example has been simplified to focus on the empty state. In real usage,
+// you may want to derive your rows from typed underlying data and minimal state. See other examples.
+
+interface EmptyTableProps {
+  columnNames: {
+    [key: string]: string;
+  }[];
+}
+
+export const TableEmptyState: React.FunctionComponent<EmptyTableProps> = ({
+  columnNames,
+}: EmptyTableProps) => (
+  <Table aria-label="Empty state table">
+    <Thead>
+      <Tr>
+        {columnNames.map((column, index) => {
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+          return <Th key={index}>{Object.values(column)[0]}</Th>;
+        })}
+      </Tr>
+    </Thead>
+    <Tbody>
+      <Tr>
+        <Td colSpan={8}>
+          <Bullseye>
+            <EmptyState variant={EmptyStateVariant.sm}>
+              <EmptyStateHeader
+                icon={<EmptyStateIcon icon={SearchIcon} />}
+                titleText="No results found"
+                headingLevel="h2"
+              />
+              <EmptyStateBody>No Data Found under this path</EmptyStateBody>
+            </EmptyState>
+          </Bullseye>
+        </Td>
+      </Tr>
+    </Tbody>
+  </Table>
+);

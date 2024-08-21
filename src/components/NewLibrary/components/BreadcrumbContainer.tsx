@@ -38,8 +38,8 @@ const BreadcrumbContainer = ({
         style={{ paddingTop: "0", paddingLeft: "0", paddingBottom: "0" }}
       >
         <ToolbarContent>
-          <ToolbarItem>
-            {showHomeButton && (
+          {showHomeButton && (
+            <ToolbarItem>
               <Tooltip position="top" content="Go back to your home directory">
                 <Button
                   onClick={() => {
@@ -50,8 +50,9 @@ const BreadcrumbContainer = ({
                   icon={<HomeIcon />}
                 />
               </Tooltip>
-            )}
-          </ToolbarItem>
+            </ToolbarItem>
+          )}
+
           <ToolbarItem>
             <Breadcrumb>
               <BreadcrumbItem
