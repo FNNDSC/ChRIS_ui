@@ -88,7 +88,6 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           }
         } else if (redirectTo) {
           const decodedRedirectTo = decodeURIComponent(redirectTo);
-          console.log(decodedRedirectTo);
           navigate(decodedRedirectTo);
         } else {
           navigate("/");

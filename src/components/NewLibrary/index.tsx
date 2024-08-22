@@ -9,20 +9,19 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Alert, Typography } from "../Antd";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
+import { Alert, Typography } from "../Antd";
 import { EmptyStateComponent, InfoIcon, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./components/BreadcrumbContainer";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
-import Operations from "./components/Operations";
 import LibraryTable from "./components/LibraryTable";
-import LayoutSwitch from "./components/LayoutSwitch";
+import Operations from "./components/Operations";
 
 const { Paragraph } = Typography;
 
@@ -198,8 +197,6 @@ const NewLibrary = () => {
           computedPath={computedPath}
           folderList={data?.folderList}
         />
-
-        <LayoutSwitch />
 
         <BreadcrumbContainer
           path={computedPath}

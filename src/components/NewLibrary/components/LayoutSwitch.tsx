@@ -15,29 +15,22 @@ const LayoutSwitch = () => {
     dispatch(switchLibraryLayout(event.currentTarget.id));
   };
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-end",
-      }}
-    >
-      <ToggleGroup>
-        <ToggleGroupItem
-          aria-label="switch to a list layout"
-          icon={<BarsIcon />}
-          buttonId="list"
-          onChange={handleChange}
-          isSelected={currentLayout === "list"}
-        />
-        <ToggleGroupItem
-          aria-label="switch to a grid layout"
-          buttonId="grid"
-          icon={<GripVerticalIcon />}
-          onChange={handleChange}
-          isSelected={currentLayout === "grid"}
-        />
-      </ToggleGroup>
-    </div>
+    <ToggleGroup>
+      <ToggleGroupItem
+        aria-label="switch to a list layout"
+        icon={<BarsIcon />}
+        buttonId="list"
+        onChange={handleChange}
+        isSelected={currentLayout === "list"}
+      />
+      <ToggleGroupItem
+        aria-label="switch to a grid layout"
+        buttonId="grid"
+        icon={<GripVerticalIcon />}
+        onChange={handleChange}
+        isSelected={currentLayout === "grid"}
+      />
+    </ToggleGroup>
   );
 };
 
