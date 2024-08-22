@@ -25,6 +25,7 @@ import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
 import { formatBytes } from "../../Feeds/utilties";
+import { OperationContext } from "../context";
 
 interface TableProps {
   data: {
@@ -96,10 +97,9 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
 
     return (
       <FolderContextMenu
-        inValidateFolders={() => {
-          queryClient.refetchQueries({
-            queryKey: ["library_folders", computedPath],
-          });
+        origin={{
+          type: OperationContext.LIBRARY,
+          additionalKeys: [computedPath],
         }}
         key={path}
       >
