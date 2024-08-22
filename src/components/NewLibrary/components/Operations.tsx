@@ -39,8 +39,8 @@ import {
 } from "../../Icons";
 import { useFolderOperations } from "../utils/useOperations";
 import "./Operations.css";
-import Client from "@fnndsc/chrisapi";
-import ChrisAPIClient from "../../../api/chrisapiclient";
+import { useLocation } from "react-router";
+import LayoutSwitch from "./LayoutSwitch";
 
 export enum ContextTypes {
   feed_table = "FEEDS_TABLE",
@@ -199,6 +199,7 @@ const items = [
 ];
 
 const Operations = React.forwardRef((props: OperationProps, ref) => {
+  const location = useLocation();
   const {
     inValidateFolders,
     computedPath,
@@ -445,6 +446,15 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       <Toolbar className={customClassName?.toolbar}>
         <ToolbarContent style={{ ...customStyle?.toolbarItem }}>
           {toolbarItems}
+          {location.pathname.startsWith("/library/") && (
+            <ToolbarItem
+              align={{
+                default: "alignRight",
+              }}
+            >
+              <LayoutSwitch />
+            </ToolbarItem>
+          )}
         </ToolbarContent>
       </Toolbar>
     </>
