@@ -32,6 +32,7 @@ import useLongPress, {
   getBackgroundRowColor,
 } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
+import { OperationContext, type OriginState } from "../context";
 
 type Pagination = {
   totalCount: number;
@@ -42,9 +43,9 @@ type ComponentProps = {
   name: string;
   computedPath: string;
   date: string;
+  origin: OriginState;
   onClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onMouseDown?: () => void;
-  inValidateFolders?: () => void;
   onCheckboxChange?: (e: React.FormEvent<HTMLInputElement>) => void;
   onContextMenuClick?: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onNavigate: () => void;
@@ -55,7 +56,7 @@ type ComponentProps = {
 
 const PresentationComponent: React.FC<ComponentProps> = ({
   name,
-  inValidateFolders,
+  origin,
   date,
   onClick,
   onNavigate,
@@ -67,7 +68,7 @@ const PresentationComponent: React.FC<ComponentProps> = ({
   bgRow,
 }) => (
   <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
-    <FolderContextMenu inValidateFolders={() => inValidateFolders?.()}>
+    <FolderContextMenu origin={origin}>
       <Card
         style={{ cursor: "pointer", background: bgRow || "inherit" }}
         isCompact
@@ -186,7 +187,6 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   file,
   computedPath,
 }) => {
-  const queryClient = useQueryClient();
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
@@ -235,12 +235,11 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
     <>
       {contextHolder}
       <PresentationComponent
-        onClick={handleClick}
-        inValidateFolders={() => {
-          queryClient.refetchQueries({
-            queryKey: ["library_folders", computedPath],
-          });
+        origin={{
+          type: OperationContext.LIBRARY,
+          additionalKeys: [computedPath],
         }}
+        onClick={handleClick}
         onMouseDown={handlers.handleOnMouseDown}
         onCheckboxChange={handleCheckboxChange}
         onContextMenuClick={handleClick}
@@ -280,7 +279,6 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
   computedPath,
 }) => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
@@ -328,12 +326,11 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
     <>
       {contextHolder}
       <PresentationComponent
-        onClick={handleClick}
-        inValidateFolders={() => {
-          queryClient.refetchQueries({
-            queryKey: ["library_folders", computedPath],
-          });
+        origin={{
+          type: OperationContext.LIBRARY,
+          additionalKeys: [computedPath],
         }}
+        onClick={handleClick}
         onMouseDown={handlers.handleOnMouseDown}
         onCheckboxChange={handleCheckboxChange}
         onContextMenuClick={handleClick}

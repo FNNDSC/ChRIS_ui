@@ -13,16 +13,17 @@ import {
 } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
 import { notification } from "../../Antd";
-import type { AdditionalValues, ContextTypes } from "../components/Operations";
+import type { AdditionalValues } from "../components/Operations";
+import { type OriginState, useOperationsContext } from "../context";
 import useDeletePayload from "../utils/useDeletePayload";
 import useFeedOperations from "./useFeedOperations";
 
 export const useFolderOperations = (
-  inValidateFolders: () => void,
+  origin: OriginState,
   computedPath?: string, // This path is passed to for file upload and folder uploads in the library
   folderList?: FileBrowserFolderList,
-  _context?: ContextTypes,
 ) => {
+  const { setOrigin, invalidateQueries } = useOperationsContext();
   const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
   const username = useTypedSelector((state) => state.user.username);
@@ -33,9 +34,9 @@ export const useFolderOperations = (
   const fileInput = useRef<HTMLInputElement>(null);
   const [api, contextHolder] = notification.useNotification();
 
-  const deleteMutation = useDeletePayload(inValidateFolders, api);
+  const deleteMutation = useDeletePayload(origin, api);
   const { handleDuplicateMutation, handleMergeMutation } = useFeedOperations(
-    inValidateFolders,
+    origin,
     api,
   );
 
@@ -46,6 +47,7 @@ export const useFolderOperations = (
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOrigin(origin);
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
     dispatch(
@@ -55,6 +57,7 @@ export const useFolderOperations = (
   };
 
   const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setOrigin(origin);
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
     dispatch(
@@ -68,10 +71,11 @@ export const useFolderOperations = (
   };
 
   const createFolder = async (inputValue: string) => {
+    setOrigin(origin);
     const finalPath = `${computedPath}/${inputValue}`;
     try {
       await folderList?.post({ path: finalPath });
-      inValidateFolders();
+      invalidateQueries();
     } catch (error: any) {
       const path = error?.response?.data?.path;
       const message = !isEmpty(path) ? path[0] : "Failed to create a folder.";
@@ -150,6 +154,7 @@ export const useFolderOperations = (
       }
 
       case "download":
+        setOrigin(origin);
         dispatch(setToggleCart());
         dispatch(
           startDownload({
@@ -160,11 +165,10 @@ export const useFolderOperations = (
         // Invalidate the folders after a time limit. This is poorly designed, as this part of the UI assumes
         // that a feed will be created within a certain time frame. Mixing Redux and React Query isn't effective.
         // A better design needs to be considered.
-        setTimeout(() => {
-          inValidateFolders();
-        }, 2000);
+        invalidateQueries();
         break;
       case "anonymize":
+        setOrigin(origin);
         dispatch(setToggleCart());
         dispatch(
           startAnonymize({

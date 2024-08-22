@@ -7,9 +7,9 @@ import {
 } from "@patternfly/react-core";
 import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
+import "./FeedOutputBrowser.css";
 import FileBrowser from "./FileBrowser";
 import { useFeedBrowser } from "./useFeedBrowser";
-import "./FeedOutputBrowser.css";
 
 export interface FeedOutputBrowserProps {
   handlePluginSelect: (node: PluginInstance) => void;
@@ -27,7 +27,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
     filesLoading,
     isError,
     error,
-    inValidateFolders,
+    currentPath,
   } = useFeedBrowser();
 
   return (
@@ -38,7 +38,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
           handleFileClick={handleFileClick}
           pluginFilesPayload={pluginFilesPayload}
           filesLoading={filesLoading}
-          inValidateFolders={inValidateFolders}
+          currentPath={currentPath}
         />
       ) : statusTitle && statusTitles.includes(statusTitle) ? (
         <FetchFilesLoader title="Plugin executing. Files will be fetched when plugin completes" />

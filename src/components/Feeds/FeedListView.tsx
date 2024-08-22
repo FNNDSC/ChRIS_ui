@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
@@ -30,7 +30,7 @@ import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { SearchIcon } from "../Icons";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
-import Operations, { ContextTypes } from "../NewLibrary/components/Operations";
+import Operations from "../NewLibrary/components/Operations";
 import useLongPress from "../NewLibrary/utils/longpress";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
@@ -40,6 +40,7 @@ import {
   fetchPublicFeeds,
   getPluginInstanceDetails,
 } from "./utilties";
+import { OperationContext } from "../NewLibrary/context";
 
 const { Paragraph } = Typography;
 
@@ -52,7 +53,6 @@ const useSearchQuery = (query: URLSearchParams) => ({
 });
 
 const TableSelectable: React.FC = () => {
-  const queryClient = useQueryClient();
   const query = useSearchQueryParams();
   const navigate = useNavigate();
 
@@ -99,10 +99,6 @@ const TableSelectable: React.FC = () => {
     );
   };
 
-  const handleFilterChange = (search: string, searchType: string) => {
-    navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
-  };
-
   const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
     const id = event.currentTarget.id;
     navigate(
@@ -133,12 +129,6 @@ const TableSelectable: React.FC = () => {
 
   const loadingFeedState =
     isLoading || isFetching || publicFeedLoading || publicFeedFetching;
-
-  const inValidateFolders = () => {
-    queryClient.refetchQueries({
-      queryKey: ["feeds"],
-    });
-  };
 
   const generatePagination = (feedCount?: number) => {
     if (!feedCount && loadingFeedState) {
@@ -218,9 +208,11 @@ const TableSelectable: React.FC = () => {
       </PageSection>
       <PageSection style={{ paddingBlockStart: "0.5em", height: "100%" }}>
         <Operations
-          inValidateFolders={inValidateFolders}
+          origin={{
+            type: OperationContext.FEEDS,
+            additionalKeys: [perPage, page, type, search, searchType],
+          }}
           customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
-          context={ContextTypes.feed_table}
         />
         {loadingFeedState ? (
           <LoadingTable />
@@ -247,7 +239,7 @@ const TableSelectable: React.FC = () => {
                   columnNames={columnNames}
                   allFeeds={feedsToDisplay}
                   type={type}
-                  inValidateFolders={inValidateFolders}
+                  additionalKeys={[perPage, page, type, search, searchType]}
                 />
               ))}
             </Tbody>
@@ -276,13 +268,13 @@ interface TableRowProps {
     status: string;
   };
   type: string;
-  inValidateFolders: () => void;
+  additionalKeys: string[];
 }
 
 const TableRow: React.FC<TableRowProps> = ({
   feed,
   columnNames,
-  inValidateFolders,
+  additionalKeys,
 }) => {
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
@@ -337,8 +329,10 @@ const TableRow: React.FC<TableRowProps> = ({
 
   return (
     <FolderContextMenu
-      inValidateFolders={inValidateFolders}
-      context={ContextTypes.feed_table}
+      origin={{
+        type: OperationContext.FEEDS,
+        additionalKeys: additionalKeys,
+      }}
     >
       <Tr
         key={feed.data.id}

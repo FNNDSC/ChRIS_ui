@@ -10,20 +10,19 @@ import {
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
+import type { OriginState } from "../context";
 import { useFolderOperations } from "../utils/useOperations";
-import { AddModal, type ContextTypes } from "./Operations";
+import { AddModal } from "./Operations";
 
 interface ContextMenuProps {
   children: React.ReactElement;
   computedPath?: string;
-  inValidateFolders: () => void;
+  origin: OriginState;
   folderList?: FileBrowserFolderList;
-  context?: ContextTypes;
 }
 
 export const FolderContextMenu = (props: ContextMenuProps) => {
-  const { children, inValidateFolders, folderList, computedPath, context } =
-    props;
+  const { children, origin, folderList, computedPath } = props;
   const {
     modalInfo,
     userError,
@@ -32,7 +31,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(inValidateFolders, computedPath, folderList, context);
+  } = useFolderOperations(origin, computedPath, folderList);
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },

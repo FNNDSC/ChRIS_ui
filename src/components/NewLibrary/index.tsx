@@ -22,6 +22,7 @@ import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import LibraryTable from "./components/LibraryTable";
 import Operations from "./components/Operations";
+import { OperationContext } from "./context";
 
 const { Paragraph } = Typography;
 
@@ -95,7 +96,6 @@ const NewLibrary = () => {
   }
 
   const { pathname } = useLocation();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -104,8 +104,9 @@ const NewLibrary = () => {
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
+  const queryKey = ["library_folders", computedPath, pageNumber];
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["library_folders", computedPath, pageNumber],
+    queryKey: queryKey,
     queryFn: () => fetchFolders(computedPath, pageNumber),
     placeholderData: keepPreviousData,
     structuralSharing: true,
@@ -189,10 +190,9 @@ const NewLibrary = () => {
         />
 
         <Operations
-          inValidateFolders={() => {
-            queryClient.refetchQueries({
-              queryKey: ["library_folders", computedPath],
-            });
+          origin={{
+            type: OperationContext.LIBRARY,
+            additionalKeys: [computedPath],
           }}
           computedPath={computedPath}
           folderList={data?.folderList}

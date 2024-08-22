@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
+import { format } from "date-fns";
 import { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getFileExtension } from "../../api/model";
@@ -30,6 +31,9 @@ import { ThemeContext } from "../DarkTheme/useTheme";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 import { HomeIcon } from "../Icons";
+import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
+import Operations from "../NewLibrary/components/Operations";
+import { OperationContext } from "../NewLibrary/context";
 import useLongPress, {
   getBackgroundRowColor,
 } from "../NewLibrary/utils/longpress";
@@ -37,9 +41,6 @@ import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import type { FileBrowserProps } from "./types";
 import { bytesToSize } from "./utilities";
-import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
-import Operations from "../NewLibrary/components/Operations";
-import { format } from "date-fns";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -68,7 +69,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     handleFileClick,
     selected,
     filesLoading,
-    inValidateFolders,
+    currentPath: additionalKey,
   } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
@@ -245,7 +246,10 @@ const FileBrowser = (props: FileBrowserProps) => {
     return (
       <FolderContextMenu
         key={path} // Assuming 'item' has an 'id' property
-        inValidateFolders={inValidateFolders}
+        origin={{
+          type: OperationContext.FILEBROWSER,
+          additionalKeys: [additionalKey],
+        }}
       >
         <Tr
           style={{
@@ -291,7 +295,10 @@ const FileBrowser = (props: FileBrowserProps) => {
             <DrawerContentBody>
               <Operations
                 customClassName={{ toolbar: "remove-toolbar-padding" }}
-                inValidateFolders={inValidateFolders}
+                origin={{
+                  type: OperationContext.FILEBROWSER,
+                  additionalKeys: [additionalKey],
+                }}
                 computedPath={path}
                 folderList={pluginFilesPayload.folderList}
               />
