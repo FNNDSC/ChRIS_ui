@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import AiOutlineExpand from "@patternfly/react-icons/dist/esm/icons/expand-alt-icon";
-import { FeedFile } from "@fnndsc/chrisapi";
+import { useEffect, useRef, useState } from "react";
 import { useTypedSelector } from "../../store/hooks";
-import FsmFileSelect from "./PrimaryFileSelect";
+import { Alert } from "../Antd";
+import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import CrvFileSelect from "./CrvFileSelect";
+import FsmFileSelect from "./PrimaryFileSelect";
 import "./xtk-viewer.css";
 
 // X and dat are loaded in from script file
@@ -14,10 +16,10 @@ declare const dat: any;
 export type ViewerMode = "volume" | "mesh" | "other";
 type VolumeMode = "3D" | "2D";
 
-const getFileType = (file?: FeedFile) =>
+const getFileType = (file?: FileBrowserFolderFile) =>
   file?.data.fname.split(".").slice(-1)[0];
 
-const getFileData = async (file: FeedFile) =>
+const getFileData = async (file: FileBrowserFolderFile) =>
   (await file.getFileBlob())?.arrayBuffer();
 
 export function getXtkFileMode(fileType?: string): ViewerMode | undefined {
@@ -26,16 +28,21 @@ export function getXtkFileMode(fileType?: string): ViewerMode | undefined {
   const otherExtensions = ["crv"];
   if (!fileType) {
     return;
-  } else if (volumeExtensions.includes(fileType)) {
+  }
+  if (volumeExtensions.includes(fileType)) {
     return "volume";
-  } else if (meshExtensions.includes(fileType)) {
+  }
+  if (meshExtensions.includes(fileType)) {
     return "mesh";
-  } else if (otherExtensions.includes(fileType)) {
+  }
+  if (otherExtensions.includes(fileType)) {
     return "other";
   }
 }
 
-function getPrimaryFileMode(file: FeedFile): ViewerMode | undefined {
+function getPrimaryFileMode(
+  file: FileBrowserFolderFile,
+): ViewerMode | undefined {
   const fileType = getFileType(file);
   return getXtkFileMode(fileType);
 }
@@ -43,11 +50,9 @@ function getPrimaryFileMode(file: FeedFile): ViewerMode | undefined {
 const XtkViewer = () => {
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const selectedFileType = getFileType(selectedFile);
-  const { pluginFiles } = useTypedSelector((state) => state.resource);
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
-  const pluginFilesPayload = selected && pluginFiles[selected.data.id];
-  const directoryFiles = pluginFilesPayload ? pluginFilesPayload.files : [];
-  const crvFiles = directoryFiles.filter((file) => {
+  const { pluginFilesPayload } = useFeedBrowser();
+  const directoryFiles = pluginFilesPayload?.folderFiles;
+  const crvFiles = directoryFiles?.filter((file) => {
     const fileName = file.data.fname;
     return fileName?.endsWith(".crv");
   });
@@ -58,15 +63,19 @@ const XtkViewer = () => {
     ? getPrimaryFileMode(defaultPrimaryFile)
     : undefined;
 
-  const [primaryFile, setPrimaryFile] = useState<FeedFile | undefined>(
-    defaultPrimaryFile,
-  );
+  const [primaryFile, setPrimaryFile] = useState<
+    FileBrowserFolderFile | undefined
+  >(defaultPrimaryFile);
   const [viewerMode, setViewerMode] = useState<ViewerMode | undefined>(
     defaultViewerMode,
   );
   const [volumeMode, setVolumeMode] = useState<VolumeMode>("3D");
-  const [crvFile, setCrvFile] = useState<FeedFile | undefined>(defaultCrvFile);
-  const [secondaryFile, setSecondaryFile] = useState<FeedFile | undefined>();
+  const [crvFile, setCrvFile] = useState<FileBrowserFolderFile | undefined>(
+    defaultCrvFile,
+  );
+  const [secondaryFile, setSecondaryFile] = useState<
+    FileBrowserFolderFile | undefined
+  >();
   const [orientation, setOrientation] = useState("x");
   const [fullscreen, setFullscreen] = useState(false);
 
@@ -127,7 +136,7 @@ const XtkViewer = () => {
         r.add(secondaryObject);
       }
 
-      r.onShowtime = function () {
+      r.onShowtime = () => {
         gui = new dat.GUI();
 
         if (viewerMode === "mesh") {
@@ -164,12 +173,8 @@ const XtkViewer = () => {
     renderFileData();
 
     return () => {
-      try {
-        r && r.destroy();
-        gui && gui.destroy();
-      } catch (e) {
-        console.log(e);
-      }
+      r?.destroy();
+      gui?.destroy();
     };
   }, [
     viewerMode,
@@ -191,6 +196,10 @@ const XtkViewer = () => {
   const renderContainerRef = useRef(null);
   const datGuiContainerRef = useRef<HTMLDivElement>(null);
   const fullscreenRef = useRef<HTMLDivElement>(null);
+
+  if (!directoryFiles) {
+    return <Alert type="error" description="Files are not available" />;
+  }
 
   return (
     <div
@@ -233,21 +242,30 @@ const XtkViewer = () => {
         />
       ) : (
         <>
-          <div ref={renderContainerRef} className="xtk-render"></div>
+          <div ref={renderContainerRef} className="xtk-render" />
           <div className="xtk-controls">
             {viewerMode === "mesh" ? (
               <div className="additional-files">
-                <CrvFileSelect
-                  files={crvFiles}
-                  selectedFile={crvFile}
-                  handleSelect={setCrvFile}
-                />
-                <CrvFileSelect
-                  files={directoryFiles}
-                  title="Select Additional Mesh File"
-                  selectedFile={secondaryFile}
-                  handleSelect={setSecondaryFile}
-                />
+                {crvFiles ? (
+                  <>
+                    <CrvFileSelect
+                      files={crvFiles}
+                      selectedFile={crvFile}
+                      handleSelect={setCrvFile}
+                    />
+                    <CrvFileSelect
+                      files={directoryFiles}
+                      title="Select Additional Mesh File"
+                      selectedFile={secondaryFile}
+                      handleSelect={setSecondaryFile}
+                    />
+                  </>
+                ) : (
+                  <Alert
+                    type="info"
+                    description="Failed to find files with the .crv extension"
+                  />
+                )}
               </div>
             ) : (
               <div className="volume-mode">
