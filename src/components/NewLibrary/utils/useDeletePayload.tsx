@@ -5,14 +5,17 @@ import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { clearSelectedPaths } from "../../../store/cart/cartSlice";
 import type { SelectionPayload } from "../../../store/cart/types";
+import { type OriginState, useOperationsContext } from "../context";
 
 type DeletionErrors = { path: string; message: string }[];
 
-const useDeletePayload = (inValidateFolders: () => void, api: any) => {
+const useDeletePayload = (origin: OriginState, api: any) => {
+  const { setOrigin, invalidateQueries } = useOperationsContext();
   const dispatch = useDispatch();
   const [notificationKey, setNotificationKey] = useState<string | null>(null);
 
   const handleDelete = async (paths: SelectionPayload[]) => {
+    setOrigin(origin);
     const errors: DeletionErrors = [];
     const successfulPaths: string[] = [];
 
@@ -27,7 +30,6 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
               Authorization: `Token ${client.auth.token}`,
             },
           });
-
           successfulPaths.push(pathToClear);
         } catch (e) {
           if (axios.isAxiosError(e)) {
@@ -43,9 +45,7 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
       }),
     );
 
-    inValidateFolders();
     successfulPaths.forEach((path) => dispatch(clearSelectedPaths(path)));
-
     return errors.length > 0 ? errors : null;
   };
 
@@ -79,6 +79,7 @@ const useDeletePayload = (inValidateFolders: () => void, api: any) => {
           placement: "topRight",
         });
       } else {
+        invalidateQueries();
         api.success({
           message: "Deletion Successful",
           description: "Selected files and folders were successfully deleted.",

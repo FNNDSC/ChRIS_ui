@@ -5,8 +5,10 @@ import { getFileName } from "../../../api/common";
 import { createFeed } from "../../../store/cart/downloadSaga";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
+import { type OriginState, useOperationsContext } from "../context";
 
-const useFeedOperations = (inValidateFolders: () => void, api: any) => {
+const useFeedOperations = (origin: OriginState, api: any) => {
+  const { setOrigin, invalidateQueries } = useOperationsContext();
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
 
   const giveMePaths = useMemo(() => {
@@ -14,6 +16,7 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
   }, [selectedPaths]);
 
   const handleDuplicate = async () => {
+    setOrigin(origin);
     const paths = giveMePaths;
     try {
       const feedList = await Promise.all(
@@ -44,6 +47,7 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
   };
 
   const handleMerge = async () => {
+    setOrigin(origin);
     const paths = giveMePaths;
     try {
       const sanitizedPaths = await Promise.all(
@@ -86,7 +90,7 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
       api.success({
         message: "Feed copied successfully",
       });
-      inValidateFolders();
+      invalidateQueries();
     },
     onError: (e) => {
       api.error({
@@ -102,7 +106,7 @@ const useFeedOperations = (inValidateFolders: () => void, api: any) => {
       api.success({
         message: "Feed merged successfully",
       });
-      inValidateFolders();
+      invalidateQueries();
     },
     onError: (e) => {
       api.error({

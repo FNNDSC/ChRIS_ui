@@ -20,6 +20,7 @@ import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
+import { OperationContext } from "../context";
 
 type Pagination = {
   totalCount: number;
@@ -67,7 +68,6 @@ export function getFolderName(folder: FileBrowserFolder, computedPath: string) {
 
 export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const { folder, computedPath, handleFolderClick } = props;
-  const queryClient = useQueryClient();
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
@@ -105,10 +105,9 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   return (
     <GridItem xl={3} lg={4} md={6} sm={12} key={folder.data.id}>
       <FolderContextMenu
-        inValidateFolders={() => {
-          queryClient.refetchQueries({
-            queryKey: ["library_folders", computedPath],
-          });
+        origin={{
+          type: OperationContext.LIBRARY,
+          additionalKeys: [computedPath],
         }}
       >
         <Card

@@ -1,5 +1,10 @@
 import * as React from "react";
-import { useNavigate, useRoutes, matchPath } from "react-router-dom";
+import {
+  useNavigate,
+  useRoutes,
+  matchPath,
+  useLocation,
+} from "react-router-dom";
 import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
@@ -24,6 +29,7 @@ import Store from "./components/Store";
 import { useTypedSelector } from "./store/hooks";
 import { useDispatch } from "react-redux";
 import { setSidebarActive } from "./store/ui/uiSlice";
+import { OperationsProvider } from "./components/NewLibrary/context";
 
 interface IState {
   selectData?: Series;
@@ -43,6 +49,7 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
 });
 
 export const MainRouter: React.FC = () => {
+  const location = useLocation();
   const dispatch = useDispatch();
   const [state, setState] = React.useState(State);
   const [route, setRoute] = React.useState<string>();
@@ -125,7 +132,9 @@ export const MainRouter: React.FC = () => {
             {...{ actions, state, route, setRoute }}
             context={MainRouterContext}
           >
-            <LibraryCopyPage />
+            <OperationsProvider>
+              <LibraryCopyPage />
+            </OperationsProvider>
           </RouterProvider>
         </PrivateRoute>
       ),
@@ -138,7 +147,9 @@ export const MainRouter: React.FC = () => {
           {...{ actions, state, route, setRoute }}
           context={MainRouterContext}
         >
-          <FeedsListView />
+          <OperationsProvider>
+            <FeedsListView />
+          </OperationsProvider>
         </RouterProvider>
       ),
     },
@@ -149,7 +160,9 @@ export const MainRouter: React.FC = () => {
           {...{ actions, state, route, setRoute }}
           context={MainRouterContext}
         >
-          <FeedView />
+          <OperationsProvider>
+            <FeedView />
+          </OperationsProvider>
         </RouterProvider>
       ),
     },

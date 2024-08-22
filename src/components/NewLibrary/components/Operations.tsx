@@ -40,13 +40,8 @@ import {
 import { useFolderOperations } from "../utils/useOperations";
 import "./Operations.css";
 import { useLocation } from "react-router";
+import { type OriginState, useOperationsContext } from "../context";
 import LayoutSwitch from "./LayoutSwitch";
-
-export enum ContextTypes {
-  feed_table = "FEEDS_TABLE",
-  library_page = "LIBRARY_PAGE",
-  filebrowser_table = "FILEBROWSER_TABLE",
-}
 
 export type AdditionalValues = {
   share: {
@@ -71,7 +66,7 @@ interface AddModalProps {
 }
 
 interface OperationProps {
-  inValidateFolders: () => void;
+  origin: OriginState;
   computedPath?: string;
   folderList?: FileBrowserFolderList;
   customStyle?: {
@@ -80,7 +75,6 @@ interface OperationProps {
   customClassName?: {
     [key: string]: string;
   };
-  context?: ContextTypes;
 }
 
 export const AddModal = (props: AddModalProps) => {
@@ -199,17 +193,13 @@ const items = [
 ];
 
 const Operations = React.forwardRef((props: OperationProps, ref) => {
+  const { invalidateQueries } = useOperationsContext();
   const location = useLocation();
-  const {
-    inValidateFolders,
-    computedPath,
-    folderList,
-    customStyle,
-    customClassName,
-    context,
-  } = props;
+  const { origin, computedPath, folderList, customStyle, customClassName } =
+    props;
 
   const dispatch = useDispatch();
+
   const {
     modalInfo,
     userError,
@@ -222,7 +212,7 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(inValidateFolders, computedPath, folderList, context);
+  } = useFolderOperations(origin, computedPath, folderList);
 
   useImperativeHandle(ref, () => ({
     triggerFileUpload: () => {
@@ -248,9 +238,9 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       Object.values(folderUploadStatus).some(isUploadComplete);
 
     if (hasFileUploadCompleted || hasFolderUploadCompleted) {
-      inValidateFolders();
+      invalidateQueries();
     }
-  }, [fileUploadStatus, folderUploadStatus, inValidateFolders]);
+  }, [fileUploadStatus, folderUploadStatus, origin]);
 
   const renderOperationButton = (
     icon: React.ReactNode,

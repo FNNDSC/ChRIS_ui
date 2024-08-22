@@ -19,7 +19,7 @@ export interface FileBrowserProps {
   handleFileClick: (path: string) => void;
   selected: PluginInstance;
   filesLoading: boolean;
-  inValidateFolders: () => void;
+  currentPath: string;
 }
 
 export interface FileBrowserState {

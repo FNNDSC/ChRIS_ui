@@ -5,8 +5,7 @@ import type {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { fetchResource } from "../../api/common";
-import { catchError } from "../../api/common";
+import { catchError, fetchResource } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import type { FilesPayload } from "./types";
 
@@ -104,13 +103,15 @@ export const useFeedBrowser = () => {
     (statusTitle && status.includes(statusTitle))
   );
 
+  const queryKey = ["pluginFiles", currentPath];
+
   const {
     data: pluginFilesPayload,
     isLoading: filesLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["pluginFiles", currentPath],
+    queryKey: queryKey,
     queryFn: () => fetchFilesFromAPath(currentPath),
     enabled: !!selected && !!currentPath && finished,
   });
@@ -141,12 +142,6 @@ export const useFeedBrowser = () => {
     }
   };
 
-  const inValidateFolders = () => {
-    queryClient.refetchQueries({
-      queryKey: ["pluginFiles", currentPath],
-    });
-  };
-
   return {
     handleFileClick,
     filesLoading,
@@ -159,6 +154,6 @@ export const useFeedBrowser = () => {
     pluginFilesPayload,
     filesStatus: drawerState.files,
     previewStatus: drawerState.preview,
-    inValidateFolders,
+    currentPath,
   };
 };
