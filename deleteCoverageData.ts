@@ -1,5 +1,5 @@
 import { FullConfig } from "playwright/test";
-import path from "path";
+import path from "node:path";
 import * as fsPromises from "node:fs/promises";
 
 async function globalSetup(_config: FullConfig) {
