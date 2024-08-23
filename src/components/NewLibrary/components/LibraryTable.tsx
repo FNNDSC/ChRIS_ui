@@ -13,19 +13,21 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
+import { formatBytes } from "../../Feeds/utilties";
+import { OperationContext } from "../context";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
-import { formatBytes } from "../../Feeds/utilties";
-import { OperationContext } from "../context";
+import "./LibraryTable.css";
+import { Drawer } from "antd";
+import FileDetailView from "../../Preview/FileDetailView";
 
 interface TableProps {
   data: {
@@ -50,10 +52,11 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
   const navigate = useNavigate();
   const { handlers } = useLongPress();
   const { handleOnClick } = handlers;
-  const queryClient = useQueryClient();
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const { data, computedPath, handleFolderClick } = props;
+  const [preview, setShowPreview] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<FileBrowserFolderFile>();
 
   const renderRow = (
     resource:
@@ -70,7 +73,6 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
       selectedPaths.length > 0 &&
       selectedPaths.some((payload) => payload.path === resource.data.path);
     const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
-
     const icon = getIcon(type, isDarkTheme);
 
     const handleItem = (
@@ -90,6 +92,8 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
 
       if (type === "file") {
         // Show preview
+        setSelectedFile(resource as FileBrowserFolderFile);
+        setShowPreview(true);
       }
     };
 
@@ -141,6 +145,20 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
 
   return (
     <React.Fragment>
+      <Drawer
+        width="100%"
+        open={preview}
+        closable={true}
+        onClose={() => {
+          setShowPreview(false);
+          setSelectedFile(undefined);
+        }}
+        placement="right"
+      >
+        {selectedFile && (
+          <FileDetailView selectedFile={selectedFile} preview="large" />
+        )}
+      </Drawer>
       <Table aria-label="Simple table">
         <Caption>Data Library</Caption>
         <Thead>
