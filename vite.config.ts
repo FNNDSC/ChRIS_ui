@@ -1,7 +1,8 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import macrosPlugin from "vite-plugin-babel-macros";
-import IstanbulPlugin from "vite-plugin-istanbul";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import macrosPlugin from 'vite-plugin-babel-macros';
+import IstanbulPlugin from 'vite-plugin-istanbul';
+import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,9 +12,9 @@ export default defineConfig({
     ...(process.env.USE_BABEL_PLUGIN_ISTANBUL
       ? [
           IstanbulPlugin({
-            include: "src/*",
-            exclude: ["node_modules", "test/"],
-            extension: [".js", ".ts", ".tsx"],
+            include: 'src/*',
+            exclude: ['node_modules', 'test/'],
+            extension: ['.js', '.ts', '.tsx'],
           }),
         ]
       : []),
@@ -25,8 +26,8 @@ export default defineConfig({
     alias: {
       // workaround for "Cornerstone3D tools does not build with vite"
       // https://github.com/cornerstonejs/cornerstone3D/issues/1071
-      "@cornerstonejs/tools": "@cornerstonejs/tools/dist/umd/index.js",
-      "fs": require.resolve("rollup-plugin-node-builtins")
+      '@cornerstonejs/tools': resolve(__dirname, 'node_modules/@cornerstonejs/tools/dist/umd/index.js'),
+      'fs': 'rollup-plugin-node-builtins'
     },
   },
 });
