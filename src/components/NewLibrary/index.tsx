@@ -4,11 +4,7 @@ import type {
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import { Button, Grid, PageSection } from "@patternfly/react-core";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { debounce } from "lodash";
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";

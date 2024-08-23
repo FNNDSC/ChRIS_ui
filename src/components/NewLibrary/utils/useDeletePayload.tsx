@@ -10,12 +10,12 @@ import { type OriginState, useOperationsContext } from "../context";
 type DeletionErrors = { path: string; message: string }[];
 
 const useDeletePayload = (origin: OriginState, api: any) => {
-  const { setOrigin, invalidateQueries } = useOperationsContext();
+  const { handleOrigin, invalidateQueries } = useOperationsContext();
   const dispatch = useDispatch();
   const [notificationKey, setNotificationKey] = useState<string | null>(null);
 
   const handleDelete = async (paths: SelectionPayload[]) => {
-    setOrigin(origin);
+    handleOrigin(origin);
     const errors: DeletionErrors = [];
     const successfulPaths: string[] = [];
 
