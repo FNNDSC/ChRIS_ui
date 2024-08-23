@@ -14,7 +14,6 @@ import {
   SplitItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { isEmpty } from "lodash";
 import type React from "react";
