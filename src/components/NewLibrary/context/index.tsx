@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useRef } from "react";
 
 export enum OperationContext {
   LIBRARY = "library",
@@ -14,7 +14,7 @@ export interface OriginState {
 
 interface OperationsContextType {
   invalidateQueries: () => void;
-  setOrigin: React.Dispatch<React.SetStateAction<OriginState | undefined>>;
+  handleOrigin: (origin: OriginState) => void;
 }
 
 const OperationsContext = createContext<OperationsContextType | undefined>(
@@ -37,30 +37,38 @@ export const OperationsProvider: React.FC<
   }>
 > = ({ children }) => {
   const queryClient = useQueryClient();
-  const [origin, setOrigin] = useState<OriginState>();
+  const originRef = useRef<OriginState>();
+
+  const handleOrigin = (newOrigin: OriginState) => {
+    originRef.current = newOrigin;
+  };
 
   const invalidateQueries = () => {
-    switch (origin?.type) {
+    const additionalKeys = originRef.current?.additionalKeys || [];
+    const type = originRef.current?.type;
+
+    if (!type) return;
+    switch (type) {
       case OperationContext.LIBRARY:
         queryClient.refetchQueries({
-          queryKey: ["library_folders", ...origin.additionalKeys],
+          queryKey: ["library_folders", ...additionalKeys],
         });
         break;
+
       case OperationContext.FEEDS:
-        console.log("additionalKeys", origin.additionalKeys);
         queryClient.refetchQueries({
-          queryKey: ["feeds", ...origin.additionalKeys],
+          queryKey: ["feeds", ...additionalKeys],
         });
         break;
       case OperationContext.FILEBROWSER:
         queryClient.refetchQueries({
-          queryKey: ["pluginFiles", ...origin.additionalKeys],
+          queryKey: ["pluginFiles", ...additionalKeys],
         });
     }
   };
 
   return (
-    <OperationsContext.Provider value={{ invalidateQueries, setOrigin }}>
+    <OperationsContext.Provider value={{ invalidateQueries, handleOrigin }}>
       {children}
     </OperationsContext.Provider>
   );

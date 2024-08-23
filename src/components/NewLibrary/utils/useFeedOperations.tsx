@@ -8,7 +8,7 @@ import { useTypedSelector } from "../../../store/hooks";
 import { type OriginState, useOperationsContext } from "../context";
 
 const useFeedOperations = (origin: OriginState, api: any) => {
-  const { setOrigin, invalidateQueries } = useOperationsContext();
+  const { handleOrigin, invalidateQueries } = useOperationsContext();
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
 
   const giveMePaths = useMemo(() => {
@@ -16,7 +16,7 @@ const useFeedOperations = (origin: OriginState, api: any) => {
   }, [selectedPaths]);
 
   const handleDuplicate = async () => {
-    setOrigin(origin);
+    handleOrigin(origin);
     const paths = giveMePaths;
     try {
       const feedList = await Promise.all(
@@ -47,7 +47,7 @@ const useFeedOperations = (origin: OriginState, api: any) => {
   };
 
   const handleMerge = async () => {
-    setOrigin(origin);
+    handleOrigin(origin);
     const paths = giveMePaths;
     try {
       const sanitizedPaths = await Promise.all(

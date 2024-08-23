@@ -23,7 +23,7 @@ export const useFolderOperations = (
   computedPath?: string, // This path is passed to for file upload and folder uploads in the library
   folderList?: FileBrowserFolderList,
 ) => {
-  const { setOrigin, invalidateQueries } = useOperationsContext();
+  const { handleOrigin, invalidateQueries } = useOperationsContext();
   const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
   const username = useTypedSelector((state) => state.user.username);
@@ -47,7 +47,7 @@ export const useFolderOperations = (
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOrigin(origin);
+    handleOrigin(origin);
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
     dispatch(
@@ -57,7 +57,7 @@ export const useFolderOperations = (
   };
 
   const handleFolderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOrigin(origin);
+    handleOrigin(origin);
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
     dispatch(
@@ -71,7 +71,7 @@ export const useFolderOperations = (
   };
 
   const createFolder = async (inputValue: string) => {
-    setOrigin(origin);
+    handleOrigin(origin);
     const finalPath = `${computedPath}/${inputValue}`;
     try {
       await folderList?.post({ path: finalPath });
@@ -154,7 +154,7 @@ export const useFolderOperations = (
       }
 
       case "download":
-        setOrigin(origin);
+        handleOrigin(origin);
         dispatch(setToggleCart());
         dispatch(
           startDownload({
@@ -168,7 +168,7 @@ export const useFolderOperations = (
         invalidateQueries();
         break;
       case "anonymize":
-        setOrigin(origin);
+        handleOrigin(origin);
         dispatch(setToggleCart());
         dispatch(
           startAnonymize({
