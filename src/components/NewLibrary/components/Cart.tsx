@@ -1,5 +1,4 @@
 import { Button, Text, Tooltip } from "@patternfly/react-core";
-import { Drawer, List, Popconfirm, Space } from "../../Antd";
 import { isEmpty } from "lodash";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -12,6 +11,7 @@ import {
 } from "../../../store/cart/cartSlice";
 import { DownloadTypes } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
+import { Drawer, List, Popconfirm, Space } from "../../Antd";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
 import { ShowInFolder, TitleNameClipped, elipses } from "../utils/longpress";
@@ -166,7 +166,9 @@ const Cart = () => {
                   avatar={<FolderIcon />}
                   title={
                     <TitleNameClipped
-                      name={getFileName(status.fileName)}
+                      name={
+                        status.fileName ? getFileName(status.fileName) : "N/A"
+                      }
                       value={30}
                     />
                   }

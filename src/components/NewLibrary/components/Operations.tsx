@@ -23,6 +23,7 @@ import React, {
   useState,
 } from "react";
 import { useDispatch } from "react-redux";
+import { useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
@@ -37,11 +38,10 @@ import {
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
-import { useFolderOperations } from "../utils/useOperations";
-import "./Operations.css";
-import { useLocation } from "react-router";
 import { type OriginState, useOperationsContext } from "../context";
+import { useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
+import "./Operations.css";
 
 export type AdditionalValues = {
   share: {

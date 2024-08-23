@@ -8,7 +8,7 @@ import {
   Split,
   SplitItem,
 } from "@patternfly/react-core";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { isEmpty } from "lodash";
 import { useContext } from "react";

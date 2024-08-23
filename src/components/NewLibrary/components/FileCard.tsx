@@ -26,12 +26,12 @@ import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { ExternalLinkSquareAltIcon } from "../../Icons";
 import FileDetailView from "../../Preview/FileDetailView";
+import { OperationContext, type OriginState } from "../context";
 import useLongPress, {
   elipses,
   getBackgroundRowColor,
 } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
-import { OperationContext, type OriginState } from "../context";
 
 type Pagination = {
   totalCount: number;
