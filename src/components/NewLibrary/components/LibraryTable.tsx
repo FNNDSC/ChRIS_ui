@@ -13,6 +13,7 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
+import { Drawer } from "antd";
 import { format } from "date-fns";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
@@ -20,14 +21,12 @@ import { useTypedSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { formatBytes } from "../../Feeds/utilties";
+import FileDetailView from "../../Preview/FileDetailView";
 import { OperationContext } from "../context";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
-import "./LibraryTable.css";
-import { Drawer } from "antd";
-import FileDetailView from "../../Preview/FileDetailView";
 
 interface TableProps {
   data: {
@@ -71,7 +70,15 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
   ) => {
     const isSelected =
       selectedPaths.length > 0 &&
-      selectedPaths.some((payload) => payload.path === resource.data.path);
+      selectedPaths.some((payload) => {
+        if (type === "folder" || type === "link") {
+          return payload.path === resource.data.path;
+        }
+
+        if (type === "file") {
+          return payload.path === resource.data.fname;
+        }
+      });
     const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
     const icon = getIcon(type, isDarkTheme);
 
