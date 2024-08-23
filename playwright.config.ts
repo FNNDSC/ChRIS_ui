@@ -72,10 +72,14 @@ const UI_PORT = SHOULD_TEST_LOCALLY ? 5173 : 25173;
 
 /**
  * See https://playwright.dev/docs/test-configuration.
+ * 
  */
+
+
 export default defineConfig({
+  
   /* A script which deletes the previous coverage data */
-  globalSetup: resolve(__dirname, './deleteCoverageData.ts'),
+  globalSetup: resolve('./deleteCoverageData.ts'),
 
   testDir: "./tests",
   /* The base directory, relative to the config file, for snapshot files created with toMatchSnapshot and toHaveScreenshot. */
