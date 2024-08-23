@@ -37,7 +37,6 @@
     "print-version": "./print_version.sh"
   },
   "dependencies": {
-    "@biomejs/biome": "^1.8.3",
     "@cornerstonejs/core": "^1.81.2",
     "@cornerstonejs/dicom-image-loader": "^1.81.2",
     "@cornerstonejs/streaming-image-volume-loader": "^1.81.2",
@@ -71,7 +70,6 @@
     "micromark-extension-gfm": "^3.0.0",
     "niivue-react": "github:niivue/niivue-react",
     "npm": "^10.6.0",
-    "p-queue": "^8.0.1",
     "pako": "^1.0.11",
     "preval.macro": "^5.0.0",
     "query-string": "^9.0.0",
@@ -103,6 +101,7 @@
     "vite-plugin-babel-macros": "^1.0.6"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "@faker-js/faker": "^8.4.0",
     "@playwright/test": "^1.41.2",
     "@types/d3-hierarchy": "^1.1.7",
@@ -123,7 +122,6 @@
     "playwright": "^1.41.2",
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",
-    "rollup-plugin-node-builtins": "^2.1.2",
     "vite": "^5.3.2",
     "vite-plugin-istanbul": "^5.0.0",
     "vitest": "^1.2.2"

@@ -1,8 +1,6 @@
 // See https://github.com/FNNDSC/ChRIS_ui/wiki/E2E-Testing-with-Playwright#local-tests
 
 import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
-import path from 'node:path';
-const SAFARI_BROWSERS: PlaywrightTestConfig["projects"] = [];
 
 const SHOULD_TEST_SAFARI = getBoolEnvVar('TEST_SAFARI');
 const SHOULD_TEST_LOCALLY = getBoolEnvVar('TEST_LOCAL');
@@ -76,7 +74,7 @@ const UI_PORT = SHOULD_TEST_LOCALLY ? 5173 : 25173;
  */
 export default defineConfig({
   /* A script which deletes the previous coverage data */
-  globalSetup: path.resolve('./deleteCoverageData'),
+  globalSetup: require.resolve('./deleteCoverageData'),
 
   testDir: "./tests",
   /* The base directory, relative to the config file, for snapshot files created with toMatchSnapshot and toHaveScreenshot. */
