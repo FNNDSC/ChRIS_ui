@@ -26,17 +26,17 @@
 # - docker-entrypoint.sh must start as root
 
 
-FROM node:20.7 as builder
+FROM node:20.17 as builder
 
 WORKDIR /app
 COPY . .
 
 
 RUN npm ci
-RUN npm run build 
+RUN npm run build
 
 
-FROM node:20.7-alpine
+FROM node:20.17-alpine
 
 RUN npm i -g sirv-cli
 
