@@ -87,6 +87,8 @@ jobs:
         run: npm ci
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+      - name: Setup tests
+        run: npm run test:prepare
       - name: End-to-End tests
         env:
           TEST_SAFARI: yes
