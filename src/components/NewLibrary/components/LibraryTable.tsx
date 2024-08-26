@@ -80,7 +80,9 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
         }
       });
     const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
-    const icon = getIcon(type, isDarkTheme);
+    const icon = getIcon(type, isDarkTheme, {
+      marginRight: "0.25em",
+    });
 
     const handleItem = (
       item:
