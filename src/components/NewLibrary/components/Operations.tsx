@@ -38,7 +38,7 @@ import {
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
-import { type OriginState, useOperationsContext } from "../context";
+import type { OriginState } from "../context";
 import { useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
@@ -49,21 +49,6 @@ export type AdditionalValues = {
     write?: boolean;
   };
 };
-
-interface AddModalProps {
-  operationType: string;
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (inputValue: string, additionalValues?: AdditionalValues) => void;
-  modalTitle: string;
-  inputLabel: string;
-  indicators: {
-    isPending: boolean;
-    isError: boolean;
-    error: DefaultError | null;
-    clearErrors: () => void;
-  };
-}
 
 interface OperationProps {
   origin: OriginState;
@@ -77,115 +62,6 @@ interface OperationProps {
   };
 }
 
-export const AddModal = (props: AddModalProps) => {
-  const {
-    isOpen,
-    onClose,
-    onSubmit,
-    modalTitle,
-    inputLabel,
-    indicators,
-    operationType,
-  } = props;
-  const [inputValue, setInputValue] = useState("");
-  const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
-    share: {
-      read: false,
-      write: true,
-    },
-  });
-
-  const handleClose = () => {
-    setInputValue("");
-    onClose();
-  };
-
-  useEffect(() => {
-    async function fetchUsers() {}
-    if (modalTitle === "Share this Folder") {
-      fetchUsers();
-    }
-  }, [modalTitle]);
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      variant="small"
-      aria-label={modalTitle}
-      title={modalTitle}
-      onClose={handleClose}
-    >
-      <Form>
-        <FormGroup>
-          <TextInput
-            name="input"
-            value={inputValue}
-            onChange={(_e, value) => setInputValue(value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                onSubmit(inputValue);
-              }
-            }}
-            aria-label={inputLabel}
-            placeholder={inputLabel}
-          />
-        </FormGroup>
-        {operationType === "share" && (
-          <FormGroup>
-            <Checkbox
-              id="read"
-              isChecked={additionalValues?.share.read}
-              label="Read"
-              onChange={(_event, checked) => {
-                setAdditionalValues({
-                  ...additionalValues,
-                  share: {
-                    ...additionalValues?.share,
-                    read: checked,
-                  },
-                });
-              }}
-            />
-            <Checkbox
-              id="write"
-              isChecked={additionalValues?.share.write}
-              label="Write"
-              onChange={(_event, checked) => {
-                setAdditionalValues({
-                  ...additionalValues,
-                  share: {
-                    ...additionalValues?.share,
-                    write: checked,
-                  },
-                });
-              }}
-            />
-          </FormGroup>
-        )}
-
-        <ActionGroup>
-          <Button
-            icon={indicators.isPending && <Spin />}
-            onClick={() => onSubmit(inputValue)}
-          >
-            Confirm
-          </Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </ActionGroup>
-        {indicators.isError && (
-          <Alert
-            type="error"
-            description={indicators.error?.message}
-            closable
-            onClose={indicators.clearErrors}
-          />
-        )}
-      </Form>
-    </Modal>
-  );
-};
-
 const items = [
   { key: "newFolder", label: "New Folder" },
   { key: "fileUpload", label: "File Upload" },
@@ -193,13 +69,10 @@ const items = [
 ];
 
 const Operations = React.forwardRef((props: OperationProps, ref) => {
-  const { invalidateQueries } = useOperationsContext();
   const location = useLocation();
   const { origin, computedPath, folderList, customStyle, customClassName } =
     props;
-
   const dispatch = useDispatch();
-
   const {
     modalInfo,
     userError,
@@ -212,7 +85,12 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(origin, computedPath, folderList);
+  } = useFolderOperations(
+    origin,
+    computedPath,
+    folderList,
+    location.pathname === "/feeds",
+  );
 
   useImperativeHandle(ref, () => ({
     triggerFileUpload: () => {
@@ -223,24 +101,8 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     },
   }));
 
-  const { selectedPaths, fileUploadStatus, folderUploadStatus } =
-    useTypedSelector((state) => state.cart);
+  const { selectedPaths } = useTypedSelector((state) => state.cart);
   const selectedPathsCount = selectedPaths.length;
-
-  useEffect(() => {
-    // Check if any file or folder upload has completed
-    const isUploadComplete = (status: any) =>
-      status.currentStep === "Upload Complete";
-
-    const hasFileUploadCompleted =
-      Object.values(fileUploadStatus).some(isUploadComplete);
-    const hasFolderUploadCompleted =
-      Object.values(folderUploadStatus).some(isUploadComplete);
-
-    if (hasFileUploadCompleted || hasFolderUploadCompleted) {
-      invalidateQueries();
-    }
-  }, [fileUploadStatus, folderUploadStatus, origin]);
 
   const renderOperationButton = (
     icon: React.ReactNode,
@@ -452,3 +314,127 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
 });
 
 export default Operations;
+
+interface AddModalProps {
+  operationType: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (inputValue: string, additionalValues?: AdditionalValues) => void;
+  modalTitle: string;
+  inputLabel: string;
+  indicators: {
+    isPending: boolean;
+    isError: boolean;
+    error: DefaultError | null;
+    clearErrors: () => void;
+  };
+}
+
+export const AddModal = (props: AddModalProps) => {
+  const {
+    isOpen,
+    onClose,
+    onSubmit,
+    modalTitle,
+    inputLabel,
+    indicators,
+    operationType,
+  } = props;
+  const [inputValue, setInputValue] = useState("");
+  const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
+    share: {
+      read: false,
+      write: true,
+    },
+  });
+
+  const handleClose = () => {
+    setInputValue("");
+    onClose();
+  };
+
+  useEffect(() => {
+    async function fetchUsers() {}
+    if (modalTitle === "Share this Folder") {
+      fetchUsers();
+    }
+  }, [modalTitle]);
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      variant="small"
+      aria-label={modalTitle}
+      title={modalTitle}
+      onClose={handleClose}
+    >
+      <Form>
+        <FormGroup>
+          <TextInput
+            name="input"
+            value={inputValue}
+            onChange={(_e, value) => setInputValue(value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onSubmit(inputValue);
+              }
+            }}
+            aria-label={inputLabel}
+            placeholder={inputLabel}
+          />
+        </FormGroup>
+        {operationType === "share" && (
+          <FormGroup>
+            <Checkbox
+              id="read"
+              isChecked={additionalValues?.share.read}
+              label="Read"
+              onChange={(_event, checked) => {
+                setAdditionalValues({
+                  ...additionalValues,
+                  share: {
+                    ...additionalValues?.share,
+                    read: checked,
+                  },
+                });
+              }}
+            />
+            <Checkbox
+              id="write"
+              isChecked={additionalValues?.share.write}
+              label="Write"
+              onChange={(_event, checked) => {
+                setAdditionalValues({
+                  ...additionalValues,
+                  share: {
+                    ...additionalValues?.share,
+                    write: checked,
+                  },
+                });
+              }}
+            />
+          </FormGroup>
+        )}
+
+        <ActionGroup>
+          <Button
+            icon={indicators.isPending && <Spin />}
+            onClick={() => onSubmit(inputValue)}
+          >
+            Confirm
+          </Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </ActionGroup>
+        {indicators.isError && (
+          <Alert
+            type="error"
+            description={indicators.error?.message}
+            closable
+            onClose={indicators.clearErrors}
+          />
+        )}
+      </Form>
+    </Modal>
+  );
+};

@@ -1,6 +1,6 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
-import { isEmpty } from "lodash";
+import { create, isEmpty } from "lodash";
 import { useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -22,6 +22,7 @@ export const useFolderOperations = (
   origin: OriginState,
   computedPath?: string, // This path is passed to for file upload and folder uploads in the library
   folderList?: FileBrowserFolderList,
+  createFeed?: boolean,
 ) => {
   const { handleOrigin, invalidateQueries } = useOperationsContext();
   const router = useContext(MainRouterContext);
@@ -46,12 +47,36 @@ export const useFolderOperations = (
     }
   };
 
+  const getCurrentTimestamp = () => {
+    const timestamp = new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    return `${timestamp.replace(/[^a-zA-Z0-9]/g, "_")}`;
+  };
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     handleOrigin(origin);
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
+    const uniqueName = getCurrentTimestamp();
+
+    const currentPath = createFeed
+      ? `home/${username}/uploads/${uniqueName}`
+      : computedPath;
+
     dispatch(
-      startUpload({ files, isFolder: false, currentPath: `${computedPath}` }),
+      startUpload({
+        files,
+        isFolder: false,
+        currentPath: currentPath as string,
+        invalidateFunc: invalidateQueries,
+        createFeed,
+      }),
     );
     resetInputField(fileInput);
   };
@@ -60,11 +85,18 @@ export const useFolderOperations = (
     handleOrigin(origin);
     const fileList = e.target.files || [];
     const files = Array.from(fileList);
+    const uniqueName = getCurrentTimestamp();
+
+    const currentPath = createFeed
+      ? `home/${username}/uploads/${uniqueName}`
+      : computedPath;
     dispatch(
       startUpload({
         files,
         isFolder: true,
-        currentPath: computedPath as string,
+        currentPath: currentPath as string,
+        invalidateFunc: invalidateQueries,
+        createFeed,
       }),
     );
     resetInputField(folderInput);

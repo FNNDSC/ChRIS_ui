@@ -77,6 +77,8 @@ export interface UploadPayload {
   files: File[];
   isFolder: boolean;
   currentPath: string;
+  invalidateFunc: () => void;
+  createFeed?: boolean;
 }
 
 export type OperationPayload = {

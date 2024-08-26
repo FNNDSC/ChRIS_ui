@@ -183,89 +183,102 @@ const Cart = () => {
       <List
         className="operation-cart"
         dataSource={Object.entries(fileUploadStatus)}
-        renderItem={([name, status]) => (
-          <List.Item
-            key={name}
-            actions={[
-              <div key={`status-${name}`}>
-                {<TitleNameClipped value={35} name={status.currentStep} />}
-              </div>,
-              status.progress === 100 ||
-              status.currentStep === "UploadComplete" ? (
-                <CheckCircleIcon
-                  key={`anon-${name}-progress`}
-                  color="#3E8635"
-                  width="2em"
-                  height="2em"
-                />
-              ) : status.currentStep.includes("Cancelled") ||
-                status.currentStep.startsWith("Error") ? (
-                <CloseIcon
-                  color="red"
-                  width="2em"
-                  height="2em"
-                  key={`anon-${name}-cancel`}
-                />
-              ) : (
-                <ProgressRing
-                  key={`anon-${name}-progress`}
-                  value={status.progress}
-                />
-              ),
-              <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
-              <Button
-                onClick={() => {
-                  if (status.currentStep === "Uploading...") {
-                    dispatch(
-                      cancelUpload({
-                        type: status.type,
-                        id: name,
-                      }),
-                    );
-                  } else {
-                    dispatch(
-                      clearUploadState({
-                        type: status.type,
-                        id: name,
-                      }),
-                    );
-                  }
-                }}
-                variant="secondary"
-                size="sm"
-                key={`a-${name}`}
-              >
-                {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
-              </Button>,
-            ]}
-          >
-            <List.Item.Meta
-              avatar={<FileIcon />}
-              title={<TitleNameClipped name={name} value={30} />}
-            />
-          </List.Item>
-        )}
-      />
-
-      <List
-        className="operation-cart"
-        dataSource={Object.entries(folderUploadStatus)}
         renderItem={([name, status]) => {
+          const isError =
+            status.currentStep.includes("Cancelled") ||
+            status.currentStep.startsWith("Error");
+          const isComplete =
+            status.progress === 100 && status.currentStep === "Upload Complete";
           return (
             <List.Item
               key={name}
               actions={[
-                <div key={`anon-${name}-progress`}>{status.currentStep}</div>,
-                status.done === status.total ||
-                status.currentStep === "UploadComplete" ? (
+                <div key={`status-${name}`}>
+                  {<TitleNameClipped value={35} name={status.currentStep} />}
+                </div>,
+                isComplete ? (
                   <CheckCircleIcon
                     key={`anon-${name}-progress`}
                     color="#3E8635"
                     width="2em"
                     height="2em"
                   />
-                ) : status.currentStep.includes("Cancelled") ||
-                  status.currentStep.startsWith("Error") ? (
+                ) : isError ? (
+                  <CloseIcon
+                    color="red"
+                    width="2em"
+                    height="2em"
+                    key={`anon-${name}-cancel`}
+                  />
+                ) : (
+                  <ProgressRing
+                    key={`anon-${name}-progress`}
+                    value={status.progress}
+                  />
+                ),
+                <ShowInFolder
+                  isError={isError}
+                  key={`anon-${name}-show`}
+                  path={status.path}
+                />,
+                <Button
+                  onClick={() => {
+                    if (status.currentStep === "Uploading...") {
+                      dispatch(
+                        cancelUpload({
+                          type: status.type,
+                          id: name,
+                        }),
+                      );
+                    } else {
+                      dispatch(
+                        clearUploadState({
+                          type: status.type,
+                          id: name,
+                        }),
+                      );
+                    }
+                  }}
+                  variant="secondary"
+                  size="sm"
+                  key={`a-${name}`}
+                >
+                  {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
+                </Button>,
+              ]}
+            >
+              <List.Item.Meta
+                avatar={<FileIcon />}
+                title={<TitleNameClipped name={name} value={30} />}
+              />
+            </List.Item>
+          );
+        }}
+      />
+
+      <List
+        className="operation-cart"
+        dataSource={Object.entries(folderUploadStatus)}
+        renderItem={([name, status]) => {
+          const isError =
+            status.currentStep.includes("Cancelled") ||
+            status.currentStep.startsWith("Error");
+          const isComplete =
+            status.done === status.total &&
+            status.currentStep === "Upload Complete";
+          return (
+            <List.Item
+              key={name}
+              actions={[
+                <div key={`anon-${name}-progress`}>{status.currentStep}</div>,
+                isComplete ? (
+                  <CheckCircleIcon
+                    key={`anon-${name}-progress`}
+                    color="#3E8635"
+                    width="2em"
+                    height="2em"
+                  />
+                ) : isError ? (
                   <CloseIcon
                     color="red"
                     width="2em"
@@ -277,7 +290,11 @@ const Cart = () => {
                     {status.done}/{status.total}
                   </div>
                 ),
-                <ShowInFolder key={`anon-${name}-show`} path={status.path} />,
+                <ShowInFolder
+                  isError={isError}
+                  key={`anon-${name}-show`}
+                  path={status.path}
+                />,
                 <Button
                   onClick={() => {
                     if (status.currentStep === "Uploading...") {

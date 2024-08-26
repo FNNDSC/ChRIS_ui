@@ -153,12 +153,16 @@ export function TitleNameClipped({
   );
 }
 
-export function ShowInFolder({ path }: { path: string }) {
+export function ShowInFolder({
+  path,
+  isError,
+}: { path: string; isError: boolean }) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   return (
     <Tooltip content={"Show in Folder"}>
       <Button
+        isDisabled={isError}
         onClick={() => {
           navigate(`/library/${path}`);
           // Close the cart once the user wants to navigate away

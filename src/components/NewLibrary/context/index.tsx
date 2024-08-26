@@ -48,6 +48,7 @@ export const OperationsProvider: React.FC<
     const type = originRef.current?.type;
 
     if (!type) return;
+
     switch (type) {
       case OperationContext.LIBRARY:
         queryClient.refetchQueries({
