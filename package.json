@@ -25,7 +25,7 @@
     "minichris:down": "cd testing/miniChRIS && ./unmake.sh",
     "minichris:wipe": "./testing/miniChRIS/scripts/clear_pacsfiles.sh",
     "chrisomatic": "testing/chrisomatic.sh",
-    "get-dicoms": "./testing/get_dicoms.sh",
+    "get-dicoms": "./testing/getDicoms.mjs",
     "list-mrns": "./testing/miniChRIS/scripts/list_mrns.sh",
     "lint": "biome lint .",
     "fix": "biome check --apply .",
