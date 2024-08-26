@@ -34,7 +34,7 @@
     "preview": "vite preview",
     "__helper_functions": "",
     "get-running-url": "./testing/get_running_url.sh",
-    "print-version": "./print_version.sh"
+    "print-version": "node printVersion.js"
   },
   "dependencies": {
     "@biomejs/biome": "^1.8.3",
