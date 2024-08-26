@@ -363,9 +363,13 @@ export const ClipboardCopyFixed = ({
   );
 };
 
-export const getIcon = (type: string, isDarkTheme: boolean) => {
+export const getIcon = (
+  type: string,
+  isDarkTheme: boolean,
+  customStyle?: React.CSSProperties,
+) => {
   const color = isDarkTheme ? "#FFFFFF" : "#000000"; // white for dark theme, black for light theme
-  const iconStyle = { color };
+  const iconStyle = { color, ...customStyle };
   switch (type.toLowerCase()) {
     case "dir":
       return <FolderIcon style={iconStyle} />;
