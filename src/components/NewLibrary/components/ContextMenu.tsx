@@ -31,7 +31,12 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     contextHolder,
     setUserErrors,
     setModalInfo,
-  } = useFolderOperations(origin, computedPath, folderList);
+  } = useFolderOperations(
+    origin,
+    computedPath,
+    folderList,
+    location.pathname === "/feeds",
+  );
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },

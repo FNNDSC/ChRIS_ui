@@ -48,12 +48,15 @@ const isFileBrowserFolder = (payload: any): payload is FileBrowserFolder => {
   return (payload as FileBrowserFolder).data?.path !== undefined;
 };
 
-export async function createFeed(path: string[], feedName: string) {
+export async function createFeed(
+  path: string[],
+  feedName: string,
+  invalidateFunc?: () => void,
+) {
   const client = ChrisAPIClient.getClient();
   const dircopy: Plugin | undefined = (await getPlugin("pl-dircopy")) as
     | Plugin
     | undefined;
-
   if (!dircopy) {
     throw new Error("pl-dircopy was not registered");
   }
@@ -62,16 +65,16 @@ export async function createFeed(path: string[], feedName: string) {
     //@ts-ignore
     { dir: path.length > 0 ? path.join(",") : path[0] },
   )) as PluginInstance;
-
   if (!createdInstance) {
     throw new Error("Failed to create an instance of pl-dircopy");
   }
-
   const feed = (await createdInstance.getFeed()) as Feed;
   if (!feed) {
     throw new Error("Failed to create a Feed");
   }
   await feed.put({ name: feedName });
+  //invalidate the ui page if the feed is created. Do this only if invalidate func is passed in.
+  invalidateFunc?.();
   return { createdInstance, feed };
 }
 

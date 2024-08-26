@@ -16,6 +16,7 @@ import type {
   FolderUploadObject,
   UploadPayload,
 } from "./types";
+import { createFeed } from "./downloadSaga";
 
 function createUploadChannel(config: any) {
   return eventChannel((emitter) => {
@@ -73,6 +74,8 @@ function* uploadFileBatch(
   currentPath: string,
   isFolder: boolean,
   batchSize: number,
+  invalidateFunc: () => void,
+  shouldCreateFeed?: boolean,
 ) {
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
   const firstBatch = files.slice(0, 1); // First batch with 1 file
@@ -89,41 +92,25 @@ function* uploadFileBatch(
   if (isFolder) {
     // Immediately show the upload status for folders, as calculating the status for batched uploads may take time,
     // and the UI won't provide any notification during that period.
-    const name = files[0].webkitRelativePath;
-    const fileName = name.split("/")[0];
-    yield put(
-      setFolderUploadStatus({
-        step: "Upload Started",
-        fileName: fileName,
-        totalCount: totalFiles,
-        currentCount: uploadedFilesCount,
-        controller: folderController,
-        path: currentPath,
-        type: "folder",
-      }),
+    yield call(
+      setInitialFolderUploadStatus,
+      files[0],
+      totalFiles,
+      currentPath,
+      folderController,
     );
   }
   for (const batch of batches) {
     yield all(
       batch.map((file) => {
-        const formData = new FormData();
-        const name = isFolder ? file.webkitRelativePath : file.name;
-        const path = `${currentPath}/${name}`;
-
-        formData.append("upload_path", path);
-        formData.append("fname", file, name);
-
-        const controller = new AbortController();
-
-        const config = {
-          headers: { Authorization: `Token ${client.auth.token}` },
-          signal: isFolder ? folderController.signal : controller.signal,
-          url,
-          data: formData,
-        };
-
+        const { formData, name, controller } = prepareUploadData(
+          file,
+          currentPath,
+          isFolder,
+          folderController,
+        );
+        const config = createUploadConfig(client, url, formData, controller);
         const uploadChannel: EventChannel<any> = createUploadChannel(config);
-
         return call(function* () {
           try {
             while (true) {
@@ -132,29 +119,13 @@ function* uploadFileBatch(
 
               if (cancelled) {
                 cancelledUploads = true;
-                yield put(
-                  isFolder
-                    ? setFolderUploadStatus({
-                        step: errorOccurred
-                          ? `Error: ${lastError}`
-                          : "Upload Cancelled",
-                        fileName: name.split("/")[0],
-                        totalCount: totalFiles,
-                        currentCount: uploadedFilesCount,
-                        controller: null,
-                        path: currentPath,
-                        type: "folder",
-                      })
-                    : setFileUploadStatus({
-                        step: errorOccurred
-                          ? `Error: ${lastError}`
-                          : "Upload Cancelled",
-                        fileName: name,
-                        progress: progress || 0,
-                        controller: null,
-                        path: currentPath,
-                        type: "file",
-                      }),
+                yield call(
+                  handleUploadError,
+                  isFolder,
+                  name,
+                  currentPath,
+                  errorOccurred,
+                  lastError,
                 );
                 break;
               }
@@ -168,15 +139,13 @@ function* uploadFileBatch(
                   isFolder && folderController.abort();
                   if (!isFolder) {
                     // No need to manually cancel the upload for a single file as the request will fail.
-                    yield put(
-                      setFileUploadStatus({
-                        step: `Error: ${lastError}`,
-                        fileName: name,
-                        progress: progress || 0,
-                        controller: null,
-                        path: currentPath,
-                        type: "file",
-                      }),
+                    yield call(
+                      handleUploadError,
+                      isFolder,
+                      name,
+                      currentPath,
+                      false,
+                      lastError,
                     );
                   }
                   break;
@@ -184,18 +153,15 @@ function* uploadFileBatch(
               }
 
               if (progress !== undefined && !isFolder && !cancelled && !error) {
-                yield put(
-                  setFileUploadStatus({
-                    step:
-                      progress === 100 && response
-                        ? "Upload Complete"
-                        : "Uploading...",
-                    fileName: name,
-                    progress: progress,
-                    controller,
-                    path: currentPath,
-                    type: "file",
-                  }),
+                yield call(
+                  updateFileUploadStatus,
+                  name,
+                  progress,
+                  response,
+                  currentPath,
+                  controller,
+                  invalidateFunc,
+                  shouldCreateFeed,
                 );
               }
 
@@ -212,23 +178,16 @@ function* uploadFileBatch(
 
     if (!cancelledUploads) {
       uploadedFilesCount += batch.length;
-
       if (isFolder) {
-        const name = files[0].webkitRelativePath;
-        const fileName = name.split("/")[0];
-        yield put(
-          setFolderUploadStatus({
-            step:
-              uploadedFilesCount === totalFiles
-                ? "Upload Complete"
-                : "Uploading...",
-            fileName: fileName,
-            totalCount: totalFiles,
-            currentCount: uploadedFilesCount,
-            controller: folderController,
-            path: currentPath,
-            type: "folder",
-          }),
+        yield call(
+          updateFolderUploadStatus,
+          files[0],
+          totalFiles,
+          uploadedFilesCount,
+          currentPath,
+          folderController,
+          invalidateFunc,
+          shouldCreateFeed,
         );
       }
     }
@@ -236,11 +195,26 @@ function* uploadFileBatch(
 }
 
 function* handleUpload(action: IActionTypeParam) {
-  const { files, isFolder, currentPath }: UploadPayload = action.payload;
+  const {
+    files,
+    isFolder,
+    currentPath,
+    createFeed,
+    invalidateFunc,
+  }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
   const batchSize = files.length > 500 ? 100 : 50; // Adjust the batch size as needed
 
-  yield call(uploadFileBatch, client, files, currentPath, isFolder, batchSize);
+  yield call(
+    uploadFileBatch,
+    client,
+    files,
+    currentPath,
+    isFolder,
+    batchSize,
+    invalidateFunc,
+    createFeed,
+  );
 }
 
 export function* watchUpload() {
@@ -267,4 +241,187 @@ export function* watchCancelUpload() {
       }
     }
   });
+}
+
+/***************************************************************** */
+/** Utility Functions for upload files and folders with redux saga  */
+/***************************************************************** */
+
+function* setInitialFolderUploadStatus(
+  file: File,
+  totalFiles: number,
+  currentPath: string,
+  controller: AbortController,
+) {
+  const name = file.webkitRelativePath;
+  const fileName = name.split("/")[0];
+  yield put(
+    setFolderUploadStatus({
+      step: "Upload Started",
+      fileName,
+      totalCount: totalFiles,
+      currentCount: 0,
+      controller,
+      path: currentPath,
+      type: "folder",
+    }),
+  );
+}
+
+function* handleUploadError(
+  isFolder: boolean,
+  name: string,
+  currentPath: string,
+  cancelledDueToError: boolean,
+  error_message: string,
+) {
+  const step = cancelledDueToError
+    ? `Error: ${error_message}`
+    : "Upload Cancelled";
+  const action = isFolder
+    ? setFolderUploadStatus({
+        step,
+        fileName: name.split("/")[0],
+        totalCount: 0,
+        currentCount: 0,
+        controller: null,
+        path: currentPath,
+        type: "folder",
+      })
+    : setFileUploadStatus({
+        step,
+        fileName: name,
+        progress: 0,
+        controller: null,
+        path: currentPath,
+        type: "file",
+      });
+  yield put(action);
+}
+
+function* updateFileUploadStatus(
+  name: string,
+  progress: number,
+  response: any,
+  currentPath: string,
+  controller: AbortController,
+  invalidateFunc: () => void,
+  shouldCreateFeed?: boolean,
+) {
+  const isDone = progress === 100;
+  const step = isDone && response ? "Upload Complete" : "Uploading...";
+
+  // Invalidate the ui page if the file upload is complete
+  isDone && !shouldCreateFeed && invalidateFunc();
+  yield put(
+    setFileUploadStatus({
+      step,
+      fileName: name,
+      progress,
+      controller,
+      path: currentPath,
+      type: "file",
+    }),
+  );
+
+  if (isDone && response && shouldCreateFeed) {
+    try {
+      yield call(
+        createFeed,
+        [currentPath],
+        `Library upload for ${name}`,
+        invalidateFunc,
+      );
+    } catch (e) {
+      yield put(
+        setFileUploadStatus({
+          step: "Error: Failed to create a feed",
+          fileName: name,
+          progress,
+          controller: null,
+          path: currentPath,
+          type: "file",
+        }),
+      );
+    }
+  }
+}
+
+function* updateFolderUploadStatus(
+  file: File,
+  totalFiles: number,
+  uploadedFilesCount: number,
+  currentPath: string,
+  controller: AbortController,
+  invalidateFunc: () => void,
+  shouldCreateFeed?: boolean,
+) {
+  const name = file.webkitRelativePath;
+  const fileName = name.split("/")[0];
+  const path = `${currentPath}/${name}`;
+  const uploadDone = uploadedFilesCount === totalFiles;
+  try {
+    if (uploadDone && shouldCreateFeed) {
+      yield call(
+        createFeed,
+        [path],
+        `Library upload for ${fileName}`,
+        invalidateFunc,
+      );
+    }
+    //invalidate the ui page if the upload is complete
+    uploadDone && !shouldCreateFeed && invalidateFunc();
+    yield put(
+      setFolderUploadStatus({
+        step: uploadDone ? "Upload Complete" : "Uploading...",
+        fileName,
+        totalCount: totalFiles,
+        currentCount: uploadedFilesCount,
+        controller,
+        path: currentPath,
+        type: "folder",
+      }),
+    );
+  } catch (e) {
+    yield put(
+      setFolderUploadStatus({
+        step: "Error: Failed to create a feed",
+        fileName,
+        totalCount: totalFiles,
+        currentCount: uploadedFilesCount,
+        controller: null,
+        path: currentPath,
+        type: "folder",
+      }),
+    );
+  }
+}
+
+function prepareUploadData(
+  file: File,
+  currentPath: string,
+  isFolder: boolean,
+  folderController: AbortController,
+) {
+  const formData = new FormData();
+  const name = isFolder ? file.webkitRelativePath : file.name;
+  const path = `${currentPath}/${name}`;
+  formData.append("upload_path", path);
+  formData.append("fname", file, name);
+  const controller = isFolder ? folderController : new AbortController();
+  return { formData, name, path, controller };
+}
+
+function createUploadConfig(
+  client: Client,
+  url: string,
+  formData: FormData,
+  controller: AbortController,
+) {
+  return {
+    headers: { Authorization: `Token ${client.auth.token}` },
+    signal: controller.signal,
+    url,
+    data: formData,
+  };
 }
