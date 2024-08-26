@@ -1,9 +1,9 @@
 import { test, expect } from "./fixtures/loggedIn.ts";
 import { faker } from "@faker-js/faker";
 import createFeed from "./helpers/createFeedHelper.ts";
-import path from "path";
+import getProjectFile from "./helpers/projectFile.ts";
 
-const SOME_FILE = path.join(__dirname, "..", "package-lock.json");
+const SOME_FILE = getProjectFile("package-lock.json");
 
 test("Can create a feed", async ({ page }) => {
   test.slow();
