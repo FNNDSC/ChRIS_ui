@@ -26,7 +26,6 @@ export default defineConfig({
       // workaround for "Cornerstone3D tools does not build with vite"
       // https://github.com/cornerstonejs/cornerstone3D/issues/1071
       "@cornerstonejs/tools": "@cornerstonejs/tools/dist/umd/index.js",
-      "fs": require.resolve("rollup-plugin-node-builtins")
     },
   },
 });

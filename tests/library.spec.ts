@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures/loggedIn.ts";
-import path from "path";
+import getProjectFile from "./helpers/projectFile.ts";
 
 test("Tests File Uploads", async ({ page }) => {
   //Avoids timeouts.
@@ -28,7 +28,7 @@ test("Tests File Uploads", async ({ page }) => {
     await page.getByRole("button", { name: /upload files/i }).click();
     const fileChooser = await fileChooserPromise;
 
-    const SOME_FILE = path.join(__dirname, "..", "package-lock.json");
+    const SOME_FILE = getProjectFile("package-lock.json");
     await fileChooser.setFiles(SOME_FILE);
 
     await page.waitForSelector("input[name='horizontal-form-name']");
