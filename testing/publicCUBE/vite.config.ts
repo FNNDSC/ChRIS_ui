@@ -5,6 +5,6 @@ import viteConfig from "../../vite.config";
 export default mergeConfig(viteConfig, {
   envDir: "./testing/publicCUBE",
   server: {
-    port: 25173
-  }
+    port: 25173,
+  },
 });

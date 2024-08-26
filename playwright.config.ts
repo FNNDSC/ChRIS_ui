@@ -2,34 +2,30 @@
 
 import { defineConfig, devices, PlaywrightTestConfig } from "@playwright/test";
 
-const SHOULD_TEST_SAFARI = getBoolEnvVar('TEST_SAFARI');
-const SHOULD_TEST_LOCALLY = getBoolEnvVar('TEST_LOCAL');
+const SHOULD_TEST_SAFARI = getBoolEnvVar("TEST_SAFARI");
+const SHOULD_TEST_LOCALLY = getBoolEnvVar("TEST_LOCAL");
 
 /**
-  * List of browsers to test against.
-  * 
-  * - Use Safari if indicated by `TEST_SAFARI=y`
-  * - Use only one browser (Desktop Chrome) if testing locally. Tests against a local
-  *   backend use features which modify global state, so we can only use one browser.
-  * - Use multiple browsers and mobile browsers if testing against the public testing server.
-  */
+ * List of browsers to test against.
+ *
+ * - Use Safari if indicated by `TEST_SAFARI=y`
+ * - Use only one browser (Desktop Chrome) if testing locally. Tests against a local
+ *   backend use features which modify global state, so we can only use one browser.
+ * - Use multiple browsers and mobile browsers if testing against the public testing server.
+ */
 const BROWSERS: PlaywrightTestConfig["projects"] = [];
 
 if (SHOULD_TEST_LOCALLY) {
   if (SHOULD_TEST_SAFARI) {
-    BROWSERS.push(
-      {
-        name: 'webkit',
-        use: { ...devices['Desktop Safari'] },
-      },
-    );
+    BROWSERS.push({
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    });
   } else {
-    BROWSERS.push(
-      {
-        name: "chromium",
-        use: { ...devices["Desktop Chrome"] },
-      },
-    );
+    BROWSERS.push({
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    });
   }
 } else {
   BROWSERS.push(
@@ -38,23 +34,23 @@ if (SHOULD_TEST_LOCALLY) {
       use: { ...devices["Desktop Chrome"] },
     },
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
     },
     {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 5"] },
     },
   );
   if (SHOULD_TEST_SAFARI) {
     BROWSERS.push(
       {
-        name: 'webkit',
-        use: { ...devices['Desktop Safari'] },
+        name: "webkit",
+        use: { ...devices["Desktop Safari"] },
       },
       {
-        name: 'Mobile Safari',
-        use: { ...devices['iPhone 12'] },
+        name: "Mobile Safari",
+        use: { ...devices["iPhone 12"] },
       },
     );
   }
@@ -63,7 +59,7 @@ if (SHOULD_TEST_LOCALLY) {
 /**
  * Name of a npm script which starts a UI development server.
  */
-const UI_SCRIPT = SHOULD_TEST_LOCALLY ? 'dev' : 'dev:public';
+const UI_SCRIPT = SHOULD_TEST_LOCALLY ? "dev" : "dev:public";
 /**
  * Port number (on localhost) for the server created by {@link UI_SCRIPT}
  */
@@ -74,7 +70,7 @@ const UI_PORT = SHOULD_TEST_LOCALLY ? 5173 : 25173;
  */
 export default defineConfig({
   /* A script which deletes the previous coverage data */
-  globalSetup: require.resolve('./deleteCoverageData'),
+  globalSetup: "./deleteCoverageData.ts",
 
   testDir: "./tests",
   /* The base directory, relative to the config file, for snapshot files created with toMatchSnapshot and toHaveScreenshot. */
@@ -103,8 +99,8 @@ export default defineConfig({
   webServer: {
     command: `env USE_BABEL_PLUGIN_ISTANBUL=y CI=true npm run ${UI_SCRIPT}`,
     url: `http://localhost:${UI_PORT}`,
-    reuseExistingServer:true,
-    timeout: SHOULD_TEST_LOCALLY ? 5 * 60_000 : 60_000  // more time is needed for local testing web server, to download container images and example data
+    reuseExistingServer: true,
+    timeout: SHOULD_TEST_LOCALLY ? 5 * 60_000 : 60_000, // more time is needed for local testing web server, to download container images and example data
   },
 });
 
@@ -112,5 +108,5 @@ export default defineConfig({
  * Get a boolean value from an environment variable.
  */
 function getBoolEnvVar(name: string): boolean {
-  return process.env[name]?.toLowerCase().startsWith('y') || false;
+  return process.env[name]?.toLowerCase().startsWith("y") || false;
 }
