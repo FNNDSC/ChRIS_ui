@@ -9,7 +9,14 @@ import {
   clearUploadState,
   setToggleCart,
 } from "../../../store/cart/cartSlice";
-import { DownloadTypes } from "../../../store/cart/types";
+import {
+  DownloadTypes,
+  type FileUploadObject,
+  type FolderUploadObject,
+  type FileUpload,
+  type FolderUpload,
+} from "../../../store/cart/types";
+import type { AppDispatch } from "../../../store/configureStore";
 import { useTypedSelector } from "../../../store/hooks";
 import { Drawer, List, Popconfirm, Space } from "../../Antd";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
@@ -180,155 +187,18 @@ const Cart = () => {
       )}
 
       {/** Code for File and Folder Uploads */}
-      <List
-        className="operation-cart"
-        dataSource={Object.entries(fileUploadStatus)}
-        renderItem={([name, status]) => {
-          const isError =
-            status.currentStep.includes("Cancelled") ||
-            status.currentStep.startsWith("Error");
-          const isComplete =
-            status.progress === 100 && status.currentStep === "Upload Complete";
-          return (
-            <List.Item
-              key={name}
-              actions={[
-                <div key={`status-${name}`}>
-                  {<TitleNameClipped value={35} name={status.currentStep} />}
-                </div>,
-                isComplete ? (
-                  <CheckCircleIcon
-                    key={`anon-${name}-progress`}
-                    color="#3E8635"
-                    width="2em"
-                    height="2em"
-                  />
-                ) : isError ? (
-                  <CloseIcon
-                    color="red"
-                    width="2em"
-                    height="2em"
-                    key={`anon-${name}-cancel`}
-                  />
-                ) : (
-                  <ProgressRing
-                    key={`anon-${name}-progress`}
-                    value={status.progress}
-                  />
-                ),
-                <ShowInFolder
-                  isError={isError}
-                  key={`anon-${name}-show`}
-                  path={status.path}
-                />,
-                <Button
-                  onClick={() => {
-                    if (status.currentStep === "Uploading...") {
-                      dispatch(
-                        cancelUpload({
-                          type: status.type,
-                          id: name,
-                        }),
-                      );
-                    } else {
-                      dispatch(
-                        clearUploadState({
-                          type: status.type,
-                          id: name,
-                        }),
-                      );
-                    }
-                  }}
-                  variant="secondary"
-                  size="sm"
-                  key={`a-${name}`}
-                >
-                  {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
-                </Button>,
-              ]}
-            >
-              <List.Item.Meta
-                avatar={<FileIcon />}
-                title={<TitleNameClipped name={name} value={30} />}
-              />
-            </List.Item>
-          );
-        }}
+
+      <UploadList
+        uploadStatus={fileUploadStatus}
+        type="file"
+        dispatch={dispatch}
+      />
+      <UploadList
+        uploadStatus={folderUploadStatus}
+        type="folder"
+        dispatch={dispatch}
       />
 
-      <List
-        className="operation-cart"
-        dataSource={Object.entries(folderUploadStatus)}
-        renderItem={([name, status]) => {
-          const isError =
-            status.currentStep.includes("Cancelled") ||
-            status.currentStep.startsWith("Error");
-          const isComplete =
-            status.done === status.total &&
-            status.currentStep === "Upload Complete";
-          return (
-            <List.Item
-              key={name}
-              actions={[
-                <div key={`anon-${name}-progress`}>{status.currentStep}</div>,
-                isComplete ? (
-                  <CheckCircleIcon
-                    key={`anon-${name}-progress`}
-                    color="#3E8635"
-                    width="2em"
-                    height="2em"
-                  />
-                ) : isError ? (
-                  <CloseIcon
-                    color="red"
-                    width="2em"
-                    height="2em"
-                    key={`anon-${name}-cancel`}
-                  />
-                ) : (
-                  <div key={`anon-${name}-progress`}>
-                    {status.done}/{status.total}
-                  </div>
-                ),
-                <ShowInFolder
-                  isError={isError}
-                  key={`anon-${name}-show`}
-                  path={status.path}
-                />,
-                <Button
-                  onClick={() => {
-                    if (status.currentStep === "Uploading...") {
-                      dispatch(
-                        cancelUpload({
-                          type: status.type,
-                          id: name,
-                        }),
-                      );
-                    } else {
-                      dispatch(
-                        clearUploadState({
-                          type: status.type,
-                          id: name,
-                        }),
-                      );
-                    }
-                  }}
-                  variant="secondary"
-                  size="sm"
-                  key={`a-${name}`}
-                >
-                  {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
-                </Button>,
-              ]}
-            >
-              <List.Item.Meta
-                avatar={<FolderIcon />}
-                title={<TitleNameClipped name={name} value={30} />}
-              />
-            </List.Item>
-          );
-        }}
-      />
       {isEmpty(folderUploadStatus) &&
         isEmpty(fileUploadStatus) &&
         isEmpty(fileDownloadStatus) &&
@@ -341,6 +211,9 @@ const Cart = () => {
 
 export default Cart;
 
+/************************************************ */
+/*  Utility Components for the cart                */
+/*********************************************** */
 export const Status = ({
   currentStatus,
 }: {
@@ -366,4 +239,115 @@ export const Status = ({
     default:
       return currentStatus ? <DotsIndicator title={step} /> : null;
   }
+};
+
+type UploadStatusProp = FileUpload | FolderUpload;
+interface UploadListProps {
+  uploadStatus: UploadStatusProp;
+  type: "file" | "folder";
+  dispatch: AppDispatch;
+}
+const UploadList: React.FC<UploadListProps> = ({
+  uploadStatus,
+  type,
+  dispatch,
+}) => (
+  <List
+    className="operation-cart"
+    dataSource={Object.entries(uploadStatus)}
+    renderItem={([name, status]) => (
+      <UploadStatus
+        status={status}
+        type={type}
+        name={name}
+        dispatch={dispatch}
+      />
+    )}
+  />
+);
+
+interface UploadStatusProps {
+  status: FileUploadObject | FolderUploadObject;
+  type: "file" | "folder";
+  name: string;
+  dispatch: AppDispatch;
+}
+const UploadStatus: React.FC<UploadStatusProps> = ({
+  status,
+  type,
+  name,
+  dispatch,
+}) => {
+  const isError =
+    status.currentStep.includes("Cancelled") ||
+    status.currentStep.startsWith("Error");
+  const isComplete =
+    type === "file"
+      ? (status as FileUploadObject).progress === 100 &&
+        status.currentStep === "Upload Complete"
+      : (status as FolderUploadObject).done ===
+          (status as FolderUploadObject).total &&
+        status.currentStep === "Upload Complete";
+
+  const handleAction = () => {
+    if (status.currentStep === "Uploading...") {
+      dispatch(cancelUpload({ type, id: name }));
+    } else {
+      dispatch(clearUploadState({ type, id: name }));
+    }
+  };
+
+  return (
+    <List.Item
+      key={name}
+      actions={[
+        <div key={`status-${name}`}>
+          <TitleNameClipped value={35} name={status.currentStep} />
+        </div>,
+        isComplete ? (
+          <CheckCircleIcon
+            key={`anon-${name}-progress`}
+            color="#3E8635"
+            width="2em"
+            height="2em"
+          />
+        ) : isError ? (
+          <CloseIcon
+            color="red"
+            width="2em"
+            height="2em"
+            key={`anon-${name}-cancel`}
+          />
+        ) : type === "file" ? (
+          <ProgressRing
+            key={`anon-${name}-progress`}
+            value={(status as FileUploadObject).progress}
+          />
+        ) : (
+          <div key={`anon-${name}-progress`}>
+            {(status as FolderUploadObject).done}/
+            {(status as FolderUploadObject).total}
+          </div>
+        ),
+        <ShowInFolder
+          isError={isError}
+          key={`anon-${name}-show`}
+          path={status.path}
+        />,
+        <Button
+          onClick={handleAction}
+          variant="secondary"
+          size="sm"
+          key={`a-${name}`}
+        >
+          {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
+        </Button>,
+      ]}
+    >
+      <List.Item.Meta
+        avatar={type === "file" ? <FileIcon /> : <FolderIcon />}
+        title={<TitleNameClipped name={name} value={30} />}
+      />
+    </List.Item>
+  );
 };
