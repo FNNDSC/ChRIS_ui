@@ -85,6 +85,24 @@ function* uploadFileBatch(
   let lastError = "";
 
   const folderController = new AbortController();
+  // Immediately set a status to indicate that the upload has started
+  if (isFolder) {
+    // Immediately show the upload status for folders, as calculating the status for batched uploads may take time,
+    // and the UI won't provide any notification during that period.
+    const name = files[0].webkitRelativePath;
+    const fileName = name.split("/")[0];
+    yield put(
+      setFolderUploadStatus({
+        step: "Upload Started",
+        fileName: fileName,
+        totalCount: totalFiles,
+        currentCount: uploadedFilesCount,
+        controller: folderController,
+        path: currentPath,
+        type: "folder",
+      }),
+    );
+  }
   for (const batch of batches) {
     yield all(
       batch.map((file) => {
@@ -96,6 +114,7 @@ function* uploadFileBatch(
         formData.append("fname", file, name);
 
         const controller = new AbortController();
+
         const config = {
           headers: { Authorization: `Token ${client.auth.token}` },
           signal: isFolder ? folderController.signal : controller.signal,
