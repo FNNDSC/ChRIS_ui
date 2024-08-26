@@ -139,6 +139,13 @@ const Store = () => {
   };
 
   const handleInstall = async (selectedPlugin: Plugin) => {
+    const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
+      "/api/v1/",
+      "/chris-admin/api/v1/",
+    );
+    if (!adminURL)
+      throw new Error("Please provide a link to your chris-admin url");
+
     const client = ChrisAPIClient.getClient();
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
     const nonAdminCredentials = `Token ${client.auth.token}`;
