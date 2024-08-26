@@ -60,11 +60,15 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     [number, number]
   >([400, 400]);
 
-  const baseTextHeight = isScaling
-    ? 0.06
-    : textHeightModel(canvasWidth, canvasHeight);
-  const textHeight = ((size || 10) / 10) * baseTextHeight;
-  const fullOptions = options ? { ...options, textHeight } : { textHeight };
+  const fullOptions = React.useMemo(() => {
+    // set textHeight.
+    // Internal to niivue, the font size scales with the outer canvas size.
+    // To undo this effect, we need to divide by the canvas' width or height.
+    // See https://github.com/niivue/niivue/issues/857
+    const multiplier = 2 / (isScaling ? Math.min(canvasWidth, canvasHeight) : 800);
+    const textHeight = multiplier * (size || 10);
+    return options ? { ...options, textHeight } : { textHeight };
+  }, [options, size, isScaling, canvasWidth, canvasHeight]);
 
   const fullOnStart = (nv: Niivue) => {
     if (onLocationChange) {
@@ -98,25 +102,6 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     </div>
   );
 };
-
-/**
- * A piecewise linear function which produces a value for `textHeight` that
- * results in Niivue drawing its font size to be approximately the same as
- * web default font size.
- */
-function textHeightModel(canvasWidth: number, canvasHeight: number): number {
-  const shortestDimension = Math.min(canvasWidth, canvasHeight);
-  if (shortestDimension < 400) {
-    return 0.05;
-  }
-  if (shortestDimension < 800) {
-    return -5e-5 * shortestDimension + 0.07;
-  }
-  if (shortestDimension < 1600) {
-    return -1.25e-5 * shortestDimension + 0.04;
-  }
-  return 0.02;
-}
 
 export type { CrosshairLocation };
 export default SizedNiivueCanvas;
