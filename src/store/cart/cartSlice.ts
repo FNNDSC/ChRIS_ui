@@ -171,6 +171,17 @@ const cartSlice = createSlice({
         ),
       );
     },
+
+    clearCartOnLogout(state) {
+      // If the user log's out, wipe the state clean so the the notification cart does not persist between multiple user logins
+
+      state.selectedPaths = [];
+      state.fileDownloadStatus = {};
+      state.folderUploadStatus = {};
+      state.fileDownloadStatus = {};
+      state.folderDownloadStatus = {};
+    },
+
     cancelUpload(
       _state,
       _action: PayloadAction<{ type: string; id: string }>,
@@ -196,6 +207,7 @@ export const {
   removeSelectedPayload,
   clearUploadState,
   clearCart,
+  clearCartOnLogout,
   cancelUpload,
   clearFeedCreationStatus,
   startDownload,

@@ -16,15 +16,15 @@ import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { onDropdownSelect } from "../../store/ui/uiSlice";
 import { setLogoutSuccess } from "../../store/user/userSlice";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
 import CartNotify from "./CartNotify";
+import { clearCartOnLogout } from "../../store/cart/cartSlice";
 
 type ToolbarComponentProps = {
   showToolbar: boolean;
-  token: string;
+  token?: string | null;
 };
 
 const ToolbarComponent: React.FC<ToolbarComponentProps> = (
@@ -40,17 +40,14 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
   const queryClient = useQueryClient();
   const username = useTypedSelector((state) => state.user.username);
-  const isDropdownOpen = useTypedSelector((state) => state.ui.isDropdownOpen);
-
-  const onDropdownToggle = () => {
-    dispatch(onDropdownSelect(!isDropdownOpen));
-  };
+  const [dropdownOpen, setIsDropdownOpen] = React.useState(false);
 
   const handleChange = () => {
     toggleTheme();
   };
   // Description: Logout user
   const onLogout = () => {
+    // Some additional cleanup of active resources before logging out
     queryClient.clear();
     ChrisAPIClient.setIsTokenAuthorized(false);
     removeCookie("username", {
@@ -62,7 +59,12 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
     removeCookie("isStaff", {
       path: "/",
     });
+    dispatch(clearCartOnLogout());
     dispatch(setLogoutSuccess());
+  };
+
+  const onDropdownToggle = () => {
+    setIsDropdownOpen(!dropdownOpen);
   };
 
   const copyLoginCommand = () => {
@@ -85,6 +87,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   return (
     <Toolbar className="toolbar">
       <ToolbarGroup className="feed-details">
+        {/* The Feeds View Page shows additional contents in the navigation bar */}
         {props.showToolbar && !fullScreen && <FeedDetails />}
       </ToolbarGroup>
       <ToolbarGroup className="authentication">
@@ -106,7 +109,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
             <Dropdown
               isPlain
               onSelect={() => onDropdownToggle()}
-              isOpen={isDropdownOpen}
+              isOpen={dropdownOpen}
               toggle={(toggleRef) => {
                 return (
                   <MenuToggle ref={toggleRef} onClick={onDropdownToggle}>

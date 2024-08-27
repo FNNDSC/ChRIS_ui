@@ -33,7 +33,11 @@ export default function Header(props: IHeaderProps) {
   );
 
   return (
-    <Masthead>
+    <Masthead
+      display={{
+        default: "inline",
+      }}
+    >
       <MastheadToggle>
         <PageToggleButton
           variant="plain"
