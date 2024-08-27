@@ -25,7 +25,6 @@ import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
-import { InfoIcon } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
@@ -37,50 +36,17 @@ import useLongPress from "../NewLibrary/utils/longpress";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
-import { useSearchQueryParams } from "./usePaginate";
-import {
-  fetchFeeds,
-  fetchPublicFeeds,
-  getPluginInstanceDetails,
-} from "./utilties";
+import { useFeedListData } from "./useFeedListData";
+import { getPluginInstanceDetails } from "./utilties";
 
 const { Paragraph } = Typography;
 
-const useSearchQuery = (query: URLSearchParams) => ({
-  page: query.get("page") || "1",
-  search: query.get("search") || "",
-  searchType: query.get("searchType") || "name",
-  perPage: query.get("perPage") || "16",
-  type: query.get("type") || "public",
-});
-
 const TableSelectable: React.FC = () => {
-  const query = useSearchQueryParams();
   const navigate = useNavigate();
-
-  const searchFolderData = useSearchQuery(query);
+  const { feedCount, loadingFeedState, feedsToDisplay, searchFolderData } =
+    useFeedListData();
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-
   const { perPage, page, type, search, searchType } = searchFolderData;
-
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["feeds", perPage, page, type, search, searchType],
-    queryFn: () => fetchFeeds(searchFolderData),
-    enabled: type === "private" || isLoggedIn,
-  });
-
-  const {
-    data: publicFeeds,
-    isLoading: publicFeedLoading,
-    isFetching: publicFeedFetching,
-  } = useQuery({
-    queryKey: ["publicFeeds", perPage, page, type, search, searchType],
-    queryFn: () => fetchPublicFeeds(searchFolderData),
-    enabled: type === "public" || !isLoggedIn,
-  });
-
-  const feedsToDisplay =
-    type === "private" ? data?.feeds || [] : publicFeeds?.feeds || [];
 
   const onSetPage = (
     _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
@@ -103,7 +69,7 @@ const TableSelectable: React.FC = () => {
 
   const handleFilterChange = debounce((search: string, searchType: string) => {
     navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
-  }, 50);
+  });
 
   const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
     const id = event.currentTarget.id;
@@ -130,12 +96,6 @@ const TableSelectable: React.FC = () => {
     status: "Status",
   };
 
-  const feedCount =
-    type === "private" ? data?.totalFeedsCount : publicFeeds?.totalFeedsCount;
-
-  const loadingFeedState =
-    isLoading || isFetching || publicFeedLoading || publicFeedFetching;
-
   const generatePagination = (feedCount?: number) => {
     if (!feedCount && loadingFeedState) {
       return <Skeleton width="25%" screenreaderText="Loaded Feed Count" />;
@@ -157,24 +117,17 @@ const TableSelectable: React.FC = () => {
 
   return (
     <WrapperConnect>
-      <PageSection className="feed-header">
+      <PageSection
+        style={{ paddingTop: "0.25em" }}
+        variant="dark"
+        className="feed-header"
+      >
         <div>
-          <InfoIcon
-            data-test-id="analysis-count"
-            title={`New and Existing Analyses (${
-              !feedCount && loadingFeedState
-                ? "Fetching..."
-                : feedCount === -1
-                  ? 0
-                  : feedCount
-            })`}
-            p1={
-              <Paragraph>
-                Analyses (aka ChRIS feeds) are computational experiments where
-                data are organized and processed by ChRIS plugins. In this view
-                you may view your analyses and also the ones shared with you.
-              </Paragraph>
-            }
+          <FeedSearch
+            loading={loadingFeedState}
+            search={search}
+            searchType={searchType}
+            onSearch={handleFilterChange}
           />
         </div>
         {generatePagination(feedCount)}
@@ -212,19 +165,16 @@ const TableSelectable: React.FC = () => {
           </CreateFeedProvider>
         </div>
       </PageSection>
-      <PageSection style={{ paddingBlockStart: "0.5em", height: "100%" }}>
+      <PageSection
+        variant="dark"
+        style={{ paddingBlockStart: "0.5em", height: "100%" }}
+      >
         <Operations
           origin={{
             type: OperationContext.FEEDS,
             additionalKeys: [perPage, page, type, search, searchType],
           }}
           customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
-        />
-        <FeedSearch
-          loading={loadingFeedState}
-          onSearch={handleFilterChange}
-          search={search}
-          searchType={searchType}
         />
         {loadingFeedState ? (
           <LoadingTable />

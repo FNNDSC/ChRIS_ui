@@ -5,14 +5,15 @@ import {
   NavList,
   PageSidebar,
   PageSidebarBody,
+  Brand,
 } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
-import type * as React from "react";
 import { Link } from "react-router-dom";
 import { useTypedSelector } from "../../store/hooks";
 import type { IUiState } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
+import brandImg from "../../assets/logo_chris_dashboard.png";
 
 type AllProps = IUiState & IUserState;
 
@@ -98,10 +99,19 @@ const Sidebar: React.FC<AllProps> = () => {
 
   return (
     <PageSidebar isSidebarOpen={isNavOpen}>
-      <PageSidebarBody>{PageNav}</PageSidebarBody>
+      <PageSidebarBody>
+        <div
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
+          <div style={{ flexGrow: 1 }}>{PageNav}</div>
+          <Brand src={brandImg} alt="ChRIS Logo" />
+        </div>
+      </PageSidebarBody>
     </PageSidebar>
   );
 };
+
+export default Sidebar;
 
 const AnonSidebarImpl: React.FC<AllProps> = ({
   isNavOpen,
@@ -141,11 +151,18 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
 
   return (
     <PageSidebar isSidebarOpen={isNavOpen}>
-      <PageSidebarBody>{PageNav}</PageSidebarBody>
+      <PageSidebarBody>
+        <div
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
+          <div style={{ flexGrow: 1 }}>{PageNav}</div>
+          <div style={{ padding: "16px" }}>
+            <Brand src={brandImg} alt="ChRIS Logo" />
+          </div>
+        </div>
+      </PageSidebarBody>
     </PageSidebar>
   );
 };
 
 export { AnonSidebarImpl as AnonSidebar };
-
-export default Sidebar;

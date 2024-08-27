@@ -1,11 +1,12 @@
-import { ToolbarItem } from "@patternfly/react-core";
-import { Badge } from "../Antd";
-import React, { type ReactNode, useState } from "react";
+import { Flex, FlexItem } from "@patternfly/react-core";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchNote } from "../../api/common";
-import { setDrawerCurrentlyActive } from "../../store/drawer/drawerSlice";
 import type { IDrawerState } from "../../store/drawer/drawerSlice";
+import { setDrawerCurrentlyActive } from "../../store/drawer/drawerSlice";
 import { useTypedSelector } from "../../store/hooks";
+import { Badge } from "../Antd";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
 import { handleToggle } from "../Feeds/utilties";
 import {
@@ -21,99 +22,119 @@ import "./feed-details.css";
 
 const FeedDetails = () => {
   const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
-
   const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
 
   const node = drawerState.node.currentlyActive === "node";
   const note = drawerState.node.currentlyActive === "note";
-  const [showNoteBadge, setShowNoteBadge] = useState(false);
   const terminal = drawerState.node.currentlyActive === "terminal";
-
   const preview = drawerState.preview.currentlyActive === "preview";
 
-  React.useEffect(() => {
+  const [showNoteBadge, setShowNoteBadge] = useState(false);
+
+  useEffect(() => {
     fetchNote(currentFeed).then((feedNote) => {
-      feedNote && feedNote.data.content.length > 0 && !note
-        ? setShowNoteBadge(true)
-        : setShowNoteBadge(false);
+      const showNote = !!(
+        feedNote &&
+        feedNote.data.content.length > 0 &&
+        !note
+      );
+      setShowNoteBadge(showNote);
     });
   }, [note, currentFeed]);
 
-  const items = (
-    <React.Fragment>
-      <DrawerActionsToolbar
-        button={
-          <ButtonContainer
-            title="Feed Tree Panel"
-            Icon={<CodeBranchIcon />}
-            action="graph"
-            dispatch={dispatch}
-            drawerState={drawerState}
-            isDisabled={drawerState.graph.open}
-          />
-        }
-      />
+  return (
+    <Flex
+      alignItems={{ default: "alignItemsCenter" }}
+      justifyContent={{ default: "justifyContentCenter" }}
+    >
+      <FlexItem>
+        <ButtonContainer
+          title="Feed Tree Panel"
+          Icon={<CodeBranchIcon />}
+          action="graph"
+          dispatch={dispatch}
+          drawerState={drawerState}
+          isDisabled={drawerState.graph.open}
+        />
+      </FlexItem>
 
-      <DrawerActionsToolbar
-        button={
-          <ButtonContainer
-            title={
-              node ? "Configuration Panel" : note ? "Feed Note" : "Terminal"
+      <FlexItem>
+        <ButtonContainer
+          title={node ? "Configuration Panel" : note ? "Feed Note" : "Terminal"}
+          Icon={
+            node ? (
+              <NodeDetailsPanelIcon />
+            ) : note ? (
+              <NoteEditIcon />
+            ) : (
+              <TerminalIcon />
+            )
+          }
+          action="node"
+          dispatch={dispatch}
+          drawerState={drawerState}
+          isDisabled={drawerState.node.open}
+        />
+      </FlexItem>
+
+      <FlexItem>
+        <ButtonContainer
+          title="Files Table Panel"
+          Icon={<FeedBrowserIcon />}
+          action="files"
+          dispatch={dispatch}
+          drawerState={drawerState}
+          isDisabled={drawerState.files.open}
+        />
+      </FlexItem>
+
+      <FlexItem>
+        <ButtonContainer
+          title="Preview Panel"
+          Icon={preview ? <PreviewIcon /> : <BrainIcon />}
+          action="preview"
+          dispatch={dispatch}
+          drawerState={drawerState}
+          isDisabled={drawerState.preview.open}
+        />
+      </FlexItem>
+
+      <FlexItem>
+        <ButtonWithTooltip
+          className="button-style large-button"
+          position="bottom"
+          content={!node && terminal ? "Configuration Panel" : "Terminal"}
+          onClick={() => {
+            if (terminal) {
+              dispatch(
+                setDrawerCurrentlyActive({
+                  panel: "node",
+                  currentlyActive: "node",
+                }),
+              );
+            } else {
+              dispatch(
+                setDrawerCurrentlyActive({
+                  panel: "node",
+                  currentlyActive: "terminal",
+                }),
+              );
             }
-            Icon={
-              node ? (
-                <NodeDetailsPanelIcon />
-              ) : note ? (
-                <>
-                  <NoteEditIcon />
-                </>
-              ) : (
-                <TerminalIcon />
-              )
-            }
-            action="node"
-            dispatch={dispatch}
-            drawerState={drawerState}
-            isDisabled={drawerState.node.open}
-          />
-        }
-      />
+          }}
+          Icon={!node && terminal ? <NodeDetailsPanelIcon /> : <TerminalIcon />}
+          isDisabled={false}
+        />
+      </FlexItem>
 
-      <DrawerActionsToolbar
-        button={
-          <ButtonContainer
-            title="Files Table Panel"
-            Icon={<FeedBrowserIcon />}
-            action="files"
-            dispatch={dispatch}
-            drawerState={drawerState}
-            isDisabled={drawerState.files.open}
-          />
-        }
-      />
-
-      <DrawerActionsToolbar
-        button={
-          <ButtonContainer
-            title="Preview Panel"
-            Icon={preview ? <PreviewIcon /> : <BrainIcon />}
-            action="preview"
-            dispatch={dispatch}
-            drawerState={drawerState}
-            isDisabled={drawerState.preview.open}
-          />
-        }
-      />
-
-      <DrawerActionsToolbar
-        button={
+      <FlexItem>
+        <Badge dot={!!(showNoteBadge && !note)} offset={[-5, 0]}>
           <ButtonWithTooltip
             className="button-style large-button"
             position="bottom"
-            content={!node && terminal ? "Configuration Panel" : "Terminal"}
+            content={!note ? "Feed Note" : "Configuration Panel"}
             onClick={() => {
-              if (terminal) {
+              if (note) {
                 dispatch(
                   setDrawerCurrentlyActive({
                     panel: "node",
@@ -124,116 +145,48 @@ const FeedDetails = () => {
                 dispatch(
                   setDrawerCurrentlyActive({
                     panel: "node",
-                    currentlyActive: "terminal",
+                    currentlyActive: "note",
                   }),
                 );
               }
             }}
-            Icon={
-              !node && terminal ? <NodeDetailsPanelIcon /> : <TerminalIcon />
+            Icon={!node && note ? <NodeDetailsPanelIcon /> : <NoteEditIcon />}
+            isDisabled={false}
+          />
+        </Badge>
+      </FlexItem>
+
+      <FlexItem>
+        <ButtonWithTooltip
+          className="button-style large-button"
+          position="bottom"
+          content={preview ? "Visualization Panel" : "Preview Panel"}
+          onClick={() => {
+            if (preview) {
+              dispatch(
+                setDrawerCurrentlyActive({
+                  panel: "preview",
+                  currentlyActive: "xtk",
+                }),
+              );
+            } else {
+              dispatch(
+                setDrawerCurrentlyActive({
+                  panel: "preview",
+                  currentlyActive: "preview",
+                }),
+              );
             }
-            isDisabled={false}
-          />
-        }
-      />
-
-      <DrawerActionsToolbar
-        button={
-          <Badge dot={!!(showNoteBadge && !note)} offset={[-5, 0]}>
-            <ButtonWithTooltip
-              className="button-style large-button"
-              position="bottom"
-              content={!note ? "Feed Note" : "Configuration Panel"}
-              onClick={() => {
-                if (note) {
-                  dispatch(
-                    setDrawerCurrentlyActive({
-                      panel: "node",
-                      currentlyActive: "node",
-                    }),
-                  );
-                } else {
-                  dispatch(
-                    setDrawerCurrentlyActive({
-                      panel: "node",
-                      currentlyActive: "note",
-                    }),
-                  );
-                }
-              }}
-              Icon={
-                !node && note ? (
-                  <NodeDetailsPanelIcon />
-                ) : (
-                  <>
-                    <NoteEditIcon />
-                  </>
-                )
-              }
-              isDisabled={false}
-            />
-          </Badge>
-        }
-      />
-
-      <DrawerActionsToolbar
-        button={
-          <ButtonWithTooltip
-            className="button-style large-button"
-            position="bottom"
-            content={preview ? "Visualization Panel" : "Preview Panel"}
-            onClick={() => {
-              if (preview) {
-                dispatch(
-                  setDrawerCurrentlyActive({
-                    panel: "preview",
-                    currentlyActive: "xtk",
-                  }),
-                );
-              } else {
-                dispatch(
-                  setDrawerCurrentlyActive({
-                    panel: "preview",
-                    currentlyActive: "preview",
-                  }),
-                );
-              }
-            }}
-            Icon={preview ? <BrainIcon /> : <PreviewIcon />}
-            isDisabled={false}
-          />
-        }
-      />
-    </React.Fragment>
+          }}
+          Icon={preview ? <BrainIcon /> : <PreviewIcon />}
+          isDisabled={false}
+        />
+      </FlexItem>
+    </Flex>
   );
-
-  return <>{items}</>;
 };
 
 export default FeedDetails;
-
-const ToolbarContainer = ({
-  childComponent,
-}: {
-  childComponent: ReactNode;
-}) => {
-  const spacer: {
-    xl?: "spacerLg";
-    lg?: "spacerLg";
-    md?: "spacerMd";
-    sm?: "spacerSm";
-  } = {
-    xl: "spacerLg",
-    lg: "spacerLg",
-    md: "spacerMd",
-    sm: "spacerSm",
-  };
-  return <ToolbarItem spacer={spacer}>{childComponent}</ToolbarItem>;
-};
-
-const DrawerActionsToolbar = ({ button }: { button: React.ReactNode }) => {
-  return <ToolbarContainer childComponent={button} />;
-};
 
 export const ButtonContainer = ({
   action,
@@ -258,7 +211,7 @@ export const ButtonContainer = ({
       Icon={Icon}
       variant="primary"
       onClick={() => {
-        handleToggle(action, drawerState, dispatch);
+        handleToggle(action as keyof IDrawerState, drawerState, dispatch);
       }}
       isDisabled={isDisabled}
     />
