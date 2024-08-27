@@ -35,7 +35,7 @@ const FeedSearch = ({
   loading,
 }: FeedSearchProps) => {
   return (
-    <Space>
+    <Space size="middle">
       <Select
         onChange={(value: string) => {
           onSearch(search, value);
@@ -50,6 +50,7 @@ const FeedSearch = ({
         value={search}
         loading={loading && search.length > 0}
         enterButton="Search"
+        placeholder="Search in Analyses"
       />
     </Space>
   );

@@ -1,24 +1,13 @@
-import * as React from "react";
 import {
   Masthead,
-  MastheadToggle,
-  MastheadMain,
-  MastheadBrand,
   MastheadContent,
+  MastheadToggle,
   PageToggleButton,
-  Brand,
 } from "@patternfly/react-core";
-import brandImg from "../../assets/logo_chris_dashboard.png";
-import BarsIcon from "@patternfly/react-icons/dist/esm/icons/bars-icon";
-import ToolbarComponent from "./Toolbar";
-import type { IUserState } from "../../store/user/userSlice";
 import { useTypedSelector } from "../../store/hooks";
-
-const brand = (
-  <React.Fragment>
-    <Brand src={brandImg} alt="ChRIS Logo" />
-  </React.Fragment>
-);
+import type { IUserState } from "../../store/user/userSlice";
+import { BarsIcon } from "../Icons";
+import ToolbarComponent from "./Toolbar";
 
 interface IHeaderProps {
   user: IUserState;
@@ -27,18 +16,20 @@ interface IHeaderProps {
 
 export default function Header(props: IHeaderProps) {
   const showToolbar = useTypedSelector((state) => state.feed.showToolbar);
+  const isNavOpen = useTypedSelector((state) => state.ui.isNavOpen); // Get the sidebar open state
+
+  // Apply margin-left to MastheadContent if sidebar is open
+  const mastheadContentStyle = {
+    marginLeft: isNavOpen ? "12rem" : "0", // Adjust based on sidebar state
+  };
 
   const pageToolbar = (
     <ToolbarComponent showToolbar={showToolbar} token={props.user.token} />
   );
 
   return (
-    <Masthead
-      display={{
-        default: "inline",
-      }}
-    >
-      <MastheadToggle>
+    <Masthead display={{ default: "inline" }}>
+      <MastheadToggle style={{ width: "3em" }}>
         <PageToggleButton
           variant="plain"
           aria-label="Global navigation"
@@ -49,12 +40,9 @@ export default function Header(props: IHeaderProps) {
           <BarsIcon />
         </PageToggleButton>
       </MastheadToggle>
-      <MastheadMain>
-        <MastheadBrand href="" target="_blank">
-          {brand}
-        </MastheadBrand>
-      </MastheadMain>
-      <MastheadContent>{pageToolbar}</MastheadContent>
+      <MastheadContent style={mastheadContentStyle}>
+        {pageToolbar}
+      </MastheadContent>
     </Masthead>
   );
 }
