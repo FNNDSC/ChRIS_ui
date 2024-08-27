@@ -4,12 +4,12 @@ import {
   Button,
   Checkbox,
   EmptyState,
-  Title,
   EmptyStateIcon,
   EmptyStateVariant,
   PageSection,
   Pagination,
   Skeleton,
+  Title,
   ToggleGroup,
   ToggleGroupItem,
   type ToggleGroupItemProps,
@@ -18,6 +18,7 @@ import {
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { debounce } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -31,16 +32,17 @@ import { ThemeContext } from "../DarkTheme/useTheme";
 import { SearchIcon } from "../Icons";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
 import Operations from "../NewLibrary/components/Operations";
+import { OperationContext } from "../NewLibrary/context";
 import useLongPress from "../NewLibrary/utils/longpress";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
+import FeedSearch from "./FeedsSearch";
 import { useSearchQueryParams } from "./usePaginate";
 import {
   fetchFeeds,
   fetchPublicFeeds,
   getPluginInstanceDetails,
 } from "./utilties";
-import { OperationContext } from "../NewLibrary/context";
 
 const { Paragraph } = Typography;
 
@@ -98,6 +100,10 @@ const TableSelectable: React.FC = () => {
       `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`,
     );
   };
+
+  const handleFilterChange = debounce((search: string, searchType: string) => {
+    navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
+  }, 50);
 
   const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
     const id = event.currentTarget.id;
@@ -213,6 +219,12 @@ const TableSelectable: React.FC = () => {
             additionalKeys: [perPage, page, type, search, searchType],
           }}
           customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
+        />
+        <FeedSearch
+          loading={loadingFeedState}
+          onSearch={handleFilterChange}
+          search={search}
+          searchType={searchType}
         />
         {loadingFeedState ? (
           <LoadingTable />

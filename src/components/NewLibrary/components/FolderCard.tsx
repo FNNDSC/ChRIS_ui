@@ -83,7 +83,7 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
 
   // When users create an analysis, they have a specific name in mind. Showing the user the underlying
   // folder path (e.g., feed_98) can be confusing if the analysis is titled 'Freesurfer Analysis'.
-  // Therefore, we perform an additional fetch to display the feed folders with their analysis titles.
+  // Therefore, we perform an additional fetch to display the feed folders with their title names.
 
   const feedMatches = folderName.match(/feed_(\d+)/);
   const { data, isLoading } = useQuery({

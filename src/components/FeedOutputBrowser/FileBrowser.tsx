@@ -237,6 +237,7 @@ const FileBrowser = (props: FileBrowserProps) => {
           }}
           icon={icon}
           variant="link"
+          style={{ padding: "0" }}
         >
           {fileName}
         </Button>
