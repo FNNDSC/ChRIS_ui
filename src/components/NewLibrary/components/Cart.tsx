@@ -11,10 +11,10 @@ import {
 } from "../../../store/cart/cartSlice";
 import {
   DownloadTypes,
-  type FileUploadObject,
-  type FolderUploadObject,
   type FileUpload,
+  type FileUploadObject,
   type FolderUpload,
+  type FolderUploadObject,
 } from "../../../store/cart/types";
 import type { AppDispatch } from "../../../store/configureStore";
 import { useTypedSelector } from "../../../store/hooks";
@@ -23,6 +23,7 @@ import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
 import { ShowInFolder, TitleNameClipped, elipses } from "../utils/longpress";
 import "./Cart.css";
+import { clearCart } from "../../../store/cart/cartSlice";
 import ProgressRing from "./RadialProgress";
 
 const Cart = () => {
@@ -50,6 +51,8 @@ const Cart = () => {
             variant="danger"
             onClick={() => {
               // Implement clear cart logic here
+              // This version of cart only clears out finished operations
+              dispatch(clearCart());
             }}
           >
             Clear Notifications
