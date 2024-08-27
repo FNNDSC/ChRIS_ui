@@ -1,12 +1,12 @@
 // cartSlice.ts
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
 import type {
-  DownloadTypes,
   ICartState,
-  SelectionPayload,
   OperationPayload,
+  SelectionPayload,
   UploadPayload,
 } from "./types";
+import { DownloadTypes } from "./types";
 
 const initialState: ICartState = {
   currentLayout: "grid",
@@ -147,6 +147,29 @@ const cartSlice = createSlice({
     },
     clearCart(state) {
       state.selectedPaths = [];
+      // Filter out finished operations from upload statuses
+      state.folderUploadStatus = Object.fromEntries(
+        Object.entries(state.folderUploadStatus).filter(
+          ([_, value]) => value.currentStep !== "Upload Complete",
+        ),
+      );
+      state.fileUploadStatus = Object.fromEntries(
+        Object.entries(state.fileUploadStatus).filter(
+          ([_, value]) => value.currentStep !== "Upload Complete",
+        ),
+      );
+
+      // Filter out finished operations from download statuses
+      state.folderDownloadStatus = Object.fromEntries(
+        Object.entries(state.folderDownloadStatus).filter(
+          ([_, value]) => value.step !== DownloadTypes.finished,
+        ),
+      );
+      state.fileDownloadStatus = Object.fromEntries(
+        Object.entries(state.fileDownloadStatus).filter(
+          ([_, value]) => value.step !== DownloadTypes.finished,
+        ),
+      );
     },
     cancelUpload(
       _state,
