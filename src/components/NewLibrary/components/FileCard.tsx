@@ -14,7 +14,7 @@ import {
   SplitItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { format } from "date-fns";
+import { differenceInSeconds, format } from "date-fns";
 import { isEmpty } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
@@ -192,13 +192,45 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   const { handlers } = useLongPress();
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
+  const [isNewFile, setIsNewFile] = useState<boolean>(false);
+  const creationDate = file.data.creation_date;
+  const secondsSinceCreation = differenceInSeconds(new Date(), creationDate);
+  const [isNewFolder, setIsNewFolder] = useState<boolean>(
+    secondsSinceCreation <= 15,
+  );
   const fileName = getFileName(file);
   const isSelected = selectedPaths.some(
     (payload) => payload.path === file.data.fname,
   );
-  const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+  const shouldHighlight = isNewFolder || isSelected;
+  const selectedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
   const ext = getFileExtension(file.data.fname);
   const icon = getIcon(ext, isDarkTheme);
+
+  useEffect(() => {
+    if (isNewFolder) {
+      const timeoutId = setTimeout(() => {
+        setIsNewFolder(false);
+      }, 2000); // 60 seconds
+
+      // Cleanup the timeout if the component unmounts before the timeout completes
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isNewFolder]);
+
+  useEffect(() => {
+    const creationDate = new Date(file.data.creation_date);
+    const secondsSinceCreation = differenceInSeconds(new Date(), creationDate);
+
+    if (secondsSinceCreation <= 15) {
+      setIsNewFile(true);
+      const timeoutId = setTimeout(() => {
+        setIsNewFile(false);
+      }, 2000); // 2 seconds
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [file.data.creation_date]);
 
   useEffect(() => {
     if (handleDownloadMutation.isSuccess) {
@@ -248,7 +280,9 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
         name={fileName}
         date={file.data.creation_date}
         icon={icon}
-        bgRow={selectedBgRow}
+        bgRow={
+          isNewFile ? getBackgroundRowColor(true, isDarkTheme) : selectedBgRow
+        }
       />
       <Modal
         className="library-preview"
@@ -289,6 +323,15 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
     (payload) => payload.path === linkFile.data.path,
   );
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+
+  // Calculate if the link file is new
+  const creationDate = new Date(linkFile.data.creation_date);
+  const now = new Date();
+  const secondsSinceCreation = Math.floor(
+    (now.getTime() - creationDate.getTime()) / 1000,
+  );
+  const isNewLinkFile = secondsSinceCreation <= 2; // 2 seconds
+
   const icon = <ExternalLinkSquareAltIcon />;
 
   useEffect(() => {
