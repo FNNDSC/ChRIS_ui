@@ -148,6 +148,10 @@ const FeedsDetailComponent: React.FC<{ id?: string }> = ({ id }) => {
 
   const { feed } = useFetchFeed(id, type, isLoggedIn);
 
+  if (!feed) {
+    return null;
+  }
+
   return (
     <Title level={4} style={{ marginBottom: 0 }}>
       <CodeBranchIcon style={{ marginRight: "0.25em" }} />
