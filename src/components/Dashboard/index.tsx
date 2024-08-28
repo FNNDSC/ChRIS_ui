@@ -1,47 +1,16 @@
 import React from "react";
-import BUILD_VERSION from "../../getBuildVersion";
 import { Grid, GridItem, PageSection } from "@patternfly/react-core";
-import { Typography } from "../Antd";
 import WrapperConnect from "../Wrapper";
 import { CatalogTile } from "@patternfly/react-catalog-view-extension";
-import { InfoIcon } from "../Common";
 import "./dashboard.css";
 
-const { Paragraph } = Typography;
-
-interface DashboardProps {
-  children?: React.ReactNode;
-}
-
-const DashboardPage = (props: DashboardProps) => {
-  const { children } = props;
-
+const DashboardPage = () => {
   React.useEffect(() => {
     document.title = "Overview";
   }, []);
 
   return (
     <WrapperConnect>
-      <PageSection hasShadowBottom>
-        <InfoIcon
-          title="Welcome to ChRIS"
-          p1={
-            <Paragraph>
-              <p>
-                Retrieve, analyze, and visualize <i>any data </i> using a
-                powerful cloud computing platform: ChRIS.
-                <b> Let&apos;s get started.</b>
-              </p>
-              <p>
-                Build: <code className="build-version">{BUILD_VERSION}</code>
-              </p>
-            </Paragraph>
-          }
-        />
-
-        {children}
-      </PageSection>
-
       <PageSection>
         <Grid hasGutter>
           <GridItem lg={4}>

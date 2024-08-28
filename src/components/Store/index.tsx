@@ -334,54 +334,40 @@ const Store = () => {
         </Form>
       </Modal>
 
-      <PageSection
-        style={{
-          marginBottom: "0",
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
+      <PageSection>
         <div>
-          <InfoIcon
-            title="Plugin Store"
-            p1={
-              <Paragraph>
-                <p>
-                  This is a global store from where you can install your
-                  plugins.
-                </p>
-              </Paragraph>
-            }
-          />
           <Text component={TextVariants.h6}>
             You are currently viewing plugins fetched from{" "}
             {configureStoreValue || import.meta.env.VITE_CHRIS_STORE_URL}
           </Text>
+          <Button
+            style={{ marginTop: "1em" }}
+            variant="secondary"
+            onClick={() => {
+              if (configureStoreValue) {
+                setConfigureStoreValue("");
+                removeCookie("configure_url", {
+                  path: "/",
+                });
+                queryClient.refetchQueries({
+                  queryKey: ["storePlugins"],
+                });
+              } else {
+                setConfigureStore(!configureStore);
+              }
+            }}
+          >
+            {configureStoreValue
+              ? "Reset to the Default Store"
+              : "Connect to a different Store"}
+          </Button>
         </div>
 
-        <Button
-          variant="secondary"
-          onClick={() => {
-            if (configureStoreValue) {
-              setConfigureStoreValue("");
-              removeCookie("configure_url", {
-                path: "/",
-              });
-              queryClient.refetchQueries({
-                queryKey: ["storePlugins"],
-              });
-            } else {
-              setConfigureStore(!configureStore);
-            }
+        <Grid
+          style={{
+            marginTop: "1em",
           }}
         >
-          {configureStoreValue
-            ? "Reset to the Default Store"
-            : "Connect to a different Store"}
-        </Button>
-      </PageSection>
-      <PageSection>
-        <Grid>
           <GridItem span={4}>
             <TextInputGroup>
               <TextInputGroupMain
