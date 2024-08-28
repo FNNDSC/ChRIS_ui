@@ -18,7 +18,17 @@ const { Paragraph, Title } = Typography;
 const InfoSection: React.FC<{ title: string; content: React.ReactNode }> = ({
   title,
   content,
-}) => <InfoIcon title={title} p1={<Paragraph>{content}</Paragraph>} />;
+}) => (
+  <InfoIcon
+    customStyle={{
+      title: {
+        color: "white",
+      },
+    }}
+    title={title}
+    p1={<Paragraph>{content}</Paragraph>}
+  />
+);
 
 // Feeds name component
 const FeedsNameComponent: React.FC = () => {
@@ -117,7 +127,7 @@ const ComputeCatalogComponent: React.FC = () => (
 
 // Pipeline catalog component
 const PipelineCatalogComponent: React.FC = () => (
-  <Title level={4} style={{ marginBottom: 0 }}>
+  <Title level={4} style={{ marginBottom: 0, color: "white" }}>
     Pipelines
   </Title>
 );
@@ -153,7 +163,7 @@ const FeedsDetailComponent: React.FC<{ id?: string }> = ({ id }) => {
   }
 
   return (
-    <Title level={4} style={{ marginBottom: 0 }}>
+    <Title level={4} style={{ marginBottom: 0, color: "white" }}>
       <CodeBranchIcon style={{ marginRight: "0.25em" }} />
       <Tooltip content={feed?.data.name}>
         <span>{elipses(feed?.data.name, 40)}</span>

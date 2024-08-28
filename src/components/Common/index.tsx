@@ -148,12 +148,16 @@ export const InfoIcon = ({
   p2,
   p3,
   p4,
+  customStyle,
 }: {
   title: string;
   p1?: any;
   p2?: any;
   p3?: any;
   p4?: any;
+  customStyle?: {
+    [key: string]: React.CSSProperties;
+  };
 }) => {
   const content = (
     <Hint>
@@ -166,7 +170,7 @@ export const InfoIcon = ({
 
   return (
     <div style={{ display: "flex" }}>
-      <Title level={4} style={{ marginBottom: 0 }}>
+      <Title level={4} style={{ ...customStyle?.title, marginBottom: 0 }}>
         {title}
       </Title>
       <Popover placement="top" trigger="hover" content={content}>
