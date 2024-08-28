@@ -40,8 +40,8 @@ interface TableProps {
 
 const columnNames = {
   name: "Name",
-  date: "Date",
-  owner: "Owner",
+  date: "Created",
+  owner: "Creator",
   size: "Size",
 };
 
@@ -168,7 +168,11 @@ const LibraryTable: React.FunctionComponent<TableProps> = (
           <FileDetailView selectedFile={selectedFile} preview="large" />
         )}
       </Drawer>
-      <Table aria-label="Simple table">
+      <Table
+        className="library-table"
+        variant="compact"
+        aria-label="Simple table"
+      >
         <Caption>Data Library</Caption>
         <Thead>
           <Tr>
