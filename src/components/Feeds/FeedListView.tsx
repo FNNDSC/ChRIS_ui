@@ -117,11 +117,7 @@ const TableSelectable: React.FC = () => {
 
   return (
     <WrapperConnect>
-      <PageSection
-        style={{ paddingTop: "0.25em" }}
-        variant="dark"
-        className="feed-header"
-      >
+      <PageSection style={{ paddingTop: "0.25em" }} className="feed-header">
         <div>
           <FeedSearch
             loading={loadingFeedState}
@@ -165,10 +161,7 @@ const TableSelectable: React.FC = () => {
           </CreateFeedProvider>
         </div>
       </PageSection>
-      <PageSection
-        variant="dark"
-        style={{ paddingBlockStart: "0.5em", height: "100%" }}
-      >
+      <PageSection style={{ paddingBlockStart: "0.5em", height: "100%" }}>
         <Operations
           origin={{
             type: OperationContext.FEEDS,
