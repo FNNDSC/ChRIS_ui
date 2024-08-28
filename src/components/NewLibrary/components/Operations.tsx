@@ -275,7 +275,10 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
         hidden
         onChange={handleFolderChange}
       />
-      <Toolbar className={customClassName?.toolbar}>
+      <Toolbar
+        style={{ ...customStyle?.toolbar }}
+        className={customClassName?.toolbar}
+      >
         <ToolbarContent style={{ ...customStyle?.toolbarItem }}>
           {toolbarItems}
           {location.pathname.startsWith("/library/") && (

@@ -174,7 +174,12 @@ const TableSelectable: React.FC = () => {
             type: OperationContext.FEEDS,
             additionalKeys: [perPage, page, type, search, searchType],
           }}
-          customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
+          customStyle={{
+            toolbarItem: { paddingInlineStart: "0" },
+            toolbar: {
+              paddingTop: "0",
+            },
+          }}
         />
         {loadingFeedState ? (
           <LoadingTable />
