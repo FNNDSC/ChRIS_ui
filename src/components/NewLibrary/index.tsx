@@ -163,28 +163,11 @@ const NewLibrary = () => {
 
   return (
     <WrapperConnect>
-      <PageSection>
-        <InfoIcon
-          title="Your Library"
-          p1={
-            <Paragraph>
-              <p>
-                The Library provides a card-focused mechanism for browsing,
-                viewing, and interacting with data in the ChRIS system. A card
-                is analogous to a file or folder in a convention filesystem, and
-                multiple cards can be grouped into a shopping cart to allow for
-                bulk operations. Simply long press and release a card to add it
-                to the cart. Bulk operations include: <b>Download</b> (which
-                will copy all cart contents to your local filesystem),{" "}
-                <b>Delete</b> (which will permanently remove all data in the
-                cards from ChRIS), and <b>Create</b> which will seed a new
-                analysis with a new root node containing each card as a
-                subdirectory.
-              </p>
-            </Paragraph>
-          }
-        />
-
+      <PageSection
+        style={{
+          paddingBlockStart: "0",
+        }}
+      >
         <Operations
           origin={{
             type: OperationContext.LIBRARY,
@@ -192,6 +175,7 @@ const NewLibrary = () => {
           }}
           computedPath={computedPath}
           folderList={data?.folderList}
+          customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
         />
 
         <BreadcrumbContainer
