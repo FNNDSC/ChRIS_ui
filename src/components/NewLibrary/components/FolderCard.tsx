@@ -9,9 +9,9 @@ import {
   SplitItem,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
+import { differenceInSeconds, format } from "date-fns";
 import { isEmpty } from "lodash";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { elipses } from "../../../api/common";
@@ -75,15 +75,29 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const folderName = getFolderName(folder, computedPath);
 
   const creationDate = folder.data.creation_date;
+  const secondsSinceCreation = differenceInSeconds(new Date(), creationDate);
+
+  const [isNewFolder, setIsNewFolder] = useState<boolean>(
+    secondsSinceCreation <= 15,
+  );
+
+  useEffect(() => {
+    if (isNewFolder) {
+      const timeoutId = setTimeout(() => {
+        setIsNewFolder(false);
+      }, 2000); // 60 seconds
+
+      // Cleanup the timeout if the component unmounts before the timeout completes
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isNewFolder]);
 
   const isSelected = selectedPaths.some(
     (payload) => payload.path === folder.data.path,
   );
-  const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
 
-  // When users create an analysis, they have a specific name in mind. Showing the user the underlying
-  // folder path (e.g., feed_98) can be confusing if the analysis is titled 'Freesurfer Analysis'.
-  // Therefore, we perform an additional fetch to display the feed folders with their title names.
+  const shouldHighlight = isNewFolder || isSelected;
+  const highlightedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
 
   const feedMatches = folderName.match(/feed_(\d+)/);
   const { data, isLoading } = useQuery({
@@ -111,7 +125,10 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
         }}
       >
         <Card
-          style={{ background: selectedBgRow, cursor: "pointer" }}
+          style={{
+            background: highlightedBgRow,
+            cursor: "pointer",
+          }}
           isSelected={isSelected}
           isClickable
           isSelectable
