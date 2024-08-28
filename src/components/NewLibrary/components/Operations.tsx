@@ -233,25 +233,6 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     ],
   );
 
-  const modalTypeLabels: Record<
-    string,
-    { modalTitle: string; inputLabel: string }
-  > = {
-    group: {
-      modalTitle: "Create a new Group",
-      inputLabel: "Group Name",
-    },
-    share: {
-      modalTitle: "Share this Folder",
-      inputLabel: "User Name",
-    },
-
-    default: {
-      modalTitle: "Create a new Folder",
-      inputLabel: "Folder Name",
-    },
-  };
-
   return (
     <>
       <AddModal
@@ -288,10 +269,9 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       />
       <input
         ref={folderInput}
-        multiple={true}
         type="file"
-        //@ts-ignore
-        webkitdirectory="true"
+        webkitdirectory=""
+        directory=""
         hidden
         onChange={handleFolderChange}
       />
@@ -314,6 +294,25 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
 });
 
 export default Operations;
+
+const modalTypeLabels: Record<
+  string,
+  { modalTitle: string; inputLabel: string }
+> = {
+  group: {
+    modalTitle: "Create a new Group",
+    inputLabel: "Group Name",
+  },
+  share: {
+    modalTitle: "Share this Folder",
+    inputLabel: "User Name",
+  },
+
+  default: {
+    modalTitle: "Create a new Folder",
+    inputLabel: "Folder Name",
+  },
+};
 
 interface AddModalProps {
   operationType: string;

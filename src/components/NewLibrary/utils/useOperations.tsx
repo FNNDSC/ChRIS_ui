@@ -68,6 +68,7 @@ export const useFolderOperations = (
     const currentPath = createFeed
       ? `home/${username}/uploads/${uniqueName}`
       : computedPath;
+    ("");
 
     dispatch(
       startUpload({
