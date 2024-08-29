@@ -204,87 +204,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     </DrawerPanelContent>
   );
 
-  const tableRowItem = (item: any, type: string) => {
-    let iconType: string;
-    let icon: React.ReactNode = null;
-    let fsize = " ";
-    let fileName = "";
-    iconType = "UNKNOWN FORMAT";
-    const pathList =
-      type === "folder" || type === "link"
-        ? item.data.path.split("/")
-        : item.data.fname.split("/");
-
-    fileName = pathList[pathList.length - 1];
-    if (type === "file" && fileName.indexOf(".") > -1) {
-      iconType = getFileExtension(fileName);
-      fsize = bytesToSize(item.data.fsize);
-    } else if (type === "link") {
-      fsize = bytesToSize(item.data.fsize);
-      iconType = type;
-    } else {
-      iconType = type;
-    }
-    const isPreviewing = selectedFile === item;
-    const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
-    const path = type === "file" ? item.data.fname : item.data.path;
-
-    const isSelected =
-      selectedPaths.length > 0 &&
-      selectedPaths.some((payload) => payload.path === path);
-    const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
-
-    icon = getIcon(iconType, isDarkTheme);
-    const fileNameComponent = (
-      <div
-        style={{
-          backgroundColor: isPreviewing ? backgroundColor : "inherit",
-        }}
-      >
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleItem(item, type);
-          }}
-          icon={icon}
-          variant="link"
-          style={{ padding: "0" }}
-        >
-          {fileName}
-        </Button>
-      </div>
-    );
-
-    return (
-      <FolderContextMenu
-        key={path} // Assuming 'item' has an 'id' property
-        origin={{
-          type: OperationContext.FILEBROWSER,
-          additionalKeys: [additionalKey],
-        }}
-      >
-        <Tr
-          style={{
-            background: selectedBgRow,
-          }}
-          onClick={(e) => {
-            handleOnClick(e, item, path, type);
-          }}
-          onContextMenu={(e) => {
-            handleOnClick(e, item, path, type);
-          }}
-        >
-          <Td dataLabel={columnNames.name}>{fileNameComponent}</Td>
-          <Td dataLabel={columnNames.created}>
-            {format(new Date(item.data.creation_date), "dd MMM yyyy, HH:mm")}
-          </Td>
-          <Td dataLabel={columnNames.creator}>{item.data.owner_username}</Td>
-          <Td dataLabel={columnNames.size}>{fsize}</Td>
-        </Tr>
-      </FolderContextMenu>
-    );
-  };
-
   return (
     <Grid hasGutter className="file-browser">
       {contextHolder}
@@ -337,11 +256,8 @@ const FileBrowser = (props: FileBrowserProps) => {
                     )}
                 </div>
               </div>
-              <Table aria-label="file-browser-table" variant="compact">
-                <Thead
-                  aria-label="file-browser-table"
-                  className="file-browser-table--head"
-                >
+              <Table variant="compact">
+                <Thead aria-label="file-browser-table">
                   <Tr>
                     <Th aria-label="file-name">{columnNames.name}</Th>
                     <Th aria-label="file-creator">{columnNames.created}</Th>

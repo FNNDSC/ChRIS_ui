@@ -155,7 +155,6 @@ const BaseRow: React.FC<RowProps> = ({
       >
         <Td
           style={{
-            paddingInlineEnd: 0,
             maxWidth: "1em",
           }}
         >
@@ -170,12 +169,7 @@ const BaseRow: React.FC<RowProps> = ({
             }}
           />
         </Td>
-        <Td
-          style={{
-            paddingInlineStart: 0,
-          }}
-          dataLabel={columnNames.name}
-        >
+        <Td dataLabel={columnNames.name}>
           <Button
             onClick={(e) => {
               e.stopPropagation();
