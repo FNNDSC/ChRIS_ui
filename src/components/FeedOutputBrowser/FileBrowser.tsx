@@ -1,6 +1,7 @@
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import {
   Breadcrumb,
@@ -18,6 +19,10 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { format } from "date-fns";
 import { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import {
+  getFileName,
+  getLinkFileName,
+} from "../NewLibrary/components/FileCard";
 import { getFileExtension } from "../../api/model";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
@@ -32,6 +37,12 @@ import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 import { HomeIcon } from "../Icons";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
+import { getFolderName } from "../NewLibrary/components/FolderCard";
+import {
+  FolderRow,
+  FileRow,
+  LinkRow,
+} from "../NewLibrary/components/LibraryTable";
 import Operations from "../NewLibrary/components/Operations";
 import { OperationContext } from "../NewLibrary/context";
 import useLongPress, {
@@ -342,17 +353,70 @@ const FileBrowser = (props: FileBrowserProps) => {
                   <SpinContainer title="Fetching Files for this path..." />
                 ) : (
                   <Tbody>
-                    {folderFiles.map((folderFile) => {
-                      const component = tableRowItem(folderFile, "file");
-                      return component;
+                    {folderFiles.map((resource: FileBrowserFolderFile) => {
+                      return (
+                        <FileRow
+                          key={resource.data.fname}
+                          resource={resource}
+                          name={getFileName(resource)}
+                          date={resource.data.creation_date}
+                          owner={resource.data.owner_username}
+                          size={resource.data.fsize}
+                          computedPath={path}
+                          handleFolderClick={() => {
+                            return;
+                          }}
+                          handleFileClick={() => {
+                            toggleAnimation();
+                            dispatch(
+                              setSelectedFile(
+                                resource as FileBrowserFolderFile,
+                              ),
+                            );
+                            !drawerState.preview.open &&
+                              dispatch(setFilePreviewPanel());
+                          }}
+                        />
+                      );
                     })}
-                    {linkFiles.map((linkFile) => {
-                      const component = tableRowItem(linkFile, "link");
-                      return component;
+                    {linkFiles.map((resource: FileBrowserFolderLinkFile) => {
+                      return (
+                        <LinkRow
+                          key={resource.data.path}
+                          resource={resource}
+                          name={getLinkFileName(resource)}
+                          date={resource.data.creation_date}
+                          owner={resource.data.owner_username}
+                          size={resource.data.fsize}
+                          computedPath={path}
+                          handleFolderClick={() => {
+                            handleFileClick(resource.data.path);
+                          }}
+                          handleFileClick={() => {
+                            return;
+                          }}
+                        />
+                      );
                     })}
-                    {children.map((child) => {
-                      const component = tableRowItem(child, "folder");
-                      return component;
+
+                    {children.map((resource: FileBrowserFolder) => {
+                      return (
+                        <FolderRow
+                          key={resource.data.path}
+                          resource={resource}
+                          name={getFolderName(resource, path)}
+                          date={resource.data.creation_date}
+                          owner=" "
+                          size={0}
+                          computedPath={path}
+                          handleFolderClick={() =>
+                            handleFileClick(resource.data.path)
+                          }
+                          handleFileClick={() => {
+                            return;
+                          }}
+                        />
+                      );
                     })}
                   </Tbody>
                 )}
