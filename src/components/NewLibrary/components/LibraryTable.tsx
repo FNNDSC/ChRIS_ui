@@ -156,6 +156,7 @@ const BaseRow: React.FC<RowProps> = ({
         <Td
           style={{
             paddingInlineEnd: 0,
+            maxWidth: "1em",
           }}
         >
           <Checkbox
@@ -204,15 +205,15 @@ const BaseRow: React.FC<RowProps> = ({
   );
 };
 
-const FolderRow: React.FC<Omit<RowProps, "type">> = (props) => (
+export const FolderRow: React.FC<Omit<RowProps, "type">> = (props) => (
   <BaseRow {...props} type="folder" />
 );
 
-const FileRow: React.FC<Omit<RowProps, "type">> = (props) => (
+export const FileRow: React.FC<Omit<RowProps, "type">> = (props) => (
   <BaseRow {...props} type="file" />
 );
 
-const LinkRow: React.FC<Omit<RowProps, "type">> = (props) => (
+export const LinkRow: React.FC<Omit<RowProps, "type">> = (props) => (
   <BaseRow {...props} type="link" />
 );
 
