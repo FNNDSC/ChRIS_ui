@@ -1,6 +1,8 @@
-import React, { useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { useTypedSelector } from "../../../store/hooks";
+import type {
+  FileBrowserFolder,
+  FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
+} from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import {
   Caption,
@@ -11,13 +13,11 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { Drawer } from "antd";
+import { Drawer, Tag } from "antd";
 import { differenceInSeconds, format } from "date-fns";
-import type {
-  FileBrowserFolder,
-  FileBrowserFolderFile,
-  FileBrowserFolderLinkFile,
-} from "@fnndsc/chrisapi";
+import React, { useContext, useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
+import { useTypedSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { formatBytes } from "../../Feeds/utilties";
@@ -76,16 +76,23 @@ const BaseRow: React.FC<RowProps> = ({
   const { handleOnClick } = handlers;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
-  const secondsSinceCreation = differenceInSeconds(new Date(), date);
+  const rowRef = useRef<HTMLTableRowElement>(null); // Create a ref for the row
+
+  const secondsSinceCreation = differenceInSeconds(new Date(), new Date(date));
   const [isNewResource, setIsNewResource] = useState<boolean>(
     secondsSinceCreation <= 15,
   );
 
   useEffect(() => {
-    if (isNewResource) {
+    if (isNewResource && rowRef.current) {
+      rowRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
       const timeoutId = setTimeout(() => {
         setIsNewResource(false);
-      }, 2000);
+      }, 10000);
 
       return () => clearTimeout(timeoutId);
     }
@@ -129,6 +136,7 @@ const BaseRow: React.FC<RowProps> = ({
       key={path}
     >
       <Tr
+        ref={rowRef} // Attach the ref to the row
         style={{ background: highlightedBgRow }}
         onClick={(e) => {
           handleOnClick(e, resource, path, type);
@@ -149,6 +157,11 @@ const BaseRow: React.FC<RowProps> = ({
           >
             {name}
           </Button>
+          {isNewResource && (
+            <Tag style={{ marginLeft: "0.25em" }} color="#3E8635">
+              Recently Added
+            </Tag>
+          )}
         </Td>
         <Td dataLabel={columnNames.date}>
           {format(new Date(date), "dd MMM yyyy, HH:mm")}
