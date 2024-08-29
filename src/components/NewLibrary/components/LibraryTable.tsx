@@ -155,7 +155,9 @@ const BaseRow: React.FC<RowProps> = ({
       >
         <Td
           style={{
-            maxWidth: "1em",
+            maxWidth: "0.5em",
+            paddingInlineEnd: "0",
+            paddingInlineStart: "1.5em",
           }}
         >
           <Checkbox
@@ -169,7 +171,12 @@ const BaseRow: React.FC<RowProps> = ({
             }}
           />
         </Td>
-        <Td dataLabel={columnNames.name}>
+        <Td
+          style={{
+            paddingInlineStart: "0",
+          }}
+          dataLabel={columnNames.name}
+        >
           <Button
             onClick={(e) => {
               e.stopPropagation();
