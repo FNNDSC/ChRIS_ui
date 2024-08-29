@@ -321,6 +321,7 @@ const TableRow: React.FC<TableRowProps> = ({
           />
         </Td>
         <Td dataLabel={columnNames.id}>{feed.data.id}</Td>
+
         <Td dataLabel={columnNames.analysis}>
           <FeedInfoColumn feed={feed} onClick={onFeedNameClick} />
         </Td>

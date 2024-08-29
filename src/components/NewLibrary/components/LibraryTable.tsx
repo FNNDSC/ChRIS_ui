@@ -3,7 +3,7 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button, Checkbox } from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core";
 import {
   Caption,
   Table,
@@ -46,6 +46,7 @@ const columnNames = {
 };
 
 interface RowProps {
+  rowIndex: number;
   resource:
     | FileBrowserFolder
     | FileBrowserFolderFile
@@ -61,6 +62,7 @@ interface RowProps {
 }
 
 const BaseRow: React.FC<RowProps> = ({
+  rowIndex,
   resource,
   name,
   date,
@@ -150,8 +152,16 @@ const BaseRow: React.FC<RowProps> = ({
           handleOnClick(e, resource, path, type);
         }}
       >
-        <Td>
-          <Checkbox
+        <Td
+          select={{
+            rowIndex: rowIndex,
+            onSelect: (event) =>
+              handleCheckboxChange(event, path, resource, type),
+            isSelected: isSelected,
+          }}
+        >
+          {/*
+<Checkbox
             name={name}
             isChecked={isSelected}
             id="Select Resources"
@@ -161,6 +171,8 @@ const BaseRow: React.FC<RowProps> = ({
               handleCheckboxChange(event, path, resource, type);
             }}
           />
+
+            */}
         </Td>
         <Td dataLabel={columnNames.name}>
           <Button
@@ -176,7 +188,7 @@ const BaseRow: React.FC<RowProps> = ({
           </Button>
           {isNewResource && (
             <Tag style={{ marginLeft: "0.25em" }} color="#3E8635">
-              Recently Added
+              Newly Added
             </Tag>
           )}
         </Td>
@@ -250,8 +262,9 @@ const LibraryTable: React.FC<TableProps> = ({
           </Tr>
         </Thead>
         <Tbody>
-          {data.folders.map((resource: FileBrowserFolder) => (
+          {data.folders.map((resource: FileBrowserFolder, index) => (
             <FolderRow
+              rowIndex={index}
               key={resource.data.path}
               resource={resource}
               name={getFolderName(resource, computedPath)}
@@ -268,8 +281,9 @@ const LibraryTable: React.FC<TableProps> = ({
               }}
             />
           ))}
-          {data.files.map((resource: FileBrowserFolderFile) => (
+          {data.files.map((resource: FileBrowserFolderFile, index) => (
             <FileRow
+              rowIndex={index}
               key={resource.data.fname}
               resource={resource}
               name={getFileName(resource)}
@@ -285,8 +299,9 @@ const LibraryTable: React.FC<TableProps> = ({
               }}
             />
           ))}
-          {data.linkFiles.map((resource: FileBrowserFolderLinkFile) => (
+          {data.linkFiles.map((resource: FileBrowserFolderLinkFile, index) => (
             <LinkRow
+              rowIndex={index}
               key={resource.data.path}
               resource={resource}
               name={getLinkFileName(resource)}
