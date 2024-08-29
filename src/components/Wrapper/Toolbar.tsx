@@ -135,7 +135,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
             ) : (
               <>
                 <Button
-                  style={{ padding: "0" }}
+                  style={{ padding: "0.25em" }}
                   variant="link"
                   onClick={() => {
                     navigate(
@@ -146,7 +146,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
                   Login
                 </Button>
                 <Button
-                  style={{ padding: "0" }}
+                  style={{ padding: "0.25em" }}
                   variant="link"
                   onClick={() => navigate("/signup")}
                 >
