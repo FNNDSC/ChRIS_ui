@@ -260,7 +260,7 @@ const LibraryTable: React.FC<TableProps> = ({
               size={0}
               computedPath={computedPath}
               handleFolderClick={() => {
-                const name = getFolderName(resource.data.path, computedPath);
+                const name = getFolderName(resource, computedPath);
                 handleFolderClick(name);
               }}
               handleFileClick={() => {
