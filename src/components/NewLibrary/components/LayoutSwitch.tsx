@@ -3,10 +3,10 @@ import {
   ToggleGroupItem,
   type ToggleGroupItemProps,
 } from "@patternfly/react-core";
-import { BarsIcon, GripVerticalIcon } from "../../Icons";
-import { switchLibraryLayout } from "../../../store/cart/cartSlice";
 import { useDispatch } from "react-redux";
+import { switchLibraryLayout } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
+import { BarsIcon, GripVerticalIcon } from "../../Icons";
 
 const LayoutSwitch = () => {
   const currentLayout = useTypedSelector((state) => state.cart.currentLayout);
