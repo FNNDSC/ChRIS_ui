@@ -1,4 +1,5 @@
-import type { Client, Plugin, PluginMeta } from "@fnndsc/chrisapi";
+import type { Plugin, PluginMeta } from "@fnndsc/chrisapi";
+import type Client from "@fnndsc/chrisapi";
 import axios from "axios";
 import { fetchResource } from "../../api/common";
 
