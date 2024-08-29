@@ -24,15 +24,14 @@ export function elipses(str: string, len: number) {
 export default function useLongPress() {
   const dispatch = useDispatch();
   const [action, setAction] = useState<string>();
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false); // Track menu state
   const state = useTypedSelector((state) => state.cart);
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>();
   const isLongPress = useRef<boolean>();
-
   const { selectedPaths } = state;
 
   function startPressTimer() {
     isLongPress.current = false;
-
     //@ts-ignore
     timerRef.current = window.setTimeout(() => {
       isLongPress.current = true;
@@ -59,18 +58,40 @@ export default function useLongPress() {
     type: string,
   ) {
     const isExist = selectedPaths.some((item) => item.path === pathForCart);
-    if (e.type === "contextmenu") {
-      // Handle right-click (context menu)
-      e.preventDefault(); // Prevent the default context menu from appearing
-      if (!isExist) {
-        selectFolder(pathForCart, type, payload);
-      }
-    } else {
-      // Handle every click on the card
+
+    // Handle Ctrl + Click for selection
+    if (e.type === "click" && (e as React.MouseEvent).ctrlKey) {
+      e.preventDefault();
       if (!isExist) {
         selectFolder(pathForCart, type, payload);
       } else {
         deselectFolder(pathForCart);
+      }
+    } else if (e.type === "contextmenu") {
+      e.preventDefault(); // Prevent the default context menu from appearing
+
+      if (!isExist) {
+        selectFolder(pathForCart, type, payload);
+      }
+
+      // Toggle the menu state
+      setIsMenuOpen((prev) => {
+        if (prev) {
+          deselectFolder(pathForCart);
+        }
+        return !prev;
+      });
+    } else {
+      if (!isExist) {
+        selectFolder(pathForCart, type, payload);
+      } else {
+        // If menu was open, deselect and close menu on row click
+        if (isMenuOpen) {
+          deselectFolder(pathForCart);
+          setIsMenuOpen(false);
+        } else {
+          deselectFolder(pathForCart);
+        }
       }
     }
   }
@@ -86,15 +107,9 @@ export default function useLongPress() {
   ) => {
     e.stopPropagation();
     if (e.currentTarget.checked) {
-      dispatch(
-        setSelectedPaths({
-          path,
-          type,
-          payload,
-        }),
-      );
+      selectFolder(path, type, payload);
     } else {
-      dispatch(clearSelectedPaths(path));
+      deselectFolder(path);
     }
   };
 
@@ -124,6 +139,7 @@ export default function useLongPress() {
       handleOnTouchStart,
       handleOnTouchEnd,
       handleCheckboxChange,
+      isMenuOpen,
     },
   };
 }

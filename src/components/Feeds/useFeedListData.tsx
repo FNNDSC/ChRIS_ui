@@ -13,7 +13,7 @@ const useSearchQuery = (query: URLSearchParams) => ({
   page: query.get("page") || "1",
   search: query.get("search") || "",
   searchType: query.get("searchType") || "name",
-  perPage: query.get("perPage") || "18",
+  perPage: query.get("perPage") || "20",
   type: query.get("type") || "public",
 });
 

@@ -238,7 +238,7 @@ const TableRow: React.FC<TableRowProps> = ({
 }) => {
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
-  const { handleOnClick } = handlers;
+  const { handleOnClick, isMenuOpen } = handlers;
   const navigate = useNavigate();
   const [intervalMs, setIntervalMs] = useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
@@ -298,6 +298,7 @@ const TableRow: React.FC<TableRowProps> = ({
         key={feed.data.id}
         style={{
           backgroundColor: selectedBgRow,
+          cursor: "pointer",
         }}
         data-test-id={`${feed.data.name}-test`}
         onContextMenu={async (e) => {
@@ -305,8 +306,13 @@ const TableRow: React.FC<TableRowProps> = ({
           handleOnClick(e, payload, feed.data.folder_path, "folder");
         }}
         onClick={async (e) => {
-          const payload = await getFolderForThisFeed();
-          handleOnClick(e, payload, feed.data.folder_path, "folder");
+          e.stopPropagation();
+          if (e.ctrlKey || isMenuOpen) {
+            const payload = await getFolderForThisFeed();
+            handleOnClick(e, payload, feed.data.folder_path, "folder");
+          } else {
+            onFeedNameClick();
+          }
         }}
       >
         <Td>
@@ -440,6 +446,9 @@ const FeedInfoColumn = ({
     onClick={(e) => {
       e.stopPropagation();
       onClick(feed);
+    }}
+    style={{
+      padding: 0,
     }}
   >
     {feed.data.name}

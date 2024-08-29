@@ -71,7 +71,8 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
-  const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
+  const { handleOnClick, handleOnMouseDown, handleCheckboxChange, isMenuOpen } =
+    handlers;
   const folderName = getFolderName(folder, computedPath);
 
   const creationDate = folder.data.creation_date;
@@ -134,7 +135,14 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
           isSelectable
           isCompact
           isFlat
-          onClick={(e) => handleOnClick(e, folder, folder.data.path, "folder")}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (e.ctrlKey || isMenuOpen) {
+              handleOnClick(e, folder, folder.data.path, "folder");
+            } else {
+              handleFolderClick(folderName);
+            }
+          }}
           onContextMenu={(e) =>
             handleOnClick(e, folder, folder.data.path, "folder")
           }

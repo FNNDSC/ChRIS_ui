@@ -70,8 +70,8 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   useEffect(() => {
     //Global registration needs to happen once
     registerToolingOnce();
-
     return () => {
+      renderingEngine?.destroy();
       removeTools();
       cleanupCornerstoneTooling();
     };
@@ -82,7 +82,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     if (file && blob) {
       let imageID: string;
       const extension = getFileExtension(file.data.fname);
-      renderingEngine?.destroy();
       await basicInit();
       setUpTooling(uniqueId);
       if (extension === "dcm") {
