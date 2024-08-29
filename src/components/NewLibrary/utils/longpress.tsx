@@ -58,7 +58,6 @@ export default function useLongPress() {
     type: string,
   ) {
     const isExist = selectedPaths.some((item) => item.path === pathForCart);
-
     // Handle Ctrl + Click for selection
     if (e.type === "click" && (e as React.MouseEvent).ctrlKey) {
       e.preventDefault();
@@ -69,26 +68,19 @@ export default function useLongPress() {
       }
     } else if (e.type === "contextmenu") {
       e.preventDefault(); // Prevent the default context menu from appearing
-
       if (!isExist) {
         selectFolder(pathForCart, type, payload);
       }
-
       // Toggle the menu state
       setIsMenuOpen((prev) => {
-        if (prev) {
-          deselectFolder(pathForCart);
-        }
         return !prev;
       });
     } else {
-      if (!isExist) {
-        selectFolder(pathForCart, type, payload);
+      if (isMenuOpen) {
+        setIsMenuOpen(false);
       } else {
-        // If menu was open, deselect and close menu on row click
-        if (isMenuOpen) {
-          deselectFolder(pathForCart);
-          setIsMenuOpen(false);
+        if (!isExist && !isMenuOpen) {
+          selectFolder(pathForCart, type, payload);
         } else {
           deselectFolder(pathForCart);
         }
