@@ -153,13 +153,7 @@ const BaseRow: React.FC<RowProps> = ({
           handleOnClick(e, resource, path, type);
         }}
       >
-        <Td
-          style={{
-            maxWidth: "0.5em",
-            paddingInlineEnd: "0",
-            paddingInlineStart: "1.5em",
-          }}
-        >
+        <Td>
           <Checkbox
             name={name}
             isChecked={isSelected}
@@ -171,12 +165,7 @@ const BaseRow: React.FC<RowProps> = ({
             }}
           />
         </Td>
-        <Td
-          style={{
-            paddingInlineStart: "0",
-          }}
-          dataLabel={columnNames.name}
-        >
+        <Td dataLabel={columnNames.name}>
           <Button
             onClick={(e) => {
               e.stopPropagation();
