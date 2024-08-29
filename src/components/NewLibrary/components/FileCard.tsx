@@ -254,8 +254,14 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
     handleDownloadMutation,
   ]);
 
-  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) =>
-    handlers.handleOnClick(e, file, file.data.fname, "file");
+  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    e.stopPropagation();
+    if (e.ctrlKey || handlers.isMenuOpen) {
+      handlers.handleOnClick(e, file, file.data.fname, "file");
+    } else {
+      setIsPreview(!preview);
+    }
+  };
 
   const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -324,14 +330,6 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
   );
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
 
-  // Calculate if the link file is new
-  const creationDate = new Date(linkFile.data.creation_date);
-  const now = new Date();
-  const secondsSinceCreation = Math.floor(
-    (now.getTime() - creationDate.getTime()) / 1000,
-  );
-  const isNewLinkFile = secondsSinceCreation <= 2; // 2 seconds
-
   const icon = <ExternalLinkSquareAltIcon />;
 
   useEffect(() => {
@@ -356,8 +354,14 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
     handleDownloadMutation,
   ]);
 
-  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) =>
-    handlers.handleOnClick(e, linkFile, linkFile.data.path, "linkFile");
+  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    e.stopPropagation();
+    if (e.ctrlKey || handlers.isMenuOpen) {
+      handlers.handleOnClick(e, linkFile, linkFile.data.path, "linkFile");
+    } else {
+      navigate(linkFile.data.path);
+    }
+  };
 
   const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {
     e.stopPropagation();

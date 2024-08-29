@@ -3,7 +3,7 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button } from "@patternfly/react-core";
+import { Button, Checkbox } from "@patternfly/react-core";
 import {
   Caption,
   Table,
@@ -15,7 +15,7 @@ import {
 } from "@patternfly/react-table";
 import { Drawer, Tag } from "antd";
 import { differenceInSeconds, format } from "date-fns";
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
@@ -73,7 +73,7 @@ const BaseRow: React.FC<RowProps> = ({
 }) => {
   const navigate = useNavigate();
   const { handlers } = useLongPress();
-  const { handleOnClick } = handlers;
+  const { handleOnClick, handleCheckboxChange, isMenuOpen } = handlers;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const rowRef = useRef<HTMLTableRowElement>(null); // Create a ref for the row
@@ -112,7 +112,7 @@ const BaseRow: React.FC<RowProps> = ({
   const shouldHighlight = isNewResource || isSelected;
   const highlightedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
   const icon = getIcon(type, isDarkTheme, {
-    marginRight: "0.25em",
+    marginRight: "0.5em",
   });
 
   const handleItem = () => {
@@ -125,7 +125,10 @@ const BaseRow: React.FC<RowProps> = ({
     }
   };
 
-  const path = type === "file" ? resource.data.fname : resource.data.path;
+  const path =
+    type === "file" || type === "link"
+      ? resource.data.fname
+      : resource.data.path;
 
   return (
     <FolderContextMenu
@@ -137,21 +140,47 @@ const BaseRow: React.FC<RowProps> = ({
     >
       <Tr
         ref={rowRef} // Attach the ref to the row
-        style={{ background: highlightedBgRow }}
+        style={{ background: highlightedBgRow, cursor: "pointer" }}
         onClick={(e) => {
-          handleOnClick(e, resource, path, type);
+          e.stopPropagation();
+          if (e.ctrlKey || isMenuOpen) {
+            handleOnClick(e, resource, path, type);
+          } else {
+            handleItem();
+          }
         }}
         onContextMenu={(e) => {
           handleOnClick(e, resource, path, type);
         }}
       >
-        <Td dataLabel={columnNames.name}>
+        <Td
+          style={{
+            paddingInlineEnd: 0,
+          }}
+        >
+          <Checkbox
+            name={name}
+            isChecked={isSelected}
+            id="Select Resources"
+            aria-label="Select resources"
+            onClick={(e) => e.stopPropagation()}
+            onChange={(event) => {
+              handleCheckboxChange(event, path, resource, type);
+            }}
+          />
+        </Td>
+        <Td
+          style={{
+            paddingInlineStart: 0,
+          }}
+          dataLabel={columnNames.name}
+        >
           <Button
             onClick={(e) => {
               e.stopPropagation();
               handleItem();
             }}
-            style={{ padding: 0 }}
+            style={{ padding: "0.25em" }}
             icon={icon}
             variant="link"
           >
@@ -224,10 +253,11 @@ const LibraryTable: React.FC<TableProps> = ({
         <Caption>Data Library</Caption>
         <Thead>
           <Tr>
-            <Th>{columnNames.name}</Th>
-            <Th>{columnNames.date}</Th>
-            <Th>{columnNames.owner}</Th>
-            <Th>{columnNames.size}</Th>
+            <Th arial-label="Select a row" />
+            <Th name="name">{columnNames.name}</Th>
+            <Th name="date">{columnNames.date}</Th>
+            <Th name="owner">{columnNames.owner}</Th>
+            <Th name="size">{columnNames.size}</Th>
           </Tr>
         </Thead>
         <Tbody>
