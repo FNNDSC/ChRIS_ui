@@ -18,9 +18,9 @@ import { elipses } from "../../../api/common";
 import { useTypedSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
+import { OperationContext } from "../context";
 import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
-import { OperationContext } from "../context";
 
 type Pagination = {
   totalCount: number;
@@ -71,8 +71,7 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
-  const { handleOnClick, handleOnMouseDown, handleCheckboxChange, isMenuOpen } =
-    handlers;
+  const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
   const folderName = getFolderName(folder, computedPath);
 
   const creationDate = folder.data.creation_date;
@@ -136,12 +135,9 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
           isCompact
           isFlat
           onClick={(e) => {
-            e.stopPropagation();
-            if (e.ctrlKey || isMenuOpen) {
-              handleOnClick(e, folder, folder.data.path, "folder");
-            } else {
+            handleOnClick(e, folder, folder.data.path, "folder", () => {
               handleFolderClick(folderName);
-            }
+            });
           }}
           onContextMenu={(e) =>
             handleOnClick(e, folder, folder.data.path, "folder")

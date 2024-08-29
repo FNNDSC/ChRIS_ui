@@ -307,12 +307,10 @@ const TableRow: React.FC<TableRowProps> = ({
         }}
         onClick={async (e) => {
           e.stopPropagation();
-          if (e.ctrlKey || isMenuOpen) {
-            const payload = await getFolderForThisFeed();
-            handleOnClick(e, payload, feed.data.folder_path, "folder");
-          } else {
+          const payload = await getFolderForThisFeed();
+          handleOnClick(e, payload, feed.data.folder_path, "folder", () => {
             onFeedNameClick();
-          }
+          });
         }}
       >
         <Td>

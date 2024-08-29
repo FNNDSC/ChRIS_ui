@@ -256,11 +256,9 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
 
   const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.stopPropagation();
-    if (e.ctrlKey || handlers.isMenuOpen) {
-      handlers.handleOnClick(e, file, file.data.fname, "file");
-    } else {
+    handlers.handleOnClick(e, file, file.data.fname, "file", () => {
       setIsPreview(!preview);
-    }
+    });
   };
 
   const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -356,11 +354,9 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
 
   const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
     e.stopPropagation();
-    if (e.ctrlKey || handlers.isMenuOpen) {
-      handlers.handleOnClick(e, linkFile, linkFile.data.path, "linkFile");
-    } else {
+    handlers.handleOnClick(e, linkFile, linkFile.data.path, "linkFile", () => {
       navigate(linkFile.data.path);
-    }
+    });
   };
 
   const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {

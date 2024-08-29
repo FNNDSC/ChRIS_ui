@@ -56,8 +56,8 @@ interface RowProps {
   size: number;
   type: "folder" | "file" | "link";
   computedPath: string;
-  handleFolderClick: (folderName: string) => void;
-  handleFileClick: (file: FileBrowserFolderFile) => void;
+  handleFolderClick: () => void;
+  handleFileClick: () => void;
 }
 
 const BaseRow: React.FC<RowProps> = ({
@@ -71,9 +71,8 @@ const BaseRow: React.FC<RowProps> = ({
   handleFolderClick,
   handleFileClick,
 }) => {
-  const navigate = useNavigate();
   const { handlers } = useLongPress();
-  const { handleOnClick, handleCheckboxChange, isMenuOpen } = handlers;
+  const { handleOnClick, handleCheckboxChange } = handlers;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const rowRef = useRef<HTMLTableRowElement>(null); // Create a ref for the row
@@ -117,18 +116,18 @@ const BaseRow: React.FC<RowProps> = ({
 
   const handleItem = () => {
     if (type === "folder") {
-      handleFolderClick(name);
+      handleFolderClick();
     } else if (type === "link") {
-      navigate(resource.data.path);
+      handleFileClick();
     } else if (type === "file") {
-      handleFileClick(resource as FileBrowserFolderFile);
+      handleFileClick();
     }
   };
 
   const path =
-    type === "file" || type === "link"
-      ? resource.data.fname
-      : resource.data.path;
+    type === "folder" || type === "link"
+      ? resource.data.path
+      : resource.data.fname;
 
   return (
     <FolderContextMenu
@@ -143,11 +142,9 @@ const BaseRow: React.FC<RowProps> = ({
         style={{ background: highlightedBgRow, cursor: "pointer" }}
         onClick={(e) => {
           e.stopPropagation();
-          if (e.ctrlKey || isMenuOpen) {
-            handleOnClick(e, resource, path, type);
-          } else {
+          handleOnClick(e, resource, path, type, () => {
             handleItem();
-          }
+          });
         }}
         onContextMenu={(e) => {
           handleOnClick(e, resource, path, type);
@@ -212,6 +209,7 @@ const LibraryTable: React.FC<TableProps> = ({
   computedPath,
   handleFolderClick,
 }) => {
+  const navigate = useNavigate();
   const [preview, setShowPreview] = useState(false);
   const [selectedFile, setSelectedFile] = useState<FileBrowserFolderFile>();
 
@@ -261,8 +259,13 @@ const LibraryTable: React.FC<TableProps> = ({
               owner=" "
               size={0}
               computedPath={computedPath}
-              handleFolderClick={handleFolderClick}
-              handleFileClick={handleFileClick}
+              handleFolderClick={() => {
+                const name = getFolderName(resource.data.path, computedPath);
+                handleFolderClick(name);
+              }}
+              handleFileClick={() => {
+                return;
+              }}
             />
           ))}
           {data.files.map((resource: FileBrowserFolderFile) => (
@@ -274,8 +277,12 @@ const LibraryTable: React.FC<TableProps> = ({
               owner={resource.data.owner_username}
               size={resource.data.fsize}
               computedPath={computedPath}
-              handleFolderClick={handleFolderClick}
-              handleFileClick={handleFileClick}
+              handleFolderClick={() => {
+                return;
+              }}
+              handleFileClick={() => {
+                handleFileClick(resource);
+              }}
             />
           ))}
           {data.linkFiles.map((resource: FileBrowserFolderLinkFile) => (
@@ -287,8 +294,12 @@ const LibraryTable: React.FC<TableProps> = ({
               owner={resource.data.owner_username}
               size={resource.data.fsize}
               computedPath={computedPath}
-              handleFolderClick={handleFolderClick}
-              handleFileClick={handleFileClick}
+              handleFolderClick={() => {
+                return;
+              }}
+              handleFileClick={() => {
+                navigate(resource.data.path);
+              }}
             />
           ))}
         </Tbody>

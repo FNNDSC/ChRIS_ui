@@ -15,15 +15,13 @@ import {
   Grid,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { format } from "date-fns";
+import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
 import { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   getFileName,
   getLinkFileName,
 } from "../NewLibrary/components/FileCard";
-import { getFileExtension } from "../../api/model";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
   clearSelectedFile,
@@ -31,12 +29,11 @@ import {
 } from "../../store/explorer/explorerSlice";
 import useDownload, { useTypedSelector } from "../../store/hooks";
 import { notification } from "../Antd";
-import { ClipboardCopyContainer, SpinContainer, getIcon } from "../Common";
+import { ClipboardCopyContainer, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
 import { HomeIcon } from "../Icons";
-import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
 import { getFolderName } from "../NewLibrary/components/FolderCard";
 import {
   FolderRow,
@@ -45,13 +42,10 @@ import {
 } from "../NewLibrary/components/LibraryTable";
 import Operations from "../NewLibrary/components/Operations";
 import { OperationContext } from "../NewLibrary/context";
-import useLongPress, {
-  getBackgroundRowColor,
-} from "../NewLibrary/utils/longpress";
+import useLongPress from "../NewLibrary/utils/longpress";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import type { FileBrowserProps } from "./types";
-import { bytesToSize } from "./utilities";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -85,7 +79,6 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const username = useTypedSelector((state) => state.user.username);
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
 
   const breadcrumb = path.split("/");
@@ -156,21 +149,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     document
       .querySelector(".small-preview")
       ?.animate(previewAnimation, previewAnimationTiming);
-  };
-
-  const handleItem = (
-    item: FileBrowserFolderFile | FileBrowserFolder,
-    type: string,
-  ) => {
-    if (type === "link" || type === "folder") {
-      handleFileClick(item.data.path);
-    }
-
-    if (type === "file") {
-      toggleAnimation();
-      dispatch(setSelectedFile(item as FileBrowserFolderFile));
-      !drawerState.preview.open && dispatch(setFilePreviewPanel());
-    }
   };
 
   const previewPanel = (
@@ -306,10 +284,10 @@ const FileBrowser = (props: FileBrowserProps) => {
                           size={resource.data.fsize}
                           computedPath={path}
                           handleFolderClick={() => {
-                            handleFileClick(resource.data.path);
+                            return;
                           }}
                           handleFileClick={() => {
-                            return;
+                            handleFileClick(resource.data.path);
                           }}
                         />
                       );

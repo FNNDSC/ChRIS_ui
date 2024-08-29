@@ -51,41 +51,66 @@ export default function useLongPress() {
     dispatch(clearSelectedPaths(pathForCart));
   }
 
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clickCount = useRef(0);
   function handleOnClick(
     e: React.MouseEvent | React.TouchEvent,
     payload: PayloadTypes,
     pathForCart: string,
     type: string,
+    optionalCallback?: () => void,
   ) {
     const isExist = selectedPaths.some((item) => item.path === pathForCart);
-    // Handle Ctrl + Click for selection
-    if (e.type === "click" && (e as React.MouseEvent).ctrlKey) {
-      e.preventDefault();
-      if (!isExist) {
-        selectFolder(pathForCart, type, payload);
-      } else {
-        deselectFolder(pathForCart);
-      }
-    } else if (e.type === "contextmenu") {
-      e.preventDefault(); // Prevent the default context menu from appearing
-      if (!isExist) {
-        selectFolder(pathForCart, type, payload);
-      }
-      // Toggle the menu state
-      setIsMenuOpen((prev) => {
-        return !prev;
-      });
-    } else {
-      if (isMenuOpen) {
-        setIsMenuOpen(false);
-      } else {
-        if (!isExist && !isMenuOpen) {
-          selectFolder(pathForCart, type, payload);
-        } else {
-          deselectFolder(pathForCart);
-        }
-      }
+
+    clickCount.current += 1;
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
     }
+
+    clickTimer.current = setTimeout(() => {
+      if (clickCount.current === 1) {
+        // Single click
+        if (e.ctrlKey) {
+          // Ctrl + Click: Toggle selection
+          if (isExist) {
+            deselectFolder(pathForCart);
+          } else {
+            selectFolder(pathForCart, type, payload);
+          }
+        } else if (e.type === "contextmenu") {
+          e.preventDefault(); // Prevent the default context menu from appearing
+          if (!isExist) {
+            selectFolder(pathForCart, type, payload);
+          }
+          // Toggle the menu state
+          setIsMenuOpen((prev) => {
+            if (prev) {
+              deselectFolder(pathForCart);
+            }
+            return !prev;
+          });
+        } else {
+          if (isMenuOpen) {
+            // The context menu is also closed by a right click
+            // We don't want it to confuse it with select/deselect of a folder
+            setIsMenuOpen(false);
+          } else {
+            // Normal click: Select/Deselect
+            if (isExist) {
+              deselectFolder(pathForCart);
+            } else {
+              selectFolder(pathForCart, type, payload);
+            }
+          }
+        }
+      } else if (clickCount.current === 2) {
+        // Double click: Enter folder
+        optionalCallback?.();
+      }
+
+      clickCount.current = 0;
+    }, 300); // Adjust this delay as needed
+    // Handle Ctrl + Click for selection
   }
 
   const handleCheckboxChange = (
