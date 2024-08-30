@@ -33,19 +33,16 @@ import { type Ref, useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { Alert, Spin, Typography, notification } from "../Antd";
+import { Alert, Spin, notification } from "../Antd";
 import { SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
 import WrapperConnect from "../Wrapper";
-
 import {
   fetchPluginForMeta,
   fetchPluginMetas,
   handleInstallPlugin,
 } from "../PipelinesCopy/utils";
-
-const { Paragraph } = Typography;
 
 const Store = () => {
   const isStaff = useTypedSelector((state) => state.user.isStaff);

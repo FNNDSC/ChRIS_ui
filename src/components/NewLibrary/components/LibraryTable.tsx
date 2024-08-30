@@ -159,21 +159,7 @@ const BaseRow: React.FC<RowProps> = ({
               handleCheckboxChange(event, path, resource, type),
             isSelected: isSelected,
           }}
-        >
-          {/*
-<Checkbox
-            name={name}
-            isChecked={isSelected}
-            id="Select Resources"
-            aria-label="Select resources"
-            onClick={(e) => e.stopPropagation()}
-            onChange={(event) => {
-              handleCheckboxChange(event, path, resource, type);
-            }}
-          />
-
-            */}
-        </Td>
+        />
         <Td dataLabel={columnNames.name}>
           <Button
             onClick={(e) => {
