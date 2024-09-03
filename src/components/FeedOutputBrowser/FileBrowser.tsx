@@ -237,6 +237,7 @@ const FileBrowser = (props: FileBrowserProps) => {
               <Table variant="compact">
                 <Thead aria-label="file-browser-table">
                   <Tr>
+                    <Th />
                     <Th aria-label="file-name">{columnNames.name}</Th>
                     <Th aria-label="file-creator">{columnNames.created}</Th>
                     <Th aria-label="file-owner">{columnNames.creator}</Th>
