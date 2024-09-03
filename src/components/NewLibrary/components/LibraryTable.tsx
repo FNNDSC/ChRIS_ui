@@ -151,29 +151,18 @@ const BaseRow: React.FC<RowProps> = ({
         onContextMenu={(e) => {
           handleOnClick(e, resource, path, type);
         }}
+        isSelectable={true}
+        isRowSelected={isSelected}
       >
         <Td
+          onClick={(e) => e.stopPropagation()}
           select={{
             rowIndex: rowIndex,
             onSelect: (event) =>
               handleCheckboxChange(event, path, resource, type),
             isSelected: isSelected,
           }}
-        >
-          {/*
-<Checkbox
-            name={name}
-            isChecked={isSelected}
-            id="Select Resources"
-            aria-label="Select resources"
-            onClick={(e) => e.stopPropagation()}
-            onChange={(event) => {
-              handleCheckboxChange(event, path, resource, type);
-            }}
-          />
-
-            */}
-        </Td>
+        />
         <Td dataLabel={columnNames.name}>
           <Button
             onClick={(e) => {

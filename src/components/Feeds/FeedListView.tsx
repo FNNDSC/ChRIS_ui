@@ -232,13 +232,14 @@ interface TableRowProps {
 }
 
 const TableRow: React.FC<TableRowProps> = ({
+  rowIndex,
   feed,
   columnNames,
   additionalKeys,
 }) => {
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
-  const { handleOnClick, isMenuOpen } = handlers;
+  const { handleOnClick } = handlers;
   const navigate = useNavigate();
   const [intervalMs, setIntervalMs] = useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
@@ -306,20 +307,43 @@ const TableRow: React.FC<TableRowProps> = ({
           handleOnClick(e, payload, feed.data.folder_path, "folder");
         }}
         onClick={async (e) => {
-          e.stopPropagation();
+          console.log("Clicked");
+          e?.stopPropagation();
           const payload = await getFolderForThisFeed();
           handleOnClick(e, payload, feed.data.folder_path, "folder", () => {
             onFeedNameClick();
           });
         }}
+        isRowSelected={isSelected}
       >
-        <Td>
-          <BulkCheckbox
-            feed={feed}
-            getFolderForThisFeed={getFolderForThisFeed}
-            isSelected={isSelected}
-          />
-        </Td>
+        <Td
+          onClick={(e) => e.stopPropagation()}
+          select={{
+            rowIndex: rowIndex,
+            isSelected: isSelected,
+            onSelect: async (event) => {
+              event.stopPropagation();
+              const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
+              const payload = await getFolderForThisFeed();
+
+              // Create a new event object with the captured properties
+              const newEvent = {
+                ...event,
+                stopPropagation: () => event.stopPropagation(),
+                preventDefault: () => event.preventDefault(),
+                currentTarget: { ...event.currentTarget, checked: isChecked },
+              };
+
+              // Pass the new event object to the handler function
+              handlers.handleCheckboxChange(
+                newEvent,
+                feed.data.folder_path,
+                payload,
+                "folder",
+              );
+            },
+          }}
+        />
         <Td dataLabel={columnNames.id}>{feed.data.id}</Td>
 
         <Td dataLabel={columnNames.analysis}>
@@ -340,49 +364,6 @@ const TableRow: React.FC<TableRowProps> = ({
         </Td>
       </Tr>
     </FolderContextMenu>
-  );
-};
-
-const BulkCheckbox = ({
-  feed,
-  getFolderForThisFeed,
-  isSelected,
-}: {
-  feed: Feed;
-  getFolderForThisFeed: () => Promise<FileBrowserFolder>;
-  isSelected: boolean;
-}) => {
-  const { handlers } = useLongPress();
-  const handleCheckboxChange = handlers.handleCheckboxChange;
-
-  return (
-    <Checkbox
-      className={`${feed.data.name}-checkbox`}
-      isChecked={isSelected}
-      id={feed.data.id}
-      aria-label={`${feed.data.name}-checkbox`}
-      onClick={(e) => e.stopPropagation()}
-      onChange={async (event) => {
-        const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
-        const payload = await getFolderForThisFeed();
-
-        // Create a new event object with the captured properties
-        const newEvent = {
-          ...event,
-          stopPropagation: () => event.stopPropagation(),
-          preventDefault: () => event.preventDefault(),
-          currentTarget: { ...event.currentTarget, checked: isChecked },
-        };
-
-        // Pass the new event object to the handler function
-        handleCheckboxChange(
-          newEvent,
-          feed.data.folder_path,
-          payload,
-          "folder",
-        );
-      }}
-    />
   );
 };
 
