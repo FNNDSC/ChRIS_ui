@@ -1,8 +1,7 @@
-import type { Feed, FileBrowserFolder } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
   Button,
-  Checkbox,
   EmptyState,
   EmptyStateIcon,
   EmptyStateVariant,
@@ -307,7 +306,6 @@ const TableRow: React.FC<TableRowProps> = ({
           handleOnClick(e, payload, feed.data.folder_path, "folder");
         }}
         onClick={async (e) => {
-          console.log("Clicked");
           e?.stopPropagation();
           const payload = await getFolderForThisFeed();
           handleOnClick(e, payload, feed.data.folder_path, "folder", () => {
