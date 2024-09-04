@@ -1,7 +1,10 @@
-import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
-import { useMutation } from "@tanstack/react-query";
 import { useContext, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
+import type {
+  FileBrowserFolder,
+  FileBrowserFolderList,
+} from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { MainRouterContext } from "../../../routes";
 import {
@@ -13,9 +16,12 @@ import {
 import { useTypedSelector } from "../../../store/hooks";
 import { notification } from "../../Antd";
 import type { AdditionalValues } from "../components/Operations";
-import { type OriginState, useOperationsContext } from "../context";
+import { useOperationsContext, type OriginState } from "../context";
 import useDeletePayload from "../utils/useDeletePayload";
 import useFeedOperations from "./useFeedOperations";
+import { catchError } from "../../../api/common";
+import { getFolderName } from "../components/FolderCard";
+import { fetchFeedForPath } from "./longpress";
 
 export interface ModalState {
   type: string;
@@ -23,8 +29,8 @@ export interface ModalState {
   additionalProps?: Record<string, any>;
 }
 
-export const getCurrentTimestamp = () => {
-  return new Date()
+export const getCurrentTimestamp = () =>
+  new Date()
     .toLocaleString("en-US", {
       year: "numeric",
       month: "short",
@@ -34,7 +40,6 @@ export const getCurrentTimestamp = () => {
       hour12: true,
     })
     .replace(/[^a-zA-Z0-9]/g, "_");
-};
 
 export const useFolderOperations = (
   origin: OriginState,
@@ -45,15 +50,18 @@ export const useFolderOperations = (
   const { handleOrigin, invalidateQueries } = useOperationsContext();
   const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
-  const username = useTypedSelector((state) => state.user.username);
+  const username = useTypedSelector((state) => state.user.username) as string;
+  const dispatch = useDispatch();
+
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     type: "folder",
   });
   const [userRelatedError, setUserRelatedError] = useState<string>("");
-  const dispatch = useDispatch();
+
   const folderInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [notificationAPI, notificationContextHolder] =
     notification.useNotification();
 
@@ -64,13 +72,12 @@ export const useFolderOperations = (
   );
 
   const resetInputField = (inputRef: React.RefObject<HTMLInputElement>) => {
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
+    if (inputRef.current) inputRef.current.value = "";
   };
 
-  const handleFileChange = async (
+  const handleUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
+    isFolder: boolean,
     name?: string,
   ) => {
     handleOrigin(origin);
@@ -85,40 +92,15 @@ export const useFolderOperations = (
     dispatch(
       startUpload({
         files,
-        isFolder: false,
+        isFolder,
         currentPath: uploadPath as string,
         invalidateFunc: invalidateQueries,
         createFeed,
         nameForFeed: name,
       }),
     );
-    resetInputField(fileInputRef);
-  };
 
-  const handleFolderChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-    name?: string,
-  ) => {
-    handleOrigin(origin);
-    const files = Array.from(event.target.files || []);
-    const uniqueName = name
-      ? `${name}_${getCurrentTimestamp()}`
-      : getCurrentTimestamp();
-    const uploadPath = createFeed
-      ? `home/${username}/uploads/${uniqueName}`
-      : computedPath;
-
-    dispatch(
-      startUpload({
-        files,
-        isFolder: true,
-        currentPath: uploadPath as string,
-        invalidateFunc: invalidateQueries,
-        createFeed,
-        nameForFeed: name,
-      }),
-    );
-    resetInputField(folderInputRef);
+    resetInputField(isFolder ? folderInputRef : fileInputRef);
   };
 
   const createFolder = async (folderName: string) => {
@@ -139,32 +121,25 @@ export const useFolderOperations = (
     event: React.ChangeEvent<HTMLInputElement>,
     type: string,
   ) => {
-    let defaultFeedName = "";
     const files = Array.from(event.target.files || []);
-    if (type === "folder") {
-      const name = files[0].webkitRelativePath;
-      const fileName = name.split("/")[0];
-      defaultFeedName = `Feed for ${fileName}`;
-    } else {
-      defaultFeedName =
-        files.length < 2 ? `Feed for ${files[0].name}` : "Multiple File Upload";
-    }
+    const defaultFeedName =
+      type === "folder"
+        ? `Feed for ${files[0].webkitRelativePath.split("/")[0]}`
+        : files.length < 2
+          ? `Feed for ${files[0].name}`
+          : "Multiple File Upload";
 
     setModalState({
       type: "createFeedWithFile",
       isOpen: true,
       additionalProps: {
-        createFeedWithFile: {
-          event,
-          type,
-          defaultFeedName: defaultFeedName,
-        },
+        createFeedWithFile: { event, type, defaultFeedName },
       },
     });
   };
 
   const shareFolder = async (
-    username: string,
+    targetUsername: string,
     additionalValues?: AdditionalValues,
   ) => {
     const permissions =
@@ -174,10 +149,9 @@ export const useFolderOperations = (
           ? "r"
           : "w";
 
-    for (const selectedItem of selectedPaths) {
-      const { payload } = selectedItem;
+    for (const { payload } of selectedPaths) {
       try {
-        await payload.addUserPermission(username, permissions);
+        await payload.addUserPermission(targetUsername, permissions);
       } catch (error: any) {
         const errorMessage =
           error?.response?.data?.username?.[0] ||
@@ -185,6 +159,32 @@ export const useFolderOperations = (
           "Failed to share this folder.";
         throw new Error(errorMessage);
       }
+    }
+  };
+
+  const renameFolder = async (inputValue: string) => {
+    handleOrigin(origin);
+    if (createFeed) {
+      // Renaming a feed
+      for (const { payload } of selectedPaths) {
+        try {
+          // This code is temporary
+          const fileName = getFolderName(
+            payload as FileBrowserFolder,
+            payload.data.path,
+          );
+          const feed = await fetchFeedForPath(fileName);
+          if (feed) {
+            await feed.put({
+              name: inputValue,
+            });
+          }
+        } catch (error: any) {
+          const error_message = catchError(error).error_message;
+          throw new Error(error_message);
+        }
+      }
+      invalidateQueries();
     }
   };
 
@@ -198,26 +198,24 @@ export const useFolderOperations = (
         await client.adminCreateGroup({ name: inputValue });
         break;
       }
-
       case "folder":
         await createFolder(inputValue);
         break;
-
       case "share":
         await shareFolder(inputValue, additionalValues);
         break;
 
-      case "createFeedWithFile": {
-        const { event, type } =
-          modalState.additionalProps?.createFeedWithFile || {};
-        if (type === "file") {
-          handleFileChange(event, inputValue);
-        } else if (type === "folder") {
-          handleFolderChange(event, inputValue);
-        }
+      case "rename": {
+        await renameFolder(inputValue);
         break;
       }
 
+      case "createFeedWithFile": {
+        const { event, type } =
+          modalState.additionalProps?.createFeedWithFile || {};
+        await handleUpload(event, type === "folder", inputValue);
+        break;
+      }
       default:
         break;
     }
@@ -235,77 +233,35 @@ export const useFolderOperations = (
     }) => handleModalSubmit(inputValue, additionalValues),
   });
 
-  const handleMerge = () => {
-    handleMergeMutation.mutate();
-  };
-
-  const handleDuplicate = () => {
-    handleDuplicateMutation.mutate();
-  };
-
   const handleOperations = (operationKey: string) => {
-    switch (operationKey) {
-      case "createFeed": {
-        const paths = selectedPaths.map((payload) => payload.path);
+    const operationsMap: Record<string, () => void> = {
+      createFeed: () => {
+        const paths = selectedPaths.map(({ path }) => path);
         router.actions.createFeedWithData(paths);
-        break;
-      }
-
-      case "download":
+      },
+      download: () => {
         handleOrigin(origin);
         dispatch(setToggleCart());
-        dispatch(
-          startDownload({ paths: selectedPaths, username: username as string }),
-        );
+        dispatch(startDownload({ paths: selectedPaths, username: username }));
         invalidateQueries();
-        break;
-
-      case "anonymize":
+      },
+      anonymize: () => {
         handleOrigin(origin);
         dispatch(setToggleCart());
-        dispatch(
-          startAnonymize({
-            paths: selectedPaths,
-            username: username as string,
-          }),
-        );
-        break;
+        dispatch(startAnonymize({ paths: selectedPaths, username }));
+      },
+      delete: () => deleteMutation.mutate(selectedPaths),
+      newFolder: () => setModalState({ isOpen: true, type: "folder" }),
+      fileUpload: () => fileInputRef.current?.click(),
+      folderUpload: () => folderInputRef.current?.click(),
+      createGroup: () => setModalState({ isOpen: true, type: "group" }),
+      merge: handleMergeMutation.mutate,
+      share: () => setModalState({ isOpen: true, type: "share" }),
+      rename: () => setModalState({ isOpen: true, type: "rename" }),
+      duplicate: handleDuplicateMutation.mutate,
+    };
 
-      case "delete":
-        deleteMutation.mutate(selectedPaths);
-        break;
-
-      case "newFolder":
-        setModalState({ isOpen: true, type: "folder" });
-        break;
-
-      case "fileUpload":
-        fileInputRef.current?.click();
-        break;
-
-      case "folderUpload":
-        folderInputRef.current?.click();
-        break;
-
-      case "createGroup":
-        setModalState({ isOpen: true, type: "group" });
-        break;
-
-      case "merge":
-        handleMerge();
-        break;
-
-      case "share":
-        setModalState({ isOpen: true, type: "share" });
-        break;
-
-      case "duplicate":
-        handleDuplicate();
-        break;
-
-      default:
-        break;
-    }
+    operationsMap[operationKey]?.();
   };
 
   return {
@@ -313,9 +269,13 @@ export const useFolderOperations = (
     userRelatedError,
     folderInputRef,
     fileInputRef,
-    handleFileChange,
+    handleFileChange: (e: React.ChangeEvent<HTMLInputElement>, name?: string) =>
+      handleUpload(e, false, name),
     createFeedWithFile,
-    handleFolderChange,
+    handleFolderChange: (
+      e: React.ChangeEvent<HTMLInputElement>,
+      name?: string,
+    ) => handleUpload(e, true, name),
     handleModalSubmitMutation,
     handleOperations,
     contextHolder: notificationContextHolder,

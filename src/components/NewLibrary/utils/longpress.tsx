@@ -1,4 +1,5 @@
 import type {
+  Feed,
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
@@ -7,6 +8,7 @@ import { Button, Tooltip } from "@patternfly/react-core";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
+import ChrisAPIClient from "../../../api/chrisapiclient";
 import {
   clearSelectedPaths,
   setSelectedPaths,
@@ -207,3 +209,16 @@ export function ShowInFolder({
     </Tooltip>
   );
 }
+
+export const fetchFeedForPath = async (path: string): Promise<Feed | null> => {
+  const feedMatches = path.match(/feed_(\d+)/);
+  const id = feedMatches ? feedMatches[1] : null;
+
+  if (id) {
+    const client = ChrisAPIClient.getClient();
+    const feed: Feed = (await client.getFeed(Number(id))) as Feed;
+    if (!feed) throw new Error("Failed to fetch the feed");
+    return feed;
+  }
+  return null;
+};
