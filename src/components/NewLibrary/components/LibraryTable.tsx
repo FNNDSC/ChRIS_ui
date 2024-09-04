@@ -151,8 +151,11 @@ const BaseRow: React.FC<RowProps> = ({
         onContextMenu={(e) => {
           handleOnClick(e, resource, path, type);
         }}
+        isSelectable={true}
+        isRowSelected={isSelected}
       >
         <Td
+          onClick={(e) => e.stopPropagation()}
           select={{
             rowIndex: rowIndex,
             onSelect: (event) =>

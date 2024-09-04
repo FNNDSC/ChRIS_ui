@@ -54,7 +54,7 @@ export default function useLongPress() {
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clickCount = useRef(0);
   function handleOnClick(
-    e: React.MouseEvent | React.TouchEvent,
+    e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent,
     payload: PayloadTypes,
     pathForCart: string,
     type: string,

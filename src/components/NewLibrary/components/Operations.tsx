@@ -15,15 +15,10 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
-import React, {
-  Fragment,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useState,
-} from "react";
+import type React from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router";
+import { matchPath, useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
@@ -68,38 +63,30 @@ const items = [
   { key: "folderUpload", label: "Folder Upload" },
 ];
 
-const Operations = React.forwardRef((props: OperationProps, ref) => {
+const Operations = (props: OperationProps) => {
   const location = useLocation();
   const { origin, computedPath, folderList, customStyle, customClassName } =
     props;
   const dispatch = useDispatch();
   const {
-    modalInfo,
-    userError,
-    folderInput,
-    fileInput,
+    modalState,
+    userRelatedError,
+    folderInputRef,
+    fileInputRef,
     handleFileChange,
+    createFeedWithFile,
     handleFolderChange,
     handleModalSubmitMutation,
     handleOperations,
     contextHolder,
-    setUserErrors,
-    setModalInfo,
+    setUserRelatedError,
+    setModalState,
   } = useFolderOperations(
     origin,
     computedPath,
     folderList,
     location.pathname === "/feeds",
   );
-
-  useImperativeHandle(ref, () => ({
-    triggerFileUpload: () => {
-      fileInput.current?.click();
-    },
-    triggerFolderUpload: () => {
-      folderInput.current?.click();
-    },
-  }));
 
   const { selectedPaths } = useTypedSelector((state) => state.cart);
   const selectedPathsCount = selectedPaths.length;
@@ -145,13 +132,13 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
               New
             </Button>
           </Dropdown>
-          {userError && (
+          {userRelatedError && (
             <Alert
               style={{ marginLeft: "1rem" }}
               type="error"
-              description={userError}
+              description={userRelatedError}
               closable
-              onClose={() => setUserErrors("")}
+              onClose={() => setUserRelatedError("")}
             />
           )}
         </ToolbarItem>
@@ -224,21 +211,21 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     ),
     [
       contextHolder,
-      userError,
+      userRelatedError,
       selectedPaths,
       selectedPathsCount,
       dispatch,
       handleOperations,
-      setUserErrors,
+      setUserRelatedError,
     ],
   );
 
   return (
     <>
       <AddModal
-        operationType={modalInfo.type}
-        isOpen={modalInfo.isOpen}
-        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        operationType={modalState.type}
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, type: "" })}
         onSubmit={(inputValue, additionalValues) =>
           handleModalSubmitMutation.mutate({
             inputValue,
@@ -246,11 +233,11 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
           })
         }
         modalTitle={
-          modalTypeLabels[modalInfo.type]?.modalTitle ??
+          modalTypeLabels[modalState.type]?.modalTitle ??
           modalTypeLabels.default.modalTitle
         }
         inputLabel={
-          modalTypeLabels[modalInfo.type]?.inputLabel ??
+          modalTypeLabels[modalState.type]?.inputLabel ??
           modalTypeLabels.default.inputLabel
         }
         indicators={{
@@ -261,19 +248,32 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
         }}
       />
       <input
-        ref={fileInput}
+        ref={fileInputRef}
         multiple={true}
         type="file"
         hidden
-        onChange={handleFileChange}
+        onChange={(e) => {
+          if (matchPath({ path: "/feeds", end: true }, location.pathname)) {
+            createFeedWithFile(e, "file");
+          } else {
+            handleFileChange(e);
+          }
+        }}
       />
       <input
-        ref={folderInput}
+        ref={folderInputRef}
         type="file"
+        //@ts-ignore
         webkitdirectory=""
         directory=""
         hidden
-        onChange={handleFolderChange}
+        onChange={(e) => {
+          if (matchPath({ path: "/feeds", end: true }, location.pathname)) {
+            createFeedWithFile(e, "folder");
+          } else {
+            handleFolderChange(e);
+          }
+        }}
       />
       <Toolbar
         style={{ ...customStyle?.toolbar }}
@@ -294,7 +294,7 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       </Toolbar>
     </>
   );
-});
+};
 
 export default Operations;
 
@@ -309,6 +309,10 @@ const modalTypeLabels: Record<
   share: {
     modalTitle: "Share this Folder",
     inputLabel: "User Name",
+  },
+  createFeedWithFile: {
+    modalTitle: "Create Feed",
+    inputLabel: "Feed Name",
   },
 
   default: {
@@ -329,6 +333,9 @@ interface AddModalProps {
     isError: boolean;
     error: DefaultError | null;
     clearErrors: () => void;
+  };
+  additionalValues?: {
+    [key: string]: any;
   };
 }
 
