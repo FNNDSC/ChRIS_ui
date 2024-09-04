@@ -31,6 +31,7 @@ import {
   DeleteIcon,
   DownloadIcon,
   DuplicateIcon,
+  EditIcon,
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
@@ -178,6 +179,8 @@ const Operations = ({
               "share",
               "Share selected items",
             )}
+
+            {renderOperationButton(<EditIcon />, "rename", "Rename")}
             {renderOperationButton(
               <DeleteIcon />,
               "delete",
@@ -274,23 +277,32 @@ export default Operations;
 
 const MODAL_TYPE_LABELS: Record<
   string,
-  { modalTitle: string; inputLabel: string }
+  { modalTitle: string; inputLabel: string; buttonLabel: string }
 > = {
   group: {
     modalTitle: "Create a new Group",
     inputLabel: "Group Name",
+    buttonLabel: "Create",
   },
   share: {
     modalTitle: "Share this Folder",
     inputLabel: "User Name",
+    buttonLabel: "Share",
+  },
+  rename: {
+    modalTitle: "Rename",
+    inputLabel: "Rename",
+    buttonLabel: "Rename",
   },
   createFeedWithFile: {
     modalTitle: "Create Feed",
     inputLabel: "Feed Name",
+    buttonLabel: "Create",
   },
   default: {
     modalTitle: "Create a new Folder",
     inputLabel: "Folder Name",
+    buttonLabel: "Create",
   },
 };
 
@@ -317,12 +329,13 @@ export const AddModal = ({
     share: { read: false, write: true },
   });
 
-  const { modalTitle, inputLabel } = useMemo(() => {
+  const { modalTitle, inputLabel, buttonLabel } = useMemo(() => {
     const modalType =
       MODAL_TYPE_LABELS[modalState.type] ?? MODAL_TYPE_LABELS.default;
     return {
       modalTitle: modalType.modalTitle,
       inputLabel: modalType.inputLabel,
+      buttonLabel: modalType.buttonLabel,
     };
   }, [modalState.type]);
 
@@ -365,7 +378,8 @@ export const AddModal = ({
           {modalState.type === "createFeedWithFile" && (
             <HelperText>
               <HelperTextItem>
-                You can create a Feed by uploading a file.
+                Please provide a name for your feed or hit 'Create' to use the
+                default name
               </HelperTextItem>
             </HelperText>
           )}
@@ -411,7 +425,7 @@ export const AddModal = ({
             onClick={() => onSubmit(inputValue, additionalValues)}
             isLoading={indicators.isPending}
           >
-            Create
+            {buttonLabel}
           </Button>
           <Button variant="link" onClick={handleClose}>
             Cancel

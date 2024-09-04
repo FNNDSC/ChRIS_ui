@@ -8,6 +8,7 @@ import {
   DeleteIcon,
   DownloadIcon,
   DuplicateIcon,
+  EditIcon,
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
@@ -46,7 +47,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
     { key: "share", label: "Share", icon: <ShareIcon /> },
-
+    { key: "rename", label: "Rename", icon: <EditIcon /> },
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
 
