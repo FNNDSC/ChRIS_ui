@@ -76,6 +76,7 @@ function* uploadFileBatch(
   batchSize: number,
   invalidateFunc: () => void,
   shouldCreateFeed?: boolean,
+  nameForFeed?: string,
 ) {
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
   const firstBatch = files.slice(0, 1); // First batch with 1 file
@@ -83,6 +84,7 @@ function* uploadFileBatch(
   const batches = [firstBatch, ...remainingBatches];
   const totalFiles = files.length;
   let uploadedFilesCount = 0;
+  let uploadFileCountForFeed = 0;
   let cancelledUploads = false;
   let errorOccurred = false;
   let lastError = "";
@@ -165,6 +167,10 @@ function* uploadFileBatch(
                 );
               }
 
+              if (response && !error) {
+                uploadFileCountForFeed += 1;
+              }
+
               if (response || error) {
                 break;
               }
@@ -188,6 +194,34 @@ function* uploadFileBatch(
           folderController,
           invalidateFunc,
           shouldCreateFeed,
+          nameForFeed,
+        );
+      }
+    }
+
+    if (
+      !isFolder &&
+      shouldCreateFeed &&
+      uploadFileCountForFeed === files.length
+    ) {
+      // This creates a feed for multiple file uploads
+      try {
+        yield call(
+          createFeed,
+          [currentPath],
+          nameForFeed ? nameForFeed : "",
+          invalidateFunc,
+        );
+      } catch (e) {
+        yield put(
+          setFileUploadStatus({
+            step: "Error: Failed to create a feed",
+            fileName: nameForFeed as string,
+            progress: 0,
+            controller: null,
+            path: currentPath,
+            type: "file",
+          }),
         );
       }
     }
@@ -201,6 +235,7 @@ function* handleUpload(action: IActionTypeParam) {
     currentPath,
     createFeed,
     invalidateFunc,
+    nameForFeed,
   }: UploadPayload = action.payload;
   const client = ChrisAPIClient.getClient();
   const batchSize = files.length > 500 ? 100 : 50; // Adjust the batch size as needed
@@ -214,6 +249,7 @@ function* handleUpload(action: IActionTypeParam) {
     batchSize,
     invalidateFunc,
     createFeed,
+    nameForFeed,
   );
 }
 
@@ -323,28 +359,6 @@ function* updateFileUploadStatus(
       type: "file",
     }),
   );
-
-  if (isDone && response && shouldCreateFeed) {
-    try {
-      yield call(
-        createFeed,
-        [currentPath],
-        `Library upload for ${name}`,
-        invalidateFunc,
-      );
-    } catch (e) {
-      yield put(
-        setFileUploadStatus({
-          step: "Error: Failed to create a feed",
-          fileName: name,
-          progress,
-          controller: null,
-          path: currentPath,
-          type: "file",
-        }),
-      );
-    }
-  }
 }
 
 function* updateFolderUploadStatus(
@@ -355,6 +369,7 @@ function* updateFolderUploadStatus(
   controller: AbortController,
   invalidateFunc: () => void,
   shouldCreateFeed?: boolean,
+  nameForFeed?: string,
 ) {
   const name = file.webkitRelativePath;
   const fileName = name.split("/")[0];
@@ -362,12 +377,7 @@ function* updateFolderUploadStatus(
   const uploadDone = uploadedFilesCount === totalFiles;
   try {
     if (uploadDone && shouldCreateFeed) {
-      yield call(
-        createFeed,
-        [path],
-        `Library upload for ${fileName}`,
-        invalidateFunc,
-      );
+      yield call(createFeed, [path], nameForFeed as string, invalidateFunc);
     }
     //invalidate the ui page if the upload is complete
     uploadDone && !shouldCreateFeed && invalidateFunc();

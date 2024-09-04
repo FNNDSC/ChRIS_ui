@@ -1,5 +1,6 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import type { DefaultError } from "@tanstack/react-query";
+import { matchPath } from "react-router";
 import { Alert, Dropdown, type MenuProps } from "../../Antd";
 import {
   ArchiveIcon,
@@ -35,7 +36,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     origin,
     computedPath,
     folderList,
-    location.pathname === "/feeds",
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null, // This checks if the path matches and returns true or false
   );
 
   const items: MenuProps["items"] = [
@@ -49,33 +50,10 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
 
-  const modalTypeLabels: Record<
-    string,
-    { modalTitle: string; inputLabel: string }
-  > = {
-    group: {
-      modalTitle: "Create a new Group",
-      inputLabel: "Group Name",
-    },
-    share: {
-      modalTitle: "Share this Folder",
-      inputLabel: "User Name",
-    },
-
-    default: {
-      modalTitle: "Create a new Folder",
-      inputLabel: "Folder Name",
-    },
-  };
-
-  const { modalTitle, inputLabel } =
-    modalTypeLabels[modalState.type] || modalTypeLabels.default;
-
   return (
     <>
       <AddModal
-        operationType={modalState.type}
-        isOpen={modalState.isOpen}
+        modalState={modalState}
         onClose={() => setModalState({ isOpen: false, type: "" })}
         onSubmit={(inputValue, additionalValues) =>
           handleModalSubmitMutation.mutate({
@@ -83,8 +61,6 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
             additionalValues,
           })
         }
-        modalTitle={modalTitle}
-        inputLabel={inputLabel}
         indicators={{
           isPending: handleModalSubmitMutation.isPending,
           isError: handleModalSubmitMutation.isError,

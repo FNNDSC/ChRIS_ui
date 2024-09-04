@@ -7,6 +7,8 @@ import {
   ChipGroup,
   Form,
   FormGroup,
+  HelperText,
+  HelperTextItem,
   Modal,
   TextInput,
   Toolbar,
@@ -15,14 +17,13 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
-import type React from "react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { matchPath, useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
-import { Alert, Dropdown, Spin } from "../../Antd";
+import { Alert, Dropdown } from "../../Antd";
 import {
   AddIcon,
   ArchiveIcon,
@@ -34,7 +35,7 @@ import {
   ShareIcon,
 } from "../../Icons";
 import type { OriginState } from "../context";
-import { useFolderOperations } from "../utils/useOperations";
+import { type ModalState, useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
 
@@ -57,17 +58,22 @@ interface OperationProps {
   };
 }
 
-const items = [
+const OPERATION_ITEMS = [
   { key: "newFolder", label: "New Folder" },
   { key: "fileUpload", label: "File Upload" },
   { key: "folderUpload", label: "Folder Upload" },
 ];
 
-const Operations = (props: OperationProps) => {
+const Operations = ({
+  origin,
+  computedPath,
+  folderList,
+  customStyle,
+  customClassName,
+}: OperationProps) => {
   const location = useLocation();
-  const { origin, computedPath, folderList, customStyle, customClassName } =
-    props;
   const dispatch = useDispatch();
+
   const {
     modalState,
     userRelatedError,
@@ -85,10 +91,10 @@ const Operations = (props: OperationProps) => {
     origin,
     computedPath,
     folderList,
-    location.pathname === "/feeds",
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null, // This checks if the path matches and returns true or false
   );
 
-  const { selectedPaths } = useTypedSelector((state) => state.cart);
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
 
   const renderOperationButton = (
@@ -114,11 +120,9 @@ const Operations = (props: OperationProps) => {
         <ToolbarItem>
           <Dropdown
             menu={{
-              items,
+              items: OPERATION_ITEMS,
               selectable: true,
-              onClick: (info) => {
-                handleOperations(info.key);
-              },
+              onClick: (info) => handleOperations(info.key),
             }}
           >
             <Button
@@ -144,55 +148,41 @@ const Operations = (props: OperationProps) => {
         </ToolbarItem>
         {selectedPathsCount > 0 && (
           <>
-            <ToolbarItem>
-              {renderOperationButton(
-                <CodeBranchIcon />,
-                "createFeed",
-                "Create a new feed",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <DownloadIcon />,
-                "download",
-                "Download selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <ArchiveIcon />,
-                "anonymize",
-                "Anonymize selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <MergeIcon />,
-                "merge",
-                "Merge selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <DuplicateIcon />,
-                "duplicate",
-                "Copy selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <ShareIcon />,
-                "share",
-                "Share selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <DeleteIcon />,
-                "delete",
-                "Delete selected items",
-              )}
-            </ToolbarItem>
+            {renderOperationButton(
+              <CodeBranchIcon />,
+              "createFeed",
+              "Create a new feed",
+            )}
+            {renderOperationButton(
+              <DownloadIcon />,
+              "download",
+              "Download selected items",
+            )}
+            {renderOperationButton(
+              <ArchiveIcon />,
+              "anonymize",
+              "Anonymize selected items",
+            )}
+            {renderOperationButton(
+              <MergeIcon />,
+              "merge",
+              "Merge selected items",
+            )}
+            {renderOperationButton(
+              <DuplicateIcon />,
+              "duplicate",
+              "Copy selected items",
+            )}
+            {renderOperationButton(
+              <ShareIcon />,
+              "share",
+              "Share selected items",
+            )}
+            {renderOperationButton(
+              <DeleteIcon />,
+              "delete",
+              "Delete selected items",
+            )}
             <ToolbarItem>
               <ChipGroup>
                 {selectedPaths.map((selection) => (
@@ -223,22 +213,10 @@ const Operations = (props: OperationProps) => {
   return (
     <>
       <AddModal
-        operationType={modalState.type}
-        isOpen={modalState.isOpen}
+        modalState={modalState}
         onClose={() => setModalState({ isOpen: false, type: "" })}
         onSubmit={(inputValue, additionalValues) =>
-          handleModalSubmitMutation.mutate({
-            inputValue,
-            additionalValues,
-          })
-        }
-        modalTitle={
-          modalTypeLabels[modalState.type]?.modalTitle ??
-          modalTypeLabels.default.modalTitle
-        }
-        inputLabel={
-          modalTypeLabels[modalState.type]?.inputLabel ??
-          modalTypeLabels.default.inputLabel
+          handleModalSubmitMutation.mutate({ inputValue, additionalValues })
         }
         indicators={{
           isPending: handleModalSubmitMutation.isPending,
@@ -249,7 +227,7 @@ const Operations = (props: OperationProps) => {
       />
       <input
         ref={fileInputRef}
-        multiple={true}
+        multiple
         type="file"
         hidden
         onChange={(e) => {
@@ -263,10 +241,10 @@ const Operations = (props: OperationProps) => {
       <input
         ref={folderInputRef}
         type="file"
+        hidden
         //@ts-ignore
         webkitdirectory=""
         directory=""
-        hidden
         onChange={(e) => {
           if (matchPath({ path: "/feeds", end: true }, location.pathname)) {
             createFeedWithFile(e, "folder");
@@ -276,17 +254,13 @@ const Operations = (props: OperationProps) => {
         }}
       />
       <Toolbar
-        style={{ ...customStyle?.toolbar }}
+        style={customStyle?.toolbar}
         className={customClassName?.toolbar}
       >
-        <ToolbarContent style={{ ...customStyle?.toolbarItem }}>
+        <ToolbarContent style={customStyle?.toolbarItem}>
           {toolbarItems}
           {location.pathname.startsWith("/library/") && (
-            <ToolbarItem
-              align={{
-                default: "alignRight",
-              }}
-            >
+            <ToolbarItem align={{ default: "alignRight" }}>
               <LayoutSwitch />
             </ToolbarItem>
           )}
@@ -298,7 +272,7 @@ const Operations = (props: OperationProps) => {
 
 export default Operations;
 
-const modalTypeLabels: Record<
+const MODAL_TYPE_LABELS: Record<
   string,
   { modalTitle: string; inputLabel: string }
 > = {
@@ -314,7 +288,6 @@ const modalTypeLabels: Record<
     modalTitle: "Create Feed",
     inputLabel: "Feed Name",
   },
-
   default: {
     modalTitle: "Create a new Folder",
     inputLabel: "Folder Name",
@@ -322,56 +295,53 @@ const modalTypeLabels: Record<
 };
 
 interface AddModalProps {
-  operationType: string;
-  isOpen: boolean;
+  modalState: ModalState;
   onClose: () => void;
   onSubmit: (inputValue: string, additionalValues?: AdditionalValues) => void;
-  modalTitle: string;
-  inputLabel: string;
   indicators: {
     isPending: boolean;
     isError: boolean;
     error: DefaultError | null;
     clearErrors: () => void;
   };
-  additionalValues?: {
-    [key: string]: any;
-  };
 }
 
-export const AddModal = (props: AddModalProps) => {
-  const {
-    isOpen,
-    onClose,
-    onSubmit,
-    modalTitle,
-    inputLabel,
-    indicators,
-    operationType,
-  } = props;
+export const AddModal = ({
+  modalState,
+  onClose,
+  onSubmit,
+  indicators,
+}: AddModalProps) => {
   const [inputValue, setInputValue] = useState("");
   const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
-    share: {
-      read: false,
-      write: true,
-    },
+    share: { read: false, write: true },
   });
+
+  const { modalTitle, inputLabel } = useMemo(() => {
+    const modalType =
+      MODAL_TYPE_LABELS[modalState.type] ?? MODAL_TYPE_LABELS.default;
+    return {
+      modalTitle: modalType.modalTitle,
+      inputLabel: modalType.inputLabel,
+    };
+  }, [modalState.type]);
+
+  useEffect(() => {
+    if (modalState.additionalProps?.createFeedWithFile) {
+      setInputValue(
+        modalState.additionalProps.createFeedWithFile.defaultFeedName,
+      );
+    }
+  }, [modalState.type]);
 
   const handleClose = () => {
     setInputValue("");
     onClose();
   };
 
-  useEffect(() => {
-    async function fetchUsers() {}
-    if (modalTitle === "Share this Folder") {
-      fetchUsers();
-    }
-  }, [modalTitle]);
-
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={modalState.isOpen}
       variant="small"
       aria-label={modalTitle}
       title={modalTitle}
@@ -392,57 +362,61 @@ export const AddModal = (props: AddModalProps) => {
             aria-label={inputLabel}
             placeholder={inputLabel}
           />
+          {modalState.type === "createFeedWithFile" && (
+            <HelperText>
+              <HelperTextItem>
+                You can create a Feed by uploading a file.
+              </HelperTextItem>
+            </HelperText>
+          )}
         </FormGroup>
-        {operationType === "share" && (
-          <FormGroup>
-            <Checkbox
-              id="read"
-              isChecked={additionalValues?.share.read}
-              label="Read"
-              onChange={(_event, checked) => {
-                setAdditionalValues({
-                  ...additionalValues,
-                  share: {
-                    ...additionalValues?.share,
-                    read: checked,
-                  },
-                });
-              }}
-            />
-            <Checkbox
-              id="write"
-              isChecked={additionalValues?.share.write}
-              label="Write"
-              onChange={(_event, checked) => {
-                setAdditionalValues({
-                  ...additionalValues,
-                  share: {
-                    ...additionalValues?.share,
-                    write: checked,
-                  },
-                });
-              }}
-            />
-          </FormGroup>
+        {modalState.type === "share" && (
+          <Fragment>
+            <FormGroup fieldId="share-checkbox-group">
+              <Checkbox
+                label="Read"
+                id="share-checkbox-1"
+                isChecked={additionalValues.share.read}
+                onChange={(_e, checked) =>
+                  setAdditionalValues((prevState) => ({
+                    share: { ...prevState.share, read: checked },
+                  }))
+                }
+              />
+              <Checkbox
+                label="Write"
+                id="share-checkbox-2"
+                isChecked={additionalValues.share.write}
+                onChange={(_e, checked) =>
+                  setAdditionalValues((prevState) => ({
+                    share: { ...prevState.share, write: checked },
+                  }))
+                }
+              />
+            </FormGroup>
+          </Fragment>
         )}
-
-        <ActionGroup>
-          <Button
-            icon={indicators.isPending && <Spin />}
-            onClick={() => onSubmit(inputValue)}
-          >
-            Confirm
-          </Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </ActionGroup>
         {indicators.isError && (
           <Alert
-            type="error"
+            message="Failed to create a new folder"
             description={indicators.error?.message}
+            type="error"
+            showIcon
             closable
-            onClose={indicators.clearErrors}
+            afterClose={() => indicators.clearErrors()}
           />
         )}
+        <ActionGroup>
+          <Button
+            onClick={() => onSubmit(inputValue, additionalValues)}
+            isLoading={indicators.isPending}
+          >
+            Create
+          </Button>
+          <Button variant="link" onClick={handleClose}>
+            Cancel
+          </Button>
+        </ActionGroup>
       </Form>
     </Modal>
   );

@@ -17,7 +17,7 @@ import { type OriginState, useOperationsContext } from "../context";
 import useDeletePayload from "../utils/useDeletePayload";
 import useFeedOperations from "./useFeedOperations";
 
-interface ModalState {
+export interface ModalState {
   type: string;
   isOpen: boolean;
   additionalProps?: Record<string, any>;
@@ -48,7 +48,7 @@ export const useFolderOperations = (
   const username = useTypedSelector((state) => state.user.username);
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
-    type: "",
+    type: "folder",
   });
   const [userRelatedError, setUserRelatedError] = useState<string>("");
   const dispatch = useDispatch();
@@ -139,6 +139,17 @@ export const useFolderOperations = (
     event: React.ChangeEvent<HTMLInputElement>,
     type: string,
   ) => {
+    let defaultFeedName = "";
+    const files = Array.from(event.target.files || []);
+    if (type === "folder") {
+      const name = files[0].webkitRelativePath;
+      const fileName = name.split("/")[0];
+      defaultFeedName = `Feed for ${fileName}`;
+    } else {
+      defaultFeedName =
+        files.length < 2 ? `Feed for ${files[0].name}` : "Multiple File Upload";
+    }
+
     setModalState({
       type: "createFeedWithFile",
       isOpen: true,
@@ -146,6 +157,7 @@ export const useFolderOperations = (
         createFeedWithFile: {
           event,
           type,
+          defaultFeedName: defaultFeedName,
         },
       },
     });
