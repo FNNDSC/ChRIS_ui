@@ -424,6 +424,7 @@ export const AddModal = ({
           <Button
             onClick={() => onSubmit(inputValue, additionalValues)}
             isLoading={indicators.isPending}
+            isDisabled={!inputValue}
           >
             {buttonLabel}
           </Button>
