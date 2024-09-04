@@ -24,13 +24,13 @@ interface ContextMenuProps {
 export const FolderContextMenu = (props: ContextMenuProps) => {
   const { children, origin, folderList, computedPath } = props;
   const {
-    modalInfo,
-    userError,
+    modalState,
+    userRelatedError,
     handleModalSubmitMutation,
     handleOperations,
     contextHolder,
-    setUserErrors,
-    setModalInfo,
+    setUserRelatedError,
+    setModalState,
   } = useFolderOperations(
     origin,
     computedPath,
@@ -69,14 +69,14 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
   };
 
   const { modalTitle, inputLabel } =
-    modalTypeLabels[modalInfo.type] || modalTypeLabels.default;
+    modalTypeLabels[modalState.type] || modalTypeLabels.default;
 
   return (
     <>
       <AddModal
-        operationType={modalInfo.type}
-        isOpen={modalInfo.isOpen}
-        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        operationType={modalState.type}
+        isOpen={modalState.isOpen}
+        onClose={() => setModalState({ isOpen: false, type: "" })}
         onSubmit={(inputValue, additionalValues) =>
           handleModalSubmitMutation.mutate({
             inputValue,
@@ -101,13 +101,13 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
         {children}
       </Dropdown>
 
-      {userError && (
+      {userRelatedError && (
         <Alert
           style={{ marginLeft: "1rem" }}
           type="error"
-          description={userError}
+          description={userRelatedError}
           closable
-          onClose={() => setUserErrors("")}
+          onClose={() => setUserRelatedError("")}
         />
       )}
     </>

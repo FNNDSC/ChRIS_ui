@@ -186,7 +186,7 @@ export const fileViewerMap: any = {
   jpg: "ImageDisplay",
   jpeg: "ImageDisplay",
   gif: "ImageDisplay",
-  dcm: "DcmDisplay",
+  dcm: "NiiVueDisplay",
   default: "CatchallDisplay",
   nii: "NiiVueDisplay",
   gz: "CatchallDisplay",
