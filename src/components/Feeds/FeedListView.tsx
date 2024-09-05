@@ -15,11 +15,11 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import type React from "react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
@@ -37,8 +37,67 @@ import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
 import { getPluginInstanceDetails } from "./utilties";
-
 const { Paragraph } = Typography;
+import { SortByDirection } from "@patternfly/react-table";
+
+interface ColumnDefinition {
+  id: string;
+  label: string;
+  comparator: (a: Feed, b: Feed, detailsA: any, detailsB: any) => number;
+}
+
+const COLUMN_DEFINITIONS: ColumnDefinition[] = [
+  {
+    id: "id",
+    label: "ID",
+    comparator: (a, b) => a.data.id - b.data.id,
+  },
+  {
+    id: "analysis",
+    label: "Analysis",
+    comparator: (a, b) => a.data.name.localeCompare(b.data.name),
+  },
+  {
+    id: "created",
+    label: "Created",
+    comparator: (a, b) =>
+      new Date(a.data.creation_date).getTime() -
+      new Date(b.data.creation_date).getTime(),
+  },
+  {
+    id: "creator",
+    label: "Creator",
+    comparator: (a, b) =>
+      a.data.owner_username.localeCompare(b.data.owner_username),
+  },
+  {
+    id: "runtime",
+    label: "Run Time",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const timeA = detailsA?.time || "0";
+      const timeB = detailsB?.time || "0";
+      return timeA.localeCompare(timeB);
+    },
+  },
+  {
+    id: "size",
+    label: "Size",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const sizeA = detailsA?.size || "0";
+      const sizeB = detailsB?.size || "0";
+      return sizeA.localeCompare(sizeB);
+    },
+  },
+  {
+    id: "status",
+    label: "Status",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const progressA = detailsA?.progress || 0;
+      const progressB = detailsB?.progress || 0;
+      return progressA - progressB;
+    },
+  },
+];
 
 const TableSelectable: React.FC = () => {
   const navigate = useNavigate();
@@ -46,6 +105,68 @@ const TableSelectable: React.FC = () => {
     useFeedListData();
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const { perPage, page, type, search, searchType } = searchFolderData;
+  const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
+  const [activeSortDirection, setActiveSortDirection] =
+    useState<SortByDirection>(SortByDirection.desc);
+
+  const feedQueries = useQueries({
+    queries: feedsToDisplay.map((feed) => ({
+      queryKey: ["feedDetails", feed.data.id],
+      queryFn: async () => {
+        const res = await getPluginInstanceDetails(feed);
+        return { [feed.data.id]: { details: res } };
+      },
+      refetchInterval: (data: any) => {
+        const details = data?.[feed.data.id]?.details;
+        if (details?.progress === 100 || details?.error === true) {
+          return false; // Stop polling
+        }
+        return 2000; // Poll every 2 seconds
+      },
+    })),
+  });
+
+  const feedDetails = useMemo(() => {
+    return Object.assign({}, ...feedQueries.map((query) => query.data || {}));
+  }, [feedQueries]);
+
+  const getSortParams = (columnIndex: number) => ({
+    sortBy: {
+      index: activeSortIndex as number,
+      direction: activeSortDirection,
+    },
+    onSort: (
+      _event: React.MouseEvent,
+      index: number,
+      direction: SortByDirection,
+    ) => {
+      setActiveSortIndex(index);
+      setActiveSortDirection(direction);
+    },
+    columnIndex,
+  });
+
+  const sortedFeeds = useMemo(() => {
+    if (activeSortIndex !== null && feedDetails) {
+      const comparator = COLUMN_DEFINITIONS[activeSortIndex].comparator;
+      return [...feedsToDisplay].sort((a, b) =>
+        activeSortDirection === SortByDirection.asc
+          ? comparator(
+              a,
+              b,
+              feedDetails[a.data.id]?.details,
+              feedDetails[b.data.id]?.details,
+            )
+          : comparator(
+              b,
+              a,
+              feedDetails[b.data.id]?.details,
+              feedDetails[a.data.id]?.details,
+            ),
+      );
+    }
+    return feedsToDisplay;
+  }, [feedsToDisplay, activeSortIndex, activeSortDirection, feedDetails]);
 
   const onSetPage = (
     _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
@@ -84,16 +205,6 @@ const TableSelectable: React.FC = () => {
       );
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
-
-  const columnNames = {
-    id: "ID",
-    analysis: "Analysis",
-    created: "Created",
-    creator: "Creator",
-    runtime: "Run Time",
-    size: "Size",
-    status: "Status",
-  };
 
   const generatePagination = (feedCount?: number) => {
     if (!feedCount && loadingFeedState) {
@@ -184,21 +295,23 @@ const TableSelectable: React.FC = () => {
             <Thead>
               <Tr>
                 <Th />
-                {Object.values(columnNames).map((name) => (
-                  <Th key={name}>{name}</Th>
+                {COLUMN_DEFINITIONS.map((column, columnIndex) => (
+                  <Th key={column.id} sort={getSortParams(columnIndex)}>
+                    {column.label}
+                  </Th>
                 ))}
               </Tr>
             </Thead>
             <Tbody>
-              {feedsToDisplay.map((feed, rowIndex) => (
+              {sortedFeeds.map((feed, rowIndex) => (
                 <TableRow
                   key={feed.data.id}
                   feed={feed}
                   rowIndex={rowIndex}
-                  columnNames={columnNames}
                   allFeeds={feedsToDisplay}
                   type={type}
                   additionalKeys={[perPage, page, type, search, searchType]}
+                  details={feedDetails?.[feed.data.id]?.details}
                 />
               ))}
             </Tbody>
@@ -217,60 +330,26 @@ interface TableRowProps {
   rowIndex: number;
   feed: Feed;
   allFeeds: Feed[];
-  columnNames: {
-    id: string;
-    analysis: string;
-    created: string;
-    creator: string;
-    runtime: string;
-    size: string;
-    status: string;
-  };
   type: string;
   additionalKeys: string[];
+  details: any;
 }
 
 const TableRow: React.FC<TableRowProps> = ({
   rowIndex,
   feed,
-  columnNames,
   additionalKeys,
+  details,
 }) => {
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick } = handlers;
   const navigate = useNavigate();
-  const [intervalMs, setIntervalMs] = useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
-
-  const { data } = useQuery({
-    queryKey: ["feedResources", feed],
-    queryFn: async () => {
-      try {
-        const res = await getPluginInstanceDetails(feed);
-        if (res.progress === 100 || res.error === true) {
-          setIntervalMs(0);
-        }
-
-        return {
-          [feed.data.id]: {
-            details: res,
-          },
-        };
-      } catch (error) {
-        setIntervalMs(0);
-        return {};
-      }
-    },
-    refetchInterval: intervalMs,
-  });
-
   const getFolderForThisFeed = async () => {
     const payload = await feed.getFolder();
     return payload;
   };
-
-  const details = data?.[feed.data.id].details;
   const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
   const backgroundRow =
     details && details.progress < 100 && !details.error
@@ -342,23 +421,19 @@ const TableRow: React.FC<TableRowProps> = ({
             },
           }}
         />
-        <Td dataLabel={columnNames.id}>{feed.data.id}</Td>
+        <Td dataLabel="ID">{feed.data.id}</Td>
 
-        <Td dataLabel={columnNames.analysis}>
+        <Td dataLabel="analysis">
           <FeedInfoColumn feed={feed} onClick={onFeedNameClick} />
         </Td>
-        <Td dataLabel={columnNames.created}>
+        <Td dataLabel="created">
           {format(new Date(feed.data.creation_date), "dd MMM yyyy, HH:mm")}
         </Td>
-        <Td dataLabel={columnNames.creator}>{feed.data.owner_username}</Td>
-        <Td dataLabel={columnNames.runtime}>
-          {data?.[feed.data.id].details.time}
-        </Td>
-        <Td dataLabel={columnNames.size}>
-          {data?.[feed.data.id].details.size}
-        </Td>
-        <Td dataLabel={columnNames.status}>
-          <DonutUtilization details={data?.[feed.data.id].details} />
+        <Td dataLabel="creator">{feed.data.owner_username}</Td>
+        <Td dataLabel="runtime">{details?.time}</Td>
+        <Td dataLabel="size">{details?.size}</Td>
+        <Td dataLabel="status">
+          <DonutUtilization details={details} />
         </Td>
       </Tr>
     </FolderContextMenu>

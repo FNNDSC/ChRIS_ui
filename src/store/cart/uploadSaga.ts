@@ -213,7 +213,6 @@ function* uploadFileBatch(
           invalidateFunc,
         );
       } catch (e) {
-        console.log("E", e);
         yield put(
           setFileUploadStatus({
             step: "Error: Failed to create a feed",
