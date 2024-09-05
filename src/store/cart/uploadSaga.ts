@@ -137,7 +137,7 @@ function* uploadFileBatch(
                   errorOccurred = true;
                   lastError = error; // Store the last error message
 
-                  // We need to cancel the folder upload manually since it will upload other files in the list and they will all error out due to the path being invalid path
+                  // We need to cancel the folder upload manually since it will upload other files in the list and they will all error out due to the path being an invalid path
                   isFolder && folderController.abort();
                   if (!isFolder) {
                     // No need to manually cancel the upload for a single file as the request will fail.

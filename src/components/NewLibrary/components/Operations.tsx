@@ -74,6 +74,8 @@ const Operations = ({
 }: OperationProps) => {
   const location = useLocation();
   const dispatch = useDispatch();
+  const isFeedsTable =
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
 
   const {
     modalState,
@@ -88,12 +90,7 @@ const Operations = ({
     contextHolder,
     setUserRelatedError,
     setModalState,
-  } = useFolderOperations(
-    origin,
-    computedPath,
-    folderList,
-    matchPath({ path: "/feeds", end: true }, location.pathname) !== null, // This checks if the path matches and returns true or false
-  );
+  } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
@@ -105,11 +102,13 @@ const Operations = ({
   ) => (
     <Tooltip content={ariaLabel}>
       <Button
+        style={{ marginRight: "1em" }}
         icon={icon}
         size="sm"
         onClick={() => handleOperations(operationKey)}
         variant="tertiary"
         aria-label={ariaLabel}
+        isDisabled={operationKey === "rename" && !isFeedsTable}
       />
     </Tooltip>
   );
