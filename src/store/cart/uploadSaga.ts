@@ -373,14 +373,17 @@ function* updateFolderUploadStatus(
 ) {
   const name = file.webkitRelativePath;
   const fileName = name.split("/")[0];
-  const path = `${currentPath}/${name}`;
   const uploadDone = uploadedFilesCount === totalFiles;
   try {
     if (uploadDone && shouldCreateFeed) {
-      yield call(createFeed, [path], nameForFeed as string, invalidateFunc);
+      yield call(
+        createFeed,
+        [`${currentPath}/${fileName}`],
+        nameForFeed as string,
+        invalidateFunc,
+      );
     }
     //invalidate the ui page if the upload is complete
-    uploadDone && !shouldCreateFeed && invalidateFunc();
     yield put(
       setFolderUploadStatus({
         step: uploadDone ? "Upload Complete" : "Uploading...",
@@ -392,6 +395,7 @@ function* updateFolderUploadStatus(
         type: "folder",
       }),
     );
+    uploadDone && !shouldCreateFeed && invalidateFunc();
   } catch (e) {
     yield put(
       setFolderUploadStatus({
