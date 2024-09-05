@@ -20,8 +20,8 @@ import { downloadFile } from "../hooks";
 import {
   setFileDownloadStatus,
   setFolderDownloadStatus,
-  startDownload,
   startAnonymize,
+  startDownload,
 } from "./cartSlice";
 import {
   DownloadTypes,

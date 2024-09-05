@@ -25,6 +25,8 @@ interface ContextMenuProps {
 
 export const FolderContextMenu = (props: ContextMenuProps) => {
   const { children, origin, folderList, computedPath } = props;
+  const isFeedsTable =
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
   const {
     modalState,
     userRelatedError,
@@ -33,12 +35,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     contextHolder,
     setUserRelatedError,
     setModalState,
-  } = useFolderOperations(
-    origin,
-    computedPath,
-    folderList,
-    matchPath({ path: "/feeds", end: true }, location.pathname) !== null, // This checks if the path matches and returns true or false
-  );
+  } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
@@ -47,7 +44,12 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
     { key: "share", label: "Share", icon: <ShareIcon /> },
-    { key: "rename", label: "Rename", icon: <EditIcon /> },
+    {
+      key: "rename",
+      label: "Rename",
+      icon: <EditIcon />,
+      disabled: !isFeedsTable,
+    },
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
 
