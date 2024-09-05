@@ -1,28 +1,28 @@
-import { useContext, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useMutation } from "@tanstack/react-query";
 import type {
   FileBrowserFolder,
   FileBrowserFolderList,
 } from "@fnndsc/chrisapi";
+import { useMutation } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { MainRouterContext } from "../../../routes";
+import { catchError, getFileName } from "../../../api/common";
 import {
   setToggleCart,
   startAnonymize,
   startDownload,
   startUpload,
 } from "../../../store/cart/cartSlice";
+import { createFeed as createFeedSaga } from "../../../store/cart/downloadSaga";
+import type { SelectionPayload } from "../../../store/cart/types";
 import { useTypedSelector } from "../../../store/hooks";
 import { notification } from "../../Antd";
-import type { AdditionalValues } from "../components/Operations";
-import { useOperationsContext, type OriginState } from "../context";
-import useDeletePayload from "../utils/useDeletePayload";
-import useFeedOperations from "./useFeedOperations";
-import { catchError } from "../../../api/common";
 import { getFolderName } from "../components/FolderCard";
+import type { AdditionalValues } from "../components/Operations";
+import { type OriginState, useOperationsContext } from "../context";
+import useDeletePayload from "../utils/useDeletePayload";
 import { fetchFeedForPath } from "./longpress";
-import { create } from "lodash";
+import useFeedOperations from "./useFeedOperations";
 
 export interface ModalState {
   type: string;
@@ -49,7 +49,6 @@ export const useFolderOperations = (
   createFeed?: boolean,
 ) => {
   const { handleOrigin, invalidateQueries } = useOperationsContext();
-  const router = useContext(MainRouterContext);
   const { selectedPaths } = useTypedSelector((state) => state.cart);
   const username = useTypedSelector((state) => state.user.username) as string;
   const dispatch = useDispatch();
@@ -140,6 +139,12 @@ export const useFolderOperations = (
     });
   };
 
+  const createFeedFromMenu = async (inputValue: string) => {
+    handleOrigin(origin);
+    const pathList = selectedPaths.map((payload) => payload.path);
+    await createFeedSaga(pathList, inputValue, invalidateQueries);
+  };
+
   const shareFolder = async (
     targetUsername: string,
     additionalValues?: AdditionalValues,
@@ -218,6 +223,10 @@ export const useFolderOperations = (
         await handleUpload(event, type === "folder", inputValue);
         break;
       }
+      case "createFeed": {
+        await createFeedFromMenu(inputValue);
+        break;
+      }
       default:
         break;
     }
@@ -235,11 +244,28 @@ export const useFolderOperations = (
     }) => handleModalSubmit(inputValue, additionalValues),
   });
 
+  const getFeedNameForSinglePath = (path: SelectionPayload) => {
+    const { payload } = path;
+    const name = payload.data.path || payload.data.fname;
+    return getFileName(name);
+  };
+
   const handleOperations = (operationKey: string) => {
     const operationsMap: Record<string, () => void> = {
       createFeed: () => {
-        const paths = selectedPaths.map(({ path }) => path);
-        router.actions.createFeedWithData(paths);
+        const defaultFeedName =
+          selectedPaths.length > 1
+            ? "Feed created from your Library"
+            : `Feed created for ${getFeedNameForSinglePath(selectedPaths[0])}`;
+        setModalState({
+          type: "createFeed",
+          isOpen: true,
+          additionalProps: {
+            createFeed: {
+              defaultFeedName,
+            },
+          },
+        });
       },
       download: () => {
         handleOrigin(origin);

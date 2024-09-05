@@ -5,7 +5,7 @@ import {
   EmptyStateVariant,
   Title,
 } from "@patternfly/react-core";
-import { Alert } from "../Antd";
+import { Alert, Spin } from "../Antd";
 import { SpinContainer } from "../Common";
 import "./FeedOutputBrowser.css";
 import FileBrowser from "./FileBrowser";
@@ -29,15 +29,15 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
     error,
     currentPath,
   } = useFeedBrowser();
-
   return (
     <div style={{ height: "100%" }} className="feed-output-browser">
-      {pluginFilesPayload && selected && !isError ? (
+      {filesLoading ? (
+        <SpinContainer title="Fetching Files..." />
+      ) : pluginFilesPayload && selected && !isError ? (
         <FileBrowser
           selected={selected}
           handleFileClick={handleFileClick}
           pluginFilesPayload={pluginFilesPayload}
-          filesLoading={filesLoading}
           currentPath={currentPath}
         />
       ) : statusTitle && statusTitles.includes(statusTitle) ? (

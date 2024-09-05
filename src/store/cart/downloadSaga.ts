@@ -28,7 +28,6 @@ import {
   type PayloadTypes,
   type SelectionPayload,
 } from "./types";
-import { create } from "lodash";
 
 export function* setStatus(
   type: string,
