@@ -22,6 +22,7 @@ import useFeedOperations from "./useFeedOperations";
 import { catchError } from "../../../api/common";
 import { getFolderName } from "../components/FolderCard";
 import { fetchFeedForPath } from "./longpress";
+import { create } from "lodash";
 
 export interface ModalState {
   type: string;
@@ -85,6 +86,7 @@ export const useFolderOperations = (
     const uniqueName = name
       ? `${name}_${getCurrentTimestamp()}`
       : getCurrentTimestamp();
+
     const uploadPath = createFeed
       ? `home/${username}/uploads/${uniqueName}`
       : computedPath;
