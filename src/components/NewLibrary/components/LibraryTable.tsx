@@ -6,6 +6,9 @@ import type {
 import { Button } from "@patternfly/react-core";
 import {
   Caption,
+  type ISortBy,
+  type OnSort,
+  type SortByDirection,
   Table,
   Tbody,
   Td,
@@ -217,10 +220,57 @@ const LibraryTable: React.FC<TableProps> = ({
   const navigate = useNavigate();
   const [preview, setShowPreview] = useState(false);
   const [selectedFile, setSelectedFile] = useState<FileBrowserFolderFile>();
+  const [sortBy, setSortBy] = useState<ISortBy>({
+    index: 0,
+    direction: "asc",
+  });
 
   const handleFileClick = (file: FileBrowserFolderFile) => {
     setSelectedFile(file);
     setShowPreview(true);
+  };
+
+  const onSort: OnSort = (_event, columnIndex, sortByDirection) => {
+    setSortBy({ index: columnIndex, direction: sortByDirection });
+    return sortRows(columnIndex, sortByDirection);
+  };
+
+  const sortRows = (index: number, direction: SortByDirection) => {
+    const sortedData = { ...data };
+    if (index === 1) {
+      sortedData.folders.sort(
+        (a, b) =>
+          getFolderName(a, computedPath).localeCompare(
+            getFolderName(b, computedPath),
+          ) * (direction === "asc" ? 1 : -1),
+      );
+      sortedData.files.sort(
+        (a, b) =>
+          getFileName(a).localeCompare(getFileName(b)) *
+          (direction === "asc" ? 1 : -1),
+      );
+      sortedData.linkFiles.sort(
+        (a, b) =>
+          getLinkFileName(a).localeCompare(getLinkFileName(b)) *
+          (direction === "asc" ? 1 : -1),
+      );
+    } else if (index === 2) {
+      sortedData.folders.sort((a, b) => {
+        const dateA = new Date(a.data.creation_date).getTime();
+        const dateB = new Date(b.data.creation_date).getTime();
+        return (dateA - dateB) * (direction === "asc" ? 1 : -1);
+      });
+      sortedData.files.sort((a, b) => {
+        const dateA = new Date(a.data.creation_date).getTime();
+        const dateB = new Date(b.data.creation_date).getTime();
+        return (dateA - dateB) * (direction === "asc" ? 1 : -1);
+      });
+      sortedData.linkFiles.sort((a, b) => {
+        const dateA = new Date(a.data.creation_date).getTime();
+        const dateB = new Date(b.data.creation_date).getTime();
+        return (dateA - dateB) * (direction === "asc" ? 1 : -1);
+      });
+    }
   };
 
   return (
@@ -243,13 +293,18 @@ const LibraryTable: React.FC<TableProps> = ({
         className="library-table"
         variant="compact"
         aria-label="Simple table"
+        isStriped={true}
       >
         <Caption>Data Library</Caption>
         <Thead>
           <Tr>
             <Th arial-label="Select a row" />
-            <Th name="name">{columnNames.name}</Th>
-            <Th name="date">{columnNames.date}</Th>
+            <Th sort={{ sortBy, onSort, columnIndex: 1 }} name="name">
+              {columnNames.name}
+            </Th>
+            <Th sort={{ sortBy, onSort, columnIndex: 2 }} name="date">
+              {columnNames.date}
+            </Th>
             <Th name="owner">{columnNames.owner}</Th>
             <Th name="size">{columnNames.size}</Th>
           </Tr>
