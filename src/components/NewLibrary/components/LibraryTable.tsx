@@ -175,11 +175,15 @@ const BaseRow: React.FC<RowProps> = ({
           >
             {name}
           </Button>
-          {isNewResource && (
-            <Tag style={{ marginLeft: "0.25em" }} color="#3E8635">
-              Newly Added
-            </Tag>
-          )}
+          <span
+            style={{
+              display: "inline-block",
+              width: "90px",
+              marginLeft: "0.25em",
+            }}
+          >
+            {isNewResource ? <Tag color="#3E8635">Newly Added</Tag> : null}
+          </span>
         </Td>
         <Td dataLabel={columnNames.date}>
           {format(new Date(date), "dd MMM yyyy, HH:mm")}
