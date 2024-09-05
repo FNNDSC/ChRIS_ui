@@ -2,7 +2,7 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { catchError, fetchResource } from "../../api/common";
@@ -77,7 +77,6 @@ export const fetchFilesFromAPath = async (
 };
 
 export const useFeedBrowser = () => {
-  const queryClient = useQueryClient();
   const drawerState = useTypedSelector((state) => state.drawers);
   const [download, setDownload] = React.useState(getInitialDownloadState);
   const [currentPath, setCurrentPath] = React.useState("");

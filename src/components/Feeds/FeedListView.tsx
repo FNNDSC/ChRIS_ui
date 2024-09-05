@@ -15,11 +15,12 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useQuery, useQueries } from "@tanstack/react-query";
+import { SortByDirection } from "@patternfly/react-table";
+import { useQueries } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import type React from "react";
-import { useContext, useEffect, useState, useMemo } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
@@ -38,7 +39,6 @@ import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
 import { getPluginInstanceDetails } from "./utilties";
 const { Paragraph } = Typography;
-import { SortByDirection } from "@patternfly/react-table";
 
 interface ColumnDefinition {
   id: string;

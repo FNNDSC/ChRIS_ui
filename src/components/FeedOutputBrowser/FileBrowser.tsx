@@ -61,26 +61,23 @@ const columnNames = {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
-  const { handlers } = useLongPress();
-  const { handleOnClick } = handlers;
   const dispatch = useDispatch();
   const feed = useTypedSelector((state) => state.feed.currentFeed.data);
   const handleDownloadMutation = useDownload(feed);
   const [api, contextHolder] = notification.useNotification();
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
-  const { isDarkTheme } = useContext(ThemeContext);
+
   const {
     pluginFilesPayload,
     handleFileClick,
     selected,
-    filesLoading,
+
     currentPath: additionalKey,
   } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const username = useTypedSelector((state) => state.user.username);
   const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
-
   const breadcrumb = path.split("/");
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
 
@@ -244,84 +241,76 @@ const FileBrowser = (props: FileBrowserProps) => {
                     <Th aria-label="file-size">{columnNames.size}</Th>
                   </Tr>
                 </Thead>
-                {filesLoading ? (
-                  <SpinContainer title="Fetching Files for this path..." />
-                ) : (
-                  <Tbody>
-                    {folderFiles.map(
-                      (resource: FileBrowserFolderFile, index) => {
-                        return (
-                          <FileRow
-                            rowIndex={index}
-                            key={resource.data.fname}
-                            resource={resource}
-                            name={getFileName(resource)}
-                            date={resource.data.creation_date}
-                            owner={resource.data.owner_username}
-                            size={resource.data.fsize}
-                            computedPath={path}
-                            handleFolderClick={() => {
-                              return;
-                            }}
-                            handleFileClick={() => {
-                              toggleAnimation();
-                              dispatch(
-                                setSelectedFile(
-                                  resource as FileBrowserFolderFile,
-                                ),
-                              );
-                              !drawerState.preview.open &&
-                                dispatch(setFilePreviewPanel());
-                            }}
-                          />
-                        );
-                      },
-                    )}
-                    {linkFiles.map(
-                      (resource: FileBrowserFolderLinkFile, index) => {
-                        return (
-                          <LinkRow
-                            rowIndex={index}
-                            key={resource.data.path}
-                            resource={resource}
-                            name={getLinkFileName(resource)}
-                            date={resource.data.creation_date}
-                            owner={resource.data.owner_username}
-                            size={resource.data.fsize}
-                            computedPath={path}
-                            handleFolderClick={() => {
-                              return;
-                            }}
-                            handleFileClick={() => {
-                              handleFileClick(resource.data.path);
-                            }}
-                          />
-                        );
-                      },
-                    )}
-
-                    {children.map((resource: FileBrowserFolder, index) => {
+                <Tbody>
+                  {folderFiles.map((resource: FileBrowserFolderFile, index) => {
+                    return (
+                      <FileRow
+                        rowIndex={index}
+                        key={resource.data.fname}
+                        resource={resource}
+                        name={getFileName(resource)}
+                        date={resource.data.creation_date}
+                        owner={resource.data.owner_username}
+                        size={resource.data.fsize}
+                        computedPath={path}
+                        handleFolderClick={() => {
+                          return;
+                        }}
+                        handleFileClick={() => {
+                          toggleAnimation();
+                          dispatch(
+                            setSelectedFile(resource as FileBrowserFolderFile),
+                          );
+                          !drawerState.preview.open &&
+                            dispatch(setFilePreviewPanel());
+                        }}
+                      />
+                    );
+                  })}
+                  {linkFiles.map(
+                    (resource: FileBrowserFolderLinkFile, index) => {
                       return (
-                        <FolderRow
+                        <LinkRow
                           rowIndex={index}
                           key={resource.data.path}
                           resource={resource}
-                          name={getFolderName(resource, path)}
+                          name={getLinkFileName(resource)}
                           date={resource.data.creation_date}
-                          owner=" "
-                          size={0}
+                          owner={resource.data.owner_username}
+                          size={resource.data.fsize}
                           computedPath={path}
-                          handleFolderClick={() =>
-                            handleFileClick(resource.data.path)
-                          }
-                          handleFileClick={() => {
+                          handleFolderClick={() => {
                             return;
+                          }}
+                          handleFileClick={() => {
+                            handleFileClick(resource.data.path);
                           }}
                         />
                       );
-                    })}
-                  </Tbody>
-                )}
+                    },
+                  )}
+
+                  {children.map((resource: FileBrowserFolder, index) => {
+                    return (
+                      <FolderRow
+                        rowIndex={index}
+                        key={resource.data.path}
+                        resource={resource}
+                        name={getFolderName(resource, path)}
+                        date={resource.data.creation_date}
+                        owner=" "
+                        size={0}
+                        computedPath={path}
+                        handleFolderClick={() =>
+                          handleFileClick(resource.data.path)
+                        }
+                        handleFileClick={() => {
+                          return;
+                        }}
+                      />
+                    );
+                  })}
+                </Tbody>
               </Table>
             </DrawerContentBody>
           )}

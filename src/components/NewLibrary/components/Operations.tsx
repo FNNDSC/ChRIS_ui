@@ -293,6 +293,11 @@ const MODAL_TYPE_LABELS: Record<
     inputLabel: "Rename",
     buttonLabel: "Rename",
   },
+  createFeed: {
+    modalTitle: "Create Feed",
+    inputLabel: "Feed Name",
+    buttonLabel: "Create",
+  },
   createFeedWithFile: {
     modalTitle: "Create Feed",
     inputLabel: "Feed Name",
@@ -344,6 +349,9 @@ export const AddModal = ({
         modalState.additionalProps.createFeedWithFile.defaultFeedName,
       );
     }
+    if (modalState.additionalProps?.createFeed) {
+      setInputValue(modalState.additionalProps.createFeed.defaultFeedName);
+    }
   }, [modalState.type]);
 
   const handleClose = () => {
@@ -374,14 +382,15 @@ export const AddModal = ({
             aria-label={inputLabel}
             placeholder={inputLabel}
           />
-          {modalState.type === "createFeedWithFile" && (
-            <HelperText>
-              <HelperTextItem>
-                Please provide a name for your feed or hit 'Create' to use the
-                default name
-              </HelperTextItem>
-            </HelperText>
-          )}
+          {modalState.type === "createFeedWithFile" ||
+            (modalState.type === "createFeed" && (
+              <HelperText>
+                <HelperTextItem>
+                  Please provide a name for your feed or hit 'Create' to use the
+                  default name
+                </HelperTextItem>
+              </HelperText>
+            ))}
         </FormGroup>
         {modalState.type === "share" && (
           <Fragment>

@@ -18,7 +18,7 @@ export interface FileBrowserProps {
   pluginFilesPayload: FilesPayload;
   handleFileClick: (path: string) => void;
   selected: PluginInstance;
-  filesLoading: boolean;
+
   currentPath: string;
 }
 
