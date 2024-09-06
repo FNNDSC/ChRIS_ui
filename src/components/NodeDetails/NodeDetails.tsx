@@ -154,7 +154,7 @@ const NodeDetails: React.FC = () => {
             >
               <Grid className="node-details__grid">
                 {renderGridItem("Feed Name", feed?.data?.name)}
-                {renderGridItem("Feed Author", feed?.data.creator_username)}
+                {renderGridItem("Feed Author", feed?.data.owner_username)}
                 {selectedPlugin.data.previous_id &&
                   renderGridItem(
                     "Parent Node ID",
