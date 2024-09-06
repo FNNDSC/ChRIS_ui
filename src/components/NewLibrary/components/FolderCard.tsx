@@ -19,7 +19,10 @@ import { useTypedSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
 import { OperationContext } from "../context";
-import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
+import useLongPress, {
+  getBackgroundRowColor,
+  useAssociatedFeed,
+} from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
 
 type Pagination = {
@@ -71,8 +74,10 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
+
   const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;
   const folderName = getFolderName(folder, computedPath);
+  const { data: feedName, isLoading } = useAssociatedFeed(folderName);
 
   const creationDate = folder.data.creation_date;
   const secondsSinceCreation = differenceInSeconds(new Date(), creationDate);
@@ -98,23 +103,6 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
 
   const shouldHighlight = isNewFolder || isSelected;
   const highlightedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
-
-  const feedMatches = folderName.match(/feed_(\d+)/);
-  const { data, isLoading } = useQuery({
-    queryKey: ["associatedFeed", folder.data.path],
-    queryFn: async () => {
-      const id = feedMatches ? feedMatches[1] : null;
-
-      if (id) {
-        const client = ChrisAPIClient.getClient();
-        const feed = await client.getFeed(Number(id));
-        if (!feed) throw new Error("Failed to fetch the feed");
-        return feed.data.name;
-      }
-      return null;
-    },
-    enabled: feedMatches?.length > 0,
-  });
 
   return (
     <GridItem xl={3} lg={4} md={6} sm={12} key={folder.data.id}>
@@ -173,10 +161,10 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
                   variant="link"
                   style={{ padding: 0 }}
                 >
-                  {!data && !isLoading
+                  {!feedName && !isLoading
                     ? elipses(folderName, 40)
-                    : data
-                      ? elipses(data, 40)
+                    : feedName
+                      ? elipses(feedName, 40)
                       : "Fetching..."}
                 </Button>
                 <div

@@ -5,6 +5,7 @@ import type {
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import { Button, Tooltip } from "@patternfly/react-core";
+import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
@@ -221,4 +222,23 @@ export const fetchFeedForPath = async (path: string): Promise<Feed | null> => {
     return feed;
   }
   return null;
+};
+
+export const useAssociatedFeed = (folderPath: string) => {
+  const feedMatches = folderPath.match(/feed_(\d+)/);
+
+  return useQuery({
+    queryKey: ["associatedFeed", folderPath],
+    queryFn: async () => {
+      const id = feedMatches ? feedMatches[1] : null;
+      if (id) {
+        const client = ChrisAPIClient.getClient();
+        const feed = await client.getFeed(Number(id));
+        if (!feed) throw new Error("Failed to fetch the feed");
+        return feed.data.name;
+      }
+      return null;
+    },
+    enabled: Boolean(feedMatches?.length),
+  });
 };
