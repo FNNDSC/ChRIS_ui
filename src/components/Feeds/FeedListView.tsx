@@ -37,7 +37,7 @@ import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
-import { getPluginInstanceDetails } from "./utilties";
+import { formatBytes, getPluginInstanceDetails } from "./utilties";
 const { Paragraph } = Typography;
 
 interface ColumnDefinition {
@@ -85,7 +85,7 @@ const COLUMN_DEFINITIONS: ColumnDefinition[] = [
     comparator: (_a, _b, detailsA, detailsB) => {
       const sizeA = detailsA?.size || "0";
       const sizeB = detailsB?.size || "0";
-      return sizeA.localeCompare(sizeB);
+      return sizeA - sizeB;
     },
   },
   {
@@ -431,7 +431,13 @@ const TableRow: React.FC<TableRowProps> = ({
         </Td>
         <Td dataLabel="creator">{feed.data.owner_username}</Td>
         <Td dataLabel="runtime">{details?.time}</Td>
-        <Td dataLabel="size">{details?.size}</Td>
+        <Td dataLabel="size">
+          {details?.size ? (
+            formatBytes(details?.size, 0)
+          ) : (
+            <Skeleton width="100%" height="40px" />
+          )}
+        </Td>
         <Td dataLabel="status">
           <DonutUtilization details={details} />
         </Td>
