@@ -1,4 +1,4 @@
-import {
+import type {
   Plugin,
   PluginInstance,
   PluginInstanceDescendantList,
@@ -10,11 +10,10 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-import React, { Fragment, ReactNode } from "react";
+import React, { Fragment, type ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
-import { quote } from "shlex";
-import { needsQuoting } from "../../api/common";
+import { needsQuoting, customQuote } from "../../api/common";
 import { useTypedSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
@@ -301,7 +300,7 @@ function getCommand(
         const value = instanceParameters[i].data.value;
 
         const safeValue =
-          isString && needsQuoting(value) ? quote(value) : value;
+          isString && needsQuoting(value) ? customQuote(value) : value;
 
         modifiedParams.push({
           name: pluginParameters[j].data.flag,
