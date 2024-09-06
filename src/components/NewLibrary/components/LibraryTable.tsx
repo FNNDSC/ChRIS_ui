@@ -17,6 +17,7 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import { Drawer, Tag } from "antd";
+import { Skeleton } from "@patternfly/react-core";
 import { differenceInSeconds, format } from "date-fns";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -26,7 +27,10 @@ import { ThemeContext } from "../../DarkTheme/useTheme";
 import { formatBytes } from "../../Feeds/utilties";
 import FileDetailView from "../../Preview/FileDetailView";
 import { OperationContext } from "../context";
-import useLongPress, { getBackgroundRowColor } from "../utils/longpress";
+import useLongPress, {
+  getBackgroundRowColor,
+  useAssociatedFeed,
+} from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
@@ -50,6 +54,7 @@ const columnNames = {
 
 interface RowProps {
   rowIndex: number;
+  key: string;
   resource:
     | FileBrowserFolder
     | FileBrowserFolderFile
@@ -200,9 +205,25 @@ const BaseRow: React.FC<RowProps> = ({
   );
 };
 
-export const FolderRow: React.FC<Omit<RowProps, "type">> = (props) => (
-  <BaseRow {...props} type="folder" />
-);
+export const FolderRow: React.FC<Omit<RowProps, "type">> = (props) => {
+  const { data, isLoading } = useAssociatedFeed(props.name);
+
+  if (isLoading) {
+    return (
+      <Tr>
+        <Skeleton width="100%" />
+      </Tr>
+    );
+  }
+
+  return (
+    <BaseRow
+      {...props}
+      name={data ? data : props.name} // Example of adding feed info to the row name
+      type="folder"
+    />
+  );
+};
 
 export const FileRow: React.FC<Omit<RowProps, "type">> = (props) => (
   <BaseRow {...props} type="file" />
