@@ -68,6 +68,12 @@ export const addNode = createAsyncThunk<
     try {
       const pluginInstances = [...nodes, pluginItem];
       dispatch(getSelectedPlugin(pluginItem));
+      dispatch(
+        getPluginInstanceStatusRequest({
+          selected: pluginItem,
+          pluginInstances,
+        }),
+      );
       return { selected: pluginItem, pluginInstances };
     } catch (error) {
       return rejectWithValue("Failed to add node.");
