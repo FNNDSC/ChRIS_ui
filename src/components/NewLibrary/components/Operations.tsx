@@ -60,9 +60,9 @@ interface OperationProps {
 }
 
 const OPERATION_ITEMS = [
-  { key: "newFolder", label: "New Folder" },
-  { key: "fileUpload", label: "File Upload" },
-  { key: "folderUpload", label: "Folder Upload" },
+  { key: "newFolder", label: "New Folder", disabled: false },
+  { key: "fileUpload", label: "File Upload", disabled: false },
+  { key: "folderUpload", label: "Folder Upload", disabled: false },
 ];
 
 const Operations = ({
@@ -76,6 +76,10 @@ const Operations = ({
   const dispatch = useDispatch();
   const isFeedsTable =
     matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
+
+  if (isFeedsTable) {
+    OPERATION_ITEMS[0].disabled = true;
+  }
 
   const {
     modalState,
