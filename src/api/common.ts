@@ -495,9 +495,26 @@ export function needsQuoting(value: string) {
     return false;
   }
 
+  // Avoid shlex.quote if the string contains an apostrophe
+
+  if (value.includes("'")) {
+    return true;
+  }
+
   // If not quoted, check if quoting is necessary
   const quotedValue = quote(value);
   return quotedValue !== value;
+}
+
+// Custom quote function to avoid mangling strings with apostrophes
+export function customQuote(value: string) {
+  // If the string contains a single quote, wrap it in double quotes
+  if (value.includes("'")) {
+    return `"${value}"`; // Wrap in double quotes
+  }
+
+  // Otherwise, fall back to shlex.quote for safe quoting
+  return quote(value);
 }
 
 export const getFileName = (name: string) => {
