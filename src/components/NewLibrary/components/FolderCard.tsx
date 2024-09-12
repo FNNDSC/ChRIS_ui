@@ -8,12 +8,10 @@ import {
   Split,
   SplitItem,
 } from "@patternfly/react-core";
-import { useQuery } from "@tanstack/react-query";
 import { differenceInSeconds, format } from "date-fns";
 import { isEmpty } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
-import ChrisAPIClient from "../../../api/chrisapiclient";
 import { elipses } from "../../../api/common";
 import { useTypedSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";

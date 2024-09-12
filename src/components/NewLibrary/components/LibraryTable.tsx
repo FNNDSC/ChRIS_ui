@@ -3,7 +3,7 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button } from "@patternfly/react-core";
+import { Button, Skeleton } from "@patternfly/react-core";
 import {
   Caption,
   type ISortBy,
@@ -17,7 +17,6 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import { Drawer, Tag } from "antd";
-import { Skeleton } from "@patternfly/react-core";
 import { differenceInSeconds, format } from "date-fns";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -338,7 +337,7 @@ const LibraryTable: React.FC<TableProps> = ({
               resource={resource}
               name={getFolderName(resource, computedPath)}
               date={resource.data.creation_date}
-              owner=" "
+              owner={resource.data.owner_username}
               size={0}
               computedPath={computedPath}
               handleFolderClick={() => {
