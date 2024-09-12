@@ -8,14 +8,12 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Alert } from "../Antd";
+import { useMutation } from "@tanstack/react-query";
 import * as dicomParser from "dicom-parser";
 import React, {
   Fragment,
   useCallback,
   useEffect,
-  useMemo,
   useState,
   type ReactElement,
 } from "react";
@@ -50,8 +48,6 @@ interface AllProps {
 export interface ActionState {
   [key: string]: boolean | string;
 }
-
-const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
 
 const FileDetailView = (props: AllProps) => {
   const [tagInfo, setTagInfo] = useState<any>();
@@ -131,60 +127,9 @@ const FileDetailView = (props: AllProps) => {
   });
 
   const { selectedFile, preview } = props;
-
-  const fetchData = useCallback(
-    async (selectedFile?: FileBrowserFolderFile | PACSFile) => {
-      if (!selectedFile) {
-        throw new Error("Please select a file to preview");
-      }
-      const fileName = selectedFile.data.fname;
-      const fileType = getFileExtension(fileName);
-
-      if (props.isPublic && !fileTypes.includes(fileType)) {
-        return {
-          blob: undefined,
-          file: selectedFile,
-          fileType,
-          url: selectedFile?.collection.items[0].links[0].href,
-        };
-      }
-
-      try {
-        const blob = await selectedFile.getFileBlob();
-
-        if (blob.size > 500 * 1024 * 1024 && !fileTypes.includes(fileType)) {
-          throw new Error(
-            "Unsupported file format. File size exceeds 500mb and can lead to a browser crash if displayed as Text",
-          );
-        }
-        return {
-          blob,
-          file: selectedFile,
-          fileType,
-          url: "",
-        };
-      } catch (error: any) {
-        // biome-ignore lint/complexity/noUselessCatch: <explanation>
-        throw error;
-      }
-    },
-    [selectedFile],
-  );
-
-  const queryKey = useMemo(() => ["preview", selectedFile], [selectedFile]);
-
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey,
-    queryFn: () => fetchData(selectedFile),
-    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
-    retry: false,
-  });
-
   let viewerName = "";
-
-  if (data?.fileType) {
-    const { fileType } = data;
-
+  const fileType = getFileExtension(selectedFile?.data.fname);
+  if (fileType) {
     if (!fileViewerMap[fileType]) {
       viewerName = "CatchallDisplay";
     } else {
@@ -193,8 +138,8 @@ const FileDetailView = (props: AllProps) => {
   }
 
   const handleEvents = (action: string, previouslyActive: string) => {
-    if (action === "TagInfo" && data) {
-      mutation.mutate(data.blob);
+    if (action === "TagInfo" && selectedFile) {
+      mutation.mutate(selectedFile);
     }
     const currentAction = actionState[action];
     setActionState({
@@ -248,20 +193,12 @@ const FileDetailView = (props: AllProps) => {
               />
             )}
 
-            {isLoading && (
-              <SpinContainer title="Please wait as the file is being fetched..." />
-            )}
-
-            {isError && (
-              <Alert closable type="error" description={error.message} />
-            )}
-
-            {data && (
+            {selectedFile && (
               <ViewerDisplay
                 preview={preview}
                 viewerName={viewerName}
-                fileItem={data}
                 actionState={actionState}
+                selectedFile={selectedFile}
               />
             )}
           </div>

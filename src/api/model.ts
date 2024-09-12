@@ -1,9 +1,9 @@
-import _ from "lodash";
 import type {
   FileBrowserFolderFile,
   PACSFile,
   PluginInstance,
 } from "@fnndsc/chrisapi";
+import _ from "lodash";
 
 export interface IActionTypeParam {
   type: string;
@@ -11,6 +11,8 @@ export interface IActionTypeParam {
   meta?: any;
   error?: any;
 }
+
+export type IFileBlob = PACSFile | FileBrowserFolderFile;
 
 export type chrisId = number | string;
 
@@ -162,13 +164,6 @@ export class TreeModel {
   private _setLinks(links: ILink[]) {
     this.treeChart.links = links;
   }
-}
-
-export interface IFileBlob {
-  blob?: Blob;
-  file?: FileBrowserFolderFile | PACSFile;
-  url?: string;
-  fileType: string;
 }
 
 // Description: Mapping for Viewer type by file type *Note: Should come from db

@@ -22,23 +22,23 @@ import {
   removeTools,
   setUpTooling,
 } from "./dicomUtils/utils";
-import { _loadImageIntoBuffer } from "./dicomUtils/webImageLoader";
 
 export type DcmImageProps = {
-  fileItem: IFileBlob;
-  preview?: string;
+  selectedFile?: IFileBlob;
   actionState: ActionState;
+  preview: string;
 };
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
-  const { fileItem, preview, actionState } = props;
-  const { file, blob } = fileItem;
+  console.log("Props", props);
+  const { selectedFile, actionState, preview } = props;
+
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
   >();
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
   const dicomImageRef = useRef<HTMLDivElement>(null);
-  const uniqueId = `${file?.data.id || v4()}`;
+  const uniqueId = `${selectedFile?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;
   const size = useSize(dicomImageRef); // Use the useSize hook with dicomImageRef
 
@@ -78,28 +78,31 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   async function setupCornerstone() {
     const element = document.getElementById(elementId) as HTMLDivElement;
-    if (file && blob) {
+    if (selectedFile) {
       let imageID: string;
-      const extension = getFileExtension(file.data.fname);
+      const extension = getFileExtension(selectedFile.data.fname);
       await basicInit();
       setUpTooling(uniqueId);
       if (extension === "dcm") {
+        const blob = await selectedFile.getFileBlob();
         imageID = await loadDicomImage(blob);
       } else {
         const fileviewer = new FileViewerModel();
-        const fileName = fileviewer.getFileName(file as FileBrowserFolderFile);
-        imageID = `web:${file.url}${fileName}`;
+        const fileName = fileviewer.getFileName(
+          selectedFile as FileBrowserFolderFile,
+        );
+        imageID = `web:${selectedFile.url}${fileName}`;
       }
       const { viewport, renderingEngine: newRenderingEngine } =
         await displayDicomImage(element, imageID, uniqueId);
       setActiveViewport(viewport);
       setRenderingEngine(newRenderingEngine);
-      return file.data.fname;
+      return selectedFile.data.fname;
     }
   }
 
   const { isLoading } = useQuery({
-    queryKey: ["cornerstone-preview", file, blob],
+    queryKey: ["cornerstone-preview", selectedFile],
     queryFn: () => setupCornerstone(),
     refetchOnMount: true,
   });

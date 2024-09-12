@@ -1,13 +1,17 @@
 import React from "react";
-import { IFileBlob } from "../../../api/model.ts";
-import { NVROptions, NVRVolume, FreeSurferColorLUT } from "niivue-react/src";
+import type { IFileBlob } from "../../../api/model.ts";
+import {
+  type NVROptions,
+  type NVRVolume,
+  FreeSurferColorLUT,
+} from "niivue-react/src";
 import SizedNiivueCanvas from "../../SizedNiivueCanvas";
 import { SLICE_TYPE } from "@niivue/niivue";
 import styles from "./NiiVueDisplay.module.css";
 import { Collection } from "@fnndsc/chrisapi";
 
 type NiiVueDisplayProps = {
-  fileItem: IFileBlob;
+  selectedFile?: IFileBlob;
 };
 
 type PreviewOptions = Required<
@@ -29,7 +33,7 @@ const SLICE_TYPES = {
   M: SLICE_TYPE.MULTIPLANAR,
 };
 
-const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
+const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ selectedFile }) => {
   const [freesurferLut, setFreesurferLut] = React.useState(false);
   const [sliceTypeName, setSliceTypeName] =
     React.useState<keyof typeof SLICE_TYPES>("M");
@@ -46,11 +50,11 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
     crosshairWidth: sliceTypeName === "M" ? 0.5 : 0,
   };
 
-  if (fileItem.blob !== undefined && fileItem.file !== undefined) {
+  if (selectedFile !== undefined) {
     volumes.push({
       // NiiVue gets the file extension from name
-      name: fileItem.file.data.fname,
-      url: getFileResourceUrl(fileItem),
+      name: selectedFile.data.fname,
+      url: getFileResourceUrl(selectedFile),
       colormap: "gray",
       colormapLabel: freesurferLut ? FreeSurferColorLUT : null,
     });
@@ -70,10 +74,15 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
       ) : (
         <div className={styles.container}>
           <div className={styles.controlBar}>
-            <button onClick={() => setFreesurferLut(!freesurferLut)}>
+            <button
+              type="button"
+              onClick={() => setFreesurferLut(!freesurferLut)}
+            >
               {freesurferLut ? "FreeSurfer" : "gray"}
             </button>
-            <button onClick={rotateSliceType}>{sliceTypeName}</button>
+            <button type="button" onClick={rotateSliceType}>
+              {sliceTypeName}
+            </button>
             {freesurferLut && <span>{crosshairText}</span>}
           </div>
           <SizedNiivueCanvas
@@ -98,7 +107,7 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ fileItem }) => {
  * retrieve the file itself. So the file is retrieved a total of two times,
  * even though it should only be retrieved once.
  */
-function getFileResourceUrl({ file }: IFileBlob): string {
+function getFileResourceUrl(file: IFileBlob): string {
   return Collection.getLinkRelationUrls(
     file?.collection.items[0],
     "file_resource",

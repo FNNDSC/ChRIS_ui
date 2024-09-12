@@ -5,37 +5,29 @@ import type { IFileBlob } from "../../../api/model";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 
 type AllProps = {
-  fileItem: IFileBlob;
+  selectedFile?: IFileBlob;
 };
 
 const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
   const isDarkTheme = useContext(ThemeContext);
   const [blobText, setBlobText] = useState({});
-  const { fileItem } = props;
-  const _isMounted = useRef(false);
+  const { selectedFile } = props;
 
-  const getBlobText = React.useCallback(() => {
-    const { blob } = fileItem;
-    if (blob) {
+  useEffect(() => {
+    async function getBlobText() {
+      console.log("SelectedFile", selectedFile);
       const reader = new FileReader();
       reader.addEventListener("loadend", (e: any) => {
         const blobText = e.target.result;
-        if (_isMounted.current === true) setBlobText(JSON.parse(blobText));
+        setBlobText(JSON.parse(blobText));
       });
-      reader.readAsText(blob);
+      const blob = await selectedFile?.getFileBlob();
+      blob && reader.readAsText(blob);
     }
-  }, [fileItem]);
-
-  useEffect(() => {
-    _isMounted.current = true;
-    getBlobText();
-
-    return () => {
-      _isMounted.current = false;
-    };
-  }, [getBlobText]);
-
-  getBlobText();
+    if (selectedFile) {
+      getBlobText();
+    }
+  }, [selectedFile]);
 
   return (
     <>
