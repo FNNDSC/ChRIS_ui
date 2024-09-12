@@ -38,10 +38,10 @@
     "print-version": "node printVersion.js"
   },
   "dependencies": {
-    "@cornerstonejs/core": "^1.82.4",
-    "@cornerstonejs/dicom-image-loader": "^1.82.4",
+    "@cornerstonejs/core": "^1.84.4",
+    "@cornerstonejs/dicom-image-loader": "^1.84.4",
     "@cornerstonejs/streaming-image-volume-loader": "^1.82.4",
-    "@cornerstonejs/tools": "^1.82.4",
+    "@cornerstonejs/tools": "^1.84.4",
     "@fnndsc/chrisapi": "^1.22.0",
     "@fontsource/inter": "^5.0.20",
     "@niivue/niivue": "^0.41.1",
