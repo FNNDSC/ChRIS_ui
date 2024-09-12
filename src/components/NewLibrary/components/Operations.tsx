@@ -59,12 +59,6 @@ interface OperationProps {
   };
 }
 
-const OPERATION_ITEMS = [
-  { key: "newFolder", label: "New Folder", disabled: false },
-  { key: "fileUpload", label: "File Upload", disabled: false },
-  { key: "folderUpload", label: "Folder Upload", disabled: false },
-];
-
 const Operations = ({
   origin,
   computedPath,
@@ -76,8 +70,17 @@ const Operations = ({
   const dispatch = useDispatch();
   const isFeedsTable =
     matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
+  const OPERATION_ITEMS = useMemo(
+    () => [
+      { key: "newFolder", label: "New Folder", disabled: false },
+      { key: "fileUpload", label: "File Upload", disabled: false },
+      { key: "folderUpload", label: "Folder Upload", disabled: false },
+    ],
+    [],
+  );
 
   if (isFeedsTable) {
+    console.log("Disabling");
     OPERATION_ITEMS[0].disabled = true;
   }
 

@@ -182,7 +182,6 @@ const LOOKUP: Record<PluginInstanceStatus, number> = {
 export const getPluginInstanceDetails = async (
   feed: Feed,
 ): Promise<PluginInstanceDetails> => {
-  console.log("getplugininstace called");
   const details: PluginInstanceDetails = {
     size: 0,
     progress: 0,
