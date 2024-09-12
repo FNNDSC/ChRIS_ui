@@ -117,7 +117,9 @@ const TableSelectable: React.FC = () => {
         return { [feed.data.id]: { details: res } };
       },
       refetchInterval: (data: any) => {
-        const details = data?.[feed.data.id]?.details;
+        const state = data.state.data;
+        const details = state?.[feed.data.id]?.details;
+        if (!details) return false;
         if (details?.progress === 100 || details?.error === true) {
           return false; // Stop polling
         }

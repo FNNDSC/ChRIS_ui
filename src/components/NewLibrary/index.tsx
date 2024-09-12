@@ -20,75 +20,75 @@ import LibraryTable from "./components/LibraryTable";
 import Operations from "./components/Operations";
 import { OperationContext } from "./context";
 
-const NewLibrary = () => {
-  // Fetch folders from the server
-  async function fetchFolders(computedPath: string, pageNumber: number) {
-    const client = ChrisAPIClient.getClient();
-    await client.setUrls();
-    const pagination = {
-      limit: pageNumber * 50,
-      offset: 0,
+// Fetch folders from the server
+export async function fetchFolders(computedPath: string, pageNumber?: number) {
+  const client = ChrisAPIClient.getClient();
+  await client.setUrls();
+  const pagination = {
+    limit: pageNumber ? pageNumber * 50 : 100,
+    offset: 0,
+  };
+
+  try {
+    const folderList = await client.getFileBrowserFolders({
+      path: computedPath,
+    });
+
+    const folders = folderList.getItems();
+    let subFoldersMap: FileBrowserFolder[] = [];
+    let linkFilesMap: FileBrowserFolderLinkFile[] = [];
+    let filesMap: FileBrowserFolderFile[] = [];
+    const initialPaginateValue = {
+      totalCount: 0,
+      hasNextPage: false,
     };
+    let filesPagination = initialPaginateValue;
+    let foldersPagination = initialPaginateValue;
+    let linksPagination = initialPaginateValue;
 
-    try {
-      const folderList = await client.getFileBrowserFolders({
-        path: computedPath,
-      });
+    if (folders) {
+      const folder = folders[0];
 
-      const folders = folderList.getItems();
-      let subFoldersMap: FileBrowserFolder[] = [];
-      let linkFilesMap: FileBrowserFolderLinkFile[] = [];
-      let filesMap: FileBrowserFolderFile[] = [];
-      const initialPaginateValue = {
-        totalCount: 0,
-        hasNextPage: false,
-      };
-      let filesPagination = initialPaginateValue;
-      let foldersPagination = initialPaginateValue;
-      let linksPagination = initialPaginateValue;
+      if (folder) {
+        const children = await folder.getChildren(pagination);
+        const linkFiles = await folder.getLinkFiles(pagination);
+        const folderFiles = await folder.getFiles(pagination);
 
-      if (folders) {
-        const folder = folders[0];
+        subFoldersMap = children.getItems();
+        filesMap = folderFiles.getItems();
+        linkFilesMap = linkFiles.getItems();
 
-        if (folder) {
-          const children = await folder.getChildren(pagination);
-          const linkFiles = await folder.getLinkFiles(pagination);
-          const folderFiles = await folder.getFiles(pagination);
-
-          subFoldersMap = children.getItems();
-          filesMap = folderFiles.getItems();
-          linkFilesMap = linkFiles.getItems();
-
-          foldersPagination = {
-            totalCount: children.totalCount,
-            hasNextPage: children.hasNextPage,
-          };
-          linksPagination = {
-            totalCount: linkFiles.totalCount,
-            hasNextPage: linkFiles.hasNextPage,
-          };
-          filesPagination = {
-            totalCount: folderFiles.totalCount,
-            hasNextPage: folderFiles.hasNextPage,
-          };
-        }
+        foldersPagination = {
+          totalCount: children.totalCount,
+          hasNextPage: children.hasNextPage,
+        };
+        linksPagination = {
+          totalCount: linkFiles.totalCount,
+          hasNextPage: linkFiles.hasNextPage,
+        };
+        filesPagination = {
+          totalCount: folderFiles.totalCount,
+          hasNextPage: folderFiles.hasNextPage,
+        };
       }
-
-      return {
-        subFoldersMap,
-        linkFilesMap,
-        filesMap,
-        filesPagination,
-        foldersPagination,
-        linksPagination,
-        folderList, // return folderList as you can make a post request to this resource to create a new folder
-      };
-    } catch (e) {
-      // biome-ignore lint/complexity/noUselessCatch: <explanation>
-      throw e;
     }
-  }
 
+    return {
+      subFoldersMap,
+      linkFilesMap,
+      filesMap,
+      filesPagination,
+      foldersPagination,
+      linksPagination,
+      folderList, // return folderList as you can make a post request to this resource to create a new folder
+    };
+  } catch (e) {
+    // biome-ignore lint/complexity/noUselessCatch: <explanation>
+    throw e;
+  }
+}
+
+const NewLibrary = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);

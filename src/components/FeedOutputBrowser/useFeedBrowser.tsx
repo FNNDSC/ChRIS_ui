@@ -1,13 +1,7 @@
-import type {
-  FileBrowserFolderFile,
-  FileBrowserFolderLinkFile,
-} from "@fnndsc/chrisapi";
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { catchError, fetchResource } from "../../api/common";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
 import { useTypedSelector } from "../../store/hooks";
-import type { FilesPayload } from "./types";
+import { fetchFolders } from "../NewLibrary";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
@@ -19,67 +13,11 @@ const getInitialDownloadState = () => ({
   fetchingFiles: false,
 });
 
-export const fetchFilesFromAPath = async (
-  path: string,
-): Promise<FilesPayload> => {
-  const client = ChrisAPIClient.getClient();
-  const foldersList = await client.getFileBrowserFolders({
-    path,
-  });
-
-  const folders = foldersList.getItems();
-
-  if (folders) {
-    const folder = folders[0];
-    if (folder) {
-      const pagination = { limit: 100, offset: 0 };
-      const fetchChildren = folder.getChildren;
-      const boundChildren = fetchChildren.bind(folder);
-
-      try {
-        const { resource: children } = await fetchResource(
-          pagination,
-          boundChildren,
-        );
-        const linkFilesFn = folder.getLinkFiles;
-        const boundLinkFilesFn = linkFilesFn.bind(folder);
-        const { resource: linkFiles } =
-          await fetchResource<FileBrowserFolderLinkFile>(
-            pagination,
-            boundLinkFilesFn,
-          );
-        const filesFn = folder.getFiles;
-        const boundFilesFn = filesFn.bind(folder);
-        const { resource: folderFiles } =
-          await fetchResource<FileBrowserFolderFile>(pagination, boundFilesFn);
-
-        return {
-          folderFiles: folderFiles,
-          linkFiles: linkFiles,
-          children: children,
-          folderList: foldersList,
-          path,
-        };
-      } catch (error) {
-        const errorMessage = catchError(error).error_message;
-        throw new Error(errorMessage);
-      }
-    }
-  }
-
-  return {
-    folderFiles: [],
-    linkFiles: [],
-    children: [],
-    folderList: undefined,
-    path,
-  };
-};
-
 export const useFeedBrowser = () => {
   const drawerState = useTypedSelector((state) => state.drawers);
-  const [download, setDownload] = React.useState(getInitialDownloadState);
-  const [currentPath, setCurrentPath] = React.useState("");
+  const [download, setDownload] = useState(getInitialDownloadState);
+  const [currentPath, setCurrentPath] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
 
   const pluginInstances = useTypedSelector(
     (state) => state.instance.pluginInstances,
@@ -102,7 +40,7 @@ export const useFeedBrowser = () => {
     (statusTitle && status.includes(statusTitle))
   );
 
-  const queryKey = ["pluginFiles", currentPath];
+  const queryKey = ["pluginFiles", currentPath, pageNumber];
 
   const {
     data: pluginFilesPayload,
@@ -111,11 +49,47 @@ export const useFeedBrowser = () => {
     error,
   } = useQuery({
     queryKey: queryKey,
-    queryFn: () => fetchFilesFromAPath(currentPath),
+    queryFn: () => fetchFolders(currentPath, pageNumber),
     enabled: !!selected && !!currentPath && finished,
+    placeholderData: keepPreviousData,
+    structuralSharing: true,
   });
 
-  React.useEffect(() => {
+  // Handle pagination by incrementing the page number
+  const handlePagination = () => {
+    setPageNumber((prevState) => prevState + 1);
+  };
+
+  const observerTarget = useRef(null);
+
+  const fetchMore =
+    pluginFilesPayload?.foldersPagination.hasNextPage ||
+    pluginFilesPayload?.filesPagination.hasNextPage ||
+    pluginFilesPayload?.linksPagination.hasNextPage;
+
+  // Set up an intersection observer to load more data when the user scrolls to the bottom of the page
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && fetchMore) {
+          handlePagination();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [fetchMore]);
+
+  useEffect(() => {
     if ((statusTitle && status.includes(statusTitle)) || finished) {
       // User is trying to download a file before it is available
       if (download.error) {
@@ -131,7 +105,7 @@ export const useFeedBrowser = () => {
     }
   }, [finished, pluginFilesPayload, statusTitle, download.error]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentPath(selected?.data.output_path);
   }, [selected]);
 
@@ -154,5 +128,8 @@ export const useFeedBrowser = () => {
     filesStatus: drawerState.files,
     previewStatus: drawerState.preview,
     currentPath,
+    observerTarget,
+    fetchMore,
+    handlePagination,
   };
 };
