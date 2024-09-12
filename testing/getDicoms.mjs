@@ -5,7 +5,7 @@ import * as childProcess from "node:child_process";
 import * as os from "node:os";
 import * as path from "node:path";
 
-const UTILS_IMAGE = "ghcr.io/fnndsc/utils:fc56615";
+const UTILS_IMAGE = "ghcr.io/fnndsc/utils:7c65939";
 
 function main() {
   runUtils("testing/sample_dicoms", ["make", "neuro"]);
