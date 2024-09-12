@@ -135,11 +135,11 @@ const DataPacks = ({ next }: { next: () => any }) => {
       ) {
         return;
       }
-      if (e.code == "Enter" && e.target.closest("DIV.pf-c-radio")) {
+      if (e.code === "Enter" && e.target.closest("DIV.pf-c-radio")) {
         e.preventDefault();
         if (pluginMeta === undefined) handleOnChange(true, plugin);
         onNext();
-      } else if (pluginMeta && e.code == "ArrowRight") {
+      } else if (pluginMeta && e.code === "ArrowRight") {
         onNext();
       } else if (e.code === "ArrowLeft") {
         onBack();
