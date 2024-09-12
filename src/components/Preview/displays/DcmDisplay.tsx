@@ -37,7 +37,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     IStackViewport | undefined
   >();
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
-
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const uniqueId = `${file?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;

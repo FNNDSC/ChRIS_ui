@@ -296,7 +296,7 @@ const TableSelectable: React.FC = () => {
           >
             <Thead>
               <Tr>
-                <Th />
+                <Th aria-label="feed-selection-checkbox" />
                 {COLUMN_DEFINITIONS.map((column, columnIndex) => (
                   <Th key={column.id} sort={getSortParams(columnIndex)}>
                     {column.label}
