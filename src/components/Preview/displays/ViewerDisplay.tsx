@@ -1,5 +1,4 @@
 import type * as React from "react";
-import type { IFileBlob } from "../../../api/model";
 import type { ActionState } from "../FileDetailView";
 import {
   CatchallDisplay,
@@ -13,6 +12,7 @@ import {
   VideoDisplay,
   XtkDisplay,
 } from "./index";
+import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
 
 const components = {
   JsonDisplay,
@@ -29,9 +29,9 @@ const components = {
 
 interface ViewerDisplayProps {
   viewerName: string;
-  fileItem: IFileBlob;
   preview?: string;
   actionState: ActionState;
+  selectedFile: FileBrowserFolderFile | PACSFile;
 }
 
 const ViewerDisplay: React.FC<ViewerDisplayProps> = (
