@@ -64,19 +64,21 @@ const FileBrowser = (props: FileBrowserProps) => {
   const handleDownloadMutation = useDownload(feed);
   const [api, contextHolder] = notification.useNotification();
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
-
   const {
     pluginFilesPayload,
     handleFileClick,
     selected,
-
     currentPath: additionalKey,
+    observerTarget,
+    fetchMore,
+    handlePagination,
+    isLoading,
   } = props;
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const username = useTypedSelector((state) => state.user.username);
-  const { folderFiles, linkFiles, children, path } = pluginFilesPayload;
-  const breadcrumb = path.split("/");
+  const { subFoldersMap, linkFilesMap, filesMap } = pluginFilesPayload;
+  const breadcrumb = additionalKey.split("/");
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
 
   useEffect(() => {
@@ -203,17 +205,17 @@ const FileBrowser = (props: FileBrowserProps) => {
                   type: OperationContext.FILEBROWSER,
                   additionalKeys: [additionalKey],
                 }}
-                computedPath={path}
+                computedPath={additionalKey}
                 folderList={pluginFilesPayload.folderList}
               />
               <div className="file-browser__header">
                 <div className="file-browser__header--breadcrumbContainer">
-                  <ClipboardCopyContainer path={path} />
+                  <ClipboardCopyContainer path={additionalKey} />
                   <Breadcrumb>{breadcrumb.map(generateBreadcrumb)}</Breadcrumb>
                 </div>
 
                 <div>
-                  {path !== currentPath &&
+                  {additionalKey !== currentPath &&
                     selected.data.plugin_type === "fs" && (
                       <Tooltip
                         content={<span>Go back to the base directory</span>}
@@ -240,7 +242,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {folderFiles.map((resource: FileBrowserFolderFile, index) => {
+                  {filesMap.map((resource: FileBrowserFolderFile, index) => {
                     return (
                       <FileRow
                         rowIndex={index}
@@ -250,7 +252,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         date={resource.data.creation_date}
                         owner={resource.data.owner_username}
                         size={resource.data.fsize}
-                        computedPath={path}
+                        computedPath={additionalKey}
                         handleFolderClick={() => {
                           return;
                         }}
@@ -265,7 +267,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                       />
                     );
                   })}
-                  {linkFiles.map(
+                  {linkFilesMap.map(
                     (resource: FileBrowserFolderLinkFile, index) => {
                       return (
                         <LinkRow
@@ -276,7 +278,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                           date={resource.data.creation_date}
                           owner={resource.data.owner_username}
                           size={resource.data.fsize}
-                          computedPath={path}
+                          computedPath={additionalKey}
                           handleFolderClick={() => {
                             return;
                           }}
@@ -288,17 +290,17 @@ const FileBrowser = (props: FileBrowserProps) => {
                     },
                   )}
 
-                  {children.map((resource: FileBrowserFolder, index) => {
+                  {subFoldersMap.map((resource: FileBrowserFolder, index) => {
                     return (
                       <FolderRow
                         rowIndex={index}
                         key={resource.data.path}
                         resource={resource}
-                        name={getFolderName(resource, path)}
+                        name={getFolderName(resource, additionalKey)}
                         date={resource.data.creation_date}
                         owner=" "
                         size={0}
-                        computedPath={path}
+                        computedPath={additionalKey}
                         handleFolderClick={() =>
                           handleFileClick(resource.data.path)
                         }
@@ -310,6 +312,18 @@ const FileBrowser = (props: FileBrowserProps) => {
                   })}
                 </Tbody>
               </Table>
+              {fetchMore && !isLoading && (
+                <Button onClick={handlePagination} variant="link">
+                  Load more data...
+                </Button>
+              )}
+              <div
+                style={{
+                  height: "1px", // Ensure it's visible to the observer
+                  marginTop: "10px", // Ensure it's not blocked by other content
+                }}
+                ref={observerTarget}
+              />
             </DrawerContentBody>
           )}
         </DrawerContent>

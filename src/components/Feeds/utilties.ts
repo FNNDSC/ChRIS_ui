@@ -4,13 +4,13 @@ import type {
 } from "../../store/drawer/drawerSlice";
 import { setDrawerState } from "../../store/drawer/drawerSlice";
 
-import ChrisAPIClient from "../../api/chrisapiclient";
 import type {
   Feed,
-  PublicFeedList,
   FeedList,
   PluginInstance,
+  PublicFeedList,
 } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 
 export const handleDrawerActions = (
@@ -182,6 +182,7 @@ const LOOKUP: Record<PluginInstanceStatus, number> = {
 export const getPluginInstanceDetails = async (
   feed: Feed,
 ): Promise<PluginInstanceDetails> => {
+  console.log("getplugininstace called");
   const details: PluginInstanceDetails = {
     size: 0,
     progress: 0,
