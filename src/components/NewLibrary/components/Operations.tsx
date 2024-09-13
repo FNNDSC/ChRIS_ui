@@ -80,7 +80,6 @@ const Operations = ({
   );
 
   if (isFeedsTable) {
-    console.log("Disabling");
     OPERATION_ITEMS[0].disabled = true;
   }
 

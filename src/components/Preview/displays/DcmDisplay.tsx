@@ -99,6 +99,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       setActiveViewport(viewport);
       setRenderingEngine(newRenderingEngine);
       setImageStack([imageID]);
+
       return selectedFile.data.fname;
     }
   }
@@ -131,11 +132,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
           const blob = await file.getFileBlob();
           imageId = await loadDicomImage(blob); // Load and generate the image ID
         } else {
-          const fileviewer = new FileViewerModel();
-          const fileName = fileviewer.getFileName(
-            file as FileBrowserFolderFile,
-          );
-          imageId = `web:${file.url}${fileName}`;
+          continue;
         }
         newImageStack.push(imageId); // Add the new image ID to the stack
       }
@@ -169,6 +166,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   return (
     <>
       {isLoading && <SpinContainer title="Displaying image..." />}
+
       <div
         id="content"
         ref={dicomImageRef}
