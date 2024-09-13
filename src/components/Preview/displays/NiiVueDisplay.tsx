@@ -1,14 +1,14 @@
-import React from "react";
-import type { IFileBlob } from "../../../api/model.ts";
+import { Collection } from "@fnndsc/chrisapi";
+import { SLICE_TYPE } from "@niivue/niivue";
 import {
+  FreeSurferColorLUT,
   type NVROptions,
   type NVRVolume,
-  FreeSurferColorLUT,
 } from "niivue-react/src";
+import React from "react";
+import type { IFileBlob } from "../../../api/model.ts";
 import SizedNiivueCanvas from "../../SizedNiivueCanvas";
-import { SLICE_TYPE } from "@niivue/niivue";
 import styles from "./NiiVueDisplay.module.css";
-import { Collection } from "@fnndsc/chrisapi";
 
 type NiiVueDisplayProps = {
   selectedFile?: IFileBlob;

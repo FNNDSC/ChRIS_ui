@@ -117,9 +117,9 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   const handleKeyDown = useCallback(
     (e: any) => {
       if (e.target.closest("INPUT")) return;
-      if (chrisFiles.length > 0 && e.code == "ArrowRight") {
+      if (chrisFiles.length > 0 && e.code === "ArrowRight") {
         onNext();
-      } else if (e.code == "ArrowLeft") {
+      } else if (e.code === "ArrowLeft") {
         onBack();
       }
     },
