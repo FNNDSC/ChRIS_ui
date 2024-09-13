@@ -322,7 +322,7 @@ const LibraryTable: React.FC<TableProps> = ({
         <Caption>Data Library</Caption>
         <Thead>
           <Tr>
-            <Th arial-label="Select a row" />
+            <Th screenReaderText="Select a row" arial-label="Select a row" />
             <Th sort={{ sortBy, onSort, columnIndex: 1 }} name="name">
               {columnNames.name}
             </Th>
