@@ -15,7 +15,6 @@ const JsonDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
 
   useEffect(() => {
     async function getBlobText() {
-      console.log("SelectedFile", selectedFile);
       const reader = new FileReader();
       reader.addEventListener("loadend", (e: any) => {
         const blobText = e.target.result;

@@ -12,7 +12,6 @@ const CatchallDisplay: React.FunctionComponent<AllProps> = (
   const noPreviewMessage = () => {
     const { selectedFile } = props;
     const extension = getFileExtension(selectedFile?.data.fname);
-
     return (
       <Alert
         type="info"

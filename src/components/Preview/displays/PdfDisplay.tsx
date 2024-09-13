@@ -10,21 +10,18 @@ const PdfDisplay: React.FC<AllProps> = ({ selectedFile }: AllProps) => {
 
   useEffect(() => {
     async function constructURL() {
-      if (selectedFile?.url) {
-        setUrl(selectedFile.url);
-      } else {
-        const blob = await selectedFile?.getFileBlob();
-        if (blob) {
-          const objectUrl = window.URL.createObjectURL(
-            new Blob([blob], { type: "application/pdf" }),
-          );
-          setUrl(objectUrl);
+      if (!selectedFile) return;
+      const blob = await selectedFile?.getFileBlob();
+      if (blob) {
+        const objectUrl = window.URL.createObjectURL(
+          new Blob([blob], { type: "application/pdf" }),
+        );
+        setUrl(objectUrl);
 
-          // Clean up the URL when the component unmounts
-          return () => {
-            window.URL.revokeObjectURL(objectUrl);
-          };
-        }
+        // Clean up the URL when the component unmounts
+        return () => {
+          window.URL.revokeObjectURL(objectUrl);
+        };
       }
     }
 

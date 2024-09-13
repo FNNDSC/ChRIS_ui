@@ -5,23 +5,22 @@ type IframeDisplayProps = {
   selectedFile?: IFileBlob;
 };
 
-const IframeDisplay: React.FC<IframeDisplayProps> = ({ selectedFile }) => {
+const IframeDisplay: React.FC<IframeDisplayProps> = ({
+  selectedFile,
+}: IframeDisplayProps) => {
   const [url, setURL] = useState<string>("");
 
   useEffect(() => {
     const constructURL = async () => {
-      const fileType = getFileExtension(selectedFile?.data.fname || "");
-      let constructedURL = selectedFile?.url || "";
-      if (!constructedURL && selectedFile) {
-        const blob = await selectedFile.getFileBlob();
-        if (blob) {
-          const type = fileType === "html" ? "text/html" : "";
-          constructedURL = URL.createObjectURL(new Blob([blob], { type }));
-        }
-      }
+      if (!selectedFile) return;
+      const fileType = getFileExtension(selectedFile.data.fname);
+      const blob = await selectedFile.getFileBlob();
 
+      const type = fileType === "html" ? "text/html" : "";
+      const constructedURL = URL.createObjectURL(new Blob([blob], { type }));
       setURL(constructedURL);
     };
+
     constructURL();
     return () => {
       URL.revokeObjectURL(url);
