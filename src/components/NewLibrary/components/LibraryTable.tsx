@@ -306,7 +306,11 @@ const LibraryTable: React.FC<TableProps> = ({
         placement="right"
       >
         {selectedFile && (
-          <FileDetailView selectedFile={selectedFile} preview="large" />
+          <FileDetailView
+            selectedFile={selectedFile}
+            preview="large"
+            list={data.files}
+          />
         )}
       </Drawer>
       <Table
