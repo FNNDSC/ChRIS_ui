@@ -11,23 +11,18 @@ const VideoDisplay: React.FC<AllProps> = ({ selectedFile }: AllProps) => {
 
   useEffect(() => {
     async function constructURL() {
-      if (selectedFile?.url) {
-        setUrl(selectedFile.url);
-        setSourceType(`video/${selectedFile.data.fname.split(".").pop()}`);
-      } else {
-        const blob = await selectedFile?.getFileBlob();
-        if (blob) {
-          const objectUrl = window.URL.createObjectURL(
-            new Blob([blob], { type: blob.type }),
-          );
-          setUrl(objectUrl);
-          setSourceType(blob.type);
+      const blob = await selectedFile?.getFileBlob();
+      if (blob) {
+        const objectUrl = window.URL.createObjectURL(
+          new Blob([blob], { type: blob.type }),
+        );
+        setUrl(objectUrl);
+        setSourceType(blob.type);
 
-          // Clean up the object URL when the component unmounts
-          return () => {
-            window.URL.revokeObjectURL(objectUrl);
-          };
-        }
+        // Clean up the object URL when the component unmounts
+        return () => {
+          window.URL.revokeObjectURL(objectUrl);
+        };
       }
     }
 

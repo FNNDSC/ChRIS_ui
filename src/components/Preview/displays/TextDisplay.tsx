@@ -17,27 +17,16 @@ const TextDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
     if (textDisplay) {
       const displayContent = async () => {
         if (selectedFile) {
-          if (selectedFile.url) {
-            try {
-              const response = await fetch(selectedFile.url);
-              const text = await response.text();
-              textDisplay.innerText = text;
-            } catch (error) {
-              console.error("Failed to fetch text content from URL:", error);
-            }
-          } else {
-            const reader = new FileReader();
-            reader.addEventListener(
-              "load",
-              () => {
-                //@ts-ignore
-                textDisplay.innerText = reader.result;
-              },
-              false,
-            );
-            const blob = await selectedFile.getFileBlob();
-            reader.readAsText(blob);
-          }
+          const reader = new FileReader();
+          reader.addEventListener(
+            "load",
+            () => {
+              textDisplay.innerText = reader.result as string;
+            },
+            false,
+          );
+          const blob = await selectedFile.getFileBlob();
+          reader.readAsText(blob);
         }
       };
 
