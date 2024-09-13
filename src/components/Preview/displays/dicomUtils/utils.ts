@@ -280,6 +280,10 @@ export const displayDicomImage = async (
     await viewport.setStack(imageIds);
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
+
+    viewport.element.addEventListener("cornerstoneimagerendered", () => {
+      const currentIndex = viewport.getCurrentImageIdIndex();
+    });
     // Set the stack scroll mouse wheel tool
     toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
 
