@@ -13,6 +13,7 @@ import {
   XtkDisplay,
 } from "./index";
 import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
+import type { IFileBlob } from "../../../api/model";
 
 const components = {
   JsonDisplay,
@@ -32,6 +33,7 @@ interface ViewerDisplayProps {
   preview?: string;
   actionState: ActionState;
   selectedFile: FileBrowserFolderFile | PACSFile;
+  list?: IFileBlob[];
 }
 
 const ViewerDisplay: React.FC<ViewerDisplayProps> = (

@@ -27,15 +27,15 @@ export type DcmImageProps = {
   selectedFile?: IFileBlob;
   actionState: ActionState;
   preview: string;
+  list?: IFileBlob[];
 };
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
-  console.log("Props", props);
-  const { selectedFile, actionState, preview } = props;
-
+  const { selectedFile, actionState, preview, list } = props;
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
   >();
+  const [imageStack, setImageStack] = useState<string[]>([]);
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const uniqueId = `${selectedFile?.data.id || v4()}`;
@@ -45,9 +45,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const handleResize = () => {
     // Update the element with elementId when the size of dicomImageRef changes
     if (dicomImageRef.current && size) {
-      //@ts-ignore
       const parentWidth = size.width;
-      //@ts-ignore
       const parentHeight = size.height;
       const element = document.getElementById(elementId);
       if (element) {
@@ -87,6 +85,9 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         const blob = await selectedFile.getFileBlob();
         imageID = await loadDicomImage(blob);
       } else {
+        // Code to view png and jpg file types in cornerstone. Currently we are using the default image display so this code is redundant.
+
+        // This code should be deleted in the future.
         const fileviewer = new FileViewerModel();
         const fileName = fileviewer.getFileName(
           selectedFile as FileBrowserFolderFile,
@@ -97,6 +98,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         await displayDicomImage(element, imageID, uniqueId);
       setActiveViewport(viewport);
       setRenderingEngine(newRenderingEngine);
+      setImageStack([imageID]);
       return selectedFile.data.fname;
     }
   }
@@ -105,6 +107,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     queryKey: ["cornerstone-preview", selectedFile],
     queryFn: () => setupCornerstone(),
     refetchOnMount: true,
+    enabled: !!selectedFile,
   });
 
   useEffect(() => {
@@ -116,6 +119,52 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   useEffect(() => {
     handleResize();
   }, [size]);
+
+  const loadMoreImages = async (signal: AbortSignal) => {
+    const newImageStack = [];
+    if (list) {
+      for (const file of list) {
+        if (signal.aborted) return;
+        const extension = getFileExtension(file.data.fname);
+        let imageId: string;
+        if (extension === "dcm") {
+          const blob = await file.getFileBlob();
+          imageId = await loadDicomImage(blob); // Load and generate the image ID
+        } else {
+          const fileviewer = new FileViewerModel();
+          const fileName = fileviewer.getFileName(
+            file as FileBrowserFolderFile,
+          );
+          imageId = `web:${file.url}${fileName}`;
+        }
+        newImageStack.push(imageId); // Add the new image ID to the stack
+      }
+      setImageStack(newImageStack);
+
+      if (activeViewport) {
+        await activeViewport.setStack(newImageStack);
+        activeViewport.render();
+      }
+    }
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    if (list) {
+      if (
+        imageStack.length > 0 &&
+        imageStack.length !== list.length &&
+        activeViewport
+      ) {
+        loadMoreImages(signal);
+      }
+    }
+
+    return () => {
+      controller.abort(); // Abort loading images on unmount
+    };
+  }, [list, activeViewport]);
 
   return (
     <>

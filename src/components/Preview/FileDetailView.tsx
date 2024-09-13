@@ -18,7 +18,11 @@ import React, {
   type ReactElement,
 } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { fileViewerMap, getFileExtension } from "../../api/model";
+import {
+  type IFileBlob,
+  fileViewerMap,
+  getFileExtension,
+} from "../../api/model";
 import { useTypedSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import {
@@ -43,6 +47,7 @@ interface AllProps {
   handlePrevious?: () => void;
   gallery?: boolean;
   isPublic?: boolean;
+  list?: IFileBlob[];
 }
 
 export interface ActionState {
@@ -199,6 +204,8 @@ const FileDetailView = (props: AllProps) => {
                 viewerName={viewerName}
                 actionState={actionState}
                 selectedFile={selectedFile}
+                // Optional for dicom scrolling
+                list={props.list}
               />
             )}
           </div>

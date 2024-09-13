@@ -16,7 +16,6 @@ const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
       const blob = await selectedFile?.getFileBlob();
       if (blob) {
         let type = "";
-
         const fileType = getFileExtension(selectedFile.data.fname);
         if (fileType === "png") {
           type = "image/png";
