@@ -154,11 +154,20 @@ type FilesCardProps = {
   files: FileBrowserFolderFile[];
   computedPath: string;
   pagination?: Pagination;
+  // For dicom scrolling
+  list?: FileBrowserFolderFile[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 };
 
 export const FilesCard: React.FC<FilesCardProps> = ({
   files,
   computedPath,
+  list,
+  fetchMore,
+  handlePagination,
+  filesLoading,
 }) => (
   <>
     {files.map((file) => (
@@ -166,6 +175,10 @@ export const FilesCard: React.FC<FilesCardProps> = ({
         key={file.data.fname}
         file={file}
         computedPath={computedPath}
+        list={list}
+        fetchMore={fetchMore}
+        filesLoading={filesLoading}
+        handlePagination={handlePagination}
       />
     ))}
   </>
@@ -174,6 +187,11 @@ export const FilesCard: React.FC<FilesCardProps> = ({
 type SubFileCardProps = {
   file: FileBrowserFolderFile;
   computedPath: string;
+  // For dicom scrolling
+  list?: FileBrowserFolderFile[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 };
 
 export const getFileName = (
@@ -185,6 +203,10 @@ export const getFileName = (
 export const SubFileCard: React.FC<SubFileCardProps> = ({
   file,
   computedPath,
+  list,
+  fetchMore,
+  handlePagination,
+  filesLoading,
 }) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
@@ -296,7 +318,14 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
         isOpen={preview}
         onClose={() => setIsPreview(false)}
       >
-        <FileDetailView selectedFile={file} preview="large" />
+        <FileDetailView
+          selectedFile={file}
+          preview="large"
+          list={list}
+          fetchMore={fetchMore}
+          handlePagination={handlePagination}
+          filesLoading={filesLoading}
+        />
       </Modal>
     </>
   );

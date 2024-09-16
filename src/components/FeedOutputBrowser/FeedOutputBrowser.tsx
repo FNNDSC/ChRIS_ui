@@ -34,8 +34,8 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
   } = useFeedBrowser();
   return (
     <div style={{ height: "100%" }} className="feed-output-browser">
-      {filesLoading ? (
-        <SpinContainer title="Fetching Files..." />
+      {statusTitle && statusTitles.includes(statusTitle) ? (
+        <FetchFilesLoader title="Plugin executing. Files will be fetched when plugin completes" />
       ) : pluginFilesPayload && selected && !isError ? (
         <FileBrowser
           selected={selected}
@@ -47,8 +47,6 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
           handlePagination={handlePagination}
           isLoading={filesLoading}
         />
-      ) : statusTitle && statusTitles.includes(statusTitle) ? (
-        <FetchFilesLoader title="Plugin executing. Files will be fetched when plugin completes" />
       ) : isError ? (
         <Alert type="error" description={error?.message} />
       ) : (

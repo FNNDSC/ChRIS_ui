@@ -34,6 +34,9 @@ interface ViewerDisplayProps {
   actionState: ActionState;
   selectedFile: FileBrowserFolderFile | PACSFile;
   list?: IFileBlob[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 }
 
 const ViewerDisplay: React.FC<ViewerDisplayProps> = (

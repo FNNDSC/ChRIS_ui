@@ -74,6 +74,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     handlePagination,
     isLoading,
   } = props;
+
   const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
   const drawerState = useTypedSelector((state) => state.drawers);
   const username = useTypedSelector((state) => state.user.username);
@@ -173,6 +174,9 @@ const FileBrowser = (props: FileBrowserProps) => {
             preview="large"
             isPublic={feed?.data.public}
             list={pluginFilesPayload.filesMap}
+            fetchMore={fetchMore}
+            handlePagination={handlePagination}
+            filesLoading={isLoading}
           />
         )}
         {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}

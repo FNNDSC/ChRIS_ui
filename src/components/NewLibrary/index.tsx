@@ -99,7 +99,7 @@ const NewLibrary = () => {
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
   const queryKey = ["library_folders", computedPath, pageNumber];
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isFetching, isError, error } = useQuery({
     queryKey: queryKey,
     queryFn: () => fetchFolders(computedPath, pageNumber),
     placeholderData: keepPreviousData,
@@ -186,7 +186,7 @@ const NewLibrary = () => {
       </PageSection>
 
       <PageSection style={{ paddingBlockStart: "0" }}>
-        {isLoading && <SpinContainer title="Fetching Resources..." />}
+        {isFetching && <SpinContainer title="Fetching Resources..." />}
         {isError && <Alert type="error" description={error.message} />}
 
         {/* Render based on currentLayout */}
@@ -207,8 +207,11 @@ const NewLibrary = () => {
                   }}
                   handleFolderClick={handleFolderClick}
                   computedPath={computedPath}
+                  fetchMore={fetchMore}
+                  handlePagination={handlePagination}
+                  filesLoading={isFetching}
                 />
-                {fetchMore && !isLoading && (
+                {fetchMore && !isFetching && (
                   <Button onClick={handlePagination} variant="link">
                     Load more data...
                   </Button>
@@ -247,8 +250,12 @@ const NewLibrary = () => {
                   files={data?.filesMap || []}
                   computedPath={computedPath}
                   pagination={data?.filesPagination}
+                  list={data?.filesMap}
+                  fetchMore={fetchMore}
+                  handlePagination={handlePagination}
+                  filesLoading={isFetching}
                 />
-                {fetchMore && !isLoading && (
+                {fetchMore && !isFetching && (
                   <Button onClick={handlePagination} variant="link">
                     Load more data...
                   </Button>
