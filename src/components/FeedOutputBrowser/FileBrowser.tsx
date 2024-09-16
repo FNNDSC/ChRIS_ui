@@ -172,7 +172,6 @@ const FileBrowser = (props: FileBrowserProps) => {
             gallery={true}
             selectedFile={selectedFile}
             preview="large"
-            isPublic={feed?.data.public}
             list={pluginFilesPayload.filesMap}
             fetchMore={fetchMore}
             handlePagination={handlePagination}

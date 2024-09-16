@@ -1,8 +1,8 @@
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant, Tooltip } from "@patternfly/react-core";
 import type { ReactNode } from "react";
-import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import ReactJson from "react-json-view";
-import { Alert } from "../Antd";
+import { Alert, Drawer } from "../Antd";
 import { SpinContainer } from "../Common";
 
 export const GalleryButtonContainer = ({
@@ -49,24 +49,17 @@ export const TagInfoModal = ({
   handleModalToggle,
   parsingError,
   output,
+  isDrawer = false,
 }: {
   isModalOpen: boolean;
   handleModalToggle: (event: string, value: boolean) => void;
   parsingError: string;
   output?: any[];
   file?: FileBrowserFolderFile;
+  isDrawer?: boolean;
 }) => {
-  return (
-    <Modal
-      aria-label="tag info"
-      onEscapePress={() => {
-        handleModalToggle("TagInfo", !isModalOpen);
-      }}
-      variant={ModalVariant.large}
-      title="Dicom Tag"
-      isOpen={isModalOpen}
-      onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
-    >
+  const content = (
+    <>
       {parsingError ? (
         <Alert closable type="error" description={parsingError} />
       ) : output && Object.keys(output).length > 0 ? (
@@ -82,6 +75,35 @@ export const TagInfoModal = ({
       ) : (
         <SpinContainer title="Fetching Dicom Tags" />
       )}
+    </>
+  );
+
+  if (isDrawer) {
+    return (
+      <Drawer
+        title="Dicom Tag"
+        placement="right"
+        onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
+        open={isModalOpen}
+        width={720} // You can adjust this value as needed
+      >
+        {content}
+      </Drawer>
+    );
+  }
+
+  return (
+    <Modal
+      aria-label="tag info"
+      onEscapePress={() => {
+        handleModalToggle("TagInfo", !isModalOpen);
+      }}
+      variant={ModalVariant.large}
+      title="Dicom Tag"
+      isOpen={isModalOpen}
+      onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
+    >
+      {content}
     </Modal>
   );
 };

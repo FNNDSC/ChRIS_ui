@@ -19,9 +19,9 @@ import React, {
 } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import {
-  type IFileBlob,
   fileViewerMap,
   getFileExtension,
+  type IFileBlob,
 } from "../../api/model";
 import { useTypedSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
@@ -46,12 +46,12 @@ interface AllProps {
   handleNext?: () => void;
   handlePrevious?: () => void;
   gallery?: boolean;
-  isPublic?: boolean;
   // These props enable pagination and fetch on scroll
   list?: IFileBlob[];
   fetchMore?: boolean;
   handlePagination?: () => void;
   filesLoading?: boolean;
+  isDrawer?: boolean;
 }
 
 export interface ActionState {
@@ -103,9 +103,7 @@ const FileDetailView = (props: AllProps) => {
     reader.onloadend = async () => {
       try {
         if (reader.result) {
-          //@ts-ignore
-          const byteArray = new Uint8Array(reader.result);
-          //@ts-ignore
+          const byteArray = new Uint8Array(reader.result as ArrayBuffer);
           const testOutput: any[] = [];
           const output: any[] = [];
           const dataSet = dicomParser.parseDicom(byteArray);
@@ -124,19 +122,33 @@ const FileDetailView = (props: AllProps) => {
     };
 
     if (result) {
-      reader.readAsArrayBuffer(result);
+      const blob = await selectedFile?.getFileBlob();
+      if (blob) {
+        reader.readAsArrayBuffer(blob);
+      } else {
+        throw new Error("Failed to parse the file for dicom tags");
+      }
     }
   }, []);
 
   const mutation = useMutation({
-    mutationFn: displayTagInfo,
+    mutationFn: async (selectedFile: FileBrowserFolderFile | PACSFile) => {
+      await displayTagInfo(selectedFile);
+    },
+
     onError: (error: any) => {
       setParsingError(error.message);
     },
   });
 
-  const { selectedFile, preview, fetchMore, handlePagination, filesLoading } =
-    props;
+  const {
+    selectedFile,
+    preview,
+    fetchMore,
+    handlePagination,
+    filesLoading,
+    isDrawer,
+  } = props;
   let viewerName = "";
   const fileType = getFileExtension(selectedFile?.data.fname);
   if (fileType) {
@@ -219,6 +231,7 @@ const FileDetailView = (props: AllProps) => {
           </div>
 
           <TagInfoModal
+            isDrawer={true}
             handleModalToggle={(actionState, toolState) => {
               const previouslyActive = Object.keys(actionState)[0];
               handleModalToggle(actionState, toolState, previouslyActive);
