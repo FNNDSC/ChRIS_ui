@@ -10,7 +10,7 @@
       "tsconfig*.json",
       "testing/*.mjs"
     ],
-    "ignore": ["package-lock.json"]
+    "ignore": ["package-lock.json", "pfdcm/generated"]
   },
   "organizeImports": {
     "enabled": true

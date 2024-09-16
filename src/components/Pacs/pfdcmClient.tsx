@@ -19,7 +19,7 @@ class PfdcmClient {
   private readonly url: string;
 
   constructor() {
-    this.url = import.meta.env.VITE_PFDCM_URL || "";
+    this.url = import.meta.env.VITE_PFDCM_URL + "/" || "";
   }
 
   async getPacsServices(): Promise<ReadonlyArray<string>> {
