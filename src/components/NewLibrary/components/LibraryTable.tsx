@@ -313,12 +313,14 @@ const LibraryTable: React.FC<TableProps> = ({
       >
         {selectedFile && (
           <FileDetailView
+            gallery={true}
             selectedFile={selectedFile}
             preview="large"
             list={data.files}
             fetchMore={fetchMore}
             handlePagination={handlePagination}
             filesLoading={filesLoading}
+            isDrawer={true}
           />
         )}
       </Drawer>

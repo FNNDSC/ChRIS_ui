@@ -182,6 +182,8 @@ export const handleEvents = (
   const previousTool = actionState.previouslyActive as string;
   const id = toolGroup?.id;
 
+  if (activeTool === "TagInfo") return;
+
   if (id) {
     toolGroup?.setToolPassive(previousTool);
     if (activeTool === "Reset") {
