@@ -224,7 +224,14 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         ref={dicomImageRef}
         className={preview === "large" ? "dcm-preview" : ""}
       >
-        <div>
+        <div
+          style={{
+            position: "absolute",
+            top: "0.5em",
+            left: "0.5em",
+            zIndex: "99999",
+          }}
+        >
           {isLoadingMore ? (
             <i>Loading More Images...</i>
           ) : (
