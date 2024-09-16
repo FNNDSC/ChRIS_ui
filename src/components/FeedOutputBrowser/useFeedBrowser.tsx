@@ -44,7 +44,7 @@ export const useFeedBrowser = () => {
 
   const {
     data: pluginFilesPayload,
-    isLoading: filesLoading,
+    isFetching: filesLoading,
     isError,
     error,
   } = useQuery({

@@ -42,6 +42,9 @@ interface TableProps {
   };
   computedPath: string;
   handleFolderClick: (folderName: string) => void;
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 }
 
 const columnNames = {
@@ -236,6 +239,9 @@ const LibraryTable: React.FC<TableProps> = ({
   data,
   computedPath,
   handleFolderClick,
+  fetchMore,
+  handlePagination,
+  filesLoading,
 }) => {
   const navigate = useNavigate();
   const [preview, setShowPreview] = useState(false);
@@ -310,6 +316,9 @@ const LibraryTable: React.FC<TableProps> = ({
             selectedFile={selectedFile}
             preview="large"
             list={data.files}
+            fetchMore={fetchMore}
+            handlePagination={handlePagination}
+            filesLoading={filesLoading}
           />
         )}
       </Drawer>

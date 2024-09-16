@@ -6,6 +6,7 @@ import {
   init,
   metaData,
   volumeLoader,
+  EVENTS,
 } from "@cornerstonejs/core";
 import * as cornerstone from "@cornerstonejs/core";
 import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
@@ -43,6 +44,7 @@ const {
   Enums: csToolsEnums,
 } = cornerstoneTools;
 const { MouseBindings } = csToolsEnums;
+export const events = EVENTS;
 
 let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
 
@@ -206,7 +208,6 @@ interface DisplayArea {
     imagePoint: ImagePoint;
     canvasPoint: ImagePoint;
   };
-  // storeAsInitialCamera?: boolean;
 }
 
 interface ViewportInputOptions {
@@ -238,7 +239,6 @@ function createDisplayArea(
         imagePoint,
         canvasPoint,
       },
-      // storeAsInitialCamera: true,
     },
   };
 }
@@ -281,9 +281,6 @@ export const displayDicomImage = async (
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
 
-    viewport.element.addEventListener("cornerstoneimagerendered", () => {
-      const currentIndex = viewport.getCurrentImageIdIndex();
-    });
     // Set the stack scroll mouse wheel tool
     toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
 

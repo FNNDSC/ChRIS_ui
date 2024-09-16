@@ -47,7 +47,11 @@ interface AllProps {
   handlePrevious?: () => void;
   gallery?: boolean;
   isPublic?: boolean;
+  // These props enable pagination and fetch on scroll
   list?: IFileBlob[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 }
 
 export interface ActionState {
@@ -131,7 +135,8 @@ const FileDetailView = (props: AllProps) => {
     },
   });
 
-  const { selectedFile, preview } = props;
+  const { selectedFile, preview, fetchMore, handlePagination, filesLoading } =
+    props;
   let viewerName = "";
   const fileType = getFileExtension(selectedFile?.data.fname);
   if (fileType) {
@@ -206,6 +211,9 @@ const FileDetailView = (props: AllProps) => {
                 selectedFile={selectedFile}
                 // Optional for dicom scrolling
                 list={props.list}
+                fetchMore={fetchMore}
+                handlePagination={handlePagination}
+                filesLoading={filesLoading}
               />
             )}
           </div>

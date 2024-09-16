@@ -12,6 +12,7 @@ import { SpinContainer } from "../../Common";
 import useSize from "../../FeedTree/useSize";
 import type { ActionState } from "../FileDetailView";
 import {
+  events,
   type IStackViewport,
   basicInit,
   cleanupCornerstoneTooling,
@@ -28,15 +29,29 @@ export type DcmImageProps = {
   actionState: ActionState;
   preview: string;
   list?: IFileBlob[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 };
 
 const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
-  const { selectedFile, actionState, preview, list } = props;
+  const {
+    selectedFile,
+    actionState,
+    preview,
+    list,
+    fetchMore,
+    handlePagination,
+    filesLoading,
+  } = props;
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
   >();
+
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageStack, setImageStack] = useState<string[]>([]);
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const uniqueId = `${selectedFile?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;
@@ -86,7 +101,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         imageID = await loadDicomImage(blob);
       } else {
         // Code to view png and jpg file types in cornerstone. Currently we are using the default image display so this code is redundant.
-
         // This code should be deleted in the future.
         const fileviewer = new FileViewerModel();
         const fileName = fileviewer.getFileName(
@@ -122,27 +136,27 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   }, [size]);
 
   const loadMoreImages = async (signal: AbortSignal) => {
-    const newImageStack = [];
+    setIsLoadingMore(true);
+    const newImageStack = [...imageStack];
     if (list) {
-      for (const file of list) {
-        if (signal.aborted) return;
-        const extension = getFileExtension(file.data.fname);
-        let imageId: string;
-        if (extension === "dcm") {
-          const blob = await file.getFileBlob();
-          imageId = await loadDicomImage(blob); // Load and generate the image ID
-        } else {
-          continue;
+      for (const file of list.slice(imageStack.length)) {
+        if (signal.aborted) {
+          setIsLoadingMore(false);
+          return;
         }
+        const blob = await file.getFileBlob();
+        const imageId = await loadDicomImage(blob); // Load and generate the image ID
         newImageStack.push(imageId); // Add the new image ID to the stack
       }
       setImageStack(newImageStack);
 
       if (activeViewport) {
-        await activeViewport.setStack(newImageStack);
+        const currentIndex = activeViewport.getCurrentImageIdIndex();
+        await activeViewport.setStack(newImageStack, currentIndex);
         activeViewport.render();
       }
     }
+    setIsLoadingMore(false);
   };
 
   useEffect(() => {
@@ -161,17 +175,63 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     return () => {
       controller.abort(); // Abort loading images on unmount
     };
-  }, [list, activeViewport]);
+  }, [list, fetchMore, activeViewport]);
+
+  useEffect(() => {
+    if (activeViewport && list) {
+      const element = activeViewport.element;
+
+      const handleImageRendered = (_event: any) => {
+        const newIndex = activeViewport.getCurrentImageIdIndex();
+        setCurrentImageIndex(newIndex + 1);
+      };
+
+      const handleFetchMoreImages = (_event: any) => {
+        const id = activeViewport.getCurrentImageIdIndex();
+        if (
+          id >= Math.floor(imageStack.length / 3) &&
+          list.length === imageStack.length &&
+          fetchMore &&
+          handlePagination &&
+          !filesLoading &&
+          !isLoadingMore
+        ) {
+          handlePagination();
+        }
+      };
+
+      element.addEventListener(events.IMAGE_RENDERED, handleImageRendered);
+      element.addEventListener(
+        events.STACK_VIEWPORT_SCROLL,
+        handleFetchMoreImages,
+      );
+
+      return () => {
+        element.removeEventListener(events.IMAGE_RENDERED, handleImageRendered);
+        element.removeEventListener(
+          events.STACK_VIEWPORT_SCROLL,
+          handleFetchMoreImages,
+        );
+      };
+    }
+  }, [activeViewport, imageStack, fetchMore, handlePagination]);
 
   return (
     <>
       {isLoading && <SpinContainer title="Displaying image..." />}
-
       <div
         id="content"
         ref={dicomImageRef}
         className={preview === "large" ? "dcm-preview" : ""}
       >
+        <div>
+          {isLoadingMore ? (
+            <i>Loading More Images...</i>
+          ) : (
+            `Images Loaded: ${currentImageIndex}/${imageStack.length}`
+          )}
+        </div>
+
         <div id={elementId} />
       </div>
     </>
