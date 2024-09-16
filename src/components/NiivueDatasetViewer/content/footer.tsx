@@ -1,4 +1,4 @@
-import { hideOnDesktop, hideOnMobileInline } from "../cssUtils.ts";
+import { hideOnDesktop, hideOnMobileInline } from "../../../cssUtils.ts";
 import { Chip, Popover, TextContent } from "@patternfly/react-core";
 import BUILD_VERSION from "../../../getBuildVersion.ts";
 import { css } from "@patternfly/react-styles";

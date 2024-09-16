@@ -16,7 +16,7 @@ test.each([
         owner_username: "chris",
       },
     },
-    "ws://example.com/api/v1/pacs/progress/?token=nota.real.jwttoken",
+    "ws://example.com/api/v1/pacs/ws/?token=nota.real.jwttoken",
   ],
   [
     {
@@ -32,7 +32,7 @@ test.each([
         owner_username: "chris",
       },
     },
-    "wss://example.com/api/v1/pacs/progress/?token=stillnota.real.jwttoken",
+    "wss://example.com/api/v1/pacs/ws/?token=stillnota.real.jwttoken",
   ],
 ])("getWebsocketUrl(%o, %s) -> %s", (downloadTokenResponse, expected) => {
   // @ts-ignore
