@@ -124,7 +124,7 @@ class FpClient {
   }
 
   /**
-   * Create a WebSockets connection to the LONK-WS endpoint.
+   * Connect a WebSocket to the LONK-WS endpoint.
    *
    * https://chrisproject.org/docs/oxidicom/lonk-ws
    */
@@ -136,10 +136,31 @@ class FpClient {
   }: LonkHandlers & { timeout?: number }): TE.TaskEither<Error, LonkClient> {
     return pipe(
       this.createDownloadToken(timeout),
-      TE.map((downloadToken) => {
+      TE.flatMap((downloadToken) => {
         const url = getWebsocketUrl(downloadToken);
+        let callback: ((c: E.Either<Error, LonkClient>) => void) | null = null;
+        let promise: Promise<E.Either<Error, LonkClient>> = new Promise(
+          (resolve) => (callback = resolve),
+        );
         const ws = new WebSocket(url);
-        return new LonkClient({ ws, onDone, onProgress, onError });
+        ws.onopen = () =>
+          callback &&
+          callback(
+            E.right(new LonkClient({ ws, onDone, onProgress, onError })),
+          );
+        ws.onerror = (_ev) =>
+          callback &&
+          callback(
+            E.left(
+              new Error(
+                `There was an error connecting to the WebSocket at ${url}`,
+              ),
+            ),
+          );
+        ws.onclose = () =>
+          callback &&
+          callback(E.left(new Error(`CUBE unexpectedly closed the WebSocket`)));
+        return () => promise;
       }),
     );
   }
@@ -149,7 +170,7 @@ function getWebsocketUrl(downloadTokenResponse: DownloadToken): string {
   const token = downloadTokenResponse.data.token;
   return downloadTokenResponse.url
     .replace(/^http(s?):\/\//, (_match, s) => `ws${s}://`)
-    .replace(/v1\/downloadtokens\/\d+\//, `v1/pacs/progress/?token=${token}`);
+    .replace(/v1\/downloadtokens\/\d+\//, `v1/pacs/ws/?token=${token}`);
 }
 
 function notNull<T>(x: T | null): T {

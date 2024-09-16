@@ -11,7 +11,7 @@ import {
   Switch,
 } from "@patternfly/react-core";
 import RadiologcalConventionToggle from "./RadiologcalConventionToggle";
-import { hideOnDesktop } from "../cssUtils";
+import { hideOnDesktop } from "../../../cssUtils";
 import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { css } from "@patternfly/react-styles";
 import SliceTypeButton from "./SliceTypeButton";

@@ -11,6 +11,7 @@ import {
 import { useFetchFeed } from "../Feeds/useFetchFeed";
 import { useTypedSelector } from "../../store/hooks";
 import { CodeBranchIcon } from "../Icons";
+import React from "react";
 
 const FeedsNameComponent = () => {
   const { feedCount, loadingFeedState } = useFeedListData();
@@ -52,6 +53,19 @@ const FeedsDetailComponent = ({ id }: { id?: string }) => {
   );
 };
 
+const PacsNameComponent = () => {
+  return (
+    <Title level={4} style={{ marginBottom: 0 }}>
+      PACS Query and Retrieve
+    </Title>
+  );
+};
+
+const TITLE_COMPONENTS: { [key: string]: () => React.ReactElement } = {
+  "/feeds": () => <FeedsNameComponent />,
+  "/pacs": () => <PacsNameComponent />,
+};
+
 const TitleComponent = () => {
   const location = useLocation();
 
@@ -62,7 +76,8 @@ const TitleComponent = () => {
     return <FeedsDetailComponent id={id} />;
   }
 
-  return location.pathname === "/feeds" ? <FeedsNameComponent /> : null;
+  const titleFn = TITLE_COMPONENTS[location.pathname];
+  return titleFn && titleFn();
 };
 
 export default TitleComponent;

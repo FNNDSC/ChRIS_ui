@@ -1,6 +1,6 @@
 import "@patternfly/react-core/dist/styles/base.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider, App as AntdApp, theme } from "antd";
 import { useContext } from "react";
 import { CookiesProvider } from "react-cookie";
 import { Provider } from "react-redux";
@@ -58,8 +58,10 @@ function App(props: AllProps) {
                     : theme.defaultAlgorithm,
                 }}
               >
-                <Cart />
-                <Routes />
+                <AntdApp>
+                  <Cart />
+                  <Routes />
+                </AntdApp>
               </ConfigProvider>
             </QueryClientProvider>
           </BrowserRouter>
