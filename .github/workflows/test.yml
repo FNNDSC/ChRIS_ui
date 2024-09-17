@@ -46,7 +46,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report-public
+        name: playwright-report
         path: playwright-report-public/
         retention-days: 30
     - name: Report coverage
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-local
+          name: playwright-report
           path: playwright-report-local/
           retention-days: 30
       - name: Report coverage
