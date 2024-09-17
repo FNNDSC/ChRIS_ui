@@ -59,8 +59,10 @@ function App(props: AllProps) {
                 }}
               >
                 <AntdApp>
-                  <Cart />
-                  <Routes />
+                  <div className="patternfly-font">
+                    <Cart />
+                    <Routes />
+                  </div>
                 </AntdApp>
               </ConfigProvider>
             </QueryClientProvider>
