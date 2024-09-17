@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 20.17
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
       - run: pnpm test
 
   test-public:
@@ -37,7 +37,7 @@ jobs:
       with:
         node-version: 20.17
         cache: 'pnpm'
-    - run: pnpm install --frozen-lockfile
+    - run: pnpm install 
     - run: npx playwright install --with-deps
     - name: End-to-End tests
       env:
@@ -77,7 +77,7 @@ jobs:
         with:
           node-version: 20.17
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
       - run: npx playwright install --with-deps
       - run: pnpm run test:prepare
       - name: End-to-End tests
