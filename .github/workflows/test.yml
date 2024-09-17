@@ -18,12 +18,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.17
-          cache: 'npm'
+          cache: 'pnpm'
 
+      - name: Install pnpm
+        run: npm install -g pnpm
+      
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile 
+
       - name: Unit tests
-        run: npm test
+        run: pnpm test
 
   # note to self: the sections test-public and test-local should be almost the same, except:
   # - local testing needs git submodules
@@ -42,15 +46,18 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20.17
-        cache: 'npm'
+        cache: 'pnpm'
+
+    - name: Install pnpm
+      run: npm install -g pnpm
     - name: Install dependencies
-      run: npm ci
+      run: pnpm install --frozen-lockfile
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: End-to-End tests
       env:
         TEST_SAFARI: yes
-      run: npm run test:e2e
+      run: pnpm run test:e2e
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -60,7 +67,7 @@ jobs:
     - name: Report coverage
       id: report
       if: always()
-      run: npm run test:lcov
+      run: pnpm run test:lcov
     - name: Upload E2E test coverage
       if: steps.report.outcome == 'success'
       uses: codecov/codecov-action@v4
@@ -82,17 +89,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20.17
-          cache: 'npm'
+          cache: 'pnpm'
+      - name: Install pnpm
+        run: npm install -g pnpm
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
       - name: Setup tests
-        run: npm run test:prepare
+        run: pnpm run test:prepare
       - name: End-to-End tests
         env:
           TEST_SAFARI: yes
-        run: npm run test:e2e:local
+        run: pnpm run test:e2e:local
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -102,7 +111,7 @@ jobs:
       - name: Report coverage
         id: report
         if: always()
-        run: npm run test:lcov
+        run: pnpm run test:lcov
       - name: Upload E2E test coverage
         if: steps.report.outcome == 'success'
         uses: codecov/codecov-action@v4
