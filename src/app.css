@@ -67,7 +67,7 @@
   width: 20px;
   height: 20px;
   font-size:12px;
-  
+
 }
 
 .large-button {
@@ -82,4 +82,11 @@
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+}
+
+.patternfly-font {
+  font-family: var(--pf-v5-global--FontFamily--text);
+  font-size: var(--pf-v5-global--FontSize--md);
+  line-height: var(--pf-v5-global--LineHeight--md);
+  font-weight: var(--pf-v5-global--FontWeight--normal);
 }
