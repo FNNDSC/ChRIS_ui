@@ -428,7 +428,7 @@ export const AddModal = ({
         )}
         {indicators.isError && (
           <Alert
-            message="Failed to create a new folder"
+            message="Failed operation"
             description={indicators.error?.message}
             type="error"
             showIcon

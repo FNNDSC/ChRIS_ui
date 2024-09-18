@@ -69,6 +69,10 @@ interface RowProps {
   computedPath: string;
   handleFolderClick: () => void;
   handleFileClick: () => void;
+  origin: {
+    type: OperationContext;
+    additionalKeys: string[];
+  };
 }
 
 const BaseRow: React.FC<RowProps> = ({
@@ -82,6 +86,7 @@ const BaseRow: React.FC<RowProps> = ({
   computedPath,
   handleFolderClick,
   handleFileClick,
+  origin,
 }) => {
   const { handlers } = useLongPress();
   const { handleOnClick, handleCheckboxChange } = handlers;
@@ -142,14 +147,7 @@ const BaseRow: React.FC<RowProps> = ({
       : resource.data.fname;
 
   return (
-    <FolderContextMenu
-      origin={{
-        type: OperationContext.LIBRARY,
-        additionalKeys: [computedPath],
-      }}
-      key={path}
-      computedPath={computedPath}
-    >
+    <FolderContextMenu origin={origin} key={path} computedPath={computedPath}>
       <Tr
         ref={rowRef} // Attach the ref to the row
         style={{ background: highlightedBgRow, cursor: "pointer" }}
@@ -300,6 +298,11 @@ const LibraryTable: React.FC<TableProps> = ({
     }
   };
 
+  const origin = {
+    type: OperationContext.LIBRARY,
+    additionalKeys: [computedPath],
+  };
+
   return (
     <React.Fragment>
       <Drawer
@@ -363,6 +366,7 @@ const LibraryTable: React.FC<TableProps> = ({
               handleFileClick={() => {
                 return;
               }}
+              origin={origin}
             />
           ))}
           {data.files.map((resource: FileBrowserFolderFile, index) => (
@@ -381,6 +385,7 @@ const LibraryTable: React.FC<TableProps> = ({
               handleFileClick={() => {
                 handleFileClick(resource);
               }}
+              origin={origin}
             />
           ))}
           {data.linkFiles.map((resource: FileBrowserFolderLinkFile, index) => (
@@ -399,6 +404,7 @@ const LibraryTable: React.FC<TableProps> = ({
               handleFileClick={() => {
                 navigate(resource.data.path);
               }}
+              origin={origin}
             />
           ))}
         </Tbody>

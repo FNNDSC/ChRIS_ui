@@ -8,8 +8,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import { catchError, getFileName } from "../../../api/common";
+import { getFileName } from "../../../api/common";
 import {
+  clearSelectedPaths,
   setToggleCart,
   startAnonymize,
   startDownload,
@@ -209,6 +210,8 @@ export const useFolderOperations = (
     inputValue: string,
   ): Promise<void> => {
     const newPath = `${computedPath}/${inputValue}`;
+    const oldPath = type === "folder" ? payload.data.path : payload.data.fname;
+
     switch (type) {
       case "folder":
         await (payload as FileBrowserFolder).put({
@@ -229,6 +232,7 @@ export const useFolderOperations = (
       default:
         throw new Error(`Unsupported type: ${type}`);
     }
+    dispatch(clearSelectedPaths(oldPath));
   };
 
   const handleRenameError = (error: any): void => {
@@ -238,7 +242,7 @@ export const useFolderOperations = (
       if (new_link_file_path) throw new Error(new_link_file_path[0]);
       if (new_file_path) throw new Error(new_file_path);
     }
-    throw error; // If it's not a known error, rethrow it
+    throw new Error("Failed to rename this folder"); // If it's not a known error, rethrow it
   };
 
   const handleModalSubmit = async (

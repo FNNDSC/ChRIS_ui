@@ -183,6 +183,11 @@ const FileBrowser = (props: FileBrowserProps) => {
     </DrawerPanelContent>
   );
 
+  const origin = {
+    type: OperationContext.FILEBROWSER,
+    additionalKeys: [additionalKey],
+  };
+
   return (
     <Grid hasGutter className="file-browser">
       {contextHolder}
@@ -205,10 +210,7 @@ const FileBrowser = (props: FileBrowserProps) => {
             <DrawerContentBody>
               <Operations
                 customClassName={{ toolbar: "remove-toolbar-padding" }}
-                origin={{
-                  type: OperationContext.FILEBROWSER,
-                  additionalKeys: [additionalKey],
-                }}
+                origin={origin}
                 computedPath={additionalKey}
                 folderList={pluginFilesPayload.folderList}
               />
@@ -268,6 +270,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                           !drawerState.preview.open &&
                             dispatch(setFilePreviewPanel());
                         }}
+                        origin={origin}
                       />
                     );
                   })}
@@ -289,6 +292,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                           handleFileClick={() => {
                             handleFileClick(resource.data.path);
                           }}
+                          origin={origin}
                         />
                       );
                     },
@@ -311,6 +315,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         handleFileClick={() => {
                           return;
                         }}
+                        origin={origin}
                       />
                     );
                   })}
