@@ -1,7 +1,9 @@
-import React from "react";
-import { Grid, GridItem, PageSection } from "@patternfly/react-core";
-import WrapperConnect from "../Wrapper";
 import { CatalogTile } from "@patternfly/react-catalog-view-extension";
+import { Grid, GridItem, PageSection } from "@patternfly/react-core";
+import React from "react";
+import BUILD_VERSION from "../../getBuildVersion";
+import { InfoSection } from "../Common";
+import WrapperConnect from "../Wrapper";
 import "./dashboard.css";
 
 const DashboardPage = () => {
@@ -9,8 +11,23 @@ const DashboardPage = () => {
     document.title = "Overview";
   }, []);
 
+  const TitleComponent = (
+    <InfoSection
+      title="Welcome to ChRIS"
+      content={
+        <>
+          Retrieve, analyze, and visualize <i>any data</i> using a powerful
+          cloud computing platform: ChRIS. <b>Let's get started.</b>
+          <p>
+            Build: <code className="build-version">{BUILD_VERSION}</code>
+          </p>
+        </>
+      }
+    />
+  );
+
   return (
-    <WrapperConnect>
+    <WrapperConnect titleComponent={TitleComponent}>
       <PageSection>
         <Grid hasGutter>
           <GridItem lg={4}>

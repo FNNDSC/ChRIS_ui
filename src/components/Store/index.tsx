@@ -37,12 +37,13 @@ import { Alert, Spin, notification } from "../Antd";
 import { SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
-import WrapperConnect from "../Wrapper";
+import { InfoSection } from "../Common";
 import {
   fetchPluginForMeta,
   fetchPluginMetas,
   handleInstallPlugin,
 } from "../PipelinesCopy/utils";
+import WrapperConnect from "../Wrapper";
 
 const Store = () => {
   const isStaff = useTypedSelector((state) => state.user.isStaff);
@@ -216,8 +217,16 @@ const Store = () => {
     }
   }, [handleInstallMutation.isSuccess, handleInstallMutation.isError, api]);
 
+  // Store catalog component
+  const TitleComponent = (
+    <InfoSection
+      title="Plugin Store"
+      content="This is a global store from where you can install your plugins."
+    />
+  );
+
   return (
-    <WrapperConnect>
+    <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
       <Modal
         variant="small"
