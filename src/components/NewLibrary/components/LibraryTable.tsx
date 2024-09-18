@@ -148,6 +148,7 @@ const BaseRow: React.FC<RowProps> = ({
         additionalKeys: [computedPath],
       }}
       key={path}
+      computedPath={computedPath}
     >
       <Tr
         ref={rowRef} // Attach the ref to the row

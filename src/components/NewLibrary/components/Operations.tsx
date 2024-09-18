@@ -114,7 +114,6 @@ const Operations = ({
         onClick={() => handleOperations(operationKey)}
         variant="tertiary"
         aria-label={ariaLabel}
-        isDisabled={operationKey === "rename" && !isFeedsTable}
       />
     </Tooltip>
   );
@@ -222,7 +221,10 @@ const Operations = ({
     <>
       <AddModal
         modalState={modalState}
-        onClose={() => setModalState({ isOpen: false, type: "" })}
+        onClose={() => {
+          handleModalSubmitMutation.reset();
+          setModalState({ isOpen: false, type: "" });
+        }}
         onSubmit={(inputValue, additionalValues) =>
           handleModalSubmitMutation.mutate({ inputValue, additionalValues })
         }
