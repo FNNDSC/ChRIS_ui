@@ -14,8 +14,15 @@ import {
   type ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { SortByDirection } from "@patternfly/react-table";
+import {
+  SortByDirection,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
 import { useQueries } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { debounce } from "lodash";
@@ -25,6 +32,7 @@ import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
+import { InfoSection } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
@@ -227,8 +235,23 @@ const TableSelectable: React.FC = () => {
     );
   };
 
+  const feedCountText =
+    !feedCount && loadingFeedState
+      ? "Fetching..."
+      : feedCount === -1
+        ? 0
+        : feedCount;
+  const TitleComponent = (
+    <InfoSection
+      title={`New and Existing Analyses (${feedCountText})`}
+      content="Analyses (aka ChRIS feeds) are computational experiments where data
+      are organized and processed by ChRIS plugins. In this view, you may
+      view your analyses and also the ones shared with you."
+    />
+  );
+
   return (
-    <WrapperConnect>
+    <WrapperConnect titleComponent={TitleComponent}>
       <PageSection style={{ paddingTop: "0.25em" }} className="feed-header">
         <div>
           <FeedSearch
