@@ -1,5 +1,7 @@
 import type {
   FileBrowserFolder,
+  FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
   FileBrowserFolderList,
 } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
@@ -169,30 +171,74 @@ export const useFolderOperations = (
     }
   };
 
-  const renameFolder = async (inputValue: string) => {
+  const renameFolder = async (inputValue: string): Promise<void> => {
     handleOrigin(origin);
-    if (createFeed) {
-      // Renaming a feed
-      for (const { payload } of selectedPaths) {
-        try {
-          // This code is temporary
-          const fileName = getFolderName(
-            payload as FileBrowserFolder,
-            payload.data.path,
-          );
-          const feed = await fetchFeedForPath(fileName);
-          if (feed) {
-            await feed.put({
-              name: inputValue,
-            });
-          }
-        } catch (error: any) {
-          const error_message = catchError(error).error_message;
-          throw new Error(error_message);
+
+    for (const { payload, type } of selectedPaths) {
+      try {
+        if (createFeed) {
+          await handleFeedCreation(payload as FileBrowserFolder, inputValue);
+        } else {
+          await handlePathRename(payload, type, inputValue);
         }
+      } catch (error) {
+        handleRenameError(error);
       }
-      invalidateQueries();
     }
+
+    invalidateQueries();
+  };
+
+  const handleFeedCreation = async (
+    payload: FileBrowserFolder,
+    inputValue: string,
+  ): Promise<void> => {
+    const fileName = getFolderName(payload, payload.data.path);
+    const feed = await fetchFeedForPath(fileName);
+    if (feed) {
+      await feed.put({ name: inputValue });
+    }
+  };
+
+  const handlePathRename = async (
+    payload:
+      | FileBrowserFolder
+      | FileBrowserFolderFile
+      | FileBrowserFolderLinkFile,
+    type: string,
+    inputValue: string,
+  ): Promise<void> => {
+    const newPath = `${computedPath}/${inputValue}`;
+    switch (type) {
+      case "folder":
+        await (payload as FileBrowserFolder).put({
+          //@ts-ignore
+          path: newPath,
+        });
+        break;
+      case "file":
+        await (payload as FileBrowserFolderFile).put({
+          new_file_path: newPath,
+        });
+        break;
+      case "link":
+        await (payload as FileBrowserFolderLinkFile).put({
+          new_link_file_path: newPath,
+        });
+        break;
+      default:
+        throw new Error(`Unsupported type: ${type}`);
+    }
+  };
+
+  const handleRenameError = (error: any): void => {
+    if (error.response?.data) {
+      const { path, new_link_file_path, new_file_path } = error.response.data;
+      if (path) throw new Error(path[0]);
+      if (new_link_file_path) throw new Error(new_link_file_path[0]);
+      if (new_file_path) throw new Error(new_file_path);
+    }
+    throw error; // If it's not a known error, rethrow it
   };
 
   const handleModalSubmit = async (

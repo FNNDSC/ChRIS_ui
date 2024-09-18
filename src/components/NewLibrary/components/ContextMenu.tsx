@@ -48,7 +48,6 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
       key: "rename",
       label: "Rename",
       icon: <EditIcon />,
-      disabled: !isFeedsTable,
     },
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
@@ -57,7 +56,10 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     <>
       <AddModal
         modalState={modalState}
-        onClose={() => setModalState({ isOpen: false, type: "" })}
+        onClose={() => {
+          handleModalSubmitMutation.reset();
+          setModalState({ isOpen: false, type: "" });
+        }}
         onSubmit={(inputValue, additionalValues) =>
           handleModalSubmitMutation.mutate({
             inputValue,
