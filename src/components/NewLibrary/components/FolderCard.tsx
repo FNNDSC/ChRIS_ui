@@ -109,6 +109,7 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
           type: OperationContext.LIBRARY,
           additionalKeys: [computedPath],
         }}
+        computedPath={computedPath}
       >
         <Card
           style={{

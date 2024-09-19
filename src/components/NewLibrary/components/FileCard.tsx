@@ -56,6 +56,7 @@ type ComponentProps = {
 const PresentationComponent: React.FC<ComponentProps> = ({
   name,
   origin,
+  computedPath,
   date,
   onClick,
   onNavigate,
@@ -67,7 +68,7 @@ const PresentationComponent: React.FC<ComponentProps> = ({
   bgRow,
 }) => (
   <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
-    <FolderContextMenu origin={origin}>
+    <FolderContextMenu origin={origin} computedPath={computedPath}>
       <Card
         style={{ cursor: "pointer", background: bgRow || "inherit" }}
         isCompact
