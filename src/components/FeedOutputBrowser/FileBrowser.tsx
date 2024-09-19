@@ -248,7 +248,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {filesMap.map((resource: FileBrowserFolderFile, index) => {
+                  {filesMap?.map((resource: FileBrowserFolderFile, index) => {
                     return (
                       <FileRow
                         rowIndex={index}
@@ -274,7 +274,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                       />
                     );
                   })}
-                  {linkFilesMap.map(
+                  {linkFilesMap?.map(
                     (resource: FileBrowserFolderLinkFile, index) => {
                       return (
                         <LinkRow
@@ -298,7 +298,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                     },
                   )}
 
-                  {subFoldersMap.map((resource: FileBrowserFolder, index) => {
+                  {subFoldersMap?.map((resource: FileBrowserFolder, index) => {
                     return (
                       <FolderRow
                         rowIndex={index}
