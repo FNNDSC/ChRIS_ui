@@ -17,8 +17,8 @@ import {
   Tr,
 } from "@patternfly/react-table";
 import { Drawer, Tag } from "antd";
-import { differenceInSeconds, format } from "date-fns";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { format } from "date-fns";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
@@ -30,6 +30,7 @@ import useLongPress, {
   getBackgroundRowColor,
   useAssociatedFeed,
 } from "../utils/longpress";
+import useNewResourceHighlight from "../utils/useNewResourceHighlight";
 import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
@@ -92,28 +93,7 @@ const BaseRow: React.FC<RowProps> = ({
   const { handleOnClick, handleCheckboxChange } = handlers;
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
-  const rowRef = useRef<HTMLTableRowElement>(null); // Create a ref for the row
-
-  const secondsSinceCreation = differenceInSeconds(new Date(), new Date(date));
-  const [isNewResource, setIsNewResource] = useState<boolean>(
-    secondsSinceCreation <= 15,
-  );
-
-  useEffect(() => {
-    if (isNewResource && rowRef.current) {
-      rowRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-
-      const timeoutId = setTimeout(() => {
-        setIsNewResource(false);
-      }, 10000);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isNewResource]);
-
+  const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
   const isSelected =
     selectedPaths.length > 0 &&
     selectedPaths.some((payload) => {
@@ -124,13 +104,11 @@ const BaseRow: React.FC<RowProps> = ({
         return payload.path === resource.data.fname;
       }
     });
-
   const shouldHighlight = isNewResource || isSelected;
   const highlightedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
   const icon = getIcon(type, isDarkTheme, {
     marginRight: "0.5em",
   });
-
   const handleItem = () => {
     if (type === "folder") {
       handleFolderClick();
@@ -140,16 +118,14 @@ const BaseRow: React.FC<RowProps> = ({
       handleFileClick();
     }
   };
-
   const path =
     type === "folder" || type === "link"
       ? resource.data.path
       : resource.data.fname;
-
   return (
     <FolderContextMenu origin={origin} key={path} computedPath={computedPath}>
       <Tr
-        ref={rowRef} // Attach the ref to the row
+        ref={scrollToNewResource} // Attach the ref to the row
         style={{ background: highlightedBgRow, cursor: "pointer" }}
         onClick={(e) => {
           e.stopPropagation();
