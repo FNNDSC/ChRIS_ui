@@ -8,9 +8,9 @@ import type {
 import type { DataNode } from "../../store/explorer/types";
 
 export interface FilesPayload {
-  filesMap: FileBrowserFolderFile[];
-  subFoldersMap: FileBrowserFolder[];
-  linkFilesMap: FileBrowserFolderLinkFile[];
+  filesMap?: FileBrowserFolderFile[];
+  subFoldersMap?: FileBrowserFolder[];
+  linkFilesMap?: FileBrowserFolderLinkFile[];
   folderList?: FileBrowserFolderList;
 }
 
