@@ -179,7 +179,12 @@ function* downloadFolder(
           if (!fileItems) {
             throw new Error("Failed to find the zip file");
           }
-          const fileToZip = fileItems[0];
+          const fileToZip = fileItems.find((file) =>
+            file.data.fname.endsWith(".zip"),
+          );
+          if (!fileToZip) {
+            throw new Error("Failed to find a .zip file in the folder");
+          }
           yield downloadFile(fileToZip);
         } else {
           throw new Error(`Failed to find a folder for this path: ${filePath}`);
