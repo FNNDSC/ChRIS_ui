@@ -1,10 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useContext,
-  useRef,
-  useCallback,
-} from "react";
+import type React from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import {
   Form,
   FormGroup,
@@ -14,7 +9,7 @@ import {
 } from "@patternfly/react-core";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { CreateFeedContext } from "./context";
-import { Tag } from "@fnndsc/chrisapi";
+import type { Tag } from "@fnndsc/chrisapi";
 import { Types } from "./types/feed";
 import { fetchTagList } from "./utils";
 

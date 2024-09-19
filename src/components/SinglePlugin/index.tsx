@@ -170,6 +170,8 @@ const SinglePlugin = () => {
     <WrapperConnect>
       {isLoading || isFetching ? (
         <SpinContainer title="Please wait as resources for this plugin are being fetched..." />
+      ) : isError ? (
+        <Alert type="error" description={error.message} />
       ) : data ? (
         <>
           <HeaderSinglePlugin currentPluginMeta={data.currentPluginMeta} />
@@ -185,7 +187,6 @@ const SinglePlugin = () => {
       ) : (
         <EmptyStateComponent />
       )}
-      {isError && <Alert type="error" description={error.message} />}
     </WrapperConnect>
   );
 };
