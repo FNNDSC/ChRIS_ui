@@ -26,6 +26,7 @@ import { type OriginState, useOperationsContext } from "../context";
 import useDeletePayload from "../utils/useDeletePayload";
 import { fetchFeedForPath } from "./longpress";
 import useFeedOperations from "./useFeedOperations";
+import { isEmpty } from "lodash";
 
 export interface ModalState {
   type: string;
@@ -83,16 +84,27 @@ export const useFolderOperations = (
     isFolder: boolean,
     name?: string,
   ) => {
+    // Process the origin data if applicable
     handleOrigin(origin);
+    // Convert selected files to an array for easier manipulation
     const files = Array.from(event.target.files || []);
+    // Check if the input is a file selection, but a folder was mistakenly uploaded
+    if (!isFolder && files.length > 0 && isEmpty(files[0].type)) {
+      alert(
+        "Folder selection is not allowed in file upload mode. Please select files only.",
+      );
+      resetInputField(fileInputRef); // Clean up file input
+      return;
+    }
+    // Generate a unique name based on the timestamp and the provided name (if any)
     const uniqueName = name
       ? `${name}_${getCurrentTimestamp()}`
       : getCurrentTimestamp();
-
+    // Determine the upload path based on the user's preferences (creating a new feed or using an existing path)
     const uploadPath = createFeed
       ? `home/${username}/uploads/${uniqueName}`
       : computedPath;
-
+    // Dispatch the upload action with all relevant details
     dispatch(
       startUpload({
         files,
@@ -103,7 +115,7 @@ export const useFolderOperations = (
         nameForFeed: name,
       }),
     );
-
+    // Reset the input field after each upload to allow for subsequent uploads
     resetInputField(isFolder ? folderInputRef : fileInputRef);
   };
 
