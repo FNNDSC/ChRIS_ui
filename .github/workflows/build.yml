@@ -2,7 +2,7 @@ name: build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, staging ]
 
 jobs:
   build:
@@ -36,14 +36,25 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Get postfix of latest
+        id: postfix_of_latest
+        run: |
+          if [[ $GITHUB_REF_TYPE == tag || $GITHUB_REF_NAME == master ]]; then
+            echo "Postfix of latest: ''"
+            echo "postfix_of_latest=" >> $GITHUB_OUTPUT
+          else
+            echo "Postfix of latest: -$GITHUB_REF_NAME"
+            echo "postfix_of_latest=-$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           tags: |
-            docker.io/fnndsc/chris_ui:latest
-            docker.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
-            ghcr.io/fnndsc/chris_ui:latest
-            ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}
+            docker.io/fnndsc/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
+            docker.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
+            ghcr.io/fnndsc/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
+            ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
