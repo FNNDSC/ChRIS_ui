@@ -7,6 +7,8 @@ import {
   ChipGroup,
   Form,
   FormGroup,
+  HelperText,
+  HelperTextItem,
   Modal,
   TextInput,
   Toolbar,
@@ -15,19 +17,13 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
-import React, {
-  Fragment,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useState,
-} from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router";
+import { matchPath, useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useTypedSelector } from "../../../store/hooks";
-import { Alert, Dropdown, Spin } from "../../Antd";
+import { Alert, Dropdown } from "../../Antd";
 import {
   AddIcon,
   ArchiveIcon,
@@ -35,11 +31,12 @@ import {
   DeleteIcon,
   DownloadIcon,
   DuplicateIcon,
+  EditIcon,
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
 import type { OriginState } from "../context";
-import { useFolderOperations } from "../utils/useOperations";
+import { type ModalState, useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
 
@@ -62,46 +59,46 @@ interface OperationProps {
   };
 }
 
-const items = [
-  { key: "newFolder", label: "New Folder" },
-  { key: "fileUpload", label: "File Upload" },
-  { key: "folderUpload", label: "Folder Upload" },
-];
-
-const Operations = React.forwardRef((props: OperationProps, ref) => {
+const Operations = ({
+  origin,
+  computedPath,
+  folderList,
+  customStyle,
+  customClassName,
+}: OperationProps) => {
   const location = useLocation();
-  const { origin, computedPath, folderList, customStyle, customClassName } =
-    props;
   const dispatch = useDispatch();
+  const isFeedsTable =
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
+  const OPERATION_ITEMS = useMemo(
+    () => [
+      { key: "newFolder", label: "New Folder", disabled: false },
+      { key: "fileUpload", label: "File Upload", disabled: false },
+      { key: "folderUpload", label: "Folder Upload", disabled: false },
+    ],
+    [],
+  );
+
+  if (isFeedsTable) {
+    OPERATION_ITEMS[0].disabled = true;
+  }
+
   const {
-    modalInfo,
-    userError,
-    folderInput,
-    fileInput,
+    modalState,
+    userRelatedError,
+    folderInputRef,
+    fileInputRef,
     handleFileChange,
+    createFeedWithFile,
     handleFolderChange,
     handleModalSubmitMutation,
     handleOperations,
     contextHolder,
-    setUserErrors,
-    setModalInfo,
-  } = useFolderOperations(
-    origin,
-    computedPath,
-    folderList,
-    location.pathname === "/feeds",
-  );
+    setUserRelatedError,
+    setModalState,
+  } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
-  useImperativeHandle(ref, () => ({
-    triggerFileUpload: () => {
-      fileInput.current?.click();
-    },
-    triggerFolderUpload: () => {
-      folderInput.current?.click();
-    },
-  }));
-
-  const { selectedPaths } = useTypedSelector((state) => state.cart);
+  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
 
   const renderOperationButton = (
@@ -111,6 +108,7 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
   ) => (
     <Tooltip content={ariaLabel}>
       <Button
+        style={{ marginRight: "1em" }}
         icon={icon}
         size="sm"
         onClick={() => handleOperations(operationKey)}
@@ -127,11 +125,9 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
         <ToolbarItem>
           <Dropdown
             menu={{
-              items,
+              items: OPERATION_ITEMS,
               selectable: true,
-              onClick: (info) => {
-                handleOperations(info.key);
-              },
+              onClick: (info) => handleOperations(info.key),
             }}
           >
             <Button
@@ -145,67 +141,55 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
               New
             </Button>
           </Dropdown>
-          {userError && (
+          {userRelatedError && (
             <Alert
               style={{ marginLeft: "1rem" }}
               type="error"
-              description={userError}
+              description={userRelatedError}
               closable
-              onClose={() => setUserErrors("")}
+              onClose={() => setUserRelatedError("")}
             />
           )}
         </ToolbarItem>
         {selectedPathsCount > 0 && (
           <>
-            <ToolbarItem>
-              {renderOperationButton(
-                <CodeBranchIcon />,
-                "createFeed",
-                "Create a new feed",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <DownloadIcon />,
-                "download",
-                "Download selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <ArchiveIcon />,
-                "anonymize",
-                "Anonymize selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <MergeIcon />,
-                "merge",
-                "Merge selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <DuplicateIcon />,
-                "duplicate",
-                "Copy selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <ShareIcon />,
-                "share",
-                "Share selected items",
-              )}
-            </ToolbarItem>
-            <ToolbarItem>
-              {renderOperationButton(
-                <DeleteIcon />,
-                "delete",
-                "Delete selected items",
-              )}
-            </ToolbarItem>
+            {renderOperationButton(
+              <CodeBranchIcon />,
+              "createFeed",
+              "Create a new feed",
+            )}
+            {renderOperationButton(
+              <DownloadIcon />,
+              "download",
+              "Download selected items",
+            )}
+            {renderOperationButton(
+              <ArchiveIcon />,
+              "anonymize",
+              "Anonymize selected items",
+            )}
+            {renderOperationButton(
+              <MergeIcon />,
+              "merge",
+              "Merge selected items",
+            )}
+            {renderOperationButton(
+              <DuplicateIcon />,
+              "duplicate",
+              "Copy selected items",
+            )}
+            {renderOperationButton(
+              <ShareIcon />,
+              "share",
+              "Share selected items",
+            )}
+
+            {renderOperationButton(<EditIcon />, "rename", "Rename")}
+            {renderOperationButton(
+              <DeleteIcon />,
+              "delete",
+              "Delete selected items",
+            )}
             <ToolbarItem>
               <ChipGroup>
                 {selectedPaths.map((selection) => (
@@ -224,53 +208,25 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
     ),
     [
       contextHolder,
-      userError,
+      userRelatedError,
       selectedPaths,
       selectedPathsCount,
       dispatch,
       handleOperations,
-      setUserErrors,
+      setUserRelatedError,
     ],
   );
-
-  const modalTypeLabels: Record<
-    string,
-    { modalTitle: string; inputLabel: string }
-  > = {
-    group: {
-      modalTitle: "Create a new Group",
-      inputLabel: "Group Name",
-    },
-    share: {
-      modalTitle: "Share this Folder",
-      inputLabel: "User Name",
-    },
-
-    default: {
-      modalTitle: "Create a new Folder",
-      inputLabel: "Folder Name",
-    },
-  };
 
   return (
     <>
       <AddModal
-        operationType={modalInfo.type}
-        isOpen={modalInfo.isOpen}
-        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        modalState={modalState}
+        onClose={() => {
+          handleModalSubmitMutation.reset();
+          setModalState({ isOpen: false, type: "" });
+        }}
         onSubmit={(inputValue, additionalValues) =>
-          handleModalSubmitMutation.mutate({
-            inputValue,
-            additionalValues,
-          })
-        }
-        modalTitle={
-          modalTypeLabels[modalInfo.type]?.modalTitle ??
-          modalTypeLabels.default.modalTitle
-        }
-        inputLabel={
-          modalTypeLabels[modalInfo.type]?.inputLabel ??
-          modalTypeLabels.default.inputLabel
+          handleModalSubmitMutation.mutate({ inputValue, additionalValues })
         }
         indicators={{
           isPending: handleModalSubmitMutation.isPending,
@@ -280,30 +236,41 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
         }}
       />
       <input
-        ref={fileInput}
-        multiple={true}
+        ref={fileInputRef}
+        multiple
         type="file"
         hidden
-        onChange={handleFileChange}
+        onChange={(e) => {
+          if (matchPath({ path: "/feeds", end: true }, location.pathname)) {
+            createFeedWithFile(e, "file");
+          } else {
+            handleFileChange(e);
+          }
+        }}
       />
       <input
-        ref={folderInput}
-        multiple={true}
+        ref={folderInputRef}
         type="file"
-        //@ts-ignore
-        webkitdirectory="true"
         hidden
-        onChange={handleFolderChange}
+        //@ts-ignore
+        webkitdirectory=""
+        directory=""
+        onChange={(e) => {
+          if (matchPath({ path: "/feeds", end: true }, location.pathname)) {
+            createFeedWithFile(e, "folder");
+          } else {
+            handleFolderChange(e);
+          }
+        }}
       />
-      <Toolbar className={customClassName?.toolbar}>
-        <ToolbarContent style={{ ...customStyle?.toolbarItem }}>
+      <Toolbar
+        style={customStyle?.toolbar}
+        className={customClassName?.toolbar}
+      >
+        <ToolbarContent style={customStyle?.toolbarItem}>
           {toolbarItems}
           {location.pathname.startsWith("/library/") && (
-            <ToolbarItem
-              align={{
-                default: "alignRight",
-              }}
-            >
+            <ToolbarItem align={{ default: "alignRight" }}>
               <LayoutSwitch />
             </ToolbarItem>
           )}
@@ -311,17 +278,50 @@ const Operations = React.forwardRef((props: OperationProps, ref) => {
       </Toolbar>
     </>
   );
-});
+};
 
 export default Operations;
 
+const MODAL_TYPE_LABELS: Record<
+  string,
+  { modalTitle: string; inputLabel: string; buttonLabel: string }
+> = {
+  group: {
+    modalTitle: "Create a new Group",
+    inputLabel: "Group Name",
+    buttonLabel: "Create",
+  },
+  share: {
+    modalTitle: "Share this Folder",
+    inputLabel: "User Name",
+    buttonLabel: "Share",
+  },
+  rename: {
+    modalTitle: "Rename",
+    inputLabel: "Rename",
+    buttonLabel: "Rename",
+  },
+  createFeed: {
+    modalTitle: "Create Feed",
+    inputLabel: "Feed Name",
+    buttonLabel: "Create",
+  },
+  createFeedWithFile: {
+    modalTitle: "Create Feed",
+    inputLabel: "Feed Name",
+    buttonLabel: "Create",
+  },
+  default: {
+    modalTitle: "Create a new Folder",
+    inputLabel: "Folder Name",
+    buttonLabel: "Create",
+  },
+};
+
 interface AddModalProps {
-  operationType: string;
-  isOpen: boolean;
+  modalState: ModalState;
   onClose: () => void;
   onSubmit: (inputValue: string, additionalValues?: AdditionalValues) => void;
-  modalTitle: string;
-  inputLabel: string;
   indicators: {
     isPending: boolean;
     isError: boolean;
@@ -330,39 +330,46 @@ interface AddModalProps {
   };
 }
 
-export const AddModal = (props: AddModalProps) => {
-  const {
-    isOpen,
-    onClose,
-    onSubmit,
-    modalTitle,
-    inputLabel,
-    indicators,
-    operationType,
-  } = props;
+export const AddModal = ({
+  modalState,
+  onClose,
+  onSubmit,
+  indicators,
+}: AddModalProps) => {
   const [inputValue, setInputValue] = useState("");
   const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
-    share: {
-      read: false,
-      write: true,
-    },
+    share: { read: false, write: true },
   });
+
+  const { modalTitle, inputLabel, buttonLabel } = useMemo(() => {
+    const modalType =
+      MODAL_TYPE_LABELS[modalState.type] ?? MODAL_TYPE_LABELS.default;
+    return {
+      modalTitle: modalType.modalTitle,
+      inputLabel: modalType.inputLabel,
+      buttonLabel: modalType.buttonLabel,
+    };
+  }, [modalState.type]);
+
+  useEffect(() => {
+    if (modalState.additionalProps?.createFeedWithFile) {
+      setInputValue(
+        modalState.additionalProps.createFeedWithFile.defaultFeedName,
+      );
+    }
+    if (modalState.additionalProps?.createFeed) {
+      setInputValue(modalState.additionalProps.createFeed.defaultFeedName);
+    }
+  }, [modalState.type]);
 
   const handleClose = () => {
     setInputValue("");
     onClose();
   };
 
-  useEffect(() => {
-    async function fetchUsers() {}
-    if (modalTitle === "Share this Folder") {
-      fetchUsers();
-    }
-  }, [modalTitle]);
-
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={modalState.isOpen}
       variant="small"
       aria-label={modalTitle}
       title={modalTitle}
@@ -383,57 +390,64 @@ export const AddModal = (props: AddModalProps) => {
             aria-label={inputLabel}
             placeholder={inputLabel}
           />
+          {modalState.type === "createFeedWithFile" ||
+            (modalState.type === "createFeed" && (
+              <HelperText>
+                <HelperTextItem>
+                  Please provide a name for your feed or hit 'Create' to use the
+                  default name
+                </HelperTextItem>
+              </HelperText>
+            ))}
         </FormGroup>
-        {operationType === "share" && (
-          <FormGroup>
-            <Checkbox
-              id="read"
-              isChecked={additionalValues?.share.read}
-              label="Read"
-              onChange={(_event, checked) => {
-                setAdditionalValues({
-                  ...additionalValues,
-                  share: {
-                    ...additionalValues?.share,
-                    read: checked,
-                  },
-                });
-              }}
-            />
-            <Checkbox
-              id="write"
-              isChecked={additionalValues?.share.write}
-              label="Write"
-              onChange={(_event, checked) => {
-                setAdditionalValues({
-                  ...additionalValues,
-                  share: {
-                    ...additionalValues?.share,
-                    write: checked,
-                  },
-                });
-              }}
-            />
-          </FormGroup>
+        {modalState.type === "share" && (
+          <Fragment>
+            <FormGroup fieldId="share-checkbox-group">
+              <Checkbox
+                label="Read"
+                id="share-checkbox-1"
+                isChecked={additionalValues.share.read}
+                onChange={(_e, checked) =>
+                  setAdditionalValues((prevState) => ({
+                    share: { ...prevState.share, read: checked },
+                  }))
+                }
+              />
+              <Checkbox
+                label="Write"
+                id="share-checkbox-2"
+                isChecked={additionalValues.share.write}
+                onChange={(_e, checked) =>
+                  setAdditionalValues((prevState) => ({
+                    share: { ...prevState.share, write: checked },
+                  }))
+                }
+              />
+            </FormGroup>
+          </Fragment>
         )}
-
-        <ActionGroup>
-          <Button
-            icon={indicators.isPending && <Spin />}
-            onClick={() => onSubmit(inputValue)}
-          >
-            Confirm
-          </Button>
-          <Button onClick={handleClose}>Cancel</Button>
-        </ActionGroup>
         {indicators.isError && (
           <Alert
-            type="error"
+            message="Failed operation"
             description={indicators.error?.message}
+            type="error"
+            showIcon
             closable
-            onClose={indicators.clearErrors}
+            afterClose={() => indicators.clearErrors()}
           />
         )}
+        <ActionGroup>
+          <Button
+            onClick={() => onSubmit(inputValue, additionalValues)}
+            isLoading={indicators.isPending}
+            isDisabled={!inputValue}
+          >
+            {buttonLabel}
+          </Button>
+          <Button variant="link" onClick={handleClose}>
+            Cancel
+          </Button>
+        </ActionGroup>
       </Form>
     </Modal>
   );

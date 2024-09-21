@@ -4,10 +4,13 @@ import {
   DrawerContent,
   DrawerContentBody,
   DrawerPanelContent,
+  Tooltip,
 } from "@patternfly/react-core";
+import { Typography } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router";
+import { elipses } from "../../api/common";
 import type { AppDispatch } from "../../store/configureStore";
 import type { IDrawerState } from "../../store/drawer/drawerSlice";
 import { resetDrawerState } from "../../store/drawer/drawerSlice";
@@ -28,12 +31,14 @@ import type { DestroyActiveResources } from "../../store/resources/types";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
 import ParentComponent from "../FeedTree/ParentComponent";
+import { CodeBranchIcon } from "../Icons";
 import NodeDetails from "../NodeDetails/NodeDetails";
 import WrapperConnect from "../Wrapper";
 import { DrawerActionButton } from "./DrawerUtils";
 import { useFetchFeed } from "./useFetchFeed";
 import { useSearchQueryParams } from "./usePaginate";
 import { handleMaximize, handleMinimize } from "./utilties";
+const { Title } = Typography;
 
 const FeedView: React.FC = () => {
   const drawerState = useTypedSelector((state) => state.drawers);
@@ -141,8 +146,17 @@ const FeedView: React.FC = () => {
     </Drawer>
   );
 
+  const TitleComponent = (
+    <Title level={4} style={{ marginBottom: 0, color: "white" }}>
+      <CodeBranchIcon style={{ marginRight: "0.25em" }} />
+      <Tooltip content={feed?.data.name}>
+        <span>{feed ? elipses(feed?.data.name, 40) : ""}</span>
+      </Tooltip>
+    </Title>
+  );
+
   return (
-    <WrapperConnect>
+    <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
       <Drawer
         isInline

@@ -1,4 +1,5 @@
 import type {
+  FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
   FileBrowserFolderList,
@@ -7,19 +8,21 @@ import type {
 import type { DataNode } from "../../store/explorer/types";
 
 export interface FilesPayload {
-  folderFiles: FileBrowserFolderFile[];
-  children: any[];
-  linkFiles: FileBrowserFolderLinkFile[];
+  filesMap?: FileBrowserFolderFile[];
+  subFoldersMap?: FileBrowserFolder[];
+  linkFilesMap?: FileBrowserFolderLinkFile[];
   folderList?: FileBrowserFolderList;
-  path: string;
 }
 
 export interface FileBrowserProps {
   pluginFilesPayload: FilesPayload;
   handleFileClick: (path: string) => void;
   selected: PluginInstance;
-  filesLoading: boolean;
   currentPath: string;
+  isLoading: boolean;
+  handlePagination: () => void;
+  fetchMore?: boolean;
+  observerTarget?: React.MutableRefObject<any>;
 }
 
 export interface FileBrowserState {

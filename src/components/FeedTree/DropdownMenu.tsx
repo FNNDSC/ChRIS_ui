@@ -12,13 +12,13 @@ const DropdownMenu = ({
   children: React.ReactElement;
   handleZip: () => void;
 }) => {
+  const dispatch = useDispatch();
   const { selectedPlugin } = useTypedSelector((state) => {
     return state.instance;
   });
   const cancelled =
     selectedPlugin?.data.status === "cancelled" ||
     selectedPlugin?.data.status === "finishedWithError";
-  const dispatch = useDispatch();
   const items: MenuProps["items"] = [
     {
       key: "1",

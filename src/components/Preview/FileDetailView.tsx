@@ -8,19 +8,21 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Alert } from "../Antd";
+import { useMutation } from "@tanstack/react-query";
 import * as dicomParser from "dicom-parser";
 import React, {
   Fragment,
   useCallback,
   useEffect,
-  useMemo,
   useState,
   type ReactElement,
 } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { fileViewerMap, getFileExtension } from "../../api/model";
+import {
+  fileViewerMap,
+  getFileExtension,
+  type IFileBlob,
+} from "../../api/model";
 import { useTypedSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import {
@@ -44,14 +46,17 @@ interface AllProps {
   handleNext?: () => void;
   handlePrevious?: () => void;
   gallery?: boolean;
-  isPublic?: boolean;
+  // These props enable pagination and fetch on scroll
+  list?: IFileBlob[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
+  isDrawer?: boolean;
 }
 
 export interface ActionState {
   [key: string]: boolean | string;
 }
-
-const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
 
 const FileDetailView = (props: AllProps) => {
   const [tagInfo, setTagInfo] = useState<any>();
@@ -98,9 +103,7 @@ const FileDetailView = (props: AllProps) => {
     reader.onloadend = async () => {
       try {
         if (reader.result) {
-          //@ts-ignore
-          const byteArray = new Uint8Array(reader.result);
-          //@ts-ignore
+          const byteArray = new Uint8Array(reader.result as ArrayBuffer);
           const testOutput: any[] = [];
           const output: any[] = [];
           const dataSet = dicomParser.parseDicom(byteArray);
@@ -119,72 +122,36 @@ const FileDetailView = (props: AllProps) => {
     };
 
     if (result) {
-      reader.readAsArrayBuffer(result);
+      const blob = await selectedFile?.getFileBlob();
+      if (blob) {
+        reader.readAsArrayBuffer(blob);
+      } else {
+        throw new Error("Failed to parse the file for dicom tags");
+      }
     }
   }, []);
 
   const mutation = useMutation({
-    mutationFn: displayTagInfo,
+    mutationFn: async (selectedFile: FileBrowserFolderFile | PACSFile) => {
+      await displayTagInfo(selectedFile);
+    },
+
     onError: (error: any) => {
       setParsingError(error.message);
     },
   });
 
-  const { selectedFile, preview } = props;
-
-  const fetchData = useCallback(
-    async (selectedFile?: FileBrowserFolderFile | PACSFile) => {
-      if (!selectedFile) {
-        throw new Error("Please select a file to preview");
-      }
-      const fileName = selectedFile.data.fname;
-      const fileType = getFileExtension(fileName);
-
-      if (props.isPublic && !fileTypes.includes(fileType)) {
-        return {
-          blob: undefined,
-          file: selectedFile,
-          fileType,
-          url: selectedFile?.collection.items[0].links[0].href,
-        };
-      }
-
-      try {
-        const blob = await selectedFile.getFileBlob();
-
-        if (blob.size > 500 * 1024 * 1024 && !fileTypes.includes(fileType)) {
-          throw new Error(
-            "Unsupported file format. File size exceeds 500mb and can lead to a browser crash if displayed as Text",
-          );
-        }
-        return {
-          blob,
-          file: selectedFile,
-          fileType,
-          url: "",
-        };
-      } catch (error: any) {
-        // biome-ignore lint/complexity/noUselessCatch: <explanation>
-        throw error;
-      }
-    },
-    [selectedFile],
-  );
-
-  const queryKey = useMemo(() => ["preview", selectedFile], [selectedFile]);
-
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey,
-    queryFn: () => fetchData(selectedFile),
-    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
-    retry: false,
-  });
-
+  const {
+    selectedFile,
+    preview,
+    fetchMore,
+    handlePagination,
+    filesLoading,
+    isDrawer,
+  } = props;
   let viewerName = "";
-
-  if (data?.fileType) {
-    const { fileType } = data;
-
+  const fileType = getFileExtension(selectedFile?.data.fname);
+  if (fileType) {
     if (!fileViewerMap[fileType]) {
       viewerName = "CatchallDisplay";
     } else {
@@ -193,8 +160,8 @@ const FileDetailView = (props: AllProps) => {
   }
 
   const handleEvents = (action: string, previouslyActive: string) => {
-    if (action === "TagInfo" && data) {
-      mutation.mutate(data.blob);
+    if (action === "TagInfo" && selectedFile) {
+      mutation.mutate(selectedFile);
     }
     const currentAction = actionState[action];
     setActionState({
@@ -248,25 +215,23 @@ const FileDetailView = (props: AllProps) => {
               />
             )}
 
-            {isLoading && (
-              <SpinContainer title="Please wait as the file is being fetched..." />
-            )}
-
-            {isError && (
-              <Alert closable type="error" description={error.message} />
-            )}
-
-            {data && (
+            {selectedFile && (
               <ViewerDisplay
                 preview={preview}
                 viewerName={viewerName}
-                fileItem={data}
                 actionState={actionState}
+                selectedFile={selectedFile}
+                // Optional for dicom scrolling
+                list={props.list}
+                fetchMore={fetchMore}
+                handlePagination={handlePagination}
+                filesLoading={filesLoading}
               />
             )}
           </div>
 
           <TagInfoModal
+            isDrawer={true}
             handleModalToggle={(actionState, toolState) => {
               const previouslyActive = Object.keys(actionState)[0];
               handleModalToggle(actionState, toolState, previouslyActive);

@@ -116,9 +116,7 @@ const FeedGraph = (props: IFeedProps) => {
           </div>
           <>
             <ForceGraph2D
-              //@ts-ignore
               height={size.height || 500}
-              //@ts-ignore
               width={size.width || 500}
               ref={fgRef}
               graphData={graphData}

@@ -14,7 +14,7 @@ import {
   SplitItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { format } from "date-fns";
+import { differenceInSeconds, format } from "date-fns";
 import { isEmpty } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
@@ -56,6 +56,7 @@ type ComponentProps = {
 const PresentationComponent: React.FC<ComponentProps> = ({
   name,
   origin,
+  computedPath,
   date,
   onClick,
   onNavigate,
@@ -67,7 +68,7 @@ const PresentationComponent: React.FC<ComponentProps> = ({
   bgRow,
 }) => (
   <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
-    <FolderContextMenu origin={origin}>
+    <FolderContextMenu origin={origin} computedPath={computedPath}>
       <Card
         style={{ cursor: "pointer", background: bgRow || "inherit" }}
         isCompact
@@ -154,11 +155,20 @@ type FilesCardProps = {
   files: FileBrowserFolderFile[];
   computedPath: string;
   pagination?: Pagination;
+  // For dicom scrolling
+  list?: FileBrowserFolderFile[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 };
 
 export const FilesCard: React.FC<FilesCardProps> = ({
   files,
   computedPath,
+  list,
+  fetchMore,
+  handlePagination,
+  filesLoading,
 }) => (
   <>
     {files.map((file) => (
@@ -166,6 +176,10 @@ export const FilesCard: React.FC<FilesCardProps> = ({
         key={file.data.fname}
         file={file}
         computedPath={computedPath}
+        list={list}
+        fetchMore={fetchMore}
+        filesLoading={filesLoading}
+        handlePagination={handlePagination}
       />
     ))}
   </>
@@ -174,6 +188,11 @@ export const FilesCard: React.FC<FilesCardProps> = ({
 type SubFileCardProps = {
   file: FileBrowserFolderFile;
   computedPath: string;
+  // For dicom scrolling
+  list?: FileBrowserFolderFile[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 };
 
 export const getFileName = (
@@ -185,6 +204,10 @@ export const getFileName = (
 export const SubFileCard: React.FC<SubFileCardProps> = ({
   file,
   computedPath,
+  list,
+  fetchMore,
+  handlePagination,
+  filesLoading,
 }) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
@@ -192,13 +215,45 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   const { handlers } = useLongPress();
   const [api, contextHolder] = notification.useNotification();
   const [preview, setIsPreview] = useState(false);
+  const [isNewFile, setIsNewFile] = useState<boolean>(false);
+  const creationDate = file.data.creation_date;
+  const secondsSinceCreation = differenceInSeconds(new Date(), creationDate);
+  const [isNewFolder, setIsNewFolder] = useState<boolean>(
+    secondsSinceCreation <= 15,
+  );
   const fileName = getFileName(file);
   const isSelected = selectedPaths.some(
     (payload) => payload.path === file.data.fname,
   );
-  const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+  const shouldHighlight = isNewFolder || isSelected;
+  const selectedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
   const ext = getFileExtension(file.data.fname);
   const icon = getIcon(ext, isDarkTheme);
+
+  useEffect(() => {
+    if (isNewFolder) {
+      const timeoutId = setTimeout(() => {
+        setIsNewFolder(false);
+      }, 2000); // 60 seconds
+
+      // Cleanup the timeout if the component unmounts before the timeout completes
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isNewFolder]);
+
+  useEffect(() => {
+    const creationDate = new Date(file.data.creation_date);
+    const secondsSinceCreation = differenceInSeconds(new Date(), creationDate);
+
+    if (secondsSinceCreation <= 15) {
+      setIsNewFile(true);
+      const timeoutId = setTimeout(() => {
+        setIsNewFile(false);
+      }, 2000); // 2 seconds
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [file.data.creation_date]);
 
   useEffect(() => {
     if (handleDownloadMutation.isSuccess) {
@@ -222,8 +277,12 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
     handleDownloadMutation,
   ]);
 
-  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) =>
-    handlers.handleOnClick(e, file, file.data.fname, "file");
+  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    e.stopPropagation();
+    handlers.handleOnClick(e, file, file.data.fname, "file", () => {
+      setIsPreview(!preview);
+    });
+  };
 
   const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -248,7 +307,9 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
         name={fileName}
         date={file.data.creation_date}
         icon={icon}
-        bgRow={selectedBgRow}
+        bgRow={
+          isNewFile ? getBackgroundRowColor(true, isDarkTheme) : selectedBgRow
+        }
       />
       <Modal
         className="library-preview"
@@ -258,7 +319,14 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
         isOpen={preview}
         onClose={() => setIsPreview(false)}
       >
-        <FileDetailView selectedFile={file} preview="large" />
+        <FileDetailView
+          selectedFile={file}
+          preview="large"
+          list={list}
+          fetchMore={fetchMore}
+          handlePagination={handlePagination}
+          filesLoading={filesLoading}
+        />
       </Modal>
     </>
   );
@@ -289,6 +357,7 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
     (payload) => payload.path === linkFile.data.path,
   );
   const selectedBgRow = getBackgroundRowColor(isSelected, isDarkTheme);
+
   const icon = <ExternalLinkSquareAltIcon />;
 
   useEffect(() => {
@@ -313,8 +382,12 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
     handleDownloadMutation,
   ]);
 
-  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) =>
-    handlers.handleOnClick(e, linkFile, linkFile.data.path, "linkFile");
+  const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+    e.stopPropagation();
+    handlers.handleOnClick(e, linkFile, linkFile.data.path, "linkFile", () => {
+      navigate(linkFile.data.path);
+    });
+  };
 
   const handleCheckboxChange = (e: React.FormEvent<HTMLInputElement>) => {
     e.stopPropagation();
