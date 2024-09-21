@@ -1,12 +1,11 @@
-
 .feed-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding-block-end: 0 !important;
-  min-height:60px;
-  padding-block-start:0
+  min-height: 60px;
+  padding-block-start: 0;
 }
 
 .feed-list .error {
@@ -25,18 +24,20 @@
   outline: none;
 }
 
-
 .chart {
-   text-align: right;
+  text-align: right;
   height: 40px;
   width: 40px;
   display: block;
 }
-   
- .chart.dark tspan {
-    fill: white !important;
-  }
 
-  .feed-table tbody:where(.pf-v5-c-table__tbody) > tr:where(.pf-v5-c-table__tr) > * {
-    vertical-align:middle !important; 
+.chart.dark tspan {
+  fill: white !important;
+}
+
+.feed-table
+  tbody:where(.pf-v5-c-table__tbody)
+  > tr:where(.pf-v5-c-table__tr)
+  > * {
+  vertical-align: middle !important;
 }
