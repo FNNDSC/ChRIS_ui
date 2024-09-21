@@ -48,6 +48,7 @@ const MrnInput: React.FC<InputFieldProps> = ({ query, setQuery, ...props }) => {
         }
         name="mrnSearchInput"
         placeholder="Search for DICOM studies by MRN"
+        {...props}
       />
       {!isQueryEmpty(query) && (
         <Button
@@ -72,7 +73,7 @@ const AdvancedInput: React.FC<InputFieldProps> = ({
 }) => {
   return (
     <>
-      <h1>Advanced search not implemented.</h1>
+      <h1 {...props}>Advanced search not implemented.</h1>
     </>
   );
 };

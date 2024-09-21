@@ -8,7 +8,9 @@ test("LonkClient", async () => {
     onProgress: vi.fn(),
     onError: vi.fn(),
   };
-  const [server, client] = await createMockubeWs(handlers);
+  const [server, client] = await createMockubeWs(32585);
+  client.init(handlers);
+
   const SeriesInstanceUID = "1.234.56789";
   const pacs_name = "MyPACS";
 
@@ -89,13 +91,11 @@ test("LonkClient", async () => {
 /**
  * Create a mock WebSockets server and client.
  */
-async function createMockubeWs(
-  handlers: LonkHandlers,
-): Promise<[WS, LonkClient]> {
-  const url = "ws://localhost:32585";
+async function createMockubeWs(port: number): Promise<[WS, LonkClient]> {
+  const url = `ws://localhost:${port}`;
   const server = new WS(url, { jsonProtocol: true });
   const ws = new WebSocket(url);
-  const client = new LonkClient({ ws, ...handlers });
+  const client = new LonkClient(ws);
 
   let callback: null | (([server, client]: [WS, LonkClient]) => void) = null;
   const promise: Promise<[WS, LonkClient]> = new Promise((resolve) => {

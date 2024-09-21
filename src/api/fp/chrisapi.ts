@@ -9,7 +9,7 @@ import Client, {
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
-import LonkClient, { LonkHandlers } from "../lonk";
+import LonkClient from "../lonk";
 
 /**
  * fp-ts friendly wrapper for @fnndsc/chrisapi
@@ -128,14 +128,11 @@ class FpClient {
    *
    * https://chrisproject.org/docs/oxidicom/lonk-ws
    */
-  public connectPacsNotifications({
-    onDone,
-    onProgress,
-    onError,
-    timeout,
-  }: LonkHandlers & { timeout?: number }): TE.TaskEither<Error, LonkClient> {
+  public connectPacsNotifications(
+    ...args: Parameters<FpClient["createDownloadToken"]>
+  ): TE.TaskEither<Error, LonkClient> {
     return pipe(
-      this.createDownloadToken(timeout),
+      this.createDownloadToken(...args),
       TE.flatMap((downloadToken) => {
         const url = getWebsocketUrl(downloadToken);
         let callback: ((c: E.Either<Error, LonkClient>) => void) | null = null;
@@ -143,11 +140,7 @@ class FpClient {
           (resolve) => (callback = resolve),
         );
         const ws = new WebSocket(url);
-        ws.onopen = () =>
-          callback &&
-          callback(
-            E.right(new LonkClient({ ws, onDone, onProgress, onError })),
-          );
+        ws.onopen = () => callback && callback(E.right(new LonkClient(ws)));
         ws.onerror = (_ev) =>
           callback &&
           callback(
