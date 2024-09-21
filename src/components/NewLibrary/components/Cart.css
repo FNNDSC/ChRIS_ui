@@ -1,27 +1,23 @@
-.operation-cart  .ant-list-empty-text {
-    display: none !important ;
-} 
+.operation-cart .ant-list-empty-text {
+  display: none !important;
+}
 
 .progress-ring {
-    transition: 0.35s stroke-dashoffset;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-    height:2em;
-    width:2em
+  transition: 0.35s stroke-dashoffset;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  height: 2em;
+  width: 2em;
+}
+
+.progress-ring__circle {
+  transition: 0.35s stroke-dashoffset;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.chip-group-for-paths {
+  .pf-v5-c-chip__text {
+    font-size: 0.75rem;
   }
-  
-  .progress-ring__circle {
-    transition: 0.35s stroke-dashoffset;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
-  }
-
-
-  .chip-group-for-paths {
-    .pf-v5-c-chip__text {
-      font-size:0.75rem
-    }
-  }
-
-
-  
+}
