@@ -1,5 +1,5 @@
- body {
-  font-family: "Inter"
+body {
+  font-family: "Inter";
 }
 
 .dcm-preview {
@@ -66,12 +66,10 @@
   padding-block-end: 0;
 }
 
-
 .small-button {
   width: 20px;
   height: 20px;
   font-size: 12px;
-
 }
 
 .large-button {
