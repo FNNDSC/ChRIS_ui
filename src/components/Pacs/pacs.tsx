@@ -5,11 +5,13 @@ import { PACSqueryCore } from "../../api/pfdcm";
 import PacsInput from "./components/input.tsx";
 import PacsStudiesDisplay from "./components/PacsStudies.tsx";
 import { useTypedSelector } from "../../store/hooks";
+import { useSearchParams } from "react-router-dom";
+import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
 
 type PacsQRProps = {
   lonkClient: LonkClient;
   fpClient: FpClient;
-  services: ReadonlyArray<string>;
+  services: ReadonlyNonEmptyArray<string>;
   pushError: (title: string) => (e: Error) => void;
 };
 
@@ -23,53 +25,15 @@ type PacsQRProps = {
  * - pulling DICOM series data into *ChRIS*
  */
 const PacsQR: React.FC<PacsQRProps> = ({ lonkClient, fpClient, services }) => {
-  const defaultService = React.useMemo(() => {
-    const service = getDefaultPacsService(services);
-    if (service === null) {
-      throw new Error("No services configured with pfdcm");
-    }
-    return service;
-  }, [services]);
-
-  const [query, setQuery] = React.useState<PACSqueryCore>({});
-  const [service, setService] = React.useState(defaultService);
+  const onSubmit = (service: string, query: PACSqueryCore) => {};
 
   return (
     <>
-      <PacsInput
-        query={query}
-        setQuery={setQuery}
-        services={services}
-        service={service}
-        setService={setService}
-        id="pacsqr-input"
-      />
+      <PacsInput onSubmit={onSubmit} services={services} />
 
       {/*<PacsStudiesDisplay />*/}
     </>
   );
 };
-
-/**
- * Selects the default PACS service (which is usually not the PACS service literally called "default").
- *
- * 1. Selects the hard-coded "PACSDCM"
- * 2. Attempts to select the first value which is not "default" (a useless, legacy pfdcm behavior)
- * 3. Selects the first value
- */
-function getDefaultPacsService(services: ReadonlyArray<string>): string | null {
-  if (services.includes("PACSDCM")) {
-    return "PACSDCM";
-  }
-  for (const service of services) {
-    if (service !== "default") {
-      return service;
-    }
-  }
-  if (services) {
-    return services[0];
-  }
-  return null;
-}
 
 export default PacsQR;

@@ -22,6 +22,7 @@ import { PageSection } from "@patternfly/react-core";
 import PacsQR from "./pacs.tsx";
 import PacsLoadingScreen from "./components/loading.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
+import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
 
 /**
  * A title and paragraph.
@@ -45,7 +46,8 @@ const PacsQRApp: React.FC<{
   /**
    * List of PACS server names which can be queried.
    */
-  const [services, setServices] = React.useState<ReadonlyArray<string>>([]);
+  const [services, setServices] =
+    React.useState<ReadonlyNonEmptyArray<string> | null>(null);
   const [lonkClient, setLonkClient] = React.useState<LonkClient | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
