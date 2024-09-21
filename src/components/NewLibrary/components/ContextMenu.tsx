@@ -1,5 +1,6 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import type { DefaultError } from "@tanstack/react-query";
+import { matchPath } from "react-router";
 import { Alert, Dropdown, type MenuProps } from "../../Antd";
 import {
   ArchiveIcon,
@@ -7,6 +8,7 @@ import {
   DeleteIcon,
   DownloadIcon,
   DuplicateIcon,
+  EditIcon,
   MergeIcon,
   ShareIcon,
 } from "../../Icons";
@@ -23,20 +25,17 @@ interface ContextMenuProps {
 
 export const FolderContextMenu = (props: ContextMenuProps) => {
   const { children, origin, folderList, computedPath } = props;
+  const isFeedsTable =
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
   const {
-    modalInfo,
-    userError,
+    modalState,
+    userRelatedError,
     handleModalSubmitMutation,
     handleOperations,
     contextHolder,
-    setUserErrors,
-    setModalInfo,
-  } = useFolderOperations(
-    origin,
-    computedPath,
-    folderList,
-    location.pathname === "/feeds",
-  );
+    setUserRelatedError,
+    setModalState,
+  } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
@@ -45,46 +44,28 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
     { key: "share", label: "Share", icon: <ShareIcon /> },
-
+    {
+      key: "rename",
+      label: "Rename",
+      icon: <EditIcon />,
+    },
     { key: "delete", label: "Delete", icon: <DeleteIcon /> },
   ];
-
-  const modalTypeLabels: Record<
-    string,
-    { modalTitle: string; inputLabel: string }
-  > = {
-    group: {
-      modalTitle: "Create a new Group",
-      inputLabel: "Group Name",
-    },
-    share: {
-      modalTitle: "Share this Folder",
-      inputLabel: "User Name",
-    },
-
-    default: {
-      modalTitle: "Create a new Folder",
-      inputLabel: "Folder Name",
-    },
-  };
-
-  const { modalTitle, inputLabel } =
-    modalTypeLabels[modalInfo.type] || modalTypeLabels.default;
 
   return (
     <>
       <AddModal
-        operationType={modalInfo.type}
-        isOpen={modalInfo.isOpen}
-        onClose={() => setModalInfo({ isOpen: false, type: "" })}
+        modalState={modalState}
+        onClose={() => {
+          handleModalSubmitMutation.reset();
+          setModalState({ isOpen: false, type: "" });
+        }}
         onSubmit={(inputValue, additionalValues) =>
           handleModalSubmitMutation.mutate({
             inputValue,
             additionalValues,
           })
         }
-        modalTitle={modalTitle}
-        inputLabel={inputLabel}
         indicators={{
           isPending: handleModalSubmitMutation.isPending,
           isError: handleModalSubmitMutation.isError,
@@ -101,13 +82,13 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
         {children}
       </Dropdown>
 
-      {userError && (
+      {userRelatedError && (
         <Alert
           style={{ marginLeft: "1rem" }}
           type="error"
-          description={userError}
+          description={userRelatedError}
           closable
-          onClose={() => setUserErrors("")}
+          onClose={() => setUserRelatedError("")}
         />
       )}
     </>

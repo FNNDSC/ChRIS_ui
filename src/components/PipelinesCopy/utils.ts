@@ -1,4 +1,5 @@
-import type { Client, Plugin, PluginMeta } from "@fnndsc/chrisapi";
+import type { Plugin, PluginMeta } from "@fnndsc/chrisapi";
+import type Client from "@fnndsc/chrisapi";
 import axios from "axios";
 import { fetchResource } from "../../api/common";
 
@@ -8,11 +9,6 @@ interface Params {
   name?: string;
   name_exact?: string;
 }
-
-const defaultParams = {
-  limit: 20,
-  offset: 0,
-};
 
 /**
  * Fetches plugin metadata from the ChRIS store.
@@ -28,7 +24,10 @@ export const fetchPluginMetas = async (client: Client, params?: Params) => {
 
   try {
     const { resource: pluginMetas } = await fetchResource<PluginMeta>(
-      params || defaultParams,
+      params || {
+        limit: 20,
+        offset: 0,
+      },
       boundFn,
     );
     return pluginMetas;
@@ -46,6 +45,10 @@ export const fetchPluginMetas = async (client: Client, params?: Params) => {
 export const fetchPluginForMeta = async (pluginMeta: PluginMeta) => {
   const fn = pluginMeta.getPlugins;
   const boundFn = fn.bind(pluginMeta);
+  const defaultParams = {
+    limit: 20,
+    offset: 0,
+  };
 
   try {
     const { resource: plugins } = await fetchResource(defaultParams, boundFn);

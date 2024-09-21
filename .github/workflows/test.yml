@@ -10,48 +10,40 @@ jobs:
     name: Tests (unit tests)
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: "0"  # necessary for `npm run print-version`
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.17
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-      - name: Unit tests
-        run: npm test
-
-  # note to self: the sections test-public and test-local should be almost the same, except:
-  # - local testing needs git submodules
-  # - `npm run test:e2e` v.s. `npm run test:e2e:local`
-  # - some names should be different
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: pnpm test
 
   test-public:
     name: Tests (public testing server)
     runs-on: ubuntu-22.04
     if: false  # FIXME disabled for now because tests not updated for CUBE version 6
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
       with:
         fetch-depth: "0"  # necessary for `npm run print-version`
-    - name: Install Node.js
-      uses: actions/setup-node@v4
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 8
+    - uses: actions/setup-node@v4
       with:
         node-version: 20.17
-        cache: 'npm'
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+        cache: 'pnpm'
+    - run: pnpm install 
+    - run: npx playwright install --with-deps
     - name: End-to-End tests
       env:
         TEST_SAFARI: yes
-      run: npm run test:e2e
+      run: pnpm run test:e2e
     - uses: actions/upload-artifact@v4
       if: always()
       with:
@@ -61,7 +53,7 @@ jobs:
     - name: Report coverage
       id: report
       if: always()
-      run: npm run test:lcov
+      run: pnpm run test:lcov
     - name: Upload E2E test coverage
       if: steps.report.outcome == 'success'
       uses: codecov/codecov-action@v4
@@ -70,31 +62,30 @@ jobs:
         files: coverage/lcov.info
         flags: e2etests-public
         fail_ci_if_error: true
+
   test-local:
     name: Tests (local testing server)
     runs-on: ubuntu-22.04
     if: false  # FIXME disabled for now because tests not updated for CUBE version 6
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: "0"  # necessary for `npm run print-version`
           submodules: "recursive"  # necessary for miniChRIS and example-dicoms
-      - name: Install Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.17
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-      - name: Setup tests
-        run: npm run test:prepare
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: npx playwright install --with-deps
+      - run: pnpm run test:prepare
       - name: End-to-End tests
         env:
           TEST_SAFARI: yes
-        run: npm run test:e2e:local
+        run: pnpm run test:e2e:local
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -104,7 +95,7 @@ jobs:
       - name: Report coverage
         id: report
         if: always()
-        run: npm run test:lcov
+        run: pnpm run test:lcov
       - name: Upload E2E test coverage
         if: steps.report.outcome == 'success'
         uses: codecov/codecov-action@v4

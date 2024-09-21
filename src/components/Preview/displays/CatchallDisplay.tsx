@@ -1,22 +1,21 @@
 import { memo } from "react";
 import { Alert } from "../../Antd";
-import type { IFileBlob } from "../../../api/model";
+import { getFileExtension, type IFileBlob } from "../../../api/model";
 
 type AllProps = {
-  fileItem: IFileBlob;
+  selectedFile?: IFileBlob;
 };
 
 const CatchallDisplay: React.FunctionComponent<AllProps> = (
   props: AllProps,
 ) => {
   const noPreviewMessage = () => {
-    const { fileItem } = props;
-    const ext = fileItem.fileType ? fileItem.fileType : "";
-
+    const { selectedFile } = props;
+    const extension = getFileExtension(selectedFile?.data.fname);
     return (
       <Alert
         type="info"
-        description={`No preview available for the filetype ${ext}`}
+        description={`No preview available for the filetype ${extension}`}
       />
     );
   };

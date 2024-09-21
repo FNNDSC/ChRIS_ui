@@ -28,20 +28,25 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
     isError,
     error,
     currentPath,
+    fetchMore,
+    observerTarget,
+    handlePagination,
   } = useFeedBrowser();
-
   return (
     <div style={{ height: "100%" }} className="feed-output-browser">
-      {pluginFilesPayload && selected && !isError ? (
+      {statusTitle && statusTitles.includes(statusTitle) ? (
+        <FetchFilesLoader title="Plugin executing. Files will be fetched when plugin completes" />
+      ) : pluginFilesPayload && selected && !isError ? (
         <FileBrowser
           selected={selected}
           handleFileClick={handleFileClick}
           pluginFilesPayload={pluginFilesPayload}
-          filesLoading={filesLoading}
           currentPath={currentPath}
+          fetchMore={fetchMore}
+          observerTarget={observerTarget}
+          handlePagination={handlePagination}
+          isLoading={filesLoading}
         />
-      ) : statusTitle && statusTitles.includes(statusTitle) ? (
-        <FetchFilesLoader title="Plugin executing. Files will be fetched when plugin completes" />
       ) : isError ? (
         <Alert type="error" description={error?.message} />
       ) : (

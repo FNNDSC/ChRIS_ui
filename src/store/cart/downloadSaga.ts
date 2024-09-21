@@ -20,8 +20,8 @@ import { downloadFile } from "../hooks";
 import {
   setFileDownloadStatus,
   setFolderDownloadStatus,
-  startDownload,
   startAnonymize,
+  startDownload,
 } from "./cartSlice";
 import {
   DownloadTypes,
@@ -53,29 +53,41 @@ export async function createFeed(
   feedName: string,
   invalidateFunc?: () => void,
 ) {
-  const client = ChrisAPIClient.getClient();
-  const dircopy: Plugin | undefined = (await getPlugin("pl-dircopy")) as
-    | Plugin
-    | undefined;
-  if (!dircopy) {
-    throw new Error("pl-dircopy was not registered");
-  }
-  const createdInstance: PluginInstance = (await client.createPluginInstance(
-    dircopy.data.id,
-    //@ts-ignore
-    { dir: path.length > 0 ? path.join(",") : path[0] },
-  )) as PluginInstance;
-  if (!createdInstance) {
-    throw new Error("Failed to create an instance of pl-dircopy");
-  }
-  const feed = (await createdInstance.getFeed()) as Feed;
-  if (!feed) {
+  let createdInstance: PluginInstance | null = null;
+  let feed: Feed | null = null;
+  try {
+    const client = ChrisAPIClient.getClient();
+    const dircopy: Plugin | undefined = (await getPlugin("pl-dircopy")) as
+      | Plugin
+      | undefined;
+    if (!dircopy) {
+      throw new Error("pl-dircopy was not registered");
+    }
+    createdInstance = (await client.createPluginInstance(
+      dircopy.data.id,
+      //@ts-ignore
+      { dir: path.length > 0 ? path.join(",") : path[0] },
+    )) as PluginInstance;
+    if (!createdInstance) {
+      throw new Error("Failed to create an instance of pl-dircopy");
+    }
+    feed = (await createdInstance.getFeed()) as Feed;
+    await feed.put({ name: feedName });
+    //invalidate the ui page if the feed is created. Do this only if invalidate func is passed in.
+    invalidateFunc?.();
+    return { createdInstance, feed };
+  } catch (e) {
+    if (createdInstance) {
+      await createdInstance.put({
+        status: "cancelled",
+      });
+    }
+    if (feed) {
+      await feed.delete();
+    }
+
     throw new Error("Failed to create a Feed");
   }
-  await feed.put({ name: feedName });
-  //invalidate the ui page if the feed is created. Do this only if invalidate func is passed in.
-  invalidateFunc?.();
-  return { createdInstance, feed };
 }
 
 function* downloadFolder(
@@ -167,7 +179,12 @@ function* downloadFolder(
           if (!fileItems) {
             throw new Error("Failed to find the zip file");
           }
-          const fileToZip = fileItems[0];
+          const fileToZip = fileItems.find((file) =>
+            file.data.fname.endsWith(".zip"),
+          );
+          if (!fileToZip) {
+            throw new Error("Failed to find a .zip file in the folder");
+          }
           yield downloadFile(fileToZip);
         } else {
           throw new Error(`Failed to find a folder for this path: ${filePath}`);

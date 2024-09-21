@@ -4,13 +4,13 @@ import type {
 } from "../../store/drawer/drawerSlice";
 import { setDrawerState } from "../../store/drawer/drawerSlice";
 
-import ChrisAPIClient from "../../api/chrisapiclient";
 import type {
   Feed,
-  PublicFeedList,
   FeedList,
   PluginInstance,
+  PublicFeedList,
 } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 
 export const handleDrawerActions = (
@@ -162,7 +162,7 @@ type PluginInstanceStatus =
   | "finishedSuccessfully";
 
 interface PluginInstanceDetails {
-  size: string;
+  size: number;
   progress: number;
   time: string;
   error: boolean;
@@ -183,7 +183,7 @@ export const getPluginInstanceDetails = async (
   feed: Feed,
 ): Promise<PluginInstanceDetails> => {
   const details: PluginInstanceDetails = {
-    size: "",
+    size: 0,
     progress: 0,
     time: "",
     error: false,
@@ -236,7 +236,7 @@ export const getPluginInstanceDetails = async (
 
   const progressPercentage = (completedMilestones / totalMilestones) * 100;
 
-  details.size = formatBytes(totalSize, 0);
+  details.size = totalSize;
   details.progress = Math.floor(progressPercentage);
   details.time = convertMsToHM(totalRunTime);
   details.error = error;

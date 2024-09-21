@@ -36,3 +36,5 @@ yarn-error.log*
 .cache/
 .yarnrc
 dist/
+pnpm-lock.yaml
+.pnpm-store/

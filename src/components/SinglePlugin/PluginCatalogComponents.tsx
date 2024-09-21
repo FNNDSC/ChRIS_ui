@@ -1,4 +1,4 @@
-import { Plugin, PluginInstance, PluginMeta } from "@fnndsc/chrisapi";
+import type { Plugin, PluginInstance, PluginMeta } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Badge,
@@ -145,9 +145,7 @@ export const DropdownPluginVersions = ({
               key={plugin.data.id}
               name={plugin.data.version}
               value={plugin.data.version}
-              autoFocus={
-                plugin.data.version === parameterPayload?.version ? true : false
-              }
+              autoFocus={plugin.data.version === parameterPayload?.version}
             >
               {plugin.data.version}
             </DropdownItem>
@@ -293,9 +291,7 @@ export const HeaderCardPlugin = ({
               </Tab>
               <Tab eventKey={1} title={<TabTitleText>Resources</TabTitleText>}>
                 {parameterPayload && (
-                  <>
-                    <TabResources parameterPayload={parameterPayload} />
-                  </>
+                  <TabResources parameterPayload={parameterPayload} />
                 )}
               </Tab>
 
