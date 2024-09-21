@@ -43,10 +43,21 @@ type LonkDone = {
 };
 
 /**
- * LONK-WS "subscription" message.
+ * LONK-WS "subscription" response message.
+ *
+ * https://chrisproject.org/docs/oxidicom/lonk-ws#lonk-ws-subscription
  */
 type LonkSubscription = {
   subscribed: true;
+};
+
+/**
+ * LONK-WS "unsubscription" response message.
+ *
+ * https://chrisproject.org/docs/oxidicom/lonk-ws#unsubscribe
+ */
+type LonkUnsubscription = {
+  subscribed: false;
 };
 
 /**
@@ -85,6 +96,7 @@ export type {
   LonkProgress,
   LonkError,
   LonkSubscription,
+  LonkUnsubscription,
   LonkMessageData,
   Lonk,
   LonkHandlers,

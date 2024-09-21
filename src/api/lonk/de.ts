@@ -3,18 +3,36 @@
  */
 
 import * as E from "fp-ts/Either";
-import { Lonk } from "./types.ts";
-import { pipe } from "fp-ts/function";
+import { Lonk, LonkUnsubscription } from "./types.ts";
+import { Lazy, pipe } from "fp-ts/function";
 import * as J from "fp-ts/Json";
 
-function deserialize(data: any): E.Either<string, Lonk<any>> {
+type UnsubscriptionOrLonk = E.Either<LonkUnsubscription, Lonk<any>>;
+
+function deserialize(data: any): E.Either<string, UnsubscriptionOrLonk> {
   return pipe(
     data,
     J.parse,
     E.mapLeft(() => "Could not parse message as JSON"),
     E.flatMap(validateRecord),
-    E.flatMap(validateLonk),
+    E.flatMap(validateUnsubscriptionOrLonk),
   );
+}
+
+function validateUnsubscriptionOrLonk(
+  obj: J.JsonRecord,
+): E.Either<string, UnsubscriptionOrLonk> {
+  return pipe(
+    validateLonk(obj),
+    E.map(E.right),
+    E.orElse(curryValidateUnsubscription(obj)),
+  );
+}
+
+function curryValidateUnsubscription(
+  obj: J.JsonRecord,
+): Lazy<E.Either<string, UnsubscriptionOrLonk>> {
+  return () => pipe(validateUnsubscription(obj), E.map(E.left));
 }
 
 function validateLonk(obj: J.JsonRecord): E.Either<string, Lonk<any>> {
@@ -26,11 +44,24 @@ function validateLonk(obj: J.JsonRecord): E.Either<string, Lonk<any>> {
       `Missing or invalid 'SeriesInstanceUID' in ${JSON.stringify(obj)}`,
     );
   }
-  if (typeof obj.message !== "object" || jIsArray(obj)) {
+  if (typeof obj.message !== "object" || jIsArray(obj.message)) {
     return E.left(`Missing or invalid 'message' in ${JSON.stringify(obj)}`);
   }
   // @ts-ignore proper JSON deserialization is too tedious in TypeScript
   return E.right(obj);
+}
+
+function validateUnsubscription(
+  obj: J.JsonRecord,
+): E.Either<string, LonkUnsubscription> {
+  if (typeof obj.message !== "object" || jIsArray(obj.message)) {
+    return E.left(`Missing or invalid 'message' in ${JSON.stringify(obj)}`);
+  }
+  if (obj.message?.subscribed === false) {
+    // @ts-ignore proper JSON deserialization is too tedious in TypeScript
+    return E.right(obj);
+  }
+  return E.left(`Unrecognized 'message' in ${JSON.stringify(obj)}`);
 }
 
 function validateRecord(obj: J.Json): E.Either<string, J.JsonRecord> {
