@@ -9,10 +9,11 @@ import { setIsNavOpen } from "../../store/ui/uiSlice";
 
 type WrapperProps = {
   children: React.ReactElement[] | React.ReactElement;
+  titleComponent?: React.ReactElement;
 };
 
 const Wrapper = (props: WrapperProps) => {
-  const { children } = props;
+  const { children, titleComponent } = props;
   const dispatch = useDispatch();
   const { isNavOpen, sidebarActiveItem } = useTypedSelector(
     (state) => state.ui,
@@ -47,7 +48,13 @@ const Wrapper = (props: WrapperProps) => {
   return (
     <Page
       onPageResize={onPageResize}
-      header={<Header onNavToggle={onNavToggle} user={user} />}
+      header={
+        <Header
+          onNavToggle={onNavToggle}
+          user={user}
+          titleComponent={titleComponent}
+        />
+      }
       sidebar={sidebar}
     >
       {" "}

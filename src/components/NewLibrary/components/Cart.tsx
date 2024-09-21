@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { getFileName } from "../../../api/common";
 import {
   cancelUpload,
+  clearCart,
   clearDownloadStatus,
   clearUploadState,
   setToggleCart,
@@ -23,7 +24,6 @@ import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
 import { ShowInFolder, TitleNameClipped, elipses } from "../utils/longpress";
 import "./Cart.css";
-import { clearCart } from "../../../store/cart/cartSlice";
 import ProgressRing from "./RadialProgress";
 
 const Cart = () => {

@@ -9,7 +9,7 @@ import type {
 import { DownloadTypes } from "./types";
 
 const initialState: ICartState = {
-  currentLayout: "grid",
+  currentLayout: "list",
   selectedPaths: [],
   openCart: false,
   folderDownloadStatus: {},

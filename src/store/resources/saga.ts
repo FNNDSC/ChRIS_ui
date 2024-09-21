@@ -1,9 +1,5 @@
-import type {
-  PluginInstance,
-  FileBrowserFolderFile,
-  FileBrowserFolderLinkFile,
-} from "@fnndsc/chrisapi";
-import { all, delay, fork, put, takeEvery } from "@redux-saga/core/effects";
+import type { PluginInstance } from "@fnndsc/chrisapi";
+import { all, delay, fork, put, takeEvery } from "redux-saga/effects";
 import { inflate, inflateRaw } from "pako";
 import type { Task } from "redux-saga";
 import ChrisAPIClient from "../../api/chrisapiclient";

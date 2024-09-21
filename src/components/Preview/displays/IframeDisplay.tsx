@@ -1,46 +1,46 @@
-import React, { Fragment } from "react";
-import type { IFileBlob } from "../../../api/model";
-type AllProps = {
-  fileItem: IFileBlob;
+import React, { useEffect, useState, Fragment } from "react";
+import { getFileExtension, type IFileBlob } from "../../../api/model";
+
+type IframeDisplayProps = {
+  selectedFile?: IFileBlob;
 };
 
-const IframeDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const { fileItem } = props;
+const IframeDisplay: React.FC<IframeDisplayProps> = ({
+  selectedFile,
+}: IframeDisplayProps) => {
+  const [url, setURL] = useState<string>("");
 
-  let url = "";
+  useEffect(() => {
+    const constructURL = async () => {
+      if (!selectedFile) return;
+      const fileType = getFileExtension(selectedFile.data.fname);
+      const blob = await selectedFile.getFileBlob();
 
-  if (fileItem.fileType === "html") {
-    url = fileItem.url
-      ? fileItem.url
-      : fileItem.blob
-        ? window.URL.createObjectURL(
-            new Blob([fileItem.blob], { type: "text/html" }),
-          )
-        : "";
-  } else {
-    url = fileItem.url
-      ? fileItem.url
-      : fileItem.blob
-        ? window.URL.createObjectURL(new Blob([fileItem.blob]))
-        : "";
-  }
+      const type = fileType === "html" ? "text/html" : "";
+      const constructedURL = URL.createObjectURL(new Blob([blob], { type }));
+      setURL(constructedURL);
+    };
+
+    constructURL();
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [selectedFile]);
 
   return (
     <Fragment>
       <div className="iframe-container">
         <iframe
           id="myframe"
-          key={fileItem?.file?.data.fname}
+          key={selectedFile?.data.fname}
           src={url}
           width="100%"
           height="100%"
-          title="Gallery"
+          title="File Display"
         />
       </div>
     </Fragment>
   );
 };
 
-const MemoedIframeDisplay = React.memo(IframeDisplay);
-
-export default MemoedIframeDisplay;
+export default React.memo(IframeDisplay);

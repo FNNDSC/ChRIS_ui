@@ -86,7 +86,7 @@ export const DrawerActionButton = ({
           />
         ) : (
           <Button
-            style={{ paddingLeft: "0.5em", paddingRight: "0.5em" }}
+            style={{ paddingLeft: "0.5em", paddingRight: "0.5em", zIndex: 999 }}
             onClick={handleMaximize}
             variant="link"
             icon={<ExpandArrowsAltIcon />}

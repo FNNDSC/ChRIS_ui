@@ -1,9 +1,9 @@
-import type { PluginMeta, Tag, Pipeline } from "@fnndsc/chrisapi";
+import type { Pipeline, PluginMeta, Tag } from "@fnndsc/chrisapi";
 import type { EventDataNode } from "rc-tree/lib/interface";
-import type { DataBreadcrumb } from "./types/feed";
-import { fetchFilesFromAPath } from "../FeedOutputBrowser/useFeedBrowser";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource, fetchResources } from "../../api/common";
+import { fetchFolders } from "../NewLibrary";
+import type { DataBreadcrumb } from "./types/feed";
 
 export const fetchTagList = async () => {
   const client = ChrisAPIClient.getClient();
@@ -71,11 +71,11 @@ export const generateTreeNodes = async (
     isLeaf: boolean;
     checkable: boolean;
   }[] = [];
-  //@ts-ignore
-  const { folderFiles, linkFiles, children } = await fetchFilesFromAPath(
+
+  const { subFoldersMap, linkFilesMap, filesMap } = await fetchFolders(
     treeNode.breadcrumb,
   );
-  const items = [...folderFiles, ...linkFiles, ...children];
+  const items = [...subFoldersMap, ...linkFilesMap, ...filesMap];
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];

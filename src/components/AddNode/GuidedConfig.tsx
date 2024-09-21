@@ -30,13 +30,17 @@ import { useMutation } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { quote } from "shlex";
 import { v4 } from "uuid";
-import { catchError, fetchResource, needsQuoting } from "../../api/common";
+import {
+  catchError,
+  customQuote,
+  fetchResource,
+  needsQuoting,
+} from "../../api/common";
 import type { AppDispatch } from "../../store/configureStore";
 import { useTypedSelector } from "../../store/hooks";
 import { fetchParamsAndComputeEnv } from "../../store/plugin/pluginSlice";
-import { Alert, Spin } from "../Antd";
+import { Alert } from "../Antd";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
 import ComputeEnvironments from "./ComputeEnvironment";
 import RequiredParam from "./RequiredParam";
@@ -367,7 +371,9 @@ const CheckboxComponent = () => {
         const { param_name, type, value } = parameter.data;
         if (paramsRequiredFetched?.[param_name]) {
           const quotedValue =
-            type === "string" && needsQuoting(value) ? quote(value) : value;
+            type === "string" && needsQuoting(value)
+              ? customQuote(value)
+              : value;
           const [id, flag] = paramsRequiredFetched[param_name];
           requiredInput[id] = {
             value: quotedValue,
@@ -377,7 +383,9 @@ const CheckboxComponent = () => {
           };
         } else if (paramsDropdownFetched) {
           const quotedValue =
-            type === "string" && needsQuoting(value) ? quote(value) : value;
+            type === "string" && needsQuoting(value)
+              ? customQuote(value)
+              : value;
 
           const flag = paramsDropdownFetched[param_name];
           dropdownInput[v4()] = {
@@ -407,7 +415,7 @@ const CheckboxComponent = () => {
     }
   };
 
-  const { isPending, isError, error, mutate, reset } = useMutation({
+  const { isError, error, mutate, reset } = useMutation({
     mutationFn: () => handleCheckboxChange(),
   });
 
@@ -449,12 +457,6 @@ const CheckboxComponent = () => {
           });
         }}
       />
-      {isPending && (
-        <div style={{ marginTop: "0.75em" }}>
-          <Spin />{" "}
-          <span style={{ marginLeft: "0.75em" }}>Contructing the form...</span>
-        </div>
-      )}
       {isError && <Alert type="error" description={error.message} />}
     </>
   );

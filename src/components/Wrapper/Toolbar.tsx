@@ -20,17 +20,17 @@ import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
 import CartNotify from "./CartNotify";
 import { clearCartOnLogout } from "../../store/cart/cartSlice";
-import TitleComponent from "./TitleComponent";
 
 type ToolbarComponentProps = {
   showToolbar: boolean;
+  titleComponent?: React.ReactElement;
   token?: string | null;
 };
 
 const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   props: ToolbarComponentProps,
 ) => {
-  const { token } = props;
+  const { token, titleComponent } = props;
   const dispatch = useDispatch();
   const drawerState = useTypedSelector((state) => state.drawers);
   const fullScreen = drawerState?.preview.open && drawerState.preview.maximized;
@@ -92,9 +92,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
         width: "100%",
       }}
     >
-      <FlexItem>
-        <TitleComponent />
-      </FlexItem>
+      <FlexItem>{titleComponent && titleComponent}</FlexItem>
       {/* Center */}
       <FlexItem flex={{ default: "flex_1" }}>
         {props.showToolbar && !fullScreen && <FeedDetails />}
@@ -135,7 +133,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
             ) : (
               <>
                 <Button
-                  style={{ padding: "0" }}
+                  style={{ padding: "0.25em" }}
                   variant="link"
                   onClick={() => {
                     navigate(
@@ -146,7 +144,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
                   Login
                 </Button>
                 <Button
-                  style={{ padding: "0" }}
+                  style={{ padding: "0.25em" }}
                   variant="link"
                   onClick={() => navigate("/signup")}
                 >

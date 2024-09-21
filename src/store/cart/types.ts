@@ -79,6 +79,7 @@ export interface UploadPayload {
   currentPath: string;
   invalidateFunc: () => void;
   createFeed?: boolean;
+  nameForFeed?: string;
 }
 
 export type OperationPayload = {
