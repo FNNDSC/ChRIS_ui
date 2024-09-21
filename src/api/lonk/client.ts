@@ -10,7 +10,6 @@ import {
 import deserialize from "./de.ts";
 import { pipe } from "fp-ts/function";
 import * as E from "fp-ts/Either";
-import * as T from "fp-ts/Task";
 import SeriesMap from "./seriesMap.ts";
 
 /**
@@ -20,24 +19,31 @@ import SeriesMap from "./seriesMap.ts";
 class LonkClient {
   private readonly ws: WebSocket;
   private readonly pendingSubscriptions: SeriesMap<null | (() => SeriesKey)>;
+  private handlers: LonkHandlers | null;
 
-  public constructor({
-    ws,
-    onDone,
-    onProgress,
-    onError,
-  }: LonkHandlers & { ws: WebSocket }) {
+  public constructor(ws: WebSocket) {
+    this.handlers = null;
     this.pendingSubscriptions = new SeriesMap();
     this.ws = ws;
     this.ws.onmessage = (msg) => {
       pipe(
         msg.data,
         deserialize,
-        E.map((data) =>
-          this.routeMessage({ data, onDone, onProgress, onError }),
-        ),
+        E.map((data) => this.routeMessage(data)),
       );
     };
+  }
+
+  /**
+   * Configure this client with event handler functions.
+   * `init` must be called exactly once.
+   */
+  public init(handlers: LonkHandlers): LonkClient {
+    if (this.handlers) {
+      throw new Error("LonkClient.init called more than once.");
+    }
+    this.handlers = handlers;
+    return this;
   }
 
   /**
@@ -61,12 +67,11 @@ class LonkClient {
     return callbackTask;
   }
 
-  private routeMessage({
-    data,
-    onDone,
-    onProgress,
-    onError,
-  }: LonkHandlers & { data: Lonk<any> }) {
+  private routeMessage(data: Lonk<any>) {
+    if (this.handlers === null) {
+      throw new Error("LonkClient.init has not been called yet.");
+    }
+    const { onProgress, onDone, onError } = this.handlers;
     const { SeriesInstanceUID, pacs_name, message } = data;
     // note: for performance reasons, this if-else chain is in
     // descending order of case frequency.
@@ -102,10 +107,19 @@ class LonkClient {
   }
 
   /**
-   * Close the websocket.
+   * Close the WebSocket.
    */
   public close() {
     this.ws.close();
+  }
+
+  /**
+   * Set the WebSocket's `close` event listener.
+   *
+   * https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close_event
+   */
+  public set onclose(onclose: WebSocket["onclose"]) {
+    this.ws.onclose = onclose;
   }
 }
 

@@ -42,13 +42,18 @@ const PacsQRApp: React.FC<{
   getPfdcmClient: () => PfdcmClient;
   getChrisClient: () => Client;
 }> = ({ getChrisClient, getPfdcmClient }) => {
+  /**
+   * List of PACS server names which can be queried.
+   */
   const [services, setServices] = React.useState<ReadonlyArray<string>>([]);
-  const [service, setService] = React.useState<string | null>(null);
   const [lonkClient, setLonkClient] = React.useState<LonkClient | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const { message, notification, modal } = App.useApp();
+  const { notification } = App.useApp();
 
+  /**
+   * Show a notification for an error message.
+   */
   const pushError = React.useMemo(() => {
     return (title: string) => {
       return (e: Error) => {
@@ -63,19 +68,19 @@ const PacsQRApp: React.FC<{
     };
   }, [notification]);
 
-  const pfdcmClient = React.useMemo(getPfdcmClient, [getPfdcmClient]);
-  const chrisClient = React.useMemo(getChrisClient, [getChrisClient]);
-
-  const fpClient = React.useMemo(() => {
-    return new FpClient(chrisClient);
-  }, [chrisClient]);
-
   /**
    * Show an error screen with the error's message.
    *
    * Used to handle errors during necessary bootstrapping.
    */
   const failWithError = TE.mapLeft((e: Error) => setError(e.message));
+
+  const pfdcmClient = React.useMemo(getPfdcmClient, [getPfdcmClient]);
+  const chrisClient = React.useMemo(getChrisClient, [getChrisClient]);
+  const fpClient = React.useMemo(
+    () => new FpClient(chrisClient),
+    [chrisClient],
+  );
 
   React.useEffect(() => {
     document.title = "ChRIS PACS";
@@ -85,25 +90,22 @@ const PacsQRApp: React.FC<{
     const getServicesPipeline = pipe(
       pfdcmClient.getPacsServices(),
       failWithError,
-      TE.map((services) => {
-        setServices(services);
-        const defaultService = getDefaultPacsService(services);
-        defaultService && setService(defaultService);
-      }),
+      TE.map(setServices),
     );
     getServicesPipeline();
   }, [pfdcmClient, pushError]);
 
   React.useEffect(() => {
     let lonkClientRef: LonkClient | null = null;
-
-    const onDone = () => {}; // TODO
-    const onProgress = () => {}; // TODO
-    const onError = () => {}; // TODO
     const connectWsPipeline = pipe(
-      fpClient.connectPacsNotifications({ onDone, onProgress, onError }),
+      fpClient.connectPacsNotifications(),
       failWithError,
       TE.map((client) => (lonkClientRef = client)),
+      TE.map((client) => {
+        client.onclose = () =>
+          setError("WebSocket closed, please refresh the page.");
+        return client;
+      }),
       TE.map(setLonkClient),
     );
     connectWsPipeline();
@@ -115,13 +117,11 @@ const PacsQRApp: React.FC<{
     <PageSection>
       {error !== null ? (
         <ErrorScreen>{error}</ErrorScreen>
-      ) : services && service && lonkClient ? (
+      ) : services && lonkClient ? (
         <PacsQR
           lonkClient={lonkClient}
           fpClient={fpClient}
           services={services}
-          service={service}
-          setService={setService}
           pushError={pushError}
         />
       ) : (
@@ -130,27 +130,5 @@ const PacsQRApp: React.FC<{
     </PageSection>
   );
 };
-
-/**
- * Selects the default PACS service (which is usually not the PACS service literally called "default").
- *
- * 1. Selects the hard-coded "PACSDCM"
- * 2. Attempts to select the first value which is not "default" (a useless, legacy pfdcm behavior)
- * 3. Selects the first value
- */
-function getDefaultPacsService(services: ReadonlyArray<string>): string | null {
-  if (services.includes("PACSDCM")) {
-    return "PACSDCM";
-  }
-  for (const service of services) {
-    if (service !== "default") {
-      return service;
-    }
-  }
-  if (services) {
-    return services[0];
-  }
-  return null;
-}
 
 export default PacsQRApp;
