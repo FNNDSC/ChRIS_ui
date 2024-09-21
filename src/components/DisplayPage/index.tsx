@@ -1,22 +1,22 @@
-import React from "react";
-import { PluginMeta } from "@fnndsc/chrisapi";
+import type { PluginMeta } from "@fnndsc/chrisapi";
 import {
-  Pagination,
-  Grid,
-  TextInput,
-  GridItem,
-  Dropdown,
-  MenuToggle,
-  DropdownItem,
-  DropdownList,
   Badge,
   Card,
   CardBody,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  Grid,
+  GridItem,
+  MenuToggle,
+  Pagination,
   Split,
   SplitItem,
+  TextInput,
 } from "@patternfly/react-core";
-import { Link } from "react-router-dom";
 import { format } from "date-fns";
+import React from "react";
+import { Link } from "react-router-dom";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { SearchIcon } from "../Icons";
 import "./display-page.css";
@@ -101,8 +101,8 @@ const DisplayPage = ({
 }: DisplayPageInterface) => {
   const { perPage, page, itemCount } = pageState;
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-  const isPlugin = title === "Plugins" ? true : false;
-  const isCompute = title === "Compute" ? true : false;
+  const isPlugin = title === "Plugins";
+  const isCompute = title === "Compute";
   const [dropdownValue, setDropdownValue] = React.useState<string>(
     isPlugin ? PluginQueryTypes.NAME[0] : ComputeQueryTypes.NAME[0],
   );

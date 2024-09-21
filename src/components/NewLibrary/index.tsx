@@ -10,8 +10,9 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { Alert, Typography } from "../Antd";
-import { EmptyStateComponent, InfoIcon, SpinContainer } from "../Common";
+import { Alert } from "../Antd";
+import { EmptyStateComponent, SpinContainer } from "../Common";
+import { InfoSection } from "../Common";
 import WrapperConnect from "../Wrapper";
 import BreadcrumbContainer from "./components/BreadcrumbContainer";
 import { FilesCard, LinkCard } from "./components/FileCard";
@@ -19,78 +20,96 @@ import { FolderCard } from "./components/FolderCard";
 import LibraryTable from "./components/LibraryTable";
 import Operations from "./components/Operations";
 import { OperationContext } from "./context";
+import { notification } from "../Antd";
 
-const { Paragraph } = Typography;
+// Fetch folders from the server
+export async function fetchFolders(computedPath: string, pageNumber?: number) {
+  const client = ChrisAPIClient.getClient();
+  await client.setUrls();
+  const pagination = {
+    limit: pageNumber ? pageNumber * 50 : 100,
+    offset: 0,
+  };
 
-const NewLibrary = () => {
-  // Fetch folders from the server
-  async function fetchFolders(computedPath: string, pageNumber: number) {
-    const client = ChrisAPIClient.getClient();
-    await client.setUrls();
-    const pagination = {
-      limit: pageNumber * 50,
-      offset: 0,
+  const errorMessages: string[] = [];
+
+  try {
+    const folderList = await client.getFileBrowserFolders({
+      path: computedPath,
+    });
+
+    const folders = folderList.getItems();
+    let subFoldersMap: FileBrowserFolder[] = [];
+    let linkFilesMap: FileBrowserFolderLinkFile[] = [];
+    let filesMap: FileBrowserFolderFile[] = [];
+    const initialPaginateValue = {
+      totalCount: 0,
+      hasNextPage: false,
     };
+    let filesPagination = initialPaginateValue;
+    let foldersPagination = initialPaginateValue;
+    let linksPagination = initialPaginateValue;
 
-    try {
-      const folderList = await client.getFileBrowserFolders({
-        path: computedPath,
-      });
+    if (folders) {
+      const folder = folders[0];
 
-      const folders = folderList.getItems();
-      let subFoldersMap: FileBrowserFolder[] = [];
-      let linkFilesMap: FileBrowserFolderLinkFile[] = [];
-      let filesMap: FileBrowserFolderFile[] = [];
-      const initialPaginateValue = {
-        totalCount: 0,
-        hasNextPage: false,
-      };
-      let filesPagination = initialPaginateValue;
-      let foldersPagination = initialPaginateValue;
-      let linksPagination = initialPaginateValue;
-
-      if (folders) {
-        const folder = folders[0];
-
-        if (folder) {
+      if (folder) {
+        // Fetch children, link files, and folder files with individual try-catch blocks
+        try {
           const children = await folder.getChildren(pagination);
-          const linkFiles = await folder.getLinkFiles(pagination);
-          const folderFiles = await folder.getFiles(pagination);
-
           subFoldersMap = children.getItems();
-          filesMap = folderFiles.getItems();
-          linkFilesMap = linkFiles.getItems();
-
           foldersPagination = {
             totalCount: children.totalCount,
             hasNextPage: children.hasNextPage,
           };
+        } catch (error) {
+          console.error("Error fetching folder children:", error);
+          errorMessages.push("Failed to fetch subfolders.");
+        }
+
+        try {
+          const linkFiles = await folder.getLinkFiles(pagination);
+          linkFilesMap = linkFiles.getItems();
           linksPagination = {
             totalCount: linkFiles.totalCount,
             hasNextPage: linkFiles.hasNextPage,
           };
+        } catch (error) {
+          console.error("Error fetching link files:", error);
+          errorMessages.push("Failed to fetch link files.");
+        }
+
+        try {
+          const folderFiles = await folder.getFiles(pagination);
+          filesMap = folderFiles.getItems();
           filesPagination = {
             totalCount: folderFiles.totalCount,
             hasNextPage: folderFiles.hasNextPage,
           };
+        } catch (error) {
+          errorMessages.push("Failed to fetch files.");
         }
       }
-
-      return {
-        subFoldersMap,
-        linkFilesMap,
-        filesMap,
-        filesPagination,
-        foldersPagination,
-        linksPagination,
-        folderList, // return folderList as you can make a post request to this resource to create a new folder
-      };
-    } catch (e) {
-      // biome-ignore lint/complexity/noUselessCatch: <explanation>
-      throw e;
     }
-  }
 
+    return {
+      subFoldersMap,
+      linkFilesMap,
+      filesMap,
+      filesPagination,
+      foldersPagination,
+      linksPagination,
+      folderList, // return folderList to enable creating new folders
+      errorMessages, // return any error messages encountered
+    };
+  } catch (e) {
+    errorMessages.push("Failed to load folder list.");
+    return { errorMessages }; // return errors in case the request fails entirely
+  }
+}
+
+const NewLibrary = () => {
+  const [api, contextHolder] = notification.useNotification();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
@@ -101,14 +120,14 @@ const NewLibrary = () => {
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || "/";
   const queryKey = ["library_folders", computedPath, pageNumber];
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isFetching, isError, error } = useQuery({
     queryKey: queryKey,
     queryFn: () => fetchFolders(computedPath, pageNumber),
     placeholderData: keepPreviousData,
     structuralSharing: true,
   });
 
-  // Redirect to /library/home/username if the pathname is /library and  this is the first load of the page
+  // Redirect to /library/home/username if the pathname is /library and this is the first load of the page
   useEffect(() => {
     if (isFirstLoad && pathname === "/library") {
       navigate(`/library/home/${username}`, { replace: true });
@@ -116,75 +135,56 @@ const NewLibrary = () => {
     }
   }, [isFirstLoad, pathname, username, navigate]);
 
-  const fetchMore =
-    data?.foldersPagination.hasNextPage ||
-    data?.filesPagination.hasNextPage ||
-    data?.linksPagination.hasNextPage;
-
-  // Set up an intersection observer to load more data when the user scrolls to the bottom of the page
+  // Show error notifications
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && fetchMore) {
-          handlePagination();
-        }
-      },
-      { threshold: 0.5 },
-    );
-
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
+    if (data?.errorMessages && data.errorMessages.length > 0) {
+      data.errorMessages.forEach((msg: string) => {
+        api.error({
+          message: "Error",
+          description: msg,
+        });
+      });
     }
+  }, [data?.errorMessages]);
 
-    return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
-      }
-    };
-  }, [fetchMore]);
+  const fetchMore =
+    data?.foldersPagination?.hasNextPage ||
+    data?.filesPagination?.hasNextPage ||
+    data?.linksPagination?.hasNextPage;
 
-  // Debounce the folder click event to avoid multiple clicks
   const handleFolderClick = debounce((folder: string) => {
     const url = `${decodedPath}/${folder}`;
     navigate(url);
   }, 500);
 
-  // Handle pagination by incrementing the page number
   const handlePagination = () => {
     setPageNumber((prevState) => prevState + 1);
   };
 
   const observerTarget = useRef(null);
 
-  // Prevent initial render if redirecting
   if (isFirstLoad && pathname === "/library") {
     return null;
   }
 
-  return (
-    <WrapperConnect>
-      <PageSection>
-        <InfoIcon
-          title="Your Library"
-          p1={
-            <Paragraph>
-              <p>
-                The Library provides a card-focused mechanism for browsing,
-                viewing, and interacting with data in the ChRIS system. A card
-                is analogous to a file or folder in a convention filesystem, and
-                multiple cards can be grouped into a shopping cart to allow for
-                bulk operations. Simply long press and release a card to add it
-                to the cart. Bulk operations include: <b>Download</b> (which
-                will copy all cart contents to your local filesystem),{" "}
-                <b>Delete</b> (which will permanently remove all data in the
-                cards from ChRIS), and <b>Create</b> which will seed a new
-                analysis with a new root node containing each card as a
-                subdirectory.
-              </p>
-            </Paragraph>
-          }
-        />
+  const TitleComponent = (
+    <InfoSection
+      title="Your Library"
+      content={
+        <>
+          The Library provides a card-focused mechanism for browsing, viewing,
+          and interacting with data in the ChRIS system. A card is analogous to
+          a file or folder in a conventional filesystem, and multiple cards can
+          be grouped into a shopping cart to allow for bulk operations.
+        </>
+      }
+    />
+  );
 
+  return (
+    <WrapperConnect titleComponent={TitleComponent}>
+      {contextHolder}
+      <PageSection style={{ paddingBlockStart: "0" }}>
         <Operations
           origin={{
             type: OperationContext.LIBRARY,
@@ -193,7 +193,6 @@ const NewLibrary = () => {
           computedPath={computedPath}
           folderList={data?.folderList}
         />
-
         <BreadcrumbContainer
           path={computedPath}
           handleFolderClick={(path: string) => {
@@ -204,16 +203,14 @@ const NewLibrary = () => {
       </PageSection>
 
       <PageSection style={{ paddingBlockStart: "0" }}>
-        {isLoading && <SpinContainer title="Fetching Resources..." />}
+        {isFetching && <SpinContainer title="Fetching Resources..." />}
         {isError && <Alert type="error" description={error.message} />}
-
         {/* Render based on currentLayout */}
         {currentLayout === "list" ? (
           <>
-            {data &&
-            data.subFoldersMap.length === 0 &&
-            data.linkFilesMap.length === 0 &&
-            data.filesMap.length === 0 ? (
+            {data?.subFoldersMap?.length === 0 &&
+            data?.linkFilesMap?.length === 0 &&
+            data?.filesMap?.length === 0 ? (
               <EmptyStateComponent title="This folder is empty" />
             ) : (
               <>
@@ -225,62 +222,53 @@ const NewLibrary = () => {
                   }}
                   handleFolderClick={handleFolderClick}
                   computedPath={computedPath}
+                  fetchMore={fetchMore}
+                  handlePagination={handlePagination}
                 />
-                {fetchMore && !isLoading && (
+                {fetchMore && !isFetching && (
                   <Button onClick={handlePagination} variant="link">
                     Load more data...
                   </Button>
                 )}
                 <div
-                  style={{
-                    height: "1px", // Ensure it's visible to the observer
-                    marginTop: "10px", // Ensure it's not blocked by other content
-                  }}
                   ref={observerTarget}
+                  style={{ height: "1px", marginTop: "10px" }}
                 />
               </>
             )}
           </>
         ) : (
-          <>
-            {data &&
-            data.subFoldersMap.length === 0 &&
-            data.linkFilesMap.length === 0 &&
-            data.filesMap.length === 0 ? (
-              <EmptyStateComponent title="This folder is empty" />
-            ) : (
-              <Grid hasGutter={true}>
-                <FolderCard
-                  folders={data?.subFoldersMap || []}
-                  handleFolderClick={handleFolderClick}
-                  computedPath={computedPath}
-                  pagination={data?.foldersPagination}
-                />
-                <LinkCard
-                  linkFiles={data?.linkFilesMap || []}
-                  pagination={data?.linksPagination}
-                  computedPath={computedPath}
-                />
-                <FilesCard
-                  files={data?.filesMap || []}
-                  computedPath={computedPath}
-                  pagination={data?.filesPagination}
-                />
-                {fetchMore && !isLoading && (
-                  <Button onClick={handlePagination} variant="link">
-                    Load more data...
-                  </Button>
-                )}
-                <div
-                  style={{
-                    height: "1px", // Ensure it's visible to the observer
-                    marginTop: "10px", // Ensure it's not blocked by other content
-                  }}
-                  ref={observerTarget}
-                />
-              </Grid>
+          <Grid hasGutter={true}>
+            <FolderCard
+              folders={data?.subFoldersMap || []}
+              handleFolderClick={handleFolderClick}
+              computedPath={computedPath}
+              pagination={data?.foldersPagination}
+            />
+            <LinkCard
+              linkFiles={data?.linkFilesMap || []}
+              pagination={data?.linksPagination}
+              computedPath={computedPath}
+            />
+            <FilesCard
+              files={data?.filesMap || []}
+              computedPath={computedPath}
+              pagination={data?.filesPagination}
+              list={data?.filesMap}
+              fetchMore={fetchMore}
+              handlePagination={handlePagination}
+              filesLoading={isFetching}
+            />
+            {fetchMore && !isFetching && (
+              <Button onClick={handlePagination} variant="link">
+                Load more data...
+              </Button>
             )}
-          </>
+            <div
+              ref={observerTarget}
+              style={{ height: "1px", marginTop: "10px" }}
+            />
+          </Grid>
         )}
       </PageSection>
     </WrapperConnect>

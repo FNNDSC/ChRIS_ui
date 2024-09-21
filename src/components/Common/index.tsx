@@ -20,6 +20,9 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { Alert, Popover, Spin, Typography } from "antd";
 import React, { type ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
+import "react-activity/dist/library.css";
+import { Cookies } from "react-cookie";
+import ReactJson from "react-json-view";
 import {
   ArchiveIcon,
   CubesIcon,
@@ -32,9 +35,6 @@ import {
   InfoIcon as InfoIconComponent,
   SearchIcon,
 } from "../Icons";
-import "react-activity/dist/library.css";
-import { Cookies } from "react-cookie";
-import ReactJson from "react-json-view";
 import "./common.css";
 
 export const EmptyStateComponent = ({ title }: { title?: string }) => {
@@ -148,12 +148,16 @@ export const InfoIcon = ({
   p2,
   p3,
   p4,
+  customStyle,
 }: {
   title: string;
   p1?: any;
   p2?: any;
   p3?: any;
   p4?: any;
+  customStyle?: {
+    [key: string]: React.CSSProperties;
+  };
 }) => {
   const content = (
     <Hint>
@@ -166,7 +170,7 @@ export const InfoIcon = ({
 
   return (
     <div style={{ display: "flex" }}>
-      <Title level={4} style={{ marginBottom: 0 }}>
+      <Title level={4} style={{ ...customStyle?.title, marginBottom: 0 }}>
         {title}
       </Title>
       <Popover placement="top" trigger="hover" content={content}>
@@ -430,4 +434,22 @@ export const TableEmptyState: React.FunctionComponent<EmptyTableProps> = ({
       </Tr>
     </Tbody>
   </Table>
+);
+
+const { Paragraph } = Typography;
+
+// Component for displaying name and description
+export const InfoSection: React.FC<{
+  title: string;
+  content?: React.ReactNode;
+}> = ({ title, content }) => (
+  <InfoIcon
+    customStyle={{
+      title: {
+        color: "white",
+      },
+    }}
+    title={title}
+    p1={<Paragraph>{content}</Paragraph>}
+  />
 );

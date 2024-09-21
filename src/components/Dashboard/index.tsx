@@ -1,47 +1,33 @@
+import { CatalogTile } from "@patternfly/react-catalog-view-extension";
+import { Grid, GridItem, PageSection } from "@patternfly/react-core";
 import React from "react";
 import BUILD_VERSION from "../../getBuildVersion";
-import { Grid, GridItem, PageSection } from "@patternfly/react-core";
-import { Typography } from "../Antd";
+import { InfoSection } from "../Common";
 import WrapperConnect from "../Wrapper";
-import { CatalogTile } from "@patternfly/react-catalog-view-extension";
-import { InfoIcon } from "../Common";
 import "./dashboard.css";
 
-const { Paragraph } = Typography;
-
-interface DashboardProps {
-  children?: React.ReactNode;
-}
-
-const DashboardPage = (props: DashboardProps) => {
-  const { children } = props;
-
+const DashboardPage = () => {
   React.useEffect(() => {
     document.title = "Overview";
   }, []);
 
+  const TitleComponent = (
+    <InfoSection
+      title="Welcome to ChRIS"
+      content={
+        <>
+          Retrieve, analyze, and visualize <i>any data</i> using a powerful
+          cloud computing platform: ChRIS. <b>Let's get started.</b>
+          <p>
+            Build: <code className="build-version">{BUILD_VERSION}</code>
+          </p>
+        </>
+      }
+    />
+  );
+
   return (
-    <WrapperConnect>
-      <PageSection hasShadowBottom>
-        <InfoIcon
-          title="Welcome to ChRIS"
-          p1={
-            <Paragraph>
-              <p>
-                Retrieve, analyze, and visualize <i>any data </i> using a
-                powerful cloud computing platform: ChRIS.
-                <b> Let&apos;s get started.</b>
-              </p>
-              <p>
-                Build: <code className="build-version">{BUILD_VERSION}</code>
-              </p>
-            </Paragraph>
-          }
-        />
-
-        {children}
-      </PageSection>
-
+    <WrapperConnect titleComponent={TitleComponent}>
       <PageSection>
         <Grid hasGutter>
           <GridItem lg={4}>

@@ -1,8 +1,7 @@
-import type { Feed, FileBrowserFolder } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
   Button,
-  Checkbox,
   EmptyState,
   EmptyStateIcon,
   EmptyStateVariant,
@@ -15,16 +14,25 @@ import {
   type ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useQuery } from "@tanstack/react-query";
+import {
+  SortByDirection,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
+import { useQueries } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import type React from "react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
+import { InfoSection } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
@@ -37,9 +45,67 @@ import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
-import { getPluginInstanceDetails } from "./utilties";
-
+import { formatBytes, getPluginInstanceDetails } from "./utilties";
 const { Paragraph } = Typography;
+
+interface ColumnDefinition {
+  id: string;
+  label: string;
+  comparator: (a: Feed, b: Feed, detailsA: any, detailsB: any) => number;
+}
+
+const COLUMN_DEFINITIONS: ColumnDefinition[] = [
+  {
+    id: "id",
+    label: "ID",
+    comparator: (a, b) => a.data.id - b.data.id,
+  },
+  {
+    id: "analysis",
+    label: "Analysis",
+    comparator: (a, b) => a.data.name.localeCompare(b.data.name),
+  },
+  {
+    id: "created",
+    label: "Created",
+    comparator: (a, b) =>
+      new Date(a.data.creation_date).getTime() -
+      new Date(b.data.creation_date).getTime(),
+  },
+  {
+    id: "creator",
+    label: "Creator",
+    comparator: (a, b) =>
+      a.data.owner_username.localeCompare(b.data.owner_username),
+  },
+  {
+    id: "runtime",
+    label: "Run Time",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const timeA = detailsA?.time || "0";
+      const timeB = detailsB?.time || "0";
+      return timeA.localeCompare(timeB);
+    },
+  },
+  {
+    id: "size",
+    label: "Size",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const sizeA = detailsA?.size || "0";
+      const sizeB = detailsB?.size || "0";
+      return sizeA - sizeB;
+    },
+  },
+  {
+    id: "status",
+    label: "Status",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const progressA = detailsA?.progress || 0;
+      const progressB = detailsB?.progress || 0;
+      return progressA - progressB;
+    },
+  },
+];
 
 const TableSelectable: React.FC = () => {
   const navigate = useNavigate();
@@ -47,6 +113,70 @@ const TableSelectable: React.FC = () => {
     useFeedListData();
   const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
   const { perPage, page, type, search, searchType } = searchFolderData;
+  const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
+  const [activeSortDirection, setActiveSortDirection] =
+    useState<SortByDirection>(SortByDirection.desc);
+
+  const feedQueries = useQueries({
+    queries: feedsToDisplay.map((feed) => ({
+      queryKey: ["feedDetails", feed.data.id],
+      queryFn: async () => {
+        const res = await getPluginInstanceDetails(feed);
+        return { [feed.data.id]: { details: res } };
+      },
+      refetchInterval: (data: any) => {
+        const state = data.state.data;
+        const details = state?.[feed.data.id]?.details;
+        if (!details) return false;
+        if (details?.progress === 100 || details?.error === true) {
+          return false; // Stop polling
+        }
+        return 2000; // Poll every 2 seconds
+      },
+    })),
+  });
+
+  const feedDetails = useMemo(() => {
+    return Object.assign({}, ...feedQueries.map((query) => query.data || {}));
+  }, [feedQueries]);
+
+  const getSortParams = (columnIndex: number) => ({
+    sortBy: {
+      index: activeSortIndex as number,
+      direction: activeSortDirection,
+    },
+    onSort: (
+      _event: React.MouseEvent,
+      index: number,
+      direction: SortByDirection,
+    ) => {
+      setActiveSortIndex(index);
+      setActiveSortDirection(direction);
+    },
+    columnIndex,
+  });
+
+  const sortedFeeds = useMemo(() => {
+    if (activeSortIndex !== null && feedDetails) {
+      const comparator = COLUMN_DEFINITIONS[activeSortIndex].comparator;
+      return [...feedsToDisplay].sort((a, b) =>
+        activeSortDirection === SortByDirection.asc
+          ? comparator(
+              a,
+              b,
+              feedDetails[a.data.id]?.details,
+              feedDetails[b.data.id]?.details,
+            )
+          : comparator(
+              b,
+              a,
+              feedDetails[b.data.id]?.details,
+              feedDetails[a.data.id]?.details,
+            ),
+      );
+    }
+    return feedsToDisplay;
+  }, [feedsToDisplay, activeSortIndex, activeSortDirection, feedDetails]);
 
   const onSetPage = (
     _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
@@ -86,16 +216,6 @@ const TableSelectable: React.FC = () => {
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
 
-  const columnNames = {
-    id: "ID",
-    analysis: "Analysis",
-    created: "Created",
-    creator: "Creator",
-    runtime: "Run Time",
-    size: "Size",
-    status: "Status",
-  };
-
   const generatePagination = (feedCount?: number) => {
     if (!feedCount && loadingFeedState) {
       return <Skeleton width="25%" screenreaderText="Loaded Feed Count" />;
@@ -115,13 +235,24 @@ const TableSelectable: React.FC = () => {
     );
   };
 
+  const feedCountText =
+    !feedCount && loadingFeedState
+      ? "Fetching..."
+      : feedCount === -1
+        ? 0
+        : feedCount;
+  const TitleComponent = (
+    <InfoSection
+      title={`New and Existing Analyses (${feedCountText})`}
+      content="Analyses (aka ChRIS feeds) are computational experiments where data
+      are organized and processed by ChRIS plugins. In this view, you may
+      view your analyses and also the ones shared with you."
+    />
+  );
+
   return (
-    <WrapperConnect>
-      <PageSection
-        style={{ paddingTop: "0.25em" }}
-        variant="dark"
-        className="feed-header"
-      >
+    <WrapperConnect titleComponent={TitleComponent}>
+      <PageSection style={{ paddingTop: "0.25em" }} className="feed-header">
         <div>
           <FeedSearch
             loading={loadingFeedState}
@@ -165,16 +296,18 @@ const TableSelectable: React.FC = () => {
           </CreateFeedProvider>
         </div>
       </PageSection>
-      <PageSection
-        variant="dark"
-        style={{ paddingBlockStart: "0.5em", height: "100%" }}
-      >
+      <PageSection style={{ paddingBlockStart: "0.5em", height: "100%" }}>
         <Operations
           origin={{
             type: OperationContext.FEEDS,
             additionalKeys: [perPage, page, type, search, searchType],
           }}
-          customStyle={{ toolbarItem: { paddingInlineStart: "0" } }}
+          customStyle={{
+            toolbarItem: { paddingInlineStart: "0" },
+            toolbar: {
+              paddingTop: "0",
+            },
+          }}
         />
         {loadingFeedState ? (
           <LoadingTable />
@@ -186,22 +319,24 @@ const TableSelectable: React.FC = () => {
           >
             <Thead>
               <Tr>
-                <Th />
-                {Object.values(columnNames).map((name) => (
-                  <Th key={name}>{name}</Th>
+                <Th aria-label="feed-selection-checkbox" />
+                {COLUMN_DEFINITIONS.map((column, columnIndex) => (
+                  <Th key={column.id} sort={getSortParams(columnIndex)}>
+                    {column.label}
+                  </Th>
                 ))}
               </Tr>
             </Thead>
             <Tbody>
-              {feedsToDisplay.map((feed, rowIndex) => (
+              {sortedFeeds.map((feed, rowIndex) => (
                 <TableRow
                   key={feed.data.id}
                   feed={feed}
                   rowIndex={rowIndex}
-                  columnNames={columnNames}
                   allFeeds={feedsToDisplay}
                   type={type}
                   additionalKeys={[perPage, page, type, search, searchType]}
+                  details={feedDetails?.[feed.data.id]?.details}
                 />
               ))}
             </Tbody>
@@ -220,59 +355,26 @@ interface TableRowProps {
   rowIndex: number;
   feed: Feed;
   allFeeds: Feed[];
-  columnNames: {
-    id: string;
-    analysis: string;
-    created: string;
-    creator: string;
-    runtime: string;
-    size: string;
-    status: string;
-  };
   type: string;
   additionalKeys: string[];
+  details: any;
 }
 
 const TableRow: React.FC<TableRowProps> = ({
+  rowIndex,
   feed,
-  columnNames,
   additionalKeys,
+  details,
 }) => {
   const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick } = handlers;
   const navigate = useNavigate();
-  const [intervalMs, setIntervalMs] = useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
-
-  const { data } = useQuery({
-    queryKey: ["feedResources", feed],
-    queryFn: async () => {
-      try {
-        const res = await getPluginInstanceDetails(feed);
-        if (res.progress === 100 || res.error === true) {
-          setIntervalMs(0);
-        }
-
-        return {
-          [feed.data.id]: {
-            details: res,
-          },
-        };
-      } catch (error) {
-        setIntervalMs(0);
-        return {};
-      }
-    },
-    refetchInterval: intervalMs,
-  });
-
   const getFolderForThisFeed = async () => {
     const payload = await feed.getFolder();
     return payload;
   };
-
-  const details = data?.[feed.data.id].details;
   const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
   const backgroundRow =
     details && details.progress < 100 && !details.error
@@ -300,6 +402,7 @@ const TableRow: React.FC<TableRowProps> = ({
         key={feed.data.id}
         style={{
           backgroundColor: selectedBgRow,
+          cursor: "pointer",
         }}
         data-test-id={`${feed.data.name}-test`}
         onContextMenu={async (e) => {
@@ -307,79 +410,64 @@ const TableRow: React.FC<TableRowProps> = ({
           handleOnClick(e, payload, feed.data.folder_path, "folder");
         }}
         onClick={async (e) => {
+          e?.stopPropagation();
           const payload = await getFolderForThisFeed();
-          handleOnClick(e, payload, feed.data.folder_path, "folder");
+          handleOnClick(e, payload, feed.data.folder_path, "folder", () => {
+            onFeedNameClick();
+          });
         }}
+        isRowSelected={isSelected}
       >
-        <Td>
-          <BulkCheckbox
-            feed={feed}
-            getFolderForThisFeed={getFolderForThisFeed}
-            isSelected={isSelected}
-          />
-        </Td>
-        <Td dataLabel={columnNames.id}>{feed.data.id}</Td>
-        <Td dataLabel={columnNames.analysis}>
+        <Td
+          onClick={(e) => e.stopPropagation()}
+          select={{
+            rowIndex: rowIndex,
+            isSelected: isSelected,
+            onSelect: async (event) => {
+              event.stopPropagation();
+              const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
+              const payload = await getFolderForThisFeed();
+
+              // Create a new event object with the captured properties
+              const newEvent = {
+                ...event,
+                stopPropagation: () => event.stopPropagation(),
+                preventDefault: () => event.preventDefault(),
+                currentTarget: { ...event.currentTarget, checked: isChecked },
+              };
+
+              // Pass the new event object to the handler function
+              handlers.handleCheckboxChange(
+                newEvent,
+                feed.data.folder_path,
+                payload,
+                "folder",
+              );
+            },
+          }}
+        />
+        <Td dataLabel="ID">{feed.data.id}</Td>
+
+        <Td dataLabel="analysis">
           <FeedInfoColumn feed={feed} onClick={onFeedNameClick} />
         </Td>
-        <Td dataLabel={columnNames.created}>
+        <Td dataLabel="created">
           {format(new Date(feed.data.creation_date), "dd MMM yyyy, HH:mm")}
         </Td>
-        <Td dataLabel={columnNames.creator}>{feed.data.owner_username}</Td>
-        <Td dataLabel={columnNames.runtime}>
-          {data?.[feed.data.id].details.time}
+        <Td dataLabel="creator">{feed.data.owner_username}</Td>
+        <Td dataLabel="runtime">{details?.time}</Td>
+        <Td dataLabel="size">
+          {details?.size ? (
+            formatBytes(details?.size, 0)
+          ) : (
+            <Skeleton width="100%" height="40px" />
+          )}
         </Td>
-        <Td dataLabel={columnNames.size}>
-          {data?.[feed.data.id].details.size}
-        </Td>
-        <Td dataLabel={columnNames.status}>
-          <DonutUtilization details={data?.[feed.data.id].details} />
+        <Td dataLabel="status">
+          <DonutUtilization details={details} />
         </Td>
       </Tr>
     </FolderContextMenu>
-  );
-};
-
-const BulkCheckbox = ({
-  feed,
-  getFolderForThisFeed,
-  isSelected,
-}: {
-  feed: Feed;
-  getFolderForThisFeed: () => Promise<FileBrowserFolder>;
-  isSelected: boolean;
-}) => {
-  const { handlers } = useLongPress();
-  const handleCheckboxChange = handlers.handleCheckboxChange;
-
-  return (
-    <Checkbox
-      className={`${feed.data.name}-checkbox`}
-      isChecked={isSelected}
-      id={feed.data.id}
-      aria-label={`${feed.data.name}-checkbox`}
-      onClick={(e) => e.stopPropagation()}
-      onChange={async (event) => {
-        const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
-        const payload = await getFolderForThisFeed();
-
-        // Create a new event object with the captured properties
-        const newEvent = {
-          ...event,
-          stopPropagation: () => event.stopPropagation(),
-          preventDefault: () => event.preventDefault(),
-          currentTarget: { ...event.currentTarget, checked: isChecked },
-        };
-
-        // Pass the new event object to the handler function
-        handleCheckboxChange(
-          newEvent,
-          feed.data.folder_path,
-          payload,
-          "folder",
-        );
-      }}
-    />
   );
 };
 
@@ -442,6 +530,9 @@ const FeedInfoColumn = ({
     onClick={(e) => {
       e.stopPropagation();
       onClick(feed);
+    }}
+    style={{
+      padding: 0,
     }}
   >
     {feed.data.name}

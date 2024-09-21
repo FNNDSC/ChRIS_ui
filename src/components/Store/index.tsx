@@ -31,21 +31,19 @@ import { format } from "date-fns";
 import { isEmpty } from "lodash";
 import { type Ref, useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
-import { Alert, Spin, Typography, notification } from "../Antd";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useTypedSelector } from "../../store/hooks";
-import { InfoIcon, SpinContainer } from "../Common";
+import { Alert, Spin, notification } from "../Antd";
+import { SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
-import WrapperConnect from "../Wrapper";
-
+import { InfoSection } from "../Common";
 import {
   fetchPluginForMeta,
   fetchPluginMetas,
   handleInstallPlugin,
 } from "../PipelinesCopy/utils";
-
-const { Paragraph } = Typography;
+import WrapperConnect from "../Wrapper";
 
 const Store = () => {
   const isStaff = useTypedSelector((state) => state.user.isStaff);
@@ -219,8 +217,16 @@ const Store = () => {
     }
   }, [handleInstallMutation.isSuccess, handleInstallMutation.isError, api]);
 
+  // Store catalog component
+  const TitleComponent = (
+    <InfoSection
+      title="Plugin Store"
+      content="This is a global store from where you can install your plugins."
+    />
+  );
+
   return (
-    <WrapperConnect>
+    <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
       <Modal
         variant="small"
@@ -334,54 +340,40 @@ const Store = () => {
         </Form>
       </Modal>
 
-      <PageSection
-        style={{
-          marginBottom: "0",
-          display: "flex",
-          justifyContent: "space-between",
-        }}
-      >
+      <PageSection>
         <div>
-          <InfoIcon
-            title="Plugin Store"
-            p1={
-              <Paragraph>
-                <p>
-                  This is a global store from where you can install your
-                  plugins.
-                </p>
-              </Paragraph>
-            }
-          />
           <Text component={TextVariants.h6}>
             You are currently viewing plugins fetched from{" "}
             {configureStoreValue || import.meta.env.VITE_CHRIS_STORE_URL}
           </Text>
+          <Button
+            style={{ marginTop: "1em" }}
+            variant="secondary"
+            onClick={() => {
+              if (configureStoreValue) {
+                setConfigureStoreValue("");
+                removeCookie("configure_url", {
+                  path: "/",
+                });
+                queryClient.refetchQueries({
+                  queryKey: ["storePlugins"],
+                });
+              } else {
+                setConfigureStore(!configureStore);
+              }
+            }}
+          >
+            {configureStoreValue
+              ? "Reset to the Default Store"
+              : "Connect to a different Store"}
+          </Button>
         </div>
 
-        <Button
-          variant="secondary"
-          onClick={() => {
-            if (configureStoreValue) {
-              setConfigureStoreValue("");
-              removeCookie("configure_url", {
-                path: "/",
-              });
-              queryClient.refetchQueries({
-                queryKey: ["storePlugins"],
-              });
-            } else {
-              setConfigureStore(!configureStore);
-            }
+        <Grid
+          style={{
+            marginTop: "1em",
           }}
         >
-          {configureStoreValue
-            ? "Reset to the Default Store"
-            : "Connect to a different Store"}
-        </Button>
-      </PageSection>
-      <PageSection>
-        <Grid>
           <GridItem span={4}>
             <TextInputGroup>
               <TextInputGroupMain

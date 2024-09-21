@@ -1,3 +1,8 @@
 .remove-toolbar-padding {
     padding-top: 0 !important;
 }
+
+.library-table.pf-v5-c-table.pf-m-compact tr:where(.pf-v5-c-table__tr):not(.pf-v5-c-table__expandable-row) {
+    --pf-v5-c-table--cell--PaddingTop: 1em;
+    --pf-v5-c-table--cell--PaddingBottom: 1em;
+  }
