@@ -1,123 +1,64 @@
 import React from "react";
 import { PACSqueryCore } from "../../../api/pfdcm";
-import {
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownList,
-  Grid,
-  GridItem,
-  MenuToggle,
-  MenuToggleElement,
-  TextInputGroup,
-  TextInputGroupMain,
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@patternfly/react-core";
-import { hideOnDesktop, hideOnMobile } from "../../../cssUtils.ts";
-import { SearchIcon, TimesIcon } from "@patternfly/react-icons";
+import { Radio, Select, Input, Row, Col, Grid } from "antd";
+import { useSearchParams } from "react-router-dom";
+import { getDefaultPacsService, useBooleanSearchParam } from "./helpers.ts";
+import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
 
 type InputFieldProps = {
-  setQuery: (query: PACSqueryCore) => void;
-  query: PACSqueryCore;
-  id?: string;
-  "aria-label"?: string;
+  onSubmit: (query: PACSqueryCore) => void;
 };
 
-type PacsInputProps = InputFieldProps & {
-  service: string;
-  services: ReadonlyArray<string>;
-  setService: (service: string) => void;
+type PacsInputProps = {
+  services: ReadonlyNonEmptyArray<string>;
+  onSubmit: (service: string, query: PACSqueryCore) => void;
 };
 
 /**
  * An input field for searching in PACS by MRN
  */
-const MrnInput: React.FC<InputFieldProps> = ({ query, setQuery, ...props }) => {
-  const clearInput = () => setQuery({});
+const MrnInput: React.FC<InputFieldProps> = ({ onSubmit }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const onClear = () => {
+    setSearchParams((searchParams) => {
+      searchParams.delete("mrn");
+      return searchParams;
+    });
+  };
+
+  const submitMrn = (value?: string) => {
+    if (!value) {
+      return;
+    }
+    setSearchParams((searchParams) => {
+      searchParams.set("mrn", value);
+      onSubmit({ patientID: value });
+      return searchParams;
+    });
+  };
 
   return (
-    <TextInputGroup>
-      <TextInputGroupMain
-        icon={<SearchIcon />}
-        value={query.patientID || ""}
-        onChange={(_event, value) =>
-          setQuery({
-            patientID: value,
-          })
-        }
-        name="mrnSearchInput"
-        placeholder="Search for DICOM studies by MRN"
-        {...props}
-      />
-      {!isQueryEmpty(query) && (
-        <Button
-          variant="plain"
-          onClick={clearInput}
-          aria-label="Clear button and input"
-        >
-          <TimesIcon />
-        </Button>
-      )}
-    </TextInputGroup>
+    <Input.Search
+      defaultValue={searchParams.get("mrn") || ""}
+      placeholder="Search for DICOM studies by MRN"
+      allowClear={true}
+      onClear={onClear}
+      onPressEnter={(e) => submitMrn(e.currentTarget.value)}
+      onSearch={submitMrn}
+      enterButton={true}
+    />
   );
 };
 
 /**
  * An advanced search input field for searching in PACS by PatientID, AccessionNumber, ...
  */
-const AdvancedInput: React.FC<InputFieldProps> = ({
-  query,
-  setQuery,
-  ...props
-}) => {
+const AdvancedInput: React.FC<InputFieldProps> = ({ onSubmit }) => {
   return (
     <>
-      <h1 {...props}>Advanced search not implemented.</h1>
+      <h1>Advanced search not implemented.</h1>
     </>
-  );
-};
-
-type ServiceDropdownProps = {
-  service: string;
-  setService: (service: string) => void;
-  services: ReadonlyArray<string>;
-};
-
-const ServiceDropdown: React.FC<ServiceDropdownProps> = ({
-  service,
-  services,
-  setService,
-}) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  return (
-    <Dropdown
-      isOpen={isOpen}
-      onSelect={(_e, value) => {
-        typeof value === "string" && setService(value);
-        setIsOpen(false);
-      }}
-      onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
-      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          onClick={() => setIsOpen((open) => !open)}
-          isExpanded={isOpen}
-          isFullWidth
-          title="PACS service"
-        >
-          {service}
-        </MenuToggle>
-      )}
-    >
-      <DropdownList>
-        {services.map((service) => (
-          <DropdownItem value={service} key={service}>
-            {service}
-          </DropdownItem>
-        ))}
-      </DropdownList>
-    </Dropdown>
   );
 };
 
@@ -127,67 +68,88 @@ const ServiceDropdown: React.FC<ServiceDropdownProps> = ({
 const ScreenSizeSpan: React.FC<{
   mobile: React.ReactNode;
   desktop: React.ReactNode;
-}> = ({ mobile, desktop }) => (
-  <>
-    <span className={hideOnDesktop}>{mobile}</span>
-    <span className={hideOnMobile}>{desktop}</span>
-  </>
-);
+}> = ({ mobile, desktop }) => {
+  const screens = Grid.useBreakpoint();
+  return screens.md ? desktop : mobile;
+};
 
-const PacsInput: React.FC<PacsInputProps> = ({
-  service,
-  services,
-  setService,
-  ...props
-}) => {
-  const [advancedSearch, setAdvancedSearch] = React.useState(false);
-
-  const InputElement = advancedSearch ? AdvancedInput : MrnInput;
-
-  const advancedSearchToggle = (
-    <ToggleGroup>
-      <ToggleGroupItem
-        text={<ScreenSizeSpan mobile="MRN" desktop="MRN Search" />}
-        isSelected={!advancedSearch}
-        onChange={() => setAdvancedSearch(false)}
-      />
-      <ToggleGroupItem
-        text={<ScreenSizeSpan mobile="Advanced" desktop="Advanced Search" />}
-        isSelected={advancedSearch}
-        onChange={() => setAdvancedSearch(true)}
-      />
-    </ToggleGroup>
+const PacsInput: React.FC<PacsInputProps> = ({ onSubmit, services }) => {
+  const searchParamHooks = useSearchParams();
+  const [searchParams, setSearchParams] = searchParamHooks;
+  const [isAdvancedSearch, setIsAdvancedSearch] = useBooleanSearchParam(
+    searchParamHooks,
+    "advancedSearch",
   );
 
-  const serviceDropdown = (
-    <ServiceDropdown
-      services={services}
-      service={service}
-      setService={setService}
+  const defaultService = React.useMemo(
+    () => getDefaultPacsService(services),
+    [services],
+  );
+
+  const service = searchParams.get("service") || defaultService;
+  const setService = (service: string) =>
+    setSearchParams((searchParams) => {
+      searchParams.set("service", service);
+      return searchParams;
+    });
+
+  const curriedOnSubmit = React.useMemo(
+    () => (query: PACSqueryCore) => onSubmit(service, query),
+    [service, onSubmit],
+  );
+  const input = React.useMemo(
+    () =>
+      isAdvancedSearch ? (
+        <AdvancedInput onSubmit={curriedOnSubmit} />
+      ) : (
+        <MrnInput onSubmit={curriedOnSubmit} />
+      ),
+    [isAdvancedSearch, curriedOnSubmit],
+  );
+  const advancedSearchToggle = (
+    <Radio.Group
+      optionType="button"
+      options={[
+        {
+          label: <ScreenSizeSpan mobile="MRN" desktop="MRN Search" />,
+          value: false,
+        },
+        {
+          label: <ScreenSizeSpan mobile="Advanced" desktop="Advanced Search" />,
+          value: true,
+        },
+      ]}
+      value={isAdvancedSearch}
+      onChange={(e) => setIsAdvancedSearch(e.target.value)}
     />
   );
 
+  const serviceDropdown = (
+    <div title="PACS service">
+      <Select
+        options={services.map((value) => {
+          return { label: value, value };
+        })}
+        value={service}
+        onChange={setService}
+        style={{ width: "100%" }}
+      />
+    </div>
+  );
+
   return (
-    <Grid>
-      <GridItem span={6} md={3}>
+    <Row gutter={2}>
+      <Col xs={12} md={6}>
         {advancedSearchToggle}
-      </GridItem>
-      <GridItem span={6} md={3} order={{ md: "2" }}>
+      </Col>
+      <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 0 }}>
+        {input}
+      </Col>
+      <Col xs={12} md={5}>
         {serviceDropdown}
-      </GridItem>
-      <GridItem span={12} md={6}>
-        <InputElement {...props} />
-      </GridItem>
-    </Grid>
+      </Col>
+    </Row>
   );
 };
 
-function isQueryEmpty(query: { [key: string]: any } | null): boolean {
-  return (
-    query === null ||
-    Object.values(query).findIndex((value) => `${value}`.length > 0) === -1
-  );
-}
-
 export default PacsInput;
-export { isQueryEmpty };

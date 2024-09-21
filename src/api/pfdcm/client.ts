@@ -14,9 +14,18 @@ import {
   PACSServiceHandlerApiV1PACSThreadPypxPostRequest,
   PACSasync,
 } from "./generated";
-import { pipe } from "fp-ts/function";
+import { flow, pipe } from "fp-ts/function";
 import { PypxFind, PypxTag, Series, StudyAndSeries } from "./models.ts";
 import { parse as parseDate } from "date-fns";
+import {
+  ReadonlyNonEmptyArray,
+  fromArray as readonlyNonEmptyArrayFromArray,
+} from "fp-ts/ReadonlyNonEmptyArray";
+
+const validateNonEmptyStringArray = flow(
+  readonlyNonEmptyArrayFromArray<string>,
+  TE.fromOption(() => new Error("PFDCM returned an empty list for services")),
+);
 
 /**
  * PFDCM client.
@@ -32,10 +41,16 @@ class PfdcmClient {
   /**
    * Get list of PACS services which this PFDCM is configured to speak with.
    */
-  public getPacsServices(): TE.TaskEither<Error, ReadonlyArray<string>> {
-    return TE.tryCatch(
-      () => this.servicesClient.serviceListGetApiV1PACSserviceListGet(),
-      E.toError,
+  public getPacsServices(): TE.TaskEither<
+    Error,
+    ReadonlyNonEmptyArray<string>
+  > {
+    return pipe(
+      TE.tryCatch(
+        () => this.servicesClient.serviceListGetApiV1PACSserviceListGet(),
+        E.toError,
+      ),
+      TE.flatMap(validateNonEmptyStringArray),
     );
   }
 

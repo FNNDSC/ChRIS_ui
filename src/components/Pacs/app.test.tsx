@@ -5,6 +5,7 @@ import * as TE from "fp-ts/TaskEither";
 import { Configuration as PfdcmConfig, PfdcmClient } from "../../api/pfdcm";
 import ChrisClient, { DownloadToken } from "@fnndsc/chrisapi";
 import WS from "vitest-websocket-mock";
+import { MemoryRouter } from "react-router";
 
 test("PACS Q/R page can bootstrap", async () => {
   const pfdcmClient = createPfdcmMock(TE.right(["BCH", "MGH", "BWH"]));
@@ -14,7 +15,11 @@ test("PACS Q/R page can bootstrap", async () => {
     getChrisClient: vi.fn(() => chrisClient),
     getPfdcmClient: vi.fn(() => pfdcmClient),
   };
-  render(<PacsQRApp {...getClientMocks} />);
+  render(
+    <MemoryRouter>
+      <PacsQRApp {...getClientMocks} />
+    </MemoryRouter>,
+  );
 
   await ws.connected;
 
@@ -40,7 +45,11 @@ test("Shows error screen if PFDCM is offline", async () => {
     getChrisClient: vi.fn(() => chrisClient),
     getPfdcmClient: vi.fn(() => pfdcmClient),
   };
-  render(<PacsQRApp {...getClientMocks} />);
+  render(
+    <MemoryRouter>
+      <PacsQRApp {...getClientMocks} />
+    </MemoryRouter>,
+  );
 
   await expect
     .poll(() => screen.getByText("I am an expected error"))
