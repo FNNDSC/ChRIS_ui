@@ -1,5 +1,5 @@
- body {
-  font-family: "Inter"
+body {
+  font-family: "Inter";
 }
 
 .dcm-preview {
@@ -65,7 +65,6 @@
 .pf-v5-c-page__main-section {
   padding-block-end: 0;
 }
-
 
 .small-button {
   width: 20px;
