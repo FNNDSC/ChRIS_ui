@@ -5,6 +5,7 @@ import {
   LonkHandlers,
   LonkProgress,
   LonkSubscription,
+  LonkUnsubscription,
   SeriesKey,
 } from "./types.ts";
 import deserialize from "./de.ts";
@@ -19,17 +20,22 @@ import SeriesMap from "./seriesMap.ts";
 class LonkClient {
   private readonly ws: WebSocket;
   private readonly pendingSubscriptions: SeriesMap<null | (() => SeriesKey)>;
+  private readonly pendingUnsubscriptions: (() => void)[];
   private handlers: LonkHandlers | null;
 
   public constructor(ws: WebSocket) {
     this.handlers = null;
     this.pendingSubscriptions = new SeriesMap();
+    this.pendingUnsubscriptions = [];
     this.ws = ws;
     this.ws.onmessage = (msg) => {
       pipe(
         msg.data,
         deserialize,
         E.map((data) => this.routeMessage(data)),
+        E.orElse((e) => {
+          throw e;
+        }),
       );
     };
   }
@@ -54,7 +60,7 @@ class LonkClient {
     SeriesInstanceUID: string,
   ): Promise<SeriesKey> {
     let callback = null;
-    const callbackTask: Promise<SeriesKey> = new Promise((resolve) => {
+    const promise: Promise<SeriesKey> = new Promise((resolve) => {
       callback = () => resolve({ SeriesInstanceUID, pacs_name });
     });
     this.pendingSubscriptions.set(pacs_name, SeriesInstanceUID, callback);
@@ -64,10 +70,35 @@ class LonkClient {
       action: "subscribe",
     };
     this.ws.send(JSON.stringify(data));
-    return callbackTask;
+    return promise;
   }
 
-  private routeMessage(data: Lonk<any>) {
+  /**
+   * Unsubscribe from notifications for all series.
+   *
+   * https://chrisproject.org/docs/oxidicom/lonk-ws#unsubscribe
+   */
+  public unsubscribeAll(): Promise<undefined> {
+    let callback = null;
+    const promise: Promise<undefined> = new Promise((resolve) => {
+      callback = resolve;
+    });
+    callback && this.pendingUnsubscriptions.push(callback);
+    this.ws.send(JSON.stringify({ action: "unsubscribe" }));
+    return promise;
+  }
+
+  private routeMessage(data: E.Either<LonkUnsubscription, Lonk<any>>) {
+    pipe(
+      data,
+      E.bimap(
+        () => this.handleUnsubscription(),
+        (lonk) => this.routeLonk(lonk),
+      ),
+    );
+  }
+
+  private routeLonk(data: Lonk<any>) {
     if (this.handlers === null) {
       throw new Error("LonkClient.init has not been called yet.");
     }
@@ -84,7 +115,7 @@ class LonkClient {
     } else if (isError(message)) {
       onError(pacs_name, SeriesInstanceUID, message.error);
     } else {
-      console.warn(`Unrecognized message: ${JSON.stringify(message)}`);
+      throw new Error(`Unrecognized message: ${JSON.stringify(message)}`);
     }
   }
 
@@ -96,13 +127,24 @@ class LonkClient {
       pacs_name,
       SeriesInstanceUID,
     );
-    if (callback === null) {
-      console.warn(
-        "Got subscription confirmation, but never requested subscription",
-        { pacs_name, SeriesInstanceUID },
-      );
-    } else {
+    if (callback) {
       callback();
+    } else {
+      throw new Error(
+        "Got subscription response, but never requested subscription. " +
+          `pacs_name=${pacs_name} SeriesInstanceUID=${SeriesInstanceUID}`,
+      );
+    }
+  }
+
+  private handleUnsubscription() {
+    const callback = this.pendingUnsubscriptions.pop();
+    if (callback) {
+      callback();
+    } else {
+      throw new Error(
+        "Got unsubscription response, but never requested unsubscription",
+      );
     }
   }
 

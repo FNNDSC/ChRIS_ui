@@ -86,6 +86,13 @@ test("LonkClient", async () => {
     pacs_name,
     SeriesInstanceUID,
   );
+
+  const unsub = client.unsubscribeAll();
+  await expect(server).toReceiveMessage({
+    action: "unsubscribe",
+  });
+  server.send({ message: { subscribed: false } });
+  await unsub;
 });
 
 /**
