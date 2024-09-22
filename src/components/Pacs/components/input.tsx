@@ -34,11 +34,20 @@ const MrnInput: React.FC<InputFieldProps> = ({ onSubmit }) => {
       return;
     }
     setSearchParams((searchParams) => {
-      searchParams.set("mrn", value);
-      onSubmit({ patientID: value });
+      searchParams.set("mrn", value.trim());
+      onSubmit({ patientID: value.trim() });
       return searchParams;
     });
   };
+
+  // on first page load: if URI contains ?mrn=... then submit
+  // the search right away
+  React.useEffect(() => {
+    const initialValue = searchParams.get("mrn");
+    if (initialValue && initialValue.trim().length > 0) {
+      onSubmit({ patientID: initialValue.trim() });
+    }
+  }, [searchParams, onSubmit]);
 
   return (
     <Input.Search

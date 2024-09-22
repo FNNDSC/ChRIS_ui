@@ -18,7 +18,7 @@ import React from "react";
 import { PACSqueryCore, PfdcmClient } from "../../api/pfdcm";
 import Client from "@fnndsc/chrisapi";
 import LonkSubscriber from "../../api/lonk";
-import { App, Typography } from "antd";
+import { App } from "antd";
 import FpClient from "../../api/fp/chrisapi.ts";
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
@@ -27,24 +27,15 @@ import PacsView from "./PacsView.tsx";
 import PacsLoadingScreen from "./components/loading.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
 import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { StudyAndSeries } from "../../api/pfdcm/models.ts";
+import { pacsSlice } from "../../store/pacs/pacsSlice.ts";
+import { Either } from "fp-ts/Either";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
   getChrisClient: () => Client;
 };
-
-/**
- * A title and paragraph.
- */
-const ErrorNotificationBody: React.FC<
-  React.PropsWithChildren<{ title: string }>
-> = ({ title, children }) => (
-  <Typography>
-    <Typography.Title>{title}</Typography.Title>
-    <Typography.Paragraph>{children}</Typography.Paragraph>
-  </Typography>
-);
 
 /**
  * ChRIS_ui PACS Query and Retrieve controller + view.
@@ -60,33 +51,20 @@ const PacsController: React.FC<PacsControllerProps> = ({
     React.useState<ReadonlyNonEmptyArray<string> | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const { message, notification } = App.useApp();
+  const { message } = App.useApp();
 
-  const data = useTypedSelector((state) => state.pacs);
-
-  /**
-   * Show a notification for an error message.
-   */
-  const pushError = React.useMemo(() => {
-    return (title: string) => {
-      return (e: Error) => {
-        notification.error({
-          message: (
-            <ErrorNotificationBody title={title}>
-              {e.message}
-            </ErrorNotificationBody>
-          ),
-        });
-      };
-    };
-  }, [notification]);
+  const data = useAppSelector((state) => state.pacs);
+  const dispatch = useAppDispatch();
 
   /**
    * Show an error screen with the error's message.
    *
    * Used to handle errors during necessary bootstrapping.
    */
-  const failWithError = TE.mapLeft((e: Error) => setError(e.message));
+  const failWithError = React.useMemo(
+    () => TE.mapLeft((e: Error) => setError(e.message)),
+    [setError],
+  );
 
   const pfdcmClient = React.useMemo(getPfdcmClient, [getPfdcmClient]);
   const chrisClient = React.useMemo(getChrisClient, [getChrisClient]);
@@ -95,7 +73,23 @@ const PacsController: React.FC<PacsControllerProps> = ({
     [chrisClient],
   );
 
-  const onSubmit = (service: string, query: PACSqueryCore) => {};
+  const setStudies = React.useMemo(
+    () => (studies: Either<Error, ReadonlyArray<StudyAndSeries>>) => {
+      dispatch(pacsSlice.actions.setStudies(studies));
+    },
+    [dispatch, pacsSlice],
+  );
+
+  /**
+   * Set the "loading" state, then fetch the studies from PFDCM.
+   */
+  const onSubmit = React.useMemo(
+    () => (service: string, query: PACSqueryCore) => {
+      dispatch(pacsSlice.actions.setLoading());
+      pfdcmClient.query(service, query)().then(setStudies);
+    },
+    [dispatch, pacsSlice, pfdcmClient, setStudies],
+  );
 
   const onRetrieve = (service: string, query: PACSqueryCore) => {};
 
@@ -134,7 +128,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
     connectWsPipeline();
 
     return () => subscriber?.close();
-  }, [fpClient, pushError, message]);
+  }, [fpClient, failWithError, message]);
 
   return (
     <PageSection>
