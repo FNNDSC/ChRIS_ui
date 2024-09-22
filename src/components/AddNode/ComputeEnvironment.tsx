@@ -5,13 +5,13 @@ import {
   SelectOption,
 } from "@patternfly/react-core";
 import React, { useContext, useCallback, useState, useEffect } from "react";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { Alert } from "../Antd";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
 
 const ComputeEnvironment: React.FC = () => {
-  const { computeEnv: computeEnvs, resourceError } = useTypedSelector(
+  const { computeEnv: computeEnvs, resourceError } = useAppSelector(
     (state) => state.plugin,
   );
   const { state, dispatch } = useContext(AddNodeContext);

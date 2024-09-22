@@ -29,7 +29,7 @@ import { debounce } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
 import { InfoSection } from "../Common";
@@ -111,7 +111,7 @@ const TableSelectable: React.FC = () => {
   const navigate = useNavigate();
   const { feedCount, loadingFeedState, feedsToDisplay, searchFolderData } =
     useFeedListData();
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { perPage, page, type, search, searchType } = searchFolderData;
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [activeSortDirection, setActiveSortDirection] =
@@ -366,7 +366,7 @@ const TableRow: React.FC<TableRowProps> = ({
   additionalKeys,
   details,
 }) => {
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick } = handlers;
   const navigate = useNavigate();

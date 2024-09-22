@@ -29,7 +29,6 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
 import React, { useContext, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { v4 } from "uuid";
 import {
   catchError,
@@ -37,8 +36,7 @@ import {
   fetchResource,
   needsQuoting,
 } from "../../api/common";
-import type { AppDispatch } from "../../store/configureStore";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { fetchParamsAndComputeEnv } from "../../store/plugin/pluginSlice";
 import { Alert } from "../Antd";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
@@ -68,9 +66,9 @@ const advancedConfigList = [
 const memory_limit = ["Mi", "Gi"];
 
 const GuidedConfig = () => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
-  const { parameters: params, resourceError } = useTypedSelector(
+  const { parameters: params, resourceError } = useAppSelector(
     (state) => state.plugin,
   );
   const { pluginMeta, dropdownInput, requiredInput, componentList, errors } =
@@ -313,7 +311,7 @@ const CardComponent = ({ children }: { children: React.ReactElement }) => {
 
 const CheckboxComponent = () => {
   // This component automatically constructs the Form and the Editor Value from a previous run of a plugin instance
-  const { parameters: params, resourceError } = useTypedSelector(
+  const { parameters: params, resourceError } = useAppSelector(
     (state) => state.plugin,
   );
   const { state, dispatch } = useContext(AddNodeContext);
@@ -485,7 +483,7 @@ const ItalicsComponent = ({
 };
 
 const DropdownBasic = ({ plugins }: { plugins?: Plugin[] }) => {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useAppDispatch();
   const [isopen, setIsOpen] = React.useState(false);
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const { selectedPluginFromMeta } = state;

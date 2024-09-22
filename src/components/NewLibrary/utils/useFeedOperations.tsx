@@ -4,12 +4,12 @@ import ChrisAPIClient from "../../../api/chrisapiclient";
 import { getFileName } from "../../../api/common";
 import { createFeed } from "../../../store/cart/downloadSaga";
 import type { SelectionPayload } from "../../../store/cart/types";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppSelector } from "../../../store/hooks";
 import { type OriginState, useOperationsContext } from "../context";
 
 const useFeedOperations = (origin: OriginState, api: any) => {
   const { handleOrigin, invalidateQueries } = useOperationsContext();
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
 
   const giveMePaths = useMemo(() => {
     return selectedPaths.map((payload: SelectionPayload) => payload.path);
