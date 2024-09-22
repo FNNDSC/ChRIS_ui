@@ -20,7 +20,7 @@ import {
 } from "@patternfly/react-core";
 import { Alert, Steps, notification } from "../Antd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { AddNodeContext } from "../AddNode/context";
 import {
@@ -50,7 +50,7 @@ const ChooseConfig = ({
   const { goToNextStep: onNext, goToPrevStep: onBack } = useWizardContext();
   const [isRightDrawerExpand, setRightDrawerExpand] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const params = useTypedSelector((state) => state.plugin.parameters);
+  const params = useAppSelector((state) => state.plugin.parameters);
   const [selectedCard, setSelectedCard] = useState("");
   const [showDragAndDrop, setShowDragAndDrop] = useState(false);
 

@@ -2,9 +2,8 @@ import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
 import { Fragment, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { fetchResource } from "../../api/common";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import {
   setPluginInstancesAndSelectedPlugin,
@@ -15,12 +14,12 @@ import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
 
 const DeleteNode = () => {
-  const dispatch = useDispatch();
-  const { deleteNode: isModalOpen } = useTypedSelector(
+  const dispatch = useAppDispatch();
+  const { deleteNode: isModalOpen } = useAppSelector(
     (state) => state.plugin.nodeOperations,
   );
-  const { selectedPlugin } = useTypedSelector((state) => state.instance);
-  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
+  const { selectedPlugin } = useAppSelector((state) => state.instance);
+  const currentFeed = useAppSelector((state) => state.feed.currentFeed.data);
 
   const handleDelete = async () => {
     if (selectedPlugin) {
