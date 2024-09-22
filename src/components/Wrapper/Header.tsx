@@ -5,7 +5,7 @@ import {
   PageToggleButton,
 } from "@patternfly/react-core";
 import type React from "react";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import type { IUserState } from "../../store/user/userSlice";
 import { BarsIcon } from "../Icons";
 import ToolbarComponent from "./Toolbar";
@@ -17,8 +17,8 @@ interface IHeaderProps {
 }
 
 export default function Header(props: IHeaderProps) {
-  const showToolbar = useTypedSelector((state) => state.feed.showToolbar);
-  const isNavOpen = useTypedSelector((state) => state.ui.isNavOpen); // Get the sidebar open state
+  const showToolbar = useAppSelector((state) => state.feed.showToolbar);
+  const isNavOpen = useAppSelector((state) => state.ui.isNavOpen); // Get the sidebar open state
 
   // Apply margin-left to MastheadContent if sidebar is open
   const mastheadContentStyle = {

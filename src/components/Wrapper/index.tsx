@@ -1,7 +1,6 @@
 import { Page } from "@patternfly/react-core";
 import type * as React from "react";
-import { useTypedSelector } from "../../store/hooks";
-import { useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import Header from "./Header";
 import Sidebar, { AnonSidebar } from "./Sidebar";
 import "./wrapper.css";
@@ -14,11 +13,9 @@ type WrapperProps = {
 
 const Wrapper = (props: WrapperProps) => {
   const { children, titleComponent } = props;
-  const dispatch = useDispatch();
-  const { isNavOpen, sidebarActiveItem } = useTypedSelector(
-    (state) => state.ui,
-  );
-  const user = useTypedSelector((state) => state.user);
+  const dispatch = useAppDispatch();
+  const { isNavOpen, sidebarActiveItem } = useAppSelector((state) => state.ui);
+  const user = useAppSelector((state) => state.user);
   const niivueActive = sidebarActiveItem === "niivue";
   const onNavToggle = () => {
     dispatch(setIsNavOpen(!isNavOpen));
@@ -38,7 +35,7 @@ const Wrapper = (props: WrapperProps) => {
     }
   };
 
-  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const sidebar = isLoggedIn ? (
     <Sidebar isNavOpen={isNavOpen} />
   ) : (

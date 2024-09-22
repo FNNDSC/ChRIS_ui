@@ -1,7 +1,7 @@
 import { LogViewer } from "@patternfly/react-log-viewer";
 import { useRef, useEffect, useState } from "react";
 import useSize from "../FeedTree/useSize";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 
 type LogTerminalProps = {
   text: string;
@@ -10,7 +10,7 @@ type LogTerminalProps = {
 const LogTerminal = ({ text }: LogTerminalProps) => {
   const divRef = useRef<HTMLDivElement>(null);
   const size = useSize(divRef);
-  const isTerminalMaximized = useTypedSelector(
+  const isTerminalMaximized = useAppSelector(
     (state) => state.drawers.node.maximized,
   );
   const [terminalSize, setTerminalSize] = useState({

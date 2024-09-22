@@ -9,7 +9,7 @@ import ForceGraph2D, {
 import { connect, useDispatch } from "react-redux";
 import { TreeModel } from "../../api/model";
 import { setFeedLayout } from "../../store/feed/feedSlice";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import type { PluginInstancePayload } from "../../store/pluginInstance/types";
 import type { ApplicationState } from "../../store/root/applicationState";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
@@ -23,8 +23,8 @@ interface IFeedProps {
 }
 
 const FeedGraph = (props: IFeedProps) => {
-  const dispatch = useDispatch();
-  const currentLayout = useTypedSelector((state) => state.feed.currentLayout);
+  const dispatch = useAppDispatch();
+  const currentLayout = useAppSelector((state) => state.feed.currentLayout);
   const { pluginInstances, selectedPlugin, onNodeClick } = props;
   const { data: instances } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);

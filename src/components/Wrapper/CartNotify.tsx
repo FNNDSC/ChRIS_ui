@@ -2,14 +2,13 @@ import { Button } from "@patternfly/react-core";
 import { Badge } from "../Antd";
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { setToggleCart } from "../../store/cart/cartSlice";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { BrainIcon } from "../Icons";
 
 const CartNotify = () => {
-  const dispatch = useDispatch();
-  const state = useTypedSelector((state) => state.cart);
+  const dispatch = useAppDispatch();
+  const state = useAppSelector((state) => state.cart);
   const {
     fileDownloadStatus,
     fileUploadStatus,

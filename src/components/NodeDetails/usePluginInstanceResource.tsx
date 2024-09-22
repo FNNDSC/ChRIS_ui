@@ -1,10 +1,10 @@
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 
 const usePluginInstanceResource = () => {
-  const selectedPlugin = useTypedSelector(
+  const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
   );
-  const pluginInstancePayload = useTypedSelector(
+  const pluginInstancePayload = useAppSelector(
     (state) => state.resource.pluginInstanceResource,
   );
 

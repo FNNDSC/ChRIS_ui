@@ -11,14 +11,14 @@ import React from "react";
 import { Cookies, useCookies } from "react-cookie";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import { useSearchQueryParams } from "../Feeds/usePaginate";
 import { ExclamationCircleIcon } from "../Icons";
 import WrapperConnect from "../Wrapper";
 
 const PluginInstall = () => {
-  const isStaff = useTypedSelector((state) => state.user.isStaff);
+  const isStaff = useAppSelector((state) => state.user.isStaff);
   const [_cookie, setCookie] = useCookies();
   const navigate = useNavigate();
   const [showHelperText, setShowHelperText] = React.useState(false);

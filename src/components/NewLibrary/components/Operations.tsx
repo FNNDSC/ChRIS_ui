@@ -18,11 +18,10 @@ import {
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
 import { matchPath, useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Alert, Dropdown } from "../../Antd";
 import {
   AddIcon,
@@ -67,7 +66,7 @@ const Operations = ({
   customClassName,
 }: OperationProps) => {
   const location = useLocation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const isFeedsTable =
     matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
   const OPERATION_ITEMS = useMemo(
@@ -98,7 +97,7 @@ const Operations = ({
     setModalState,
   } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
 
   const renderOperationButton = (
