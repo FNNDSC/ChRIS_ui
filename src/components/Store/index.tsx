@@ -32,7 +32,7 @@ import { isEmpty } from "lodash";
 import { type Ref, useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { Alert, Spin, notification } from "../Antd";
 import { SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
@@ -46,7 +46,7 @@ import {
 import WrapperConnect from "../Wrapper";
 
 const Store = () => {
-  const isStaff = useTypedSelector((state) => state.user.isStaff);
+  const isStaff = useAppSelector((state) => state.user.isStaff);
   const queryClient = useQueryClient();
   const [_cookie, setCookie, removeCookie] = useCookies();
   const [api, contextHolder] = notification.useNotification();

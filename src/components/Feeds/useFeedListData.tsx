@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { fetchFeeds, fetchPublicFeeds } from "./utilties"; // Your API functions
 import { useLocation } from "react-router";
 import { useMemo } from "react";
@@ -19,7 +19,7 @@ const useSearchQuery = (query: URLSearchParams) => ({
 
 export const useFeedListData = () => {
   const query = useSearchQueryParams();
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { perPage, page, type, search, searchType } = useSearchQuery(query);
 
   const { data, isLoading, isFetching } = useQuery({

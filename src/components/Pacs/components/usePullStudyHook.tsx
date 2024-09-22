@@ -1,10 +1,10 @@
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import axios from "axios";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppSelector } from "../../../store/hooks";
 import { catchError } from "../../../api/common";
 
 const usePullStudyHook = () => {
-  const userName = useTypedSelector((state) => state.user.username);
+  const userName = useAppSelector((state) => state.user.username);
   const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
   const client = ChrisAPIClient.getClient();
   const token = client.auth.token;

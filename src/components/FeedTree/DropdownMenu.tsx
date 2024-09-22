@@ -1,6 +1,5 @@
 import type React from "react";
-import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import { Dropdown, type MenuProps } from "../Antd";
 import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
@@ -12,8 +11,8 @@ const DropdownMenu = ({
   children: React.ReactElement;
   handleZip: () => void;
 }) => {
-  const dispatch = useDispatch();
-  const { selectedPlugin } = useTypedSelector((state) => {
+  const dispatch = useAppDispatch();
+  const { selectedPlugin } = useAppSelector((state) => {
     return state.instance;
   });
   const cancelled =

@@ -8,7 +8,6 @@ import {
 } from "@patternfly/react-core";
 import { Typography } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
 import type { AppDispatch } from "../../store/configureStore";
@@ -20,7 +19,7 @@ import {
   resetFeed,
   setShowToolbar,
 } from "../../store/feed/feedSlice";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import {
   fetchPluginInstances,
   getSelectedPlugin,
@@ -41,17 +40,17 @@ import { handleMaximize, handleMinimize } from "./utilties";
 const { Title } = Typography;
 
 const FeedView: React.FC = () => {
-  const drawerState = useTypedSelector((state) => state.drawers);
-  const { currentLayout } = useTypedSelector((state) => state.feed);
-  const dispatch = useDispatch<AppDispatch>();
+  const drawerState = useAppSelector((state) => state.drawers);
+  const { currentLayout } = useAppSelector((state) => state.feed);
+  const dispatch = useAppDispatch();
   const query = useSearchQueryParams();
   const type = query.get("type");
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = params;
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-  const { selectedPlugin, pluginInstances } = useTypedSelector(
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+  const { selectedPlugin, pluginInstances } = useAppSelector(
     (state) => state.instance,
   );
   const dataRef = useRef<DestroyActiveResources>();

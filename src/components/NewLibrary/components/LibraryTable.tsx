@@ -20,7 +20,7 @@ import { Drawer, Tag } from "antd";
 import { format } from "date-fns";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { formatBytes } from "../../Feeds/utilties";
@@ -91,7 +91,7 @@ const BaseRow: React.FC<RowProps> = ({
 }) => {
   const { handlers } = useLongPress();
   const { handleOnClick, handleCheckboxChange } = handlers;
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
   const isSelected =

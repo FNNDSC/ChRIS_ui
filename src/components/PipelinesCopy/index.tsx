@@ -23,7 +23,7 @@ import {
   PipelineContext,
   Types,
 } from "./context";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 
 type LoadingResources = {
   [key: string]: boolean;
@@ -49,7 +49,7 @@ const PipelinesCopy = () => {
   const [dropdownValue, setDropdownValue] = useState<string>(
     PIPELINEQueryTypes.NAME[0],
   );
-  const isStaff = useTypedSelector((state) => state.user.isStaff);
+  const isStaff = useAppSelector((state) => state.user.isStaff);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["pipelines", perPage, page, search, dropdownValue],
