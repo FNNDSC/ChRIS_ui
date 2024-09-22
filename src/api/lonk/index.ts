@@ -4,8 +4,8 @@
  * https://chrisproject.org/docs/oxidicom/lonk-ws
  */
 
-import LonkClient from "./client.ts";
+import LonkSubscriber from "./LonkSubscriber.ts";
 import { LonkHandlers } from "./types.ts";
 
-export default LonkClient;
+export default LonkSubscriber;
 export type { LonkHandlers };

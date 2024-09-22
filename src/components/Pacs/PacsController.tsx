@@ -1,7 +1,11 @@
 /**
- * The primary PACS Q/R UI code is found in ./pacs.tsx. This file defines a
- * component which wraps the default export from ./pacs.tsx, bootstrapping
- * the client objects it needs e.g.
+ * The primary PACS Q/R UI code is found in ./PacsView.tsx. This file defines
+ * a component which wraps the default export from ./PacsView.tsx, which:
+ *
+ * 1. "bootstraps" the client objects it needs (see below)
+ * 2. gets data from the Redux state and passes it to child components as props
+ *
+ * The PACS Q/R application needs to be "bootstrapped" which means:
  *
  * 1. Making an initial connection to PFDCM
  * 2. Connecting to the PACS receive progress WebSocket, `api/v1/pacs/ws/`
@@ -11,18 +15,24 @@
  */
 
 import React from "react";
-import { PfdcmClient } from "../../api/pfdcm";
+import { PACSqueryCore, PfdcmClient } from "../../api/pfdcm";
 import Client from "@fnndsc/chrisapi";
-import LonkClient from "../../api/lonk";
+import LonkSubscriber from "../../api/lonk";
 import { App, Typography } from "antd";
 import FpClient from "../../api/fp/chrisapi.ts";
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
 import { PageSection } from "@patternfly/react-core";
-import PacsQR from "./pacs.tsx";
+import PacsView from "./PacsView.tsx";
 import PacsLoadingScreen from "./components/loading.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
 import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
+import { useTypedSelector } from "../../store/hooks";
+
+type PacsControllerProps = {
+  getPfdcmClient: () => PfdcmClient;
+  getChrisClient: () => Client;
+};
 
 /**
  * A title and paragraph.
@@ -37,21 +47,22 @@ const ErrorNotificationBody: React.FC<
 );
 
 /**
- * ChRIS_ui PACS Query and Retrieve application.
+ * ChRIS_ui PACS Query and Retrieve controller + view.
  */
-const PacsQRApp: React.FC<{
-  getPfdcmClient: () => PfdcmClient;
-  getChrisClient: () => Client;
-}> = ({ getChrisClient, getPfdcmClient }) => {
+const PacsController: React.FC<PacsControllerProps> = ({
+  getChrisClient,
+  getPfdcmClient,
+}) => {
   /**
    * List of PACS server names which can be queried.
    */
   const [services, setServices] =
     React.useState<ReadonlyNonEmptyArray<string> | null>(null);
-  const [lonkClient, setLonkClient] = React.useState<LonkClient | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const { notification } = App.useApp();
+  const { message, notification } = App.useApp();
+
+  const data = useTypedSelector((state) => state.pacs);
 
   /**
    * Show a notification for an error message.
@@ -84,6 +95,10 @@ const PacsQRApp: React.FC<{
     [chrisClient],
   );
 
+  const onSubmit = (service: string, query: PACSqueryCore) => {};
+
+  const onRetrieve = (service: string, query: PACSqueryCore) => {};
+
   React.useEffect(() => {
     document.title = "ChRIS PACS";
   }, []);
@@ -95,36 +110,42 @@ const PacsQRApp: React.FC<{
       TE.map(setServices),
     );
     getServicesPipeline();
-  }, [pfdcmClient, pushError]);
+  }, [pfdcmClient, failWithError]);
 
   React.useEffect(() => {
-    let lonkClientRef: LonkClient | null = null;
+    let subscriber: LonkSubscriber | null = null;
     const connectWsPipeline = pipe(
       fpClient.connectPacsNotifications(),
       failWithError,
-      TE.map((client) => (lonkClientRef = client)),
-      TE.map((client) => {
-        client.onclose = () =>
-          setError("WebSocket closed, please refresh the page.");
-        return client;
+      TE.map((s) => (subscriber = s)),
+      TE.map((s) => {
+        // TODO try reconnecting to the WebSocket if it is closed.
+        // FIXME message.error is not a function
+        // s.onclose = () =>
+        //   message.error(<>WebSocket closed, please refresh the page.</>);
+        s.init({
+          // TODO
+          onError: () => {},
+          onDone: () => {},
+          onProgress: () => {},
+        });
       }),
-      TE.map(setLonkClient),
     );
     connectWsPipeline();
 
-    return () => lonkClientRef?.close();
-  }, [fpClient, pushError]);
+    return () => subscriber?.close();
+  }, [fpClient, pushError, message]);
 
   return (
     <PageSection>
       {error !== null ? (
         <ErrorScreen>{error}</ErrorScreen>
-      ) : services && lonkClient ? (
-        <PacsQR
-          lonkClient={lonkClient}
-          fpClient={fpClient}
+      ) : services ? (
+        <PacsView
           services={services}
-          pushError={pushError}
+          data={data}
+          onSubmit={onSubmit}
+          onRetrieve={onRetrieve}
         />
       ) : (
         <PacsLoadingScreen />
@@ -133,4 +154,5 @@ const PacsQRApp: React.FC<{
   );
 };
 
-export default PacsQRApp;
+export type { PacsControllerProps };
+export default PacsController;
