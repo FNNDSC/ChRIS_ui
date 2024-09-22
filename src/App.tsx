@@ -37,7 +37,11 @@ function App(props: AllProps) {
     domainId: import.meta.env.VITE_ACKEE_DOMAIN_ID,
   };
 
-  if (ackeeEnvironment.server && ackeeEnvironment.domainId) {
+  if (
+    ackeeEnvironment.server &&
+    ackeeEnvironment.server.length > 0 &&
+    ackeeEnvironment.domainId
+  ) {
     useAckee("/", ackeeEnvironment, {
       detailed: true,
       ignoreLocalhost: true,
