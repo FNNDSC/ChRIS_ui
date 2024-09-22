@@ -1,13 +1,13 @@
-import { IPacsState } from "../../../store/pacs/types.ts";
+import { PacsStudyState } from "../../../store/pacs/types.ts";
 import { PACSqueryCore } from "../../../api/pfdcm";
 
 type PacsStudiesViewProps = {
-  data: IPacsState;
+  studies: ReadonlyArray<PacsStudyState>;
   onRetrieve: (query: PACSqueryCore) => void;
 };
 
-const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({}) => {
-  return <>hello, world</>;
+const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({ studies }) => {
+  return <>{studies.map((s) => s.info.StudyDescription).join(" ")}</>;
 };
 
 export type { PacsStudiesViewProps };

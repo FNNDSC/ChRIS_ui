@@ -6,11 +6,39 @@ import PacsStudiesView, {
 import { getDefaultPacsService } from "./components/helpers.ts";
 import { useSearchParams } from "react-router-dom";
 import { PACSqueryCore } from "../../api/pfdcm";
+import { IPacsState } from "../../store/pacs/types.ts";
+import { pipe } from "fp-ts/function";
+import * as E from "fp-ts/Either";
 
-type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> &
-  Pick<PacsStudiesViewProps, "data"> & {
-    onRetrieve: (service: string, query: PACSqueryCore) => void;
-  };
+type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> & {
+  data: IPacsState;
+  onRetrieve: (service: string, query: PACSqueryCore) => void;
+};
+
+/**
+ * Wraps {@link PacsStudiesViewProps}, handling the union variants of `data`
+ * whether it be `null` or "loading".
+ */
+const MaybePacsStudiesView: React.FC<
+  Pick<PacsViewProps, "data"> & Pick<PacsStudiesViewProps, "onRetrieve">
+> = ({ data, onRetrieve }) => {
+  switch (data.studies) {
+    case null:
+      return <>Enter a search to get started</>;
+    case "loading":
+      return <>loading</>;
+    default:
+      return pipe(
+        data.studies,
+        E.match(
+          (error) => <>Error: {error.message}</>,
+          (studies) => (
+            <PacsStudiesView studies={studies} onRetrieve={onRetrieve} />
+          ),
+        ),
+      );
+  }
+};
 
 /**
  * PACS Query and Retrieve view component.
@@ -47,7 +75,7 @@ const PacsView: React.FC<PacsViewProps> = ({
         service={service}
         setService={setService}
       />
-      <PacsStudiesView data={data} onRetrieve={curriedOnRetrieve} />
+      <MaybePacsStudiesView onRetrieve={curriedOnRetrieve} data={data} />
     </>
   );
 };

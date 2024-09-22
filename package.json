@@ -27,6 +27,7 @@
     "chrisomatic": "testing/chrisomatic.sh",
     "get-dicoms": "./testing/getDicoms.mjs",
     "list-mrns": "./testing/miniChRIS/scripts/list_mrns.sh",
+    "upload-dicom": "./testing/miniChRIS/scripts/upload2orthanc.sh",
     "lint": "biome lint .",
     "fix": "biome check --apply .",
     "fix:unsafe": "biome check --apply-unsafe .",
