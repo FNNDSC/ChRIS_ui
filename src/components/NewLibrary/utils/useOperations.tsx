@@ -6,7 +6,6 @@ import type {
 } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { getFileName } from "../../../api/common";
 import {
@@ -18,7 +17,7 @@ import {
 } from "../../../store/cart/cartSlice";
 import { createFeed as createFeedSaga } from "../../../store/cart/downloadSaga";
 import type { SelectionPayload } from "../../../store/cart/types";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { notification } from "../../Antd";
 import { getFolderName } from "../components/FolderCard";
 import type { AdditionalValues } from "../components/Operations";
@@ -53,9 +52,9 @@ export const useFolderOperations = (
   createFeed?: boolean,
 ) => {
   const { handleOrigin, invalidateQueries } = useOperationsContext();
-  const { selectedPaths } = useTypedSelector((state) => state.cart);
-  const username = useTypedSelector((state) => state.user.username) as string;
-  const dispatch = useDispatch();
+  const { selectedPaths } = useAppSelector((state) => state.cart);
+  const username = useAppSelector((state) => state.user.username) as string;
+  const dispatch = useAppDispatch();
 
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,

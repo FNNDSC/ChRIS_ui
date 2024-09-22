@@ -1,6 +1,5 @@
 import { Button, Text, Tooltip } from "@patternfly/react-core";
 import { isEmpty } from "lodash";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { getFileName } from "../../../api/common";
 import {
@@ -18,7 +17,7 @@ import {
   type FolderUploadObject,
 } from "../../../store/cart/types";
 import type { AppDispatch } from "../../../store/configureStore";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Drawer, List, Popconfirm, Space } from "../../Antd";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
@@ -27,14 +26,14 @@ import "./Cart.css";
 import ProgressRing from "./RadialProgress";
 
 const Cart = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const {
     openCart,
     fileUploadStatus,
     folderUploadStatus,
     fileDownloadStatus,
     folderDownloadStatus,
-  } = useTypedSelector((state) => state.cart);
+  } = useAppSelector((state) => state.cart);
 
   return (
     <Drawer

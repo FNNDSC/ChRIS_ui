@@ -12,7 +12,6 @@ import {
 import queryString from "query-string";
 import React from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
@@ -20,11 +19,12 @@ import ChRIS_Logo from "../../assets/chris-logo.png";
 import { setAuthTokenSuccess } from "../../store/user/userSlice";
 import { ExclamationCircleIcon } from "../Icons";
 import "./Login.css";
+import { useAppDispatch } from "../../store/hooks.ts";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [_cookies, setCookie] = useCookies<string>([""]);
   const [showHelperText, setShowHelperText] = React.useState(false);
   const [username, setUsername] = React.useState("");

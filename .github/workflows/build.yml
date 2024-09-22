@@ -9,12 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    if: github.repository_owner == 'FNNDSC'
+    if: github.repository_owner == 'FNNDSC' && secrets.GITHUB_TOKEN != ''
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: "0"  # necessary for `npm run print-version`
-  
+
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:

@@ -1,17 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { clearSelectedPaths } from "../../../store/cart/cartSlice";
 import type { SelectionPayload } from "../../../store/cart/types";
 import { type OriginState, useOperationsContext } from "../context";
+import { useAppDispatch } from "../../../store/hooks.ts";
 
 type DeletionErrors = { path: string; message: string }[];
 
 const useDeletePayload = (origin: OriginState, api: any) => {
   const { handleOrigin, invalidateQueries } = useOperationsContext();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [notificationKey, setNotificationKey] = useState<string | null>(null);
 
   const handleDelete = async (paths: SelectionPayload[]) => {
