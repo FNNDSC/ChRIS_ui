@@ -23,7 +23,7 @@ import {
   getFileExtension,
   type IFileBlob,
 } from "../../api/model";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import {
   AddIcon,
@@ -65,7 +65,7 @@ const FileDetailView = (props: AllProps) => {
     previouslyActive: "",
   });
   const [parsingError, setParsingError] = useState<string>("");
-  const drawerState = useTypedSelector((state) => state.drawers);
+  const drawerState = useAppSelector((state) => state.drawers);
 
   const handleKeyboardEvents = useCallback(
     (event: any) => {

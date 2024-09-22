@@ -9,14 +9,13 @@ import { type Selection, select } from "d3-selection";
 import { type ZoomBehavior, zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { isEqual } from "lodash";
 import React, { useContext, useRef } from "react";
-import { useDispatch } from "react-redux";
 import {
   setFeedLayout,
   setSearchFilter,
   setTranslate,
 } from "../../store/feed/feedSlice";
 import type { FeedTreeProp } from "../../store/feed/types";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { RotateLeft, RotateRight } from "../Icons";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
@@ -77,10 +76,10 @@ const graphClassName = "feed-tree__graph";
 
 const FeedTree = (props: OwnProps) => {
   const { isDarkTheme } = useContext(ThemeContext);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const divRef = useRef<HTMLDivElement>(null);
-  const { feedTreeProp, currentLayout, searchFilter } = useTypedSelector(
+  const { feedTreeProp, currentLayout, searchFilter } = useAppSelector(
     (state) => state.feed,
   );
   const [feedTree, setFeedTree] = React.useState<{

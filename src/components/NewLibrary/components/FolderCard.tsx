@@ -13,7 +13,7 @@ import { isEmpty } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { Fragment } from "react/jsx-runtime";
 import { elipses } from "../../../api/common";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppSelector } from "../../../store/hooks";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 import { FolderIcon } from "../../Icons";
 import { OperationContext } from "../context";
@@ -70,7 +70,7 @@ export function getFolderName(folder: FileBrowserFolder, computedPath: string) {
 export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
   const { folder, computedPath, handleFolderClick } = props;
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
 
   const { handleOnClick, handleOnMouseDown, handleCheckboxChange } = handlers;

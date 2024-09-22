@@ -2,10 +2,9 @@ import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
 import React, { Fragment, useContext } from "react";
-import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import {
   getSelectedPlugin,
@@ -20,12 +19,12 @@ import { PipelineContext, Types } from "../PipelinesCopy/context";
 const AddPipeline = () => {
   const { state, dispatch } = useContext(PipelineContext);
   const { pipelineToAdd, selectedPipeline, computeInfo, titleInfo } = state;
-  const reactDispatch = useDispatch();
-  const { childPipeline } = useTypedSelector(
+  const reactDispatch = useAppDispatch();
+  const { childPipeline } = useAppSelector(
     (state) => state.plugin.nodeOperations,
   );
 
-  const { pluginInstances, selectedPlugin } = useTypedSelector(
+  const { pluginInstances, selectedPlugin } = useAppSelector(
     (state) => state.instance,
   );
 

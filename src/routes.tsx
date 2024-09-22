@@ -26,8 +26,7 @@ import {
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
-import { useTypedSelector } from "./store/hooks";
-import { useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setSidebarActive } from "./store/ui/uiSlice";
 import { OperationsProvider } from "./components/NewLibrary/context";
 
@@ -50,11 +49,11 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
 
 export const MainRouter: React.FC = () => {
   const location = useLocation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [state, setState] = React.useState(State);
   const [route, setRoute] = React.useState<string>();
   const navigate = useNavigate();
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
   const actions: IActions = {
     createFeedWithData: (selectData: Series) => {
