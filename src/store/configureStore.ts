@@ -14,13 +14,16 @@ import feedReducer from "./feed/feedSlice";
 import pluginReducer from "./plugin/pluginSlice";
 import pluginInstanceReducer from "./pluginInstance/pluginInstanceSlice";
 import resourceReducer from "./resources/resourceSlice";
-import { rootSaga } from "./root/rootSaga";
 import uiReducer from "./ui/uiSlice";
 import userReducer from "./user/userSlice";
+import pacsReducer from "./pacs/pacsSlice";
+import { rootSaga } from "./root/rootSaga";
+import { ApplicationState } from "./root/applicationState";
 
-export const store = configureAppStore();
-
-function configureAppStore() {
+// TODO the example here accepts Partial<RootState>:
+// https://redux.js.org/usage/writing-tests#example-app-code
+// Figure out how we can also accept Partial<ApplicationState>?
+export function setupStore(preloadedState?: ApplicationState) {
   // Build Saga middleware
   const sagaMiddleware = createSagaMiddleware();
 
@@ -36,6 +39,7 @@ function configureAppStore() {
       instance: pluginInstanceReducer,
       resource: resourceReducer,
       ui: uiReducer,
+      pacs: pacsReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -43,6 +47,7 @@ function configureAppStore() {
         serializableCheck: false, // Disable serializable check if necessary
       }).concat(logger, sagaMiddleware),
     devTools: import.meta.env.NODE_ENV !== "production",
+    preloadedState,
   });
 
   // Run the root saga
@@ -52,5 +57,5 @@ function configureAppStore() {
 }
 
 // Export RootState type if needed elsewhere
-export type AppDispatch = typeof store.dispatch;
-export type AppStore = ReturnType<typeof configureAppStore>;
+export type AppStore = ReturnType<typeof setupStore>;
+export type AppDispatch = AppStore["dispatch"];
