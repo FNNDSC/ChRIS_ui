@@ -1,8 +1,10 @@
 #!/bin/sh -e
-# Motivation: Static web applications have configuration values, such as the backend URL,
-#             "hard-coded" into the static files.
-# Purpose:    Overwrite hard-coded values in static files using values from environment
-#             variables, then run a specified command.
+# Motivation: ChRIS_ui is a React.js application built using Vite, deployed as a static
+#             single-page web application. Typically, this kind of application is configured
+#             at build time. However, we want a convenient way to reconfigure the built
+#             application in a container using environment variables.
+# Purpose:    Copy the build assets to another location while overwriting configurations
+#             with environment variable values. Lastly, run a specified command.
 
 # When running on Podman with default settings, the host IP address is added to /etc/hosts
 # by Podman by the name "host.containers.local" which we'll use as the IP address.
