@@ -1,24 +1,48 @@
-name: build
+name: Build
 
 on:
   push:
     branches: [ master, staging ]
+  pull_request:
+    branches: [ master, staging ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: github.repository_owner == 'FNNDSC'
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: "0"  # necessary for `npm run print-version`
-      - name: Get info
-        id: info
-        run: |
-          version="$(npm run -s print-version | tr '+' '-')"
-          echo "Version: $version"
-          echo "version_string=$version" >> "$GITHUB_OUTPUT"
+  
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
 
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm build
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            docker.io/fnndsc/chris_ui
+            ghcr.io/fnndsc/chris_ui
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short,prefix=
       - uses: docker/setup-qemu-action@v3
       - uses: docker/setup-buildx-action@v3
         with:
@@ -36,34 +60,18 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get postfix of latest
-        id: postfix_of_latest
-        run: |
-          if [[ $GITHUB_REF_TYPE == tag || $GITHUB_REF_NAME == master ]]; then
-            echo "Postfix of latest: ''"
-            echo "postfix_of_latest=" >> $GITHUB_OUTPUT
-          else
-            echo "Postfix of latest: -$GITHUB_REF_NAME"
-            echo "postfix_of_latest=-$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
-          fi
-
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
-          tags: |
-            docker.io/fnndsc/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
-            docker.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
-            ghcr.io/fnndsc/chris_ui:latest${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
-            ghcr.io/fnndsc/chris_ui:${{ steps.info.outputs.version_string }}${{ steps.postfix_of_latest.outputs.postfix_of_latest}}
+          tags: ${{ steps.meta.outputs.tags }}
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64,linux/arm/v6,linux/arm/v7,linux/386
           push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Update DockerHub description
         uses: peter-evans/dockerhub-description@v4
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
