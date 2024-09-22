@@ -3,8 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "start": "sirv dist --host --port ${PORT:=8080} --single --etag --quiet",
-    "__start": "# pnpm start command is used by s2i in OpenShift as the deployment command",
     "dev": "pnpm run dev:local",
     "dev:local": "pnpm run test:prepare && vite",
     "dev:public": "vite -c testing/publicCUBE/vite.config.ts",
@@ -95,7 +93,6 @@
     "rusha": "^0.8.14",
     "sanitize-html": "^2.11.0",
     "shlex": "^2.1.2",
-    "sirv-cli": "^2.0.2",
     "typescript": "^5.6.2",
     "use-ackee": "^3.0.1",
     "use-immer": "^0.10.0",

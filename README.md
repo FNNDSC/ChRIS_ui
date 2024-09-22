@@ -88,14 +88,17 @@ Or, start a local backend and run the "local" server:
 npm run dev:local
 ```
 
-## Build for production
+## Container Image
 
-[Source-to-image](https://github.com/openshift/source-to-image#readme)
-must be used to build this project for deployment.
+_ChRIS\_ui_ can run on Docker, Podman, Kubernetes, etc.
+
+Simple usage:
 
 ```shell
-s2i build https://github.com/FNNDSC/ChRIS_ui quay.io/fedora/nodejs-20 s2ichrisui
+docker run --rm -it -e CHRIS_UI_URL="http://$(hostname):8000/api/v1/" -e PFDCM_URL="http://$(hostname):4005/" -p 8080:80 ghcr.io/fnndsc/chris_ui:staging
 ```
+
+For more information, see https://chrisproject.org/docs/run/chris_ui
 
 ## Analytics
 
