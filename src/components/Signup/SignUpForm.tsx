@@ -16,7 +16,6 @@ import { validate } from "email-validator";
 import { has } from "lodash";
 import React from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { setAuthTokenSuccess } from "../../store/user/userSlice";
@@ -36,7 +35,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   hidePasswordAriaLabel = "Hide password",
   showPasswordAriaLabel = "Show password",
 }: SignUpFormProps) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [_cookies, setCookie] = useCookies<string>([""]);
   const [userState, setUserState] = React.useState<{
     username: string;

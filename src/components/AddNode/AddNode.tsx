@@ -7,9 +7,8 @@ import {
 } from "@patternfly/react-core";
 import type React from "react";
 import { useCallback, useContext } from "react";
-import { useDispatch } from "react-redux";
 import { catchError } from "../../api/common";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import { addNode } from "../../store/pluginInstance/pluginInstanceSlice";
 import type { ApplicationState } from "../../store/root/applicationState";
@@ -18,19 +17,18 @@ import { getRequiredObject } from "../CreateFeed/createFeedHelper";
 import BasicConfiguration from "./BasicConfiguration";
 import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
-import type { AppDispatch } from "../../store/configureStore";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
 
 const AddNode: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { childNode } = useTypedSelector(
+  const dispatch = useAppDispatch();
+  const { childNode } = useAppSelector(
     (state: ApplicationState) => state.plugin.nodeOperations,
   );
-  const { pluginInstances, selectedPlugin } = useTypedSelector(
+  const { pluginInstances, selectedPlugin } = useAppSelector(
     (state) => state.instance,
   );
-  const params = useTypedSelector((state) => state.plugin.parameters);
+  const params = useAppSelector((state) => state.plugin.parameters);
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
   const {
     pluginMeta,

@@ -2,7 +2,7 @@ import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import AiOutlineExpand from "@patternfly/react-icons/dist/esm/icons/expand-alt-icon";
 import { useEffect, useRef, useState } from "react";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { Alert } from "../Antd";
 import { useFeedBrowser } from "../FeedOutputBrowser/useFeedBrowser";
 import CrvFileSelect from "./CrvFileSelect";
@@ -48,7 +48,7 @@ function getPrimaryFileMode(
 }
 
 const XtkViewer = () => {
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
+  const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const selectedFileType = getFileType(selectedFile);
   const { pluginFilesPayload } = useFeedBrowser();
   const directoryFiles = pluginFilesPayload?.folderFiles;

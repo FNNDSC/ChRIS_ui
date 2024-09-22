@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { fetchFolders } from "../NewLibrary";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
@@ -14,19 +14,19 @@ const getInitialDownloadState = () => ({
 });
 
 export const useFeedBrowser = () => {
-  const drawerState = useTypedSelector((state) => state.drawers);
+  const drawerState = useAppSelector((state) => state.drawers);
   const [download, setDownload] = useState(getInitialDownloadState);
   const [currentPath, setCurrentPath] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
 
-  const pluginInstances = useTypedSelector(
+  const pluginInstances = useAppSelector(
     (state) => state.instance.pluginInstances,
   );
 
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+  const selected = useAppSelector((state) => state.instance.selectedPlugin);
   const { data: plugins } = pluginInstances;
 
-  const statusTitle = useTypedSelector((state) => {
+  const statusTitle = useAppSelector((state) => {
     if (selected) {
       const id = selected.data.id;
       if (id && state.resource.pluginInstanceStatus[id]) {

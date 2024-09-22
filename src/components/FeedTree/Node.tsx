@@ -4,9 +4,8 @@ import { notification } from "antd";
 import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { Fragment, memo, useContext, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import {
   getSelectedPlugin,
   setPluginInstancesAndSelectedPlugin,
@@ -67,15 +66,15 @@ const Node = (props: NodeProps) => {
   } = props;
 
   const [api, contextHolder] = notification.useNotification();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
-  const pluginInstances = useTypedSelector(
+  const pluginInstances = useAppSelector(
     (state) => state.instance.pluginInstances.data,
   );
-  const selectedPlugin = useTypedSelector((state) => {
+  const selectedPlugin = useAppSelector((state) => {
     return state.instance.selectedPlugin;
   });
-  const searchFilter = useTypedSelector((state) => state.feed.searchFilter);
+  const searchFilter = useAppSelector((state) => state.feed.searchFilter);
   const { value } = searchFilter;
 
   const applyNodeTransform = (transform: string, opacity = 1) => {
@@ -293,13 +292,13 @@ const NodeMemoed = memo(Node);
 
 const NodeWrapper = (props: NodeWrapperProps) => {
   const { data, overlayScale } = props;
-  const status = useTypedSelector((state) => {
+  const status = useAppSelector((state) => {
     if (data.id && state.resource.pluginInstanceStatus[data.id]) {
       return state.resource.pluginInstanceStatus[data.id].status;
     }
   });
 
-  const currentId = useTypedSelector((state) => {
+  const currentId = useAppSelector((state) => {
     if (state.instance.selectedPlugin?.data.id === data.id) return true;
     return false;
   });

@@ -10,7 +10,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
 import { Link } from "react-router-dom";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import type { IUiState } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
@@ -19,10 +19,8 @@ type AllProps = IUiState & IUserState;
 
 const Sidebar: React.FC<AllProps> = () => {
   const queryClient = useQueryClient();
-  const { sidebarActiveItem, isNavOpen } = useTypedSelector(
-    (state) => state.ui,
-  );
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const { sidebarActiveItem, isNavOpen } = useAppSelector((state) => state.ui);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
   const urlParam = isLoggedIn ? "private" : "public";
 

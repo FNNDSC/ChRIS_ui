@@ -5,7 +5,7 @@ import {
   NiivueCanvas,
 } from "niivue-react/src/NiivueCanvas.tsx";
 import styles from "./index.module.css";
-import { useTypedSelector } from "../../store/hooks.ts";
+import { useAppSelector } from "../../store/hooks.ts";
 import ChrisAPIClient from "../../api/chrisapiclient.ts";
 
 /**
@@ -78,7 +78,7 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     }
   };
 
-  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const client = ChrisAPIClient.getClient();
   const authedVolumes =
     isLoggedIn && volumes !== undefined

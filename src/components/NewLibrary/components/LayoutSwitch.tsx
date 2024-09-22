@@ -3,14 +3,13 @@ import {
   ToggleGroupItem,
   type ToggleGroupItemProps,
 } from "@patternfly/react-core";
-import { useDispatch } from "react-redux";
 import { switchLibraryLayout } from "../../../store/cart/cartSlice";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { BarsIcon, GripVerticalIcon } from "../../Icons";
 
 const LayoutSwitch = () => {
-  const currentLayout = useTypedSelector((state) => state.cart.currentLayout);
-  const dispatch = useDispatch();
+  const currentLayout = useAppSelector((state) => state.cart.currentLayout);
+  const dispatch = useAppDispatch();
   const handleChange: ToggleGroupItemProps["onChange"] = (event) => {
     dispatch(switchLibraryLayout(event.currentTarget.id));
   };

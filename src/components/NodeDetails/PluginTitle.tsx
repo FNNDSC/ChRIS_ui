@@ -9,14 +9,13 @@ import { EditIcon } from "../Icons";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "../Antd";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setPluginTitle } from "../../store/pluginInstance/pluginInstanceSlice";
 import { SpinContainer } from "../Common";
 
 const PluginTitle = () => {
-  const dispatch = useDispatch();
-  const { selectedPlugin } = useTypedSelector((state) => state.instance);
+  const dispatch = useAppDispatch();
+  const { selectedPlugin } = useAppSelector((state) => state.instance);
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState("");
 

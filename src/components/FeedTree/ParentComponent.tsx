@@ -1,7 +1,6 @@
 import React from "react";
-import { useDispatch } from "react-redux";
 import { setFeedTreeProp } from "../../store/feed/feedSlice";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
 import FeedTree from "./FeedTree";
@@ -19,13 +18,13 @@ export type TSID = {
 
 const ParentComponent = (props: ParentComponentProps) => {
   const { onNodeClick } = props;
-  const pluginInstances = useTypedSelector(
+  const pluginInstances = useAppSelector(
     (state) => state.instance.pluginInstances,
   );
   const { data: instances, error, loading } = pluginInstances;
   const [data, setData] = React.useState<TreeNodeDatum[]>([]);
   const [tsIds, setTsIds] = React.useState<TSID>();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {

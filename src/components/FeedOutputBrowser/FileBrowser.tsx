@@ -17,13 +17,12 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
   clearSelectedFile,
   setSelectedFile,
 } from "../../store/explorer/explorerSlice";
-import useDownload, { useTypedSelector } from "../../store/hooks";
+import useDownload, { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { notification } from "../Antd";
 import { ClipboardCopyContainer } from "../Common";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
@@ -59,8 +58,8 @@ const columnNames = {
 };
 
 const FileBrowser = (props: FileBrowserProps) => {
-  const dispatch = useDispatch();
-  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
+  const dispatch = useAppDispatch();
+  const feed = useAppSelector((state) => state.feed.currentFeed.data);
   const handleDownloadMutation = useDownload(feed);
   const [api, contextHolder] = notification.useNotification();
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
@@ -75,9 +74,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     isLoading,
   } = props;
 
-  const selectedFile = useTypedSelector((state) => state.explorer.selectedFile);
-  const drawerState = useTypedSelector((state) => state.drawers);
-  const username = useTypedSelector((state) => state.user.username);
+  const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
+  const drawerState = useAppSelector((state) => state.drawers);
+  const username = useAppSelector((state) => state.user.username);
   const { subFoldersMap, linkFilesMap, filesMap } = pluginFilesPayload;
   const breadcrumb = additionalKey.split("/");
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;

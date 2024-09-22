@@ -1,11 +1,10 @@
 import { Flex, FlexItem } from "@patternfly/react-core";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { fetchNote } from "../../api/common";
 import type { IDrawerState } from "../../store/drawer/drawerSlice";
 import { setDrawerCurrentlyActive } from "../../store/drawer/drawerSlice";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { Badge } from "../Antd";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
 import { handleToggle } from "../Feeds/utilties";
@@ -21,9 +20,9 @@ import {
 import "./feed-details.css";
 
 const FeedDetails = () => {
-  const currentFeed = useTypedSelector((state) => state.feed.currentFeed.data);
-  const dispatch = useDispatch();
-  const drawerState = useTypedSelector((state) => state.drawers);
+  const currentFeed = useAppSelector((state) => state.feed.currentFeed.data);
+  const dispatch = useAppDispatch();
+  const drawerState = useAppSelector((state) => state.drawers);
 
   const node = drawerState.node.currentlyActive === "node";
   const note = drawerState.node.currentlyActive === "note";
