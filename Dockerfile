@@ -1,51 +1,26 @@
-# ChRIS_ui production mode server
+# Production image for ChRIS_ui.
 #
-# Build with
+# This is a simple image containing a static web server and the build assets.
 #
-#   docker build -t <name> .
+# The web application needs to be built on-the-metal before building this container image.
+# Instructions:
 #
-# For example if building a local version, you could do:
+#     pnpm build && docker build -t localhost/fnndsc/chris_ui:latest .
 #
-#   docker build -t local/chris_ui .
-#
-# In the case of a proxy (located at say 10.41.13.4:3128), do:
-#
-#    export PROXY="http://10.41.13.4:3128"
-#    docker build --build-arg http_proxy=${PROXY} -t local/chris_ui .
-#
-# To run the server up, do:
-#
-#   docker run --name chris_ui -p 3000:3000 -d local/chris_ui
-#
-# To run an interactive shell inside this container, do:
-#
-#   docker exec -it chris_ui sh
-#
-# Tips:
-# - for access logging, remove "--quiet" from CMD
-# - docker-entrypoint.sh must start as root
 
+FROM ghcr.io/static-web-server/static-web-server:2.33.0-alpine
 
-FROM node:20.17 as builder
+COPY ./dist /build
+COPY ./.env.production /build/.env.production
 
-WORKDIR /app
-COPY . .
-
-
-RUN npm ci
-RUN npm run build
-
-
-FROM node:20.17-alpine
-
-RUN npm i -g sirv-cli
-
-WORKDIR /app
-
-COPY --from=builder /app/dist /app
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
+
+COPY ./static-web-server.toml /etc/static-web-server/config.toml
+ENV SERVER_CONFIG_FILE=/etc/static-web-server/config.toml
+
+RUN chmod 444 /build/.env.production && chmod g+rwx /srv \
+    && chmod 550 /etc/static-web-server && chmod 440 /etc/static-web-server/*
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
-ENV HOST=0.0.0.0 PORT=3000
-CMD ["sirv", "--etag", "--single"]
-EXPOSE 3000
+CMD ["static-web-server"]
