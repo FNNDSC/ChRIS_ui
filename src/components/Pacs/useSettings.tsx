@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 
 const useSettings = () => {
   async function fetchData(username?: string | null) {
@@ -55,7 +55,7 @@ const useSettings = () => {
     }
   }
 
-  const username = useTypedSelector((state) => state.user.username);
+  const username = useAppSelector((state) => state.user.username);
 
   const {
     isLoading,

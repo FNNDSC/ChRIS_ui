@@ -7,7 +7,6 @@ import type {
 import { Button, Tooltip } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import {
@@ -16,7 +15,7 @@ import {
   setToggleCart,
 } from "../../../store/cart/cartSlice";
 import type { PayloadTypes } from "../../../store/cart/types";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { FolderIcon } from "../../Icons";
 
 export function elipses(str: string, len: number) {
@@ -25,10 +24,10 @@ export function elipses(str: string, len: number) {
 }
 
 export default function useLongPress() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [action, setAction] = useState<string>();
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false); // Track menu state
-  const state = useTypedSelector((state) => state.cart);
+  const state = useAppSelector((state) => state.cart);
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>();
   const isLongPress = useRef<boolean>();
   const { selectedPaths } = state;
@@ -194,7 +193,7 @@ export function ShowInFolder({
   isError,
 }: { path: string; isError: boolean }) {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   return (
     <Tooltip content={"Show in Folder"}>
       <Button

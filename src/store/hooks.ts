@@ -1,10 +1,14 @@
-import { type TypedUseSelectorHook, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "./root/applicationState";
 import type { Feed, FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { getFileName } from "../api/common";
-export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
+import { AppDispatch } from "./configureStore.ts";
+
+// See https://react-redux.js.org/tutorials/typescript-quick-start#define-typed-hooks
+export const useAppSelector = useSelector.withTypes<RootState>();
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 
 export const createLinkAndDownload = (url: string, fileName: string) => {
   const link = document.createElement("a");

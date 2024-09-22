@@ -12,7 +12,7 @@ import * as React from "react";
 import { useContext } from "react";
 import { catchError } from "../../api/common";
 import { MainRouterContext } from "../../routes";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { AddNodeContext } from "../AddNode/context";
 import { notification } from "../Antd";
 import { CodeBranchIcon } from "../Icons";
@@ -28,7 +28,7 @@ import { createFeed, createFeedInstanceWithFS } from "./createFeedHelper";
 import { Types } from "./types/feed";
 
 export default function CreateFeed() {
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const [feedProcessing, setFeedProcessing] = React.useState(false);
   const queryClient = useQueryClient();
   const router = useContext(MainRouterContext);
@@ -39,7 +39,7 @@ export default function CreateFeed() {
   const { state: pipelineState, dispatch: pipelineDispatch } =
     useContext(PipelineContext);
 
-  const user = useTypedSelector((state) => state.user);
+  const user = useAppSelector((state) => state.user);
   const { pluginMeta, selectedPluginFromMeta, dropdownInput, requiredInput } =
     addNodeState;
   const { wizardOpen, data, selectedConfig } = state;

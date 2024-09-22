@@ -12,7 +12,7 @@ import React from "react";
 import { useParams } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { unpackParametersIntoString } from "../AddNode/utils";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
@@ -24,7 +24,7 @@ import {
 import "./singlePlugin.css";
 
 const SinglePlugin = () => {
-  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const { id } = useParams() as { id: string };
   const [parameterPayload, setParameterPayload] =
     React.useState<ParameterPayload>();

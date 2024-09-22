@@ -20,7 +20,7 @@ import type React from "react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getFileExtension } from "../../../api/model";
-import useDownload, { useTypedSelector } from "../../../store/hooks";
+import useDownload, { useAppSelector } from "../../../store/hooks";
 import { notification } from "../../Antd";
 import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
@@ -210,7 +210,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   filesLoading,
 }) => {
   const { isDarkTheme } = useContext(ThemeContext);
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
   const { handlers } = useLongPress();
   const [api, contextHolder] = notification.useNotification();
@@ -347,7 +347,7 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const { isDarkTheme } = useContext(ThemeContext);
-  const selectedPaths = useTypedSelector((state) => state.cart.selectedPaths);
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const handleDownloadMutation = useDownload();
   const { handlers } = useLongPress();
   const [api, contextHolder] = notification.useNotification();
