@@ -18,7 +18,7 @@
 .DS_Store
 
 # Individual settings
-.env.*local
+.env.*.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -36,5 +36,4 @@ yarn-error.log*
 .cache/
 .yarnrc
 dist/
-pnpm-lock.yaml
 .pnpm-store/
