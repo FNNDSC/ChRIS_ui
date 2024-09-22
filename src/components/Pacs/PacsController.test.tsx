@@ -1,11 +1,32 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import PacsQRApp from "./app.tsx";
+import PacsQRApp, { PacsControllerProps } from "./PacsController.tsx";
 import * as TE from "fp-ts/TaskEither";
 import { Configuration as PfdcmConfig, PfdcmClient } from "../../api/pfdcm";
 import ChrisClient, { DownloadToken } from "@fnndsc/chrisapi";
 import WS from "vitest-websocket-mock";
 import { MemoryRouter } from "react-router";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import React from "react";
+
+// FIXME https://redux.js.org/usage/writing-tests
+const WrappedPacs: React.FC<PacsControllerProps> = (props) => {
+  const store = React.useMemo(
+    () =>
+      configureStore({
+        reducer: {},
+      }),
+    [configureStore],
+  );
+  return (
+    <Provider store={store}>
+      <MemoryRouter>
+        <PacsQRApp {...props} />
+      </MemoryRouter>
+    </Provider>
+  );
+};
 
 test("PACS Q/R page can bootstrap", async () => {
   const pfdcmClient = createPfdcmMock(TE.right(["BCH", "MGH", "BWH"]));
@@ -15,11 +36,7 @@ test("PACS Q/R page can bootstrap", async () => {
     getChrisClient: vi.fn(() => chrisClient),
     getPfdcmClient: vi.fn(() => pfdcmClient),
   };
-  render(
-    <MemoryRouter>
-      <PacsQRApp {...getClientMocks} />
-    </MemoryRouter>,
-  );
+  render(<WrappedPacs {...getClientMocks} />);
 
   await ws.connected;
 
@@ -45,11 +62,7 @@ test("Shows error screen if PFDCM is offline", async () => {
     getChrisClient: vi.fn(() => chrisClient),
     getPfdcmClient: vi.fn(() => pfdcmClient),
   };
-  render(
-    <MemoryRouter>
-      <PacsQRApp {...getClientMocks} />
-    </MemoryRouter>,
-  );
+  render(<WrappedPacs {...getClientMocks} />);
 
   await expect
     .poll(() => screen.getByText("I am an expected error"))

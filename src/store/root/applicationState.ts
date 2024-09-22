@@ -1,4 +1,3 @@
-import type { ICartState } from "../cart/types";
 /*
  *   File:           applicationState.ts
  *   Description:    this is where the ApplicationState and supporting interfaces comes together:
@@ -12,6 +11,8 @@ import type { IPluginInstanceState } from "../pluginInstance/types";
 import type { IResourceState } from "../resources/types";
 import type { IUiState } from "../ui/uiSlice";
 import type { IUserState } from "../user/userSlice";
+import type { IPacsState } from "../pacs/types.ts";
+import type { ICartState } from "../cart/types";
 
 export interface ApplicationState {
   ui: IUiState;
@@ -23,6 +24,7 @@ export interface ApplicationState {
   drawers: IDrawerState;
   explorer: IExplorerState;
   cart: ICartState;
+  pacs: IPacsState;
 }
 
 export type RootState = ApplicationState;

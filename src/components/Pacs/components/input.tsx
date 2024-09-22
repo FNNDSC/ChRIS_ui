@@ -2,7 +2,7 @@ import React from "react";
 import { PACSqueryCore } from "../../../api/pfdcm";
 import { Radio, Select, Input, Row, Col, Grid } from "antd";
 import { useSearchParams } from "react-router-dom";
-import { getDefaultPacsService, useBooleanSearchParam } from "./helpers.ts";
+import { useBooleanSearchParam } from "./helpers.ts";
 import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
 
 type InputFieldProps = {
@@ -11,6 +11,8 @@ type InputFieldProps = {
 
 type PacsInputProps = {
   services: ReadonlyNonEmptyArray<string>;
+  service: string;
+  setService: (service: string) => void;
   onSubmit: (service: string, query: PACSqueryCore) => void;
 };
 
@@ -73,25 +75,16 @@ const ScreenSizeSpan: React.FC<{
   return screens.md ? desktop : mobile;
 };
 
-const PacsInput: React.FC<PacsInputProps> = ({ onSubmit, services }) => {
-  const searchParamHooks = useSearchParams();
-  const [searchParams, setSearchParams] = searchParamHooks;
+const PacsInput: React.FC<PacsInputProps> = ({
+  onSubmit,
+  service,
+  setService,
+  services,
+}) => {
   const [isAdvancedSearch, setIsAdvancedSearch] = useBooleanSearchParam(
-    searchParamHooks,
+    useSearchParams(),
     "advancedSearch",
   );
-
-  const defaultService = React.useMemo(
-    () => getDefaultPacsService(services),
-    [services],
-  );
-
-  const service = searchParams.get("service") || defaultService;
-  const setService = (service: string) =>
-    setSearchParams((searchParams) => {
-      searchParams.set("service", service);
-      return searchParams;
-    });
 
   const curriedOnSubmit = React.useMemo(
     () => (query: PACSqueryCore) => onSubmit(service, query),
@@ -152,4 +145,5 @@ const PacsInput: React.FC<PacsInputProps> = ({ onSubmit, services }) => {
   );
 };
 
+export type { PacsInputProps };
 export default PacsInput;

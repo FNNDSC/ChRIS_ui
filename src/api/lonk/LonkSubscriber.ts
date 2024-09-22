@@ -14,10 +14,10 @@ import * as E from "fp-ts/Either";
 import SeriesMap from "./seriesMap.ts";
 
 /**
- * `LonkClient` wraps a {@link WebSocket}, routing incoming JSON messages
+ * `LonkSubscriber` wraps a {@link WebSocket}, routing incoming JSON messages
  * to corresponding functions of {@link LonkHandlers}.
  */
-class LonkClient {
+class LonkSubscriber {
   private readonly ws: WebSocket;
   private readonly pendingSubscriptions: SeriesMap<null | (() => SeriesKey)>;
   private readonly pendingUnsubscriptions: (() => void)[];
@@ -44,9 +44,9 @@ class LonkClient {
    * Configure this client with event handler functions.
    * `init` must be called exactly once.
    */
-  public init(handlers: LonkHandlers): LonkClient {
+  public init(handlers: LonkHandlers): LonkSubscriber {
     if (this.handlers) {
-      throw new Error("LonkClient.init called more than once.");
+      throw new Error("LonkSubscriber.init called more than once.");
     }
     this.handlers = handlers;
     return this;
@@ -100,7 +100,7 @@ class LonkClient {
 
   private routeLonk(data: Lonk<any>) {
     if (this.handlers === null) {
-      throw new Error("LonkClient.init has not been called yet.");
+      throw new Error("LonkSubscriber.init has not been called yet.");
     }
     const { onProgress, onDone, onError } = this.handlers;
     const { SeriesInstanceUID, pacs_name, message } = data;
@@ -181,5 +181,5 @@ function isError(msg: { [key: string]: any }): msg is LonkError {
   return "error" in msg;
 }
 
-export default LonkClient;
+export default LonkSubscriber;
 export type { LonkHandlers };

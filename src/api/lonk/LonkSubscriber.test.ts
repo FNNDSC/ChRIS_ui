@@ -1,8 +1,8 @@
 import { test, expect, vi } from "vitest";
-import LonkClient, { LonkHandlers } from "./client.ts";
+import LonkSubscriber, { LonkHandlers } from "./LonkSubscriber.ts";
 import WS from "vitest-websocket-mock";
 
-test("LonkClient", async () => {
+test("LonkSubscriber", async () => {
   const handlers: LonkHandlers = {
     onDone: vi.fn(),
     onProgress: vi.fn(),
@@ -98,14 +98,15 @@ test("LonkClient", async () => {
 /**
  * Create a mock WebSockets server and client.
  */
-async function createMockubeWs(port: number): Promise<[WS, LonkClient]> {
+async function createMockubeWs(port: number): Promise<[WS, LonkSubscriber]> {
   const url = `ws://localhost:${port}`;
   const server = new WS(url, { jsonProtocol: true });
   const ws = new WebSocket(url);
-  const client = new LonkClient(ws);
+  const client = new LonkSubscriber(ws);
 
-  let callback: null | (([server, client]: [WS, LonkClient]) => void) = null;
-  const promise: Promise<[WS, LonkClient]> = new Promise((resolve) => {
+  let callback: null | (([server, client]: [WS, LonkSubscriber]) => void) =
+    null;
+  const promise: Promise<[WS, LonkSubscriber]> = new Promise((resolve) => {
     callback = resolve;
   });
   ws.onopen = () => callback && callback([server, client]);

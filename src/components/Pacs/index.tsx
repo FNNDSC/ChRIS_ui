@@ -2,7 +2,7 @@ import Wrapper from "../Wrapper";
 import { Configuration as PfdcmConfig, PfdcmClient } from "../../api/pfdcm";
 
 import ChrisAPIClient from "../../api/chrisapiclient.ts";
-import PacsQRApp from "./app.tsx";
+import PacsApp from "./PacsController.tsx";
 import { InfoSection } from "../Common";
 
 /**
@@ -30,7 +30,7 @@ const PacsTitle = () => (
 
 const WrappedPacsQRApp = () => (
   <Wrapper titleComponent={<PacsTitle />}>
-    <PacsQRApp
+    <PacsApp
       getChrisClient={ChrisAPIClient.getClient}
       getPfdcmClient={getEnvPfdcmClient}
     />

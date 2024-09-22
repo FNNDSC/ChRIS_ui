@@ -9,7 +9,7 @@ import Client, {
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
-import LonkClient from "../lonk";
+import LonkSubscriber from "../lonk";
 
 /**
  * fp-ts friendly wrapper for @fnndsc/chrisapi
@@ -130,17 +130,18 @@ class FpClient {
    */
   public connectPacsNotifications(
     ...args: Parameters<FpClient["createDownloadToken"]>
-  ): TE.TaskEither<Error, LonkClient> {
+  ): TE.TaskEither<Error, LonkSubscriber> {
     return pipe(
       this.createDownloadToken(...args),
       TE.flatMap((downloadToken) => {
         const url = getWebsocketUrl(downloadToken);
-        let callback: ((c: E.Either<Error, LonkClient>) => void) | null = null;
-        let promise: Promise<E.Either<Error, LonkClient>> = new Promise(
+        let callback: ((c: E.Either<Error, LonkSubscriber>) => void) | null =
+          null;
+        let promise: Promise<E.Either<Error, LonkSubscriber>> = new Promise(
           (resolve) => (callback = resolve),
         );
         const ws = new WebSocket(url);
-        ws.onopen = () => callback && callback(E.right(new LonkClient(ws)));
+        ws.onopen = () => callback && callback(E.right(new LonkSubscriber(ws)));
         ws.onerror = (_ev) =>
           callback &&
           callback(
