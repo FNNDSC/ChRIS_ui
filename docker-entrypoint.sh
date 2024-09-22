@@ -44,7 +44,7 @@ find -type d -exec mkdir -p "$target/{}" \;
 
 # set default values
 CHRIS_STORE_URL="${CHRIS_STORE_URL-https://cube.chrisproject.org/api/v1/}"
-# OHIF_URL default empty
+# OHIF_URL, ACKEE_SERVER, ACKEE_DOMAIN_ID default values are empty
 
 # required values
 required_variable_names="CHRIS_UI_URL PFDCM_URL"
@@ -63,6 +63,8 @@ find -type f -exec sh -c "cat '{}' \
   | sed 's#$VITE_CHRIS_STORE_URL#$CHRIS_STORE_URL#g' \
   | sed 's#$VITE_PFDCM_URL#$PFDCM_URL#g' \
   | sed 's#$VITE_OHIF_URL#$OHIF_URL#g' \
+  | sed 's#$VITE_ACKEE_SERVER#$ACKEE_SERVER#g' \
+  | sed 's#$VITE_ACKEE_DOMAIN_ID#$ACKEE_DOMAIN_ID#g' \
   > $target/{}" \;
 
 # run specified command
