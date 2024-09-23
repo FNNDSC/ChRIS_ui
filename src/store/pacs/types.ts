@@ -19,4 +19,4 @@ interface IPacsState {
   studies: Either<Error, PacsStudyState[]> | "loading" | null;
 }
 
-export type { PacsStudyState, IPacsState };
+export type { PacsSeriesState, PacsStudyState, IPacsState };
