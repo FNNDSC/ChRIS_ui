@@ -14,7 +14,11 @@ const StudyDetails: React.FC<{
       <span>
         Study "{study.StudyDescription}"{" "}
         <span style={{ fontWeight: "initial" }}>
-          on {study.StudyDate ? format(study.StudyDate, dateFormat) : "unknown"}
+          on {study.StudyDate ? format(study.StudyDate, dateFormat) : "unknown"}{" "}
+          {study.AccessionNumber &&
+            !study.AccessionNumber.includes("no value provided") && (
+              <>(AccessionNumber: {study.AccessionNumber})</>
+            )}
         </span>
       </span>
     }
