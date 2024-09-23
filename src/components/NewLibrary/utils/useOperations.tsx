@@ -1,4 +1,5 @@
 import type {
+  Feed,
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
@@ -83,18 +84,11 @@ export const useFolderOperations = (
     isFolder: boolean,
     name?: string,
   ) => {
+    const fileList = event.target.files;
     // Process the origin data if applicable
     handleOrigin(origin);
     // Convert selected files to an array for easier manipulation
-    const files = Array.from(event.target.files || []);
-    // Check if the input is a file selection, but a folder was mistakenly uploaded
-    if (!isFolder && files.length > 0 && isEmpty(files[0].type)) {
-      alert(
-        "Folder selection is not allowed in file upload mode. Please select files only.",
-      );
-      resetInputField(fileInputRef); // Clean up file input
-      return;
-    }
+    const files = Array.from(fileList || []);
     // Generate a unique name based on the timestamp and the provided name (if any)
     const uniqueName = name
       ? `${name}_${getCurrentTimestamp()}`
@@ -163,16 +157,17 @@ export const useFolderOperations = (
     targetUsername: string,
     additionalValues?: AdditionalValues,
   ) => {
-    const permissions =
-      additionalValues?.share.read && additionalValues?.share.write
-        ? "rw"
-        : additionalValues?.share.read
-          ? "r"
-          : "w";
-
+    const permissions = additionalValues?.share.write ? "w" : "r";
     for (const { payload } of selectedPaths) {
       try {
-        await payload.addUserPermission(targetUsername, permissions);
+        if (createFeed) {
+          const feed = await fetchFeedForPath(payload.data.path);
+          if (feed) {
+            await feed.addUserPermission(targetUsername);
+          }
+        } else {
+          await payload.addUserPermission(targetUsername, permissions);
+        }
       } catch (error: any) {
         const errorMessage =
           error?.response?.data?.username?.[0] ||
@@ -251,7 +246,7 @@ export const useFolderOperations = (
       const { path, new_link_file_path, new_file_path } = error.response.data;
       if (path) throw new Error(path[0]);
       if (new_link_file_path) throw new Error(new_link_file_path[0]);
-      if (new_file_path) throw new Error(new_file_path);
+      if (new_file_path) throw new Error(new_file_path[0]);
     }
     throw new Error("Failed to rename this folder"); // If it's not a known error, rethrow it
   };
@@ -305,8 +300,8 @@ export const useFolderOperations = (
     }) => handleModalSubmit(inputValue, additionalValues),
   });
 
-  const getFeedNameForSinglePath = (path: SelectionPayload) => {
-    const { payload } = path;
+  const getFeedNameForSinglePath = (selectedPayload: SelectionPayload) => {
+    const { payload } = selectedPayload;
     const name = payload.data.path || payload.data.fname;
     return getFileName(name);
   };
