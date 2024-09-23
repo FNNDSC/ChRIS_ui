@@ -13,6 +13,7 @@ import * as E from "fp-ts/Either";
 type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> & {
   data: IPacsState;
   onRetrieve: (service: string, query: PACSqueryCore) => void;
+  onStudyExpand: (service: string, StudyInstanceUID: string) => void;
 };
 
 /**
@@ -20,8 +21,8 @@ type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> & {
  * whether it be `null` or "loading".
  */
 const MaybePacsStudiesView: React.FC<
-  Pick<PacsViewProps, "data"> & Pick<PacsStudiesViewProps, "onRetrieve">
-> = ({ data, onRetrieve }) => {
+  Pick<PacsViewProps, "data"> & Omit<PacsStudiesViewProps, "studies">
+> = ({ data, ...props }) => {
   switch (data.studies) {
     case null:
       return <>Enter a search to get started</>;
@@ -32,9 +33,7 @@ const MaybePacsStudiesView: React.FC<
         data.studies,
         E.match(
           (error) => <>Error: {error.message}</>,
-          (studies) => (
-            <PacsStudiesView studies={studies} onRetrieve={onRetrieve} />
-          ),
+          (studies) => <PacsStudiesView studies={studies} {...props} />,
         ),
       );
   }
@@ -50,6 +49,7 @@ const PacsView: React.FC<PacsViewProps> = ({
   services,
   onSubmit,
   onRetrieve,
+  onStudyExpand,
   data,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -64,8 +64,16 @@ const PacsView: React.FC<PacsViewProps> = ({
       return searchParams;
     });
 
-  const curriedOnRetrieve = (query: PACSqueryCore) =>
-    onRetrieve(service, query);
+  const curriedOnRetrieve = React.useMemo(
+    () => (query: PACSqueryCore) => onRetrieve(service, query),
+    [onRetrieve],
+  );
+
+  const curriedOnStudyExpand = React.useMemo(
+    () => (StudyInstanceUID: string) =>
+      onStudyExpand(service, StudyInstanceUID),
+    [onStudyExpand],
+  );
 
   return (
     <>
@@ -76,7 +84,11 @@ const PacsView: React.FC<PacsViewProps> = ({
         setService={setService}
       />
       <br />
-      <MaybePacsStudiesView onRetrieve={curriedOnRetrieve} data={data} />
+      <MaybePacsStudiesView
+        onRetrieve={curriedOnRetrieve}
+        onStudyExpand={curriedOnStudyExpand}
+        data={data}
+      />
     </>
   );
 };

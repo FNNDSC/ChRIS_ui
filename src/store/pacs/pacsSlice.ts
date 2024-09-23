@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IPacsState, PacsStudyState } from "./types.ts";
+import { IPacsState, PacsStudyState, SeriesPullState } from "./types.ts";
 import { StudyAndSeries } from "../../api/pfdcm/models.ts";
 import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
@@ -7,6 +7,10 @@ import { pipe } from "fp-ts/function";
 function initialState(): IPacsState {
   return {
     studies: null,
+    preferences: {
+      showUid: false,
+      dateFormat: "yyyy MMM d",
+    },
   };
 }
 
@@ -37,7 +41,7 @@ function newStudyState({ study, series }: StudyAndSeries): PacsStudyState {
         info,
         receivedCount: 0,
         error: [],
-        done: false,
+        pullState: SeriesPullState.READY,
         inCube: null,
       };
     }),
