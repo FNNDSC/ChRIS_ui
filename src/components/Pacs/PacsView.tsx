@@ -1,5 +1,5 @@
 import React from "react";
-import PacsInput, { PacsInputProps } from "./components/input.tsx";
+import PacsInput, { PacsInputProps } from "./components/PacsInput.tsx";
 import PacsStudiesView, {
   PacsStudiesViewProps,
 } from "./components/PacsStudiesView.tsx";
@@ -75,6 +75,7 @@ const PacsView: React.FC<PacsViewProps> = ({
         service={service}
         setService={setService}
       />
+      <br />
       <MaybePacsStudiesView onRetrieve={curriedOnRetrieve} data={data} />
     </>
   );

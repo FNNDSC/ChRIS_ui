@@ -183,7 +183,8 @@ function simplifyPypxStudyData(data: {
 }): StudyAndSeries {
   const study = {
     SpecificCharacterSet: getValue(data, "SpecificCharacterSet"),
-    StudyDate: getValue(data, "StudyDate"),
+    StudyDate:
+      "value" in data.StudyDate ? parseDicomDate(data.StudyDate) : null,
     AccessionNumber: getValue(data, "AccessionNumber"),
     RetrieveAETitle: getValue(data, "RetrieveAETitle"),
     ModalitiesInStudy: getValue(data, "ModalitiesInStudy"),
@@ -195,7 +196,7 @@ function simplifyPypxStudyData(data: {
         ? parseDicomDate(data.PatientBirthDate)
         : null,
     PatientSex: getValue(data, "PatientSex"),
-    PatientAge: parseFloat(getValue(data, "PatientAge")),
+    PatientAge: getValue(data, "PatientAge"),
     ProtocolName: getValue(data, "ProtocolName"),
     AcquisitionProtocolName: getValue(data, "AcquisitionProtocolName"),
     AcquisitionProtocolDescription: getValue(
@@ -236,7 +237,7 @@ function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
     PatientID: "" + data.PatientID.value,
     PatientBirthDate: parseDicomDate(data.PatientBirthDate),
     PatientSex: "" + data.PatientSex.value,
-    PatientAge: parseFloat("" + data.PatientAge.value),
+    PatientAge: "" + data.PatientAge.value,
     ProtocolName: "" + data.ProtocolName.value,
     AcquisitionProtocolName: "" + data.AcquisitionProtocolName.value,
     AcquisitionProtocolDescription:
