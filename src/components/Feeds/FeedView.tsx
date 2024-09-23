@@ -10,7 +10,6 @@ import { Typography } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
-import type { AppDispatch } from "../../store/configureStore";
 import type { IDrawerState } from "../../store/drawer/drawerSlice";
 import { resetDrawerState } from "../../store/drawer/drawerSlice";
 import { clearSelectedFile } from "../../store/explorer/explorerSlice";
@@ -19,7 +18,7 @@ import {
   resetFeed,
   setShowToolbar,
 } from "../../store/feed/feedSlice";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   fetchPluginInstances,
   getSelectedPlugin,
