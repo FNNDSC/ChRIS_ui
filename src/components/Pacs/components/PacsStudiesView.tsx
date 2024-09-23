@@ -1,18 +1,25 @@
-import { PacsSeriesState, PacsStudyState } from "../../../store/pacs/types.ts";
+import {
+  PacsSeriesState,
+  PacsStudyState,
+  SERIES_BUSY_STATES,
+} from "../../../store/pacs/types.ts";
 import { PACSqueryCore } from "../../../api/pfdcm";
 import StudyCard from "./StudyCard.tsx";
 import { Collapse, CollapseProps, Space, Typography } from "antd";
 import React from "react";
 import * as E from "fp-ts/Either";
+import SeriesList from "./SeriesList.tsx";
 
 type PacsStudiesViewProps = {
   studies: PacsStudyState[];
   onRetrieve: (query: PACSqueryCore) => void;
+  onStudyExpand?: (StudyInstanceUID: string) => void;
 };
 
 const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
   studies,
   onRetrieve,
+  onStudyExpand,
 }) => {
   const items: CollapseProps["items"] = React.useMemo(() => {
     return studies.map(({ info, series }) => {
@@ -24,12 +31,14 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
             isPulled={
               series.length === 0
                 ? true
-                : !!series.find((series) => !isSeriesPulled(series))
+                : !series.find((series) => !isSeriesPulled(series))
             }
             isLoading={
               series.length === 0
                 ? false
-                : !!series.find((series) => series.inCube === "loading")
+                : !!series.find((series) =>
+                    SERIES_BUSY_STATES.includes(series.pullState),
+                  )
             }
             onExpand={() =>
               onRetrieve({
@@ -39,7 +48,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
             }
           ></StudyCard>
         ),
-        children: <p>here are the series!</p>,
+        children: <SeriesList states={series} />,
       };
     });
   }, studies);
@@ -51,6 +60,17 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
         [],
       ).length;
   }, [studies]);
+  const onChange = React.useMemo(
+    () => (studyUids: string[]) => {
+      if (!onStudyExpand) {
+        return;
+      }
+      for (const StudyInstanceUID of studyUids) {
+        onStudyExpand(StudyInstanceUID);
+      }
+    },
+    [onStudyExpand],
+  );
   return (
     <Space size="small" direction="vertical">
       <Collapse
@@ -58,6 +78,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
         defaultActiveKey={
           studies.length === 1 ? [studies[0].info.StudyInstanceUID] : []
         }
+        onChange={onChange}
       />
       <Typography>
         {numPatients === 1 ? "1 patient, " : `${numPatients} patients, `}
@@ -68,14 +89,10 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
 };
 
 function isSeriesPulled(series: PacsSeriesState): boolean {
-  switch (series.inCube) {
-    case null:
-      return false;
-    case "loading":
-      return false;
-    default:
-      E.isRight(series.inCube);
+  if (series.inCube === null) {
+    return false;
   }
+  return E.isRight(series.inCube);
 }
 
 export type { PacsStudiesViewProps };

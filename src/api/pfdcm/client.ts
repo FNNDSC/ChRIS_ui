@@ -224,6 +224,13 @@ function getValue(
 }
 
 function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
+  const parsedNumInstances =
+    data.NumberOfSeriesRelatedInstances.value === 0
+      ? NaN
+      : parseInt(data.NumberOfSeriesRelatedInstances.value);
+  const NumberOfSeriesRelatedInstances = Number.isNaN(parsedNumInstances)
+    ? null
+    : parsedNumInstances;
   return {
     SpecificCharacterSet: "" + data.SpecificCharacterSet.value,
     StudyDate: "" + data.StudyDate.value,
@@ -244,8 +251,7 @@ function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
       "" + data.AcquisitionProtocolDescription.value,
     StudyInstanceUID: "" + data.StudyInstanceUID.value,
     SeriesInstanceUID: "" + data.SeriesInstanceUID.value,
-    NumberOfSeriesRelatedInstances:
-      "" + data.NumberOfSeriesRelatedInstances.value,
+    NumberOfSeriesRelatedInstances,
     PerformedStationAETitle: "" + data.PerformedStationAETitle.value,
   };
 }

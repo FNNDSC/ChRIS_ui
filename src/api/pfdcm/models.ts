@@ -73,7 +73,7 @@ type Series = {
   AcquisitionProtocolDescription: string;
   StudyInstanceUID: string;
   SeriesInstanceUID: string;
-  NumberOfSeriesRelatedInstances: string;
+  NumberOfSeriesRelatedInstances: number | null;
   PerformedStationAETitle: string;
 };
 

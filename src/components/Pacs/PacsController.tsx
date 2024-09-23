@@ -91,6 +91,10 @@ const PacsController: React.FC<PacsControllerProps> = ({
     [dispatch, pacsSlice, pfdcmClient, setStudies],
   );
 
+  const onStudyExpand = (service: string, StudyInstanceUID: string) => {
+    // TODO search for the study in CUBE
+  };
+
   const onRetrieve = (service: string, query: PACSqueryCore) => {};
 
   React.useEffect(() => {
@@ -113,10 +117,8 @@ const PacsController: React.FC<PacsControllerProps> = ({
       failWithError,
       TE.map((s) => (subscriber = s)),
       TE.map((s) => {
-        // TODO try reconnecting to the WebSocket if it is closed.
-        // FIXME message.error is not a function
-        // s.onclose = () =>
-        //   message.error(<>WebSocket closed, please refresh the page.</>);
+        s.onclose = () =>
+          message.error(<>WebSocket closed, please refresh the page.</>);
         s.init({
           // TODO
           onError: () => {},
@@ -140,6 +142,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
           data={data}
           onSubmit={onSubmit}
           onRetrieve={onRetrieve}
+          onStudyExpand={onStudyExpand}
         />
       ) : (
         <PacsLoadingScreen />
