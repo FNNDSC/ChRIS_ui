@@ -33,7 +33,7 @@ type PypxFind = {
  */
 type Study = {
   SpecificCharacterSet: string;
-  StudyDate: string;
+  StudyDate: Date | null;
   AccessionNumber: string;
   RetrieveAETitle: string;
   ModalitiesInStudy: string;
@@ -42,7 +42,7 @@ type Study = {
   PatientID: string;
   PatientBirthDate: Date | null;
   PatientSex: string;
-  PatientAge: number | null;
+  PatientAge: string;
   ProtocolName: string;
   AcquisitionProtocolName: string;
   AcquisitionProtocolDescription: string;
@@ -67,7 +67,7 @@ type Series = {
   PatientID: string;
   PatientBirthDate: Date | null;
   PatientSex: string;
-  PatientAge: number | null;
+  PatientAge: string;
   ProtocolName: string;
   AcquisitionProtocolName: string;
   AcquisitionProtocolDescription: string;

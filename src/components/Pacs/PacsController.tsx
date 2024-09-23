@@ -24,7 +24,7 @@ import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
 import { PageSection } from "@patternfly/react-core";
 import PacsView from "./PacsView.tsx";
-import PacsLoadingScreen from "./components/loading.tsx";
+import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
 import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
