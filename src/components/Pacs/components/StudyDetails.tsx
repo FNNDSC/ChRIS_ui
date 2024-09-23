@@ -4,10 +4,11 @@ import ModalityBadges from "./ModalityBadges.tsx";
 import React from "react";
 import { Study } from "../../../api/pfdcm/models.ts";
 
-const StudyDetails: React.FC<{ study: Study; dateFormat: string }> = ({
-  study,
-  dateFormat,
-}) => (
+const StudyDetails: React.FC<{
+  study: Study;
+  dateFormat: string;
+  showUid?: boolean;
+}> = ({ study, dateFormat, showUid }) => (
   <Descriptions
     title={
       <span>
@@ -36,6 +37,11 @@ const StudyDetails: React.FC<{ study: Study; dateFormat: string }> = ({
     <Descriptions.Item label="Modalities">
       <ModalityBadges modalities={study.ModalitiesInStudy} />
     </Descriptions.Item>
+    {showUid && (
+      <Descriptions.Item label="StudyInstanceUID">
+        {study.StudyInstanceUID}
+      </Descriptions.Item>
+    )}
   </Descriptions>
 );
 

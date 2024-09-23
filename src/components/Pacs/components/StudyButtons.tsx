@@ -14,6 +14,7 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
   isPulled,
   tooltipPlacement = "left",
 }) => (
+  // TODO add "Create feed" button
   <Flex vertical={true} gap="middle">
     <Tooltip
       title={
