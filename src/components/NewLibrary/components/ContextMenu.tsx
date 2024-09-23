@@ -42,8 +42,17 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     { key: "download", label: "Download", icon: <DownloadIcon /> },
     { key: "anonymize", label: "Anonymize", icon: <ArchiveIcon /> },
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
-    { key: "duplicate", label: "Copy", icon: <DuplicateIcon /> },
-    { key: "share", label: "Share", icon: <ShareIcon /> },
+    {
+      key: "duplicate",
+      label: "Copy",
+      icon: <DuplicateIcon />,
+      disabled: !isFeedsTable,
+    },
+    {
+      key: "share",
+      label: "Share",
+      icon: <ShareIcon />,
+    },
     {
       key: "rename",
       label: "Rename",
