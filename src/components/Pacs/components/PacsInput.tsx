@@ -1,6 +1,6 @@
 import React from "react";
 import { PACSqueryCore } from "../../../api/pfdcm";
-import { Radio, Select, Input, Row, Col, Grid } from "antd";
+import { Select, Input, Row, Col, Grid, Segmented } from "antd";
 import { useSearchParams } from "react-router-dom";
 import { useBooleanSearchParam } from "./helpers.ts";
 import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
@@ -109,20 +109,19 @@ const PacsInput: React.FC<PacsInputProps> = ({
     [isAdvancedSearch, curriedOnSubmit],
   );
   const advancedSearchToggle = (
-    <Radio.Group
-      optionType="button"
+    <Segmented
       options={[
         {
           label: <ScreenSizeSpan mobile="MRN" desktop="MRN Search" />,
-          value: false,
+          value: "mrnOnly",
         },
         {
           label: <ScreenSizeSpan mobile="Advanced" desktop="Advanced Search" />,
-          value: true,
+          value: "advanced",
         },
       ]}
-      value={isAdvancedSearch}
-      onChange={(e) => setIsAdvancedSearch(e.target.value)}
+      value={isAdvancedSearch ? "advanced" : "mrnOnly"}
+      onChange={(v) => setIsAdvancedSearch(v === "advanced")}
     />
   );
 
@@ -141,13 +140,18 @@ const PacsInput: React.FC<PacsInputProps> = ({
 
   return (
     <Row gutter={2}>
-      <Col xs={12} md={6}>
+      <Col xs={12} md={8} lg={6} xl={5}>
         {advancedSearchToggle}
       </Col>
-      <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 0 }}>
+      <Col
+        xs={{ span: 24, order: 1 }}
+        md={{ span: 11, order: 0 }}
+        lg={{ span: 13, order: 0 }}
+        xl={{ span: 15, order: 0 }}
+      >
         {input}
       </Col>
-      <Col xs={12} md={5}>
+      <Col xs={12} md={5} lg={5} xl={4}>
         {serviceDropdown}
       </Col>
     </Row>
