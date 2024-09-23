@@ -1,10 +1,12 @@
 /**
- * Wrapper for the OpenAPI-generated client, providing better typing
- * and a fp-ts API.
+ * Wrapper for the OpenAPI-generated client, providing better typing.
+ *
+ * Note to developers: we want to use some types from fp-ts such as
+ * `ReadonlyNonEmptyArray` but we don't use `TaskEither` because
+ * traditional promises and `throw` are more compatible with TanStack
+ * Query.
  */
 
-import * as TE from "fp-ts/TaskEither";
-import * as E from "fp-ts/Either";
 import {
   Configuration,
   PACSPypxApiV1PACSSyncPypxPostRequest,
@@ -14,18 +16,14 @@ import {
   PACSServiceHandlerApiV1PACSThreadPypxPostRequest,
   PACSasync,
 } from "./generated";
-import { flow, pipe } from "fp-ts/function";
+import { pipe } from "fp-ts/function";
 import { PypxFind, PypxTag, Series, StudyAndSeries } from "./models.ts";
 import { parse as parseDate } from "date-fns";
 import {
   ReadonlyNonEmptyArray,
   fromArray as readonlyNonEmptyArrayFromArray,
 } from "fp-ts/ReadonlyNonEmptyArray";
-
-const validateNonEmptyStringArray = flow(
-  readonlyNonEmptyArrayFromArray<string>,
-  TE.fromOption(() => new Error("PFDCM returned an empty list for services")),
-);
+import { match as matchOption } from "fp-ts/Option";
 
 /**
  * PFDCM client.
@@ -41,23 +39,25 @@ class PfdcmClient {
   /**
    * Get list of PACS services which this PFDCM is configured to speak with.
    */
-  public getPacsServices(): TE.TaskEither<
-    Error,
-    ReadonlyNonEmptyArray<string>
-  > {
+  public async getPacsServices(): Promise<ReadonlyNonEmptyArray<string>> {
+    const services =
+      await this.servicesClient.serviceListGetApiV1PACSserviceListGet();
     return pipe(
-      TE.tryCatch(
-        () => this.servicesClient.serviceListGetApiV1PACSserviceListGet(),
-        E.toError,
+      // default service is a useless option added by pfdcm
+      services.filter((s) => s !== "default"),
+      readonlyNonEmptyArrayFromArray,
+      matchOption(
+        () => {
+          throw new Error(
+            `PFDCM is not configured with any services (besides "default")`,
+          );
+        },
+        (some) => some,
       ),
-      TE.flatMap(validateNonEmptyStringArray),
     );
   }
 
-  private find(
-    service: string,
-    query: PACSqueryCore,
-  ): TE.TaskEither<Error, PypxFind> {
+  private async find(service: string, query: PACSqueryCore): Promise<PypxFind> {
     const params: PACSPypxApiV1PACSSyncPypxPostRequest = {
       bodyPACSPypxApiV1PACSSyncPypxPost: {
         pACSservice: {
@@ -69,14 +69,12 @@ class PfdcmClient {
         pACSdirective: query,
       },
     };
-    return pipe(
-      TE.tryCatch(
-        () => this.qrClient.pACSPypxApiV1PACSSyncPypxPost(params),
-        E.toError,
-      ),
-      TE.flatMap(validateFindResponseData),
-      TE.flatMap(validateStatusIsTrue),
-    );
+    const data = await this.qrClient.pACSPypxApiV1PACSSyncPypxPost(params);
+    if (!isFindResponseData(data)) {
+      throw new Error("Unrecognizable response from PFDCM");
+    }
+    raiseForBadStatus(data);
+    return data;
   }
 
   /**
@@ -84,17 +82,18 @@ class PfdcmClient {
    * @param service which PACS service to search for. See {@link PfdcmClient.getPacsServices}
    * @param query PACS query
    */
-  public query(
+  public async query(
     service: string,
     query: PACSqueryCore,
-  ): TE.TaskEither<Error, ReadonlyArray<StudyAndSeries>> {
-    return pipe(this.find(service, query), TE.map(simplifyResponse));
+  ): Promise<ReadonlyArray<StudyAndSeries>> {
+    const data = await this.find(service, query);
+    return simplifyResponse(data);
   }
 
-  public retrieve(
+  public async retrieve(
     service: string,
     query: PACSqueryCore,
-  ): TE.TaskEither<Error, PACSasync> {
+  ): Promise<PACSasync> {
     const params: PACSServiceHandlerApiV1PACSThreadPypxPostRequest = {
       bodyPACSServiceHandlerApiV1PACSThreadPypxPost: {
         pACSservice: {
@@ -110,29 +109,14 @@ class PfdcmClient {
         },
       },
     };
-    return pipe(
-      TE.tryCatch(
-        () => this.qrClient.pACSServiceHandlerApiV1PACSThreadPypxPost(params),
-        E.toError,
-      ),
-      TE.flatMap((data) => {
-        // @ts-ignore OpenAPI spec of PFDCM is incomplete
-        if (data.response.job.status) {
-          return TE.right(data);
-        }
-        const error = new Error("PYPX job status is missing or false");
-        return TE.left(error);
-      }),
-    );
+    const res =
+      await this.qrClient.pACSServiceHandlerApiV1PACSThreadPypxPost(params);
+    // @ts-expect-error PFDCM OpenAPI spec is incomplete
+    if (!res.response?.job?.status) {
+      throw new Error("PYPX job status is missing or false");
+    }
+    return res;
   }
-}
-
-function validateFindResponseData(data: any): TE.TaskEither<Error, PypxFind> {
-  if (isFindResponseData(data)) {
-    return TE.right(data);
-  }
-  const error = new Error("Invalid response from PFDCM");
-  return TE.left(error);
 }
 
 function isFindResponseData(data: any): data is PypxFind {
@@ -142,18 +126,16 @@ function isFindResponseData(data: any): data is PypxFind {
 }
 
 /**
- * Validate that all the "status" fields are `true`
+ * Throw an error for any "status" field that is not `true`
  * (this is a convention that Rudolph uses for error handling
  * instead of HTTP status codes, exceptions, and/or monads).
  */
-function validateStatusIsTrue(data: PypxFind): TE.TaskEither<Error, PypxFind> {
+function raiseForBadStatus(data: PypxFind): PypxFind {
   if (!data.status) {
-    const error = new Error("PFDCM response status=false");
-    return TE.left(error);
+    throw new Error("PFDCM response status=false");
   }
   if (data.pypx.status !== "success") {
-    const error = new Error("PFDCM response pypx.status=false");
-    return TE.left(error);
+    throw new Error("PFDCM response pypx.status=false");
   }
   for (const study of data.pypx.data) {
     if (!Array.isArray(study.series)) {
@@ -161,14 +143,13 @@ function validateStatusIsTrue(data: PypxFind): TE.TaskEither<Error, PypxFind> {
     }
     for (const series of study.series) {
       if (series.status.value !== "success") {
-        const error = new Error(
+        throw new Error(
           `PFDCM response pypx...status is false for SeriesInstanceUID=${series?.SeriesInstanceUID?.value}`,
         );
-        return TE.left(error);
       }
     }
   }
-  return TE.right(data);
+  return data;
 }
 
 /**

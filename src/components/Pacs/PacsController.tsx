@@ -3,7 +3,6 @@
  * a component which wraps the default export from ./PacsView.tsx, which:
  *
  * 1. "bootstraps" the client objects it needs (see below)
- * 2. gets data from the Redux state and passes it to child components as props
  *
  * The PACS Q/R application needs to be "bootstrapped" which means:
  *
@@ -26,11 +25,10 @@ import { PageSection } from "@patternfly/react-core";
 import PacsView from "./PacsView.tsx";
 import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
-import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { StudyAndSeries } from "../../api/pfdcm/models.ts";
-import { pacsSlice } from "../../store/pacs/pacsSlice.ts";
-import { Either } from "fp-ts/Either";
+import { skipToken, useQuery } from "@tanstack/react-query";
+import joinStates from "./joinStates.ts";
+import { IPacsState } from "./types.ts";
+import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
@@ -44,27 +42,11 @@ const PacsController: React.FC<PacsControllerProps> = ({
   getChrisClient,
   getPfdcmClient,
 }) => {
-  /**
-   * List of PACS server names which can be queried.
-   */
-  const [services, setServices] =
-    React.useState<ReadonlyNonEmptyArray<string> | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
+  // ========================================
+  // CLIENTS AND MISC
+  // ========================================
 
   const { message } = App.useApp();
-
-  const data = useAppSelector((state) => state.pacs);
-  const dispatch = useAppDispatch();
-
-  /**
-   * Show an error screen with the error's message.
-   *
-   * Used to handle errors during necessary bootstrapping.
-   */
-  const failWithError = React.useMemo(
-    () => TE.mapLeft((e: Error) => setError(e.message)),
-    [setError],
-  );
 
   const pfdcmClient = React.useMemo(getPfdcmClient, [getPfdcmClient]);
   const chrisClient = React.useMemo(getChrisClient, [getChrisClient]);
@@ -73,48 +55,104 @@ const PacsController: React.FC<PacsControllerProps> = ({
     [chrisClient],
   );
 
-  const setStudies = React.useMemo(
-    () => (studies: Either<Error, ReadonlyArray<StudyAndSeries>>) => {
-      dispatch(pacsSlice.actions.setStudies(studies));
-    },
-    [dispatch, pacsSlice],
+  // ========================================
+  // STATE
+  // ========================================
+
+  const [{ service, query }, setPacsQuery] = React.useState<{
+    service?: string;
+    query?: PACSqueryCore;
+  }>({});
+  const [wsError, setWsError] = React.useState<Error | null>(null);
+
+  // TODO create a settings component for changing preferences
+  const [preferences, setPreferences] = React.useState(DEFAULT_PREFERENCES);
+
+  // ========================================
+  // QUERIES
+  // ========================================
+
+  const pfdcmServices = useQuery({
+    queryKey: ["pfdcmServices"],
+    queryFn: () => pfdcmClient.getPacsServices(),
+  });
+
+  const pfdcmStudiesQueryKey = React.useMemo(
+    () => ["pfdcmStudies", service, query],
+    [service, query],
   );
+  const pfdcmStudies = useQuery({
+    queryKey: pfdcmStudiesQueryKey,
+    queryFn:
+      service && query ? () => pfdcmClient.query(service, query) : skipToken,
+  });
+
+  // ========================================
+  // DATA
+  // ========================================
+
+  const studies = React.useMemo(() => {
+    if (!pfdcmStudies.data) {
+      return null;
+    }
+    return joinStates(pfdcmStudies.data);
+  }, [joinStates, pfdcmStudies]);
+
+  const state: IPacsState = React.useMemo(() => {
+    return { preferences, studies };
+  }, [preferences, studies]);
+
+  const error = React.useMemo(
+    () => wsError || pfdcmServices.error,
+    [wsError, pfdcmServices.error],
+  );
+
+  // ========================================
+  // CALLBACKS
+  // ========================================
 
   /**
-   * Set the "loading" state, then fetch the studies from PFDCM.
+   * Fetch studies from PFDCM.
    */
-  const onSubmit = React.useMemo(
-    () => (service: string, query: PACSqueryCore) => {
-      dispatch(pacsSlice.actions.setLoading());
-      pfdcmClient.query(service, query)().then(setStudies);
+  const onSubmit = React.useCallback(
+    (service: string, query: PACSqueryCore) => {
+      setPacsQuery({ service, query });
     },
-    [dispatch, pacsSlice, pfdcmClient, setStudies],
+    [setPacsQuery],
   );
 
-  const onStudyExpand = (service: string, StudyInstanceUID: string) => {
-    // TODO search for the study in CUBE
-  };
+  const onStudyExpand = React.useCallback(
+    (service: string, StudyInstanceUIDs: ReadonlyArray<string>) => {
+      // TODO search for the study in CUBE
+    },
+    [],
+  );
 
-  const onRetrieve = (service: string, query: PACSqueryCore) => {};
+  // TODO onRetrieve
+  const onRetrieve = React.useCallback(
+    (service: string, query: PACSqueryCore) => {},
+    [],
+  );
 
+  // ========================================
+  // EFFECTS
+  // ========================================
+
+  // Set document title
   React.useEffect(() => {
+    const originalTitle = document.title;
     document.title = "ChRIS PACS";
+    return () => {
+      document.title = originalTitle;
+    };
   }, []);
 
-  React.useEffect(() => {
-    const getServicesPipeline = pipe(
-      pfdcmClient.getPacsServices(),
-      failWithError,
-      TE.map(setServices),
-    );
-    getServicesPipeline();
-  }, [pfdcmClient, failWithError]);
-
+  // Connect to PACS progress websocket and respond to updates.
   React.useEffect(() => {
     let subscriber: LonkSubscriber | null = null;
     const connectWsPipeline = pipe(
       fpClient.connectPacsNotifications(),
-      failWithError,
+      TE.mapLeft(setWsError),
       TE.map((s) => (subscriber = s)),
       TE.map((s) => {
         s.onclose = () =>
@@ -128,21 +166,25 @@ const PacsController: React.FC<PacsControllerProps> = ({
       }),
     );
     connectWsPipeline();
-
     return () => subscriber?.close();
-  }, [fpClient, failWithError, message]);
+  }, [fpClient, setWsError, message]);
+
+  // ========================================
+  // RENDER
+  // ========================================
 
   return (
     <PageSection>
-      {error !== null ? (
-        <ErrorScreen>{error}</ErrorScreen>
-      ) : services ? (
+      {error ? (
+        <ErrorScreen>{error.message}</ErrorScreen>
+      ) : pfdcmServices.data ? (
         <PacsView
-          services={services}
-          data={data}
+          state={state}
+          services={pfdcmServices.data}
           onSubmit={onSubmit}
           onRetrieve={onRetrieve}
           onStudyExpand={onStudyExpand}
+          isLoadingStudies={pfdcmStudies.isLoading}
         />
       ) : (
         <PacsLoadingScreen />

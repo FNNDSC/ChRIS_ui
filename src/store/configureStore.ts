@@ -16,7 +16,6 @@ import pluginInstanceReducer from "./pluginInstance/pluginInstanceSlice";
 import resourceReducer from "./resources/resourceSlice";
 import uiReducer from "./ui/uiSlice";
 import userReducer from "./user/userSlice";
-import pacsReducer from "./pacs/pacsSlice";
 import { rootSaga } from "./root/rootSaga";
 import { ApplicationState } from "./root/applicationState";
 
@@ -39,7 +38,6 @@ export function setupStore(preloadedState?: ApplicationState) {
       instance: pluginInstanceReducer,
       resource: resourceReducer,
       ui: uiReducer,
-      pacs: pacsReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

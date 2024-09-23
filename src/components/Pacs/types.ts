@@ -1,3 +1,8 @@
+/**
+ * Developer note: do not use {@link ReadonlyArray} because
+ * it is not supported as antd props.
+ */
+
 import { Series, Study } from "../../api/pfdcm/models.ts";
 import { PACSSeries } from "@fnndsc/chrisapi";
 import { Either } from "fp-ts/Either";
@@ -56,9 +61,9 @@ type PacsPreferences = {
 };
 
 interface IPacsState {
-  studies: Either<Error, PacsStudyState[]> | "loading" | null;
   preferences: PacsPreferences;
+  studies: PacsStudyState[] | null;
 }
 
 export { SERIES_BUSY_STATES, SeriesPullState };
-export type { PacsSeriesState, PacsStudyState, IPacsState, PacsPreferences };
+export type { IPacsState, PacsSeriesState, PacsStudyState, PacsPreferences };

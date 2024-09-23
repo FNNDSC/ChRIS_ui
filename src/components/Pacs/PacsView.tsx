@@ -1,42 +1,20 @@
 import React from "react";
 import PacsInput, { PacsInputProps } from "./components/PacsInput.tsx";
-import PacsStudiesView, {
-  PacsStudiesViewProps,
-} from "./components/PacsStudiesView.tsx";
+import PacsStudiesView from "./components/PacsStudiesView.tsx";
 import { getDefaultPacsService } from "./components/helpers.ts";
 import { useSearchParams } from "react-router-dom";
 import { PACSqueryCore } from "../../api/pfdcm";
-import { IPacsState } from "../../store/pacs/types.ts";
-import { pipe } from "fp-ts/function";
-import * as E from "fp-ts/Either";
+import { Empty, Flex, Spin } from "antd";
+import { IPacsState } from "./types.ts";
 
 type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> & {
-  data: IPacsState;
   onRetrieve: (service: string, query: PACSqueryCore) => void;
-  onStudyExpand: (service: string, StudyInstanceUID: string) => void;
-};
-
-/**
- * Wraps {@link PacsStudiesViewProps}, handling the union variants of `data`
- * whether it be `null` or "loading".
- */
-const MaybePacsStudiesView: React.FC<
-  Pick<PacsViewProps, "data"> & Omit<PacsStudiesViewProps, "studies">
-> = ({ data, ...props }) => {
-  switch (data.studies) {
-    case null:
-      return <>Enter a search to get started</>;
-    case "loading":
-      return <>loading</>;
-    default:
-      return pipe(
-        data.studies,
-        E.match(
-          (error) => <>Error: {error.message}</>,
-          (studies) => <PacsStudiesView studies={studies} {...props} />,
-        ),
-      );
-  }
+  onStudyExpand: (
+    service: string,
+    StudyInstanceUIDs: ReadonlyArray<string>,
+  ) => void;
+  state: IPacsState;
+  isLoadingStudies?: boolean;
 };
 
 /**
@@ -46,11 +24,12 @@ const MaybePacsStudiesView: React.FC<
  * and will display studies and series found in PACS.
  */
 const PacsView: React.FC<PacsViewProps> = ({
+  state: { preferences, studies },
   services,
   onSubmit,
   onRetrieve,
   onStudyExpand,
-  data,
+  isLoadingStudies,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultService = React.useMemo(
@@ -70,8 +49,8 @@ const PacsView: React.FC<PacsViewProps> = ({
   );
 
   const curriedOnStudyExpand = React.useMemo(
-    () => (StudyInstanceUID: string) =>
-      onStudyExpand(service, StudyInstanceUID),
+    () => (StudyInstanceUIDS: ReadonlyArray<string>) =>
+      onStudyExpand(service, StudyInstanceUIDS),
     [onStudyExpand],
   );
 
@@ -84,11 +63,23 @@ const PacsView: React.FC<PacsViewProps> = ({
         setService={setService}
       />
       <br />
-      <MaybePacsStudiesView
-        onRetrieve={curriedOnRetrieve}
-        onStudyExpand={curriedOnStudyExpand}
-        data={data}
-      />
+      {studies ? (
+        <Spin spinning={isLoadingStudies}>
+          <PacsStudiesView
+            preferences={preferences}
+            studies={studies}
+            onRetrieve={curriedOnRetrieve}
+            onStudyExpand={curriedOnStudyExpand}
+          />
+        </Spin>
+      ) : (
+        <Flex align="center" justify="center" style={{ height: "100%" }}>
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="Enter a search to get started."
+          />
+        </Flex>
+      )}
     </>
   );
 };
