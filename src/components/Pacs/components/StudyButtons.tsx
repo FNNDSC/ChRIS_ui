@@ -18,7 +18,9 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
   <Flex vertical={true} gap="middle">
     <Tooltip
       title={
-        isPulled ? (
+        isLoading ? (
+          <>Checking availability...</>
+        ) : isPulled ? (
           <>
             This study is already pulled in <em>ChRIS</em>.
           </>
@@ -36,7 +38,7 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
         loading={isLoading}
         disabled={isPulled}
       >
-        <ImportOutlined />
+        {isLoading || <ImportOutlined />}
       </Button>
     </Tooltip>
     {ohifUrl && (

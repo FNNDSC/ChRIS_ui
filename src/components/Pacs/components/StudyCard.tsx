@@ -3,7 +3,8 @@ import React from "react";
 import { Row, Col } from "antd";
 import StudyDetails from "./StudyDetails.tsx";
 import StudyButtons from "./StudyButtons.tsx";
-import { useAppSelector } from "../../../store/hooks.ts";
+import { PacsPreferences } from "../types.ts";
+import { DEFAULT_PREFERENCES } from "../defaultPreferences.ts";
 
 type StudyCardProps = {
   study: Study;
@@ -12,6 +13,7 @@ type StudyCardProps = {
   isLoading?: boolean;
   onExpand: () => void;
   ohifUrl?: string;
+  preferences?: PacsPreferences;
 };
 
 const StudyCard: React.FC<StudyCardProps> = ({
@@ -19,10 +21,8 @@ const StudyCard: React.FC<StudyCardProps> = ({
   isPulled,
   isLoading,
   ohifUrl = import.meta.env.VITE_OHIF_URL,
+  preferences: { dateFormat, showUid } = DEFAULT_PREFERENCES,
 }) => {
-  const { dateFormat, showUid } = useAppSelector(
-    (state) => state.pacs.preferences,
-  );
   return (
     <Row>
       <Col xs={21} sm={22} md={23}>
