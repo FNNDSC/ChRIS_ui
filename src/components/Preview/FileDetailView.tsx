@@ -51,7 +51,6 @@ interface AllProps {
   fetchMore?: boolean;
   handlePagination?: () => void;
   filesLoading?: boolean;
-  isDrawer?: boolean;
 }
 
 export interface ActionState {
@@ -141,14 +140,8 @@ const FileDetailView = (props: AllProps) => {
     },
   });
 
-  const {
-    selectedFile,
-    preview,
-    fetchMore,
-    handlePagination,
-    filesLoading,
-    isDrawer,
-  } = props;
+  const { selectedFile, preview, fetchMore, handlePagination, filesLoading } =
+    props;
   let viewerName = "";
   const fileType = getFileExtension(selectedFile?.data.fname);
   if (fileType) {
