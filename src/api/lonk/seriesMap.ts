@@ -1,11 +1,23 @@
+import { immerable } from "immer";
+
 /**
  * A wrapper around {@link Map} where the key is (pacs_name, SeriesInstanceUID).
  */
 class SeriesMap<T> {
+  [immerable] = true;
+
   private readonly map: Map<string, T>;
 
   public constructor() {
     this.map = new Map();
+  }
+
+  /**
+   * Get a value for a DICOM series.
+   */
+  public get(pacs_name: string, SeriesInstanceUID: string): T | undefined {
+    const key = this.keyOf(SeriesInstanceUID, pacs_name);
+    return this.map.get(key);
   }
 
   /**

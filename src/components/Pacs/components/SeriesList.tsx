@@ -27,7 +27,7 @@ type SeriesRowProps = PacsSeriesState & {
 
 const SeriesRow: React.FC<SeriesRowProps> = ({
   info,
-  error,
+  errors,
   pullState,
   inCube,
   receivedCount,
@@ -39,8 +39,8 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   );
 
   const tooltipTitle = React.useMemo(() => {
-    if (error.length > 0) {
-      return <>Error: {error[0]}</>;
+    if (errors.length > 0) {
+      return <>Error: {errors[0]}</>;
     }
     if (pullState === SeriesPullState.NOT_CHECKED) {
       return <>Not ready.</>;
@@ -66,17 +66,17 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
         This series is available in <em>ChRIS</em>.
       </>
     );
-  }, [error, info, pullState, inCube]);
+  }, [errors, info, pullState, inCube]);
 
   const buttonColor = React.useMemo((): ButtonProps["color"] => {
-    if (error.length > 0) {
+    if (errors.length > 0) {
       return "danger";
     }
     if (pullState === SeriesPullState.READY) {
       return "primary";
     }
     return "default";
-  }, [error, pullState]);
+  }, [errors, pullState]);
 
   return (
     <Flex
@@ -117,7 +117,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
             disabled={pullState !== SeriesPullState.READY}
             color={buttonColor}
           >
-            {isLoading || error.length === 0 ? (
+            {isLoading || errors.length === 0 ? (
               <ImportOutlined />
             ) : (
               <WarningFilled />

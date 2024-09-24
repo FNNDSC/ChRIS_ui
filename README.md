@@ -147,6 +147,10 @@ docker run --rm --net=host -u "$(id -u):$(id -g)" \
   generate -g typescript-fetch -i http://localhost:4005/openapi.json -o /src/api/pfdcm/generated
 ```
 
+## Development Notes
+
+- Do not use `ReadonlyArray` because it is not supported by `antd` prop types.
+
 <!-- Image Links -->
 
 [license-badge]: https://img.shields.io/github/license/fnndsc/chris_ui.svg

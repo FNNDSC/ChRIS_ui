@@ -1,9 +1,8 @@
-import { PacsPreferences, PacsSeriesState, PacsStudyState } from "../types.ts";
+import { PacsPreferences, PacsStudyState } from "../types.ts";
 import { PACSqueryCore } from "../../../api/pfdcm";
 import StudyCard from "./StudyCard.tsx";
 import { Collapse, CollapseProps, Space, Typography } from "antd";
 import React from "react";
-import * as E from "fp-ts/Either";
 import SeriesList from "./SeriesList.tsx";
 import { isSeriesLoading } from "./helpers.ts";
 
