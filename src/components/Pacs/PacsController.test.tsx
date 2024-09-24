@@ -1,4 +1,4 @@
-import { cleanup, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import PacsQRApp from "./PacsController.tsx";
 import { Configuration as PfdcmConfig, PfdcmClient } from "../../api/pfdcm";
