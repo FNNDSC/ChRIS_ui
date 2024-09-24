@@ -43,6 +43,10 @@ enum SeriesPullState {
  */
 type SeriesReceiveState = {
   /**
+   * Whether this series has been subscribed to via LONK.
+   */
+  subscribed: boolean;
+  /**
    * Whether this series has been requested by PFDCM.
    */
   requested: boolean;
@@ -61,6 +65,7 @@ type SeriesReceiveState = {
 };
 
 const DEFAULT_RECEIVE_STATE: SeriesReceiveState = {
+  subscribed: false,
   requested: false,
   done: false,
   receivedCount: 0,

@@ -4,8 +4,6 @@
  * https://chrisproject.org/docs/oxidicom/lonk-ws
  */
 
-import LonkSubscriber from "./LonkSubscriber.ts";
-import { LonkHandlers } from "./types.ts";
-
-export default LonkSubscriber;
-export type { LonkHandlers };
+export { default as useLonk, type UseLonkParams } from "./useLonk.ts";
+export { default as SeriesMap } from "./seriesMap.ts";
+export type { LonkHandlers, SeriesKey } from "./types.ts";

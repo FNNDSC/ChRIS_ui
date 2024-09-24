@@ -9,7 +9,6 @@ import Client, {
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
 import { pipe } from "fp-ts/function";
-import LonkSubscriber from "../lonk";
 
 /**
  * fp-ts friendly wrapper for @fnndsc/chrisapi
@@ -122,49 +121,6 @@ class FpClient {
       E.toError,
     );
   }
-
-  /**
-   * Connect a WebSocket to the LONK-WS endpoint.
-   *
-   * https://chrisproject.org/docs/oxidicom/lonk-ws
-   */
-  public connectPacsNotifications(
-    ...args: Parameters<FpClient["createDownloadToken"]>
-  ): TE.TaskEither<Error, LonkSubscriber> {
-    return pipe(
-      this.createDownloadToken(...args),
-      TE.flatMap((downloadToken) => {
-        const url = getWebsocketUrl(downloadToken);
-        let callback: ((c: E.Either<Error, LonkSubscriber>) => void) | null =
-          null;
-        let promise: Promise<E.Either<Error, LonkSubscriber>> = new Promise(
-          (resolve) => (callback = resolve),
-        );
-        const ws = new WebSocket(url);
-        ws.onopen = () => callback && callback(E.right(new LonkSubscriber(ws)));
-        ws.onerror = (_ev) =>
-          callback &&
-          callback(
-            E.left(
-              new Error(
-                `There was an error connecting to the WebSocket at ${url}`,
-              ),
-            ),
-          );
-        ws.onclose = () =>
-          callback &&
-          callback(E.left(new Error(`CUBE unexpectedly closed the WebSocket`)));
-        return () => promise;
-      }),
-    );
-  }
-}
-
-function getWebsocketUrl(downloadTokenResponse: DownloadToken): string {
-  const token = downloadTokenResponse.data.token;
-  return downloadTokenResponse.url
-    .replace(/^http(s?):\/\//, (_match, s) => `ws${s}://`)
-    .replace(/v1\/downloadtokens\/\d+\//, `v1/pacs/ws/?token=${token}`);
 }
 
 function notNull<T>(x: T | null): T {
@@ -175,4 +131,4 @@ function notNull<T>(x: T | null): T {
 }
 
 export default FpClient;
-export { FpClient, getWebsocketUrl };
+export { FpClient };
