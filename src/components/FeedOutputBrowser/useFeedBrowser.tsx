@@ -63,9 +63,9 @@ export const useFeedBrowser = () => {
   const observerTarget = useRef(null);
 
   const fetchMore =
-    pluginFilesPayload?.foldersPagination.hasNextPage ||
-    pluginFilesPayload?.filesPagination.hasNextPage ||
-    pluginFilesPayload?.linksPagination.hasNextPage;
+    pluginFilesPayload?.foldersPagination?.hasNextPage ||
+    pluginFilesPayload?.filesPagination?.hasNextPage ||
+    pluginFilesPayload?.linksPagination?.hasNextPage;
 
   // Set up an intersection observer to load more data when the user scrolls to the bottom of the page
   useEffect(() => {
