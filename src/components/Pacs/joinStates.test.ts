@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { pullStateOf } from "./joinStates.ts";
+import { pullStateOf } from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
   SeriesPullState,

@@ -1,16 +1,7 @@
 /**
  * The primary PACS Q/R UI code is found in ./PacsView.tsx. This file defines
- * a component which wraps the default export from ./PacsView.tsx, which:
- *
- * 1. "bootstraps" the client objects it needs (see below)
- *
- * The PACS Q/R application needs to be "bootstrapped" which means:
- *
- * 1. Making an initial connection to PFDCM
- * 2. Connecting to the PACS receive progress WebSocket, `api/v1/pacs/ws/`
- *
- * During bootstrapping, a loading screen is shown.
- * If bootstrapping fails, an error screen is shown.
+ * a component which wraps the default export from ./PacsView.tsx, which
+ * manages effects and state.
  */
 
 import React from "react";
@@ -22,7 +13,7 @@ import PacsView from "./PacsView.tsx";
 import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
 import { skipToken, useQueries, useQuery } from "@tanstack/react-query";
-import joinStates, { SeriesQueryZip } from "./joinStates.ts";
+import mergeStates, { SeriesQueryZip } from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
   IPacsState,
@@ -43,7 +34,44 @@ type PacsControllerProps = {
 };
 
 /**
- * ChRIS_ui PACS Query and Retrieve controller + view.
+ * ChRIS_ui "PACS Query and Retrieve" controller + view.
+ *
+ * ## Purpose
+ *
+ * This component handles all the state and effects for {@link PacsView},
+ * which includes:
+ *
+ * - Managing the CUBE and PFDCM client objects and making requests with them
+ * - Connecting to the progress notifications WebSocket at `api/v1/pacs/ws/`
+ * - Knowing the state of which DICOM series are received, receiving, or
+ *   ready to receive.
+ * - Dispatching requests for querying and retrieving DICOM from PACS via PFDCM.
+ *
+ * ## Bootstrapping
+ *
+ * The PACS Q/R application needs to be "bootstrapped" which means:
+ *
+ * 1. Making an initial connection to PFDCM
+ * 2. Connecting to the PACS receive progress WebSocket, `api/v1/pacs/ws/`
+ *
+ * During bootstrapping, a loading screen is shown. If bootstrapping fails,
+ * an error screen is shown.
+ *
+ * ## PACS Retrieve Workflow
+ *
+ * ChRIS_ui and the rest of CUBE work together to implement the following
+ * behavior for each DICOM series:
+ *
+ * 1. ChRIS_ui subscribes to a series' notifications via LONK
+ * 2. ChRIS_ui checks CUBE whether a series exists in CUBE
+ * 3. When both subscription and existence check is complete,
+ *    and the series does not exist in CUBE, ChRIS_ui is ready
+ *    to pull the DICOM series.
+ * 4. During the reception of a DICOM series, `status.done === false`
+ * 5. After the reception of a DICOM series, ChRIS enters a "waiting"
+ *    state while the task to register the DICOM series is enqueued
+ *    or running.
+ * 6. The DICOM series will appear in CUBE after being registered.
  */
 const PacsController: React.FC<PacsControllerProps> = ({
   getChrisClient,
@@ -137,8 +165,8 @@ const PacsController: React.FC<PacsControllerProps> = ({
     if (!pfdcmStudies.data) {
       return null;
     }
-    return joinStates(pfdcmStudies.data, cubeSeriesQueryZip, receiveState);
-  }, [joinStates, pfdcmStudies, cubeSeriesQueryZip, receiveState]);
+    return mergeStates(pfdcmStudies.data, cubeSeriesQueryZip, receiveState);
+  }, [mergeStates, pfdcmStudies, cubeSeriesQueryZip, receiveState]);
 
   const state: IPacsState = React.useMemo(() => {
     return { preferences, studies };
@@ -233,9 +261,6 @@ const PacsController: React.FC<PacsControllerProps> = ({
       message.error(
         <>There was an error with the WebSocket. Reconnecting&hellip;</>,
       );
-    },
-    onClose() {
-      message.error(<>The WebSocket was closed. Reconnecting&hellip;</>);
     },
   });
 
