@@ -8,10 +8,9 @@ import { DEFAULT_PREFERENCES } from "../defaultPreferences.ts";
 
 type StudyCardProps = {
   study: Study;
-  showUid?: boolean;
   isPulled?: boolean;
   isLoading?: boolean;
-  onExpand: () => void;
+  onRetrieve?: () => void;
   ohifUrl?: string;
   preferences?: PacsPreferences;
 };
@@ -22,6 +21,7 @@ const StudyCard: React.FC<StudyCardProps> = ({
   isLoading,
   ohifUrl = import.meta.env.VITE_OHIF_URL,
   preferences: { dateFormat, showUid } = DEFAULT_PREFERENCES,
+  onRetrieve,
 }) => {
   return (
     <Row>
@@ -36,6 +36,7 @@ const StudyCard: React.FC<StudyCardProps> = ({
             ohifUrl &&
             `${ohifUrl}viewer?StudyInstanceUIDs=${study.StudyInstanceUID}`
           }
+          onRetrieve={onRetrieve}
         ></StudyButtons>
       </Col>
     </Row>

@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonProps,
   Descriptions,
   Flex,
   Grid,
@@ -8,15 +9,12 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import {
-  PacsSeriesState,
-  SERIES_BUSY_STATES,
-  SeriesPullState,
-} from "../types.ts";
+import { PacsSeriesState, SeriesPullState } from "../types.ts";
 import ModalityBadges from "./ModalityBadges.tsx";
-import { ImportOutlined } from "@ant-design/icons";
+import { ImportOutlined, WarningFilled } from "@ant-design/icons";
 import styles from "./SeriesList.module.css";
 import React from "react";
+import { isSeriesLoading } from "./helpers.ts";
 
 type SeriesTableProps = {
   states: PacsSeriesState[];
@@ -29,15 +27,56 @@ type SeriesRowProps = PacsSeriesState & {
 
 const SeriesRow: React.FC<SeriesRowProps> = ({
   info,
+  error,
   pullState,
   inCube,
   receivedCount,
   showUid,
 }) => {
   const isLoading = React.useMemo(
-    () => SERIES_BUSY_STATES.includes(pullState),
-    [SERIES_BUSY_STATES, pullState],
+    () => isSeriesLoading({ pullState, inCube }),
+    [pullState, inCube],
   );
+
+  const tooltipTitle = React.useMemo(() => {
+    if (error.length > 0) {
+      return <>Error: {error[0]}</>;
+    }
+    if (pullState === SeriesPullState.NOT_CHECKED) {
+      return <>Not ready.</>;
+    }
+    if (pullState === SeriesPullState.CHECKING) {
+      return <>Checking availability&hellip;</>;
+    }
+    if (pullState === SeriesPullState.READY) {
+      return (
+        <>
+          Pull "{info.SeriesDescription}" into <em>ChRIS</em>.
+        </>
+      );
+    }
+    if (pullState === SeriesPullState.PULLING) {
+      return <>Receiving&hellip;</>;
+    }
+    if (inCube === null) {
+      return <>Waiting...</>;
+    }
+    return (
+      <>
+        This series is available in <em>ChRIS</em>.
+      </>
+    );
+  }, [error, info, pullState, inCube]);
+
+  const buttonColor = React.useMemo((): ButtonProps["color"] => {
+    if (error.length > 0) {
+      return "danger";
+    }
+    if (pullState === SeriesPullState.READY) {
+      return "primary";
+    }
+    return "default";
+  }, [error, pullState]);
 
   return (
     <Flex
@@ -72,27 +111,17 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
         />
       </div>
       <div className={styles.pullButton}>
-        <Tooltip
-          placement="left"
-          title={
-            pullState === SeriesPullState.NOT_READY ? (
-              <>Checking availability...</>
-            ) : inCube === null ? (
-              <>Pull series "{info.SeriesDescription}"</>
-            ) : (
-              <>
-                Series "{info.SeriesDescription}" is already in <em>ChRIS</em>
-              </>
-            )
-          }
-        >
+        <Tooltip placement="left" title={tooltipTitle}>
           <Button
             loading={isLoading}
-            disabled={
-              pullState === SeriesPullState.NOT_READY || inCube !== null
-            }
+            disabled={pullState !== SeriesPullState.READY}
+            color={buttonColor}
           >
-            {isLoading || <ImportOutlined />}
+            {isLoading || error.length === 0 ? (
+              <ImportOutlined />
+            ) : (
+              <WarningFilled />
+            )}
           </Button>
         </Tooltip>
       </div>
