@@ -15,7 +15,7 @@
 
 import React from "react";
 import { PACSqueryCore, PfdcmClient } from "../../api/pfdcm";
-import Client from "@fnndsc/chrisapi";
+import Client, { PACSSeries } from "@fnndsc/chrisapi";
 import LonkSubscriber from "../../api/lonk";
 import { App } from "antd";
 import FpClient from "../../api/fp/chrisapi.ts";
@@ -25,10 +25,11 @@ import { PageSection } from "@patternfly/react-core";
 import PacsView from "./PacsView.tsx";
 import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
-import { skipToken, useQuery } from "@tanstack/react-query";
-import joinStates from "./joinStates.ts";
-import { IPacsState } from "./types.ts";
+import { skipToken, useQueries, useQuery } from "@tanstack/react-query";
+import joinStates, { SeriesQueryZip } from "./joinStates.ts";
+import { IPacsState, StudyKey } from "./types.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
+import { zipPacsNameAndSeriesUids } from "./helpers.ts";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
@@ -68,8 +69,12 @@ const PacsController: React.FC<PacsControllerProps> = ({
   // TODO create a settings component for changing preferences
   const [preferences, setPreferences] = React.useState(DEFAULT_PREFERENCES);
 
+  const [expandedStudies, setExpandedStudies] = React.useState<
+    ReadonlyArray<StudyKey>
+  >([]);
+
   // ========================================
-  // QUERIES
+  // QUERIES AND DATA
   // ========================================
 
   const pfdcmServices = useQuery({
@@ -86,16 +91,43 @@ const PacsController: React.FC<PacsControllerProps> = ({
     queryFn:
       service && query ? () => pfdcmClient.query(service, query) : skipToken,
   });
+  const expandedSeries = React.useMemo(
+    () => zipPacsNameAndSeriesUids(expandedStudies, pfdcmStudies.data),
+    [expandedStudies, pfdcmStudies.data],
+  );
 
-  // ========================================
-  // DATA
-  // ========================================
+  const cubeSeriesQuery = useQueries({
+    queries: expandedSeries.map((series) => ({
+      queryKey: ["cubeSeries", chrisClient.url, series],
+      queryFn: async () => {
+        const list = await chrisClient.getPACSSeriesList({
+          limit: 1,
+          ...series,
+        });
+        const items: PACSSeries[] | null = list.getItems();
+        // https://github.com/FNNDSC/fnndsc/issues/101
+        if (items === null) {
+          return null;
+        }
+        return items[0] || null;
+      },
+    })),
+  });
+
+  const cubeSeriesQueryZip: ReadonlyArray<SeriesQueryZip> = React.useMemo(
+    () =>
+      expandedSeries.map((search, i) => ({
+        search,
+        result: cubeSeriesQuery[i],
+      })),
+    [expandedSeries, cubeSeriesQuery],
+  );
 
   const studies = React.useMemo(() => {
     if (!pfdcmStudies.data) {
       return null;
     }
-    return joinStates(pfdcmStudies.data);
+    return joinStates(pfdcmStudies.data, cubeSeriesQueryZip);
   }, [joinStates, pfdcmStudies]);
 
   const state: IPacsState = React.useMemo(() => {
@@ -122,15 +154,23 @@ const PacsController: React.FC<PacsControllerProps> = ({
   );
 
   const onStudyExpand = React.useCallback(
-    (service: string, StudyInstanceUIDs: ReadonlyArray<string>) => {
-      // TODO search for the study in CUBE
+    (pacs_name: string, StudyInstanceUIDs: ReadonlyArray<string>) => {
+      console.log(`onStudyExpand`);
+      setExpandedStudies(
+        StudyInstanceUIDs.map((StudyInstanceUID) => ({
+          StudyInstanceUID,
+          pacs_name,
+        })),
+      );
     },
-    [],
+    [setExpandedStudies],
   );
 
   // TODO onRetrieve
   const onRetrieve = React.useCallback(
-    (service: string, query: PACSqueryCore) => {},
+    (service: string, query: PACSqueryCore) => {
+      console.log(`onRetrieve`);
+    },
     [],
   );
 

@@ -1,15 +1,11 @@
-import {
-  PacsPreferences,
-  PacsSeriesState,
-  PacsStudyState,
-  SERIES_BUSY_STATES,
-} from "../types.ts";
+import { PacsPreferences, PacsSeriesState, PacsStudyState } from "../types.ts";
 import { PACSqueryCore } from "../../../api/pfdcm";
 import StudyCard from "./StudyCard.tsx";
 import { Collapse, CollapseProps, Space, Typography } from "antd";
 import React from "react";
 import * as E from "fp-ts/Either";
 import SeriesList from "./SeriesList.tsx";
+import { isSeriesLoading } from "./helpers.ts";
 
 type PacsStudiesViewProps = {
   preferences: PacsPreferences;
@@ -34,16 +30,12 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
             isPulled={
               series.length === 0
                 ? true
-                : !series.find((series) => !isSeriesPulled(series))
+                : !series.find(({ inCube }) => inCube === null)
             }
             isLoading={
-              series.length === 0
-                ? false
-                : !!series.find((series) =>
-                    SERIES_BUSY_STATES.includes(series.pullState),
-                  )
+              series.length === 0 ? false : !!series.find(isSeriesLoading)
             }
-            onExpand={() =>
+            onRetrieve={() =>
               onRetrieve({
                 patientID: info.PatientID,
                 studyInstanceUID: info.StudyInstanceUID,
@@ -83,13 +75,6 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
     </Space>
   );
 };
-
-function isSeriesPulled(series: PacsSeriesState): boolean {
-  if (series.inCube === null) {
-    return false;
-  }
-  return E.isRight(series.inCube);
-}
 
 export type { PacsStudiesViewProps };
 export default PacsStudiesView;

@@ -43,13 +43,13 @@ const PacsView: React.FC<PacsViewProps> = ({
       return searchParams;
     });
 
-  const curriedOnRetrieve = React.useMemo(
-    () => (query: PACSqueryCore) => onRetrieve(service, query),
+  const curriedOnRetrieve = React.useCallback(
+    (query: PACSqueryCore) => onRetrieve(service, query),
     [onRetrieve],
   );
 
-  const curriedOnStudyExpand = React.useMemo(
-    () => (StudyInstanceUIDS: ReadonlyArray<string>) =>
+  const curriedOnStudyExpand = React.useCallback(
+    (StudyInstanceUIDS: ReadonlyArray<string>) =>
       onStudyExpand(service, StudyInstanceUIDS),
     [onStudyExpand],
   );

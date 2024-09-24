@@ -5,13 +5,26 @@
 
 import { Series, Study } from "../../api/pfdcm/models.ts";
 import { PACSSeries } from "@fnndsc/chrisapi";
-import { Either } from "fp-ts/Either";
+
+type StudyKey = {
+  pacs_name: string;
+  StudyInstanceUID: string;
+};
+
+type SeriesKey = {
+  pacs_name: string;
+  SeriesInstanceUID: string;
+};
 
 enum SeriesPullState {
   /**
-   * Not ready to be pulled.
+   * Unknown whether series is available in CUBE.
    */
-  NOT_READY,
+  NOT_CHECKED,
+  /**
+   * Currently checking for availability in CUBE.
+   */
+  CHECKING,
   /**
    * Ready to be pulled.
    */
@@ -21,26 +34,17 @@ enum SeriesPullState {
    */
   PULLING,
   /**
-   * Done being received by oxidicom, but not yet ready in CUBE.
+   * Done being received by oxidicom, but may or not yet ready in CUBE.
    */
-  WAITING,
+  WAITING_OR_COMPLETE,
 }
-
-/**
- * States in which a series is considered "busy".
- */
-const SERIES_BUSY_STATES: ReadonlyArray<SeriesPullState> = [
-  SeriesPullState.NOT_READY,
-  SeriesPullState.PULLING,
-  SeriesPullState.WAITING,
-];
 
 type PacsSeriesState = {
   info: Series;
   receivedCount: number;
   error: string[];
   pullState: SeriesPullState;
-  inCube: Either<Error, PACSSeries> | null;
+  inCube: PACSSeries | null;
 };
 
 type PacsStudyState = {
@@ -65,5 +69,12 @@ interface IPacsState {
   studies: PacsStudyState[] | null;
 }
 
-export { SERIES_BUSY_STATES, SeriesPullState };
-export type { IPacsState, PacsSeriesState, PacsStudyState, PacsPreferences };
+export { SeriesPullState };
+export type {
+  StudyKey,
+  SeriesKey,
+  IPacsState,
+  PacsSeriesState,
+  PacsStudyState,
+  PacsPreferences,
+};

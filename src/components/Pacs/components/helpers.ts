@@ -3,6 +3,7 @@ import {
   ReadonlyNonEmptyArray,
   extract as extractFromNonEmpty,
 } from "fp-ts/ReadonlyNonEmptyArray";
+import { PacsSeriesState, SeriesPullState } from "../types.ts";
 
 /**
  * Adapt {@link useSearchParams} to work like `React.useState<boolean>(false)`
@@ -47,4 +48,17 @@ function getDefaultPacsService(
   return extractFromNonEmpty(services);
 }
 
-export { useBooleanSearchParam, getDefaultPacsService };
+function isSeriesLoading({
+  pullState,
+  inCube,
+}: Pick<PacsSeriesState, "pullState" | "inCube">): boolean {
+  if (pullState === SeriesPullState.WAITING_OR_COMPLETE) {
+    return inCube === null;
+  }
+  return (
+    pullState === SeriesPullState.CHECKING ||
+    pullState === SeriesPullState.PULLING
+  );
+}
+
+export { useBooleanSearchParam, getDefaultPacsService, isSeriesLoading };

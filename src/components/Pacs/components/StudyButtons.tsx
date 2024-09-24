@@ -6,6 +6,7 @@ type StudyButtonsProps = {
   isLoading?: boolean;
   isPulled?: boolean;
   tooltipPlacement?: TooltipProps["placement"];
+  onRetrieve?: () => void;
 };
 
 const StudyButtons: React.FC<StudyButtonsProps> = ({
@@ -13,6 +14,7 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
   isLoading,
   isPulled,
   tooltipPlacement = "left",
+  onRetrieve,
 }) => (
   // TODO add "Create feed" button
   <Flex vertical={true} gap="middle">
@@ -37,6 +39,7 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
         type="primary"
         loading={isLoading}
         disabled={isPulled}
+        onClick={onRetrieve}
       >
         {isLoading || <ImportOutlined />}
       </Button>
