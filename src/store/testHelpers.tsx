@@ -7,6 +7,8 @@ import { ApplicationState } from "./root/applicationState.ts";
 import { Provider } from "react-redux";
 import { MemoryRouter } from "react-router";
 import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { App } from "antd";
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.
@@ -29,9 +31,24 @@ export function renderWithProviders(
     ...renderOptions
   } = extendedRenderOptions;
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false, // default: true
+        refetchOnMount: false,
+        retry: false,
+        staleTime: 0,
+      },
+    },
+  });
+
   const Wrapper = ({ children }: React.PropsWithChildren) => (
     <Provider store={store}>
-      <MemoryRouter>{children}</MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <App>
+          <MemoryRouter>{children}</MemoryRouter>
+        </App>
+      </QueryClientProvider>
     </Provider>
   );
 

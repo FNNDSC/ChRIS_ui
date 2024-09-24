@@ -16,11 +16,7 @@
 import React from "react";
 import { PACSqueryCore, PfdcmClient } from "../../api/pfdcm";
 import Client, { PACSSeries } from "@fnndsc/chrisapi";
-import LonkSubscriber from "../../api/lonk";
 import { App } from "antd";
-import FpClient from "../../api/fp/chrisapi.ts";
-import * as TE from "fp-ts/TaskEither";
-import { pipe } from "fp-ts/function";
 import { PageSection } from "@patternfly/react-core";
 import PacsView from "./PacsView.tsx";
 import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
@@ -28,15 +24,18 @@ import ErrorScreen from "./components/ErrorScreen.tsx";
 import { skipToken, useQueries, useQuery } from "@tanstack/react-query";
 import joinStates, { SeriesQueryZip } from "./joinStates.ts";
 import {
+  DEFAULT_RECEIVE_STATE,
   IPacsState,
-  SeriesReceiveState,
   ReceiveState,
+  SeriesReceiveState,
   StudyKey,
 } from "./types.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
 import { zipPacsNameAndSeriesUids } from "./helpers.ts";
 import { useImmer } from "use-immer";
 import SeriesMap from "../../api/lonk/seriesMap.ts";
+import { useLonk } from "../../api/lonk";
+import { produce, WritableDraft } from "immer";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
@@ -58,10 +57,6 @@ const PacsController: React.FC<PacsControllerProps> = ({
 
   const pfdcmClient = React.useMemo(getPfdcmClient, [getPfdcmClient]);
   const chrisClient = React.useMemo(getChrisClient, [getChrisClient]);
-  const fpClient = React.useMemo(
-    () => new FpClient(chrisClient),
-    [chrisClient],
-  );
 
   // ========================================
   // STATE
@@ -71,7 +66,11 @@ const PacsController: React.FC<PacsControllerProps> = ({
     service?: string;
     query?: PACSqueryCore;
   }>({});
-  const [wsError, setWsError] = React.useState<Error | null>(null);
+
+  /**
+   * Indicates a fatal error with the WebSocket.
+   */
+  const [wsError, setWsError] = React.useState<React.ReactNode | null>(null);
 
   // TODO create a settings component for changing preferences
   const [preferences, setPreferences] = React.useState(DEFAULT_PREFERENCES);
@@ -146,9 +145,99 @@ const PacsController: React.FC<PacsControllerProps> = ({
   }, [preferences, studies]);
 
   const error = React.useMemo(
-    () => wsError || pfdcmServices.error,
+    () => wsError || pfdcmServices.error?.message,
     [wsError, pfdcmServices.error],
   );
+
+  // ========================================
+  // LONK WEBSOCKET
+  // ========================================
+
+  const getSeriesDescriptionOr = React.useCallback(
+    (pacs_name: string, SeriesInstanceUID: string) => {
+      if (!pfdcmStudies.data) {
+        return SeriesInstanceUID;
+      }
+      const series = pfdcmStudies.data
+        .flatMap((s) => s.series)
+        .find(
+          (s) =>
+            s.SeriesInstanceUID === SeriesInstanceUID &&
+            s.RetrieveAETitle === pacs_name,
+        );
+      if (!series) {
+        return SeriesInstanceUID;
+      }
+      return series.SeriesDescription;
+    },
+    [pfdcmStudies.data],
+  );
+
+  /**
+   * Update (or insert) the state of a series' reception.
+   */
+  const updateReceiveState = React.useCallback(
+    (
+      pacs_name: string,
+      SeriesInstanceUID: string,
+      recipe: (draft: WritableDraft<SeriesReceiveState>) => void,
+    ) =>
+      setReceiveState((draft) => {
+        const prevState =
+          draft.get(pacs_name, SeriesInstanceUID) || DEFAULT_RECEIVE_STATE;
+        const nextState = produce(prevState, recipe);
+        draft.set(pacs_name, SeriesInstanceUID, nextState);
+      }),
+    [setReceiveState],
+  );
+
+  const lonk = useLonk({
+    client: chrisClient,
+    onDone(pacs_name: string, SeriesInstanceUID: string) {
+      updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
+        draft.done = true;
+      });
+    },
+    onProgress(pacs_name: string, SeriesInstanceUID: string, ndicom: number) {
+      updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
+        draft.receivedCount = ndicom;
+      });
+    },
+    onError(pacs_name: string, SeriesInstanceUID: string, error: string) {
+      updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
+        draft.errors.push(error);
+      });
+      const desc = getSeriesDescriptionOr(pacs_name, SeriesInstanceUID);
+      message.error(
+        <>There was an error while receiving the series "{desc}"</>,
+      );
+    },
+    onMessageError(data: any, error: string) {
+      console.error("LONK message error", error, data);
+      message.error(
+        <>
+          A <em>LONK</em> error occurred, please check the console.
+        </>,
+      );
+    },
+    retryOnError: true,
+    reconnectAttempts: 3,
+    reconnectInterval: 3000,
+    shouldReconnect(e) {
+      return e.code < 400 || e.code > 499;
+    },
+    onReconnectStop() {
+      setWsError(<>The WebSocket is disconnected.</>);
+    },
+    onWebsocketError() {
+      message.error(
+        <>There was an error with the WebSocket. Reconnecting&hellip;</>,
+      );
+    },
+    onClose() {
+      message.error(<>The WebSocket was closed. Reconnecting&hellip;</>);
+    },
+  });
 
   // ========================================
   // CALLBACKS
@@ -198,27 +287,20 @@ const PacsController: React.FC<PacsControllerProps> = ({
     };
   }, []);
 
-  // Connect to PACS progress websocket and respond to updates.
+  // Subscribe to all expanded series
   React.useEffect(() => {
-    let subscriber: LonkSubscriber | null = null;
-    const connectWsPipeline = pipe(
-      fpClient.connectPacsNotifications(),
-      TE.mapLeft(setWsError),
-      TE.map((s) => (subscriber = s)),
-      TE.map((s) => {
-        s.onclose = () =>
-          message.error(<>WebSocket closed, please refresh the page.</>);
-        s.init({
-          // TODO
-          onError: () => {},
-          onDone: () => {},
-          onProgress: () => {},
+    for (const { pacs_name, SeriesInstanceUID } of expandedSeries) {
+      lonk
+        .subscribe(pacs_name, SeriesInstanceUID)
+        .then(({ pacs_name, SeriesInstanceUID }) => {
+          updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
+            draft.subscribed = true;
+          });
         });
-      }),
-    );
-    connectWsPipeline();
-    return () => subscriber?.close();
-  }, [fpClient, setWsError, message]);
+    }
+    // Note: we are subscribing to series, but never unsubscribing.
+    // This is mostly harmless.
+  }, [expandedSeries]);
 
   // ========================================
   // RENDER
@@ -227,7 +309,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
   return (
     <PageSection>
       {error ? (
-        <ErrorScreen>{error.message}</ErrorScreen>
+        <ErrorScreen>{error}</ErrorScreen>
       ) : pfdcmServices.data ? (
         <PacsView
           state={state}

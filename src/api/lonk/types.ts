@@ -89,6 +89,12 @@ type LonkHandlers = {
     SeriesInstanceUID: string,
     error: string,
   ) => void;
+  /**
+   * Error deserializing the data.
+   * @param data
+   * @param error
+   */
+  onMessageError?: (data: any, error: string) => void;
 };
 
 export type {

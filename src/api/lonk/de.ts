@@ -81,4 +81,5 @@ function jIsArray(obj: J.JsonArray | any): obj is J.JsonArray {
   return Array.isArray(obj);
 }
 
+export type { UnsubscriptionOrLonk };
 export default deserialize;
