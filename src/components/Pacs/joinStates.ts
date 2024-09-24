@@ -1,4 +1,11 @@
-import { PacsStudyState, SeriesKey, SeriesPullState } from "./types.ts";
+import {
+  DEFAULT_RECEIVE_STATE,
+  PacsStudyState,
+  ReceiveState,
+  SeriesKey,
+  SeriesPullState,
+  SeriesReceiveState,
+} from "./types.ts";
 import { StudyAndSeries } from "../../api/pfdcm/models.ts";
 import { UseQueryResult } from "@tanstack/react-query";
 import { PACSSeries } from "@fnndsc/chrisapi";
@@ -11,30 +18,39 @@ type SeriesQueryZip = {
 };
 
 /**
- * Join the responses from PFDCM and CUBE into one object.
+ * Fragments of the state of a DICOM series exists remotely in three places:
+ * PFDCM, CUBE, and LONK.
+ *
+ * Join the states from those places into one mega-object.
  */
 function joinStates(
   pfdcm: ReadonlyArray<StudyAndSeries>,
   cubeSeriesQuery: ReadonlyArray<SeriesQueryZip>,
+  receiveState: ReceiveState,
 ): PacsStudyState[] {
-  const cubeSeriesMap: Map<string, PACSSeriesQueryResult> =
-    cubeSeriesQuery.reduce(
-      (map, s) => map.set(s.search.SeriesInstanceUID, s.result),
-      new Map(),
-    );
+  const cubeSeriesMap = new Map(
+    cubeSeriesQuery.map(({ search, result }) => [
+      search.SeriesInstanceUID,
+      result,
+    ]),
+  );
   return pfdcm.map(({ study, series }) => {
     return {
       info: study,
       series: series.map((info) => {
         const cubeQueryResult = cubeSeriesMap.get(info.SeriesInstanceUID);
+        const cubeErrors =
+          cubeQueryResult && cubeQueryResult.error
+            ? [cubeQueryResult.error.message]
+            : [];
+        const state =
+          receiveState.get(info.RetrieveAETitle, info.SeriesInstanceUID) ||
+          DEFAULT_RECEIVE_STATE;
         return {
           info,
-          receivedCount: 0,
-          error:
-            cubeQueryResult && cubeQueryResult.error
-              ? [cubeQueryResult.error.message]
-              : [],
-          pullState: pullStateOf(cubeQueryResult),
+          receivedCount: state.receivedCount,
+          errors: state.errors.concat(cubeErrors),
+          pullState: pullStateOf(state, cubeQueryResult),
           inCube: cubeQueryResult?.data || null,
         };
       }),
@@ -42,7 +58,10 @@ function joinStates(
   });
 }
 
-function pullStateOf(result?: PACSSeriesQueryResult): SeriesPullState {
+function pullStateOf(
+  state: SeriesReceiveState,
+  result?: PACSSeriesQueryResult,
+): SeriesPullState {
   if (!result) {
     return SeriesPullState.NOT_CHECKED;
   }
@@ -50,7 +69,7 @@ function pullStateOf(result?: PACSSeriesQueryResult): SeriesPullState {
     return SeriesPullState.CHECKING;
   }
   if (result.data === null) {
-    return SeriesPullState.READY;
+    return state.requested ? SeriesPullState.PULLING : SeriesPullState.READY;
   }
   return SeriesPullState.WAITING_OR_COMPLETE;
 }

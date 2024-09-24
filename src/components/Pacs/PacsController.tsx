@@ -27,9 +27,16 @@ import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
 import { skipToken, useQueries, useQuery } from "@tanstack/react-query";
 import joinStates, { SeriesQueryZip } from "./joinStates.ts";
-import { IPacsState, StudyKey } from "./types.ts";
+import {
+  IPacsState,
+  SeriesReceiveState,
+  ReceiveState,
+  StudyKey,
+} from "./types.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
 import { zipPacsNameAndSeriesUids } from "./helpers.ts";
+import { useImmer } from "use-immer";
+import SeriesMap from "../../api/lonk/seriesMap.ts";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
@@ -68,6 +75,10 @@ const PacsController: React.FC<PacsControllerProps> = ({
 
   // TODO create a settings component for changing preferences
   const [preferences, setPreferences] = React.useState(DEFAULT_PREFERENCES);
+
+  const [receiveState, setReceiveState] = useImmer<ReceiveState>(
+    new SeriesMap(),
+  );
 
   const [expandedStudies, setExpandedStudies] = React.useState<
     ReadonlyArray<StudyKey>
@@ -127,8 +138,8 @@ const PacsController: React.FC<PacsControllerProps> = ({
     if (!pfdcmStudies.data) {
       return null;
     }
-    return joinStates(pfdcmStudies.data, cubeSeriesQueryZip);
-  }, [joinStates, pfdcmStudies]);
+    return joinStates(pfdcmStudies.data, cubeSeriesQueryZip, receiveState);
+  }, [joinStates, pfdcmStudies, cubeSeriesQueryZip, receiveState]);
 
   const state: IPacsState = React.useMemo(() => {
     return { preferences, studies };
