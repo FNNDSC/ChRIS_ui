@@ -9,7 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-24.04
-    if: github.repository_owner == 'FNNDSC' && secrets.GITHUB_TOKEN != ''
+    # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/using-conditions-to-control-job-execution#overview
+    if: github.repository_owner == 'FNNDSC'
     steps:
       - uses: actions/checkout@v4
         with:
