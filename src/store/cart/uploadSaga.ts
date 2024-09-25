@@ -50,7 +50,6 @@ function createUploadChannel(config: any) {
       })
       .catch((error) => {
         let message = "Unexpected Error while uploading the file";
-
         if (axios.isCancel(error)) {
           emitter({ cancelled: true });
         } else if (axios.isAxiosError(error)) {
@@ -139,19 +138,19 @@ function* uploadFileBatch(
 
                   // We need to cancel the folder upload manually since it will upload other files in the list and they will all error out due to the path being an invalid path
                   isFolder && folderController.abort();
-                  if (!isFolder) {
-                    // No need to manually cancel the upload for a single file as the request will fail.
-                    yield call(
-                      handleUploadError,
-                      isFolder,
-                      name,
-                      currentPath,
-                      false,
-                      lastError,
-                    );
-                  }
-                  break;
                 }
+                if (!isFolder) {
+                  // No need to manually cancel the upload for a single file as the request will fail.
+                  yield call(
+                    handleUploadError,
+                    isFolder,
+                    name,
+                    currentPath,
+                    true,
+                    error,
+                  );
+                }
+                break;
               }
 
               if (progress !== undefined && !isFolder && !cancelled && !error) {

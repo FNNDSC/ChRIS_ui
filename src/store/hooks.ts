@@ -1,10 +1,10 @@
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "./root/applicationState";
 import type { Feed, FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
+import { useDispatch, useSelector } from "react-redux";
 import ChrisAPIClient from "../api/chrisapiclient";
 import { getFileName } from "../api/common";
-import { AppDispatch } from "./configureStore.ts";
+import type { AppDispatch } from "./configureStore.ts";
+import type { RootState } from "./root/applicationState";
 
 // See https://react-redux.js.org/tutorials/typescript-quick-start#define-typed-hooks
 export const useAppSelector = useSelector.withTypes<RootState>();

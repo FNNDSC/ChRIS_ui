@@ -189,7 +189,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       const handleFetchMoreImages = (_event: any) => {
         const id = activeViewport.getCurrentImageIdIndex();
         if (
-          id >= Math.floor(imageStack.length / 3) &&
+          id >= Math.floor(imageStack.length / 2) &&
           list.length === imageStack.length &&
           fetchMore &&
           handlePagination &&
@@ -199,13 +199,11 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
           handlePagination();
         }
       };
-
       element.addEventListener(events.IMAGE_RENDERED, handleImageRendered);
       element.addEventListener(
         events.STACK_VIEWPORT_SCROLL,
         handleFetchMoreImages,
       );
-
       return () => {
         element.removeEventListener(events.IMAGE_RENDERED, handleImageRendered);
         element.removeEventListener(

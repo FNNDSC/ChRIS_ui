@@ -300,7 +300,6 @@ const LibraryTable: React.FC<TableProps> = ({
             fetchMore={fetchMore}
             handlePagination={handlePagination}
             filesLoading={filesLoading}
-            isDrawer={true}
           />
         )}
       </Drawer>
