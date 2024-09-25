@@ -41,7 +41,7 @@ import "./Operations.css";
 
 export type AdditionalValues = {
   share: {
-    read?: boolean;
+    public?: boolean;
     write?: boolean;
   };
 };
@@ -113,6 +113,7 @@ const Operations = ({
         onClick={() => handleOperations(operationKey)}
         variant="tertiary"
         aria-label={ariaLabel}
+        isDisabled={operationKey === "duplicate"}
       />
     </Tooltip>
   );
@@ -337,7 +338,7 @@ export const AddModal = ({
 }: AddModalProps) => {
   const [inputValue, setInputValue] = useState("");
   const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
-    share: { read: false, write: true },
+    share: { write: false, public: false },
   });
 
   const { modalTitle, inputLabel, buttonLabel } = useMemo(() => {
@@ -403,17 +404,7 @@ export const AddModal = ({
           <Fragment>
             <FormGroup fieldId="share-checkbox-group">
               <Checkbox
-                label="Read"
-                id="share-checkbox-1"
-                isChecked={additionalValues.share.read}
-                onChange={(_e, checked) =>
-                  setAdditionalValues((prevState) => ({
-                    share: { ...prevState.share, read: checked },
-                  }))
-                }
-              />
-              <Checkbox
-                label="Write"
+                label="Grant the user permission to edit this resource"
                 id="share-checkbox-2"
                 isChecked={additionalValues.share.write}
                 onChange={(_e, checked) =>

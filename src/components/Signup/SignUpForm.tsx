@@ -18,6 +18,7 @@ import React from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useAppDispatch } from "../../store/hooks";
 import { setAuthTokenSuccess } from "../../store/user/userSlice";
 
 type Validated = {

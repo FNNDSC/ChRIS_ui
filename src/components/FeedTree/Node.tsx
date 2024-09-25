@@ -5,7 +5,7 @@ import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { Fragment, memo, useContext, useEffect, useRef } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   getSelectedPlugin,
   setPluginInstancesAndSelectedPlugin,
@@ -90,7 +90,6 @@ const Node = (props: NodeProps) => {
   }, [orientation, position, applyNodeTransform]);
 
   let statusClass = "";
-  let tsClass = "";
 
   if (
     status &&
@@ -265,7 +264,7 @@ const Node = (props: NodeProps) => {
         >
           <circle
             id={`node_${data.id}`}
-            className={`node ${statusClass} ${tsClass}`}
+            className={`node ${statusClass}`}
             style={{
               stroke: currentId ? strokeColor : "",
               strokeWidth: currentId ? "3px" : "1px",

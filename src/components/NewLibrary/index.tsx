@@ -26,6 +26,7 @@ import { notification } from "../Antd";
 export async function fetchFolders(computedPath: string, pageNumber?: number) {
   const client = ChrisAPIClient.getClient();
   await client.setUrls();
+
   const pagination = {
     limit: pageNumber ? pageNumber * 50 : 100,
     offset: 0,
@@ -224,6 +225,7 @@ const NewLibrary = () => {
                   computedPath={computedPath}
                   fetchMore={fetchMore}
                   handlePagination={handlePagination}
+                  filesLoading={isFetching}
                 />
                 {fetchMore && !isFetching && (
                   <Button onClick={handlePagination} variant="link">
