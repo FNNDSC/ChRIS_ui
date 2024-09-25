@@ -137,17 +137,25 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         imageStack.length !== list.length &&
         activeViewport
       ) {
-        const newImageStack = [];
-        const filesSlice = list.slice(imageStack.length);
+        // Find the index of the current image ID in the list
+        const currentImageIndexInList = list.findIndex((file) => {
+          return file.data.fname === selectedFile?.data.fname;
+        });
+        console.log("List", list, currentImageIndexInList);
+        const filesToLoad = [
+          ...list.slice(0, currentImageIndexInList), // Files before the current image
+          ...list.slice(currentImageIndexInList + 1), // Files after the current image
+        ];
+        console.log("filestoLoad", filesToLoad);
+        const newImageStack = [...imageStack];
         let imagesProcessed = totalImagesProcessed;
-        for (const file of filesSlice) {
+        for (const file of filesToLoad) {
           imagesProcessed += 1;
           if (signal.aborted) {
             setIsLoadingMore(false);
             return;
           }
           const extension = getFileExtension(file.data.fname);
-
           if (extension !== "dcm") {
             continue;
           }
@@ -192,13 +200,20 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       const handleFetchMoreImages = (_event: any) => {
         if (!multiFrameDisplay) {
           const id = activeViewport.getCurrentImageIdIndex();
+          console.log(
+            id >= Math.floor(imageStack.length / 2) &&
+              fetchMore &&
+              handlePagination &&
+              !filesLoading &&
+              totalImagesProcessed === list.length,
+            "TotalImagesProcessed",
+            totalImagesProcessed,
+          );
           if (
             id >= Math.floor(imageStack.length / 2) &&
             fetchMore &&
             handlePagination &&
-            !filesLoading &&
-            !isLoadingMore &&
-            totalImagesProcessed === list.length
+            !filesLoading
           ) {
             handlePagination();
           }
