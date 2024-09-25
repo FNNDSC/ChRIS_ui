@@ -1,21 +1,24 @@
 import React from "react";
 import PacsInput, { PacsInputProps } from "./components/PacsInput.tsx";
-import PacsStudiesView from "./components/PacsStudiesView.tsx";
+import PacsStudiesView, {
+  PacsStudiesViewProps,
+} from "./components/PacsStudiesView.tsx";
 import { getDefaultPacsService } from "./components/helpers.ts";
 import { useSearchParams } from "react-router-dom";
 import { PACSqueryCore } from "../../api/pfdcm";
 import { Empty, Flex, Spin } from "antd";
 import { IPacsState } from "./types.ts";
 
-type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> & {
-  onRetrieve: (service: string, query: PACSqueryCore) => void;
-  onStudyExpand: (
-    service: string,
-    StudyInstanceUIDs: ReadonlyArray<string>,
-  ) => void;
-  state: IPacsState;
-  isLoadingStudies?: boolean;
-};
+type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> &
+  Pick<PacsStudiesViewProps, "expandedStudyUids"> & {
+    onRetrieve: (service: string, query: PACSqueryCore) => void;
+    onStudyExpand: (
+      service: string,
+      StudyInstanceUIDs: ReadonlyArray<string>,
+    ) => void;
+    state: IPacsState;
+    isLoadingStudies?: boolean;
+  };
 
 /**
  * PACS Query and Retrieve view component.
@@ -28,6 +31,7 @@ const PacsView: React.FC<PacsViewProps> = ({
   services,
   onSubmit,
   onRetrieve,
+  expandedStudyUids,
   onStudyExpand,
   isLoadingStudies,
 }) => {
@@ -69,6 +73,7 @@ const PacsView: React.FC<PacsViewProps> = ({
             preferences={preferences}
             studies={studies}
             onRetrieve={curriedOnRetrieve}
+            expandedStudyUids={expandedStudyUids}
             onStudyExpand={curriedOnStudyExpand}
           />
         </Spin>

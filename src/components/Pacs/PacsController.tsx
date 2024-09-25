@@ -30,11 +30,17 @@ import {
   StudyKey,
 } from "./types.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
-import { zipPacsNameAndSeriesUids } from "./helpers.ts";
+import { toStudyKey, zipPacsNameAndSeriesUids } from "./helpers.ts";
 import { useImmer } from "use-immer";
 import SeriesMap from "../../api/lonk/seriesMap.ts";
 import { useLonk } from "../../api/lonk";
 import { produce, WritableDraft } from "immer";
+import {
+  isFromPacs,
+  sameSeriesInstanceUidAs,
+  sameStudyInstanceUidAs,
+} from "./curry.ts";
+import { Study } from "../../api/pfdcm/models.ts";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
@@ -101,29 +107,19 @@ const PacsController: React.FC<PacsControllerProps> = ({
   // STATE
   // ========================================
 
-  const [{ service, query }, setPacsQuery] = React.useState<{
-    service?: string;
-    query?: PACSqueryCore;
-  }>({});
-
   /**
    * Indicates a fatal error with the WebSocket.
    */
   const [wsError, setWsError] = React.useState<React.ReactNode | null>(null);
   // TODO create a settings component for changing preferences
   const [preferences, setPreferences] = React.useState(DEFAULT_PREFERENCES);
+
   /**
    * The state of DICOM series, according to LONK.
    */
   const [receiveState, setReceiveState] = useImmer<ReceiveState>(
     new SeriesMap(),
   );
-  /**
-   * Studies which have their series visible on-screen.
-   */
-  const [expandedStudies, setExpandedStudies] = React.useState<
-    ReadonlyArray<StudyKey>
-  >([]);
 
   /**
    * List of PACS queries which the user wants to pull.
@@ -164,8 +160,13 @@ const PacsController: React.FC<PacsControllerProps> = ({
   );
 
   // ========================================
-  // QUERIES AND DATA
+  // PFDCM QUERIES AND DATA
   // ========================================
+
+  const [{ service, query }, setPacsQuery] = React.useState<{
+    service?: string;
+    query?: PACSqueryCore;
+  }>({});
 
   /**
    * List of PACS servers which PFDCM can talk to.
@@ -186,6 +187,26 @@ const PacsController: React.FC<PacsControllerProps> = ({
     queryFn:
       service && query ? () => pfdcmClient.query(service, query) : skipToken,
   });
+
+  // ========================================
+  // EXPANDED STUDIES AND SERIES STATE
+  // ========================================
+
+  /**
+   * Studies which have their series visible on-screen.
+   */
+  const [expandedStudies, setExpandedStudies] = useImmer<
+    ReadonlyArray<StudyKey>
+  >([]);
+
+  /**
+   * The StudyInstanceUIDs of all expanded studies.
+   */
+  const expandedStudyUids = React.useMemo(
+    () => expandedStudies.map((s) => s.StudyInstanceUID),
+    [expandedStudies],
+  );
+
   /**
    * List of series which are currently visible on-screen.
    */
@@ -193,6 +214,61 @@ const PacsController: React.FC<PacsControllerProps> = ({
     () => zipPacsNameAndSeriesUids(expandedStudies, pfdcmStudies.data),
     [expandedStudies, pfdcmStudies.data],
   );
+
+  const changeExpandedStudies = React.useCallback(
+    (pacs_name: string, StudyInstanceUIDs: ReadonlyArray<string>) => {
+      setExpandedStudies(
+        StudyInstanceUIDs.map((StudyInstanceUID) => ({
+          StudyInstanceUID,
+          pacs_name,
+        })),
+      );
+    },
+    [setExpandedStudies],
+  );
+
+  const appendExpandedStudies = React.useCallback(
+    (studies: Pick<Study, "StudyInstanceUID" | "RetrieveAETitle">[]) =>
+      setExpandedStudies((draft) => {
+        draft.push(...studies.map(toStudyKey));
+      }),
+    [setExpandedStudies],
+  );
+
+  /**
+   * Expand the studies of the query.
+   */
+  const expandStudiesFor = React.useCallback(
+    (pacs_name: string, query: PACSqueryCore) => {
+      if (!pfdcmStudies.data) {
+        throw new Error(
+          "Expanding studies is not currently possible because we do not " +
+            "have data from PFDCM yet.",
+        );
+      }
+      if (query.seriesInstanceUID) {
+        const studies = pfdcmStudies.data
+          .filter(isFromPacs(pacs_name))
+          .flatMap((study) => study.series)
+          .filter(sameSeriesInstanceUidAs(query));
+        appendExpandedStudies(studies);
+        return;
+      }
+      if (!query.seriesInstanceUID && query.studyInstanceUID) {
+        const studies = pfdcmStudies.data
+          .filter(isFromPacs(pacs_name))
+          .map((s) => s.study)
+          .filter(sameStudyInstanceUidAs(query));
+        appendExpandedStudies(studies);
+        return;
+      }
+    },
+    [pfdcmStudies.data, appendExpandedStudies],
+  );
+
+  // ========================================
+  // CUBE QUERIES AND DATA
+  // ========================================
 
   /**
    * Check whether CUBE has any of the series that are expanded.
@@ -227,6 +303,37 @@ const PacsController: React.FC<PacsControllerProps> = ({
       })),
     [expandedSeries, cubeSeriesQuery],
   );
+  //
+  // /**
+  //  * Poll CUBE for the existence of DICOM series which have been reported as
+  //  * "done" by LONK. It is necessary to poll CUBE because there will be a delay
+  //  * between when LONK reports the series as "done" and when CUBE will run the
+  //  * celery task of finally registering the series.
+  //  */
+  // const finalCheckNeedingSeries = useQueries({
+  //   queries: React.useMemo(
+  //     () =>
+  //       receiveState.entries().map(([pacs_name, SeriesInstanceUID, state]) => ({
+  //         queryKey: [
+  //           "finalCheckNeedingSeries",
+  //           pacs_name,
+  //           SeriesInstanceUID,
+  //           state,
+  //         ],
+  //         queryFn: async () => {
+  //           const search = { pacs_name, SeriesInstanceUID, limit: 1 };
+  //           const list = await chrisClient.getPACSSeriesList(search);
+  //           const items = list.getItems() as ReadonlyArray<PACSSeries>;
+  //           if (items.length === 0) {
+  //             throw Error("not found");
+  //           }
+  //           return items[0];
+  //         },
+  //         enabled: state.done, // TODO CANCEL POLLING ONCE WE FOUND THE FILE.
+  //       })),
+  //     [receiveState],
+  //   ),
+  // });
 
   /**
    * Combined states of PFDCM, LONK, and CUBE into one object.
@@ -356,24 +463,13 @@ const PacsController: React.FC<PacsControllerProps> = ({
     [setPacsQuery],
   );
 
-  const onStudyExpand = React.useCallback(
-    (pacs_name: string, StudyInstanceUIDs: ReadonlyArray<string>) => {
-      setExpandedStudies(
-        StudyInstanceUIDs.map((StudyInstanceUID) => ({
-          StudyInstanceUID,
-          pacs_name,
-        })),
-      );
-    },
-    [setExpandedStudies],
-  );
-
   // ========================================
   // PACS RETRIEVAL
   // ========================================
 
   const onRetrieve = React.useCallback(
     (service: string, query: PACSqueryCore) => {
+      expandStudiesFor(service, query);
       setPullRequests((draft) => {
         // indicate that the user requests for something to be retrieved.
         draft.push({
@@ -383,7 +479,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
         });
       });
     },
-    [setPullRequests],
+    [setPullRequests, expandStudiesFor],
   );
 
   /**
@@ -437,12 +533,9 @@ const PacsController: React.FC<PacsControllerProps> = ({
       if (pullRequest.state !== RequestState.NOT_REQUESTED) {
         return false;
       }
-      if (!studies) {
-        return false;
-      }
       if (
         pullRequest.query.studyInstanceUID &&
-        !pullRequest.query.seriesInstanceUID
+        !("seriesInstanceUID" in pullRequest.query)
       ) {
         return shouldPullStudy(
           pullRequest.service,
@@ -457,7 +550,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
       }
       return false;
     },
-    [studies],
+    [shouldPullStudy, shouldPullSeries],
   );
 
   /**
@@ -474,13 +567,22 @@ const PacsController: React.FC<PacsControllerProps> = ({
       updatePullRequestState(service, query, { error: error }),
     onSuccess: (_, { service, query }) =>
       updatePullRequestState(service, query, { state: RequestState.REQUESTED }),
+    onSettled: (data, error, variables, context) => {
+      console.dir({
+        event: "settled",
+        data,
+        error,
+        variables,
+        context,
+      });
+    },
   });
 
   React.useEffect(() => {
     pullRequests
       .filter(shouldSendPullRequest)
       .forEach((pr) => pullFromPacs.mutate(pr));
-  }, [pullRequests]);
+  }, [pullRequests, shouldSendPullRequest]);
 
   // ========================================
   // EFFECTS
@@ -524,7 +626,8 @@ const PacsController: React.FC<PacsControllerProps> = ({
           services={pfdcmServices.data}
           onSubmit={onSubmit}
           onRetrieve={onRetrieve}
-          onStudyExpand={onStudyExpand}
+          expandedStudyUids={expandedStudyUids}
+          onStudyExpand={changeExpandedStudies}
           isLoadingStudies={pfdcmStudies.isLoading}
         />
       ) : (
