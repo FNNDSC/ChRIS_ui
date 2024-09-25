@@ -12,12 +12,20 @@ import { PageSection } from "@patternfly/react-core";
 import PacsView from "./PacsView.tsx";
 import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
 import ErrorScreen from "./components/ErrorScreen.tsx";
-import { skipToken, useQueries, useQuery } from "@tanstack/react-query";
+import {
+  skipToken,
+  useMutation,
+  useQueries,
+  useQuery,
+} from "@tanstack/react-query";
 import mergeStates, { SeriesQueryZip } from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
   IPacsState,
+  PacsPullRequestState,
   ReceiveState,
+  RequestState,
+  SeriesPullState,
   SeriesReceiveState,
   StudyKey,
 } from "./types.ts";
@@ -60,18 +68,21 @@ type PacsControllerProps = {
  * ## PACS Retrieve Workflow
  *
  * ChRIS_ui and the rest of CUBE work together to implement the following
- * behavior for each DICOM series:
+ * behavior:
  *
- * 1. ChRIS_ui subscribes to a series' notifications via LONK
- * 2. ChRIS_ui checks CUBE whether a series exists in CUBE
- * 3. When both subscription and existence check is complete,
+ * 1. User queries for data, which is resolved by PFDCM.
+ * 2. User clicks to expand a DICOM study, showing a list of series.
+ * 3. For each series...
+ * 4. ChRIS_ui subscribes to a series' notifications via LONK
+ * 5. ChRIS_ui checks CUBE whether a series exists in CUBE
+ * 6. When both subscription and existence check is complete,
  *    and the series does not exist in CUBE, ChRIS_ui is ready
  *    to pull the DICOM series.
- * 4. During the reception of a DICOM series, `status.done === false`
- * 5. After the reception of a DICOM series, ChRIS enters a "waiting"
+ * 7. During the reception of a DICOM series, `status.done === false`
+ * 8. After the reception of a DICOM series, ChRIS enters a "waiting"
  *    state while the task to register the DICOM series is enqueued
  *    or running.
- * 6. The DICOM series will appear in CUBE after being registered.
+ * 9. The DICOM series will appear in CUBE after being registered.
  */
 const PacsController: React.FC<PacsControllerProps> = ({
   getChrisClient,
@@ -99,41 +110,93 @@ const PacsController: React.FC<PacsControllerProps> = ({
    * Indicates a fatal error with the WebSocket.
    */
   const [wsError, setWsError] = React.useState<React.ReactNode | null>(null);
-
   // TODO create a settings component for changing preferences
   const [preferences, setPreferences] = React.useState(DEFAULT_PREFERENCES);
-
+  /**
+   * The state of DICOM series, according to LONK.
+   */
   const [receiveState, setReceiveState] = useImmer<ReceiveState>(
     new SeriesMap(),
   );
-
+  /**
+   * Studies which have their series visible on-screen.
+   */
   const [expandedStudies, setExpandedStudies] = React.useState<
     ReadonlyArray<StudyKey>
   >([]);
+
+  /**
+   * List of PACS queries which the user wants to pull.
+   */
+  const [pullRequests, setPullRequests] = useImmer<
+    ReadonlyArray<PacsPullRequestState>
+  >([]);
+
+  /**
+   * Update the state of a pull request.
+   */
+  const updatePullRequestState = React.useCallback(
+    (
+      service: string,
+      query: PACSqueryCore,
+      delta: Partial<Omit<PacsPullRequestState, "service" | "query">>,
+    ) =>
+      setPullRequests((draft) => {
+        const i = draft.findLastIndex(
+          (pr) =>
+            pr.service === service &&
+            (pr.query.studyInstanceUID
+              ? pr.query.studyInstanceUID === query.studyInstanceUID
+              : true) &&
+            (pr.query.seriesInstanceUID
+              ? pr.query.seriesInstanceUID === query.seriesInstanceUID
+              : true),
+        );
+        if (i === -1) {
+          throw new Error(
+            "pullFromPacs mutation called on unknown pull request: " +
+              `service=${service}, query=${JSON.stringify(query)}`,
+          );
+        }
+        draft[i] = { ...draft[i], ...delta };
+      }),
+    [setPullRequests],
+  );
 
   // ========================================
   // QUERIES AND DATA
   // ========================================
 
+  /**
+   * List of PACS servers which PFDCM can talk to.
+   */
   const pfdcmServices = useQuery({
     queryKey: ["pfdcmServices"],
     queryFn: () => pfdcmClient.getPacsServices(),
   });
 
-  const pfdcmStudiesQueryKey = React.useMemo(
-    () => ["pfdcmStudies", service, query],
-    [service, query],
-  );
+  /**
+   * The state of DICOM studies and series in PFDCM.
+   */
   const pfdcmStudies = useQuery({
-    queryKey: pfdcmStudiesQueryKey,
+    queryKey: React.useMemo(
+      () => ["pfdcmStudies", service, query],
+      [service, query],
+    ),
     queryFn:
       service && query ? () => pfdcmClient.query(service, query) : skipToken,
   });
+  /**
+   * List of series which are currently visible on-screen.
+   */
   const expandedSeries = React.useMemo(
     () => zipPacsNameAndSeriesUids(expandedStudies, pfdcmStudies.data),
     [expandedStudies, pfdcmStudies.data],
   );
 
+  /**
+   * Check whether CUBE has any of the series that are expanded.
+   */
   const cubeSeriesQuery = useQueries({
     queries: expandedSeries.map((series) => ({
       queryKey: ["cubeSeries", chrisClient.url, series],
@@ -152,6 +215,10 @@ const PacsController: React.FC<PacsControllerProps> = ({
     })),
   });
 
+  /**
+   * Zip together elements of `cubeSeriesQuery` and the parameters used for
+   * each element.
+   */
   const cubeSeriesQueryZip: ReadonlyArray<SeriesQueryZip> = React.useMemo(
     () =>
       expandedSeries.map((search, i) => ({
@@ -161,13 +228,24 @@ const PacsController: React.FC<PacsControllerProps> = ({
     [expandedSeries, cubeSeriesQuery],
   );
 
+  /**
+   * Combined states of PFDCM, LONK, and CUBE into one object.
+   */
   const studies = React.useMemo(() => {
     if (!pfdcmStudies.data) {
       return null;
     }
-    return mergeStates(pfdcmStudies.data, cubeSeriesQueryZip, receiveState);
+    return mergeStates(
+      pfdcmStudies.data,
+      pullRequests,
+      cubeSeriesQueryZip,
+      receiveState,
+    );
   }, [mergeStates, pfdcmStudies, cubeSeriesQueryZip, receiveState]);
 
+  /**
+   * Entire state of the Pacs Q/R application.
+   */
   const state: IPacsState = React.useMemo(() => {
     return { preferences, studies };
   }, [preferences, studies]);
@@ -280,7 +358,6 @@ const PacsController: React.FC<PacsControllerProps> = ({
 
   const onStudyExpand = React.useCallback(
     (pacs_name: string, StudyInstanceUIDs: ReadonlyArray<string>) => {
-      console.log(`onStudyExpand`);
       setExpandedStudies(
         StudyInstanceUIDs.map((StudyInstanceUID) => ({
           StudyInstanceUID,
@@ -291,13 +368,119 @@ const PacsController: React.FC<PacsControllerProps> = ({
     [setExpandedStudies],
   );
 
-  // TODO onRetrieve
+  // ========================================
+  // PACS RETRIEVAL
+  // ========================================
+
   const onRetrieve = React.useCallback(
     (service: string, query: PACSqueryCore) => {
-      console.log(`onRetrieve`);
+      setPullRequests((draft) => {
+        // indicate that the user requests for something to be retrieved.
+        draft.push({
+          state: RequestState.NOT_REQUESTED,
+          query,
+          service,
+        });
+      });
     },
-    [],
+    [setPullRequests],
   );
+
+  /**
+   * @returns true if the study does not contain any series which are `NOT_CHECKED` or `CHECKING`.
+   */
+  const shouldPullStudy = React.useCallback(
+    (pacs_name: string, StudyInstanceUID: string) =>
+      (studies ?? [])
+        .filter(
+          ({ info }) =>
+            info.StudyInstanceUID === StudyInstanceUID &&
+            info.RetrieveAETitle === pacs_name,
+        )
+        .flatMap((study) => study.series)
+        .findIndex(
+          ({ pullState }) =>
+            pullState === SeriesPullState.NOT_CHECKED ||
+            pullState == SeriesPullState.CHECKING,
+        ) === -1,
+    [studies],
+  );
+
+  /**
+   * All series states.
+   */
+  const allSeries = React.useMemo(
+    () => (studies ?? []).flatMap((s) => s.series),
+    [studies],
+  );
+
+  /**
+   * @returns true if the series is ready to pull.
+   */
+  const shouldPullSeries = React.useCallback(
+    (pacs_name: string, SeriesInstanceUID: string) =>
+      allSeries.findIndex(
+        ({ info, pullState }) =>
+          info.RetrieveAETitle === pacs_name &&
+          info.SeriesInstanceUID === SeriesInstanceUID &&
+          pullState === SeriesPullState.READY,
+      ) !== -1,
+    [allSeries],
+  );
+
+  /**
+   * Whether we should send the pull request (where the pull request
+   * may be for either a DICOM study or series).
+   */
+  const shouldSendPullRequest = React.useCallback(
+    (pullRequest: PacsPullRequestState): boolean => {
+      if (pullRequest.state !== RequestState.NOT_REQUESTED) {
+        return false;
+      }
+      if (!studies) {
+        return false;
+      }
+      if (
+        pullRequest.query.studyInstanceUID &&
+        !pullRequest.query.seriesInstanceUID
+      ) {
+        return shouldPullStudy(
+          pullRequest.service,
+          pullRequest.query.studyInstanceUID,
+        );
+      }
+      if (pullRequest.query.seriesInstanceUID) {
+        return shouldPullSeries(
+          pullRequest.service,
+          pullRequest.query.seriesInstanceUID,
+        );
+      }
+      return false;
+    },
+    [studies],
+  );
+
+  /**
+   * Send request to PFDCM to pull from PACS.
+   */
+  const pullFromPacs = useMutation({
+    mutationFn: ({ service, query }: PacsPullRequestState) =>
+      pfdcmClient.retrieve(service, query),
+    onMutate: ({ service, query }: PacsPullRequestState) =>
+      updatePullRequestState(service, query, {
+        state: RequestState.REQUESTING,
+      }),
+    onError: (error, { service, query }) =>
+      updatePullRequestState(service, query, { error: error }),
+    onSuccess: (_, { service, query }) =>
+      updatePullRequestState(service, query, { state: RequestState.REQUESTED }),
+  });
+
+  React.useEffect(() => {
+    pullRequests
+      .filter(shouldSendPullRequest)
+      .forEach((pr) => pullFromPacs.mutate(pr));
+  }, [pullRequests]);
 
   // ========================================
   // EFFECTS

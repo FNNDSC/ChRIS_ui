@@ -1,12 +1,14 @@
 import {
   DEFAULT_RECEIVE_STATE,
+  PacsPullRequestState,
   PacsStudyState,
   ReceiveState,
+  RequestState,
   SeriesKey,
   SeriesPullState,
   SeriesReceiveState,
 } from "./types.ts";
-import { StudyAndSeries } from "../../api/pfdcm/models.ts";
+import { Series, StudyAndSeries } from "../../api/pfdcm/models.ts";
 import { UseQueryResult } from "@tanstack/react-query";
 import { PACSSeries } from "@fnndsc/chrisapi";
 
@@ -25,6 +27,7 @@ type SeriesQueryZip = {
  */
 function mergeStates(
   pfdcm: ReadonlyArray<StudyAndSeries>,
+  pullRequests: ReadonlyArray<PacsPullRequestState>,
   cubeSeriesQuery: ReadonlyArray<SeriesQueryZip>,
   receiveState: ReceiveState,
 ): PacsStudyState[] {
@@ -46,11 +49,18 @@ function mergeStates(
         const state =
           receiveState.get(info.RetrieveAETitle, info.SeriesInstanceUID) ||
           DEFAULT_RECEIVE_STATE;
+        const pullRequestsForSeries = pullRequests.findLast((pr) =>
+          isRequestFor(pr, info),
+        );
         return {
           info,
           receivedCount: state.receivedCount,
           errors: state.errors.concat(cubeErrors),
-          pullState: pullStateOf(state, cubeQueryResult),
+          pullState: pullStateOf(
+            state,
+            pullRequestsForSeries?.state,
+            cubeQueryResult,
+          ),
           inCube: cubeQueryResult?.data || null,
         };
       }),
@@ -59,11 +69,34 @@ function mergeStates(
 }
 
 /**
+ * @returns `true` if the query matches the series.
+ */
+function isRequestFor(
+  { query, service }: PacsPullRequestState,
+  series: Series,
+): boolean {
+  if (service !== series.RetrieveAETitle) {
+    return false;
+  }
+  if (query.seriesInstanceUID) {
+    return query.seriesInstanceUID === series.SeriesInstanceUID;
+  }
+  if (query.studyInstanceUID) {
+    return query.studyInstanceUID === series.StudyInstanceUID;
+  }
+  if (query.accessionNumber) {
+    return query.accessionNumber === series.AccessionNumber;
+  }
+  return false;
+}
+
+/**
  * State coalescence for the "PACS Retrieve Workflow" described in the
  * tsdoc for {@link PacsController}.
  */
 function pullStateOf(
   state: SeriesReceiveState,
+  pacsRequest?: RequestState,
   cubeQueryResult?: { isLoading: boolean; data: any },
 ): SeriesPullState {
   if (!cubeQueryResult) {
@@ -81,8 +114,18 @@ function pullStateOf(
       // finished receiving by oxidicom, waiting for CUBE to register
       return SeriesPullState.WAITING_OR_COMPLETE;
     }
-    // either pulling or ready to pull
-    return state.requested ? SeriesPullState.PULLING : SeriesPullState.READY;
+    if (state.receivedCount > 0) {
+      // DICOM series is being received, even though it wasn't requested.
+      // It was probably requested in another window, or by another user,
+      // or pushed to us without a MOVE-SCU request.
+      return SeriesPullState.PULLING;
+    }
+    if (pacsRequest === undefined) {
+      // Series is not requested nor pulled and ready to be pulled.
+      return SeriesPullState.READY;
+    }
+    // Request to retrieve was sent to PFDCM, but no files received yet.
+    return SeriesPullState.PULLING;
   }
   // checked, series DOES exist in CUBE. It is complete.
   return SeriesPullState.WAITING_OR_COMPLETE;
