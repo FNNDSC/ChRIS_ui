@@ -1,13 +1,8 @@
 import type { RenderingEngine } from "@cornerstonejs/core";
-import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
-import {
-  FileViewerModel,
-  type IFileBlob,
-  getFileExtension,
-} from "../../../api/model";
+import { type IFileBlob, getFileExtension } from "../../../api/model";
 import { SpinContainer } from "../../Common";
 import useSize from "../../FeedTree/useSize";
 import type { ActionState } from "../FileDetailView";
@@ -49,9 +44,11 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   >();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [multiFrameDisplay, setMultiframeDisplay] = useState(false);
   const [imageStack, setImageStack] = useState<string[]>([]);
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [totalImagesProcessed, setTotalImagesProcessed] = useState(0);
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const uniqueId = `${selectedFile?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;
@@ -92,28 +89,26 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   async function setupCornerstone() {
     const element = document.getElementById(elementId) as HTMLDivElement;
     if (selectedFile) {
-      let imageID: string;
-      const extension = getFileExtension(selectedFile.data.fname);
       await basicInit();
       setUpTooling(uniqueId);
-      if (extension === "dcm") {
-        const blob = await selectedFile.getFileBlob();
-        imageID = await loadDicomImage(blob);
-      } else {
-        // Code to view png and jpg file types in cornerstone. Currently we are using the default image display so this code is redundant.
-        // This code should be deleted in the future.
-        const fileviewer = new FileViewerModel();
-        const fileName = fileviewer.getFileName(
-          selectedFile as FileBrowserFolderFile,
-        );
-        imageID = `web:${selectedFile.url}${fileName}`;
-      }
+      const blob = await selectedFile.getFileBlob();
+      const imageData = await loadDicomImage(blob);
+      const imageID = imageData.imageID;
+      const framesCount = imageData.framesCount;
+      const newImageStack =
+        framesCount > 1
+          ? Array.from(
+              { length: framesCount },
+              (_, i) => `${imageID}?frame=${i}`,
+            )
+          : [imageID];
       const { viewport, renderingEngine: newRenderingEngine } =
-        await displayDicomImage(element, imageID, uniqueId);
+        await displayDicomImage(element, newImageStack[0], uniqueId);
+      setMultiframeDisplay(framesCount > 1);
       setActiveViewport(viewport);
       setRenderingEngine(newRenderingEngine);
-      setImageStack([imageID]);
-
+      setImageStack(newImageStack);
+      setTotalImagesProcessed(1);
       return selectedFile.data.fname;
     }
   }
@@ -121,7 +116,6 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const { isLoading } = useQuery({
     queryKey: ["cornerstone-preview", selectedFile],
     queryFn: () => setupCornerstone(),
-    refetchOnMount: true,
     enabled: !!selectedFile,
   });
 
@@ -137,24 +131,42 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
 
   const loadMoreImages = async (signal: AbortSignal) => {
     setIsLoadingMore(true);
-    const newImageStack = [...imageStack];
-    if (list) {
-      for (const file of list.slice(imageStack.length)) {
-        if (signal.aborted) {
-          setIsLoadingMore(false);
-          return;
-        }
-        const blob = await file.getFileBlob();
-        const imageId = await loadDicomImage(blob); // Load and generate the image ID
-        newImageStack.push(imageId); // Add the new image ID to the stack
-      }
-      setImageStack(newImageStack);
+    if (list && !multiFrameDisplay) {
+      if (
+        imageStack.length > 0 &&
+        imageStack.length !== list.length &&
+        activeViewport
+      ) {
+        const newImageStack = [];
+        const filesSlice = list.slice(imageStack.length);
+        let imagesProcessed = totalImagesProcessed;
+        for (const file of filesSlice) {
+          imagesProcessed += 1;
+          if (signal.aborted) {
+            setIsLoadingMore(false);
+            return;
+          }
+          const extension = getFileExtension(file.data.fname);
 
-      if (activeViewport) {
-        const currentIndex = activeViewport.getCurrentImageIdIndex();
-        await activeViewport.setStack(newImageStack, currentIndex);
-        activeViewport.render();
+          if (extension !== "dcm") {
+            continue;
+          }
+          const blob = await file.getFileBlob();
+          const imageData = await loadDicomImage(blob); // Load and generate the image ID
+          const imageID = imageData.imageID;
+          newImageStack.push(imageID); // Add the new image ID to the stack
+        }
+        setImageStack(newImageStack);
+        setTotalImagesProcessed(imagesProcessed);
+        if (activeViewport) {
+          const currentIndex = activeViewport.getCurrentImageIdIndex();
+          await activeViewport.setStack(newImageStack, currentIndex);
+          activeViewport.render();
+        }
       }
+    } else if (multiFrameDisplay && activeViewport) {
+      await activeViewport.setStack(imageStack);
+      activeViewport.render();
     }
     setIsLoadingMore(false);
   };
@@ -162,41 +174,34 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
-    if (list) {
-      if (
-        imageStack.length > 0 &&
-        imageStack.length !== list.length &&
-        activeViewport
-      ) {
-        loadMoreImages(signal);
-      }
+    if (!isLoading) {
+      loadMoreImages(signal);
     }
-
     return () => {
       controller.abort(); // Abort loading images on unmount
     };
-  }, [list, fetchMore, activeViewport]);
+  }, [isLoading, list, multiFrameDisplay]);
 
   useEffect(() => {
     if (activeViewport && list) {
       const element = activeViewport.element;
-
       const handleImageRendered = (_event: any) => {
         const newIndex = activeViewport.getCurrentImageIdIndex();
         setCurrentImageIndex(newIndex + 1);
       };
-
       const handleFetchMoreImages = (_event: any) => {
-        const id = activeViewport.getCurrentImageIdIndex();
-        if (
-          id >= Math.floor(imageStack.length / 2) &&
-          list.length === imageStack.length &&
-          fetchMore &&
-          handlePagination &&
-          !filesLoading &&
-          !isLoadingMore
-        ) {
-          handlePagination();
+        if (!multiFrameDisplay) {
+          const id = activeViewport.getCurrentImageIdIndex();
+          if (
+            id >= Math.floor(imageStack.length / 2) &&
+            fetchMore &&
+            handlePagination &&
+            !filesLoading &&
+            !isLoadingMore &&
+            totalImagesProcessed === list.length
+          ) {
+            handlePagination();
+          }
         }
       };
       element.addEventListener(events.IMAGE_RENDERED, handleImageRendered);
@@ -212,7 +217,13 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         );
       };
     }
-  }, [activeViewport, imageStack, fetchMore, handlePagination]);
+  }, [
+    activeViewport,
+    imageStack,
+    fetchMore,
+    handlePagination,
+    multiFrameDisplay,
+  ]);
 
   return (
     <>
