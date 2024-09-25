@@ -106,7 +106,10 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
         <Progress
           type="line"
           percent={
-            receivedCount / (info.NumberOfSeriesRelatedInstances || Infinity)
+            inCube
+              ? 100
+              : receivedCount /
+                (info.NumberOfSeriesRelatedInstances || Infinity)
           }
         />
       </div>
@@ -117,10 +120,12 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
             disabled={pullState !== SeriesPullState.READY}
             color={buttonColor}
           >
-            {isLoading || errors.length === 0 ? (
-              <ImportOutlined />
-            ) : (
+            {errors.length > 1 ? (
               <WarningFilled />
+            ) : isLoading ? (
+              <></>
+            ) : (
+              <ImportOutlined />
             )}
           </Button>
         </Tooltip>

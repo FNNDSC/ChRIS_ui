@@ -41,6 +41,7 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
         disabled={isPulled}
         onClick={onRetrieve}
       >
+        {/* FIXME CLICKING THIS BUTTON SHOULD SET EXPANDED STATE TO TRUE, INSTEAD OF TOGGLING EXPANDED STATE. */}
         {isLoading || <ImportOutlined />}
       </Button>
     </Tooltip>

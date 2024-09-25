@@ -1,6 +1,7 @@
 import { Series, Study } from "../../api/pfdcm/models.ts";
 import { PACSSeries } from "@fnndsc/chrisapi";
 import SeriesMap from "../../api/lonk/seriesMap.ts";
+import { PACSqueryCore } from "../../api/pfdcm";
 
 type StudyKey = {
   pacs_name: string;
@@ -39,6 +40,25 @@ enum SeriesPullState {
 }
 
 /**
+ * The states a request can be in.
+ */
+enum RequestState {
+  NOT_REQUESTED,
+  REQUESTING,
+  REQUESTED,
+}
+
+/**
+ * The state of a PACS pull request.
+ */
+type PacsPullRequestState = {
+  state: RequestState;
+  error?: Error;
+  query: PACSqueryCore;
+  service: string;
+};
+
+/**
  * The state of a DICOM series retrieval.
  */
 type SeriesReceiveState = {
@@ -46,10 +66,6 @@ type SeriesReceiveState = {
    * Whether this series has been subscribed to via LONK.
    */
   subscribed: boolean;
-  /**
-   * Whether this series has been requested by PFDCM.
-   */
-  requested: boolean;
   /**
    * Whether this series was reported as "done" by LONK.
    */
@@ -66,7 +82,6 @@ type SeriesReceiveState = {
 
 const DEFAULT_RECEIVE_STATE: SeriesReceiveState = {
   subscribed: false,
-  requested: false,
   done: false,
   receivedCount: 0,
   errors: [],
@@ -82,9 +97,11 @@ type ReceiveState = SeriesMap<SeriesReceiveState>;
 /**
  * The combined state of a DICOM series in PFDCM, CUBE, and LONK.
  */
-type PacsSeriesState = Pick<SeriesReceiveState, "receivedCount" | "errors"> & {
+type PacsSeriesState = Pick<SeriesReceiveState, "receivedCount"> & {
+  errors: ReadonlyArray<string>;
   info: Series;
   inCube: PACSSeries | null;
+  pullState: SeriesPullState;
 };
 
 /**
@@ -118,7 +135,7 @@ interface IPacsState {
   studies: PacsStudyState[] | null;
 }
 
-export { SeriesPullState, DEFAULT_RECEIVE_STATE };
+export { SeriesPullState, RequestState, DEFAULT_RECEIVE_STATE };
 export type {
   StudyKey,
   SeriesKey,
@@ -128,4 +145,5 @@ export type {
   PacsSeriesState,
   PacsStudyState,
   PacsPreferences,
+  PacsPullRequestState,
 };
