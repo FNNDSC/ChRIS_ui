@@ -40,7 +40,6 @@ jobs:
             ghcr.io/fnndsc/chris_ui
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,format=short,prefix=
       - uses: docker/setup-qemu-action@v3
