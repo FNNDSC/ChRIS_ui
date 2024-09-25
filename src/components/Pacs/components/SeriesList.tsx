@@ -78,6 +78,18 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
     return "default";
   }, [errors, pullState]);
 
+  const percentDone = React.useMemo(() => {
+    if (inCube) {
+      return 100;
+    }
+    if (pullState === SeriesPullState.WAITING_OR_COMPLETE) {
+      return 99;
+    }
+    return (
+      (99 * receivedCount) / (info.NumberOfSeriesRelatedInstances || Infinity)
+    );
+  }, [inCube, pullState, receivedCount, info.NumberOfSeriesRelatedInstances]);
+
   return (
     <Flex
       wrap
@@ -105,12 +117,9 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
       <div className={styles.progress}>
         <Progress
           type="line"
-          percent={
-            inCube
-              ? 100
-              : receivedCount /
-                (info.NumberOfSeriesRelatedInstances || Infinity)
-          }
+          format={(n) => `${Math.round(n ?? 0)}%`}
+          percent={percentDone}
+          status={errors.length > 0 ? "exception" : undefined}
         />
       </div>
       <div className={styles.pullButton}>

@@ -16,12 +16,12 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
   tooltipPlacement = "left",
   onRetrieve,
 }) => (
-  // TODO add "Create feed" button
+  // NOTE: buttons should call event.stopPropagation()
   <Flex vertical={true} gap="middle">
     <Tooltip
       title={
         isLoading ? (
-          <>Checking availability...</>
+          <>Working&hellip;</>
         ) : isPulled ? (
           <>
             This study is already pulled in <em>ChRIS</em>.
@@ -39,15 +39,21 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
         type="primary"
         loading={isLoading}
         disabled={isPulled}
-        onClick={onRetrieve}
+        onClick={(event) => {
+          event.stopPropagation();
+          onRetrieve && onRetrieve();
+        }}
       >
-        {/* FIXME CLICKING THIS BUTTON SHOULD SET EXPANDED STATE TO TRUE, INSTEAD OF TOGGLING EXPANDED STATE. */}
         {isLoading || <ImportOutlined />}
       </Button>
     </Tooltip>
     {ohifUrl && (
       <Tooltip title="Open in OHIF" placement={tooltipPlacement}>
-        <Button href={ohifUrl} target="_blank">
+        <Button
+          href={ohifUrl}
+          target="_blank"
+          onClick={(e) => e.stopPropagation()}
+        >
           <AppstoreOutlined />
         </Button>
       </Tooltip>

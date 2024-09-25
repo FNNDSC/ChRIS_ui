@@ -10,12 +10,17 @@ type PacsStudiesViewProps = {
   preferences: PacsPreferences;
   studies: PacsStudyState[];
   onRetrieve: (query: PACSqueryCore) => void;
+  /**
+   * List of StudyInstanceUIDs which should be expanded.
+   */
+  expandedStudyUids?: string[];
   onStudyExpand?: (StudyInstanceUIDs: ReadonlyArray<string>) => void;
 };
 
 const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
   studies,
   onRetrieve,
+  expandedStudyUids,
   onStudyExpand,
   preferences,
 }) => {
@@ -66,6 +71,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
           studies.length === 1 ? [studies[0].info.StudyInstanceUID] : []
         }
         onChange={onChange}
+        activeKey={expandedStudyUids}
       />
       <Typography>
         {numPatients === 1 ? "1 patient, " : `${numPatients} patients, `}

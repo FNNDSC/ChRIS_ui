@@ -1,5 +1,5 @@
 import { SeriesKey, StudyKey } from "./types.ts";
-import { StudyAndSeries } from "../../api/pfdcm/models.ts";
+import { Study, StudyAndSeries } from "../../api/pfdcm/models.ts";
 
 /**
  * A type subset of {@link StudyAndSeries}.
@@ -43,5 +43,14 @@ function zipPacsNameAndSeriesUids(
     );
 }
 
+function toStudyKey(
+  s: Pick<Study, "StudyInstanceUID" | "RetrieveAETitle">,
+): StudyKey {
+  return {
+    StudyInstanceUID: s.StudyInstanceUID,
+    pacs_name: s.RetrieveAETitle,
+  };
+}
+
 export type { StudyAndSeriesUidOnly };
-export { zipPacsNameAndSeriesUids };
+export { zipPacsNameAndSeriesUids, toStudyKey };
