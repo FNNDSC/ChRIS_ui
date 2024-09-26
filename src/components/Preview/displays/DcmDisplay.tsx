@@ -12,12 +12,12 @@ import {
   basicInit,
   cleanupCornerstoneTooling,
   displayDicomImage,
-  handleEvents,
   loadDicomImage,
   registerToolingOnce,
   removeTools,
   setUpTooling,
 } from "./dicomUtils/utils";
+import { handleEvents } from "./dicomUtils/utils";
 
 export type DcmImageProps = {
   selectedFile?: IFileBlob;
@@ -39,6 +39,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     handlePagination,
     filesLoading,
   } = props;
+
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
   >();
@@ -46,16 +47,15 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const [multiFrameDisplay, setMultiframeDisplay] = useState(false);
   const [imageStack, setImageStack] = useState<string[]>([]);
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
-  const [loadedIndexes, setLoadedIndexes] = useState<Set<number>>(new Set());
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [lastProcessedIndex, setLastProcessedIndex] = useState(0);
+  const [isLoadingImages, setIsLoadingImages] = useState(true);
+  const [lastProcessedIndex, setLastProcessedIndex] = useState(0); // Track last processed file index
+
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const uniqueId = `${selectedFile?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;
-  const size = useSize(dicomImageRef); // Use the useSize hook with dicomImageRef
+  const size = useSize(dicomImageRef);
 
   const handleResize = () => {
-    // Update the element with elementId when the size of dicomImageRef changes
     if (dicomImageRef.current && size) {
       const parentWidth = size.width;
       const parentHeight = size.height;
@@ -74,10 +74,9 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [size, renderingEngine, activeViewport]);
 
   useEffect(() => {
-    //Global registration needs to happen once
     registerToolingOnce();
     return () => {
       renderingEngine?.destroy();
@@ -102,27 +101,22 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
               (_, i) => `${imageID}?frame=${i}`,
             )
           : [imageID];
+
       const { viewport, renderingEngine: newRenderingEngine } =
         await displayDicomImage(element, newImageStack[0], uniqueId);
+
       setMultiframeDisplay(framesCount > 1);
       setActiveViewport(viewport);
       setRenderingEngine(newRenderingEngine);
       setImageStack(newImageStack);
-      const currentIndex = list?.findIndex(
-        (file) => file.data.fname === selectedFile.data.fname,
-      );
-      if (currentIndex) {
-        const newSet = new Set(loadedIndexes);
-        setLoadedIndexes(newSet.add(currentIndex));
-        setLastProcessedIndex(currentIndex);
-      }
+      setIsLoadingImages(false);
       return selectedFile.data.fname;
     }
   }
 
   const { isLoading } = useQuery({
     queryKey: ["cornerstone-preview", selectedFile],
-    queryFn: () => setupCornerstone(),
+    queryFn: setupCornerstone,
     enabled: !!selectedFile,
   });
 
@@ -145,112 +139,114 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     return imageData.imageID;
   };
 
-  const loadImagesInDirection = async (
-    direction: "forward" | "backward",
-    signal: AbortSignal,
-  ) => {
-    setIsLoadingMore(true);
-    if (list && !multiFrameDisplay) {
-      const newImageStack = [...imageStack];
-      const step = direction === "forward" ? 1 : -1;
-      const endCondition = (i: number) =>
-        direction === "forward" ? i < list.length : i >= 0;
-      const startIndex =
-        direction === "forward"
-          ? lastProcessedIndex + 1
-          : lastProcessedIndex - 1;
-      const newLoadedIndexes = new Set(loadedIndexes);
-      for (let i = startIndex; endCondition(i) && !signal.aborted; i += step) {
-        if (newLoadedIndexes.has(i)) continue;
-        const imageID = await loadImage(list[i]);
-        if (imageID) {
-          if (direction === "forward") {
-            newImageStack.push(imageID);
-          } else {
-            newImageStack.unshift(imageID);
+  async function* imageBatchGenerator(
+    start: number,
+    end: number,
+    skipIndex: number,
+  ) {
+    if (list) {
+      for (let i = start; i < end; i++) {
+        // Skip already loaded file
+        if (i === skipIndex) continue;
+
+        const file = list[i];
+        if (file) {
+          const imageID = await loadImage(file);
+          if (imageID) {
+            yield imageID; // Yield the image ID one by one
           }
-          newLoadedIndexes.add(i);
         }
       }
-      setImageStack([...newImageStack]);
-      setLoadedIndexes(new Set(newLoadedIndexes));
-      setLastProcessedIndex(direction === "forward" ? list.length - 1 : 0);
+    }
+  }
+
+  const loadImagesInBatches = async (
+    start: number,
+    end: number,
+    skipIndex: number,
+  ) => {
+    const generator = imageBatchGenerator(start, end, skipIndex);
+    const newImageStack: string[] = []; // Temporary stack to hold new images
+
+    for await (const newImage of generator) {
+      newImageStack.push(newImage);
+    }
+
+    // Once all images are loaded, update the imageStack and the viewport
+    setImageStack((prevStack) => {
+      const updatedStack = [...prevStack, ...newImageStack];
+
+      // Update the viewport with the entire stack
       if (activeViewport) {
-        await activeViewport.setStack(newImageStack, currentImageIndex);
+        const currentIndex = activeViewport.getCurrentImageIdIndex();
+        activeViewport.setStack(updatedStack, currentIndex);
         activeViewport.render();
       }
-    }
-    setIsLoadingMore(false);
+
+      return updatedStack; // Update the state with the full stack
+    });
   };
 
-  const loadMoreImages = async (signal: AbortSignal) => {
-    if (multiFrameDisplay && activeViewport) {
-      await activeViewport.setStack(imageStack);
+  const loadAllImages = async () => {
+    if (list && !multiFrameDisplay && !isLoading) {
+      const selectedIndex = list.findIndex(
+        (file) => file.data.fname === selectedFile?.data.fname,
+      );
+      await loadImagesInBatches(lastProcessedIndex, list.length, selectedIndex);
+      setLastProcessedIndex(list.length); // Update the last processed index
+    }
+  };
+
+  const loadMultiFrames = async () => {
+    if (activeViewport) {
+      const currentIndex = activeViewport.getCurrentImageIdIndex();
+      await activeViewport.setStack(imageStack, currentIndex);
       activeViewport.render();
-    } else {
-      await Promise.all([
-        loadImagesInDirection("forward", signal),
-        loadImagesInDirection("backward", signal),
-      ]);
     }
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    if (!isLoading) {
-      loadMoreImages(signal);
+    if (list && !multiFrameDisplay) {
+      loadAllImages();
+    } else if (multiFrameDisplay) {
+      loadMultiFrames();
     }
-    return () => {
-      controller.abort(); // Abort loading images on unmount
-    };
-  }, [isLoading, list, multiFrameDisplay]);
+  }, [isLoading, list, activeViewport, multiFrameDisplay]);
 
   useEffect(() => {
-    if (activeViewport && list) {
+    if (
+      list &&
+      fetchMore &&
+      handlePagination &&
+      !filesLoading &&
+      lastProcessedIndex === list.length - 1
+    ) {
+      handlePagination();
+    }
+  }, [fetchMore, handlePagination, filesLoading]);
+
+  useEffect(() => {
+    if (activeViewport && list && handlePagination) {
       const element = activeViewport.element;
-      const handleImageRendered = (_event: any) => {
+      const handleImageRendered = () => {
         const newIndex = activeViewport.getCurrentImageIdIndex();
         setCurrentImageIndex(newIndex + 1);
-      };
-      const handleFetchMoreImages = (_event: any) => {
-        if (!multiFrameDisplay) {
-          const id = activeViewport.getCurrentImageIdIndex();
-          if (
-            id >= Math.floor(imageStack.length / 2) &&
-            fetchMore &&
-            handlePagination &&
-            !filesLoading &&
-            lastProcessedIndex === list.length - 1
-          ) {
-            handlePagination();
-          }
+        if (newIndex >= list.length - 5 && fetchMore && !filesLoading) {
+          handlePagination();
         }
       };
       element.addEventListener(events.IMAGE_RENDERED, handleImageRendered);
-      element.addEventListener(
-        events.STACK_VIEWPORT_SCROLL,
-        handleFetchMoreImages,
-      );
       return () => {
         element.removeEventListener(events.IMAGE_RENDERED, handleImageRendered);
-        element.removeEventListener(
-          events.STACK_VIEWPORT_SCROLL,
-          handleFetchMoreImages,
-        );
       };
     }
-  }, [
-    activeViewport,
-    imageStack,
-    fetchMore,
-    handlePagination,
-    multiFrameDisplay,
-  ]);
+  }, [activeViewport, imageStack, fetchMore, filesLoading]);
 
   return (
     <>
-      {isLoading && <SpinContainer title="Displaying image..." />}
+      {(isLoading || isLoadingImages) && (
+        <SpinContainer title="Displaying image..." />
+      )}
       <div
         id="content"
         ref={dicomImageRef}
@@ -264,13 +260,8 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
             zIndex: "99999",
           }}
         >
-          {isLoadingMore ? (
-            <i>Loading More Images...</i>
-          ) : (
-            `Images Loaded: ${currentImageIndex}/${imageStack.length}`
-          )}
+          {`Images Loaded: ${currentImageIndex}/${imageStack.length}`}
         </div>
-
         <div id={elementId} />
       </div>
     </>
