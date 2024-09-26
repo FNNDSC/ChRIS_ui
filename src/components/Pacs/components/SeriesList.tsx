@@ -115,11 +115,14 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
         </Typography.Text>
       </div>
       <div className={styles.progress}>
+        {/* TODO Progress 100% text color should be changed from dark blue */}
         <Progress
           type="line"
           format={(n) => `${Math.round(n ?? 0)}%`}
           percent={percentDone}
-          status={errors.length > 0 ? "exception" : undefined}
+          status={
+            errors.length > 0 ? "exception" : inCube ? "success" : "normal"
+          }
         />
       </div>
       <div className={styles.pullButton}>
@@ -129,6 +132,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
             disabled={pullState !== SeriesPullState.READY}
             color={buttonColor}
           >
+            {/* TODO Button width is different if isLoading */}
             {errors.length > 1 ? (
               <WarningFilled />
             ) : isLoading ? (
