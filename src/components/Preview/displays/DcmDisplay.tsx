@@ -42,13 +42,13 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const [activeViewport, setActiveViewport] = useState<
     IStackViewport | undefined
   >();
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [multiFrameDisplay, setMultiframeDisplay] = useState(false);
   const [imageStack, setImageStack] = useState<string[]>([]);
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
+  const [loadedIndexes, setLoadedIndexes] = useState<Set<number>>(new Set());
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [totalImagesProcessed, setTotalImagesProcessed] = useState(0);
+  const [lastProcessedIndex, setLastProcessedIndex] = useState(0);
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const uniqueId = `${selectedFile?.data.id || v4()}`;
   const elementId = `cornerstone-element-${uniqueId}`;
@@ -108,7 +108,14 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       setActiveViewport(viewport);
       setRenderingEngine(newRenderingEngine);
       setImageStack(newImageStack);
-      setTotalImagesProcessed(1);
+      const currentIndex = list?.findIndex(
+        (file) => file.data.fname === selectedFile.data.fname,
+      );
+      if (currentIndex) {
+        const newSet = new Set(loadedIndexes);
+        setLoadedIndexes(newSet.add(currentIndex));
+        setLastProcessedIndex(currentIndex);
+      }
       return selectedFile.data.fname;
     }
   }
@@ -129,54 +136,63 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     handleResize();
   }, [size]);
 
-  const loadMoreImages = async (signal: AbortSignal) => {
+  const loadImage = async (file: IFileBlob): Promise<string | null> => {
+    const fileName = file.data.fname;
+    const extension = getFileExtension(fileName);
+    if (extension !== "dcm") return null;
+    const blob = await file.getFileBlob();
+    const imageData = await loadDicomImage(blob);
+    return imageData.imageID;
+  };
+
+  const loadImagesInDirection = async (
+    direction: "forward" | "backward",
+    signal: AbortSignal,
+  ) => {
     setIsLoadingMore(true);
     if (list && !multiFrameDisplay) {
-      if (
-        imageStack.length > 0 &&
-        imageStack.length !== list.length &&
-        activeViewport
-      ) {
-        // Find the index of the current image ID in the list
-        const currentImageIndexInList = list.findIndex((file) => {
-          return file.data.fname === selectedFile?.data.fname;
-        });
-        console.log("List", list, currentImageIndexInList);
-        const filesToLoad = [
-          ...list.slice(0, currentImageIndexInList), // Files before the current image
-          ...list.slice(currentImageIndexInList + 1), // Files after the current image
-        ];
-        console.log("filestoLoad", filesToLoad);
-        const newImageStack = [...imageStack];
-        let imagesProcessed = totalImagesProcessed;
-        for (const file of filesToLoad) {
-          imagesProcessed += 1;
-          if (signal.aborted) {
-            setIsLoadingMore(false);
-            return;
+      const newImageStack = [...imageStack];
+      const step = direction === "forward" ? 1 : -1;
+      const endCondition = (i: number) =>
+        direction === "forward" ? i < list.length : i >= 0;
+      const startIndex =
+        direction === "forward"
+          ? lastProcessedIndex + 1
+          : lastProcessedIndex - 1;
+      const newLoadedIndexes = new Set(loadedIndexes);
+      for (let i = startIndex; endCondition(i) && !signal.aborted; i += step) {
+        if (newLoadedIndexes.has(i)) continue;
+        const imageID = await loadImage(list[i]);
+        if (imageID) {
+          if (direction === "forward") {
+            newImageStack.push(imageID);
+          } else {
+            newImageStack.unshift(imageID);
           }
-          const extension = getFileExtension(file.data.fname);
-          if (extension !== "dcm") {
-            continue;
-          }
-          const blob = await file.getFileBlob();
-          const imageData = await loadDicomImage(blob); // Load and generate the image ID
-          const imageID = imageData.imageID;
-          newImageStack.push(imageID); // Add the new image ID to the stack
-        }
-        setImageStack(newImageStack);
-        setTotalImagesProcessed(imagesProcessed);
-        if (activeViewport) {
-          const currentIndex = activeViewport.getCurrentImageIdIndex();
-          await activeViewport.setStack(newImageStack, currentIndex);
-          activeViewport.render();
+          newLoadedIndexes.add(i);
         }
       }
-    } else if (multiFrameDisplay && activeViewport) {
-      await activeViewport.setStack(imageStack);
-      activeViewport.render();
+      setImageStack([...newImageStack]);
+      setLoadedIndexes(new Set(newLoadedIndexes));
+      setLastProcessedIndex(direction === "forward" ? list.length - 1 : 0);
+      if (activeViewport) {
+        await activeViewport.setStack(newImageStack, currentImageIndex);
+        activeViewport.render();
+      }
     }
     setIsLoadingMore(false);
+  };
+
+  const loadMoreImages = async (signal: AbortSignal) => {
+    if (multiFrameDisplay && activeViewport) {
+      await activeViewport.setStack(imageStack);
+      activeViewport.render();
+    } else {
+      await Promise.all([
+        loadImagesInDirection("forward", signal),
+        loadImagesInDirection("backward", signal),
+      ]);
+    }
   };
 
   useEffect(() => {
@@ -200,20 +216,12 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       const handleFetchMoreImages = (_event: any) => {
         if (!multiFrameDisplay) {
           const id = activeViewport.getCurrentImageIdIndex();
-          console.log(
-            id >= Math.floor(imageStack.length / 2) &&
-              fetchMore &&
-              handlePagination &&
-              !filesLoading &&
-              totalImagesProcessed === list.length,
-            "TotalImagesProcessed",
-            totalImagesProcessed,
-          );
           if (
             id >= Math.floor(imageStack.length / 2) &&
             fetchMore &&
             handlePagination &&
-            !filesLoading
+            !filesLoading &&
+            lastProcessedIndex === list.length - 1
           ) {
             handlePagination();
           }
