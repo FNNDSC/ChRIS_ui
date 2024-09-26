@@ -5,49 +5,46 @@ import {
   ReceiveState,
   RequestState,
   SeriesKey,
+  SeriesNotRegisteredError,
   SeriesPullState,
   SeriesReceiveState,
 } from "./types.ts";
 import { Series, StudyAndSeries } from "../../api/pfdcm/models.ts";
-import { UseQueryResult } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { PACSSeries } from "@fnndsc/chrisapi";
 
-type PACSSeriesQueryResult = UseQueryResult<PACSSeries | null, Error>;
-
-type SeriesQueryZip = {
-  search: SeriesKey;
-  result: PACSSeriesQueryResult;
-};
+type UseQueryResultLike = Partial<
+  Pick<UseQueryResult, "isError" | "isPending" | "error">
+>;
 
 /**
  * Fragments of the state of a DICOM series exists remotely in three places:
  * PFDCM, CUBE, and LONK.
  *
  * Merge the states from those places into one mega-object.
+ *
+ * @param pfdcm PACS query response from PFDCM
+ * @param pullRequests state of the PACS pull requests to PFDCM
+ * @param cubeQueryMap mapping of `SeriesInstanceUID` to queries for respective
+ *                     {@link PACSSeries} in CUBE (hint: call
+ *                     {@link createCubeSeriesQueryUidMap})
+ * @param receiveState state of DICOM receive operation conveyed via LONK
  */
 function mergeStates(
   pfdcm: ReadonlyArray<StudyAndSeries>,
   pullRequests: ReadonlyArray<PacsPullRequestState>,
-  cubeSeriesQuery: ReadonlyArray<SeriesQueryZip>,
+  cubeQueryMap: Map<string, UseQueryResult<PACSSeries | null, Error>>,
   receiveState: ReceiveState,
 ): PacsStudyState[] {
-  const cubeSeriesMap = new Map(
-    cubeSeriesQuery.map(({ search, result }) => [
-      search.SeriesInstanceUID,
-      result,
-    ]),
-  );
   return pfdcm.map(({ study, series }) => {
     return {
       info: study,
       series: series.map((info) => {
-        const cubeQueryResult = cubeSeriesMap.get(info.SeriesInstanceUID);
-        const cubeErrors =
-          cubeQueryResult && cubeQueryResult.error
-            ? [cubeQueryResult.error.message]
-            : [];
+        const cubeQueryResult = cubeQueryMap.get(info.SeriesInstanceUID);
+        const cubeError = cubeQueryResult?.error;
+        const cubeErrors = cubeError ? [cubeError.message] : [];
         const state =
-          receiveState.get(info.RetrieveAETitle, info.SeriesInstanceUID) ||
+          receiveState.get(info.RetrieveAETitle, info.SeriesInstanceUID) ??
           DEFAULT_RECEIVE_STATE;
         const pullRequestsForSeries = pullRequests.findLast((pr) =>
           isRequestFor(pr, info),
@@ -66,6 +63,40 @@ function mergeStates(
       }),
     };
   });
+}
+
+/**
+ * Reshape queries and the parameters used for each query to a map
+ * where the key is `SeriesInstanceUID`.
+ *
+ * Also removes entries where the query is pending or the error is
+ * {@link SeriesNotRegisteredError}.
+ *
+ * @param params {@link useQuery} parameters
+ * @param queries the React "hook" returned by {@link useQuery}
+ */
+function createCubeSeriesQueryUidMap<T extends UseQueryResultLike>(
+  params: ReadonlyArray<SeriesKey>,
+  queries: ReadonlyArray<T>,
+): Map<string, T> {
+  const entries = zipArray(params, queries)
+    .filter(([_, query]) => !query.isPending && !isNotRegisteredError(query))
+    .map(([p, q]): [string, T] => [p.SeriesInstanceUID, q]);
+  return new Map(entries);
+}
+
+function zipArray<A, B>(
+  a: ReadonlyArray<A>,
+  b: ReadonlyArray<B>,
+): ReadonlyArray<[A, B]> {
+  if (a.length !== b.length) {
+    throw new Error(`Array lengths are different (${a.length} != ${b.length})`);
+  }
+  return a.map((item, i) => [item, b[i]]);
+}
+
+function isNotRegisteredError(q: UseQueryResultLike): boolean {
+  return Boolean(q.isError) && q.error instanceof SeriesNotRegisteredError;
 }
 
 /**
@@ -131,6 +162,5 @@ function pullStateOf(
   return SeriesPullState.WAITING_OR_COMPLETE;
 }
 
-export type { SeriesQueryZip };
-export { pullStateOf };
-export default mergeStates;
+export type { UseQueryResultLike };
+export { mergeStates, pullStateOf, createCubeSeriesQueryUidMap };

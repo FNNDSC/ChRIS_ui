@@ -16,7 +16,7 @@ class SeriesMap<T> {
    * Get a value for a DICOM series.
    */
   public get(pacs_name: string, SeriesInstanceUID: string): T | undefined {
-    const key = this.keyOf(SeriesInstanceUID, pacs_name);
+    const key = this.keyOf(pacs_name, SeriesInstanceUID);
     return this.map.get(key);
   }
 
@@ -24,7 +24,7 @@ class SeriesMap<T> {
    * Set a value for a DICOM series.
    */
   public set(pacs_name: string, SeriesInstanceUID: string, value: T) {
-    const key = this.keyOf(SeriesInstanceUID, pacs_name);
+    const key = this.keyOf(pacs_name, SeriesInstanceUID);
     this.map.set(key, value);
   }
 
@@ -32,14 +32,14 @@ class SeriesMap<T> {
    * Get and remove a value for a DICOM series.
    */
   public pop(pacs_name: string, SeriesInstanceUID: string): T | null {
-    const key = this.keyOf(SeriesInstanceUID, pacs_name);
+    const key = this.keyOf(pacs_name, SeriesInstanceUID);
     const value = this.map.get(key);
     this.map.delete(key);
     return value || null;
   }
 
   private keyOf(pacs_name: string, SeriesInstanceUID: string): string {
-    return JSON.stringify({ SeriesInstanceUID, pacs_name });
+    return JSON.stringify({ pacs_name, SeriesInstanceUID });
   }
 
   /**

@@ -18,13 +18,14 @@ import {
   useQueries,
   useQuery,
 } from "@tanstack/react-query";
-import mergeStates, { SeriesQueryZip } from "./mergeStates.ts";
+import { mergeStates, createCubeSeriesQueryUidMap } from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
   IPacsState,
   PacsPullRequestState,
   ReceiveState,
   RequestState,
+  SeriesNotRegisteredError,
   SeriesPullState,
   SeriesReceiveState,
   StudyKey,
@@ -270,10 +271,18 @@ const PacsController: React.FC<PacsControllerProps> = ({
   // CUBE QUERIES AND DATA
   // ========================================
 
+  // We have two instances of `useQueries` for checking whether DICOM series
+  // exists in CUBE:
+  //
+  // `cubeSeriesQueries`: initial check for existence when series is expanded,
+  //                      runs once.
+  // `lastCheckQueries`:  final check for existence when series is done being
+  //                      received by oxidicom, polls repeatedly until found.
+
   /**
    * Check whether CUBE has any of the series that are expanded.
    */
-  const cubeSeriesQuery = useQueries({
+  const cubeSeriesQueries = useQueries({
     queries: expandedSeries.map((series) => ({
       queryKey: ["cubeSeries", chrisClient.url, series],
       queryFn: async () => {
@@ -281,59 +290,69 @@ const PacsController: React.FC<PacsControllerProps> = ({
           limit: 1,
           ...series,
         });
-        const items: PACSSeries[] | null = list.getItems();
+        const items = list.getItems() as PACSSeries[];
         // https://github.com/FNNDSC/fnndsc/issues/101
-        if (items === null) {
-          return null;
-        }
-        return items[0] || null;
+        return items[0] ?? null;
       },
     })),
   });
 
   /**
-   * Zip together elements of `cubeSeriesQuery` and the parameters used for
-   * each element.
+   * Poll CUBE for the existence of DICOM series which have been reported as
+   * "done" by LONK. It is necessary to poll CUBE because there will be a delay
+   * between when LONK reports the series as "done" and when CUBE will run the
+   * celery task of finally registering the series.
    */
-  const cubeSeriesQueryZip: ReadonlyArray<SeriesQueryZip> = React.useMemo(
-    () =>
-      expandedSeries.map((search, i) => ({
-        search,
-        result: cubeSeriesQuery[i],
-      })),
-    [expandedSeries, cubeSeriesQuery],
-  );
-  //
-  // /**
-  //  * Poll CUBE for the existence of DICOM series which have been reported as
-  //  * "done" by LONK. It is necessary to poll CUBE because there will be a delay
-  //  * between when LONK reports the series as "done" and when CUBE will run the
-  //  * celery task of finally registering the series.
-  //  */
-  // const finalCheckNeedingSeries = useQueries({
-  //   queries: React.useMemo(
-  //     () =>
-  //       receiveState.entries().map(([pacs_name, SeriesInstanceUID, state]) => ({
-  //         queryKey: [
-  //           "finalCheckNeedingSeries",
-  //           pacs_name,
-  //           SeriesInstanceUID,
-  //           state,
-  //         ],
-  //         queryFn: async () => {
-  //           const search = { pacs_name, SeriesInstanceUID, limit: 1 };
-  //           const list = await chrisClient.getPACSSeriesList(search);
-  //           const items = list.getItems() as ReadonlyArray<PACSSeries>;
-  //           if (items.length === 0) {
-  //             throw Error("not found");
-  //           }
-  //           return items[0];
-  //         },
-  //         enabled: state.done, // TODO CANCEL POLLING ONCE WE FOUND THE FILE.
-  //       })),
-  //     [receiveState],
-  //   ),
-  // });
+  const lastCheckQueries = useQueries({
+    queries: React.useMemo(
+      () =>
+        receiveState.entries().map(([pacs_name, SeriesInstanceUID, state]) => ({
+          queryKey: [
+            "lastCheckCubeSeriesRegistration",
+            pacs_name,
+            SeriesInstanceUID,
+          ],
+          queryFn: async () => {
+            const search = { pacs_name, SeriesInstanceUID, limit: 1 };
+            const list = await chrisClient.getPACSSeriesList(search);
+            const items = list.getItems() as ReadonlyArray<PACSSeries>;
+            if (items.length === 0) {
+              throw new SeriesNotRegisteredError(pacs_name, SeriesInstanceUID);
+            }
+            return items[0];
+          },
+          enabled: state.done,
+          retry: 300,
+          retryDelay: 2000, // TODO use environment variable
+        })),
+      [receiveState],
+    ),
+  });
+
+  /**
+   * Map for all the CUBE queries for PACSSeries existence.
+   */
+  const allCubeSeriesQueryMap = React.useMemo(() => {
+    const lastCheckParams = receiveState
+      .entries()
+      .map(([pacs_name, SeriesInstanceUID]) => ({
+        pacs_name,
+        SeriesInstanceUID,
+      }));
+    const lastCheckQueriesMap = createCubeSeriesQueryUidMap(
+      lastCheckParams,
+      lastCheckQueries,
+    );
+    const firstCheckQueriesMap = createCubeSeriesQueryUidMap(
+      expandedSeries,
+      cubeSeriesQueries,
+    );
+    return new Map([...firstCheckQueriesMap, ...lastCheckQueriesMap]);
+  }, [receiveState, lastCheckQueries, expandedSeries, cubeSeriesQueries]);
+
+  // ========================================
+  // COMBINED STATE OF EVERYTHING
+  // ========================================
 
   /**
    * Combined states of PFDCM, LONK, and CUBE into one object.
@@ -345,10 +364,16 @@ const PacsController: React.FC<PacsControllerProps> = ({
     return mergeStates(
       pfdcmStudies.data,
       pullRequests,
-      cubeSeriesQueryZip,
+      allCubeSeriesQueryMap,
       receiveState,
     );
-  }, [mergeStates, pfdcmStudies, cubeSeriesQueryZip, receiveState]);
+  }, [
+    mergeStates,
+    pfdcmStudies.data,
+    pullRequests,
+    allCubeSeriesQueryMap,
+    receiveState,
+  ]);
 
   /**
    * Entire state of the Pacs Q/R application.
@@ -567,15 +592,6 @@ const PacsController: React.FC<PacsControllerProps> = ({
       updatePullRequestState(service, query, { error: error }),
     onSuccess: (_, { service, query }) =>
       updatePullRequestState(service, query, { state: RequestState.REQUESTED }),
-    onSettled: (data, error, variables, context) => {
-      console.dir({
-        event: "settled",
-        data,
-        error,
-        variables,
-        context,
-      });
-    },
   });
 
   React.useEffect(() => {
