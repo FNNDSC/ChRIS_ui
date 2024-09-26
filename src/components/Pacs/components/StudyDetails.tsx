@@ -14,7 +14,7 @@ const StudyDetails: React.FC<{
       <span>
         Study "{study.StudyDescription}"{" "}
         <span style={{ fontWeight: "initial" }}>
-          on {study.StudyDate ? format(study.StudyDate, dateFormat) : "unknown"}{" "}
+          on {formatDate(study.StudyDate, dateFormat)}{" "}
           {study.AccessionNumber &&
             !study.AccessionNumber.includes("no value provided") && (
               <>(AccessionNumber: {study.AccessionNumber})</>
@@ -69,6 +69,18 @@ function formatPypxSex(dicomSex: string) {
       return "Other";
     default:
       return dicomSex;
+  }
+}
+
+function formatDate(date: Date | undefined | null, dateFormat: string) {
+  if (!date) {
+    return "unknown date";
+  }
+  try {
+    return format(date, dateFormat);
+  } catch (_e) {
+    // invalid date
+    return "unknown date";
   }
 }
 
