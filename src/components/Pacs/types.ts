@@ -14,6 +14,19 @@ type SeriesKey = {
 };
 
 /**
+ * Indicates DICOM series has not yet been registered by CUBE.
+ */
+class SeriesNotRegisteredError extends Error {
+  public readonly pacs_name: string;
+  public readonly SeriesInstanceUID: string;
+  public constructor(pacs_name: string, SeriesInstanceUID: string) {
+    super();
+    this.pacs_name = pacs_name;
+    this.SeriesInstanceUID = SeriesInstanceUID;
+  }
+}
+
+/**
  * The states which a DICOM series can be in.
  */
 enum SeriesPullState {
@@ -135,7 +148,12 @@ interface IPacsState {
   studies: PacsStudyState[] | null;
 }
 
-export { SeriesPullState, RequestState, DEFAULT_RECEIVE_STATE };
+export {
+  SeriesPullState,
+  RequestState,
+  DEFAULT_RECEIVE_STATE,
+  SeriesNotRegisteredError,
+};
 export type {
   StudyKey,
   SeriesKey,

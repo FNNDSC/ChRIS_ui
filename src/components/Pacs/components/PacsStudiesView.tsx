@@ -34,7 +34,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
             isPulled={
               series.length === 0
                 ? true
-                : !series.find(({ inCube }) => inCube === null)
+                : series.every(({ inCube }) => inCube !== null)
             }
             isLoading={
               series.length === 0 ? false : !!series.find(isSeriesLoading)

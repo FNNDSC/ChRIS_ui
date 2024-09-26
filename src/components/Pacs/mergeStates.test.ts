@@ -1,8 +1,14 @@
 import { expect, test } from "vitest";
-import { pullStateOf } from "./mergeStates.ts";
+import {
+  createCubeSeriesQueryUidMap,
+  pullStateOf,
+  UseQueryResultLike,
+} from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
   RequestState,
+  SeriesKey,
+  SeriesNotRegisteredError,
   SeriesPullState,
   SeriesReceiveState,
 } from "./types.ts";
@@ -147,3 +153,36 @@ test.each(<
     expect(actual).toStrictEqual(expected);
   },
 );
+
+test("createCubeSeriesQueryUidMap", () => {
+  const params: ReadonlyArray<SeriesKey> = [
+    { pacs_name: "MyPACS", SeriesInstanceUID: "1.2.345" },
+    { pacs_name: "MyPACS", SeriesInstanceUID: "1.2.678" },
+    { pacs_name: "MyPACS", SeriesInstanceUID: "1.2.910" },
+    { pacs_name: "MyPACS", SeriesInstanceUID: "1.2.123" },
+  ];
+  const queries: ReadonlyArray<UseQueryResultLike> = [
+    {
+      isError: false,
+      error: null,
+    },
+    {
+      isError: true,
+      error: new Error("i am some other error"),
+    },
+    {
+      isError: true,
+      error: new SeriesNotRegisteredError("MyPACS", "1.2.910"),
+    },
+    {
+      isError: false,
+      error: null,
+    },
+  ];
+  const actual = createCubeSeriesQueryUidMap(params, queries);
+  expect(actual.get(params[0].SeriesInstanceUID)).toBe(queries[0]);
+  expect(actual.get(params[1].SeriesInstanceUID)).toBe(queries[1]);
+  expect(actual.get(params[3].SeriesInstanceUID)).toBe(queries[3]);
+  expect(actual.size).toBe(3);
+  expect(actual.values()).not.toContain(queries[2]);
+});
