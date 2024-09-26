@@ -16,13 +16,15 @@ import styles from "./SeriesList.module.css";
 import React from "react";
 import { isSeriesLoading } from "./helpers.ts";
 
-type SeriesTableProps = {
+type SeriesListProps = {
   states: PacsSeriesState[];
   showUid?: boolean;
+  onRetrieve?: (state: PacsSeriesState) => void;
 };
 
 type SeriesRowProps = PacsSeriesState & {
   showUid?: boolean;
+  onRetrieve?: () => void;
 };
 
 const SeriesRow: React.FC<SeriesRowProps> = ({
@@ -32,6 +34,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   inCube,
   receivedCount,
   showUid,
+  onRetrieve,
 }) => {
   const isLoading = React.useMemo(
     () => isSeriesLoading({ pullState, inCube }),
@@ -131,6 +134,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
             loading={isLoading}
             disabled={pullState !== SeriesPullState.READY}
             color={buttonColor}
+            onClick={onRetrieve}
           >
             {/* TODO Button width is different if isLoading */}
             {errors.length > 1 ? (
@@ -154,19 +158,25 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   );
 };
 
-const SeriesList: React.FC<SeriesTableProps> = ({ states, showUid }) => {
-  return (
-    <List
-      dataSource={states}
-      renderItem={(s) => (
-        <List.Item>
-          <SeriesRow showUid={showUid} {...s} />
-        </List.Item>
-      )}
-      rowKey={(state) => state.info.SeriesInstanceUID}
-      size="small"
-    />
-  );
-};
+const SeriesList: React.FC<SeriesListProps> = ({
+  states,
+  showUid,
+  onRetrieve,
+}) => (
+  <List
+    dataSource={states}
+    renderItem={(s) => (
+      <List.Item>
+        <SeriesRow
+          showUid={showUid}
+          onRetrieve={() => onRetrieve && onRetrieve(s)}
+          {...s}
+        />
+      </List.Item>
+    )}
+    rowKey={(state) => state.info.SeriesInstanceUID}
+    size="small"
+  />
+);
 
 export default SeriesList;

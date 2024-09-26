@@ -33,23 +33,23 @@ enum SeriesPullState {
   /**
    * Unknown whether series is available in CUBE.
    */
-  NOT_CHECKED,
+  NOT_CHECKED = "not checked",
   /**
    * Currently checking for availability in CUBE.
    */
-  CHECKING,
+  CHECKING = "checking",
   /**
    * Ready to be pulled.
    */
-  READY,
+  READY = "ready",
   /**
    * Being pulled by oxidicom.
    */
-  PULLING,
+  PULLING = "pulling",
   /**
    * Done being received by oxidicom, but may or not yet ready in CUBE.
    */
-  WAITING_OR_COMPLETE,
+  WAITING_OR_COMPLETE = "waiting or complete",
 }
 
 /**

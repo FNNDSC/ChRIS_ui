@@ -47,7 +47,18 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
             }
           ></StudyCard>
         ),
-        children: <SeriesList states={series} showUid={preferences.showUid} />,
+        children: (
+          <SeriesList
+            states={series}
+            showUid={preferences.showUid}
+            onRetrieve={({ info }) =>
+              onRetrieve({
+                patientID: info.PatientID,
+                seriesInstanceUID: info.SeriesInstanceUID,
+              })
+            }
+          />
+        ),
       };
     });
   }, [studies]);

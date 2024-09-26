@@ -544,7 +544,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
         ({ info, pullState }) =>
           info.RetrieveAETitle === pacs_name &&
           info.SeriesInstanceUID === SeriesInstanceUID &&
-          pullState === SeriesPullState.READY,
+          pullState === SeriesPullState.PULLING,
       ) !== -1,
     [allSeries],
   );
