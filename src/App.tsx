@@ -60,6 +60,16 @@ function App(props: AllProps) {
                   algorithm: isDarkTheme
                     ? theme.darkAlgorithm
                     : theme.defaultAlgorithm,
+                  token: {
+                    // var(--pf-v5-global--primary-color--200)
+                    colorSuccess: "#004080",
+                  },
+                  components: {
+                    Progress: {
+                      // var(--pf-v5-global--primary-color--100)
+                      defaultColor: "#0066CC",
+                    },
+                  },
                 }}
               >
                 <AntdApp>
