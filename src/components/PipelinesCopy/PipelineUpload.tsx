@@ -11,6 +11,7 @@ import {
   uploadPipelineSourceFile,
   extractPluginInfo,
 } from "./utils";
+import { Cookies } from "react-cookie";
 
 interface Notification {
   type: "warning" | "success" | "info" | "error" | undefined;
@@ -22,6 +23,7 @@ const PipelineUpload = ({
 }: {
   fetchPipelinesAgain: () => void;
 }) => {
+  const cookies = new Cookies();
   const fileInput = useRef<HTMLInputElement>(null);
   const [notification, setNotification] = useState<Notification>({
     type: undefined,
@@ -40,7 +42,8 @@ const PipelineUpload = ({
       description: `Installing plugin: ${name} version: ${version}`,
     });
 
-    const storeUrl = import.meta.env.VITE_CHRIS_STORE_URL;
+    const storeUrl =
+      cookies.get("configure_url") || import.meta.env.VITE_CHRIS_STORE_URL;
     if (!storeUrl) {
       throw new Error("Failed to connect to a remote store");
     }
