@@ -167,8 +167,6 @@ const PipelineUpload = ({
     }
   };
 
-  console.log("Notification", notification);
-
   return (
     <div style={{ marginTop: "1rem" }}>
       <Button
