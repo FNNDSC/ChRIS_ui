@@ -1,6 +1,6 @@
 import type { RenderingEngine } from "@cornerstonejs/core";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { v4 } from "uuid";
 import { type IFileBlob, getFileExtension } from "../../../api/model";
 import { SpinContainer } from "../../Common";
@@ -34,7 +34,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     selectedFile,
     actionState,
     preview,
-    list,
+    list = [], // Default to empty array
     fetchMore,
     handlePagination,
     filesLoading,
@@ -47,7 +47,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
   const [multiFrameDisplay, setMultiframeDisplay] = useState(false);
   const [imageStack, setImageStack] = useState<string[]>([]);
   const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
-  const [isLoadingImages, setIsLoadingImages] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lastProcessedIndex, setLastProcessedIndex] = useState(0); // Track last processed file index
 
   const dicomImageRef = useRef<HTMLDivElement>(null);
@@ -109,7 +109,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
       setActiveViewport(viewport);
       setRenderingEngine(newRenderingEngine);
       setImageStack(newImageStack);
-      setIsLoadingImages(false);
+
       return selectedFile.data.fname;
     }
   }
@@ -130,72 +130,14 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     handleResize();
   }, [size]);
 
-  const loadImage = async (file: IFileBlob): Promise<string | null> => {
-    const fileName = file.data.fname;
-    const extension = getFileExtension(fileName);
-    if (extension !== "dcm") return null;
-    const blob = await file.getFileBlob();
-    const imageData = await loadDicomImage(blob);
-    return imageData.imageID;
-  };
-
-  async function* imageBatchGenerator(
-    start: number,
-    end: number,
-    skipIndex: number,
-  ) {
-    if (list) {
-      for (let i = start; i < end; i++) {
-        // Skip already loaded file
-        if (i === skipIndex) continue;
-
-        const file = list[i];
-        if (file) {
-          const imageID = await loadImage(file);
-          if (imageID) {
-            yield imageID; // Yield the image ID one by one
-          }
-        }
-      }
-    }
-  }
-
-  const loadImagesInBatches = async (
-    start: number,
-    end: number,
-    skipIndex: number,
-  ) => {
-    const generator = imageBatchGenerator(start, end, skipIndex);
-    const newImageStack: string[] = []; // Temporary stack to hold new images
-
-    for await (const newImage of generator) {
-      newImageStack.push(newImage);
-    }
-
-    // Once all images are loaded, update the imageStack and the viewport
-    setImageStack((prevStack) => {
-      const updatedStack = [...prevStack, ...newImageStack];
-
-      // Update the viewport with the entire stack
-      if (activeViewport) {
-        const currentIndex = activeViewport.getCurrentImageIdIndex();
-        activeViewport.setStack(updatedStack, currentIndex);
-        activeViewport.render();
-      }
-
-      return updatedStack; // Update the state with the full stack
-    });
-  };
-
-  const loadAllImages = async () => {
-    if (list && !multiFrameDisplay && !isLoading) {
-      const selectedIndex = list.findIndex(
-        (file) => file.data.fname === selectedFile?.data.fname,
-      );
-      await loadImagesInBatches(lastProcessedIndex, list.length, selectedIndex);
-      setLastProcessedIndex(list.length); // Update the last processed index
-    }
-  };
+  // Filter the list to include only DICOM files
+  const filteredList: IFileBlob[] = useMemo(
+    () =>
+      list.filter(
+        (file) => getFileExtension(file.data.fname).toLowerCase() === "dcm",
+      ),
+    [list],
+  );
 
   const loadMultiFrames = async () => {
     if (activeViewport) {
@@ -205,33 +147,129 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     }
   };
 
+  const loadImage = async (file: IFileBlob): Promise<string | null> => {
+    const fileName = file.data.fname;
+    const extension = getFileExtension(fileName);
+    if (extension !== "dcm") return null;
+    const blob = await file.getFileBlob();
+    const imageData = await loadDicomImage(blob);
+    return imageData.imageID;
+  };
+
+  const loadImagesInBatches = async (
+    start: number,
+    end: number,
+    skipIndex: number,
+    abortSignal: AbortSignal,
+  ) => {
+    setIsLoadingMore(true);
+    const generator = imageBatchGenerator(start, end, skipIndex, abortSignal);
+    const newImageStack: string[] = []; // Temporary stack to hold new images
+    try {
+      for await (const newImage of generator) {
+        if (abortSignal.aborted) {
+          setIsLoadingMore(false);
+          break; // Exit the loop if the signal is aborted
+        }
+        newImageStack.push(newImage);
+      }
+
+      // Update the image stack synchronously
+      setImageStack((prevStack) => [...prevStack, ...newImageStack]);
+
+      // Handle the async viewport operations separately
+      if (activeViewport) {
+        const currentIndex = activeViewport.getCurrentImageIdIndex();
+
+        // Await async calls outside of the setState
+        await activeViewport.setStack(
+          [...imageStack, ...newImageStack],
+          currentIndex > 0 ? currentIndex : skipIndex,
+        );
+        currentIndex === 0 && (await activeViewport.setImageIdIndex(skipIndex));
+        activeViewport.render();
+        setIsLoadingMore(false);
+      }
+    } catch (err) {
+      setIsLoadingMore(false);
+      if (abortSignal.aborted) {
+      } else {
+        console.error("Error loading images:", err);
+      }
+    }
+  };
+
+  async function* imageBatchGenerator(
+    start: number,
+    end: number,
+    skipIndex: number,
+    abortSignal: AbortSignal, // Include abort signal
+  ) {
+    for (let i = start; i < end; i++) {
+      if (abortSignal.aborted) {
+        return; // Exit the generator early if aborted
+      }
+
+      if (i === skipIndex) continue;
+
+      const file = filteredList[i];
+      if (file) {
+        const imageID = await loadImage(file);
+        if (imageID) {
+          yield imageID; // Yield the image ID one by one
+        }
+      }
+    }
+  }
+
   useEffect(() => {
-    if (list && !multiFrameDisplay) {
-      loadAllImages();
+    const abortController = new AbortController();
+    setLastProcessedIndex(0);
+    if (!isLoading && filteredList && !multiFrameDisplay) {
+      const selectedIndex = filteredList.findIndex(
+        (file) => file.data.fname === selectedFile?.data.fname,
+      );
+      loadImagesInBatches(
+        lastProcessedIndex,
+        filteredList.length,
+        selectedIndex,
+        abortController.signal,
+      );
+      setLastProcessedIndex(filteredList.length);
     } else if (multiFrameDisplay) {
       loadMultiFrames();
     }
-  }, [isLoading, list, activeViewport, multiFrameDisplay]);
+
+    return () => {
+      abortController.abort(); // Cleanup: abort the ongoing image loading process if the component unmounts
+    };
+  }, [
+    isLoading,
+    filteredList,
+    activeViewport,
+    multiFrameDisplay,
+    selectedFile,
+  ]);
 
   useEffect(() => {
     if (
-      list &&
+      filteredList &&
       fetchMore &&
       handlePagination &&
       !filesLoading &&
-      lastProcessedIndex === list.length - 1
+      lastProcessedIndex === filteredList.length - 1
     ) {
       handlePagination();
     }
   }, [fetchMore, handlePagination, filesLoading]);
 
   useEffect(() => {
-    if (activeViewport && list && handlePagination) {
+    if (activeViewport && filteredList && handlePagination) {
       const element = activeViewport.element;
       const handleImageRendered = () => {
         const newIndex = activeViewport.getCurrentImageIdIndex();
-        setCurrentImageIndex(newIndex + 1);
-        if (newIndex >= list.length - 5 && fetchMore && !filesLoading) {
+        setCurrentImageIndex(newIndex);
+        if (newIndex >= filteredList.length - 5 && fetchMore && !filesLoading) {
           handlePagination();
         }
       };
@@ -240,13 +278,11 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         element.removeEventListener(events.IMAGE_RENDERED, handleImageRendered);
       };
     }
-  }, [activeViewport, imageStack, fetchMore, filesLoading]);
+  }, [fetchMore, handlePagination, filesLoading, filteredList, activeViewport]);
 
   return (
     <>
-      {(isLoading || isLoadingImages) && (
-        <SpinContainer title="Displaying image..." />
-      )}
+      {isLoading && <SpinContainer title="Displaying image..." />}
       <div
         id="content"
         ref={dicomImageRef}
@@ -255,13 +291,19 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
         <div
           style={{
             position: "absolute",
-            top: "0.5em",
-            left: "0.5em",
+            top: "0.25em",
+            right: "0.25em",
             zIndex: "99999",
           }}
         >
-          {`Images Loaded: ${currentImageIndex}/${imageStack.length}`}
+          {`Current Index: ${currentImageIndex + 1} (${currentImageIndex + 1}/${imageStack.length})`}
+          {isLoadingMore && (
+            <div>
+              <i>Loading more...</i>
+            </div>
+          )}
         </div>
+
         <div id={elementId} />
       </div>
     </>
