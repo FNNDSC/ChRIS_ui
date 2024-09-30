@@ -40,8 +40,12 @@ export default function CreateFeed() {
     useContext(PipelineContext);
 
   const user = useAppSelector((state) => state.user);
-  const { pluginMeta, selectedPluginFromMeta, dropdownInput, requiredInput } =
-    addNodeState;
+  const {
+    pluginMeta,
+
+    dropdownInput,
+    requiredInput,
+  } = addNodeState;
   const { wizardOpen, data, selectedConfig } = state;
 
   const getUploadFileCount = (value: number) => {
@@ -106,11 +110,7 @@ export default function CreateFeed() {
       }
 
       if (selectedConfig.includes("fs_plugin")) {
-        feed = await createFeedInstanceWithFS(
-          dropdownInput,
-          requiredInput,
-          selectedPluginFromMeta,
-        );
+        feed = await createFeedInstanceWithFS(addNodeState);
       }
 
       if (feed) {

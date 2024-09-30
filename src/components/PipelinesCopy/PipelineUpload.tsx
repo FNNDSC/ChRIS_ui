@@ -1,17 +1,18 @@
 import Client from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
-import { Alert } from "../Antd";
 import axios from "axios";
 import { isEmpty } from "lodash";
 import { useRef, useState } from "react";
+import { Cookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { Alert } from "../Antd";
 import {
   fetchPluginMetasFromStore,
   handleInstallPlugin,
-  uploadPipelineSourceFile,
-  extractPluginInfo,
-} from "./utils";
-
+} from "../PipelinesCopy/utils";
+import { uploadPipelineSourceFile } from "./utils";
+import { extractPluginInfo } from "./utils";
+import { useAppSelector } from "../../store/hooks";
 interface Notification {
   type: "warning" | "success" | "info" | "error" | undefined;
   description: string;
@@ -22,6 +23,8 @@ const PipelineUpload = ({
 }: {
   fetchPipelinesAgain: () => void;
 }) => {
+  const isStaff = useAppSelector((state) => state.user.isStaff);
+  const cookies = new Cookies();
   const fileInput = useRef<HTMLInputElement>(null);
   const [notification, setNotification] = useState<Notification>({
     type: undefined,
@@ -40,7 +43,8 @@ const PipelineUpload = ({
       description: `Installing plugin: ${name} version: ${version}`,
     });
 
-    const storeUrl = import.meta.env.VITE_CHRIS_STORE_URL;
+    const storeUrl =
+      cookies.get("configure_url") || import.meta.env.VITE_CHRIS_STORE_URL;
     if (!storeUrl) {
       throw new Error("Failed to connect to a remote store");
     }
@@ -54,16 +58,40 @@ const PipelineUpload = ({
       version,
     );
 
-    // This feature is only available to logged-in users with a valid token
-    // If you have a token, install the plugin by making a request to the admin URL
+    // Read values from cookies
+    const admin_username = cookies.get("admin_username");
+    const admin_password = cookies.get("admin_password");
+    const compute_resource = cookies.get("compute_resource") || "host"; // Default to 'host' if not set
+
+    // This feature is available to logged-in users or with admin credentials
     const client = ChrisAPIClient.getClient();
-    const nonAdminCredentials = `Token ${client.auth.token}`;
+
+    let authorization: string;
+
+    if (isStaff) {
+      // Use the token if the user is logged in
+      authorization = `Token ${client.auth.token}`;
+    } else if (admin_username && admin_password) {
+      // Use admin credentials if available
+      const adminCredentials = btoa(
+        `${admin_username.trim()}:${admin_password.trim()}`,
+      );
+      authorization = `Basic ${adminCredentials}`;
+    } else {
+      throw new Error(
+        "Please log in or provide admin credentials to install the plugin.",
+      );
+    }
+
     try {
-      await handleInstallPlugin(nonAdminCredentials, selectedPlugin);
+      await handleInstallPlugin(
+        authorization,
+        selectedPlugin,
+        compute_resource,
+      );
     } catch (e) {
-      if (axios.isAxiosError(e)) {
-        throw new Error(e.response?.data);
-      }
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
+      throw e;
     }
   };
 
@@ -95,6 +123,9 @@ const PipelineUpload = ({
 
             retryUploadFile = false; // Exit the loop if the upload was successful
           } catch (error) {
+            // Set retryUploadFile to false for unexpected errors
+            retryUploadFile = false;
+
             if (axios.isAxiosError(error)) {
               const errorDictionary = error.response?.data;
 
@@ -106,14 +137,11 @@ const PipelineUpload = ({
                   type: "error",
                   description: `Error: ${message}.`,
                 });
-                retryUploadFile = false;
-              }
-
-              if (!isEmpty(errorDictionary?.plugin_tree)) {
-                // This handles the case when the pipeline has plugins with versions missing in the store. CUBE throws missing plugin errors one at a time, so we reattempt the upload and install the missing plugins until the pipeline is uploaded successfully.
+              } else if (!isEmpty(errorDictionary?.plugin_tree)) {
+                // Handle missing plugin errors, reattempt the upload if possible
                 const plugin_tree_errors = errorDictionary.plugin_tree;
-                // Extract the missing plugin's name and version from the error message
                 const extractedInfo = extractPluginInfo(plugin_tree_errors[0]);
+
                 if (extractedInfo) {
                   const { name, version } = extractedInfo;
 
@@ -123,24 +151,35 @@ const PipelineUpload = ({
                   });
 
                   try {
-                    // Attempt to install the plugin from the registered store
+                    // Attempt to install the plugin
                     await installPlugin(name, version);
+                    // Retry file upload after successful plugin installation
+                    retryUploadFile = true; // Allow retrying if plugin installation succeeds
                   } catch (installError: any) {
                     setNotification({
                       type: "error",
                       description: `Failed to install plugin "${name}" version "${version}". ${installError.message}. You may need to connect to a different store to install this plugin.`,
                     });
-                    retryUploadFile = false; // Stop retrying if plugin installation fails
                   }
+                } else {
+                  setNotification({
+                    type: "error",
+                    description: `${plugin_tree_errors[0]}`,
+                  });
                 }
+              } else {
+                // Handle unexpected errors
+                setNotification({
+                  type: "error",
+                  description: "An unexpected error occurred",
+                });
               }
             } else {
-              // Handle unexpected errors
+              // Handle non-Axios errors
               setNotification({
                 type: "error",
                 description: "An unexpected error occurred",
               });
-              retryUploadFile = false;
             }
           }
         }
