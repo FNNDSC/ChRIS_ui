@@ -13,7 +13,10 @@ import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import { addNode } from "../../store/pluginInstance/pluginInstanceSlice";
 import type { ApplicationState } from "../../store/root/applicationState";
 import { Alert } from "../Antd";
-import { getRequiredObject } from "../CreateFeed/createFeedHelper";
+import {
+  getParameterInput,
+  sanitizeAdvancedConfig,
+} from "../CreateFeed/createFeedHelper";
 import BasicConfiguration from "./BasicConfiguration";
 import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
@@ -30,6 +33,7 @@ const AddNode: React.FC = () => {
   );
   const params = useAppSelector((state) => state.plugin.parameters);
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
+
   const {
     pluginMeta,
     selectedPluginFromMeta: plugin,
@@ -56,51 +60,33 @@ const AddNode: React.FC = () => {
   );
 
   const handleSave = useCallback(async () => {
-    if (!plugin || !selectedPlugin || !pluginInstances) {
-      return;
-    }
+    if (!plugin || !selectedPlugin || !pluginInstances) return;
 
-    const advancedConfigErrors: Record<string, string> = {};
-    const sanitizedInput: Record<string, string> = {};
-
-    for (const key in advancedConfig) {
-      const inputValue = +advancedConfig[key];
-
-      if (Number.isNaN(inputValue)) {
-        advancedConfigErrors[key] = "A valid integer is required";
-      } else {
-        if (key === "cpu_limit") {
-          sanitizedInput[key] = `${inputValue * 1000}m`;
-        }
-        if (key === "memory_limit") {
-          sanitizedInput[key] = `${inputValue}${memoryLimit}`;
-        }
-      }
-    }
+    const { advancedConfigErrors, sanitizedInput } = sanitizeAdvancedConfig(
+      advancedConfig,
+      memoryLimit,
+    );
 
     if (Object.keys(advancedConfigErrors).length > 0) {
       errorCallback(advancedConfigErrors);
       return;
     }
 
-    const { data: nodes } = pluginInstances;
-    let parameterInput = await getRequiredObject(
-      dropdownInput,
-      requiredInput,
-      plugin,
-      selectedPlugin,
-    );
-
-    parameterInput = {
-      ...parameterInput,
-      compute_resource_name: selectedComputeEnv,
-      ...sanitizedInput,
-    };
-
     try {
+      const parameterInput = await getParameterInput(
+        dropdownInput,
+        requiredInput,
+        plugin,
+        selectedComputeEnv,
+        sanitizedInput,
+        selectedPlugin,
+      );
+
+      const { data: nodes } = pluginInstances;
       const pluginInstance = await plugin.getPluginInstances();
       await pluginInstance.post(parameterInput);
       const nodeList = pluginInstance.getItems();
+
       if (nodeList) {
         dispatch(addNode({ pluginItem: nodeList[0], nodes }));
         toggleOpen();
@@ -115,7 +101,6 @@ const AddNode: React.FC = () => {
     pluginInstances,
     dropdownInput,
     requiredInput,
-    plugin,
     selectedComputeEnv,
     advancedConfig,
     memoryLimit,
@@ -163,7 +148,7 @@ const AddNode: React.FC = () => {
         <WizardStep
           id="2"
           name="Plugin Form"
-          footer={{ nextButtonText: "Add Node", isNextDisabled: !!isDisabled }}
+          footer={{ nextButtonText: "Add Node", isNextDisabled: isDisabled }}
         >
           <GuidedConfig />
         </WizardStep>
