@@ -1,18 +1,18 @@
 import Client from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
-import { Alert } from "../Antd";
 import axios from "axios";
 import { isEmpty } from "lodash";
 import { useRef, useState } from "react";
+import { Cookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { Alert } from "../Antd";
 import {
   fetchPluginMetasFromStore,
   handleInstallPlugin,
-  uploadPipelineSourceFile,
-  extractPluginInfo,
-} from "./utils";
-import { Cookies } from "react-cookie";
-
+} from "../PipelinesCopy/utils";
+import { uploadPipelineSourceFile } from "./utils";
+import { extractPluginInfo } from "./utils";
+import { useAppSelector } from "../../store/hooks";
 interface Notification {
   type: "warning" | "success" | "info" | "error" | undefined;
   description: string;
@@ -23,6 +23,7 @@ const PipelineUpload = ({
 }: {
   fetchPipelinesAgain: () => void;
 }) => {
+  const isStaff = useAppSelector((state) => state.user.isStaff);
   const cookies = new Cookies();
   const fileInput = useRef<HTMLInputElement>(null);
   const [notification, setNotification] = useState<Notification>({
@@ -57,12 +58,37 @@ const PipelineUpload = ({
       version,
     );
 
-    // This feature is only available to logged-in users with a valid token
-    // If you have a token, install the plugin by making a request to the admin URL
+    // Read values from cookies
+    const admin_username = cookies.get("admin_username");
+    const admin_password = cookies.get("admin_password");
+    const compute_resource = cookies.get("compute_resource") || "host"; // Default to 'host' if not set
+
+    // This feature is available to logged-in users or with admin credentials
     const client = ChrisAPIClient.getClient();
-    const nonAdminCredentials = `Token ${client.auth.token}`;
+
+    let authorization: string;
+
+    if (isStaff) {
+      // Use the token if the user is logged in
+      authorization = `Token ${client.auth.token}`;
+    } else if (admin_username && admin_password) {
+      // Use admin credentials if available
+      const adminCredentials = btoa(
+        `${admin_username.trim()}:${admin_password.trim()}`,
+      );
+      authorization = `Basic ${adminCredentials}`;
+    } else {
+      throw new Error(
+        "Please log in or provide admin credentials to install the plugin.",
+      );
+    }
+
     try {
-      await handleInstallPlugin(nonAdminCredentials, selectedPlugin);
+      await handleInstallPlugin(
+        authorization,
+        selectedPlugin,
+        compute_resource,
+      );
     } catch (e) {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw e;
