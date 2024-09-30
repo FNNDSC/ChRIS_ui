@@ -14,6 +14,7 @@ import type { InputType } from "../AddNode/types";
 import { unpackParametersIntoObject } from "../AddNode/utils";
 import type { PipelineState } from "../PipelinesCopy/context";
 import type { CreateFeedData } from "./types/feed";
+import type { AddNodeState } from "../AddNode/types";
 
 export const createFeed = async (
   data: CreateFeedData,
@@ -155,28 +156,42 @@ export const getPlugin = async (
   }
 };
 
-export const createFeedInstanceWithFS = async (
-  dropdownInput: InputType,
-  requiredInput: InputType,
-  selectedPlugin: Plugin | undefined,
-) => {
+export const createFeedInstanceWithFS = async (state: AddNodeState) => {
+  const {
+    dropdownInput,
+    requiredInput,
+    advancedConfig,
+    selectedComputeEnv,
+    selectedPluginFromMeta: selectedPlugin,
+    memoryLimit,
+  } = state;
+
   try {
     if (selectedPlugin) {
-      const data = await getRequiredObject(
+      const { advancedConfigErrors, sanitizedInput } = sanitizeAdvancedConfig(
+        advancedConfig,
+        memoryLimit,
+      );
+
+      if (Object.keys(advancedConfigErrors).length > 0) {
+        throw new Error("Advanced config errors");
+      }
+
+      const parameterInput = await getParameterInput(
         dropdownInput,
         requiredInput,
         selectedPlugin,
+        selectedComputeEnv,
+        sanitizedInput,
       );
-      const pluginId = selectedPlugin.data.id;
-      const client = ChrisAPIClient.getClient();
-      const fsPluginInstance = await client.createPluginInstance(
-        pluginId,
-        //@ts-ignore
-        data,
+
+      const { feed } = await createPluginInstance(
+        selectedPlugin.data.id,
+        parameterInput,
       );
-      const feed = await fsPluginInstance.getFeed();
       return feed;
     }
+
     return undefined;
   } catch (e: any) {
     // biome-ignore lint/complexity/noUselessCatch: <explanation>
@@ -270,4 +285,65 @@ export const getRequiredObject = async (
     // biome-ignore lint/complexity/noUselessCatch: <explanation>
     throw error;
   }
+};
+
+export const sanitizeAdvancedConfig = (
+  advancedConfig: Record<string, string>,
+  memoryLimit: string,
+) => {
+  const advancedConfigErrors: Record<string, string> = {};
+  const sanitizedInput: Record<string, string> = {};
+
+  for (const key in advancedConfig) {
+    const inputValue = +advancedConfig[key];
+
+    if (Number.isNaN(inputValue)) {
+      advancedConfigErrors[key] = "A valid integer is required";
+    } else {
+      if (key === "cpu_limit") {
+        sanitizedInput[key] = `${inputValue * 1000}m`;
+      }
+      if (key === "memory_limit") {
+        sanitizedInput[key] = `${inputValue}${memoryLimit}`;
+      }
+    }
+  }
+
+  return { advancedConfigErrors, sanitizedInput };
+};
+
+export const createPluginInstance = async (
+  pluginId: number,
+  parameterInput: Record<string, any>,
+) => {
+  const client = ChrisAPIClient.getClient();
+  const pluginInstance = await client.createPluginInstance(
+    pluginId,
+    //@ts-ignore
+    parameterInput,
+  );
+  const feed = await pluginInstance.getFeed();
+  return { pluginInstance, feed };
+};
+
+export const getParameterInput = async (
+  dropdownInput: Record<string, any>,
+  requiredInput: Record<string, any>,
+  plugin: any,
+  selectedComputeEnv: string,
+  sanitizedInput: Record<string, any>,
+  selectedPlugin?: PluginInstance,
+) => {
+  let parameterInput = await getRequiredObject(
+    dropdownInput,
+    requiredInput,
+    plugin,
+    selectedPlugin,
+  );
+  parameterInput = {
+    ...parameterInput,
+    compute_resource_name: selectedComputeEnv,
+    ...sanitizedInput,
+  };
+  return parameterInput;
 };
