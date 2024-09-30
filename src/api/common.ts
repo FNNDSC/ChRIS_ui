@@ -348,11 +348,11 @@ export async function fetchComputeInfo(
 }
 
 export function catchError(errorRequest: any) {
-  if (errorRequest.response) {
-    return { error_message: errorRequest.response.data as string };
+  if (errorRequest?.response?.data) {
+    return { error_message: errorRequest.response.data };
   }
 
-  if (errorRequest.message) {
+  if (errorRequest?.message) {
     return { error_message: errorRequest.message as string };
   }
   return {
