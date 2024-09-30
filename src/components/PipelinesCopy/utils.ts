@@ -104,7 +104,6 @@ export const handleInstallPlugin = async (
     version: pluginToInstall.data.version,
     plugin_store_url: pluginToInstall.url,
   };
-
   try {
     const response = await axios.post(adminURL, pluginData, {
       headers: {
@@ -116,9 +115,21 @@ export const handleInstallPlugin = async (
     const data = await response.data;
     return data;
   } catch (e) {
-    if (axios.isAxiosError(e)) {
-      const message = e.response?.data || e.message;
-      return message;
+    console.log("Error", e);
+    if (axios.isAxiosError(e) && e.response?.data) {
+      const message = e.response.data;
+
+      // Log the entire error for more detailed context
+      console.error("Full error response:", message);
+
+      // Check if it's an object with errors
+      if (typeof message === "object") {
+        const firstErrorKey = Object.keys(message)[0]; // Get the first error key
+        const firstErrorMessage = message[firstErrorKey][0]; // Get the first error message
+        throw new Error(`${firstErrorMessage}`);
+      }
+    } else {
+      throw new Error("An unexpected error occurred");
     }
   }
 };

@@ -64,9 +64,8 @@ const PipelineUpload = ({
     try {
       await handleInstallPlugin(nonAdminCredentials, selectedPlugin);
     } catch (e) {
-      if (axios.isAxiosError(e)) {
-        throw new Error(e.response?.data);
-      }
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
+      throw e;
     }
   };
 

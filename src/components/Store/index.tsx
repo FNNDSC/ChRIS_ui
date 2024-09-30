@@ -45,54 +45,38 @@ import {
 } from "../PipelinesCopy/utils";
 import WrapperConnect from "../Wrapper";
 
-const Store = () => {
+const Store: React.FC = () => {
   const isStaff = useAppSelector((state) => state.user.isStaff);
   const queryClient = useQueryClient();
-  const [_cookie, setCookie, removeCookie] = useCookies();
+  const [_cookie, setCookie] = useCookies();
   const [api, contextHolder] = notification.useNotification();
-
-  const [version, setVersion] = useState<{
-    [key: string]: any;
-  }>({});
+  const [version, setVersion] = useState<Record<string, any>>({});
   const [installingPlugin, setInstallingPlugin] = useState<
-    | {
-        data: any;
-      }
-    | undefined
+    { data: any } | undefined
   >(undefined);
   const [enterAdminCred, setEnterAdminCred] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [search, setSearch] = useState("");
-  const [configureStoreValue, setConfigureStoreValue] = useState("");
+  const [tempURLValue, setTempURLValue] = useState("");
+  const [configureURL, setConfigureURL] = useState("");
   const [configureStore, setConfigureStore] = useState(false);
+
+  const defaultStoreURL = import.meta.env.VITE_CHRIS_STORE_URL;
+  const cookies = new Cookies();
+  const cookie_username = cookies.get("admin_username");
+  const cookie_password = cookies.get("admin_password");
+  const configure_url = cookies.get("configure_url");
 
   useEffect(() => {
     document.title = "Store Catalog";
-  }, []);
-
-  useEffect(() => {
-    const cookies = new Cookies();
-
-    if (cookies.get("admin_username")) {
-      setUsername(cookies.get("admin_username"));
-    }
-
-    if (cookies.get("admin_password")) {
-      setPassword(cookies.get("admin_password"));
-    }
-
-    if (cookies.get("configure_url")) {
-      setConfigureStoreValue(cookies.get("configure_url"));
-    }
-  }, []);
+    setUsername(cookie_username || "");
+    setPassword(cookie_password || "");
+    setConfigureURL(configure_url || defaultStoreURL);
+  }, [cookie_username, cookie_password, configure_url, defaultStoreURL]);
 
   const fetchPlugins = async (search: string) => {
-    const url = configureStoreValue || import.meta.env.VITE_CHRIS_STORE_URL;
-    if (!url) {
-      throw new Error("No url found for a store");
-    }
-    const client = new Client(url);
+    const client = new Client(configureURL);
     try {
       const params = {
         limit: 20,
@@ -117,11 +101,10 @@ const Store = () => {
 
   const fetchExistingPlugins = async () => {
     const existingClient = ChrisAPIClient.getClient();
-
     const plugins = await fetchPluginMetas(existingClient);
 
     if (plugins) {
-      const newPluginPayload = Promise.all(
+      return Promise.all(
         plugins.map(async (plugin) => {
           const pluginItems = await fetchPluginForMeta(plugin);
           return {
@@ -132,7 +115,6 @@ const Store = () => {
           };
         }),
       );
-      return newPluginPayload;
     }
   };
 
@@ -145,7 +127,7 @@ const Store = () => {
       throw new Error("Please provide a link to your chris-admin url");
 
     const client = ChrisAPIClient.getClient();
-    const adminCredentials = btoa(`${username.trim()}:${password.trim()}`); // Base64 encoding for Basic Auth
+    const adminCredentials = btoa(`${username.trim()}:${password.trim()}`);
     const nonAdminCredentials = `Token ${client.auth.token}`;
     const authorization = !isStaff
       ? `Basic ${adminCredentials}`
@@ -155,7 +137,6 @@ const Store = () => {
       const data = await handleInstallPlugin(authorization, selectedPlugin);
       setCookie("admin_username", username, { path: "/", maxAge: 86400 });
       setCookie("admin_password", password, { path: "/", maxAge: 86400 });
-
       return data;
     } catch (error) {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
@@ -164,9 +145,8 @@ const Store = () => {
   };
 
   const handleInstallMutation = useMutation({
-    mutationFn: async (selectedPlugin: Plugin) =>
-      await handleInstall(selectedPlugin),
-    onSettled: (error) => {
+    mutationFn: (selectedPlugin: Plugin) => handleInstall(selectedPlugin),
+    onSettled: (_data, error) => {
       if (!isEmpty(error)) {
         setInstallingPlugin(undefined);
         setEnterAdminCred(false);
@@ -175,17 +155,14 @@ const Store = () => {
   });
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["storePlugins", search],
-    queryFn: () => {
-      return fetchPlugins(search);
-    },
+    queryKey: ["storePlugins", search, configureURL],
+    queryFn: () => fetchPlugins(search),
+    retry: false,
   });
 
   const { data: existingPlugins } = useQuery({
     queryKey: ["existingStorePlugins"],
-    queryFn: () => {
-      return fetchExistingPlugins();
-    },
+    queryFn: fetchExistingPlugins,
   });
 
   const handleSave = (passedPlugin?: any) => {
@@ -195,29 +172,28 @@ const Store = () => {
           (p: any) => p.data.version === version[plugin.data.id],
         )
       : plugin?.data.plugins[0];
-
     if (selectedPlugin) handleInstallMutation.mutate(selectedPlugin);
   };
 
   useEffect(() => {
     if (handleInstallMutation.isSuccess) {
-      queryClient.invalidateQueries({
-        queryKey: ["existingStorePlugins"],
-      });
-      api.success({
-        message: "Plugin Successfully installed...",
-      });
+      queryClient.invalidateQueries({ queryKey: ["existingStorePlugins"] });
+      api.success({ message: "Plugin Successfully installed..." });
     }
 
     if (handleInstallMutation.isError) {
       api.error({
-        message: "Unable to install this plugin...",
+        message: "Failed to Install the plugin",
         description: handleInstallMutation.error.message,
       });
     }
-  }, [handleInstallMutation.isSuccess, handleInstallMutation.isError, api]);
+  }, [
+    handleInstallMutation.isSuccess,
+    handleInstallMutation.isError,
+    api,
+    queryClient,
+  ]);
 
-  // Store catalog component
   const TitleComponent = (
     <InfoSection
       title="Plugin Store"
@@ -225,13 +201,19 @@ const Store = () => {
     />
   );
 
+  const handleStoreURLConfiguration = (tempURL: string) => {
+    setConfigureURL(tempURL);
+    setCookie("configure_url", tempURL, { path: "/" });
+    setConfigureStore(false);
+  };
+
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
       <Modal
         variant="small"
         isOpen={enterAdminCred}
-        onClose={() => setEnterAdminCred(!enterAdminCred)}
+        onClose={() => setEnterAdminCred(false)}
         aria-label="Enter admin credentials"
       >
         <Form isWidthLimited>
@@ -241,9 +223,7 @@ const Store = () => {
               isRequired
               type="text"
               value={username}
-              onChange={(_event, value: string) => {
-                setUsername(value);
-              }}
+              onChange={(_event, value: string) => setUsername(value)}
             />
           </FormGroup>
           <FormGroup label="Enter a password" isRequired>
@@ -252,31 +232,20 @@ const Store = () => {
               isRequired
               type="password"
               value={password}
-              onChange={(_event, value: string) => {
-                setPassword(value);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSave();
-                }
-              }}
+              onChange={(_event, value: string) => setPassword(value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
           </FormGroup>
           <ActionGroup>
             <Button
-              onClick={() => {
-                handleSave();
-              }}
+              onClick={handleSave}
               isDisabled={!(username && password)}
               variant="primary"
               icon={handleInstallMutation.isPending && <Spin />}
             >
               Submit
             </Button>
-            <Button
-              onClick={() => setEnterAdminCred(!enterAdminCred)}
-              variant="link"
-            >
+            <Button onClick={() => setEnterAdminCred(false)} variant="link">
               Cancel
             </Button>
           </ActionGroup>
@@ -294,18 +263,22 @@ const Store = () => {
         isOpen={configureStore}
         variant="small"
         aria-label="Configure a store"
-        onClose={() => {
-          setConfigureStore(!configureStore);
-        }}
+        onClose={() => setConfigureStore(false)}
       >
         <Form isWidthLimited>
           <FormGroup label="Enter the URL to your store" isRequired>
             <TextInput
-              value={configureStoreValue}
-              onChange={(_e, value) => {
-                setConfigureStoreValue(value);
-              }}
+              id="temp_url"
+              value={tempURLValue}
+              defaultValue="http://rc-live.tch.harvard.edu:32222/api/v1/"
+              onChange={(_e, value) => setTempURLValue(value)}
               name="configureStore"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleStoreURLConfiguration(tempURLValue);
+                }
+              }}
             />
           </FormGroup>
           <HelperText>
@@ -314,26 +287,10 @@ const Store = () => {
             </HelperTextItem>
           </HelperText>
           <ActionGroup>
-            <Button
-              onClick={() => {
-                setCookie("configure_url", configureStoreValue, {
-                  path: "/",
-                });
-                setConfigureStoreValue(configureStoreValue);
-                setConfigureStore(!configureStore);
-                queryClient.refetchQueries({
-                  queryKey: ["storePlugins"],
-                });
-              }}
-            >
+            <Button onClick={() => handleStoreURLConfiguration(tempURLValue)}>
               Confirm
             </Button>
-            <Button
-              variant="link"
-              onClick={() => {
-                setConfigureStore(false);
-              }}
-            >
+            <Button variant="link" onClick={() => setConfigureStore(false)}>
               Cancel
             </Button>
           </ActionGroup>
@@ -343,37 +300,18 @@ const Store = () => {
       <PageSection>
         <div>
           <Text component={TextVariants.h6}>
-            You are currently viewing plugins fetched from{" "}
-            {configureStoreValue || import.meta.env.VITE_CHRIS_STORE_URL}
+            You are currently viewing plugins fetched from {configureURL}
           </Text>
           <Button
             style={{ marginTop: "1em" }}
             variant="secondary"
-            onClick={() => {
-              if (configureStoreValue) {
-                setConfigureStoreValue("");
-                removeCookie("configure_url", {
-                  path: "/",
-                });
-                queryClient.refetchQueries({
-                  queryKey: ["storePlugins"],
-                });
-              } else {
-                setConfigureStore(!configureStore);
-              }
-            }}
+            onClick={() => setConfigureStore(true)}
           >
-            {configureStoreValue
-              ? "Reset to the Default Store"
-              : "Connect to a different Store"}
+            Connect to different store url
           </Button>
         </div>
 
-        <Grid
-          style={{
-            marginTop: "1em",
-          }}
-        >
+        <Grid style={{ marginTop: "1em" }}>
           <GridItem span={4}>
             <TextInputGroup>
               <TextInputGroupMain
@@ -405,12 +343,7 @@ const Store = () => {
                     <CardBody className="plugin-item-card-body">
                       <Split>
                         <SplitItem isFilled>
-                          <p
-                            style={{
-                              fontSize: "0.9em",
-                              fontWeight: "bold",
-                            }}
-                          >
+                          <p style={{ fontSize: "0.9em", fontWeight: "bold" }}>
                             {plugin.data.name}
                           </p>
                         </SplitItem>
@@ -421,32 +354,20 @@ const Store = () => {
                       <div className="plugin-item-name">
                         {plugin.data.title}
                       </div>
-
                       <div className="plugin-item-author">
                         {plugin.data.authors}
                       </div>
-                      <p
-                        style={{
-                          fontSize: "0.90rem",
-                        }}
-                      >
+                      <p style={{ fontSize: "0.90rem" }}>
                         {format(
                           new Date(plugin.data.modification_date),
                           "do MMMM, yyyy",
                         )}
                       </p>
-                      <p
-                        style={{
-                          fontSize: "0.90rem",
-                          marginTop: "1em",
-                        }}
-                      >
+                      <p style={{ fontSize: "0.90rem", marginTop: "1em" }}>
                         Version:{" "}
                         <VersionSelect
                           handlePluginVersion={(selectedVersion: any) => {
-                            setVersion({
-                              [plugin.data.id]: selectedVersion,
-                            });
+                            setVersion({ [plugin.data.id]: selectedVersion });
                           }}
                           currentVersion={
                             version[plugin.data.id] || plugin.data.version
@@ -454,7 +375,6 @@ const Store = () => {
                           plugins={plugin.data.plugins}
                         />
                       </p>
-
                       {isInstalled ? (
                         <div
                           style={{
@@ -464,12 +384,9 @@ const Store = () => {
                           }}
                         >
                           <Icon
-                            style={{
-                              marginRight: "0.5em",
-                            }}
+                            style={{ marginRight: "0.5em" }}
                             status="success"
                           >
-                            {" "}
                             <CheckCircleIcon />
                           </Icon>
                           <div>Installed</div>
@@ -481,15 +398,13 @@ const Store = () => {
                             installingPlugin?.data.id === plugin.data.id &&
                             handleInstallMutation.isPending && <Spin />
                           }
-                          style={{
-                            marginTop: "1em",
-                          }}
+                          style={{ marginTop: "1em" }}
                           onClick={() => {
                             setInstallingPlugin(plugin);
                             if (isStaff) {
                               handleSave(plugin);
                             } else {
-                              setEnterAdminCred(!enterAdminCred);
+                              setEnterAdminCred(true);
                             }
                           }}
                         >
