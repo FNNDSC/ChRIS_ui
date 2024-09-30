@@ -90,6 +90,7 @@ export const uploadPipelineSourceFile = async (client: Client, file: File) => {
 export const handleInstallPlugin = async (
   adminCred: string,
   pluginToInstall: Plugin,
+  computeResource: string,
 ) => {
   const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
     "/api/v1/",
@@ -99,7 +100,7 @@ export const handleInstallPlugin = async (
     throw new Error("Please provide a link to your chris-admin url");
 
   const pluginData = {
-    compute_names: "host",
+    compute_names: computeResource,
     name: pluginToInstall.data.name,
     version: pluginToInstall.data.version,
     plugin_store_url: pluginToInstall.url,
@@ -115,22 +116,22 @@ export const handleInstallPlugin = async (
     const data = await response.data;
     return data;
   } catch (e) {
-    console.log("Error", e);
     if (axios.isAxiosError(e) && e.response?.data) {
       const message = e.response.data;
-
       // Log the entire error for more detailed context
-      console.error("Full error response:", message);
-
+      if (message.detail) {
+        // Handle case { detail: "Invalid Username/Password" }
+        throw new Error(message.detail);
+      }
       // Check if it's an object with errors
       if (typeof message === "object") {
         const firstErrorKey = Object.keys(message)[0]; // Get the first error key
         const firstErrorMessage = message[firstErrorKey][0]; // Get the first error message
         throw new Error(`${firstErrorMessage}`);
       }
-    } else {
       throw new Error("An unexpected error occurred");
     }
+    throw new Error("An unexpected error occurred");
   }
 };
 

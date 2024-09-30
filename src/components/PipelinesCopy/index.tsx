@@ -221,7 +221,7 @@ const PipelinesCopy = () => {
         />
       </div>
 
-      {isStaff && <PipelineUpload fetchPipelinesAgain={fetchPipelinesAgain} />}
+      {<PipelineUpload fetchPipelinesAgain={fetchPipelinesAgain} />}
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />

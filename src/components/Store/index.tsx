@@ -1,4 +1,8 @@
-import Client, { type Plugin } from "@fnndsc/chrisapi";
+import Client, {
+  type ComputeResource,
+  type ComputeResourceList,
+  type Plugin,
+} from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Badge,
@@ -28,8 +32,7 @@ import {
 } from "@patternfly/react-core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { isEmpty } from "lodash";
-import { type Ref, useEffect, useState } from "react";
+import { type Ref, useEffect, useState, useCallback, useMemo } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
@@ -47,6 +50,7 @@ import WrapperConnect from "../Wrapper";
 
 const Store: React.FC = () => {
   const isStaff = useAppSelector((state) => state.user.isStaff);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const queryClient = useQueryClient();
   const [_cookie, setCookie] = useCookies();
   const [api, contextHolder] = notification.useNotification();
@@ -54,52 +58,124 @@ const Store: React.FC = () => {
   const [installingPlugin, setInstallingPlugin] = useState<
     { data: any } | undefined
   >(undefined);
-  const [enterAdminCred, setEnterAdminCred] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [tempURLValue, setTempURLValue] = useState("");
   const [configureURL, setConfigureURL] = useState("");
-  const [configureStore, setConfigureStore] = useState(false);
+  const [computeResourceOptions, setComputeResourceOptions] = useState<
+    string[]
+  >([]);
+  const [dropdown, setDropdown] = useState(false);
 
   const defaultStoreURL = import.meta.env.VITE_CHRIS_STORE_URL;
+  const localCubeURL = import.meta.env.VITE_CHRIS_UI_URL;
   const cookies = new Cookies();
   const cookie_username = cookies.get("admin_username");
   const cookie_password = cookies.get("admin_password");
   const configure_url = cookies.get("configure_url");
+  const compute_resource = cookies.get("compute_resource");
+
+  // Initialize username and password with default values
+  const [username, setUsername] = useState(() => {
+    if (cookie_username) return cookie_username;
+    if (isStaff) return "chris";
+    return "";
+  });
+
+  const [password, setPassword] = useState(() => {
+    if (cookie_password) return cookie_password;
+    if (isStaff) return "chris1234";
+    return "";
+  });
+
+  // Initialize computeResource from cookie or default to 'host'
+  const [computeResource, setComputeResource] = useState(() => {
+    return compute_resource || "host";
+  });
+
+  // Fetch compute resources on load
+  useEffect(() => {
+    async function fetchComputeResources() {
+      if (!isLoggedIn) {
+        // User is not logged in, do not fetch compute resources
+        setComputeResourceOptions([]);
+        // Set computeResource from cookie if available
+        if (compute_resource) {
+          setComputeResource(compute_resource);
+        }
+        return;
+      }
+
+      const client = ChrisAPIClient.getClient();
+      try {
+        const response: ComputeResourceList =
+          await client.getComputeResources();
+        const items = response.getItems() as ComputeResource[];
+        const availableResources: string[] = items.map(
+          (resource: any) => resource.data.name,
+        );
+
+        if (availableResources.length === 0) {
+          // No compute resources available, set default to 'host'
+          setComputeResourceOptions([]);
+          setComputeResource("host");
+        } else {
+          setComputeResourceOptions(availableResources);
+          // Set the default compute resource
+          if (
+            compute_resource &&
+            availableResources.includes(compute_resource)
+          ) {
+            setComputeResource(compute_resource);
+          } else {
+            setComputeResource(availableResources[0]); // Set the first compute resource as default
+          }
+        }
+      } catch (error: any) {
+        // Failed to fetch compute resources, set default to 'host'
+        setComputeResourceOptions([]);
+        setComputeResource("host");
+      }
+    }
+
+    fetchComputeResources();
+  }, [api, compute_resource, isLoggedIn]);
 
   useEffect(() => {
     document.title = "Store Catalog";
-    setUsername(cookie_username || "");
-    setPassword(cookie_password || "");
+
+    setTempURLValue(configure_url || defaultStoreURL);
     setConfigureURL(configure_url || defaultStoreURL);
-  }, [cookie_username, cookie_password, configure_url, defaultStoreURL]);
+  }, [isStaff, configure_url, defaultStoreURL, isLoggedIn]);
 
-  const fetchPlugins = async (search: string) => {
-    const client = new Client(configureURL);
-    try {
-      const params = {
-        limit: 20,
-        offset: 0,
-        name: search.trim().toLowerCase(),
-      };
-      const pluginMetas = await fetchPluginMetas(client, params);
+  const fetchPlugins = useCallback(
+    async (search: string) => {
+      const client = new Client(configureURL);
+      try {
+        const params = {
+          limit: 20,
+          offset: 0,
+          name: search.trim().toLowerCase(),
+        };
+        const pluginMetas = await fetchPluginMetas(client, params);
 
-      const newPluginPayload = await Promise.all(
-        pluginMetas.map(async (plugin) => {
-          const pluginItems = await fetchPluginForMeta(plugin);
-          const version = pluginItems?.[0]?.data.version || "";
-          return { data: { ...plugin.data, version, plugins: pluginItems } };
-        }),
-      );
-      return { pluginMetaList: newPluginPayload, client };
-    } catch (error) {
-      // biome-ignore lint/complexity/noUselessCatch: <explanation>
-      throw error;
-    }
-  };
+        const newPluginPayload = await Promise.all(
+          pluginMetas.map(async (plugin) => {
+            const pluginItems = await fetchPluginForMeta(plugin);
+            const version = pluginItems?.[0]?.data.version || "";
+            return { data: { ...plugin.data, version, plugins: pluginItems } };
+          }),
+        );
+        return { pluginMetaList: newPluginPayload, client };
+      } catch (error) {
+        // biome-ignore lint/complexity/noUselessCatch: <explanation>
+        throw error;
+      }
+    },
+    [configureURL],
+  );
 
-  const fetchExistingPlugins = async () => {
+  const fetchExistingPlugins = useCallback(async () => {
     const existingClient = ChrisAPIClient.getClient();
     const plugins = await fetchPluginMetas(existingClient);
 
@@ -116,16 +192,13 @@ const Store: React.FC = () => {
         }),
       );
     }
-  };
+  }, []);
 
   const handleInstall = async (selectedPlugin: Plugin) => {
-    const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
-      "/api/v1/",
-      "/chris-admin/api/v1/",
-    );
+    const adminURL = localCubeURL.replace("/api/v1/", "/chris-admin/api/v1/");
+
     if (!adminURL)
       throw new Error("Please provide a link to your chris-admin url");
-
     const client = ChrisAPIClient.getClient();
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`);
     const nonAdminCredentials = `Token ${client.auth.token}`;
@@ -134,9 +207,11 @@ const Store: React.FC = () => {
       : nonAdminCredentials;
 
     try {
-      const data = await handleInstallPlugin(authorization, selectedPlugin);
-      setCookie("admin_username", username, { path: "/", maxAge: 86400 });
-      setCookie("admin_password", password, { path: "/", maxAge: 86400 });
+      const data = await handleInstallPlugin(
+        authorization,
+        selectedPlugin,
+        computeResource,
+      );
       return data;
     } catch (error) {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
@@ -146,11 +221,17 @@ const Store: React.FC = () => {
 
   const handleInstallMutation = useMutation({
     mutationFn: (selectedPlugin: Plugin) => handleInstall(selectedPlugin),
-    onSettled: (_data, error) => {
-      if (!isEmpty(error)) {
-        setInstallingPlugin(undefined);
-        setEnterAdminCred(false);
-      }
+    onSuccess: (_data) => {
+      queryClient.invalidateQueries({ queryKey: ["existingStorePlugins"] });
+      api.success({ message: "Plugin Successfully installed..." });
+      setInstallingPlugin(undefined);
+    },
+    onError: (error: any) => {
+      api.error({
+        message: "Failed to Install the plugin",
+        description: error.message,
+      });
+      setInstallingPlugin(undefined);
     },
   });
 
@@ -175,49 +256,51 @@ const Store: React.FC = () => {
     if (selectedPlugin) handleInstallMutation.mutate(selectedPlugin);
   };
 
-  useEffect(() => {
-    if (handleInstallMutation.isSuccess) {
-      queryClient.invalidateQueries({ queryKey: ["existingStorePlugins"] });
-      api.success({ message: "Plugin Successfully installed..." });
+  const handleConfigSave = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // Save to cookies
+    setCookie("admin_username", username, { path: "/", maxAge: 86400 });
+    setCookie("admin_password", password, { path: "/", maxAge: 86400 });
+    setCookie("configure_url", tempURLValue, { path: "/", maxAge: 86400 });
+    setCookie("compute_resource", computeResource, {
+      path: "/",
+      maxAge: 86400,
+    });
+
+    // Update the configureURL
+    setConfigureURL(tempURLValue);
+
+    // Close the modal
+    setIsConfigModalOpen(false);
+
+    // If there is a plugin pending installation, proceed to install
+    if (installingPlugin) {
+      handleSave();
     }
-
-    if (handleInstallMutation.isError) {
-      api.error({
-        message: "Failed to Install the plugin",
-        description: handleInstallMutation.error.message,
-      });
-    }
-  }, [
-    handleInstallMutation.isSuccess,
-    handleInstallMutation.isError,
-    api,
-    queryClient,
-  ]);
-
-  const TitleComponent = (
-    <InfoSection
-      title="Plugin Store"
-      content="This is a global store from where you can install your plugins."
-    />
-  );
-
-  const handleStoreURLConfiguration = (tempURL: string) => {
-    setConfigureURL(tempURL);
-    setCookie("configure_url", tempURL, { path: "/" });
-    setConfigureStore(false);
   };
+
+  const TitleComponent = useMemo(
+    () => (
+      <InfoSection
+        title="Plugin Store"
+        content="This is a global store from where you can install your plugins."
+      />
+    ),
+    [],
+  );
 
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
       <Modal
         variant="small"
-        isOpen={enterAdminCred}
-        onClose={() => setEnterAdminCred(false)}
-        aria-label="Enter admin credentials"
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+        aria-label="Configure Store"
       >
-        <Form isWidthLimited>
-          <FormGroup label="Enter a username" isRequired>
+        <Form isWidthLimited onSubmit={handleConfigSave}>
+          <FormGroup label="Admin Username" isRequired>
             <TextInput
               id="username"
               isRequired
@@ -226,59 +309,23 @@ const Store: React.FC = () => {
               onChange={(_event, value: string) => setUsername(value)}
             />
           </FormGroup>
-          <FormGroup label="Enter a password" isRequired>
+          <FormGroup label="Admin Password" isRequired>
             <TextInput
               id="password"
               isRequired
               type="password"
               value={password}
               onChange={(_event, value: string) => setPassword(value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
           </FormGroup>
-          <ActionGroup>
-            <Button
-              onClick={handleSave}
-              isDisabled={!(username && password)}
-              variant="primary"
-              icon={handleInstallMutation.isPending && <Spin />}
-            >
-              Submit
-            </Button>
-            <Button onClick={() => setEnterAdminCred(false)} variant="link">
-              Cancel
-            </Button>
-          </ActionGroup>
-          {handleInstallMutation.isError && (
-            <Alert
-              type="error"
-              closable
-              description={handleInstallMutation.error.message}
-            />
-          )}
-        </Form>
-      </Modal>
-
-      <Modal
-        isOpen={configureStore}
-        variant="small"
-        aria-label="Configure a store"
-        onClose={() => setConfigureStore(false)}
-      >
-        <Form isWidthLimited>
-          <FormGroup label="Enter the URL to your store" isRequired>
+          <FormGroup label="Store URL" isRequired>
             <TextInput
-              id="temp_url"
+              id="store_url"
+              isRequired
+              type="text"
               value={tempURLValue}
-              defaultValue="http://rc-live.tch.harvard.edu:32222/api/v1/"
-              onChange={(_e, value) => setTempURLValue(value)}
-              name="configureStore"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleStoreURLConfiguration(tempURLValue);
-                }
-              }}
+              onChange={(_event, value: string) => setTempURLValue(value)}
+              placeholder="http://rc-live.tch.harvard.edu:32222/api/v1/"
             />
           </FormGroup>
           <HelperText>
@@ -286,11 +333,56 @@ const Store: React.FC = () => {
               Example: http://rc-live.tch.harvard.edu:32222/api/v1/
             </HelperTextItem>
           </HelperText>
+          <FormGroup label="Compute Resource" isRequired>
+            {computeResourceOptions.length > 0 ? (
+              <Select
+                id="compute_resource"
+                selected={computeResource}
+                onSelect={(_e, value) => {
+                  setComputeResource(value as string);
+                  setDropdown(false);
+                }}
+                toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    onClick={() => {
+                      setDropdown(!dropdown);
+                    }}
+                    isExpanded={dropdown}
+                    style={{ width: "200px" }}
+                  >
+                    {computeResource}
+                  </MenuToggle>
+                )}
+                isOpen={dropdown}
+              >
+                {computeResourceOptions.map((resource) => (
+                  <SelectOption key={resource} value={resource}>
+                    {resource}
+                  </SelectOption>
+                ))}
+              </Select>
+            ) : (
+              <TextInput
+                id="compute_resource"
+                isRequired
+                type="text"
+                value={computeResource}
+                onChange={(_event, value: string) => setComputeResource(value)}
+              />
+            )}
+          </FormGroup>
           <ActionGroup>
-            <Button onClick={() => handleStoreURLConfiguration(tempURLValue)}>
-              Confirm
+            <Button
+              type="submit"
+              variant="primary"
+              isDisabled={
+                !username || !password || !tempURLValue || !computeResource
+              }
+            >
+              Save
             </Button>
-            <Button variant="link" onClick={() => setConfigureStore(false)}>
+            <Button onClick={() => setIsConfigModalOpen(false)} variant="link">
               Cancel
             </Button>
           </ActionGroup>
@@ -305,13 +397,13 @@ const Store: React.FC = () => {
           <Button
             style={{ marginTop: "1em" }}
             variant="secondary"
-            onClick={() => setConfigureStore(true)}
+            onClick={() => setIsConfigModalOpen(true)}
           >
-            Connect to different store url
+            Configure the store
           </Button>
         </div>
 
-        <Grid style={{ marginTop: "1em" }}>
+        <Grid style={{ marginTop: "1em", marginBottom: "1em" }}>
           <GridItem span={4}>
             <TextInputGroup>
               <TextInputGroupMain
@@ -325,7 +417,7 @@ const Store: React.FC = () => {
         </Grid>
 
         {isLoading && <SpinContainer title="Fetching Plugins" />}
-        {isError && <Alert type="error" description={error.message} />}
+        {isError && <Alert type="error" description={error.message} closable />}
 
         {data && (
           <Grid hasGutter={true}>
@@ -367,7 +459,10 @@ const Store: React.FC = () => {
                         Version:{" "}
                         <VersionSelect
                           handlePluginVersion={(selectedVersion: any) => {
-                            setVersion({ [plugin.data.id]: selectedVersion });
+                            setVersion({
+                              ...version,
+                              [plugin.data.id]: selectedVersion,
+                            });
                           }}
                           currentVersion={
                             version[plugin.data.id] || plugin.data.version
@@ -394,19 +489,27 @@ const Store: React.FC = () => {
                       ) : (
                         <Button
                           icon={
-                            isStaff &&
                             installingPlugin?.data.id === plugin.data.id &&
                             handleInstallMutation.isPending && <Spin />
                           }
                           style={{ marginTop: "1em" }}
                           onClick={() => {
                             setInstallingPlugin(plugin);
-                            if (isStaff) {
+                            if (
+                              username &&
+                              password &&
+                              computeResource &&
+                              configureURL
+                            ) {
                               handleSave(plugin);
                             } else {
-                              setEnterAdminCred(true);
+                              setIsConfigModalOpen(true);
                             }
                           }}
+                          isDisabled={
+                            installingPlugin?.data.id === plugin.data.id &&
+                            handleInstallMutation.isPending
+                          }
                         >
                           Install
                         </Button>
