@@ -185,7 +185,12 @@ const NewLibrary = () => {
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
-      <PageSection style={{ paddingBlockStart: "0" }}>
+      <PageSection
+        stickyOnBreakpoint={{
+          default: "top",
+        }}
+        style={{ padding: "0.25em" }}
+      >
         <Operations
           origin={{
             type: OperationContext.LIBRARY,
@@ -203,7 +208,7 @@ const NewLibrary = () => {
         />
       </PageSection>
 
-      <PageSection style={{ paddingBlockStart: "0" }}>
+      <PageSection style={{ padding: "0.25em" }}>
         {isFetching && <SpinContainer title="Fetching Resources..." />}
         {isError && <Alert type="error" description={error.message} />}
         {/* Render based on currentLayout */}
