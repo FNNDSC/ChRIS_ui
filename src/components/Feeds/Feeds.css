@@ -41,3 +41,57 @@
   > * {
   vertical-align: middle !important;
 }
+
+
+
+.custom-panel {
+  background-color: var(--pf-v5-c-page__main-section--BackgroundColor);
+  border-right: 1px solid var(--pf-global--BorderColor--dark);
+}
+
+
+
+/* Common styles for both handles */
+.ResizeHandle,
+.ResizeHandleVertical,
+.ResizeHandleCollapsed {
+  background-color: gray; /* Default background color */
+  transition: background-color 250ms linear;
+}
+
+/* Horizontal resize handle (between side panels) */
+.ResizeHandle {
+  width: 0.25rem;
+  height: 100%;
+  cursor: col-resize;
+}
+
+/* Vertical resize handle (between top and bottom panels) */
+.ResizeHandleVertical {
+  height: 0.25rem;
+  width: 100%;
+  cursor: row-resize;
+}
+
+/* Hover and active states for both handles */
+.ResizeHandle:hover,
+.ResizeHandle[data-resize-handle-active],
+.ResizeHandleVertical:hover,
+.ResizeHandleVertical[data-resize-handle-active],
+.ResizeHandleCollapsed:hover,
+.ResizeHandleCollapsed[data-resize-handle-active] {
+  background-color: var(--pf-global--active-color--400); /* PatternFly blue */
+}
+
+/* Adjust for touch devices */
+@media (pointer: coarse) {
+  .ResizeHandle {
+    width: 1rem;
+  }
+  .ResizeHandleVertical {
+    height: 1rem;
+  }
+}
+
+
+
