@@ -189,7 +189,7 @@ const NewLibrary = () => {
         stickyOnBreakpoint={{
           default: "top",
         }}
-        style={{ padding: "0.25em" }}
+        style={{ padding: "0" }}
       >
         <Operations
           origin={{
@@ -208,7 +208,7 @@ const NewLibrary = () => {
         />
       </PageSection>
 
-      <PageSection style={{ padding: "0.25em" }}>
+      <PageSection style={{ padding: "0" }}>
         {isFetching && <SpinContainer title="Fetching Resources..." />}
         {isError && <Alert type="error" description={error.message} />}
         {/* Render based on currentLayout */}
