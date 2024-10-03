@@ -36,8 +36,7 @@ source "$env_file"
 target=/srv
 
 if find "$target" -mindepth 1 | grep -q .; then
-  echo "error: $target not empty, refusing to overwrite."
-  exit 1
+  >&2 echo "WARNING: $target is not empty, it might contain out-of-date or otherwise stray files. If you just restarted this container, you can ignore this warning."
 fi
 
 # create directories in target folder
