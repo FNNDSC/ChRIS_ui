@@ -31,8 +31,6 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
 ) => {
   const { token, titleComponent } = props;
   const dispatch = useAppDispatch();
-  const drawerState = useAppSelector((state) => state.drawers);
-  const fullScreen = drawerState?.preview.open && drawerState.preview.maximized;
   const navigate = useNavigate();
   const location = useLocation();
   const [_, _setCookie, removeCookie] = useCookies();
@@ -94,7 +92,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
       <FlexItem>{titleComponent && titleComponent}</FlexItem>
       {/* Center */}
       <FlexItem flex={{ default: "flex_1" }}>
-        {props.showToolbar && !fullScreen && <FeedDetails />}
+        {props.showToolbar && <FeedDetails />}
       </FlexItem>
 
       {/* Right section */}

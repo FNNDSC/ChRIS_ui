@@ -127,49 +127,76 @@ const FeedView: React.FC = () => {
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
-      <PanelGroup direction="vertical">
+      <PanelGroup autoSaveId="conditional" direction="vertical">
         {/* Top Panels: Graph and Node Details */}
-        <Panel className="custom-panel" defaultSize={54} minSize={20}>
-          <PanelGroup direction="horizontal">
-            {/* Left Panel: Graph */}
-            <Panel defaultSize={drawerState.node.open ? 53 : 100} minSize={20}>
-              {handleDrawerAction("graph")}
-              {!currentLayout ? (
-                <ParentComponent onNodeClick={onNodeClick} />
-              ) : (
-                <FeedGraph onNodeClick={onNodeClick} />
-              )}
+        {(drawerState.graph.open || drawerState.node.open) && (
+          <>
+            <Panel
+              className="custom-panel"
+              id="1"
+              order={1}
+              defaultSize={50}
+              minSize={20}
+            >
+              <PanelGroup autoSaveId="conditional" direction="horizontal">
+                {/* Left Panel: Graph */}
+                {drawerState.graph.open && (
+                  <>
+                    <Panel
+                      className="custom-panel"
+                      order={1}
+                      defaultSize={53}
+                      minSize={20}
+                    >
+                      {handleDrawerAction("graph")}
+                      {!currentLayout ? (
+                        <ParentComponent onNodeClick={onNodeClick} />
+                      ) : (
+                        <FeedGraph onNodeClick={onNodeClick} />
+                      )}
+                    </Panel>
+                    <PanelResizeHandle className="ResizeHandle" />
+                  </>
+                )}
+
+                {/* Right Panel: Node Details */}
+                {drawerState.node.open && (
+                  <Panel
+                    className="custom-panel"
+                    id="2"
+                    order={2}
+                    defaultSize={47}
+                    minSize={20}
+                  >
+                    {handleDrawerAction("node")}
+                    <div className="node-block">
+                      <NodeDetails />
+                    </div>
+                  </Panel>
+                )}
+              </PanelGroup>
             </Panel>
-
-            {/* Horizontal Resize Handle */}
-            {drawerState.node.open && (
-              <PanelResizeHandle className="ResizeHandle" />
-            )}
-
-            {/* Right Panel: Node Details */}
-            {drawerState.node.open && (
-              <Panel className="custom-panel" defaultSize={47} minSize={20}>
-                {handleDrawerAction("node")}
-                <div className="node-block">
-                  <NodeDetails />
-                </div>
-              </Panel>
-            )}
-          </PanelGroup>
-        </Panel>
-
-        {/* Vertical Resize Handle */}
-        {(drawerState.preview.open || drawerState.files.open) && (
-          <PanelResizeHandle className="ResizeHandleVertical" />
+            <PanelResizeHandle className="ResizeHandleVertical" />
+          </>
         )}
 
+        {/* Vertical Resize Handle */}
+
         {/* Bottom Panel: Feed Output Browser */}
-        <Panel className="custom-panel" defaultSize={44} minSize={20}>
-          <FeedOutputBrowser
-            explore={true}
-            handlePluginSelect={onNodeBrowserClick}
-          />
-        </Panel>
+        {(drawerState.files.open || drawerState.preview.open) && (
+          <Panel
+            className="custom-panel"
+            id="3"
+            order={2}
+            defaultSize={50}
+            minSize={20}
+          >
+            <FeedOutputBrowser
+              explore={true}
+              handlePluginSelect={onNodeBrowserClick}
+            />
+          </Panel>
+        )}
       </PanelGroup>
     </WrapperConnect>
   );
