@@ -118,6 +118,7 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     queryKey: ["cornerstone-preview", selectedFile],
     queryFn: setupCornerstone,
     enabled: !!selectedFile,
+    refetchOnMount: true,
   });
 
   useEffect(() => {
