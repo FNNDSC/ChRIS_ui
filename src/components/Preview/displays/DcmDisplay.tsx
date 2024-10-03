@@ -261,7 +261,13 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
     ) {
       handlePagination();
     }
-  }, [fetchMore, handlePagination, filesLoading]);
+  }, [
+    fetchMore,
+    filteredList,
+    lastProcessedIndex,
+    handlePagination,
+    filesLoading,
+  ]);
 
   useEffect(() => {
     if (activeViewport && filteredList && handlePagination) {
@@ -296,9 +302,11 @@ const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
             zIndex: "99999",
           }}
         >
-          {`Current Index: ${currentImageIndex + 1} (${currentImageIndex + 1}/${imageStack.length})`}
+          <div style={{ color: "#fff" }}>
+            {`Current Index: ${currentImageIndex + 1} (${currentImageIndex + 1}/${imageStack.length})`}
+          </div>
           {isLoadingMore && (
-            <div>
+            <div style={{ color: "#fff" }}>
               <i>Loading more...</i>
             </div>
           )}
