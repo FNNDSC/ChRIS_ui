@@ -13,7 +13,7 @@ import {
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { Alert, Spin } from "../Antd";
-import * as React from "react";
+import React from "react";
 import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { pluralize } from "../../api/common";
