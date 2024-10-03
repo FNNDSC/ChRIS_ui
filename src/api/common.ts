@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import axios, { type AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
 import type {
