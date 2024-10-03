@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../store/hooks";
 import { fetchFolders } from "../NewLibrary";
 
@@ -56,9 +56,9 @@ export const useFeedBrowser = () => {
   });
 
   // Handle pagination by incrementing the page number
-  const handlePagination = () => {
+  const handlePagination = useCallback(() => {
     setPageNumber((prevState) => prevState + 1);
-  };
+  }, []);
 
   const observerTarget = useRef(null);
 
@@ -87,7 +87,7 @@ export const useFeedBrowser = () => {
         observer.unobserve(observerTarget.current);
       }
     };
-  }, [fetchMore]);
+  }, [fetchMore, handlePagination]);
 
   useEffect(() => {
     if ((statusTitle && status.includes(statusTitle)) || finished) {
@@ -103,7 +103,7 @@ export const useFeedBrowser = () => {
         }, 3000);
       }
     }
-  }, [finished, pluginFilesPayload, statusTitle, download.error]);
+  }, [finished, statusTitle, download.error]);
 
   useEffect(() => {
     setCurrentPath(selected?.data.output_path);
