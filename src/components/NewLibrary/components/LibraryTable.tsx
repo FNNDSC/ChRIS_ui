@@ -34,6 +34,7 @@ import useNewResourceHighlight from "../utils/useNewResourceHighlight";
 import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
+import TruncatedText from "./TruncatedText";
 
 interface TableProps {
   data: {
@@ -148,7 +149,7 @@ const BaseRow: React.FC<RowProps> = ({
             isSelected: isSelected,
           }}
         />
-        <Td dataLabel={columnNames.name}>
+        <Td dataLabel={columnNames.name} modifier="truncate">
           <Button
             onClick={(e) => {
               e.stopPropagation();
@@ -158,23 +159,21 @@ const BaseRow: React.FC<RowProps> = ({
             icon={icon}
             variant="link"
           >
-            {name}
+            <TruncatedText text={name} className="pf-c-button__text" />
           </Button>
-          <span
-            style={{
-              display: "inline-block",
-              width: "90px",
-              marginLeft: "0.25em",
-            }}
-          >
-            {isNewResource ? <Tag color="#3E8635">Newly Added</Tag> : null}
-          </span>
+          {isNewResource && (
+            <span style={{ marginLeft: "0.5em" }}>
+              <Tag color="#3E8635">Newly Added</Tag>
+            </span>
+          )}
         </Td>
-        <Td dataLabel={columnNames.date}>
-          {format(new Date(date), "dd MMM yyyy, HH:mm")}
+        <Td dataLabel={columnNames.date} modifier="truncate">
+          <TruncatedText text={format(new Date(date), "dd MMM yyyy, HH:mm")} />
         </Td>
-        <Td dataLabel={columnNames.owner}>{owner}</Td>
-        <Td dataLabel={columnNames.size}>
+        <Td dataLabel={columnNames.owner} modifier="truncate">
+          <TruncatedText text={owner} />
+        </Td>
+        <Td dataLabel={columnNames.size} modifier="truncate">
           {size > 0 ? formatBytes(size, 0) : " "}
         </Td>
       </Tr>
@@ -308,19 +307,32 @@ const LibraryTable: React.FC<TableProps> = ({
         variant="compact"
         aria-label="Simple table"
         isStriped={true}
+        isStickyHeader={true}
       >
         <Caption>Data Library</Caption>
         <Thead>
           <Tr>
             <Th screenReaderText="Select a row" arial-label="Select a row" />
-            <Th sort={{ sortBy, onSort, columnIndex: 1 }} name="name">
+            <Th
+              sort={{ sortBy, onSort, columnIndex: 1 }}
+              width={40}
+              name="name"
+            >
               {columnNames.name}
             </Th>
-            <Th sort={{ sortBy, onSort, columnIndex: 2 }} name="date">
+            <Th
+              sort={{ sortBy, onSort, columnIndex: 2 }}
+              width={20}
+              name="date"
+            >
               {columnNames.date}
             </Th>
-            <Th name="owner">{columnNames.owner}</Th>
-            <Th name="size">{columnNames.size}</Th>
+            <Th name="owner">
+              {columnNames.owner} width={20}
+            </Th>
+            <Th name="size">
+              {columnNames.size} width={20}
+            </Th>
           </Tr>
         </Thead>
         <Tbody>

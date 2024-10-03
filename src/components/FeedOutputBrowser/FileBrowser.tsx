@@ -12,6 +12,7 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
 import { useEffect } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
   clearSelectedFile,
@@ -38,8 +39,6 @@ import { OperationContext } from "../NewLibrary/context";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import type { FileBrowserProps } from "./types";
-import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
-import backgroundColors from "@cornerstonejs/core/dist/types/constants/backgroundColors";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -153,7 +152,6 @@ const FileBrowser = (props: FileBrowserProps) => {
   return (
     <Grid hasGutter className="file-browser">
       {contextHolder}
-
       <PanelGroup autoSaveId="conditional" direction="horizontal">
         {/* Left Panel: File Browser */}
         {drawerState.files.open && (
@@ -164,6 +162,7 @@ const FileBrowser = (props: FileBrowserProps) => {
               id="4"
               defaultSize={53}
               minSize={20}
+              style={{ display: "flex", flexDirection: "column" }}
             >
               {/* Drawer Action Button for Files */}
               <DrawerActionButton
@@ -220,20 +219,30 @@ const FileBrowser = (props: FileBrowserProps) => {
                   </div>
                 </div>
                 {/* Scrollable Content */}
-                <div className="scrollable-content">
+
+                <div style={{ flex: 1, overflow: "auto" }}>
                   <Table
                     style={{
                       backgroundColor: "inherit",
                     }}
                     variant="compact"
+                    isStickyHeader={true}
                   >
                     <Thead aria-label="file-browser-table">
                       <Tr>
                         <Th aria-label="file-selection-checkbox" />
-                        <Th aria-label="file-name">{columnNames.name}</Th>
-                        <Th aria-label="file-creator">{columnNames.created}</Th>
-                        <Th aria-label="file-owner">{columnNames.creator}</Th>
-                        <Th aria-label="file-size">{columnNames.size}</Th>
+                        <Th aria-label="file-name" width={40}>
+                          {columnNames.name}
+                        </Th>
+                        <Th aria-label="file-creator" width={20}>
+                          {columnNames.created}
+                        </Th>
+                        <Th aria-label="file-owner" width={20}>
+                          {columnNames.creator}
+                        </Th>
+                        <Th aria-label="file-size" width={20}>
+                          {columnNames.size}
+                        </Th>
                       </Tr>
                     </Thead>
                     <Tbody>
