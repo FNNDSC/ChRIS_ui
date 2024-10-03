@@ -349,21 +349,20 @@ const FileBrowser = (props: FileBrowserProps) => {
               }}
               maximized={drawerState.preview.maximized}
             />
-            <div className="file-browser__drawerbody">
-              {drawerState.preview.currentlyActive === "preview" &&
-                selectedFile && (
-                  <FileDetailView
-                    gallery={true}
-                    selectedFile={selectedFile}
-                    preview="large"
-                    list={pluginFilesPayload.filesMap}
-                    fetchMore={fetchMore}
-                    handlePagination={handlePagination}
-                    filesLoading={isLoading}
-                  />
-                )}
-              {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
-            </div>
+
+            {drawerState.preview.currentlyActive === "preview" &&
+              selectedFile && (
+                <FileDetailView
+                  gallery={true}
+                  selectedFile={selectedFile}
+                  preview="large"
+                  list={pluginFilesPayload.filesMap}
+                  fetchMore={fetchMore}
+                  handlePagination={handlePagination}
+                  filesLoading={isLoading}
+                />
+              )}
+            {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
           </Panel>
         )}
       </PanelGroup>
