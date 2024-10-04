@@ -139,11 +139,10 @@ const Store: React.FC = () => {
     }
 
     fetchComputeResources();
-  }, [api, compute_resource, isLoggedIn]);
+  }, [compute_resource, isLoggedIn]);
 
   useEffect(() => {
     document.title = "Store Catalog";
-
     setTempURLValue(configure_url || defaultStoreURL);
     setConfigureURL(configure_url || defaultStoreURL);
   }, [isStaff, configure_url, defaultStoreURL, isLoggedIn]);
@@ -267,13 +266,17 @@ const Store: React.FC = () => {
       path: "/",
       maxAge: 86400,
     });
-
     // Update the configureURL
     setConfigureURL(tempURLValue);
-
     // Close the modal
     setIsConfigModalOpen(false);
 
+    // Notify the user of the successful config save
+    api.success({
+      message: "Configuration Saved",
+      description: "Your configuration has been saved successfully.",
+      duration: 1,
+    });
     // If there is a plugin pending installation, proceed to install
     if (installingPlugin) {
       handleSave();
