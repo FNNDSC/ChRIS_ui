@@ -327,11 +327,11 @@ const LibraryTable: React.FC<TableProps> = ({
             >
               {columnNames.date}
             </Th>
-            <Th name="owner">
-              {columnNames.owner} width={20}
+            <Th name="owner" width={20}>
+              {columnNames.owner}
             </Th>
-            <Th name="size">
-              {columnNames.size} width={20}
+            <Th name="size" width={20}>
+              {columnNames.size}
             </Th>
           </Tr>
         </Thead>

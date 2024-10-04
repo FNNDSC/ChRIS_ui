@@ -55,7 +55,7 @@
 .ResizeHandle,
 .ResizeHandleVertical,
 .ResizeHandleCollapsed {
-  background-color: gray; /* Default background color */
+  background-color:#4F5255; /* Default background color */
   transition: background-color 250ms linear;
 }
 
@@ -80,13 +80,13 @@
 .ResizeHandleVertical[data-resize-handle-active],
 .ResizeHandleCollapsed:hover,
 .ResizeHandleCollapsed[data-resize-handle-active] {
-  background-color: var(--pf-global--active-color--400); /* PatternFly blue */
+  background-color:#8A8D90 ; /* PatternFly blue */
 }
 
 /* Adjust for touch devices */
 @media (pointer: coarse) {
   .ResizeHandle {
-    width: 1rem;
+    width: 0.5em;
   }
   .ResizeHandleVertical {
     height: 1rem;
