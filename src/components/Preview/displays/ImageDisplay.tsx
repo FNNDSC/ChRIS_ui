@@ -45,7 +45,7 @@ const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
     <img
       id={selectedFile?.data.fname || ""}
       src={url}
-      alt={selectedFile?.data.fname || "image"}
+      alt={selectedFile?.data.fname}
       onClick={(e) => e.preventDefault()} // Prevent default behavior on click
       onKeyDown={(e) => e.preventDefault()}
       style={{ maxWidth: "100%", height: "auto" }} // Responsive styling
