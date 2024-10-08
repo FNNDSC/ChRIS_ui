@@ -309,7 +309,6 @@ const LibraryTable: React.FC<TableProps> = ({
         isStriped={true}
         isStickyHeader={true}
       >
-        <Caption>Data Library</Caption>
         <Thead>
           <Tr>
             <Th screenReaderText="Select a row" arial-label="Select a row" />
