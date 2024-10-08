@@ -23,6 +23,7 @@ import dicomParser from "dicom-parser";
 import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
 import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
 import registerWebImageLoader from "./webImageLoader";
+import { IFileBlob } from "../../../../api/model";
 
 //@ts-ignore
 window.cornerstone = cornerstone;
@@ -98,10 +99,11 @@ export const cleanupCornerstoneTooling = () => {
 export function setUpTooling(uniqueToolId: string) {
   // Check if tool group already exists
   const id = toolGroup?.id;
+
   if (!id) {
     // Tool group doesn't exist, create a new one
+    registerToolingOnce();
     toolGroup = ToolGroupManager.createToolGroup(uniqueToolId);
-
     if (toolGroup) {
       toolGroup.addTool(WindowLevelTool.toolName);
       toolGroup.addTool(PanTool.toolName);
