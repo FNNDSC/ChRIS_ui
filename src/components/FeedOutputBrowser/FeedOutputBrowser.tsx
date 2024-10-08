@@ -50,7 +50,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
       ) : isError ? (
         <Alert type="error" description={error?.message} />
       ) : (
-        <EmptyStateLoader title="Files are not available yet..." />
+        <EmptyStateLoader title="" />
       )}
     </div>
   );

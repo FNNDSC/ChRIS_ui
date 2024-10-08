@@ -198,18 +198,20 @@ const DisplayPage = ({
                     )}
 
                     {isCompute && (
-                      <h1 className="compute-item-description">
+                      <h1 className="plugin-item-name">
                         {resource.data.description}
                       </h1>
                     )}
 
-                    <p
-                      style={{
-                        fontSize: "0.90rem",
-                      }}
-                    >
-                      Version: {resource.data.version}
-                    </p>
+                    {resource.data.version && (
+                      <p
+                        style={{
+                          fontSize: "0.90rem",
+                        }}
+                      >
+                        Version: {resource.data.version}
+                      </p>
+                    )}
 
                     <p
                       style={{

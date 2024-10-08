@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
 import { Alert } from "../Antd";
+import { notification } from "../Antd";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { InfoSection } from "../Common";
 import WrapperConnect from "../Wrapper";
@@ -20,7 +21,6 @@ import { FolderCard } from "./components/FolderCard";
 import LibraryTable from "./components/LibraryTable";
 import Operations from "./components/Operations";
 import { OperationContext } from "./context";
-import { notification } from "../Antd";
 
 // Fetch folders from the server
 export async function fetchFolders(computedPath: string, pageNumber?: number) {
@@ -220,6 +220,11 @@ const NewLibrary = () => {
           }}
           computedPath={computedPath}
           folderList={data?.folderList}
+          customStyle={{
+            toolbar: {
+              paddingBottom: "0",
+            },
+          }}
         />
         <BreadcrumbContainer
           path={computedPath}

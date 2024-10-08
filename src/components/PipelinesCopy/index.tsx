@@ -49,7 +49,6 @@ const PipelinesCopy = () => {
   const [dropdownValue, setDropdownValue] = useState<string>(
     PIPELINEQueryTypes.NAME[0],
   );
-  const isStaff = useAppSelector((state) => state.user.isStaff);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["pipelines", perPage, page, search, dropdownValue],

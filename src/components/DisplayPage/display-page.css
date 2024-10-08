@@ -49,8 +49,8 @@
   text-decoration: none;
 }
 
-.plugin-item-title,
-.compute-item-description {
+.plugin-item-title
+ {
   font-size: 1em;
   font-weight: 400;
 }
