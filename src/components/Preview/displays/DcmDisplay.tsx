@@ -13,6 +13,7 @@ import {
   events,
 } from "./dicomUtils/utils";
 import type { IStackViewport } from "./dicomUtils/utils";
+import { Button } from "@patternfly/react-core";
 
 export type DcmImageProps = {
   selectedFile: IFileBlob;
@@ -41,12 +42,16 @@ const DcmDisplay = (props: DcmImageProps) => {
     filesLoading,
   } = props;
 
+  // State variables
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageStack, setImageStack] = useState<ImageStackType>({});
-  const [multiFrameDisplay, setMultiframeDisplay] = useState(false);
+  const [multiFrameDisplay, setMultiFrameDisplay] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lastLoadedIndex, setLastLoadedIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(24); // frames per second
 
+  // Refs
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<HTMLDivElement>(null);
   const renderingEngineRef = useRef<RenderingEngine | null>(null);
@@ -54,12 +59,16 @@ const DcmDisplay = (props: DcmImageProps) => {
   const cacheRef = useRef<{ [key: string]: ImageStackType }>({
     [CACHE_KEY]: {},
   });
+  const cineIntervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Derived values
   const size = useSize(dicomImageRef);
   const cacheStack = cacheRef.current[CACHE_KEY];
   const fname = selectedFile.data.fname;
 
-  // Handle resizing of the DICOM image viewer
+  /**
+   * Handle resizing of the DICOM image viewer when the container size changes.
+   */
   const handleResize = useCallback(() => {
     if (dicomImageRef.current && size && elementRef.current) {
       const { width, height } = size;
@@ -70,6 +79,7 @@ const DcmDisplay = (props: DcmImageProps) => {
     }
   }, [size]);
 
+  // Set up resize event listener
   useEffect(() => {
     window.addEventListener("resize", handleResize);
     handleResize(); // Initial resize
@@ -78,7 +88,9 @@ const DcmDisplay = (props: DcmImageProps) => {
     };
   }, [handleResize]);
 
-  // Initialize Cornerstone
+  /**
+   * Initialize Cornerstone library and set up tooling.
+   */
   useEffect(() => {
     const setupCornerstone = async () => {
       await basicInit();
@@ -87,20 +99,27 @@ const DcmDisplay = (props: DcmImageProps) => {
     setupCornerstone();
   }, []);
 
-  // Filter the list to include only DICOM files
+  /**
+   * Filter the file list to include only DICOM files.
+   */
   const filteredList = useMemo(
     () =>
       list?.filter((file) => getFileExtension(file.data.fname) === "dcm") || [],
     [list],
   );
 
-  // Preview the selected DICOM file
+  /**
+   * Preview the selected DICOM file.
+   * If the image is already cached, it uses the cached data.
+   * Otherwise, it loads the image and caches it.
+   */
   const previewFile = useCallback(async () => {
     if (!elementRef.current) return {};
 
     const existingImageEntry = cacheStack?.[fname];
 
     if (existingImageEntry && activeViewportRef.current) {
+      // Image is already cached
       let imageIDs: string[];
       let index: number;
 
@@ -108,12 +127,12 @@ const DcmDisplay = (props: DcmImageProps) => {
         // Multi-frame image
         imageIDs = existingImageEntry;
         index = currentImageIndex;
-        setMultiframeDisplay(true);
+        setMultiFrameDisplay(true);
       } else {
         // Single-frame images
         imageIDs = Object.values(cacheStack).flat() as string[];
         index = imageIDs.findIndex((id) => id === existingImageEntry);
-        setMultiframeDisplay(false);
+        setMultiFrameDisplay(false);
       }
 
       await activeViewportRef.current.setStack(
@@ -146,7 +165,7 @@ const DcmDisplay = (props: DcmImageProps) => {
       elementId,
     );
 
-    setMultiframeDisplay(framesCount > 1);
+    setMultiFrameDisplay(framesCount > 1);
     activeViewportRef.current = viewport;
     renderingEngineRef.current = renderingEngine;
 
@@ -155,13 +174,27 @@ const DcmDisplay = (props: DcmImageProps) => {
     return newImageStack;
   }, [selectedFile, cacheStack, fname, currentImageIndex]);
 
+  // Use React Query to fetch and cache the preview data
   const { isLoading, data } = useQuery({
     queryKey: ["cornerstone-preview", fname],
     queryFn: previewFile,
     enabled: !!selectedFile && !!elementRef.current,
   });
 
-  // Clean up when the component unmounts
+  /**
+   * Stop cine playback.
+   */
+  const stopCinePlay = useCallback(() => {
+    if (cineIntervalIdRef.current) {
+      clearInterval(cineIntervalIdRef.current);
+      cineIntervalIdRef.current = null;
+    }
+  }, []);
+
+  /**
+   * Clean up when the component unmounts.
+   * Destroys the rendering engine and clears caches and intervals.
+   */
   useEffect(() => {
     return () => {
       renderingEngineRef.current?.destroy();
@@ -175,10 +208,13 @@ const DcmDisplay = (props: DcmImageProps) => {
           handleImageRendered,
         );
       }
+      stopCinePlay();
     };
-  }, []);
+  }, [stopCinePlay]);
 
-  // Load multi-frame images
+  /**
+   * Load multi-frame images into the viewport.
+   */
   const loadMultiFrames = useCallback(async () => {
     if (activeViewportRef.current) {
       const currentIndex = activeViewportRef.current.getCurrentImageIdIndex();
@@ -188,17 +224,23 @@ const DcmDisplay = (props: DcmImageProps) => {
     }
   }, [imageStack, fname]);
 
-  // Generator for loading image files
+  /**
+   * Generator function to yield image files starting from a specific index.
+   */
   function* imageFileGenerator(list: IFileBlob[], startIndex: number) {
     for (let i = startIndex; i < list.length; i++) {
       yield list[i];
     }
   }
 
-  // Load more images when needed
+  /**
+   * Load more images when needed.
+   * This function loads additional images into the cache and updates the viewport.
+   */
   const loadMoreImages = useCallback(
     async (filteredList: IFileBlob[]) => {
       if (Object.keys(cacheStack).length === filteredList.length) {
+        // All images are already loaded
         setImageStack(cacheStack);
         if (activeViewportRef.current) {
           const currentIndex =
@@ -214,18 +256,15 @@ const DcmDisplay = (props: DcmImageProps) => {
       const generator = imageFileGenerator(filteredList, lastLoadedIndex);
       const newImages: ImageStackType = {};
 
-      let next = generator.next();
-      while (!next.done) {
+      for (let next = generator.next(); !next.done; next = generator.next()) {
         const file = next.value;
         if (cacheStack[file.data.fname]) {
-          next = generator.next();
-          continue;
+          continue; // Skip if already in cache
         }
 
         const blob = await file.getFileBlob();
         const imageData = await loadDicomImage(blob);
         newImages[file.data.fname] = imageData.imageID;
-        next = generator.next();
       }
 
       const updatedImageStack = { ...cacheStack, ...newImages };
@@ -245,9 +284,13 @@ const DcmDisplay = (props: DcmImageProps) => {
     [cacheStack, lastLoadedIndex],
   );
 
+  // Check if the first frame is still loading
   const loadingFirstFrame = isLoading || !data;
 
-  // Load more images when scrolling near the end
+  /**
+   * Load more images when scrolling near the end.
+   * Also handles loading multi-frame images.
+   */
   useEffect(() => {
     if (
       !loadingFirstFrame &&
@@ -274,7 +317,10 @@ const DcmDisplay = (props: DcmImageProps) => {
     selectedFile,
   ]);
 
-  // Handle image rendering event
+  /**
+   * Handle image rendered event.
+   * Updates the current image index and triggers pagination if needed.
+   */
   const handleImageRendered = useCallback(() => {
     if (activeViewportRef.current) {
       const newIndex = activeViewportRef.current.getCurrentImageIdIndex();
@@ -302,7 +348,7 @@ const DcmDisplay = (props: DcmImageProps) => {
     handlePagination,
   ]);
 
-  // Add event listener for image rendering
+  // Add event listener for image rendered event
   useEffect(() => {
     if (elementRef.current) {
       elementRef.current.addEventListener(
@@ -320,9 +366,58 @@ const DcmDisplay = (props: DcmImageProps) => {
     };
   }, [handleImageRendered]);
 
-  const imageCount = multiFrameDisplay
-    ? (imageStack[fname] as string[]).length
-    : Object.values(imageStack).flat().length;
+  /**
+   * Calculate the total number of images.
+   */
+  const imageCount = useMemo(() => {
+    return multiFrameDisplay
+      ? (imageStack[fname] as string[]).length
+      : Object.values(imageStack).flat().length;
+  }, [multiFrameDisplay, imageStack, fname]);
+
+  const totalDigits = imageCount.toString().length;
+  const currentIndexDisplay = (currentImageIndex + 1)
+    .toString()
+    .padStart(totalDigits, "0");
+  const imageCountDisplay = imageCount.toString().padStart(totalDigits, "0");
+
+  /**
+   * Start cine playback.
+   */
+  const startCinePlay = useCallback(() => {
+    if (
+      cineIntervalIdRef.current ||
+      !activeViewportRef.current ||
+      !imageStack[fname]
+    )
+      return;
+
+    const frameDuration = 1000 / playbackSpeed; // Calculate frame duration in milliseconds
+
+    cineIntervalIdRef.current = setInterval(() => {
+      if (activeViewportRef.current) {
+        let currentIndex = activeViewportRef.current.getCurrentImageIdIndex();
+        const totalImages = imageCount;
+        currentIndex = (currentIndex + 1) % totalImages;
+        activeViewportRef.current.setImageIdIndex(currentIndex);
+        setCurrentImageIndex(currentIndex);
+      }
+    }, frameDuration);
+  }, [playbackSpeed, imageStack, fname, imageCount]);
+
+  /**
+   * Manage cine playback based on `isPlaying` state.
+   */
+  useEffect(() => {
+    if (isPlaying) {
+      startCinePlay();
+    } else {
+      stopCinePlay();
+    }
+    return () => {
+      stopCinePlay();
+    };
+  }, [isPlaying, startCinePlay, stopCinePlay]);
 
   return (
     <>
@@ -332,19 +427,54 @@ const DcmDisplay = (props: DcmImageProps) => {
         ref={dicomImageRef}
         className={preview === "large" ? "dcm-preview" : ""}
       >
+        {/* Overlay Controls */}
         <div
           style={{
             position: "absolute",
             top: "0.25em",
             right: "0.25em",
             zIndex: 99999,
+            width: "200px", // Set a fixed width
           }}
         >
-          <div style={{ color: "#fff" }}>
-            {`Current Index: ${currentImageIndex + 1} (${
-              currentImageIndex + 1
-            }/${imageCount})`}
+          {/* Current Index Display */}
+          <div
+            style={{
+              color: "#fff",
+              marginBottom: "0.5em",
+              fontFamily: "monospace", // Use monospaced font
+            }}
+          >
+            {`Current Index: ${currentIndexDisplay}/${imageCountDisplay}`}
           </div>
+
+          {/* Play/Pause Button */}
+          <div style={{ marginBottom: "0.5em" }}>
+            <Button
+              variant="control"
+              size="sm"
+              onClick={() => setIsPlaying(!isPlaying)}
+            >
+              {isPlaying ? "Pause" : "Play"}
+            </Button>
+          </div>
+
+          {/* Playback Speed Control */}
+          <div style={{ color: "#fff", marginBottom: "0.5em" }}>
+            <label>
+              Speed:
+              <input
+                type="number"
+                value={playbackSpeed}
+                min="1"
+                max="60"
+                onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+              />
+              fps
+            </label>
+          </div>
+
+          {/* Loading More Indicator */}
           {isLoadingMore && (
             <div style={{ color: "#fff" }}>
               <i>Loading more...</i>
@@ -352,6 +482,7 @@ const DcmDisplay = (props: DcmImageProps) => {
           )}
         </div>
 
+        {/* DICOM Image Display */}
         <div
           id={`cornerstone-element-${fname}`}
           ref={elementRef}
