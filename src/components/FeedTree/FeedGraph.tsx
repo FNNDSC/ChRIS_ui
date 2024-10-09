@@ -6,30 +6,35 @@ import ForceGraph2D, {
   type ForceGraphMethods,
   type NodeObject,
 } from "react-force-graph-2d";
-import { connect } from "react-redux";
 import { TreeModel } from "../../api/model";
 import { setFeedLayout } from "../../store/feed/feedSlice";
-import { useAppSelector } from "../../store/hooks";
-import type { PluginInstancePayload } from "../../store/pluginInstance/types";
-import type { ApplicationState } from "../../store/root/applicationState";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
-import { useAppDispatch } from "../../store/hooks";
 import useSize from "./useSize";
+import { SpinContainer } from "../Common";
 
 interface IFeedProps {
-  pluginInstances: PluginInstancePayload;
-  selectedPlugin?: PluginInstance;
   onNodeClick: (node: PluginInstance) => void;
 }
 
-const FeedGraph = (props: IFeedProps) => {
+interface GraphData {
+  nodes: NodeObject[];
+  links: { source: string; target: string }[];
+}
+
+const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
   const dispatch = useAppDispatch();
   const currentLayout = useAppSelector((state) => state.feed.currentLayout);
-  const { pluginInstances, selectedPlugin, onNodeClick } = props;
-  const { data: instances } = pluginInstances;
+  const pluginInstances = useAppSelector(
+    (state) => state.instance.pluginInstances,
+  );
+  const selectedPlugin = useAppSelector(
+    (state) => state.instance.selectedPlugin,
+  );
+  const { data: instances, loading } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
-  const fgRef = React.useRef<ForceGraphMethods | undefined>();
+  const fgRef = React.useRef<ForceGraphMethods>();
 
   const [nodeScale, setNodeScale] = React.useState<{
     enabled: boolean;
@@ -38,12 +43,19 @@ const FeedGraph = (props: IFeedProps) => {
 
   const size = useSize(graphRef);
 
-  const [graphData, setGraphData] = React.useState();
+  const [graphData, setGraphData] = React.useState<GraphData | undefined>(
+    undefined,
+  );
   const [controls] = React.useState({ "DAG Orientation": "td" });
 
   const handleNodeClick = (node: NodeObject) => {
     const distance = 40;
-    if (node?.x && node.y && node.z && fgRef.current) {
+    if (
+      node.x !== undefined &&
+      node.y !== undefined &&
+      node.z !== undefined &&
+      fgRef.current
+    ) {
       const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
       //@ts-ignore
       fgRef.current.cameraPosition(
@@ -52,20 +64,19 @@ const FeedGraph = (props: IFeedProps) => {
           y: node.y * distRatio,
           z: node.z * distRatio,
         }, // new position
-        //@ts-ignore
         node, // lookAt ({ x, y, z })
         3000, // ms transition duration
       );
     }
 
-    //@ts-ignore
-    onNodeClick(node.item);
+    if (node.item && typeof node.item === "object") {
+      onNodeClick(node.item as PluginInstance);
+    }
   };
 
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const tree = new TreeModel(instances);
-
       //@ts-ignore
       setGraphData(tree.treeChart);
     }
@@ -90,7 +101,10 @@ const FeedGraph = (props: IFeedProps) => {
                 labelOff="Scale Nodes Off"
                 isChecked={nodeScale.enabled}
                 onChange={() =>
-                  setNodeScale({ ...nodeScale, enabled: !nodeScale.enabled })
+                  setNodeScale({
+                    ...nodeScale,
+                    enabled: !nodeScale.enabled,
+                  })
                 }
               />
 
@@ -115,58 +129,53 @@ const FeedGraph = (props: IFeedProps) => {
               />
             </div>
           </div>
-          <ForceGraph2D
-            height={size.height || 500}
-            width={size.width || 500}
-            ref={fgRef}
-            graphData={graphData}
-            //@ts-ignore
-            dagMode={controls["DAG Orientation"]}
-            dagLevelDistance={50}
-            backgroundColor="#101020"
-            linkColor={() => "rgba(255,255,255,0.2)"}
-            nodeVal={
-              nodeScale.enabled
-                ? (node: any) => {
-                    if (nodeScale.type === "time") {
-                      const instanceData = (node.item as PluginInstance).data;
-                      const start = new Date(instanceData?.start_date);
-                      const end = new Date(instanceData?.end_date);
-                      return Math.log10(end.getTime() - start.getTime()) * 10;
+          {loading ? (
+            <SpinContainer title="Fetching data.." />
+          ) : (
+            <ForceGraph2D
+              height={size.height || 500}
+              width={size.width || 500}
+              ref={fgRef}
+              graphData={graphData}
+              //@ts-ignore
+              dagMode={controls["DAG Orientation"] as "td" | "lr" | "rl" | "bt"} // Adjust the type as needed
+              dagLevelDistance={50}
+              backgroundColor="#101020"
+              linkColor={() => "rgba(255,255,255,0.2)"}
+              nodeVal={
+                nodeScale.enabled
+                  ? (node: NodeObject) => {
+                      if (nodeScale.type === "time") {
+                        const instanceData = (node.item as PluginInstance).data;
+                        const start = new Date(instanceData?.start_date);
+                        const end = new Date(instanceData?.end_date);
+                        return Math.log10(end.getTime() - start.getTime()) * 10;
+                      }
+                      return 1;
                     }
-                    return 1;
-                  }
-                : undefined
-            }
-            onNodeClick={handleNodeClick}
-            nodeLabel={(d: any) => {
-              return `${d.item.data.title || d.item.data.plugin_name}`;
-            }}
-            nodeAutoColorBy={(d: any) => {
-              if (selectedPlugin && d.item.data.id === selectedPlugin.data.id) {
-                return "#fff";
+                  : undefined
               }
-              return d.group;
-            }}
-            linkDirectionalParticles={2}
-            linkDirectionalParticleWidth={2}
-            d3VelocityDecay={0.3}
-            linkWidth={2}
-            nodeRelSize={8}
-          />
+              onNodeClick={handleNodeClick}
+              nodeLabel={(d: NodeObject) =>
+                `${(d.item as PluginInstance).data.title || (d.item as PluginInstance).data.plugin_name}`
+              }
+              nodeAutoColorBy={(d: NodeObject) =>
+                selectedPlugin &&
+                (d.item as PluginInstance).data.id === selectedPlugin.data.id
+                  ? "#fff"
+                  : (d.group as string)
+              }
+              linkDirectionalParticles={2}
+              linkDirectionalParticleWidth={2}
+              d3VelocityDecay={0.3}
+              linkWidth={2}
+              nodeRelSize={8}
+            />
+          )}
         </ErrorBoundary>
-      ) : (
-        <Text>Fetching the Graph....</Text>
-      )}
+      ) : null}
     </div>
   );
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  pluginInstances: state.instance.pluginInstances,
-  selectedPlugin: state.instance.selectedPlugin,
-});
-
-const FeedGraphConnect = connect(mapStateToProps, {})(FeedGraph);
-
-export default FeedGraphConnect;
+export default FeedGraph;

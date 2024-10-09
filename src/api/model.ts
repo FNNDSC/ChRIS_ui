@@ -65,7 +65,7 @@ export class TreeModel {
 
   parseFeedTreeData(items: PluginInstance[], rootNodeId?: NodeId): ITreeChart {
     // Note: Reverse the array to expedite parsing also for demo purposes
-    this._workingItems = items.reverse().slice();
+    this._workingItems = items;
     this._parseRootNode(items, rootNodeId);
     this._parseTreeChildren(this._workingItems, this._workingId);
 

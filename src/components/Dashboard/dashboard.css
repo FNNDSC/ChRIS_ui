@@ -2,18 +2,41 @@
   color: white;
 }
 
-@media screen and (min-width: pf-global--breakpoint--sm) and (
-    max-width: pf-global--breakpoint--md
-  ) {
-  .dashboard-carddisplay img:nth-last-of-type(-n + 2) {
-    display: none;
-  }
+
+.description-section {
+  border-radius: 8px;
+  height: 100%;
 }
 
-@media screen and (min-width: pf-global--breakpoint--xs) and (
-    max-width: pf-global--breakpoint--sm
-  ) {
-  .dashboard-carddisplay img:nth-last-of-type(-n + 3) {
-    display: none;
+.uniform-card-height {
+  height: 450px; /* Set a consistent height for both cards */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.description-section h2 {
+  color: #007bff; /* Blue accent */
+  margin-bottom: 10px;
+}
+
+.description-section p {
+  font-size: 16px;
+  text-align: justify;
+}
+
+.tree-section {
+  width: 100%;
+  flex-grow: 1; /* Allow the graph to fill the remaining space */
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  overflow: hidden; /* Hide overflow */
+  position: relative;
+}
+
+/* Optional: Responsive adjustments */
+@media (max-width: 768px) {
+  .tree-section {
+    height: 400px;
   }
 }
