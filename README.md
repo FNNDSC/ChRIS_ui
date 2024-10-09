@@ -16,8 +16,8 @@ This repository contains the reference UI for ChRIS, allowing users to create an
 ```shell
 git clone https://github.com/FNNDSC/ChRIS_ui.git
 cd ChRIS_ui
-npm ci
-npm run dev:public
+pnpm install
+pnpm run dev:public
 ```
 
 ## Development
@@ -64,7 +64,7 @@ You need Node version 20 or 21.
 ```shell
 git clone https://github.com/FNNDSC/ChRIS_ui.git
 cd ChRIS_ui
-npm ci
+pnpm install
 ```
 
 #### Local Development Dependencies
@@ -79,13 +79,13 @@ to run the backend and helper scripts.
 Either using the "public" server:
 
 ```shell
-npm run dev:public
+pnpm run dev:public
 ```
 
 Or, start a local backend and run the "local" server:
 
 ```shell
-npm run dev:local
+pnpm run dev:local
 ```
 
 ## Container Image
@@ -117,7 +117,7 @@ Unit tests are defined in `*.test.ts` files inside `src`.
 It is recommended to leave this command running while developing _ChRIS_ui_.
 
 ```shell
-npm test
+pnpm test
 ```
 
 ### End-to-End Tests
@@ -128,9 +128,9 @@ The end-to-end testing framework, Playwright, requires some system dependencies.
 On first run, you will be prompted to install these dependencies.
 
 ```shell
-npm run test:e2e  # run tests using "public" backend
+pnpm run test:e2e  # run tests using "public" backend
 
-npm run test:e2e:local  # run tests using "local" backend
+pnpm run test:e2e:local  # run tests using "local" backend
 ```
 
 For more information, consult the wiki:
