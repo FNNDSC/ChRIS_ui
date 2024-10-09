@@ -6,7 +6,7 @@ import ForceGraph2D, {
   type ForceGraphMethods,
   type NodeObject,
 } from "react-force-graph-2d";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import { TreeModel } from "../../api/model";
 import { setFeedLayout } from "../../store/feed/feedSlice";
 import { useAppSelector } from "../../store/hooks";
@@ -14,6 +14,7 @@ import type { PluginInstancePayload } from "../../store/pluginInstance/types";
 import type { ApplicationState } from "../../store/root/applicationState";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
+import { useAppDispatch } from "../../store/hooks";
 import useSize from "./useSize";
 
 interface IFeedProps {
@@ -114,50 +115,45 @@ const FeedGraph = (props: IFeedProps) => {
               />
             </div>
           </div>
-          <>
-            <ForceGraph2D
-              height={size.height || 500}
-              width={size.width || 500}
-              ref={fgRef}
-              graphData={graphData}
-              //@ts-ignore
-              dagMode={controls["DAG Orientation"]}
-              dagLevelDistance={50}
-              backgroundColor="#101020"
-              linkColor={() => "rgba(255,255,255,0.2)"}
-              nodeVal={
-                nodeScale.enabled
-                  ? (node: any) => {
-                      if (nodeScale.type === "time") {
-                        const instanceData = (node.item as PluginInstance).data;
-                        const start = new Date(instanceData?.start_date);
-                        const end = new Date(instanceData?.end_date);
-                        return Math.log10(end.getTime() - start.getTime()) * 10;
-                      }
-                      return 1;
+          <ForceGraph2D
+            height={size.height || 500}
+            width={size.width || 500}
+            ref={fgRef}
+            graphData={graphData}
+            //@ts-ignore
+            dagMode={controls["DAG Orientation"]}
+            dagLevelDistance={50}
+            backgroundColor="#101020"
+            linkColor={() => "rgba(255,255,255,0.2)"}
+            nodeVal={
+              nodeScale.enabled
+                ? (node: any) => {
+                    if (nodeScale.type === "time") {
+                      const instanceData = (node.item as PluginInstance).data;
+                      const start = new Date(instanceData?.start_date);
+                      const end = new Date(instanceData?.end_date);
+                      return Math.log10(end.getTime() - start.getTime()) * 10;
                     }
-                  : undefined
+                    return 1;
+                  }
+                : undefined
+            }
+            onNodeClick={handleNodeClick}
+            nodeLabel={(d: any) => {
+              return `${d.item.data.title || d.item.data.plugin_name}`;
+            }}
+            nodeAutoColorBy={(d: any) => {
+              if (selectedPlugin && d.item.data.id === selectedPlugin.data.id) {
+                return "#fff";
               }
-              onNodeClick={handleNodeClick}
-              nodeLabel={(d: any) => {
-                return `${d.item.data.title || d.item.data.plugin_name}`;
-              }}
-              nodeAutoColorBy={(d: any) => {
-                if (
-                  selectedPlugin &&
-                  d.item.data.id === selectedPlugin.data.id
-                ) {
-                  return "#fff";
-                }
-                return d.group;
-              }}
-              linkDirectionalParticles={2}
-              linkDirectionalParticleWidth={2}
-              d3VelocityDecay={0.3}
-              linkWidth={2}
-              nodeRelSize={8}
-            />
-          </>
+              return d.group;
+            }}
+            linkDirectionalParticles={2}
+            linkDirectionalParticleWidth={2}
+            d3VelocityDecay={0.3}
+            linkWidth={2}
+            nodeRelSize={8}
+          />
         </ErrorBoundary>
       ) : (
         <Text>Fetching the Graph....</Text>

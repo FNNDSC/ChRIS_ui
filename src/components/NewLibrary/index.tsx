@@ -6,7 +6,7 @@ import type {
 import { Button, Grid, PageSection } from "@patternfly/react-core";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { debounce } from "lodash";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
@@ -146,7 +146,7 @@ const NewLibrary = () => {
         });
       });
     }
-  }, [data?.errorMessages]);
+  }, [api.error, data?.errorMessages]);
 
   const fetchMore =
     data?.foldersPagination?.hasNextPage ||
@@ -158,11 +158,33 @@ const NewLibrary = () => {
     navigate(url);
   }, 500);
 
-  const handlePagination = () => {
+  const handlePagination = useCallback(() => {
     setPageNumber((prevState) => prevState + 1);
-  };
+  }, []);
 
   const observerTarget = useRef(null);
+
+  // Set up an intersection observer to load more data when the user scrolls to the bottom of the page
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && fetchMore) {
+          handlePagination();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [fetchMore, handlePagination]);
 
   if (isFirstLoad && pathname === "/library") {
     return null;
@@ -185,7 +207,12 @@ const NewLibrary = () => {
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
-      <PageSection style={{ paddingBlockStart: "0" }}>
+      <PageSection
+        stickyOnBreakpoint={{
+          default: "top",
+        }}
+        style={{ padding: "0" }}
+      >
         <Operations
           origin={{
             type: OperationContext.LIBRARY,
@@ -203,7 +230,7 @@ const NewLibrary = () => {
         />
       </PageSection>
 
-      <PageSection style={{ paddingBlockStart: "0" }}>
+      <PageSection style={{ padding: "0" }}>
         {isFetching && <SpinContainer title="Fetching Resources..." />}
         {isError && <Alert type="error" description={error.message} />}
         {/* Render based on currentLayout */}

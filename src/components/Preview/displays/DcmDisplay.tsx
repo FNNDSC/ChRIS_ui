@@ -1,31 +1,22 @@
 import type { RenderingEngine } from "@cornerstonejs/core";
-import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
-import { v4 } from "uuid";
-import {
-  FileViewerModel,
-  type IFileBlob,
-  getFileExtension,
-} from "../../../api/model";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { getFileExtension, type IFileBlob } from "../../../api/model";
 import { SpinContainer } from "../../Common";
 import useSize from "../../FeedTree/useSize";
 import type { ActionState } from "../FileDetailView";
 import {
-  events,
-  type IStackViewport,
   basicInit,
-  cleanupCornerstoneTooling,
   displayDicomImage,
-  handleEvents,
   loadDicomImage,
-  registerToolingOnce,
-  removeTools,
   setUpTooling,
+  events,
 } from "./dicomUtils/utils";
+import type { IStackViewport } from "./dicomUtils/utils";
+import { Button } from "@patternfly/react-core";
 
 export type DcmImageProps = {
-  selectedFile?: IFileBlob;
+  selectedFile: IFileBlob;
   actionState: ActionState;
   preview: string;
   list?: IFileBlob[];
@@ -34,210 +25,469 @@ export type DcmImageProps = {
   filesLoading?: boolean;
 };
 
-const DcmDisplay: React.FC<DcmImageProps> = (props: DcmImageProps) => {
+const TOOL_KEY = "cornerstone-display";
+const CACHE_KEY = "cornerstone-stack";
+
+type ImageStackType = {
+  [key: string]: string | string[];
+};
+
+const DcmDisplay = (props: DcmImageProps) => {
   const {
     selectedFile,
-    actionState,
-    preview,
     list,
-    fetchMore,
     handlePagination,
+    fetchMore,
+    preview,
     filesLoading,
   } = props;
-  const [activeViewport, setActiveViewport] = useState<
-    IStackViewport | undefined
-  >();
 
+  // State variables
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [imageStack, setImageStack] = useState<string[]>([]);
-  const [renderingEngine, setRenderingEngine] = useState<RenderingEngine>();
+  const [imageStack, setImageStack] = useState<ImageStackType>({});
+  const [multiFrameDisplay, setMultiFrameDisplay] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [lastLoadedIndex, setLastLoadedIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(24); // frames per second
+
+  // Refs
   const dicomImageRef = useRef<HTMLDivElement>(null);
-  const uniqueId = `${selectedFile?.data.id || v4()}`;
-  const elementId = `cornerstone-element-${uniqueId}`;
-  const size = useSize(dicomImageRef); // Use the useSize hook with dicomImageRef
+  const elementRef = useRef<HTMLDivElement>(null);
+  const renderingEngineRef = useRef<RenderingEngine | null>(null);
+  const activeViewportRef = useRef<IStackViewport | null>(null);
+  const cacheRef = useRef<{ [key: string]: ImageStackType }>({
+    [CACHE_KEY]: {},
+  });
+  const cineIntervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleResize = () => {
-    // Update the element with elementId when the size of dicomImageRef changes
-    if (dicomImageRef.current && size) {
-      const parentWidth = size.width;
-      const parentHeight = size.height;
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.style.width = `${parentWidth}px`;
-        element.style.height = `${parentHeight}px`;
-        renderingEngine?.resize(true, true);
-        activeViewport?.resize();
-      }
+  // Derived values
+  const size = useSize(dicomImageRef);
+  const cacheStack = cacheRef.current[CACHE_KEY];
+  const fname = selectedFile.data.fname;
+
+  /**
+   * Handle resizing of the DICOM image viewer when the container size changes.
+   */
+  const handleResize = useCallback(() => {
+    if (dicomImageRef.current && size && elementRef.current) {
+      const { width, height } = size;
+      elementRef.current.style.width = `${width}px`;
+      elementRef.current.style.height = `${height}px`;
+      renderingEngineRef.current?.resize(true, true);
+      activeViewportRef.current?.resize();
     }
-  };
+  }, [size]);
 
+  // Set up resize event listener
   useEffect(() => {
     window.addEventListener("resize", handleResize);
+    handleResize(); // Initial resize
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [handleResize]);
 
+  /**
+   * Initialize Cornerstone library and set up tooling.
+   */
   useEffect(() => {
-    //Global registration needs to happen once
-    registerToolingOnce();
-    return () => {
-      renderingEngine?.destroy();
-      removeTools();
-      cleanupCornerstoneTooling();
+    const setupCornerstone = async () => {
+      await basicInit();
+      setUpTooling(TOOL_KEY);
     };
+    setupCornerstone();
   }, []);
 
-  async function setupCornerstone() {
-    const element = document.getElementById(elementId) as HTMLDivElement;
-    if (selectedFile) {
-      let imageID: string;
-      const extension = getFileExtension(selectedFile.data.fname);
-      await basicInit();
-      setUpTooling(uniqueId);
-      if (extension === "dcm") {
-        const blob = await selectedFile.getFileBlob();
-        imageID = await loadDicomImage(blob);
-      } else {
-        // Code to view png and jpg file types in cornerstone. Currently we are using the default image display so this code is redundant.
-        // This code should be deleted in the future.
-        const fileviewer = new FileViewerModel();
-        const fileName = fileviewer.getFileName(
-          selectedFile as FileBrowserFolderFile,
-        );
-        imageID = `web:${selectedFile.url}${fileName}`;
-      }
-      const { viewport, renderingEngine: newRenderingEngine } =
-        await displayDicomImage(element, imageID, uniqueId);
-      setActiveViewport(viewport);
-      setRenderingEngine(newRenderingEngine);
-      setImageStack([imageID]);
+  /**
+   * Filter the file list to include only DICOM files.
+   */
+  const filteredList = useMemo(
+    () =>
+      list?.filter((file) => getFileExtension(file.data.fname) === "dcm") || [],
+    [list],
+  );
 
-      return selectedFile.data.fname;
+  /**
+   * Preview the selected DICOM file.
+   * If the image is already cached, it uses the cached data.
+   * Otherwise, it loads the image and caches it.
+   */
+  const previewFile = useCallback(async () => {
+    if (!elementRef.current) return {};
+
+    const existingImageEntry = cacheStack?.[fname];
+
+    if (existingImageEntry && activeViewportRef.current) {
+      // Image is already cached
+      let imageIDs: string[];
+      let index: number;
+
+      if (Array.isArray(existingImageEntry)) {
+        // Multi-frame image
+        imageIDs = existingImageEntry;
+        index = currentImageIndex;
+        setMultiFrameDisplay(true);
+      } else {
+        // Single-frame images
+        imageIDs = Object.values(cacheStack).flat() as string[];
+        index = imageIDs.findIndex((id) => id === existingImageEntry);
+        setMultiFrameDisplay(false);
+      }
+
+      await activeViewportRef.current.setStack(
+        imageIDs,
+        index !== -1 ? index : 0,
+      );
+      activeViewportRef.current.render();
+
+      return cacheStack;
+    }
+
+    // Load new image if not in cache
+    const blob = await selectedFile.getFileBlob();
+    const imageData = await loadDicomImage(blob);
+    const { framesCount, imageID } = imageData;
+
+    const framesList =
+      framesCount > 1
+        ? Array.from({ length: framesCount }, (_, i) => `${imageID}?frame=${i}`)
+        : imageID;
+
+    const newImageStack: ImageStackType = {
+      [fname]: framesList,
+    };
+
+    const elementId = `cornerstone-element-${fname}`;
+    const { viewport, renderingEngine } = await displayDicomImage(
+      elementRef.current,
+      framesCount > 1 ? framesList[0] : imageID,
+      elementId,
+    );
+
+    setMultiFrameDisplay(framesCount > 1);
+    activeViewportRef.current = viewport;
+    renderingEngineRef.current = renderingEngine;
+
+    setImageStack(newImageStack);
+    cacheRef.current[CACHE_KEY] = newImageStack;
+    return newImageStack;
+  }, [selectedFile, cacheStack, fname, currentImageIndex]);
+
+  // Use React Query to fetch and cache the preview data
+  const { isLoading, data } = useQuery({
+    queryKey: ["cornerstone-preview", fname],
+    queryFn: previewFile,
+    enabled: !!selectedFile && !!elementRef.current,
+  });
+
+  /**
+   * Stop cine playback.
+   */
+  const stopCinePlay = useCallback(() => {
+    if (cineIntervalIdRef.current) {
+      clearInterval(cineIntervalIdRef.current);
+      cineIntervalIdRef.current = null;
+    }
+  }, []);
+
+  /**
+   * Clean up when the component unmounts.
+   * Destroys the rendering engine and clears caches and intervals.
+   */
+  useEffect(() => {
+    return () => {
+      renderingEngineRef.current?.destroy();
+      cacheRef.current = { [CACHE_KEY]: {} };
+      setIsLoadingMore(false);
+      setLastLoadedIndex(0);
+      setImageStack({});
+      if (elementRef.current) {
+        elementRef.current.removeEventListener(
+          events.IMAGE_RENDERED,
+          handleImageRendered,
+        );
+      }
+      stopCinePlay();
+    };
+  }, [stopCinePlay]);
+
+  /**
+   * Load multi-frame images into the viewport.
+   */
+  const loadMultiFrames = useCallback(async () => {
+    if (activeViewportRef.current) {
+      const currentIndex = activeViewportRef.current.getCurrentImageIdIndex();
+      const imageIDs = imageStack[fname] as string[];
+      await activeViewportRef.current.setStack(imageIDs, currentIndex);
+      activeViewportRef.current.render();
+    }
+  }, [imageStack, fname]);
+
+  /**
+   * Generator function to yield image files starting from a specific index.
+   */
+  function* imageFileGenerator(list: IFileBlob[], startIndex: number) {
+    for (let i = startIndex; i < list.length; i++) {
+      yield list[i];
     }
   }
 
-  const { isLoading } = useQuery({
-    queryKey: ["cornerstone-preview", selectedFile],
-    queryFn: () => setupCornerstone(),
-    refetchOnMount: true,
-    enabled: !!selectedFile,
-  });
-
-  useEffect(() => {
-    if (actionState && activeViewport) {
-      handleEvents(actionState, activeViewport);
-    }
-  }, [actionState, activeViewport]);
-
-  useEffect(() => {
-    handleResize();
-  }, [size]);
-
-  const loadMoreImages = async (signal: AbortSignal) => {
-    setIsLoadingMore(true);
-    const newImageStack = [...imageStack];
-    if (list) {
-      for (const file of list.slice(imageStack.length)) {
-        if (signal.aborted) {
-          setIsLoadingMore(false);
-          return;
+  /**
+   * Load more images when needed.
+   * This function loads additional images into the cache and updates the viewport.
+   */
+  const loadMoreImages = useCallback(
+    async (filteredList: IFileBlob[]) => {
+      if (Object.keys(cacheStack).length === filteredList.length) {
+        // All images are already loaded
+        setImageStack(cacheStack);
+        if (activeViewportRef.current) {
+          const currentIndex =
+            activeViewportRef.current.getCurrentImageIdIndex();
+          const imageIDs = Object.values(cacheStack).flat() as string[];
+          await activeViewportRef.current.setStack(imageIDs, currentIndex);
+          activeViewportRef.current.render();
         }
+        return;
+      }
+
+      setIsLoadingMore(true);
+      const generator = imageFileGenerator(filteredList, lastLoadedIndex);
+      const newImages: ImageStackType = {};
+
+      for (let next = generator.next(); !next.done; next = generator.next()) {
+        const file = next.value;
+        if (cacheStack[file.data.fname]) {
+          continue; // Skip if already in cache
+        }
+
         const blob = await file.getFileBlob();
-        const imageId = await loadDicomImage(blob); // Load and generate the image ID
-        newImageStack.push(imageId); // Add the new image ID to the stack
+        const imageData = await loadDicomImage(blob);
+        newImages[file.data.fname] = imageData.imageID;
       }
-      setImageStack(newImageStack);
 
-      if (activeViewport) {
-        const currentIndex = activeViewport.getCurrentImageIdIndex();
-        await activeViewport.setStack(newImageStack, currentIndex);
-        activeViewport.render();
+      const updatedImageStack = { ...cacheStack, ...newImages };
+      setImageStack(updatedImageStack);
+      cacheRef.current[CACHE_KEY] = updatedImageStack;
+
+      if (activeViewportRef.current) {
+        const currentIndex = activeViewportRef.current.getCurrentImageIdIndex();
+        const imageIDs = Object.values(updatedImageStack).flat() as string[];
+        await activeViewportRef.current.setStack(imageIDs, currentIndex);
+        activeViewportRef.current.render();
       }
-    }
-    setIsLoadingMore(false);
-  };
 
+      setLastLoadedIndex(lastLoadedIndex + Object.keys(newImages).length);
+      setIsLoadingMore(false);
+    },
+    [cacheStack, lastLoadedIndex],
+  );
+
+  // Check if the first frame is still loading
+  const loadingFirstFrame = isLoading || !data;
+
+  /**
+   * Load more images when scrolling near the end.
+   * Also handles loading multi-frame images.
+   */
   useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    if (list) {
+    if (
+      !loadingFirstFrame &&
+      !Array.isArray(data[selectedFile.data.fname]) &&
+      filteredList.length > lastLoadedIndex &&
+      Object.keys(cacheStack).length !== filteredList.length &&
+      !multiFrameDisplay
+    ) {
+      loadMoreImages(filteredList);
+    }
+
+    if (!loadingFirstFrame && multiFrameDisplay) {
+      loadMultiFrames();
+    }
+  }, [
+    loadingFirstFrame,
+    filteredList,
+    lastLoadedIndex,
+    cacheStack,
+    multiFrameDisplay,
+    loadMoreImages,
+    loadMultiFrames,
+    data,
+    selectedFile,
+  ]);
+
+  /**
+   * Handle image rendered event.
+   * Updates the current image index and triggers pagination if needed.
+   */
+  const handleImageRendered = useCallback(() => {
+    if (activeViewportRef.current) {
+      const newIndex = activeViewportRef.current.getCurrentImageIdIndex();
+      setCurrentImageIndex(newIndex);
+
       if (
-        imageStack.length > 0 &&
-        imageStack.length !== list.length &&
-        activeViewport
+        filteredList &&
+        newIndex >= filteredList.length - 5 &&
+        fetchMore &&
+        !filesLoading &&
+        !isLoadingMore &&
+        !loadingFirstFrame &&
+        !multiFrameDisplay
       ) {
-        loadMoreImages(signal);
+        handlePagination?.();
       }
     }
+  }, [
+    filteredList,
+    fetchMore,
+    filesLoading,
+    isLoadingMore,
+    loadingFirstFrame,
+    multiFrameDisplay,
+    handlePagination,
+  ]);
 
-    return () => {
-      controller.abort(); // Abort loading images on unmount
-    };
-  }, [list, fetchMore, activeViewport]);
-
+  // Add event listener for image rendered event
   useEffect(() => {
-    if (activeViewport && list) {
-      const element = activeViewport.element;
-
-      const handleImageRendered = (_event: any) => {
-        const newIndex = activeViewport.getCurrentImageIdIndex();
-        setCurrentImageIndex(newIndex + 1);
-      };
-
-      const handleFetchMoreImages = (_event: any) => {
-        const id = activeViewport.getCurrentImageIdIndex();
-        if (
-          id >= Math.floor(imageStack.length / 2) &&
-          list.length === imageStack.length &&
-          fetchMore &&
-          handlePagination &&
-          !filesLoading &&
-          !isLoadingMore
-        ) {
-          handlePagination();
-        }
-      };
-      element.addEventListener(events.IMAGE_RENDERED, handleImageRendered);
-      element.addEventListener(
-        events.STACK_VIEWPORT_SCROLL,
-        handleFetchMoreImages,
+    if (elementRef.current) {
+      elementRef.current.addEventListener(
+        events.IMAGE_RENDERED,
+        handleImageRendered,
       );
-      return () => {
-        element.removeEventListener(events.IMAGE_RENDERED, handleImageRendered);
-        element.removeEventListener(
-          events.STACK_VIEWPORT_SCROLL,
-          handleFetchMoreImages,
-        );
-      };
     }
-  }, [activeViewport, imageStack, fetchMore, handlePagination]);
+    return () => {
+      if (elementRef.current) {
+        elementRef.current.removeEventListener(
+          events.IMAGE_RENDERED,
+          handleImageRendered,
+        );
+      }
+    };
+  }, [handleImageRendered]);
+
+  /**
+   * Calculate the total number of images.
+   */
+  const imageCount = useMemo(() => {
+    return multiFrameDisplay
+      ? (imageStack[fname] as string[]).length
+      : Object.values(imageStack).flat().length;
+  }, [multiFrameDisplay, imageStack, fname]);
+
+  const totalDigits = imageCount.toString().length;
+  const currentIndexDisplay = (currentImageIndex + 1)
+    .toString()
+    .padStart(totalDigits, "0");
+  const imageCountDisplay = imageCount.toString().padStart(totalDigits, "0");
+
+  /**
+   * Start cine playback.
+   */
+  const startCinePlay = useCallback(() => {
+    if (
+      cineIntervalIdRef.current ||
+      !activeViewportRef.current ||
+      !imageStack[fname]
+    )
+      return;
+
+    const frameDuration = 1000 / playbackSpeed; // Calculate frame duration in milliseconds
+
+    cineIntervalIdRef.current = setInterval(() => {
+      if (activeViewportRef.current) {
+        let currentIndex = activeViewportRef.current.getCurrentImageIdIndex();
+        const totalImages = imageCount;
+        currentIndex = (currentIndex + 1) % totalImages;
+        activeViewportRef.current.setImageIdIndex(currentIndex);
+        setCurrentImageIndex(currentIndex);
+      }
+    }, frameDuration);
+  }, [playbackSpeed, imageStack, fname, imageCount]);
+
+  /**
+   * Manage cine playback based on `isPlaying` state.
+   */
+  useEffect(() => {
+    if (isPlaying) {
+      startCinePlay();
+    } else {
+      stopCinePlay();
+    }
+    return () => {
+      stopCinePlay();
+    };
+  }, [isPlaying, startCinePlay, stopCinePlay]);
 
   return (
     <>
-      {isLoading && <SpinContainer title="Displaying image..." />}
+      {loadingFirstFrame && <SpinContainer title="Displaying image..." />}
       <div
         id="content"
         ref={dicomImageRef}
         className={preview === "large" ? "dcm-preview" : ""}
       >
+        {/* Overlay Controls */}
         <div
           style={{
             position: "absolute",
-            top: "0.5em",
-            left: "0.5em",
-            zIndex: "99999",
+            top: "0.25em",
+            right: "0.25em",
+            zIndex: 99999,
+            width: "200px", // Set a fixed width
           }}
         >
-          {isLoadingMore ? (
-            <i>Loading More Images...</i>
-          ) : (
-            `Images Loaded: ${currentImageIndex}/${imageStack.length}`
+          {/* Current Index Display */}
+          <div
+            style={{
+              color: "#fff",
+              marginBottom: "0.5em",
+              fontFamily: "monospace", // Use monospaced font
+            }}
+          >
+            {`Current Index: ${currentIndexDisplay}/${imageCountDisplay}`}
+          </div>
+
+          {/* Play/Pause Button */}
+          <div style={{ marginBottom: "0.5em" }}>
+            <Button
+              variant="control"
+              size="sm"
+              onClick={() => setIsPlaying(!isPlaying)}
+            >
+              {isPlaying ? "Pause" : "Play"}
+            </Button>
+          </div>
+
+          {/* Playback Speed Control */}
+          <div style={{ color: "#fff", marginBottom: "0.5em" }}>
+            <label>
+              Speed:
+              <input
+                type="number"
+                value={playbackSpeed}
+                min="1"
+                max="60"
+                onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+              />
+              fps
+            </label>
+          </div>
+
+          {/* Loading More Indicator */}
+          {isLoadingMore && (
+            <div style={{ color: "#fff" }}>
+              <i>Loading more...</i>
+            </div>
           )}
         </div>
 
-        <div id={elementId} />
+        {/* DICOM Image Display */}
+        <div
+          id={`cornerstone-element-${fname}`}
+          ref={elementRef}
+          style={{ width: "100%", height: "100%" }}
+        />
       </div>
     </>
   );
