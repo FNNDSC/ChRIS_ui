@@ -106,7 +106,7 @@ const DashboardPage: React.FC = () => {
           {/* Automatic Fetal Brain Reconstruction Pipeline Card */}
           <Col xs={24} md={12}>
             <Card
-              title="Automatic Fetal Brain Reconstruction Pipeline"
+              title="Automatic Fetal Brain Reconstruction Workflow"
               bordered={false}
               className="uniform-card-height" /* Ensure both cards have the same height */
               style={{ width: "100%", padding: "10px" }}
