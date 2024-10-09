@@ -495,6 +495,8 @@ const PacsController: React.FC<PacsControllerProps> = ({
   const onRetrieve = React.useCallback(
     (service: string, query: PACSqueryCore) => {
       expandStudiesFor(service, query);
+      // N.B.: immer bug here
+      // https://github.com/immerjs/use-immer/issues/139
       setPullRequests((draft) => {
         // indicate that the user requests for something to be retrieved.
         draft.push({
@@ -594,10 +596,19 @@ const PacsController: React.FC<PacsControllerProps> = ({
       updatePullRequestState(service, query, { state: RequestState.REQUESTED }),
   });
 
+  // FIXME idk why the effect is firing twice...
+  const badWorkaroundToPreventDuplicatePull = React.useRef<
+    Set<PacsPullRequestState>
+  >(new Set());
+
   React.useEffect(() => {
     pullRequests
       .filter(shouldSendPullRequest)
-      .forEach((pr) => pullFromPacs.mutate(pr));
+      .filter((pr) => !badWorkaroundToPreventDuplicatePull.current.has(pr))
+      .forEach((pr) => {
+        badWorkaroundToPreventDuplicatePull.current.add(pr);
+        pullFromPacs.mutate(pr);
+      });
   }, [pullRequests, shouldSendPullRequest]);
 
   // ========================================
