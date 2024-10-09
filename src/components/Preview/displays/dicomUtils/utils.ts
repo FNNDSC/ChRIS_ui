@@ -23,6 +23,7 @@ import dicomParser from "dicom-parser";
 import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
 import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
 import registerWebImageLoader from "./webImageLoader";
+import { IFileBlob } from "../../../../api/model";
 
 //@ts-ignore
 window.cornerstone = cornerstone;
@@ -98,10 +99,11 @@ export const cleanupCornerstoneTooling = () => {
 export function setUpTooling(uniqueToolId: string) {
   // Check if tool group already exists
   const id = toolGroup?.id;
+
   if (!id) {
     // Tool group doesn't exist, create a new one
+    registerToolingOnce();
     toolGroup = ToolGroupManager.createToolGroup(uniqueToolId);
-
     if (toolGroup) {
       toolGroup.addTool(WindowLevelTool.toolName);
       toolGroup.addTool(PanTool.toolName);
@@ -198,8 +200,19 @@ export const handleEvents = (
   }
 };
 
-export const loadDicomImage = (blob: Blob) => {
-  return cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+export const loadDicomImage = async (blob: Blob) => {
+  const imageID = cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+  const image = await cornerstone.imageLoader.loadImage(imageID);
+
+  // Detect if the DICOM is a multi-frame image
+  //@ts-ignore
+  const numberOfFrames = image.data.string("x00280008");
+  const framesCount = numberOfFrames ? Number.parseInt(numberOfFrames, 10) : 1;
+
+  return {
+    imageID,
+    framesCount,
+  };
 };
 
 type ImagePoint = [number, number];
@@ -269,7 +282,6 @@ export const displayDicomImage = async (
       type: ViewportType.STACK,
       element,
     };
-
     renderingEngine.enableElement(viewportInput);
     toolGroup?.addViewport(viewportId, renderingEngineId);
     const viewport = <Types.IStackViewport>(
@@ -278,14 +290,11 @@ export const displayDicomImage = async (
     const displayArea: ViewportInputOptions = createDisplayArea(1, 0.5);
     viewport.setOptions(displayArea, true);
     viewport.setProperties(displayArea);
-
     await viewport.setStack(imageIds);
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
-
     // Set the stack scroll mouse wheel tool
     toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
-
     return {
       viewport,
       renderingEngine,

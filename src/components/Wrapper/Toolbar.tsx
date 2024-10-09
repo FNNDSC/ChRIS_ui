@@ -6,19 +6,23 @@ import {
   Flex,
   FlexItem,
   MenuToggle,
+  Modal,
   Switch,
+  Tooltip,
 } from "@patternfly/react-core";
+import { BarsIcon } from "@patternfly/react-icons"; // Add a tools icon
 import { useQueryClient } from "@tanstack/react-query";
-import * as React from "react";
+import React from "react";
 import { useCookies } from "react-cookie";
+import { useMediaQuery } from "react-responsive";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { clearCartOnLogout } from "../../store/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setLogoutSuccess } from "../../store/user/userSlice";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
 import CartNotify from "./CartNotify";
-import { clearCartOnLogout } from "../../store/cart/cartSlice";
 
 type ToolbarComponentProps = {
   showToolbar: boolean;
@@ -29,10 +33,10 @@ type ToolbarComponentProps = {
 const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   props: ToolbarComponentProps,
 ) => {
+  const isSmallerScreen = useMediaQuery({ maxWidth: 1224 });
+
   const { token, titleComponent } = props;
   const dispatch = useAppDispatch();
-  const drawerState = useAppSelector((state) => state.drawers);
-  const fullScreen = drawerState?.preview.open && drawerState.preview.maximized;
   const navigate = useNavigate();
   const location = useLocation();
   const [_, _setCookie, removeCookie] = useCookies();
@@ -40,6 +44,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   const queryClient = useQueryClient();
   const username = useAppSelector((state) => state.user.username);
   const [dropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [trayOpen, setTrayOpen] = React.useState(false); // State for tray visibility
 
   const handleChange = () => {
     toggleTheme();
@@ -83,78 +88,103 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
     </DropdownItem>,
   ];
 
-  return (
-    <Flex
-      justifyContent={{ default: "justifyContentSpaceBetween" }}
-      alignItems={{ default: "alignItemsCenter" }}
-      style={{
-        width: "100%",
-      }}
-    >
-      <FlexItem>{titleComponent && titleComponent}</FlexItem>
-      {/* Center */}
-      <FlexItem flex={{ default: "flex_1" }}>
-        {props.showToolbar && !fullScreen && <FeedDetails />}
-      </FlexItem>
+  const toggleTray = () => {
+    setTrayOpen(!trayOpen);
+  };
 
-      {/* Right section */}
-      <FlexItem align={{ default: "alignRight" }}>
-        <Flex
-          alignItems={{ default: "alignItemsCenter" }}
-          spaceItems={{ default: "spaceItemsMd" }}
-        >
-          <FlexItem>
-            <CartNotify />
-          </FlexItem>
-          <FlexItem>
-            <Switch
-              id="simple-switch"
-              label="Theme"
-              isChecked={isDarkTheme}
-              onChange={handleChange}
-              ouiaId="Basic Switch"
-            />
-          </FlexItem>
-          <FlexItem>
-            {token ? (
-              <Dropdown
-                isPlain
-                onSelect={onDropdownToggle}
-                isOpen={dropdownOpen}
-                toggle={(toggleRef) => (
-                  <MenuToggle ref={toggleRef} onClick={onDropdownToggle}>
-                    {username}
-                  </MenuToggle>
-                )}
-              >
-                <DropdownList>{userDropdownItems}</DropdownList>
-              </Dropdown>
-            ) : (
-              <>
-                <Button
-                  style={{ padding: "0.25em" }}
-                  variant="link"
-                  onClick={() => {
-                    navigate(
-                      `/login?redirectTo=${location.pathname}${location.search}`,
-                    );
-                  }}
-                >
-                  Login
-                </Button>
-                <Button
-                  style={{ padding: "0.25em" }}
-                  variant="link"
-                  onClick={() => navigate("/signup")}
-                >
-                  Sign Up
-                </Button>
-              </>
+  return (
+    <>
+      <Flex
+        justifyContent={{ default: "justifyContentSpaceBetween" }}
+        alignItems={{ default: "alignItemsCenter" }}
+        style={{
+          width: "100%",
+        }}
+      >
+        <FlexItem>{titleComponent && titleComponent}</FlexItem>
+        {/* Center */}
+        <FlexItem flex={{ default: "flex_1" }}>
+          {props.showToolbar && !isSmallerScreen && <FeedDetails />}
+        </FlexItem>
+
+        {/* Right section */}
+        <FlexItem align={{ default: "alignRight" }}>
+          <Flex
+            alignItems={{ default: "alignItemsCenter" }}
+            spaceItems={{ default: "spaceItemsMd" }}
+          >
+            {isSmallerScreen && (
+              <FlexItem>
+                <Tooltip position="bottom" content="Configure Panels">
+                  <Button
+                    variant="plain"
+                    aria-label="Tools"
+                    onClick={toggleTray}
+                    icon={<BarsIcon />}
+                  />
+                </Tooltip>
+              </FlexItem>
             )}
-          </FlexItem>
-        </Flex>
-      </FlexItem>
-    </Flex>
+            <FlexItem>
+              <CartNotify />
+            </FlexItem>
+            <FlexItem>
+              <Switch
+                id="simple-switch"
+                label="Theme"
+                isChecked={isDarkTheme}
+                onChange={handleChange}
+                ouiaId="Basic Switch"
+              />
+            </FlexItem>
+            <FlexItem>
+              {token ? (
+                <Dropdown
+                  isPlain
+                  onSelect={onDropdownToggle}
+                  isOpen={dropdownOpen}
+                  toggle={(toggleRef) => (
+                    <MenuToggle ref={toggleRef} onClick={onDropdownToggle}>
+                      {username}
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>{userDropdownItems}</DropdownList>
+                </Dropdown>
+              ) : (
+                <>
+                  <Button
+                    style={{ padding: "0.25em" }}
+                    variant="link"
+                    onClick={() => {
+                      navigate(
+                        `/login?redirectTo=${location.pathname}${location.search}`,
+                      );
+                    }}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    style={{ padding: "0.25em" }}
+                    variant="link"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )}
+            </FlexItem>
+          </Flex>
+        </FlexItem>
+      </Flex>
+
+      {/* Modal tray for FeedDetails */}
+      {isSmallerScreen && trayOpen && (
+        <Modal isOpen={trayOpen} onClose={toggleTray} title="" variant="small">
+          <FeedDetails />
+        </Modal>
+      )}
+    </>
   );
 };
 

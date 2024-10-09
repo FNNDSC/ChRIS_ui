@@ -1,11 +1,6 @@
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerPanelContent,
-  Tooltip,
-} from "@patternfly/react-core";
+import { Tooltip } from "@patternfly/react-core";
+import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import { Typography } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
@@ -36,6 +31,8 @@ import { DrawerActionButton } from "./DrawerUtils";
 import { useFetchFeed } from "./useFetchFeed";
 import { useSearchQueryParams } from "./usePaginate";
 import { handleMaximize, handleMinimize } from "./utilties";
+import "./Feeds.css"; // Import your CSS file
+
 const { Title } = Typography;
 
 const FeedView: React.FC = () => {
@@ -58,6 +55,7 @@ const FeedView: React.FC = () => {
     selectedPlugin,
   };
   const { feed, contextHolder } = useFetchFeed(id, type, isLoggedIn);
+
   useEffect(() => {
     if (!type || (type === "private" && !isLoggedIn)) {
       const redirectTo = encodeURIComponent(
@@ -117,33 +115,6 @@ const FeedView: React.FC = () => {
     [drawerState, dispatch],
   );
 
-  const feedTreeAndGraph = (
-    <Drawer isInline position="right" isExpanded={drawerState.node.open}>
-      <DrawerContent
-        panelContent={
-          <DrawerPanelContent
-            defaultSize={drawerState.graph.open === false ? "100%" : "47%"}
-            isResizable
-          >
-            {handleDrawerAction("node")}
-            <div className="node-block">
-              <NodeDetails />
-            </div>
-          </DrawerPanelContent>
-        }
-      >
-        {handleDrawerAction("graph")}
-        <DrawerContentBody>
-          {!currentLayout ? (
-            <ParentComponent onNodeClick={onNodeClick} />
-          ) : (
-            <FeedGraph onNodeClick={onNodeClick} />
-          )}
-        </DrawerContentBody>
-      </DrawerContent>
-    </Drawer>
-  );
-
   const TitleComponent = (
     <Title level={4} style={{ marginBottom: 0, color: "white" }}>
       <CodeBranchIcon style={{ marginRight: "0.25em" }} />
@@ -156,31 +127,77 @@ const FeedView: React.FC = () => {
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
-      <Drawer
-        isInline
-        position="bottom"
-        isExpanded={drawerState.preview.open || drawerState.files.open}
-      >
-        <DrawerContent
-          panelContent={
-            <DrawerPanelContent
-              defaultSize={
-                !drawerState.graph.open && !drawerState.node.open
-                  ? "100vh"
-                  : "46vh"
-              }
-              isResizable
+      <PanelGroup autoSaveId="conditional" direction="vertical">
+        {/* Top Panels: Graph and Node Details */}
+        {(drawerState.graph.open || drawerState.node.open) && (
+          <>
+            <Panel
+              className="custom-panel"
+              id="1"
+              order={1}
+              defaultSize={50}
+              minSize={20}
             >
-              <FeedOutputBrowser
-                explore={true}
-                handlePluginSelect={onNodeBrowserClick}
-              />
-            </DrawerPanelContent>
-          }
-        >
-          {feedTreeAndGraph}
-        </DrawerContent>
-      </Drawer>
+              <PanelGroup autoSaveId="conditional" direction="horizontal">
+                {/* Left Panel: Graph */}
+                {drawerState.graph.open && (
+                  <>
+                    <Panel
+                      className="custom-panel"
+                      order={1}
+                      defaultSize={53}
+                      minSize={20}
+                    >
+                      {handleDrawerAction("graph")}
+                      {!currentLayout ? (
+                        <ParentComponent onNodeClick={onNodeClick} />
+                      ) : (
+                        <FeedGraph onNodeClick={onNodeClick} />
+                      )}
+                    </Panel>
+                    <PanelResizeHandle className="ResizeHandle" />
+                  </>
+                )}
+
+                {/* Right Panel: Node Details */}
+                {drawerState.node.open && (
+                  <Panel
+                    className="custom-panel"
+                    id="2"
+                    order={2}
+                    defaultSize={47}
+                    minSize={20}
+                  >
+                    {handleDrawerAction("node")}
+                    <div className="node-block">
+                      <NodeDetails />
+                    </div>
+                  </Panel>
+                )}
+              </PanelGroup>
+            </Panel>
+            <PanelResizeHandle className="ResizeHandleVertical" />
+          </>
+        )}
+
+        {/* Vertical Resize Handle */}
+
+        {/* Bottom Panel: Feed Output Browser */}
+        {(drawerState.files.open || drawerState.preview.open) && (
+          <Panel
+            className="custom-panel"
+            id="3"
+            order={2}
+            defaultSize={50}
+            minSize={20}
+          >
+            <FeedOutputBrowser
+              explore={true}
+              handlePluginSelect={onNodeBrowserClick}
+            />
+          </Panel>
+        )}
+      </PanelGroup>
     </WrapperConnect>
   );
 };
