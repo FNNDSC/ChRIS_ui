@@ -33,6 +33,7 @@ const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
           } else if (fileType === "jpg" || fileType === "jpeg") {
             type = "image/jpeg";
           } else {
+            // use antd notifications here
             // Handle unsupported file types if necessary
             console.warn(`Unsupported file type: ${fileType}`);
             return;
@@ -64,8 +65,8 @@ const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
   const imageStyles: React.CSSProperties = {
     width: size ? `${size.width}px` : "100%",
     height: "auto",
-    objectFit: "scale-down", // Adjust as needed (e.g., 'cover', 'fill')
-    transition: "width 0.2s, height 0.2s", // Smooth resizing
+    objectFit: "scale-down",
+    transition: "width 0.2s, height 0.2s",
   };
 
   return (
