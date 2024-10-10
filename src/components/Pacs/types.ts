@@ -62,14 +62,25 @@ enum RequestState {
 }
 
 /**
- * The state of a PACS pull request.
+ * A {@link PACSqueryCore} for a specified PACS.
+ */
+type SpecificDicomQuery = {
+  service: string;
+  query: PACSqueryCore;
+};
+
+/**
+ * The state of a request for a {@link SpecificDicomQuery}.
  */
 type PacsPullRequestState = {
   state: RequestState;
   error?: Error;
-  query: PACSqueryCore;
-  service: string;
 };
+
+/**
+ * The state of requests to PFDCM to pull DICOM study/series.
+ */
+type PullRequestStates = Map<SpecificDicomQuery, PacsPullRequestState>;
 
 /**
  * The state of a DICOM series retrieval.
@@ -163,5 +174,7 @@ export type {
   PacsSeriesState,
   PacsStudyState,
   PacsPreferences,
+  SpecificDicomQuery,
   PacsPullRequestState,
+  PullRequestStates,
 };

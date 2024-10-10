@@ -18,16 +18,18 @@ import {
   useQueries,
   useQuery,
 } from "@tanstack/react-query";
-import { mergeStates, createCubeSeriesQueryUidMap } from "./mergeStates.ts";
+import { createCubeSeriesQueryUidMap, mergeStates } from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
   IPacsState,
   PacsPullRequestState,
+  PullRequestStates,
   ReceiveState,
   RequestState,
   SeriesNotRegisteredError,
   SeriesPullState,
   SeriesReceiveState,
+  SpecificDicomQuery,
   StudyKey,
 } from "./types.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
@@ -125,37 +127,24 @@ const PacsController: React.FC<PacsControllerProps> = ({
   /**
    * List of PACS queries which the user wants to pull.
    */
-  const [pullRequests, setPullRequests] = useImmer<
-    ReadonlyArray<PacsPullRequestState>
-  >([]);
+  const [pullRequests, setPullRequests] = useImmer<PullRequestStates>(
+    new Map(),
+  );
 
   /**
    * Update the state of a pull request.
    */
   const updatePullRequestState = React.useCallback(
-    (
-      service: string,
-      query: PACSqueryCore,
-      delta: Partial<Omit<PacsPullRequestState, "service" | "query">>,
-    ) =>
+    (query: SpecificDicomQuery, delta: Partial<PacsPullRequestState>) =>
       setPullRequests((draft) => {
-        const i = draft.findLastIndex(
-          (pr) =>
-            pr.service === service &&
-            (pr.query.studyInstanceUID
-              ? pr.query.studyInstanceUID === query.studyInstanceUID
-              : true) &&
-            (pr.query.seriesInstanceUID
-              ? pr.query.seriesInstanceUID === query.seriesInstanceUID
-              : true),
-        );
-        if (i === -1) {
+        const prev = draft.get(query);
+        if (!prev) {
           throw new Error(
             "pullFromPacs mutation called on unknown pull request: " +
               `service=${service}, query=${JSON.stringify(query)}`,
           );
         }
-        draft[i] = { ...draft[i], ...delta };
+        draft.set(query, { ...prev, ...delta });
       }),
     [setPullRequests],
   );
@@ -496,12 +485,9 @@ const PacsController: React.FC<PacsControllerProps> = ({
     (service: string, query: PACSqueryCore) => {
       expandStudiesFor(service, query);
       setPullRequests((draft) => {
+        const key = { service, query };
         // indicate that the user requests for something to be retrieved.
-        draft.push({
-          state: RequestState.NOT_REQUESTED,
-          query,
-          service,
-        });
+        draft.set(key, { state: RequestState.NOT_REQUESTED });
       });
     },
     [setPullRequests, expandStudiesFor],
@@ -554,23 +540,20 @@ const PacsController: React.FC<PacsControllerProps> = ({
    * may be for either a DICOM study or series).
    */
   const shouldSendPullRequest = React.useCallback(
-    (pullRequest: PacsPullRequestState): boolean => {
-      if (pullRequest.state !== RequestState.NOT_REQUESTED) {
+    ({
+      service,
+      query,
+      state,
+    }: SpecificDicomQuery & Pick<PacsPullRequestState, "state">): boolean => {
+      if (state !== RequestState.NOT_REQUESTED) {
         return false;
       }
-      if (pullRequest.query.seriesInstanceUID) {
-        return shouldPullSeries(
-          pullRequest.service,
-          pullRequest.query.seriesInstanceUID,
-        );
+      if (query.seriesInstanceUID) {
+        return shouldPullSeries(service, query.seriesInstanceUID);
       }
-      if (pullRequest.query.studyInstanceUID) {
-        return shouldPullStudy(
-          pullRequest.service,
-          pullRequest.query.studyInstanceUID,
-        );
+      if (query.studyInstanceUID) {
+        return shouldPullStudy(service, query.studyInstanceUID);
       }
-
       return false;
     },
     [shouldPullStudy, shouldPullSeries],
@@ -580,22 +563,21 @@ const PacsController: React.FC<PacsControllerProps> = ({
    * Send request to PFDCM to pull from PACS.
    */
   const pullFromPacs = useMutation({
-    mutationFn: ({ service, query }: PacsPullRequestState) =>
+    mutationFn: ({ service, query }: SpecificDicomQuery) =>
       pfdcmClient.retrieve(service, query),
-    onMutate: ({ service, query }: PacsPullRequestState) =>
-      updatePullRequestState(service, query, {
-        state: RequestState.REQUESTING,
-      }),
-    onError: (error, { service, query }) =>
-      updatePullRequestState(service, query, { error: error }),
-    onSuccess: (_, { service, query }) =>
-      updatePullRequestState(service, query, { state: RequestState.REQUESTED }),
+    onMutate: (query: SpecificDicomQuery) =>
+      updatePullRequestState(query, { state: RequestState.REQUESTING }),
+    onError: (error, query) => updatePullRequestState(query, { error: error }),
+    onSuccess: (_, query) =>
+      updatePullRequestState(query, { state: RequestState.REQUESTED }),
   });
 
   React.useEffect(() => {
-    pullRequests
-      .filter(shouldSendPullRequest)
-      .forEach((pr) => pullFromPacs.mutate(pr));
+    [...pullRequests.entries()]
+      .filter(([query, { state }]) =>
+        shouldSendPullRequest({ ...query, state }),
+      )
+      .forEach(([query, _]) => pullFromPacs.mutate(query));
   }, [pullRequests, shouldSendPullRequest]);
 
   // ========================================
