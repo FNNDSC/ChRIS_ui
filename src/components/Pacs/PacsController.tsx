@@ -528,7 +528,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
   );
 
   /**
-   * All series states.
+   * All DICOM series states.
    */
   const allSeries = React.useMemo(
     () => (studies ?? []).flatMap((s) => s.series),
@@ -558,21 +558,19 @@ const PacsController: React.FC<PacsControllerProps> = ({
       if (pullRequest.state !== RequestState.NOT_REQUESTED) {
         return false;
       }
-      if (
-        pullRequest.query.studyInstanceUID &&
-        !("seriesInstanceUID" in pullRequest.query)
-      ) {
-        return shouldPullStudy(
-          pullRequest.service,
-          pullRequest.query.studyInstanceUID,
-        );
-      }
       if (pullRequest.query.seriesInstanceUID) {
         return shouldPullSeries(
           pullRequest.service,
           pullRequest.query.seriesInstanceUID,
         );
       }
+      if (pullRequest.query.studyInstanceUID) {
+        return shouldPullStudy(
+          pullRequest.service,
+          pullRequest.query.studyInstanceUID,
+        );
+      }
+
       return false;
     },
     [shouldPullStudy, shouldPullSeries],
