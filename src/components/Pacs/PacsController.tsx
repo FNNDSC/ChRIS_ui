@@ -5,8 +5,9 @@
  */
 
 import React from "react";
-import { PACSqueryCore, PfdcmClient } from "../../api/pfdcm";
-import Client, { PACSSeries } from "@fnndsc/chrisapi";
+import type { PACSqueryCore, PfdcmClient } from "../../api/pfdcm";
+import type Client from "@fnndsc/chrisapi";
+import type { PACSSeries } from "@fnndsc/chrisapi";
 import { App } from "antd";
 import { PageSection } from "@patternfly/react-core";
 import PacsView from "./PacsView.tsx";
@@ -21,29 +22,29 @@ import {
 import { createCubeSeriesQueryUidMap, mergeStates } from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
-  IPacsState,
-  PacsPullRequestState,
-  PullRequestStates,
-  ReceiveState,
+  type IPacsState,
+  type PacsPullRequestState,
+  type PullRequestStates,
+  type ReceiveState,
   RequestState,
   SeriesNotRegisteredError,
   SeriesPullState,
-  SeriesReceiveState,
-  SpecificDicomQuery,
-  StudyKey,
+  type SeriesReceiveState,
+  type SpecificDicomQuery,
+  type StudyKey,
 } from "./types.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
 import { toStudyKey, zipPacsNameAndSeriesUids } from "./helpers.ts";
 import { useImmer } from "use-immer";
 import SeriesMap from "../../api/lonk/seriesMap.ts";
 import { useLonk } from "../../api/lonk";
-import { produce, WritableDraft } from "immer";
+import { produce, type WritableDraft } from "immer";
 import {
   isFromPacs,
   sameSeriesInstanceUidAs,
   sameStudyInstanceUidAs,
 } from "./curry.ts";
-import { Study } from "../../api/pfdcm/models.ts";
+import type { Study } from "../../api/pfdcm/models.ts";
 import terribleStrictModeWorkaround from "./terribleStrictModeWorkaround.ts";
 
 type PacsControllerProps = {
@@ -104,7 +105,9 @@ const PacsController: React.FC<PacsControllerProps> = ({
 
   const { message } = App.useApp();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: https://github.com/biomejs/biome/issues/4248
   const pfdcmClient = React.useMemo(getPfdcmClient, [getPfdcmClient]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: https://github.com/biomejs/biome/issues/4248
   const chrisClient = React.useMemo(getChrisClient, [getChrisClient]);
 
   // ========================================
@@ -315,7 +318,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
           retry: 300,
           retryDelay: 2000, // TODO use environment variable
         })),
-      [receiveState],
+      [receiveState, chrisClient.getPACSSeriesList],
     ),
   });
 
@@ -357,13 +360,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
       allCubeSeriesQueryMap,
       receiveState,
     );
-  }, [
-    mergeStates,
-    pfdcmStudies.data,
-    pullRequests,
-    allCubeSeriesQueryMap,
-    receiveState,
-  ]);
+  }, [pfdcmStudies.data, pullRequests, allCubeSeriesQueryMap, receiveState]);
 
   /**
    * Entire state of the Pacs Q/R application.
@@ -475,7 +472,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
     (service: string, query: PACSqueryCore) => {
       setPacsQuery({ service, query });
     },
-    [setPacsQuery],
+    [],
   );
 
   // ========================================
@@ -509,7 +506,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
         .findIndex(
           ({ pullState }) =>
             pullState === SeriesPullState.NOT_CHECKED ||
-            pullState == SeriesPullState.CHECKING,
+            pullState === SeriesPullState.CHECKING,
         ) === -1,
     [studies],
   );
@@ -583,7 +580,12 @@ const PacsController: React.FC<PacsControllerProps> = ({
         shouldSendPullRequest({ ...query, state }),
       )
       .forEach(([query, _]) => pullFromPacs.mutate(query));
-  }, [pullRequests, shouldSendPullRequest]);
+  }, [
+    pullRequests,
+    shouldSendPullRequest,
+    pullFromPacs.mutate,
+    terribleDoNotCallTwice,
+  ]);
 
   // ========================================
   // EFFECTS
@@ -611,7 +613,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
     }
     // Note: we are subscribing to series, but never unsubscribing.
     // This is mostly harmless.
-  }, [expandedSeries]);
+  }, [lonk.subscribe, expandedSeries, updateReceiveState]);
 
   // ========================================
   // RENDER

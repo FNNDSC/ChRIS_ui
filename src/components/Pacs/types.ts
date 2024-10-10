@@ -1,7 +1,7 @@
-import { Series, Study } from "../../api/pfdcm/models.ts";
-import { PACSSeries } from "@fnndsc/chrisapi";
-import SeriesMap from "../../api/lonk/seriesMap.ts";
-import { PACSqueryCore } from "../../api/pfdcm";
+import type { Series, Study } from "../../api/pfdcm/models.ts";
+import type { PACSSeries } from "@fnndsc/chrisapi";
+import type SeriesMap from "../../api/lonk/seriesMap.ts";
+import type { PACSqueryCore } from "../../api/pfdcm";
 
 type StudyKey = {
   pacs_name: string;
@@ -56,9 +56,9 @@ enum SeriesPullState {
  * The states a request can be in.
  */
 enum RequestState {
-  NOT_REQUESTED,
-  REQUESTING,
-  REQUESTED,
+  NOT_REQUESTED = 0,
+  REQUESTING = 1,
+  REQUESTED = 2,
 }
 
 /**

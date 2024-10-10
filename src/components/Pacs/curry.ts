@@ -2,8 +2,8 @@
  * Some trivial curried functions for making array map/filter code more legible.
  */
 
-import { Series, Study } from "../../api/pfdcm/models.ts";
-import { PACSqueryCore } from "../../api/pfdcm";
+import type { Series, Study } from "../../api/pfdcm/models.ts";
+import type { PACSqueryCore } from "../../api/pfdcm";
 
 function isFromPacs(
   pacs_name: string,

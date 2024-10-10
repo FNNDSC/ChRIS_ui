@@ -1,4 +1,4 @@
-import { Flex, Button, Tooltip, TooltipProps } from "antd";
+import { Flex, Button, Tooltip, type TooltipProps } from "antd";
 import { AppstoreOutlined, ImportOutlined } from "@ant-design/icons";
 
 type StudyButtonsProps = {
@@ -41,7 +41,7 @@ const StudyButtons: React.FC<StudyButtonsProps> = ({
         disabled={isPulled}
         onClick={(event) => {
           event.stopPropagation();
-          onRetrieve && onRetrieve();
+          onRetrieve?.();
         }}
       >
         {isLoading || <ImportOutlined />}

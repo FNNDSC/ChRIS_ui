@@ -1,9 +1,9 @@
-import { useSearchParams } from "react-router-dom";
+import type { useSearchParams } from "react-router-dom";
 import {
-  ReadonlyNonEmptyArray,
+  type ReadonlyNonEmptyArray,
   extract as extractFromNonEmpty,
 } from "fp-ts/ReadonlyNonEmptyArray";
-import { PacsSeriesState, SeriesPullState } from "../types.ts";
+import { type PacsSeriesState, SeriesPullState } from "../types.ts";
 
 /**
  * Adapt {@link useSearchParams} to work like `React.useState<boolean>(false)`

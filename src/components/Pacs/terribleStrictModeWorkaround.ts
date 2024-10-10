@@ -10,12 +10,9 @@ import React from "react";
  */
 export default function terribleStrictModeWorkaround<T>(): (x: T) => boolean {
   const set = React.useRef(new Set());
-  return React.useCallback(
-    (x) => {
-      const has = set.current.has(x);
-      set.current.add(x);
-      return !has;
-    },
-    [set.current],
-  );
+  return React.useCallback((x) => {
+    const has = set.current.has(x);
+    set.current.add(x);
+    return !has;
+  }, []);
 }

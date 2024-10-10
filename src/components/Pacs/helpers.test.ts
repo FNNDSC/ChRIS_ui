@@ -1,6 +1,9 @@
 import { test, expect } from "vitest";
-import { StudyAndSeriesUidOnly, zipPacsNameAndSeriesUids } from "./helpers.ts";
-import { SeriesKey, StudyKey } from "./types.ts";
+import {
+  type StudyAndSeriesUidOnly,
+  zipPacsNameAndSeriesUids,
+} from "./helpers.ts";
+import type { SeriesKey, StudyKey } from "./types.ts";
 
 test.each(<
   [

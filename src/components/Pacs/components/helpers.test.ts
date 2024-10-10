@@ -1,5 +1,5 @@
 import { describe, it, vi, expect } from "vitest";
-import { createSearchParams, URLSearchParamsInit } from "react-router-dom";
+import { createSearchParams, type URLSearchParamsInit } from "react-router-dom";
 import { useBooleanSearchParam } from "./helpers.ts";
 
 describe("useBooleanSearchParam", () => {

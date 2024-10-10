@@ -1,9 +1,9 @@
 import React from "react";
-import { PACSqueryCore } from "../../../api/pfdcm";
+import type { PACSqueryCore } from "../../../api/pfdcm";
 import { Select, Input, Row, Col, Grid, Segmented } from "antd";
 import { useSearchParams } from "react-router-dom";
 import { useBooleanSearchParam } from "./helpers.ts";
-import { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
+import type { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
 
 type InputFieldProps = {
   onSubmit: (query: PACSqueryCore) => void;

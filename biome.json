@@ -25,10 +25,12 @@
     "rules": {
       "recommended": true,
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "off",
+        "useTemplate": "off"
       },
       "complexity": {
-        "noForEach": "off"
+        "noForEach": "off",
+        "noUselessFragments": "off"
       },
       "correctness": {
         "useExhaustiveDependencies": "warn"
