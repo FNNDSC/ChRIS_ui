@@ -42,20 +42,16 @@
   vertical-align: middle !important;
 }
 
-
-
 .custom-panel {
   background-color: var(--pf-v5-c-page__main-section--BackgroundColor);
   border-right: 1px solid var(--pf-global--BorderColor--dark);
 }
 
-
-
 /* Common styles for both handles */
 .ResizeHandle,
 .ResizeHandleVertical,
 .ResizeHandleCollapsed {
-  background-color:#4F5255; /* Default background color */
+  background-color: #4f5255; /* Default background color */
   transition: background-color 250ms linear;
 }
 
@@ -80,7 +76,7 @@
 .ResizeHandleVertical[data-resize-handle-active],
 .ResizeHandleCollapsed:hover,
 .ResizeHandleCollapsed[data-resize-handle-active] {
-  background-color:#8A8D90 ; /* PatternFly blue */
+  background-color: #8a8d90; /* PatternFly blue */
 }
 
 /* Adjust for touch devices */
@@ -92,6 +88,3 @@
     height: 1rem;
   }
 }
-
-
-
