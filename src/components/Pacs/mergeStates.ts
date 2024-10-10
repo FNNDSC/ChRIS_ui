@@ -1,13 +1,14 @@
 import {
   DEFAULT_RECEIVE_STATE,
-  PacsPullRequestState,
   PacsStudyState,
+  PullRequestStates,
   ReceiveState,
   RequestState,
   SeriesKey,
   SeriesNotRegisteredError,
   SeriesPullState,
   SeriesReceiveState,
+  SpecificDicomQuery,
 } from "./types.ts";
 import { Series, StudyAndSeries } from "../../api/pfdcm/models.ts";
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
@@ -28,13 +29,13 @@ type UseQueryResultLike = Partial<
  * @param cubeQueryMap mapping of `SeriesInstanceUID` to queries for respective
  *                     {@link PACSSeries} in CUBE (hint: call
  *                     {@link createCubeSeriesQueryUidMap})
- * @param receiveState state of DICOM receive operation conveyed via LONK
+ * @param receiveStates state of DICOM receive operation conveyed via LONK
  */
 function mergeStates(
   pfdcm: ReadonlyArray<StudyAndSeries>,
-  pullRequests: ReadonlyArray<PacsPullRequestState>,
+  pullRequests: PullRequestStates,
   cubeQueryMap: Map<string, UseQueryResult<PACSSeries | null, Error>>,
-  receiveState: ReceiveState,
+  receiveStates: ReceiveState,
 ): PacsStudyState[] {
   return pfdcm.map(({ study, series }) => {
     return {
@@ -43,21 +44,19 @@ function mergeStates(
         const cubeQueryResult = cubeQueryMap.get(info.SeriesInstanceUID);
         const cubeError = cubeQueryResult?.error;
         const cubeErrors = cubeError ? [cubeError.message] : [];
-        const state =
-          receiveState.get(info.RetrieveAETitle, info.SeriesInstanceUID) ??
+        const rxState =
+          receiveStates.get(info.RetrieveAETitle, info.SeriesInstanceUID) ??
           DEFAULT_RECEIVE_STATE;
-        const pullRequestsForSeries = pullRequests.findLast((pr) =>
-          isRequestFor(pr, info),
+        const prEntry = [...pullRequests.entries()].find(([query]) =>
+          isRequestFor(query, info),
         );
+        const prState = prEntry?.[1].state;
+
         return {
           info,
-          receivedCount: state.receivedCount,
-          errors: state.errors.concat(cubeErrors),
-          pullState: pullStateOf(
-            state,
-            pullRequestsForSeries?.state,
-            cubeQueryResult,
-          ),
+          receivedCount: rxState.receivedCount,
+          errors: rxState.errors.concat(cubeErrors),
+          pullState: pullStateOf(rxState, prState, cubeQueryResult),
           inCube: cubeQueryResult?.data || null,
         };
       }),
@@ -103,7 +102,7 @@ function isNotRegisteredError(q: UseQueryResultLike): boolean {
  * @returns `true` if the query matches the series.
  */
 function isRequestFor(
-  { query, service }: PacsPullRequestState,
+  { query, service }: SpecificDicomQuery,
   series: Series,
 ): boolean {
   if (service !== series.RetrieveAETitle) {
