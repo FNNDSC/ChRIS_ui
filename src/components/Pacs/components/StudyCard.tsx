@@ -1,9 +1,9 @@
-import { Study } from "../../../api/pfdcm/models.ts";
-import React from "react";
+import type { Study } from "../../../api/pfdcm/models.ts";
+import type React from "react";
 import { Row, Col } from "antd";
 import StudyDetails from "./StudyDetails.tsx";
 import StudyButtons from "./StudyButtons.tsx";
-import { PacsPreferences } from "../types.ts";
+import type { PacsPreferences } from "../types.ts";
 import { DEFAULT_PREFERENCES } from "../defaultPreferences.ts";
 
 type StudyCardProps = {
@@ -37,7 +37,7 @@ const StudyCard: React.FC<StudyCardProps> = ({
             `${ohifUrl}viewer?StudyInstanceUIDs=${study.StudyInstanceUID}`
           }
           onRetrieve={onRetrieve}
-        ></StudyButtons>
+        />
       </Col>
     </Row>
   );

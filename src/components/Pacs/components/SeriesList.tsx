@@ -1,6 +1,6 @@
 import {
   Button,
-  ButtonProps,
+  type ButtonProps,
   Descriptions,
   Flex,
   Grid,
@@ -9,7 +9,7 @@ import {
   Tooltip,
   Typography,
 } from "antd";
-import { PacsSeriesState, SeriesPullState } from "../types.ts";
+import { type PacsSeriesState, SeriesPullState } from "../types.ts";
 import ModalityBadges from "./ModalityBadges.tsx";
 import { ImportOutlined, WarningFilled } from "@ant-design/icons";
 import styles from "./SeriesList.module.css";
@@ -89,7 +89,8 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
       return 99;
     }
     return (
-      (99 * receivedCount) / (info.NumberOfSeriesRelatedInstances || Infinity)
+      (99 * receivedCount) /
+      (info.NumberOfSeriesRelatedInstances || Number.POSITIVE_INFINITY)
     );
   }, [inCube, pullState, receivedCount, info.NumberOfSeriesRelatedInstances]);
 
@@ -169,7 +170,7 @@ const SeriesList: React.FC<SeriesListProps> = ({
       <List.Item>
         <SeriesRow
           showUid={showUid}
-          onRetrieve={() => onRetrieve && onRetrieve(s)}
+          onRetrieve={() => onRetrieve?.(s)}
           {...s}
         />
       </List.Item>

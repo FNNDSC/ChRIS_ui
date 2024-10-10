@@ -13,8 +13,12 @@ const ExampleComponent = <T,>({ obj, callback }: ExampleProps<T>) => {
   const [state, setState] = React.useState<ReadonlyArray<T>>([]);
   React.useEffect(() => {
     state.forEach((s) => callback(workaroundFn(s)));
-  }, [state]);
-  return <button onClick={() => setState([obj])}>click me</button>;
+  }, [state, callback, workaroundFn]);
+  return (
+    <button type="button" onClick={() => setState([obj])}>
+      click me
+    </button>
+  );
 };
 
 test("terribleStrictModeWorkaround", async () => {

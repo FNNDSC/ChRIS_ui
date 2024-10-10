@@ -1,5 +1,5 @@
-import { SeriesKey, StudyKey } from "./types.ts";
-import { Study, StudyAndSeries } from "../../api/pfdcm/models.ts";
+import type { SeriesKey, StudyKey } from "./types.ts";
+import { type Study, StudyAndSeries } from "../../api/pfdcm/models.ts";
 
 /**
  * A type subset of {@link StudyAndSeries}.

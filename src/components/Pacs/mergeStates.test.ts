@@ -2,15 +2,15 @@ import { expect, test } from "vitest";
 import {
   createCubeSeriesQueryUidMap,
   pullStateOf,
-  UseQueryResultLike,
+  type UseQueryResultLike,
 } from "./mergeStates.ts";
 import {
   DEFAULT_RECEIVE_STATE,
   RequestState,
-  SeriesKey,
+  type SeriesKey,
   SeriesNotRegisteredError,
   SeriesPullState,
-  SeriesReceiveState,
+  type SeriesReceiveState,
 } from "./types.ts";
 
 test.each(<

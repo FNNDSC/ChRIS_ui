@@ -1,13 +1,13 @@
 import React from "react";
-import PacsInput, { PacsInputProps } from "./components/PacsInput.tsx";
+import PacsInput, { type PacsInputProps } from "./components/PacsInput.tsx";
 import PacsStudiesView, {
-  PacsStudiesViewProps,
+  type PacsStudiesViewProps,
 } from "./components/PacsStudiesView.tsx";
 import { getDefaultPacsService } from "./components/helpers.ts";
 import { useSearchParams } from "react-router-dom";
-import { PACSqueryCore } from "../../api/pfdcm";
+import type { PACSqueryCore } from "../../api/pfdcm";
 import { Empty, Flex, Spin } from "antd";
-import { IPacsState } from "./types.ts";
+import type { IPacsState } from "./types.ts";
 
 type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> &
   Pick<PacsStudiesViewProps, "expandedStudyUids"> & {
@@ -49,13 +49,13 @@ const PacsView: React.FC<PacsViewProps> = ({
 
   const curriedOnRetrieve = React.useCallback(
     (query: PACSqueryCore) => onRetrieve(service, query),
-    [onRetrieve],
+    [onRetrieve, service],
   );
 
   const curriedOnStudyExpand = React.useCallback(
     (StudyInstanceUIDS: ReadonlyArray<string>) =>
       onStudyExpand(service, StudyInstanceUIDS),
-    [onStudyExpand],
+    [onStudyExpand, service],
   );
 
   return (

@@ -1,7 +1,7 @@
-import { PacsPreferences, PacsStudyState } from "../types.ts";
-import { PACSqueryCore } from "../../../api/pfdcm";
+import type { PacsPreferences, PacsStudyState } from "../types.ts";
+import type { PACSqueryCore } from "../../../api/pfdcm";
 import StudyCard from "./StudyCard.tsx";
-import { Collapse, CollapseProps, Space, Typography } from "antd";
+import { Collapse, type CollapseProps, Space, Typography } from "antd";
 import React from "react";
 import SeriesList from "./SeriesList.tsx";
 import { isSeriesLoading } from "./helpers.ts";
@@ -45,7 +45,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
                 studyInstanceUID: info.StudyInstanceUID,
               })
             }
-          ></StudyCard>
+          />
         ),
         children: (
           <SeriesList
@@ -61,7 +61,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
         ),
       };
     });
-  }, [studies]);
+  }, [studies, onRetrieve, preferences.showUid]);
   const numPatients = React.useMemo(() => {
     return studies
       .map((study) => study.info.PatientID)
@@ -71,7 +71,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
       ).length;
   }, [studies]);
   const onChange = React.useCallback(
-    (studyUids: string[]) => onStudyExpand && onStudyExpand(studyUids),
+    (studyUids: string[]) => onStudyExpand?.(studyUids),
     [onStudyExpand],
   );
   return (

@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import {
   EmptyState,
   EmptyStateBody,
@@ -10,7 +10,7 @@ import {
 } from "@patternfly/react-core";
 import { ExclamationCircleIcon } from "../../Icons";
 
-const ErrorScreen: React.FC<React.PropsWithChildren<{}>> = ({ children }) => (
+const ErrorScreen: React.FC<React.PropsWithChildren> = ({ children }) => (
   <EmptyState>
     <EmptyStateHeader
       titleText="PACS Connection Error"

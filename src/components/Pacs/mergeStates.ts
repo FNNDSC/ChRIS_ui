@@ -1,18 +1,18 @@
 import {
   DEFAULT_RECEIVE_STATE,
-  PacsStudyState,
-  PullRequestStates,
-  ReceiveState,
-  RequestState,
-  SeriesKey,
+  type PacsStudyState,
+  type PullRequestStates,
+  type ReceiveState,
+  type RequestState,
+  type SeriesKey,
   SeriesNotRegisteredError,
   SeriesPullState,
-  SeriesReceiveState,
-  SpecificDicomQuery,
+  type SeriesReceiveState,
+  type SpecificDicomQuery,
 } from "./types.ts";
-import { Series, StudyAndSeries } from "../../api/pfdcm/models.ts";
-import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { PACSSeries } from "@fnndsc/chrisapi";
+import type { Series, StudyAndSeries } from "../../api/pfdcm/models.ts";
+import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import type { PACSSeries } from "@fnndsc/chrisapi";
 
 type UseQueryResultLike = Partial<
   Pick<UseQueryResult, "isError" | "isPending" | "error">
