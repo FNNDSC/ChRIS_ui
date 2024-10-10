@@ -44,6 +44,7 @@ import {
   sameStudyInstanceUidAs,
 } from "./curry.ts";
 import { Study } from "../../api/pfdcm/models.ts";
+import terribleStrictModeWorkaround from "./terribleStrictModeWorkaround.ts";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
@@ -572,8 +573,12 @@ const PacsController: React.FC<PacsControllerProps> = ({
       updatePullRequestState(query, { state: RequestState.REQUESTED }),
   });
 
+  const terribleDoNotCallTwice =
+    terribleStrictModeWorkaround<[SpecificDicomQuery, PacsPullRequestState]>();
+
   React.useEffect(() => {
     [...pullRequests.entries()]
+      .filter(terribleDoNotCallTwice)
       .filter(([query, { state }]) =>
         shouldSendPullRequest({ ...query, state }),
       )
