@@ -6,21 +6,16 @@ import ForceGraph2D, {
   type ForceGraphMethods,
   type NodeObject,
 } from "react-force-graph-2d";
-import { TreeModel } from "../../api/model";
+import { type ITreeChart, TreeModel } from "../../api/model";
 import { setFeedLayout } from "../../store/feed/feedSlice";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
-import useSize from "./useSize";
 import { SpinContainer } from "../Common";
+import useSize from "./useSize";
 
 interface IFeedProps {
   onNodeClick: (node: PluginInstance) => void;
-}
-
-interface GraphData {
-  nodes: NodeObject[];
-  links: { source: string; target: string }[];
 }
 
 const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
@@ -43,7 +38,7 @@ const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
 
   const size = useSize(graphRef);
 
-  const [graphData, setGraphData] = React.useState<GraphData | undefined>(
+  const [graphData, setGraphData] = React.useState<ITreeChart | undefined>(
     undefined,
   );
   const [controls] = React.useState({ "DAG Orientation": "td" });
@@ -77,7 +72,7 @@ const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
   React.useEffect(() => {
     if (instances && instances.length > 0) {
       const tree = new TreeModel(instances);
-      //@ts-ignore
+
       setGraphData(tree.treeChart);
     }
   }, [instances]);
@@ -120,7 +115,7 @@ const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
             <div className="feed-tree__control">
               <Switch
                 id="layout"
-                label="2D"
+                label="3D"
                 labelOff="2D"
                 isChecked={currentLayout}
                 onChange={() => {
@@ -169,7 +164,7 @@ const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
               linkDirectionalParticleWidth={2}
               d3VelocityDecay={0.3}
               linkWidth={2}
-              nodeRelSize={8}
+              nodeRelSize={3}
             />
           )}
         </ErrorBoundary>

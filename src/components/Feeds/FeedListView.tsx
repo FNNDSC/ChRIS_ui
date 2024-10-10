@@ -231,6 +231,8 @@ const TableSelectable: React.FC = () => {
         page={+page}
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
+        isCompact
+        aria-label="Feed table pagination"
       />
     );
   };
@@ -296,7 +298,7 @@ const TableSelectable: React.FC = () => {
           </CreateFeedProvider>
         </div>
       </PageSection>
-      <PageSection style={{ paddingBlockStart: "0.5em", height: "100%" }}>
+      <PageSection style={{ paddingBlockStart: "0.5em" }}>
         <Operations
           origin={{
             type: OperationContext.FEEDS,
@@ -319,7 +321,7 @@ const TableSelectable: React.FC = () => {
           >
             <Thead>
               <Tr>
-                <Th aria-label="feed-selection-checkbox" />
+                <Th scope="col" aria-label="feed-selection-checkbox" />
                 {COLUMN_DEFINITIONS.map((column, columnIndex) => (
                   <Th key={column.id} sort={getSortParams(columnIndex)}>
                     {column.label}
@@ -417,6 +419,7 @@ const TableRow: React.FC<TableRowProps> = ({
           });
         }}
         isRowSelected={isSelected}
+        role="row"
       >
         <Td
           onClick={(e) => e.stopPropagation()}
@@ -481,12 +484,14 @@ const DonutUtilization = (props: {
     return <div>N/A</div>;
   }
   let threshold = Number.POSITIVE_INFINITY;
-  const { progress, error: feedError, feedProgressText } = details;
-  let title = `${progress ? progress : 0}%`;
+  const { progress, error: feedError } = details;
+  let title = `${progress ?? 0}%`;
   let color = "blue";
+  let ariaLabel = `Progress: ${progress ?? 0}%`;
   if (feedError) {
     color = "#ff0000";
     threshold = progress;
+    ariaLabel = "Error in feed processing";
   }
 
   // If initial node in a feed fails
@@ -501,6 +506,7 @@ const DonutUtilization = (props: {
   }
   if (progress === 100) {
     title = "✔️";
+    ariaLabel = "Feed processing complete";
   }
 
   const mode = isDarkTheme ? "dark" : "light";
@@ -509,7 +515,7 @@ const DonutUtilization = (props: {
     <Tooltip content={`Progress: ${details.progress}%`}>
       <div className={`chart ${mode}`}>
         <ChartDonutUtilization
-          ariaTitle={feedProgressText}
+          ariaTitle={ariaLabel}
           data={{ x: "Analysis Progress", y: progress }}
           height={125}
           title={title}
@@ -534,6 +540,7 @@ const FeedInfoColumn = ({
     style={{
       padding: 0,
     }}
+    aria-label={`View details for ${feed.data.name}`}
   >
     {feed.data.name}
   </Button>
@@ -556,7 +563,9 @@ function EmptyStateTable() {
         <Tr>
           <Th />
           {COLUMN_ORDER.map(({ label }) => (
-            <Th key={label}>{label}</Th>
+            <Th scope="col" key={label}>
+              {label}
+            </Th>
           ))}
         </Tr>
       </Thead>
@@ -592,7 +601,7 @@ function LoadingTable() {
         </Tr>
       </Thead>
       <Tbody>
-        {Array.from({ length: 15 }).map((_, index) => (
+        {Array.from({ length: 20 }).map((_, index) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           <Tr key={index}>
             <Td colSpan={COLUMN_ORDER.length + 1}>

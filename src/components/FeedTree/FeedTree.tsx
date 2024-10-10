@@ -1,4 +1,4 @@
-import { Alert, Switch, TextInput } from "@patternfly/react-core";
+import { Switch, TextInput } from "@patternfly/react-core";
 import {
   type HierarchyPointLink,
   type HierarchyPointNode,
@@ -8,7 +8,13 @@ import {
 import { type Selection, select } from "d3-selection";
 import { type ZoomBehavior, zoom as d3Zoom, zoomIdentity } from "d3-zoom";
 import { isEqual } from "lodash";
-import React, { useContext, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   setFeedLayout,
   setSearchFilter,
@@ -26,6 +32,13 @@ import type TreeNodeDatum from "./data";
 import type { OwnProps, Point } from "./data";
 import useSize from "./useSize";
 
+type FeedTreeFeature =
+  | "scale_enabled"
+  | "scale_type"
+  | "collapsible"
+  | "toggleLabel"
+  | "search";
+
 type FeedTreeState = {
   d3: {
     translate: Point;
@@ -41,13 +54,11 @@ type FeedTreeState = {
 };
 
 function calculateD3Geometry(nextProps: OwnProps, feedTreeProp: FeedTreeProp) {
-  let scale: number;
+  let scale = nextProps.zoom;
   if (nextProps.zoom > nextProps.scaleExtent.max) {
     scale = nextProps.scaleExtent.max;
   } else if (nextProps.zoom < nextProps.scaleExtent.min) {
     scale = nextProps.scaleExtent.min;
-  } else {
-    scale = nextProps.zoom;
   }
   return {
     translate: feedTreeProp.translate,
@@ -74,15 +85,23 @@ function getInitialState(
 const svgClassName = "feed-tree__svg";
 const graphClassName = "feed-tree__graph";
 
-const FeedTree = (props: OwnProps) => {
+const FeedTree: React.FC<OwnProps> = ({
+  data,
+  zoom = 1,
+  scaleExtent = { min: 0.1, max: 1.5 },
+  nodeSize = { x: 120, y: 80 },
+  separation,
+  tsIds,
+  changeOrientation,
+  onNodeClick,
+}) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const dispatch = useAppDispatch();
-
   const divRef = useRef<HTMLDivElement>(null);
   const { feedTreeProp, currentLayout, searchFilter } = useAppSelector(
     (state) => state.feed,
   );
-  const [feedTree, setFeedTree] = React.useState<{
+  const [feedTree, setFeedTree] = useState<{
     nodes?: HierarchyPointNode<TreeNodeDatum>[];
     links?: HierarchyPointLink<TreeNodeDatum>[];
   }>({
@@ -90,10 +109,24 @@ const FeedTree = (props: OwnProps) => {
     links: [],
   });
   const size = useSize(divRef);
-  const { nodeSize, separation, tsIds } = props;
-  const { orientation } = feedTreeProp;
-
-  const generateTree = React.useCallback(
+  const { translate, orientation } = feedTreeProp;
+  const [feedState, setFeedState] = useState<FeedTreeState>(
+    getInitialState(
+      {
+        data,
+        zoom,
+        scaleExtent,
+        nodeSize,
+        separation,
+        tsIds,
+        changeOrientation,
+        onNodeClick,
+      },
+      feedTreeProp,
+    ),
+  );
+  const { scale } = feedState.d3;
+  const generateTree = useCallback(
     (data: TreeNodeDatum[]) => {
       const d3Tree = tree<TreeNodeDatum>()
         .nodeSize(
@@ -101,19 +134,19 @@ const FeedTree = (props: OwnProps) => {
             ? [nodeSize.y, nodeSize.x]
             : [nodeSize.x, nodeSize.y],
         )
-        .separation((a, b) => {
-          return a.data.parentId === b.data.parentId
+        .separation((a, b) =>
+          a.data.parentId === b.data.parentId
             ? separation.siblings
-            : separation.nonSiblings;
-        });
+            : separation.nonSiblings,
+        );
 
-      let nodes: HierarchyPointNode<TreeNodeDatum>[] | undefined = undefined;
-      let links: HierarchyPointLink<TreeNodeDatum>[] | undefined = undefined;
+      let nodes: HierarchyPointNode<TreeNodeDatum>[] | undefined;
+      let links: HierarchyPointLink<TreeNodeDatum>[] | undefined;
       let newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
 
-      if (data) {
+      if (data && data.length > 0) {
         const rootNode = d3Tree(
-          hierarchy(data[0], (d) => (d.__rd3t.collapsed ? null : d.children)),
+          hierarchy(data[0], (d) => (d.__rd3t?.collapsed ? null : d.children)),
         );
         nodes = rootNode.descendants();
         links = rootNode.links();
@@ -125,57 +158,45 @@ const FeedTree = (props: OwnProps) => {
             const targetId = link.target.data.id;
             const sourceId = link.source.data.id;
 
-            // Check if targetId and sourceId exist and if at least one of them is in 'tsIds'
             if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
-              // 'tsPlugin' found
+              const topologicalLink = tsIds[targetId]
+                ? link.target
+                : link.source;
 
-              let topologicalLink:
-                | HierarchyPointNode<TreeNodeDatum>
-                | undefined;
-
-              if (tsIds[targetId]) {
-                topologicalLink = link.target;
-              } else {
-                topologicalLink = link.source;
-              }
-
-              // Check if 'topologicalLink' is defined
-              if (topologicalLink.data.id) {
+              if (topologicalLink?.data.id) {
                 const parents = tsIds[topologicalLink.data.id];
 
-                // Check if 'parents' is defined and not empty
                 if (parents && parents.length > 0) {
-                  const dict: {
-                    [key: string]: HierarchyPointNode<TreeNodeDatum>;
-                  } = {};
+                  const dict: Record<
+                    string,
+                    HierarchyPointNode<TreeNodeDatum>
+                  > = {};
 
                   for (const innerLink of links) {
                     if (innerLink.source && innerLink.target) {
-                      for (let i = 0; i < parents.length; i++) {
+                      parents.forEach((parentId) => {
                         if (
-                          innerLink.source.data.id === parents[i] &&
-                          !dict[innerLink.source.data.id]
+                          innerLink.source.data.id === parentId &&
+                          !dict[parentId]
                         ) {
-                          dict[innerLink.source.data.id] = innerLink.source;
+                          dict[parentId] = innerLink.source;
                         }
                         if (
-                          innerLink.target.data.id === parents[i] &&
-                          !dict[innerLink.target.data.id]
+                          innerLink.target.data.id === parentId &&
+                          !dict[parentId]
                         ) {
-                          dict[innerLink.target.data.id] = innerLink.target;
+                          dict[parentId] = innerLink.target;
                         }
-                      }
-                    }
-                  }
-
-                  for (const key in dict) {
-                    if (Object.prototype.hasOwnProperty.call(dict, key)) {
-                      newLinksToAdd.push({
-                        source: dict[key],
-                        target: topologicalLink,
                       });
                     }
                   }
+
+                  Object.values(dict).forEach((node) => {
+                    newLinksToAdd.push({
+                      source: node,
+                      target: topologicalLink,
+                    });
+                  });
                 }
               }
             }
@@ -185,19 +206,12 @@ const FeedTree = (props: OwnProps) => {
         newLinks = [...links, ...newLinksToAdd];
       }
 
-      return { nodes, newLinks: newLinks };
+      return { nodes, newLinks };
     },
-    [
-      nodeSize.x,
-      nodeSize.y,
-      orientation,
-      separation.nonSiblings,
-      separation.siblings,
-      tsIds,
-    ],
+    [nodeSize, orientation, separation, tsIds],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (size?.width) {
       if (orientation === "vertical") {
         dispatch(setTranslate({ x: size.width / 2, y: 90 }));
@@ -207,23 +221,21 @@ const FeedTree = (props: OwnProps) => {
     }
   }, [size, orientation, dispatch]);
 
-  const [feedState, setFeedState] = React.useState<FeedTreeState>(
-    getInitialState(props, feedTreeProp),
-  );
+  useEffect(() => {
+    if (data && data.length > 0) {
+      const { nodes, newLinks: links } = generateTree(data);
+      setFeedTree({ nodes, links });
+    }
+  }, [data, generateTree]);
 
-  const { scale } = feedState.d3;
-  const { changeOrientation, scaleExtent } = props;
-
-  const bindZoomListener = React.useCallback(() => {
-    const { translate } = feedTreeProp;
+  const bindZoomListener = () => {
     const svg: Selection<SVGSVGElement, unknown, HTMLElement, any> = select(
       `.${svgClassName}`,
     );
     const g: Selection<SVGGElement, unknown, HTMLElement, any> = select(
       `.${graphClassName}`,
     );
-
-    const zoom: ZoomBehavior<SVGSVGElement, unknown> = d3Zoom<
+    const zoomBehavior: ZoomBehavior<SVGSVGElement, unknown> = d3Zoom<
       SVGSVGElement,
       unknown
     >()
@@ -233,57 +245,55 @@ const FeedTree = (props: OwnProps) => {
       });
 
     svg
-      .call(zoom)
+      .call(zoomBehavior)
       .call(
-        zoom.transform,
+        zoomBehavior.transform,
         zoomIdentity.translate(translate.x, translate.y).scale(scale),
       );
-  }, [scale, feedTreeProp]);
+  };
 
-  React.useEffect(() => {
+  useEffect(() => {
     bindZoomListener();
-  }, [bindZoomListener]);
+  }, []);
 
-  React.useEffect(() => {
-    if (props.data) {
-      const { nodes, newLinks: links } = generateTree(props.data);
-      setFeedTree(() => {
-        return {
-          nodes,
-          links,
-        };
-      });
-    }
-  }, [props.data, generateTree]);
+  const handleChange = useCallback((feature: FeedTreeFeature, data?: any) => {
+    setFeedState((prevState) => {
+      switch (feature) {
+        case "scale_enabled":
+          return {
+            ...prevState,
+            overlayScale: {
+              ...prevState.overlayScale,
+              enabled: !prevState.overlayScale.enabled,
+            },
+          };
+        case "scale_type":
+          return {
+            ...prevState,
+            overlayScale: {
+              ...prevState.overlayScale,
+              type: data as FeedTreeScaleType,
+            },
+          };
+        case "collapsible":
+        case "toggleLabel":
+        case "search":
+          return {
+            ...prevState,
+            [feature]: !prevState[feature],
+          };
+        default:
+          return prevState;
+      }
+    });
+  }, []);
 
-  const handleChange = (feature: string, data?: any) => {
-    if (feature === "scale_enabled") {
-      setFeedState({
-        ...feedState,
-        overlayScale: {
-          ...feedState.overlayScale,
-          enabled: !feedState.overlayScale.enabled,
-        },
-      });
-    } else if (feature === "scale_type") {
-      setFeedState({
-        ...feedState,
-        overlayScale: {
-          ...feedState.overlayScale,
-          type: data,
-        },
-      });
-    } else {
-      setFeedState({
-        ...feedState,
-        [feature]: !feedState[feature],
-      });
-    }
-  };
-
-  const handleNodeClick = (item: any) => {
-    props.onNodeClick(item);
-  };
+  const handleNodeClick = useCallback(
+    (item: any) => {
+      onNodeClick(item);
+    },
+    [onNodeClick],
+  );
 
   const { nodes, links } = feedTree;
 
@@ -291,18 +301,27 @@ const FeedTree = (props: OwnProps) => {
     <div className="feed-tree setFlex grabbable mode_tree" ref={divRef}>
       <div className="feed-tree__container">
         <div className="feed-tree__container--labels">
-          {/* Suppressing this for now as we don't know how which key events to hook for changing orientations */}
-          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
           <div
-            onClick={() => {
-              changeOrientation(orientation);
-            }}
+            onClick={() => changeOrientation(orientation)}
             className="feed-tree__orientation"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                changeOrientation(orientation);
+              }
+            }}
           >
             {orientation === "vertical" ? (
-              <RotateLeft className="feed-tree__orientation--icon" />
+              <RotateLeft
+                className="feed-tree__orientation--icon"
+                aria-label="Rotate Left"
+                aria-hidden="true"
+              />
             ) : (
-              <RotateRight className="feed-tree__orientation--icon" />
+              <RotateRight
+                className="feed-tree__orientation--icon"
+                aria-label="Rotate Right"
+                aria-hidden="true"
+              />
             )}
           </div>
 
@@ -312,20 +331,21 @@ const FeedTree = (props: OwnProps) => {
               label="Hide Labels"
               labelOff="Show Labels"
               isChecked={feedState.toggleLabel}
-              onChange={() => {
-                handleChange("toggleLabel");
-              }}
+              aria-checked={feedState.toggleLabel}
+              onChange={() => handleChange("toggleLabel")}
+              aria-label="Toggle label visibility"
             />
           </div>
+
           <div className="feed-tree__control">
             <Switch
               id="layout"
               label="Switch Layout"
-              labelOff="3D"
+              labelOff="2D"
               isChecked={currentLayout}
-              onChange={() => {
-                dispatch(setFeedLayout());
-              }}
+              aria-checked={currentLayout}
+              onChange={() => dispatch(setFeedLayout())}
+              aria-label="Toggle graph layout from 2D to 3D"
             />
           </div>
 
@@ -333,33 +353,32 @@ const FeedTree = (props: OwnProps) => {
             <Switch
               id="individual-scale"
               label="Scale Nodes On"
-              labelOff="Scale Nodes Off "
+              labelOff="Scale Nodes Off"
               isChecked={feedState.overlayScale.enabled}
-              onChange={() => {
-                handleChange("scale_enabled");
-              }}
+              aria-checked={feedState.overlayScale.enabled}
+              onChange={() => handleChange("scale_enabled")}
+              aria-label="Scale nodes"
             />
 
             {feedState.overlayScale.enabled && (
               <div className="dropdown-wrap">
                 <NodeScaleDropdown
                   selected={feedState.overlayScale.type}
-                  onChange={(type) => {
-                    handleChange("scale_type", type);
-                  }}
+                  onChange={(type) => handleChange("scale_type", type)}
                 />
               </div>
             )}
           </div>
+
           <div className="feed-tree__control">
             <Switch
               id="search"
               label="Search On"
-              labelOff="Search Off "
+              labelOff="Search Off"
               isChecked={feedState.search}
-              onChange={() => {
-                handleChange("search");
-              }}
+              aria-checked={feedState.search}
+              onChange={() => handleChange("search")}
+              aria-label="Toggle search a node in the tree"
             />
           </div>
 
@@ -367,57 +386,54 @@ const FeedTree = (props: OwnProps) => {
             {feedState.search && (
               <TextInput
                 value={searchFilter.value}
-                onChange={(_event, value: string) => {
-                  dispatch(setSearchFilter(value.trim()));
-                }}
+                onChange={(_, value: string) =>
+                  dispatch(setSearchFilter(value.trim()))
+                }
               />
             )}
           </div>
         </div>
       </div>
 
-      {feedTreeProp.translate.x > 0 && feedTreeProp.translate.y > 0 && (
-        // biome-ignore lint/a11y/noSvgWithoutTitle: <explanation>
+      {translate.x > 0 && translate.y > 0 && (
         <svg
           focusable="true"
-          className={`${svgClassName}`}
+          className={svgClassName}
           width="100%"
           height="100%"
+          role="img"
+          aria-label="Feed Tree Visualization"
         >
           <TransitionGroupWrapper
             component="g"
             className={graphClassName}
-            transform={`translate(${feedTreeProp.translate.x},${feedTreeProp.translate.y}) scale(${scale})`}
+            transform={`translate(${translate.x},${translate.y}) scale(${scale})`}
           >
-            {links?.map((linkData, i) => {
-              return (
-                <Link
-                  orientation={orientation}
-                  key={`link${i}`}
-                  linkData={linkData}
-                  isDarkTheme={isDarkTheme}
-                />
-              );
-            })}
+            {links?.map((linkData, i) => (
+              <Link
+                key={`link${i}`}
+                orientation={orientation}
+                linkData={linkData}
+                isDarkTheme={isDarkTheme}
+              />
+            ))}
 
-            {nodes?.map(({ data, x, y, parent }) => {
-              return (
-                <NodeWrapper
-                  key={`node + ${data.id}`}
-                  data={data}
-                  position={{ x, y }}
-                  parent={parent}
-                  onNodeClick={handleNodeClick}
-                  orientation={orientation}
-                  toggleLabel={feedState.toggleLabel}
-                  overlayScale={
-                    feedState.overlayScale.enabled
-                      ? feedState.overlayScale.type
-                      : undefined
-                  }
-                />
-              );
-            })}
+            {nodes?.map(({ data, x, y, parent }) => (
+              <NodeWrapper
+                key={`node${data.id}`}
+                data={data}
+                position={{ x, y }}
+                parent={parent}
+                onNodeClick={handleNodeClick}
+                orientation={orientation}
+                toggleLabel={feedState.toggleLabel}
+                overlayScale={
+                  feedState.overlayScale.enabled
+                    ? feedState.overlayScale.type
+                    : undefined
+                }
+              />
+            ))}
           </TransitionGroupWrapper>
         </svg>
       )}
@@ -427,22 +443,10 @@ const FeedTree = (props: OwnProps) => {
 
 const FeedTreeMemoed = React.memo(
   FeedTree,
-  (prevProps: OwnProps, nextProps: OwnProps) => {
-    if (
-      !isEqual(prevProps.data, nextProps.data) ||
-      prevProps.zoom !== nextProps.zoom ||
-      prevProps.tsIds !== nextProps.tsIds
-    ) {
-      return false;
-    }
-    return true;
-  },
+  (prevProps: OwnProps, nextProps: OwnProps) =>
+    isEqual(prevProps.data, nextProps.data) &&
+    prevProps.zoom === nextProps.zoom &&
+    isEqual(prevProps.tsIds, nextProps.tsIds),
 );
 
 export default FeedTreeMemoed;
-
-FeedTree.defaultProps = {
-  scaleExtent: { min: 0.1, max: 1.5 },
-  zoom: 1,
-  nodeSize: { x: 120, y: 80 },
-};
