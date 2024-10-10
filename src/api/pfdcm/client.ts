@@ -164,18 +164,14 @@ function simplifyPypxStudyData(data: {
 }): StudyAndSeries {
   const study = {
     SpecificCharacterSet: getValue(data, "SpecificCharacterSet"),
-    StudyDate:
-      "value" in data.StudyDate ? parseDicomDate(data.StudyDate) : null,
+    StudyDate: parsePypxDicomDate(data.StudyDate),
     AccessionNumber: getValue(data, "AccessionNumber"),
     RetrieveAETitle: getValue(data, "RetrieveAETitle"),
     ModalitiesInStudy: getValue(data, "ModalitiesInStudy"),
     StudyDescription: getValue(data, "StudyDescription"),
     PatientName: getValue(data, "PatientName"),
     PatientID: getValue(data, "PatientID"),
-    PatientBirthDate:
-      "value" in data.PatientBirthDate
-        ? parseDicomDate(data.PatientBirthDate)
-        : null,
+    PatientBirthDate: parsePypxDicomDate(data.PatientBirthDate),
     PatientSex: getValue(data, "PatientSex"),
     PatientAge: getValue(data, "PatientAge"),
     ProtocolName: getValue(data, "ProtocolName"),
@@ -185,7 +181,11 @@ function simplifyPypxStudyData(data: {
       "AcquisitionProtocolDescription",
     ),
     StudyInstanceUID: getValue(data, "StudyInstanceUID"),
-    NumberOfStudyRelatedSeries: getValue(data, "NumberOfStudyRelatedSeries"),
+    NumberOfStudyRelatedSeries:
+      "value" in data.NumberOfStudyRelatedSeries &&
+      data.NumberOfStudyRelatedSeries.value !== 0
+        ? parseInt(data.NumberOfStudyRelatedSeries.value)
+        : NaN,
     PerformedStationAETitle: getValue(data, "PerformedStationAETitle"),
   };
   const series = Array.isArray(data.series)
@@ -214,8 +214,8 @@ function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
     : parsedNumInstances;
   return {
     SpecificCharacterSet: "" + data.SpecificCharacterSet.value,
-    StudyDate: "" + data.StudyDate.value,
-    SeriesDate: "" + data.SeriesDate.value,
+    StudyDate: parsePypxDicomDate(data.StudyDate),
+    SeriesDate: parsePypxDicomDate(data.SeriesDate),
     AccessionNumber: "" + data.AccessionNumber.value,
     RetrieveAETitle: "" + data.RetrieveAETitle.value,
     Modality: "" + data.Modality.value,
@@ -223,7 +223,7 @@ function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
     SeriesDescription: "" + data.SeriesDescription.value,
     PatientName: "" + data.PatientName.value,
     PatientID: "" + data.PatientID.value,
-    PatientBirthDate: parseDicomDate(data.PatientBirthDate),
+    PatientBirthDate: parsePypxDicomDate(data.PatientBirthDate),
     PatientSex: "" + data.PatientSex.value,
     PatientAge: "" + data.PatientAge.value,
     ProtocolName: "" + data.ProtocolName.value,
@@ -240,10 +240,19 @@ function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
 /**
  * Parse a DICOM DateString (DS), which is in YYYYMMDD format.
  *
+ * The invalid format "YYYY-MM-DD" is also accepted.
+ *
  * https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_6.2.html
  */
-function parseDicomDate(tag: PypxTag): Date {
-  return parseDate("" + tag.value, "yyyyMMdd", new Date());
+function parsePypxDicomDate(tag: PypxTag | object | undefined): Date | null {
+  if (!tag || !("value" in tag) || tag.value === 0) {
+    return null;
+  }
+  const parsed = parseDate("" + tag.value, "yyyyMMdd", new Date());
+  if (!Number.isNaN(parsed.getFullYear())) {
+    return parsed;
+  }
+  return parseDate("" + tag.value, "yyyy-MM-dd", new Date());
 }
 
-export { PfdcmClient };
+export { PfdcmClient, parsePypxDicomDate };

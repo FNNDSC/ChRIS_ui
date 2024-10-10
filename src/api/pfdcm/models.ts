@@ -47,7 +47,7 @@ type Study = {
   AcquisitionProtocolName: string;
   AcquisitionProtocolDescription: string;
   StudyInstanceUID: string;
-  NumberOfStudyRelatedSeries: string;
+  NumberOfStudyRelatedSeries: number;
   PerformedStationAETitle: string;
 };
 
@@ -56,8 +56,8 @@ type Study = {
  */
 type Series = {
   SpecificCharacterSet: string;
-  StudyDate: string;
-  SeriesDate: string;
+  StudyDate: Date | null;
+  SeriesDate: Date | null;
   AccessionNumber: string;
   RetrieveAETitle: string;
   Modality: string;
