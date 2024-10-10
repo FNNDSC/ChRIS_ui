@@ -85,6 +85,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
 
       {contextHolder}
       <Dropdown
+        aria-role="menu"
         menu={{ items, onClick: (info) => handleOperations(info.key) }}
         trigger={["contextMenu"]}
       >

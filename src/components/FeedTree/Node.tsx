@@ -3,7 +3,14 @@ import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import { Fragment, memo, useContext, useEffect, useRef } from "react";
+import {
+  Fragment,
+  memo,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -20,13 +27,13 @@ import { PipelineProvider } from "../PipelinesCopy/context";
 import type { FeedTreeScaleType } from "./Controls";
 import DropdownMenu from "./DropdownMenu";
 import type TreeNodeDatum from "./data";
-import type { Datum, Point } from "./data";
+import type { Point } from "./data";
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[];
   data: TreeNodeDatum;
   position: Point;
-  parent: HierarchyPointNode<Datum> | null;
+  parent: HierarchyPointNode<TreeNodeDatum> | null;
   onNodeClick: (node: any) => void;
   orientation: "horizontal" | "vertical";
   overlayScale?: FeedTreeScaleType;
@@ -77,12 +84,12 @@ const Node = (props: NodeProps) => {
   const searchFilter = useAppSelector((state) => state.feed.searchFilter);
   const { value } = searchFilter;
 
-  const applyNodeTransform = (transform: string, opacity = 1) => {
+  const applyNodeTransform = useCallback((transform: string, opacity = 1) => {
     select(nodeRef.current)
       .attr("transform", transform)
       .style("opacity", opacity);
     select(textRef.current).attr("transform", "translate(-28, 28)");
-  };
+  }, []);
 
   useEffect(() => {
     const nodeTransform = setNodeTransform(orientation, position);
@@ -218,7 +225,7 @@ const Node = (props: NodeProps) => {
         message: "Preparing to initiate the zipping process...",
       });
     }
-  }, [mutation.isSuccess, mutation.isError, mutation.isPending]);
+  }, [api, mutation.isSuccess, mutation.isError, mutation.isPending]);
 
   const textLabel = (
     <g

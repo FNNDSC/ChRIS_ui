@@ -3,7 +3,6 @@ import type {
   PACSFile,
   PluginInstance,
 } from "@fnndsc/chrisapi";
-import _ from "lodash";
 
 export interface IActionTypeParam {
   type: string;
@@ -21,7 +20,7 @@ export interface INode {
   // extends cola.Node extends SVGSVGElement
   id: number;
   item: PluginInstance;
-  group?: number;
+  group?: NodeId;
   isRoot?: boolean;
 }
 
@@ -54,118 +53,106 @@ export interface ILink {
 
 export class TreeModel {
   treeChart: ITreeChart;
-  constructor(items: PluginInstance[], rootNodeId?: NodeId) {
+  private nodeMap: Map<NodeId, PluginInstance[]>;
+  private _nodes: INode[] = [];
+  private _links: ILink[] = [];
+  private _totalRows = 0; // Counts the Max number of vertical nodes (for calculating height dynamically)
+  private _workingIndex = 0;
+
+  constructor(items: PluginInstance[]) {
     this.treeChart = {
       nodes: [],
       links: [],
       totalRows: 0,
     };
-    this.parseFeedTreeData(items, rootNodeId);
+    this.nodeMap = this.buildNodeMap(items);
+    this.parseFeedTreeData();
   }
 
-  parseFeedTreeData(items: PluginInstance[], rootNodeId?: NodeId): ITreeChart {
-    // Note: Reverse the array to expedite parsing also for demo purposes
-    this._workingItems = items;
-    this._parseRootNode(items, rootNodeId);
-    this._parseTreeChildren(this._workingItems, this._workingId);
-
-    // Set the treeChart objects:
-    this._setNodes(this._nodes);
-    this._setLinks(this._links);
-    this.treeChart.totalRows = this._totalRows;
-    return this.treeChart;
-  }
-
-  // Working props for parsing
-  private _workingIndex = 0;
-  private _workingId: NodeId = 0;
-  private _workingItems: PluginInstance[] = [];
-  private _nodes: INode[] = [];
-  private _links: ILink[] = [];
-  private _totalRows = 0; // Counts the Max number of vertical nodes (for calculating height dynamically)
-  // Description: Find the root of this tree:
-  private _parseRootNode(items: PluginInstance[], rootNodeId: NodeId) {
-    const parentItem = _.find(items, (item: PluginInstance) => {
-      return item.data.previous_id === rootNodeId;
+  /**
+   * Builds a map where each key is a parent NodeId and the value is an array of its children PluginInstances.
+   * This allows O(1) access to children of any node, significantly improving time complexity.
+   */
+  private buildNodeMap(items: PluginInstance[]): Map<NodeId, PluginInstance[]> {
+    const map = new Map<NodeId, PluginInstance[]>();
+    items.forEach((item) => {
+      const parentId = item.data.previous_id;
+      if (!map.has(parentId)) {
+        map.set(parentId, []);
+      }
+      map.get(parentId)!.push(item);
     });
+    return map;
+  }
 
-    if (parentItem) {
+  /**
+   * Parses the tree data starting from the rootNodeId.
+   * If no rootNodeId is provided, it assumes items without a parent are roots.
+   */
+  private parseFeedTreeData(): void {
+    const roots = this.getRootNodes();
+
+    roots.forEach((rootItem) => {
       this._nodes.push({
-        item: parentItem,
         id: this._workingIndex,
-        group: 0,
+        item: rootItem,
+        group: rootItem.data.previous_id,
         isRoot: true,
       });
-      this._workingItems = this._removeWorkingItem(parentItem);
-      this._workingId = parentItem.data.id;
+      const currentNodeId = this._workingIndex;
       this._workingIndex++;
-    }
-    // Note: this is not the root or leaf plugin so increment the total rows
-    this._totalRows++;
-  }
+      this._totalRows++;
 
-  // Description: Recursive method to build tree
-  private _parseTreeChildren(
-    workingItems: PluginInstance[],
-    _workingId: NodeId,
-    _parentIndex = 0,
-  ) {
-    const cloneArr: PluginInstance[] = workingItems.slice();
-    cloneArr.forEach((item: PluginInstance) => {
-      if (item.data.previous_id === _workingId) {
-        const id = this._workingIndex;
-        // is this a child to the node we are working on?
-        this._nodes.push({
-          id,
-          item,
-          group: item.data.previous_id,
-        });
-        this._links.push({
-          target: this._workingIndex,
-          source: _parentIndex,
-          value: 1,
-        });
-        this._workingItems = this._removeWorkingItem(item);
-        this._workingIndex++;
-        this._findChildrenNodes(item.data.id, id);
-      }
+      this.buildTree(rootItem.data.id, currentNodeId, 1);
     });
-    workingItems.length > 0 && this._totalRows++; // Increment total rows for counting vertical levels
+
+    this.treeChart.nodes = this._nodes;
+    this.treeChart.links = this._links;
+    this.treeChart.totalRows = this._totalRows;
   }
 
-  // Description: Find children to this node
-  private _findChildrenNodes(id: NodeId, _parentIndex: number) {
-    const workingChildrenArr = _.filter(
-      this._workingItems,
-      (subitem: PluginInstance) => {
-        return id === subitem.data.previous_id;
-      },
-    );
-    // Does this node have children - recur
-    !!workingChildrenArr &&
-      workingChildrenArr.length > 0 &&
-      this._parseTreeChildren(workingChildrenArr, id, _parentIndex);
+  /**
+   * Retrieves root nodes when no rootNodeId is provided.
+   */
+  private getRootNodes(): PluginInstance[] {
+    // Assuming that a root node has a previous_id that is undefined or null
+    return Array.from(this.nodeMap.keys()).includes(undefined as any) ||
+      Array.from(this.nodeMap.keys()).includes(null as any)
+      ? this.nodeMap.get(undefined as any) ||
+          this.nodeMap.get(null as any) ||
+          []
+      : [];
   }
 
-  // Description: Remove item from working array
-  private _removeWorkingItem(item: PluginInstance): PluginInstance[] {
-    const arr = _.filter(this._workingItems, (subitem: PluginInstance) => {
-      return item.data.id !== subitem.data.id;
+  /**
+   * Recursively builds the tree by traversing the nodeMap.
+   */
+  private buildTree(
+    parentId: NodeId,
+    parentIndex: number,
+    depth: number,
+  ): void {
+    const children = this.nodeMap.get(parentId);
+    if (!children) return;
+
+    children.forEach((child) => {
+      const childId = this._workingIndex;
+      this._nodes.push({
+        id: childId,
+        item: child,
+        group: parentId,
+      });
+      this._links.push({
+        source: parentIndex,
+        target: childId,
+        value: 1,
+      });
+      this._workingIndex++;
+      this._totalRows = Math.max(this._totalRows, depth + 1);
+      this.buildTree(child.data.id, childId, depth + 1);
     });
-    return arr;
-  }
-
-  // Set the treeChart nodes array
-  private _setNodes(nodes: INode[]) {
-    this.treeChart.nodes = nodes;
-  }
-
-  // Set the treeChart links array
-  private _setLinks(links: ILink[]) {
-    this.treeChart.links = links;
   }
 }
-
 // Description: Mapping for Viewer type by file type *Note: Should come from db
 // File type: Viewer component name
 export const fileViewerMap: any = {
