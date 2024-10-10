@@ -24,6 +24,13 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
   onStudyExpand,
   preferences,
 }) => {
+  React.useEffect(() => {
+    // Automatically expand first study if there is only one study
+    if (studies.length === 1 && expandedStudyUids?.length === 0) {
+      onStudyExpand?.([studies[0].info.StudyInstanceUID]);
+    }
+  }, [studies]);
+
   const items: CollapseProps["items"] = React.useMemo(() => {
     return studies.map(({ info, series }) => {
       return {
