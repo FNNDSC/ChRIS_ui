@@ -1,5 +1,5 @@
 import Client, { DownloadToken } from "@fnndsc/chrisapi";
-import useWebSocket, { Options, ReadyState } from "react-use-websocket";
+import useWebSocket, { Options } from "react-use-websocket";
 import { LonkHandlers, SeriesKey } from "./types.ts";
 import React from "react";
 import LonkSubscriber from "./LonkSubscriber.ts";
@@ -56,19 +56,30 @@ function useLonk({
   const getLonkUrl = React.useCallback(async () => {
     const downloadToken = await client.createDownloadToken();
     return getWebsocketUrl(downloadToken);
-  }, [client, getWebsocketUrl]);
+  }, [client.createDownloadToken]);
   const handlers = { onDone, onProgress, onError, onMessageError };
-  const [subscriber, _setSubscriber] = React.useState(
+  const [subscriber, setSubscriber] = React.useState(
     new LonkSubscriber(handlers),
   );
   const onMessage = React.useCallback(
     (event: MessageEvent<any>) => {
       subscriber.handle(event.data);
     },
-    [onProgress, onDone, onError],
+    [subscriber.handle],
+  );
+  const onOpen = React.useCallback(
+    (event: WebSocketEventMap["open"]) => {
+      // when the websocket connection (re-)opens, (re-)initialize the
+      // LonkSubscriber instance so that React.useEffect which specify
+      // the subscriber in their depdencency arrays get (re-)triggered.
+      setSubscriber(new LonkSubscriber(handlers));
+      options.onOpen?.(event);
+    },
+    [options.onOpen],
   );
   const hook = useWebSocket(getLonkUrl, {
     ...options,
+    onOpen,
     onError: onWebsocketError,
     onMessage,
   });
@@ -76,12 +87,14 @@ function useLonk({
   const subscribe = React.useCallback(
     (pacs_name: string, SeriesInstanceUID: string) =>
       subscriber.subscribe(pacs_name, SeriesInstanceUID, hook),
-    [subscriber, hook],
+    // N.B.: hook must not be in the dependency array, because it changes
+    // each time the websocket sends/receives data.
+    [subscriber.subscribe],
   );
 
   const unsubscribeAll = React.useCallback(
     () => subscriber.unsubscribeAll(hook),
-    [subscriber, hook],
+    [subscriber.unsubscribeAll],
   );
 
   return {
