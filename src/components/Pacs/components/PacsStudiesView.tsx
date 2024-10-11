@@ -46,12 +46,17 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
             isLoading={
               series.length === 0 ? false : !!series.find(isSeriesLoading)
             }
-            onRetrieve={() =>
+            onRetrieve={() => {
+              // When a study is retrieved, we want to call both
+              // onStudyExpand and onRetrieve
+              if (expandedStudyUids && onStudyExpand) {
+                onStudyExpand(expandedStudyUids.concat(info.StudyInstanceUID));
+              }
               onRetrieve({
                 patientID: info.PatientID,
                 studyInstanceUID: info.StudyInstanceUID,
-              })
-            }
+              });
+            }}
           />
         ),
         children: (
