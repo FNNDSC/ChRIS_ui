@@ -418,47 +418,58 @@ const PacsController: React.FC<PacsControllerProps> = ({
 
   const lonk = useLonk({
     client: chrisClient,
-    onDone(pacs_name: string, SeriesInstanceUID: string) {
-      updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
-        draft.done = true;
-      });
-    },
-    onProgress(pacs_name: string, SeriesInstanceUID: string, ndicom: number) {
-      updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
-        draft.receivedCount = ndicom;
-      });
-    },
-    onError(pacs_name: string, SeriesInstanceUID: string, error: string) {
-      updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
-        draft.errors.push(error);
-      });
-      const desc = getSeriesDescriptionOr(pacs_name, SeriesInstanceUID);
-      message.error(
-        <>There was an error while receiving the series "{desc}"</>,
-      );
-    },
-    onMessageError(data: any, error: string) {
-      console.error("LONK message error", error, data);
-      message.error(
-        <>
-          A <em>LONK</em> error occurred, please check the console.
-        </>,
-      );
-    },
+    onDone: React.useCallback(
+      (pacs_name: string, SeriesInstanceUID: string) =>
+        updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
+          draft.done = true;
+        }),
+      [updateReceiveState],
+    ),
+    onProgress: React.useCallback(
+      (pacs_name: string, SeriesInstanceUID: string, ndicom: number) =>
+        updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
+          draft.receivedCount = ndicom;
+        }),
+      [updateReceiveState],
+    ),
+    onError: React.useCallback(
+      (pacs_name: string, SeriesInstanceUID: string, error: string) => {
+        updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
+          draft.errors.push(error);
+        });
+        const desc = getSeriesDescriptionOr(pacs_name, SeriesInstanceUID);
+        message.error(
+          <>There was an error while receiving the series "{desc}"</>,
+        );
+      },
+      [updateReceiveState, getSeriesDescriptionOr, message.error],
+    ),
+    onMessageError: React.useCallback(
+      (data: any, error: string) => {
+        console.error("LONK message error", error, data);
+        message.error(
+          <>
+            A <em>LONK</em> error occurred, please check the console.
+          </>,
+        );
+      },
+      [message.error],
+    ),
     retryOnError: true,
     reconnectAttempts: 3,
     reconnectInterval: 3000,
-    shouldReconnect(e) {
-      return e.code < 400 || e.code > 499;
-    },
-    onReconnectStop() {
-      setWsError(<>The WebSocket is disconnected.</>);
-    },
-    onWebsocketError() {
-      message.error(
-        <>There was an error with the WebSocket. Reconnecting&hellip;</>,
-      );
-    },
+    shouldReconnect: errorCodeIs4xx,
+    onReconnectStop: React.useCallback(
+      () => setWsError(<>The WebSocket is disconnected.</>),
+      [setWsError],
+    ),
+    onWebsocketError: React.useCallback(
+      () =>
+        message.error(
+          <>There was an error with the WebSocket. Reconnecting&hellip;</>,
+        ),
+      [message.error],
+    ),
   });
 
   // ========================================
@@ -639,6 +650,10 @@ const PacsController: React.FC<PacsControllerProps> = ({
     </PageSection>
   );
 };
+
+function errorCodeIs4xx(e: { code: number }) {
+  return e.code < 400 || e.code > 499;
+}
 
 export type { PacsControllerProps };
 export default PacsController;

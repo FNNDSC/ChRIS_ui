@@ -28,7 +28,13 @@ const TestLonkComponent: React.FC<TestLonkComponentProps> = ({
       setSubscribedPacsName(result.pacs_name);
       setSubscribedSeriesUid(result.SeriesInstanceUID);
     },
-    [lonk.subscribe, setSubscribedPacsName, setSubscribedSeriesUid],
+    [
+      lonk.subscribe,
+      pacs_name,
+      SeriesInstanceUID,
+      setSubscribedPacsName,
+      setSubscribedSeriesUid,
+    ],
   );
   const unsubscribe = React.useCallback(async () => {
     await lonk.unsubscribeAll();
