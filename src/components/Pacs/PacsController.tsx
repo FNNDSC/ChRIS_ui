@@ -316,7 +316,8 @@ const PacsController: React.FC<PacsControllerProps> = ({
           },
           enabled: state.done,
           retry: 300,
-          retryDelay: 2000, // TODO use environment variable
+          retryDelay:
+            parseInt(import.meta.env.VITE_CUBE_POLL_INTERVAL_MS) || 2000,
         })),
       [receiveState, chrisClient.getPACSSeriesList],
     ),
