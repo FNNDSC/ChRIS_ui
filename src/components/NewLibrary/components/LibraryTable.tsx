@@ -187,7 +187,9 @@ export const FolderRow: React.FC<Omit<RowProps, "type">> = (props) => {
   if (isLoading) {
     return (
       <Tr>
-        <Skeleton width="100%" />
+        <Td>
+          <Skeleton width="100%" />
+        </Td>
       </Tr>
     );
   }

@@ -2,7 +2,7 @@ import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { Tooltip } from "@patternfly/react-core";
 import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import { Typography } from "antd";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
 import type { IDrawerState } from "../../store/drawer/drawerSlice";
@@ -36,8 +36,8 @@ import "./Feeds.css"; // Import your CSS file
 const { Title } = Typography;
 
 const FeedView: React.FC = () => {
+  const [currentLayout, setCurrentLayout] = useState(false);
   const drawerState = useAppSelector((state) => state.drawers);
-  const { currentLayout } = useAppSelector((state) => state.feed);
   const dispatch = useAppDispatch();
   const query = useSearchQueryParams();
   const type = query.get("type");
@@ -115,6 +115,10 @@ const FeedView: React.FC = () => {
     [drawerState, dispatch],
   );
 
+  const changeLayout = () => {
+    setCurrentLayout(!currentLayout);
+  };
+
   const TitleComponent = (
     <Title level={4} style={{ marginBottom: 0, color: "white" }}>
       <CodeBranchIcon style={{ marginRight: "0.25em" }} />
@@ -150,9 +154,17 @@ const FeedView: React.FC = () => {
                     >
                       {handleDrawerAction("graph")}
                       {!currentLayout ? (
-                        <ParentComponent onNodeClick={onNodeClick} />
+                        <ParentComponent
+                          onNodeClick={onNodeClick}
+                          changeLayout={changeLayout}
+                          currentLayout={currentLayout}
+                        />
                       ) : (
-                        <FeedGraph onNodeClick={onNodeClick} />
+                        <FeedGraph
+                          currentLayout={currentLayout}
+                          changeLayout={changeLayout}
+                          onNodeClick={onNodeClick}
+                        />
                       )}
                     </Panel>
                     <PanelResizeHandle className="ResizeHandle" />

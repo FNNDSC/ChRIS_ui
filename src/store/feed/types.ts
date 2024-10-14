@@ -18,26 +18,11 @@ export interface FeedsResponsePayload {
   totalCount: number;
 }
 
-export interface FeedTreeProp {
-  orientation: "horizontal" | "vertical";
-  translate: {
-    x: number;
-    y: number;
-  };
-}
-
 export interface FeedResource {
   [id: string]: { details: any };
 }
 
 export interface IFeedState {
   currentFeed: FeedPayload;
-  feedTreeProp: FeedTreeProp;
-  currentLayout: boolean;
-
-  searchFilter: {
-    status: boolean;
-    value: string;
-  };
   showToolbar: boolean;
 }

@@ -16,11 +16,15 @@ import useSize from "./useSize";
 
 interface IFeedProps {
   onNodeClick: (node: PluginInstance) => void;
+  currentLayout: boolean;
+  changeLayout: () => void;
 }
 
-const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
-  const dispatch = useAppDispatch();
-  const currentLayout = useAppSelector((state) => state.feed.currentLayout);
+const FeedGraph: React.FC<IFeedProps> = ({
+  onNodeClick,
+  currentLayout,
+  changeLayout,
+}) => {
   const pluginInstances = useAppSelector(
     (state) => state.instance.pluginInstances,
   );
@@ -118,9 +122,7 @@ const FeedGraph: React.FC<IFeedProps> = ({ onNodeClick }) => {
                 label="3D"
                 labelOff="2D"
                 isChecked={currentLayout}
-                onChange={() => {
-                  dispatch(setFeedLayout());
-                }}
+                onChange={changeLayout}
               />
             </div>
           </div>

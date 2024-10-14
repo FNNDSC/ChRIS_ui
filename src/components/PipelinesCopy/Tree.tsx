@@ -107,15 +107,12 @@ const Tree = (props: TreeProps) => {
       setData(tree);
       setLoading(false);
     }
-  }, [selectedPipeline?.[currentPipeline.data.id]]);
+  }, [currentPipeline.data.id, selectedPipeline?.[currentPipeline.data.id]]);
 
   React.useEffect(() => {
-    //@ts-ignore
     if (size?.width) {
       setTranslate({
-        //@ts-ignore
         x: size.width / 2.5,
-        //@ts-ignore
         y: size.height / 6.5,
       });
     }

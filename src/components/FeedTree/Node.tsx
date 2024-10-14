@@ -26,8 +26,7 @@ import DeleteNode from "../DeleteNode";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import type { FeedTreeScaleType } from "./Controls";
 import DropdownMenu from "./DropdownMenu";
-import type TreeNodeDatum from "./data";
-import type { Point } from "./data";
+import type { Point, TreeNodeDatum } from "./data";
 
 type NodeWrapperProps = {
   tsNodes?: PluginInstance[];
@@ -38,6 +37,7 @@ type NodeWrapperProps = {
   orientation: "horizontal" | "vertical";
   overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
+  searchFilter: string;
 };
 
 type NodeProps = NodeWrapperProps & {
@@ -70,6 +70,7 @@ const Node = (props: NodeProps) => {
     status,
     currentId,
     overlaySize,
+    searchFilter,
   } = props;
 
   const [api, contextHolder] = notification.useNotification();
@@ -81,8 +82,6 @@ const Node = (props: NodeProps) => {
   const selectedPlugin = useAppSelector((state) => {
     return state.instance.selectedPlugin;
   });
-  const searchFilter = useAppSelector((state) => state.feed.searchFilter);
-  const { value } = searchFilter;
 
   const applyNodeTransform = useCallback((transform: string, opacity = 1) => {
     select(nodeRef.current)
@@ -120,9 +119,11 @@ const Node = (props: NodeProps) => {
   }
 
   if (
-    value.length > 0 &&
-    (data.item?.data.plugin_name?.toLowerCase().includes(value.toLowerCase()) ||
-      data.item?.data.title?.toLowerCase().includes(value.toLowerCase()))
+    searchFilter.length > 0 &&
+    (data.item?.data.plugin_name
+      ?.toLowerCase()
+      .includes(searchFilter.toLowerCase()) ||
+      data.item?.data.title?.toLowerCase().includes(searchFilter.toLowerCase()))
   ) {
     statusClass = "search";
   }
@@ -225,7 +226,13 @@ const Node = (props: NodeProps) => {
         message: "Preparing to initiate the zipping process...",
       });
     }
-  }, [api, mutation.isSuccess, mutation.isError, mutation.isPending]);
+  }, [
+    api,
+    mutation.error,
+    mutation.isSuccess,
+    mutation.isError,
+    mutation.isPending,
+  ]);
 
   const textLabel = (
     <g
