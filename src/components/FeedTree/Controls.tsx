@@ -1,11 +1,12 @@
 import {
+  MenuToggle,
+  type MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
-  MenuToggle,
-  MenuToggleElement,
 } from "@patternfly/react-core";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 
 export type FeedTreeScaleType = "time" | "size";
 
@@ -49,7 +50,7 @@ export const NodeScaleDropdown = ({
       isOpen={open}
       onSelect={(_: any, label: any) => {
         const type = Array.from(labels.keys()).find(
-          (type) => labels.get(type) == label,
+          (type) => labels.get(type) === label,
         );
         if (type) {
           onChange(type);

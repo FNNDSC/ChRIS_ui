@@ -20,13 +20,8 @@ export interface Point {
   y: number;
 }
 
-export default interface TreeNodeDatum extends Datum {
+export interface TreeNodeDatum extends Datum {
   children: TreeNodeDatum[];
-  __rd3t: {
-    id: string;
-    depth: number;
-    collapsed: boolean;
-  };
 }
 
 export interface Separation {
@@ -34,58 +29,46 @@ export interface Separation {
   nonSiblings: number;
 }
 
-export interface OwnProps {
-  tsIds?: TSID;
-  data: TreeNodeDatum[];
-  onNodeClick: (node: any) => void;
-  translate?: Point;
-  scaleExtent: {
-    min: number;
-    max: number;
-  };
-  zoom: number;
-  nodeSize: {
-    x: number;
-    y: number;
-  };
-  separation: Separation;
-  changeOrientation: (orientation: string) => void;
-}
-
 export const getFeedTree = (items: PluginInstance[]) => {
-  const tree = [];
-  const mappedArr: {
-    [key: string]: TreeNodeDatum;
-  } = {};
+  const tree: TreeNodeDatum[] = [];
 
-  for (const item of items) {
+  const mappedArr = new Map<number, TreeNodeDatum>();
+  const childrenMap = new Map<number, TreeNodeDatum[]>();
+
+  items.forEach((item) => {
     const id = item.data.id;
-
-    mappedArr[id] = {
+    const previous_id: number | null =
+      item.data.previous_id !== undefined ? item.data.previous_id : null;
+    const node: TreeNodeDatum = {
       id: id,
       name: item.data.title || item.data.plugin_name,
       parentId: item.data.previous_id,
       item: item,
       children: [],
-      __rd3t: {
-        id: "",
-        depth: 0,
-        collapsed: false,
-      },
     };
-  }
-
-  for (const id in mappedArr) {
-    const mappedElem = mappedArr[id];
-    if (mappedElem.parentId) {
-      const parentId = mappedElem.parentId;
-      if (parentId && mappedArr[parentId] && mappedArr[parentId].children)
-        mappedArr[parentId].children.push(mappedElem);
+    mappedArr.set(id, node);
+    if (previous_id !== null) {
+      const parentNode = mappedArr.get(previous_id);
+      if (parentNode) {
+        parentNode.children.push(node);
+      } else {
+        // If parent hasn't been processed yet, store the child in childrenMap
+        if (!childrenMap.has(previous_id)) {
+          childrenMap.set(previous_id, []);
+        }
+        childrenMap.get(previous_id)!.push(node);
+      }
     } else {
-      tree.push(mappedElem);
+      tree.push(node);
     }
-  }
 
+    if (childrenMap.has(id)) {
+      // If there are children waiting for this node, add them
+      const children = childrenMap.get(id)!;
+      node.children.push(...children);
+      childrenMap.delete(id);
+    }
+  });
   return tree;
 };
 
