@@ -179,6 +179,9 @@ const FeedView: React.FC = () => {
                     order={2}
                     defaultSize={47}
                     minSize={20}
+                    style={{
+                      overflow: "scroll",
+                    }}
                   >
                     {handleDrawerAction("node")}
                     <div className="node-block">

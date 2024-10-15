@@ -1,6 +1,4 @@
 import { LogViewer } from "@patternfly/react-log-viewer";
-import { useRef, useEffect, useState } from "react";
-import useSize from "../FeedTree/useSize";
 import { useAppSelector } from "../../store/hooks";
 
 type LogTerminalProps = {
@@ -8,59 +6,26 @@ type LogTerminalProps = {
 };
 
 const LogTerminal = ({ text }: LogTerminalProps) => {
-  const divRef = useRef<HTMLDivElement>(null);
-  const size = useSize(divRef);
   const isTerminalMaximized = useAppSelector(
     (state) => state.drawers.node.maximized,
   );
-  const [terminalSize, setTerminalSize] = useState({
+
+  const containerStyle = {
+    height: isTerminalMaximized ? "100vh" : "100%",
     width: "100%",
-    height: "100%",
-  });
-
-  const handleResize = () => {
-    if (divRef.current && size) {
-      const parentWidth = size.width;
-      const parentHeight = size.height;
-      const element = document.getElementById("log-viewer");
-
-      if (element) {
-        setTerminalSize({
-          width: `${parentWidth}px`,
-          height: `${parentHeight}px`,
-        });
-      }
-    }
+    display: "flex",
+    flexDirection: "column" as const,
+    flexGrow: 1,
   };
 
-  useEffect(() => {
-    // Call handleResize whenever window resizes
-    window.addEventListener("resize", handleResize);
-
-    // Initial resize logic when component mounts
-    handleResize();
-
-    // Cleanup on unmount
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [size, isTerminalMaximized]); // Ensure the effect runs when size or maximized state changes
+  const logViewerStyle = {
+    flexGrow: 1,
+    overflow: "auto",
+  };
 
   return (
-    <div
-      id="log-viewer"
-      ref={divRef}
-      style={{
-        height: "100%",
-        width: "100%",
-      }}
-    >
-      <LogViewer
-        height={terminalSize.height}
-        width={terminalSize.width}
-        hasLineNumbers={false}
-        data={text}
-      />
+    <div style={containerStyle}>
+      <LogViewer style={logViewerStyle} hasLineNumbers={false} data={text} />
     </div>
   );
 };
