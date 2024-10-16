@@ -10,7 +10,13 @@ import type {
   AddNodePayload,
   PluginInstanceObj,
 } from "./types";
-import { getPluginInstanceStatusRequest } from "../resources/resourceSlice";
+import {
+  getPluginInstanceStatusRequest,
+  stopFetchingPluginResources,
+  stopFetchingStatusResources,
+} from "../resources/resourceSlice";
+import type { RootState } from "../root/applicationState";
+import type { IActionTypeParam } from "../../api/model";
 
 // Define the initial state
 const initialState: IPluginInstanceState = {
@@ -77,6 +83,42 @@ export const addNode = createAsyncThunk<
       return { selected: pluginItem, pluginInstances };
     } catch (error) {
       return rejectWithValue("Failed to add node.");
+    }
+  },
+);
+
+// Async thunk for deleting a plugin instance
+export const deletePluginInstance = createAsyncThunk<
+  PluginInstanceObj,
+  PluginInstance,
+  { rejectValue: string; state: RootState }
+>(
+  "pluginInstance/deletePluginInstance",
+  async (pluginInstance, { dispatch, getState, rejectWithValue }) => {
+    try {
+      const id = pluginInstance.data.id;
+      dispatch(stopFetchingPluginResources(id));
+      dispatch(stopFetchingStatusResources(id));
+
+      await pluginInstance.delete();
+      // Get the updated state
+      const state = getState() as RootState;
+      const pluginInstances = state.instance.pluginInstances.data.filter(
+        (instance) => instance.data,
+      );
+      const selected = pluginInstances[pluginInstances.length - 1];
+      const pluginInstanceObj = {
+        selected,
+        pluginInstances,
+      };
+
+      dispatch(getSelectedPlugin(selected));
+      dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
+
+      return pluginInstanceObj;
+    } catch (error) {
+      const errMessage = catchError(error).error_message;
+      return rejectWithValue(errMessage);
     }
   },
 );
@@ -148,7 +190,27 @@ const pluginInstanceSlice = createSlice({
             state.pluginInstances.data = [action.payload.selected];
           }
         },
-      );
+      ) // Handle deletePluginInstance
+      .addCase(deletePluginInstance.pending, (state) => {
+        state.pluginInstances.loading = true;
+        state.pluginInstances.error = "";
+      })
+      .addCase(
+        deletePluginInstance.fulfilled,
+        (state, action: PayloadAction<PluginInstanceObj>) => {
+          state.pluginInstances = {
+            data: action.payload.pluginInstances,
+            error: "",
+            loading: false,
+          };
+          state.selectedPlugin = action.payload.selected;
+        },
+      )
+      .addCase(deletePluginInstance.rejected, (state, action) => {
+        state.pluginInstances.loading = false;
+        state.pluginInstances.error =
+          action.payload || "Failed to delete plugin instance.";
+      });
   },
 });
 
