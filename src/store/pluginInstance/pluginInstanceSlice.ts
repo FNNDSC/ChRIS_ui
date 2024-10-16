@@ -1,22 +1,21 @@
-import {
-  createSlice,
-  createAsyncThunk,
-  type PayloadAction,
-} from "@reduxjs/toolkit";
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import {
+  type PayloadAction,
+  createAsyncThunk,
+  createSlice,
+} from "@reduxjs/toolkit";
 import { catchError, fetchResource } from "../../api/common";
-import type {
-  IPluginInstanceState,
-  AddNodePayload,
-  PluginInstanceObj,
-} from "./types";
 import {
   getPluginInstanceStatusRequest,
   stopFetchingPluginResources,
   stopFetchingStatusResources,
 } from "../resources/resourceSlice";
 import type { RootState } from "../root/applicationState";
-import type { IActionTypeParam } from "../../api/model";
+import type {
+  AddNodePayload,
+  IPluginInstanceState,
+  PluginInstanceObj,
+} from "./types";
 
 // Define the initial state
 const initialState: IPluginInstanceState = {
@@ -88,6 +87,8 @@ export const addNode = createAsyncThunk<
 );
 
 // Async thunk for deleting a plugin instance
+
+// Async thunk for deleting a plugin instance
 export const deletePluginInstance = createAsyncThunk<
   PluginInstanceObj,
   PluginInstance,
@@ -97,23 +98,33 @@ export const deletePluginInstance = createAsyncThunk<
   async (pluginInstance, { dispatch, getState, rejectWithValue }) => {
     try {
       const id = pluginInstance.data.id;
-      dispatch(stopFetchingPluginResources(id));
-      dispatch(stopFetchingStatusResources(id));
-
-      await pluginInstance.delete();
-      // Get the updated state
+      // Get the current pluginInstances from the state
       const state = getState() as RootState;
-      const pluginInstances = state.instance.pluginInstances.data.filter(
-        (instance) => instance.data,
+      const pluginInstances = state.instance.pluginInstances.data;
+      // Get all descendant ids
+      const descendantIds = getAllDescendantIds(pluginInstances, id);
+      // Stop fetching resources for all descendants
+      descendantIds.forEach((descendantId) => {
+        dispatch(stopFetchingPluginResources(descendantId));
+        dispatch(stopFetchingStatusResources(descendantId));
+      });
+
+      // Delete the plugin instance (assuming it will delete its descendants)
+      await pluginInstance.delete();
+
+      // Filter out all instances with ids in descendantIds
+      const remainingPluginInstances = pluginInstances.filter(
+        (instance) =>
+          instance.data && !descendantIds.includes(instance.data.id),
       );
-      const selected = pluginInstances[pluginInstances.length - 1];
+
+      const selected =
+        remainingPluginInstances[remainingPluginInstances.length - 1];
+
       const pluginInstanceObj = {
         selected,
-        pluginInstances,
+        pluginInstances: remainingPluginInstances,
       };
-
-      dispatch(getSelectedPlugin(selected));
-      dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
 
       return pluginInstanceObj;
     } catch (error) {
@@ -224,3 +235,35 @@ export const {
 
 // Export the reducer
 export default pluginInstanceSlice.reducer;
+
+// Helper function to get all descendant IDs
+function getAllDescendantIds(
+  instances: PluginInstance[],
+  parentId: number,
+): number[] {
+  const parentIdToChildrenMap = new Map<number, PluginInstance[]>();
+
+  instances.forEach((instance) => {
+    const previous_id = instance.data.previous_id;
+
+    if (previous_id !== undefined && previous_id !== null) {
+      if (!parentIdToChildrenMap.has(previous_id)) {
+        parentIdToChildrenMap.set(previous_id, []);
+      }
+      parentIdToChildrenMap.get(previous_id)!.push(instance);
+    }
+  });
+
+  const result: number[] = [];
+
+  function helper(currentId: number) {
+    result.push(currentId);
+    const children = parentIdToChildrenMap.get(currentId) || [];
+    for (const child of children) {
+      helper(child.data.id);
+    }
+  }
+
+  helper(parentId);
+  return result;
+}
