@@ -254,51 +254,57 @@ const TableSelectable: React.FC = () => {
 
   return (
     <WrapperConnect titleComponent={TitleComponent}>
-      <PageSection style={{ paddingTop: "0.25em" }} className="feed-header">
-        <div>
-          <FeedSearch
-            loading={loadingFeedState}
-            search={search}
-            searchType={searchType}
-            onSearch={handleFilterChange}
-          />
-        </div>
-        {generatePagination(feedCount)}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <ToggleGroup
-            style={{ marginRight: "0.5em" }}
-            aria-label="Default with single selectable"
+      <PageSection
+        stickyOnBreakpoint={{
+          default: "top",
+        }}
+        style={{ paddingTop: "0.25em", paddingBottom: "0" }}
+      >
+        <div className="feed-header">
+          <div>
+            <FeedSearch
+              loading={loadingFeedState}
+              search={search}
+              searchType={searchType}
+              onSearch={handleFilterChange}
+            />
+          </div>
+          {generatePagination(feedCount)}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            <ToggleGroupItem
-              text="Private Feeds"
-              buttonId="private"
-              isSelected={type === "private"}
-              onChange={onExampleTypeChange}
-              isDisabled={!isLoggedIn}
-            />
-            <ToggleGroupItem
-              text="Public Feeds"
-              buttonId="public"
-              isSelected={type === "public"}
-              onChange={onExampleTypeChange}
-            />
-          </ToggleGroup>
-          <CreateFeedProvider>
-            <PipelineProvider>
-              <AddNodeProvider>
-                <CreateFeed />
-              </AddNodeProvider>
-            </PipelineProvider>
-          </CreateFeedProvider>
+            <ToggleGroup
+              style={{ marginRight: "0.5em" }}
+              aria-label="Default with single selectable"
+            >
+              <ToggleGroupItem
+                text="Private Feeds"
+                buttonId="private"
+                isSelected={type === "private"}
+                onChange={onExampleTypeChange}
+                isDisabled={!isLoggedIn}
+              />
+              <ToggleGroupItem
+                text="Public Feeds"
+                buttonId="public"
+                isSelected={type === "public"}
+                onChange={onExampleTypeChange}
+              />
+            </ToggleGroup>
+            <CreateFeedProvider>
+              <PipelineProvider>
+                <AddNodeProvider>
+                  <CreateFeed />
+                </AddNodeProvider>
+              </PipelineProvider>
+            </CreateFeedProvider>
+          </div>
         </div>
-      </PageSection>
-      <PageSection style={{ paddingBlockStart: "0.5em" }}>
+
         <Operations
           origin={{
             type: OperationContext.FEEDS,
@@ -308,9 +314,13 @@ const TableSelectable: React.FC = () => {
             toolbarItem: { paddingInlineStart: "0" },
             toolbar: {
               paddingTop: "0",
+              paddingBottom: "0",
+              background: "inherit",
             },
           }}
         />
+      </PageSection>
+      <PageSection style={{ paddingBlockStart: "0.5em" }}>
         {loadingFeedState ? (
           <LoadingTable />
         ) : feedsToDisplay.length > 0 ? (

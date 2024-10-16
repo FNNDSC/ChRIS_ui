@@ -11,12 +11,12 @@ import {
   setFolderUploadStatus,
   startUpload,
 } from "./cartSlice";
+import { createFeed } from "./downloadSaga";
 import type {
   FileUploadObject,
   FolderUploadObject,
   UploadPayload,
 } from "./types";
-import { createFeed } from "./downloadSaga";
 
 function createUploadChannel(config: any) {
   return eventChannel((emitter) => {
@@ -28,12 +28,10 @@ function createUploadChannel(config: any) {
     };
 
     const source = axios.CancelToken.source();
-
     const axiosConfig = {
-      headers: config.headers,
-      onUploadProgress,
-      cancelToken: source.token,
       ...config,
+      cancelToken: source.token,
+      onUploadProgress,
     };
 
     const cancelHandler = () => {
@@ -344,7 +342,13 @@ function* updateFileUploadStatus(
   shouldCreateFeed?: boolean,
 ) {
   const isDone = progress === 100;
-  const step = isDone && response ? "Upload Complete" : "Uploading...";
+
+  const step =
+    isDone && !response
+      ? "Server Processing..."
+      : isDone && response
+        ? "Upload Complete"
+        : "Uploading...";
 
   // Invalidate the ui page if the file upload is complete
   isDone && !shouldCreateFeed && invalidateFunc();
