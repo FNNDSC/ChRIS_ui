@@ -1,120 +1,93 @@
-import type { PluginInstance } from "@fnndsc/chrisapi";
-import { Button, Modal, ModalVariant } from "@patternfly/react-core";
-import { useMutation } from "@tanstack/react-query";
-import { Fragment, useEffect } from "react";
-import { fetchResource } from "../../api/common";
+import { Button, Modal, ModalVariant, Spinner } from "@patternfly/react-core";
+import { Fragment, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
-import {
-  setPluginInstancesAndSelectedPlugin,
-  getSelectedPlugin,
-} from "../../store/pluginInstance/pluginInstanceSlice";
-import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
+import { deletePluginInstance } from "../../store/pluginInstance/pluginInstanceSlice";
 import { Alert } from "../Antd";
-import { SpinContainer } from "../Common";
 
 const DeleteNode = () => {
   const dispatch = useAppDispatch();
-  const { deleteNode: isModalOpen } = useAppSelector(
-    (state) => state.plugin.nodeOperations,
+  const isModalOpen = useAppSelector(
+    (state) => state.plugin.nodeOperations.deleteNode,
   );
   const { selectedPlugin } = useAppSelector((state) => state.instance);
-  const currentFeed = useAppSelector((state) => state.feed.currentFeed.data);
+
+  // Local state for delete operation
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDelete = async () => {
     if (selectedPlugin) {
+      setLoading(true);
+      setError(null);
       try {
-        const statuses = [
-          "finishedSuccessfully",
-          "finishedWithError",
-          "cancelled",
-        ];
-        const status = selectedPlugin.data.status;
-
-        if (!statuses.includes(status)) {
-          throw new Error(
-            "Cannot delete actively running node at the moment...",
-          );
-        }
-
-        await selectedPlugin.delete();
-        //Fetch Resources again because I don't understand how delete works in cube. It's highly inconsistent
-        if (currentFeed) {
-          const params = { limit: 15, offset: 0 };
-
-          const fn = currentFeed.getPluginInstances;
-          const boundFn = fn.bind(currentFeed);
-          const { resource: pluginInstances } =
-            await fetchResource<PluginInstance>(params, boundFn);
-
-          const selected = pluginInstances[pluginInstances.length - 1];
-          const pluginInstanceObj = {
-            selected,
-            pluginInstances,
-          };
-
-          dispatch(getSelectedPlugin(selected));
-          dispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
-          dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
-        }
-      } catch (e) {
-        if (e instanceof Error) throw new Error(e.message);
+        await dispatch(deletePluginInstance(selectedPlugin)).unwrap();
+        setSuccess(true);
+        // Close the modal after a short delay
+        setTimeout(() => {
+          handleModalClose();
+        }, 1500);
+      } catch (err) {
+        setError(err as string);
+      } finally {
+        setLoading(false);
       }
-    } else {
-      throw new Error("Please select a node to delete");
     }
   };
 
-  const mutation = useMutation({
-    mutationFn: () => handleDelete(),
-  });
-
-  const handleModalToggle = () => {
+  const handleModalClose = () => {
+    // Reset local state when modal is closed
+    setLoading(false);
+    setSuccess(false);
+    setError(null);
     dispatch(getNodeOperations("deleteNode"));
   };
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      setTimeout(() => {
-        mutation.reset();
-        dispatch(getNodeOperations("deleteNode"));
-      }, 1000);
-    }
-  }, [mutation.isSuccess]);
 
   return (
     <Modal
       variant={ModalVariant.small}
       title="Delete Selected Node"
       isOpen={isModalOpen}
-      onClose={handleModalToggle}
+      onClose={handleModalClose}
       actions={[
         <Fragment key="button-actions">
           <Button
             key="confirm"
             variant="primary"
-            onClick={() => mutation.mutate()}
+            onClick={handleDelete}
+            isDisabled={loading || success}
           >
             Confirm
           </Button>
-          <Button key="cancel" variant="primary" onClick={handleModalToggle}>
+          <Button key="cancel" variant="secondary" onClick={handleModalClose}>
             Cancel
           </Button>
         </Fragment>,
       ]}
     >
       <span>
-        {" "}
         Deleting a node will delete all of its descendants as well. Please
-        confirm if you are sure
+        confirm if you are sure.
       </span>
 
-      {mutation.isPending && <SpinContainer title="Deleting..." />}
-      {mutation.isError && (
-        <Alert type="error" description={mutation.error.message} />
+      {loading && (
+        <div
+          style={{ marginTop: "1rem", display: "flex", alignItems: "center" }}
+        >
+          <Spinner size="lg" />
+          <span style={{ marginLeft: "0.5rem" }}>Deleting...</span>
+        </div>
       )}
-      {mutation.isSuccess && (
-        <Alert type="success" description="Deleted Successfully" />
+      {error && (
+        <Alert type="error" description={error} style={{ marginTop: "1rem" }} />
+      )}
+      {success && (
+        <Alert
+          type="success"
+          description="Deleted Successfully"
+          style={{ marginTop: "1rem" }}
+        />
       )}
     </Modal>
   );

@@ -312,7 +312,8 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   });
 
   const currentId = useAppSelector((state) => {
-    if (state.instance.selectedPlugin?.data.id === data.id) return true;
+    console.log("state", state);
+    if (state.instance.selectedPlugin?.data.id === data?.id) return true;
     return false;
   });
 
