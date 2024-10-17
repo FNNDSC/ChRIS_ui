@@ -1,5 +1,6 @@
-import { InfoIcon as InfoIconComponent } from "../Icons";
 import {
+  Bullseye,
+  ClipboardCopy,
   ClipboardCopyButton,
   Dropdown,
   DropdownItem,
@@ -14,15 +15,26 @@ import {
   Hint,
   MenuToggle,
   TextInput,
-  ClipboardCopy,
 } from "@patternfly/react-core";
-import { CubesIcon, SearchIcon } from "../Icons";
+import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { Alert, Popover, Spin, Typography } from "antd";
-import React, { ReactNode, useState } from "react";
+import React, { type ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
 import "react-activity/dist/library.css";
 import { Cookies } from "react-cookie";
 import ReactJson from "react-json-view";
+import {
+  ArchiveIcon,
+  CubesIcon,
+  ExternalLinkSquareAltIcon,
+  FileIcon,
+  FileImageIcon,
+  FilePdfIcon,
+  FileTxtIcon,
+  FolderIcon,
+  InfoIcon as InfoIconComponent,
+  SearchIcon,
+} from "../Icons";
 import "./common.css";
 
 export const EmptyStateComponent = ({ title }: { title?: string }) => {
@@ -89,7 +101,7 @@ export const ClipboardCopyContainer = ({ path }: { path: string }) => {
     _event: React.ClipboardEvent<HTMLDivElement>,
     text: string,
   ) => {
-    if (typeof navigator.clipboard == "undefined") {
+    if (typeof navigator.clipboard === "undefined") {
       const textArea = document.createElement("textarea");
       textArea.value = text;
       textArea.style.position = "fixed";
@@ -136,12 +148,16 @@ export const InfoIcon = ({
   p2,
   p3,
   p4,
+  customStyle,
 }: {
   title: string;
   p1?: any;
   p2?: any;
   p3?: any;
   p4?: any;
+  customStyle?: {
+    [key: string]: React.CSSProperties;
+  };
 }) => {
   const content = (
     <Hint>
@@ -154,7 +170,7 @@ export const InfoIcon = ({
 
   return (
     <div style={{ display: "flex" }}>
-      <Title level={4} style={{ marginBottom: 0 }}>
+      <Title level={4} style={{ ...customStyle?.title, marginBottom: 0 }}>
         {title}
       </Title>
       <Popover placement="top" trigger="hover" content={content}>
@@ -169,6 +185,7 @@ type AllProps = {
   onSearch: (search: string, searchType: string) => void;
   search?: string;
   searchType?: string;
+  customStyle?: React.CSSProperties;
 };
 
 const FeedsQueryTypes: any = {
@@ -198,7 +215,7 @@ const FeedsQueryTypes: any = {
 export const DataTableToolbar: React.FunctionComponent<AllProps> = (
   props: AllProps,
 ) => {
-  const { searchType, search } = props;
+  const { searchType, search, customStyle } = props;
   const [value, setValue] = useState(search ? search : "");
   const [dropdownValue, setDropdownValue] = React.useState<string>(
     searchType?.toUpperCase() && FeedsQueryTypes[searchType]
@@ -244,7 +261,7 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
         style={{
           display: "flex",
           justifyContent: "space-between",
-          padding: "0.8rem 0rem",
+          ...customStyle,
         }}
       >
         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -269,7 +286,7 @@ export const DataTableToolbar: React.FunctionComponent<AllProps> = (
           <TextInput
             value={value}
             type="text"
-            placeholder={dropdownValue}
+            placeholder={`Search the resource by ${dropdownValue}`}
             customIcon={<SearchIcon />}
             aria-label="search"
             onChange={(_event, value: string) => {
@@ -340,7 +357,6 @@ export const ClipboardCopyFixed = ({
 
   return (
     <ClipboardCopy
-      isReadOnly
       hoverTip="Copy"
       clickTip="Copied"
       onCopy={(event) => handleCopy(event, value)}
@@ -350,3 +366,90 @@ export const ClipboardCopyFixed = ({
     </ClipboardCopy>
   );
 };
+
+export const getIcon = (
+  type: string,
+  isDarkTheme: boolean,
+  customStyle?: React.CSSProperties,
+) => {
+  const color = isDarkTheme ? "#FFFFFF" : "#000000"; // white for dark theme, black for light theme
+  const iconStyle = { color, ...customStyle };
+  switch (type.toLowerCase()) {
+    case "dir":
+      return <FolderIcon style={iconStyle} />;
+    case "dcm":
+    case "jpg":
+    case "png":
+      return <FileImageIcon style={iconStyle} />;
+    case "txt":
+      return <FileTxtIcon style={iconStyle} />;
+    case "pdf":
+      return <FilePdfIcon style={iconStyle} />;
+    case "zip":
+      return <ArchiveIcon style={iconStyle} />;
+    case "link":
+      return <ExternalLinkSquareAltIcon style={iconStyle} />;
+    case "folder":
+      return <FolderIcon style={iconStyle} />;
+    default:
+      return <FileIcon style={iconStyle} />;
+  }
+};
+
+// This example has been simplified to focus on the empty state. In real usage,
+// you may want to derive your rows from typed underlying data and minimal state. See other examples.
+
+interface EmptyTableProps {
+  columnNames: {
+    [key: string]: string;
+  }[];
+}
+
+export const TableEmptyState: React.FunctionComponent<EmptyTableProps> = ({
+  columnNames,
+}: EmptyTableProps) => (
+  <Table aria-label="Empty state table">
+    <Thead>
+      <Tr>
+        {columnNames.map((column, index) => {
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+          return <Th key={index}>{Object.values(column)[0]}</Th>;
+        })}
+      </Tr>
+    </Thead>
+    <Tbody>
+      <Tr>
+        <Td colSpan={8}>
+          <Bullseye>
+            <EmptyState variant={EmptyStateVariant.sm}>
+              <EmptyStateHeader
+                icon={<EmptyStateIcon icon={SearchIcon} />}
+                titleText="No results found"
+                headingLevel="h2"
+              />
+              <EmptyStateBody>No Data Found under this path</EmptyStateBody>
+            </EmptyState>
+          </Bullseye>
+        </Td>
+      </Tr>
+    </Tbody>
+  </Table>
+);
+
+const { Paragraph } = Typography;
+
+// Component for displaying name and description
+export const InfoSection: React.FC<{
+  title: string;
+  content?: React.ReactNode;
+}> = ({ title, content }) => (
+  <InfoIcon
+    customStyle={{
+      title: {
+        color: "white",
+      },
+    }}
+    title={title}
+    p1={<Paragraph>{content}</Paragraph>}
+  />
+);

@@ -1,4 +1,4 @@
-import { PluginStatusLabels } from "./types";
+import type { PluginStatusLabels } from "./types";
 import InProgress from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
 import FileArchive from "@patternfly/react-icons/dist/esm/icons/file-archive-icon";
 import DownloadIcon from "@patternfly/react-icons/dist/esm/icons/download-icon";
@@ -6,25 +6,47 @@ import FillRightCircle from "@patternfly/react-icons/dist/esm/icons/caret-right-
 import FillLeftCircle from "@patternfly/react-icons/dist/esm/icons/caret-left-icon";
 import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
 
-export function getStatusLabels(
-  labels: PluginStatusLabels,
-  pluginDetails: any,
-  previousStatus: string,
-) {
-  const status = [];
-  const pluginStatus = pluginDetails.data.status;
-  const errorStatuses = ["finishedWithError", "cancelled"];
-  const finishedStatuses = [...errorStatuses, "finishedSuccessfully"];
+interface PluginDetails {
+  data: {
+    status: string;
+    plugin_type: string;
+  };
+}
 
-  const startState =
-    pluginStatus === "scheduled" || pluginStatus === "started"
-      ? pluginStatus
-      : "started";
+const ERROR_STATUSES = ["finishedWithError", "cancelled"];
+const FINISHED_STATUSES = [...ERROR_STATUSES, "finishedSuccessfully"];
 
-  const endState = finishedStatuses.includes(pluginStatus)
+function getStartState(pluginStatus: string): string {
+  return pluginStatus === "scheduled" || pluginStatus === "started"
+    ? pluginStatus
+    : "started";
+}
+
+function getEndState(pluginStatus: string): string {
+  return FINISHED_STATUSES.includes(pluginStatus)
     ? pluginStatus
     : "Waiting To Finish";
+}
 
+function getWaitingStatus(
+  pluginDetails: PluginDetails,
+  currentLabel: number,
+  previousStatus: string,
+): boolean {
+  return pluginDetails.data.plugin_type === "fs"
+    ? currentLabel > 0
+    : currentLabel > 0 && previousStatus === "finishedSuccessfully";
+}
+
+export function getStatusLabels(
+  labels: PluginStatusLabels,
+  pluginDetails: PluginDetails,
+  previousStatus: string,
+) {
+  const status: any[] = [];
+  const pluginStatus = pluginDetails.data.status;
+  const startState = getStartState(pluginStatus);
+  const endState = getEndState(pluginStatus);
   const steps = [
     "waiting",
     startState,
@@ -35,59 +57,40 @@ export function getStatusLabels(
     endState,
   ];
   const currentLabel = steps.indexOf(pluginStatus);
-
-  let waitingStatus = false;
-  if (pluginDetails.data.plugin_type === "fs") {
-    waitingStatus = currentLabel > 0 ? true : false;
-  } else {
-    waitingStatus =
-      currentLabel > 0 && previousStatus === "finishedSuccessfully"
-        ? true
-        : false;
-  }
+  const waitingStatus = getWaitingStatus(
+    pluginDetails,
+    currentLabel,
+    previousStatus,
+  );
 
   status[0] = {
     description: "Waiting",
-    process: pluginStatus === "waiting" ? true : false,
+    process: pluginStatus === "waiting",
     wait: false,
     finish: waitingStatus,
     error:
-      errorStatuses.includes(pluginStatus) &&
-      errorStatuses.includes(previousStatus)
-        ? true
-        : false,
+      ERROR_STATUSES.includes(pluginStatus) &&
+      ERROR_STATUSES.includes(previousStatus),
     icon: ClockIcon,
   };
 
   status[1] = {
     description: "Started",
     process:
-      ["scheduled", "created", "started"].includes(pluginStatus) && !labels
-        ? true
-        : false,
-    wait: status[0].finish !== true,
-    finish:
-      (labels && labels.pushPath.status === true) || currentLabel === 6
-        ? true
-        : false,
+      ["scheduled", "created", "started"].includes(pluginStatus) && !labels,
+    wait: !waitingStatus,
+    finish: labels?.pushPath.status === true || currentLabel === 6,
     error: false,
     icon: InProgress,
   };
 
   status[2] = {
     description: "Transmitting",
-    process:
-      pluginStatus === "started" && labels && labels.pushPath.status !== true
-        ? true
-        : false,
-    wait: !labels || status[1].finish !== true,
-    finish: labels && labels.pushPath.status === true ? true : false,
+    process: pluginStatus === "started" && labels?.pushPath.status !== true,
+    wait: !labels || !status[1].finish,
+    finish: labels?.pushPath.status === true,
     error:
-      labels &&
-      labels.pushPath.status !== true &&
-      errorStatuses.includes(pluginStatus)
-        ? true
-        : false,
+      labels?.pushPath.status !== true && ERROR_STATUSES.includes(pluginStatus),
     icon: DownloadIcon,
   };
 
@@ -96,27 +99,19 @@ export function getStatusLabels(
     process:
       pluginStatus === "started" &&
       status[2].finish &&
-      labels &&
-      labels.compute.submit.status &&
-      !labels.compute.return.status
-        ? true
-        : false,
-    wait: !labels || status[2].finish !== true,
+      labels?.compute.submit.status &&
+      !labels.compute.return.status,
+    wait: !labels || !status[2].finish,
     finish:
-      labels &&
-      labels.compute.return.status === true &&
+      labels?.compute.return.status === true &&
       labels.compute.submit.status === true &&
-      finishedStatuses.includes(labels.compute.return.job_status)
-        ? true
-        : false,
+      FINISHED_STATUSES.includes(labels.compute.return.job_status),
     error:
-      (labels && errorStatuses.includes(labels.compute.return.job_status)) ||
+      (labels && ERROR_STATUSES.includes(labels.compute.return.job_status)) ||
       (labels &&
-        labels.compute.return.status !== true &&
-        errorStatuses.includes(pluginStatus) &&
-        labels.pushPath.status === true)
-        ? true
-        : false,
+        !labels.compute.return.status &&
+        ERROR_STATUSES.includes(pluginStatus) &&
+        labels.pushPath.status === true),
     icon: FillRightCircle,
   };
 
@@ -126,11 +121,9 @@ export function getStatusLabels(
       pluginStatus === "started" &&
       labels &&
       !labels.pullPath.status &&
-      status[3].finish === true
-        ? true
-        : false,
-    wait: !labels || status[3].finish !== true,
-    finish: labels && labels.pullPath.status === true,
+      status[3].finish,
+    wait: !labels || !status[3].finish,
+    finish: labels?.pullPath.status === true,
     error: false,
     icon: FillLeftCircle,
   };
@@ -141,13 +134,10 @@ export function getStatusLabels(
       pluginStatus === "registeringFiles" &&
       status[4].finish &&
       currentLabel > 1,
-    wait: status[4].finish !== true,
+    wait: !status[4].finish,
     finish:
-      labels &&
-      labels.pullPath.status === true &&
-      finishedStatuses.includes(pluginStatus) === true
-        ? true
-        : false,
+      labels?.pullPath.status === true &&
+      FINISHED_STATUSES.includes(pluginStatus),
     error: false,
     icon: FileArchive,
   };

@@ -1,9 +1,9 @@
-import type { PluginMeta, Tag, Pipeline, PluginPiping } from "@fnndsc/chrisapi";
-import { EventDataNode } from "rc-tree/lib/interface";
-import { DataBreadcrumb } from "./types/feed";
-import { fetchFilesFromAPath } from "../../store/resources/saga";
+import type { Pipeline, PluginMeta, Tag } from "@fnndsc/chrisapi";
+import type { EventDataNode } from "rc-tree/lib/interface";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { fetchResource } from "../../api/common";
+import { fetchResource, fetchResources } from "../../api/common";
+import { fetchFolders } from "../NewLibrary";
+import type { DataBreadcrumb } from "./types/feed";
 
 export const fetchTagList = async () => {
   const client = ChrisAPIClient.getClient();
@@ -71,30 +71,38 @@ export const generateTreeNodes = async (
     isLeaf: boolean;
     checkable: boolean;
   }[] = [];
-  //@ts-ignore
-  const { files, folders } = await fetchFilesFromAPath(treeNode.breadcrumb);
-  const items = [...files, ...folders];
+
+  const { subFoldersMap, linkFilesMap, filesMap } = await fetchFolders(
+    treeNode.breadcrumb,
+  );
+  const items = [...subFoldersMap, ...linkFilesMap, ...filesMap];
 
   for (let i = 0; i < items.length; i++) {
-    if (typeof items[i] === "object") {
-      const filePath = items[i].data.fname.split("/");
-      const fileName = filePath[filePath.length - 1];
+    const item = items[i];
+    if (item.data.path) {
+      // assume to be a folder or a link as files have fname's property
+      const path = item.data.path;
+      const fileNameList = path.split("/");
+      const fileName = fileNameList[fileNameList.length - 1];
+
+      arr.push({
+        breadcrumb: path,
+        title: fileName,
+        key: `${treeNode.key}-${i}`,
+        isLeaf: false,
+        checkable: true,
+      });
+    } else {
+      // assumed to be a file
+      const path = item.data.fname;
+      const fileNameList = path.split("/");
+      const fileName = fileNameList[fileNameList.length - 1];
       arr.push({
         breadcrumb: `${treeNode.breadcrumb}/${fileName}`,
         title: fileName,
         key: `${treeNode.key}-${i}`,
         isLeaf: true,
-        checkable: false,
-      });
-    } else {
-      const checkList = ["uploads", "SERVICES", "PACS"];
-      const isCheckable = !checkList.includes(items[i]);
-      arr.push({
-        breadcrumb: `${treeNode.breadcrumb}/${items[i]}`,
-        title: items[i],
-        key: `${treeNode.key}-${i}`,
-        isLeaf: false,
-        checkable: isCheckable,
+        checkable: true,
       });
     }
   }
@@ -102,43 +110,23 @@ export const generateTreeNodes = async (
   return arr;
 };
 
-export async function fetchResources(pipelineInstance: Pipeline) {
-  const params = {
-    limit: 100,
-    offset: 0,
-  };
-
-  const pipelinePluginsFn = pipelineInstance.getPlugins;
-  const pipelineFn = pipelineInstance.getPluginPipings;
-  const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
-  const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const { resource: pluginPipings } = await fetchResource<PluginPiping>(
-    params,
-    boundPipelineFn,
-  );
-  const { resource: pipelinePlugins } = await fetchResource(
-    params,
-    boundPipelinePluginFn,
-  );
-  const parameters = await pipelineInstance.getDefaultParameters({
-    limit: 1000,
-  });
-
-  return {
-    parameters,
-    pluginPipings,
-    pipelinePlugins,
-  };
-}
-
 export const generatePipelineWithData = async (data: any) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstance: Pipeline = await client.createPipeline(data);
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 /**

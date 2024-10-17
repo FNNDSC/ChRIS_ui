@@ -1,9 +1,8 @@
-import * as React from "react";
-import axios, { AxiosProgressEvent } from "axios";
+import axios, { type AxiosProgressEvent } from "axios";
 import ChrisAPIClient from "./chrisapiclient";
-import {
+import type {
   Pipeline,
-  type PipelineList,
+  PipelineList,
   PluginPiping,
   Feed,
   Plugin,
@@ -12,121 +11,17 @@ import {
 } from "@fnndsc/chrisapi";
 import { quote } from "shlex";
 
-export function useSafeDispatch(dispatch: any) {
-  const mounted = React.useRef(false);
-  React.useLayoutEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-  return React.useCallback(
-    (...args: any[]) => (mounted.current ? dispatch(...args) : void 0),
-    [dispatch],
-  );
+export function elipses(str: string, len: number) {
+  if (str.length <= len) return str;
+  return `${str.slice(0, len - 3)}...`;
 }
 
-const defaultInitialState = {
-  status: "idle",
-  data: null,
-  error: null,
-};
-
-function useAsync(initialState?: any) {
-  const initialStateRef = React.useRef({
-    ...defaultInitialState,
-    initialState,
-  });
-
-  const [{ status, data, error }, setState] = React.useReducer(
-    (s: any, a: any) => ({ ...s, ...a }),
-    initialStateRef.current,
-  );
-
-  const safeSetState = useSafeDispatch(setState);
-  const setData = React.useCallback(
-    (data: any) => safeSetState({ data, status: "resolved" }),
-    [safeSetState],
-  );
-  const setError = React.useCallback(
-    (error: any) => safeSetState({ error, status: "rejected" }),
-    [safeSetState],
-  );
-  const reset = React.useCallback(
-    () => safeSetState(initialStateRef.current),
-    [safeSetState],
-  );
-
-  const run = React.useCallback(
-    (promise: any) => {
-      if (!promise || !promise.then) {
-        throw new Error(
-          `The argument passed to useAsync().run must be a promise`,
-        );
-      }
-      safeSetState({ status: "pending" });
-      return promise.then(
-        (data: any) => {
-          setData(data);
-          return data;
-        },
-        (error: any) => {
-          setError(error);
-          return Promise.reject(error);
-        },
-      );
-    },
-    [safeSetState, setData, setError],
-  );
-
-  return {
-    isIdle: status === "idle",
-    isLoading: status === "pending",
-    isError: status === "rejected",
-    isSuccess: status === "resolved",
-
-    setData,
-    setError,
-    error,
-    status,
-    data,
-    run,
-    reset,
-  };
+interface FetchParams {
+  limit: number;
+  offset: number;
+  fname_icontains?: string;
+  fname_nslashes?: string;
 }
-
-async function fetchResource<T>(
-  params: {
-    limit: number;
-    offset: number;
-    fname_icontains?: string;
-    fname_nslashes?: string;
-  },
-  fn: any,
-) {
-  let resourceList = await fn(params);
-  let resource: T[] = [];
-  if (resourceList.getItems()) {
-    resource = resourceList.getItems() as T[];
-  }
-  while (resourceList.hasNextPage) {
-    try {
-      params.offset += params.limit;
-      resourceList = await fn(params);
-      if (resourceList.getItems()) {
-        resource.push(...(resourceList.getItems() as T[]));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return {
-    resource,
-    totalCount: resourceList.totalCount as number,
-  };
-}
-
-export { useAsync, fetchResource };
 
 export interface TreeType {
   id: number;
@@ -145,39 +40,52 @@ export interface TreeNode {
   plugin_version: string;
 }
 
-export const getFeedTree = (items: any[]) => {
-  const tree = [];
-  const mappedArr: { [key: string]: TreeNode } = {};
+export const getFeedTree = (items: any[]): TreeNode[] => {
+  const tree: TreeNode[] = [];
+  const mappedArr = new Map<number, TreeNode>();
+  const childrenMap = new Map<number, TreeNode[]>();
 
   items.forEach((item) => {
-    const id = item.data.id;
-    if (!mappedArr[id]) {
-      mappedArr[id] = {
-        id: id,
-        plugin_id: item.data.plugin_id,
-        pipeline_id: item.data.pipeline_id,
-        previous_id: item.data.previous_id && item.data.previous_id,
-        title: item.data.title,
-        plugin_name: item.data.plugin_name,
-        plugin_version: item.data.plugin_version,
-        children: [],
-      };
+    const id: number = item.data.id;
+    const previous_id: number | null =
+      item.data.previous_id !== undefined ? item.data.previous_id : null;
+
+    const node: TreeNode = {
+      id,
+      plugin_id: item.data.plugin_id,
+      pipeline_id: item.data.pipeline_id,
+      previous_id,
+      title: item.data.title,
+      plugin_name: item.data.plugin_name,
+      plugin_version: item.data.plugin_version,
+      children: [],
+    };
+
+    mappedArr.set(id, node);
+
+    if (previous_id !== null) {
+      const parentNode = mappedArr.get(previous_id);
+      if (parentNode) {
+        parentNode.children.push(node);
+      } else {
+        // If parent hasn't been processed yet, store the child in childrenMap
+        if (!childrenMap.has(previous_id)) {
+          childrenMap.set(previous_id, []);
+        }
+        childrenMap.get(previous_id)!.push(node);
+      }
+    } else {
+      tree.push(node);
+    }
+
+    // If there are children waiting for this node, add them
+    if (childrenMap.has(id)) {
+      const children = childrenMap.get(id)!;
+      node.children.push(...children);
+      childrenMap.delete(id);
     }
   });
 
-  for (const id in mappedArr) {
-    if (Object.prototype.hasOwnProperty.call(mappedArr, id)) {
-      const mappedElem = mappedArr[id];
-      if (mappedElem.previous_id) {
-        const parentId = mappedElem.previous_id;
-        if (parentId && mappedArr[parentId] && mappedArr[parentId].children) {
-          mappedArr[parentId].children.push(mappedElem);
-        }
-      } else {
-        tree.push(mappedElem);
-      }
-    }
-  }
   return tree;
 };
 
@@ -212,32 +120,97 @@ export const fetchPipelines = async (
   }
 };
 
-export async function fetchResources(pipelineInstance: Pipeline) {
-  const params = {
-    limit: 100,
-    offset: 0,
-  };
+interface ResourceList<T> {
+  getItems(): T[] | null;
+  hasNextPage: boolean;
+  totalCount: number;
+}
 
-  const pipelinePluginsFn = pipelineInstance.getPlugins;
-  const pipelineFn = pipelineInstance.getPluginPipings;
-  const boundPipelinePluginFn = pipelinePluginsFn.bind(pipelineInstance);
-  const boundPipelineFn = pipelineFn.bind(pipelineInstance);
-  const { resource: pluginPipings } = await fetchResource<PluginPiping>(
-    params,
-    boundPipelineFn,
-  );
-  const { resource: pipelinePlugins }: { resource: Plugin[] } =
-    await fetchResource(params, boundPipelinePluginFn);
-  const parameters: PipelinePipingDefaultParameterList =
-    await pipelineInstance.getDefaultParameters({
-      limit: 1000,
-    });
+interface FetchResourceResult<T> {
+  resource: T[];
+  totalCount: number;
+}
 
-  return {
-    parameters,
-    pluginPipings,
-    pipelinePlugins,
-  };
+type FetchFunction<T> = (params: FetchParams) => Promise<ResourceList<T>>;
+
+export const fetchResource = async <T>(
+  params: FetchParams,
+  fn: FetchFunction<T>,
+): Promise<FetchResourceResult<T>> => {
+  try {
+    let resourceList = await fn(params);
+    let resource: T[] = [];
+
+    const items = resourceList.getItems();
+    if (items) {
+      resource = [...items];
+    }
+
+    while (resourceList.hasNextPage) {
+      params.offset += params.limit;
+      resourceList = await fn(params);
+      const newItems = resourceList.getItems();
+      if (newItems) {
+        resource.push(...newItems);
+      }
+    }
+
+    return {
+      resource,
+      totalCount: resourceList.totalCount,
+    };
+  } catch (error) {
+    const error_message = catchError(error).error_message;
+
+    if (error_message) {
+      throw new Error(error_message);
+    }
+
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
+};
+
+// Type Definitions
+interface FetchParams {
+  limit: number;
+  offset: number;
+}
+
+interface FetchResourcesResult {
+  parameters: PipelinePipingDefaultParameterList;
+  pluginPipings: PluginPiping[];
+  pipelinePlugins: Plugin[];
+}
+
+export async function fetchResources(
+  pipelineInstance: Pipeline,
+  params: FetchParams = { limit: 100, offset: 0 },
+): Promise<FetchResourcesResult> {
+  try {
+    const boundGetPlugins = pipelineInstance.getPlugins.bind(pipelineInstance);
+    const boundGetPluginPipings =
+      pipelineInstance.getPluginPipings.bind(pipelineInstance);
+    const [pluginPipings, pipelinePlugins, parameters] = await Promise.all([
+      fetchResource<PluginPiping>(params, boundGetPluginPipings),
+      fetchResource<Plugin>(params, boundGetPlugins),
+      pipelineInstance.getDefaultParameters({ limit: 1000 }),
+    ]);
+    return {
+      parameters,
+      pluginPipings: pluginPipings.resource,
+      pipelinePlugins: pipelinePlugins.resource,
+    };
+  } catch (e) {
+    // Comprehensive error handling
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
+    // Handles API errors
+    const message = catchError(e).error_message;
+    throw new Error(message);
+  }
 }
 
 export const generatePipelineWithName = async (pipelineName: string) => {
@@ -247,23 +220,47 @@ export const generatePipelineWithName = async (pipelineName: string) => {
     name: pipelineName,
   });
   const pipelineInstanceId = pipelineInstanceList.data[0].id;
-  const pipelineInstance: Pipeline =
-    await client.getPipeline(pipelineInstanceId);
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+  const pipelineInstance: Pipeline = (await client.getPipeline(
+    pipelineInstanceId,
+  )) as Pipeline;
+
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    const error_message = catchError(error).error_message;
+    if (error_message) {
+      throw new Error(error_message);
+    }
+
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 export const generatePipelineWithData = async (data: any) => {
   const client = ChrisAPIClient.getClient();
   const pipelineInstance: Pipeline = await client.createPipeline(data);
-  const resources = await fetchResources(pipelineInstance);
-  return {
-    resources,
-    pipelineInstance,
-  };
+
+  try {
+    const resources = await fetchResources(pipelineInstance);
+    return {
+      resources,
+      pipelineInstance,
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error(
+      "Unhandled error. Please reach out to @devbabymri.org to report this error",
+    );
+  }
 };
 
 export async function fetchComputeInfo(
@@ -299,19 +296,53 @@ export async function fetchComputeInfo(
       return computeEnvData;
     }
   } catch (e) {
-    throw new Error("Error fetching the compoute Environment");
+    throw new Error("Error fetching the compute Environment");
   }
 }
 
+// src/utils/catchError.ts
+
 export function catchError(errorRequest: any) {
-  if (errorRequest.response) {
-    return { error_message: errorRequest.response.data as string };
+  // Check if errorRequest has a response with data
+  if (
+    errorRequest?.response?.data &&
+    typeof errorRequest.response.data === "object"
+  ) {
+    /*
+{
+  "response": {
+    "data": {
+      "randomErrorKey": ["ErrorMessage"]
+      }
+    }
+  }
+     */
+    const data = errorRequest.response.data;
+    // Iterate through each key in the data object
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        const value = data[key];
+        // Check if the value is an array with at least one message
+        if (Array.isArray(value) && value.length > 0) {
+          // Return the first error message found
+          return { error_message: value[0] };
+        }
+      }
+    }
+
+    // If no valid error messages are found, return a generic error
+    return { error_message: "An unknown error occurred." };
   }
 
-  if (errorRequest.message) {
+  // If errorRequest has a message property, return it
+  if (errorRequest?.message) {
     return { error_message: errorRequest.message as string };
   }
-  return { error_message: errorRequest as string };
+
+  // Fallback error message
+  return {
+    error_message: "Unexpected Error: Please report at @devbabymri.org",
+  };
 }
 
 // A function to limit concurrency using Promise.allSettled.
@@ -400,7 +431,7 @@ export const uploadWrapper = (
   token: string,
   onUploadProgress?: (file: any, progressEvent: AxiosProgressEvent) => void,
 ) => {
-  const url = `${import.meta.env.VITE_CHRIS_UI_URL}uploadedfiles/`;
+  const url = `${import.meta.env.VITE_CHRIS_UI_URL}userfiles/`;
   return localFiles.map((file) => {
     const onUploadProgressWrap = (progressEvent: AxiosProgressEvent) => {
       onUploadProgress?.(file, progressEvent);
@@ -449,7 +480,28 @@ export function needsQuoting(value: string) {
     return false;
   }
 
+  // Avoid shlex.quote if the string contains an apostrophe
+
+  if (value.includes("'")) {
+    return true;
+  }
+
   // If not quoted, check if quoting is necessary
   const quotedValue = quote(value);
   return quotedValue !== value;
 }
+
+// Custom quote function to avoid mangling strings with apostrophes
+export function customQuote(value: string) {
+  // If the string contains a single quote, wrap it in double quotes
+  if (value.includes("'")) {
+    return `"${value}"`; // Wrap in double quotes
+  }
+
+  // Otherwise, fall back to shlex.quote for safe quoting
+  return quote(value);
+}
+
+export const getFileName = (name: string) => {
+  return name.split("/").slice(-1).join("");
+};

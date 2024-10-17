@@ -1,84 +1,20 @@
-import { all, fork, takeEvery, put, delay } from "@redux-saga/core/effects";
-import { Task } from "redux-saga";
-import { IActionTypeParam } from "../../api/model";
-import { ResourceTypes, PluginStatusLabels } from "./types";
-import { PluginInstanceTypes } from "../pluginInstance/types";
-import {
-  FileBrowserPathFileList,
-  PluginInstance,
-  FileBrowserPath,
-} from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
+import { all, delay, fork, put, takeEvery } from "redux-saga/effects";
 import { inflate, inflateRaw } from "pako";
-import {
-  getPluginInstanceResourceSuccess,
-  stopFetchingPluginResources,
-  stopFetchingStatusResources,
-  getPluginFilesSuccess,
-  getPluginFilesError,
-  getPluginInstanceStatusSuccess,
-} from "./actions";
-import { fetchResource } from "../../api/common";
+import type { Task } from "redux-saga";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
-export function* getPluginFiles(plugin: PluginInstance) {
-  const params = { limit: 200, offset: 0 };
-  const fn = plugin.getFiles;
-  const boundFn = fn.bind(plugin);
-  const { resource: files } = yield fetchResource<any>(params, boundFn);
-  return files;
-}
-
-export const fetchFilesFromAPath = async (path: string) => {
-  const client = ChrisAPIClient.getClient();
-  const foldersList: FileBrowserPathFileList = await client.getFileBrowserPaths(
-    {
-      path,
-    },
-  );
-  let folders: string[] = [];
-  const pathList: FileBrowserPath = await client.getFileBrowserPath(path);
-  const fetchFileFn = pathList.getFiles;
-  const boundFetchFileFn = fetchFileFn.bind(pathList);
-  const params = { limit: 100, offset: 0 };
-  let files: any[] = [];
-
-  const { resource } = await fetchResource(params, boundFetchFileFn);
-  files = resource;
-
-  if (
-    foldersList.data &&
-    foldersList.data[0].subfolders &&
-    foldersList.data[0].subfolders.length > 0
-  ) {
-    folders = JSON.parse(foldersList.data[0].subfolders);
-  }
-
-  return {
-    files,
-    folders,
-  };
-};
-
-function* fetchPluginFiles(action: IActionTypeParam) {
-  const { id, path } = action.payload;
-
-  try {
-    const { files, folders } = yield fetchFilesFromAPath(path);
-    const payload = {
-      id,
-      files,
-      folders,
-      path,
-    };
-    yield put(getPluginFilesSuccess(payload));
-  } catch (error) {
-    const payload = {
-      id,
-      error,
-    };
-    yield put(getPluginFilesError(payload));
-  }
-}
+import type { IActionTypeParam } from "../../api/model";
+import {
+  getPluginInstanceResourceSuccess,
+  getPluginInstanceStatusSuccess,
+  resetActiveResources,
+  stopFetchingPluginResources,
+  stopFetchingStatusResources,
+  getPluginInstanceStatusRequest,
+} from "./resourceSlice";
+import type { PluginStatusLabels } from "./types";
+import { getSelectedPlugin } from "../pluginInstance/pluginInstanceSlice";
 
 function* handleGetPluginStatus(instance: PluginInstance) {
   while (true) {
@@ -187,15 +123,15 @@ function cancelStatusPolling(task: Task) {
 }
 
 function* watchCancelPoll(pollTask: Task) {
-  yield takeEvery(ResourceTypes.STOP_FETCHING_PLUGIN_RESOURCES, function () {
+  yield takeEvery(stopFetchingPluginResources.type, () => {
     cancelPolling(pollTask);
   });
 }
 
 function* watchStatusCancelPoll(pollTask: PollTask) {
   yield takeEvery(
-    ResourceTypes.STOP_FETCHING_STATUS_RESOURCES,
-    function (action: IActionTypeParam) {
+    stopFetchingStatusResources.type,
+    (action: IActionTypeParam) => {
       const id = action.payload;
       const taskToCancel = pollTask[id];
       cancelStatusPolling(taskToCancel);
@@ -227,34 +163,20 @@ function* pollInstanceEndpoints(action: IActionTypeParam) {
   yield watchStatusCancelPoll(pollTask);
 }
 
-function* watchGetPluginFilesRequest() {
-  yield takeEvery(ResourceTypes.GET_PLUGIN_FILES_REQUEST, fetchPluginFiles);
-}
-
 function* watchGetPluginStatusRequest() {
-  yield takeEvery(
-    ResourceTypes.GET_PLUGIN_STATUS_REQUEST,
-    pollInstanceEndpoints,
-  );
+  yield takeEvery(getPluginInstanceStatusRequest.type, pollInstanceEndpoints);
 }
 
 function* watchResetActiveResources() {
-  yield takeEvery(
-    ResourceTypes.RESET_ACTIVE_RESOURCES,
-    handleResetActiveResources,
-  );
+  yield takeEvery(resetActiveResources.type, handleResetActiveResources);
 }
 
 function* watchSelectedPlugin() {
-  yield takeEvery(
-    PluginInstanceTypes.GET_SELECTED_PLUGIN,
-    pollorCancelEndpoints,
-  );
+  yield takeEvery(getSelectedPlugin.type, pollorCancelEndpoints);
 }
 
 export function* resourceSaga() {
   yield all([
-    fork(watchGetPluginFilesRequest),
     fork(watchGetPluginStatusRequest),
     fork(watchResetActiveResources),
     fork(watchSelectedPlugin),
@@ -282,7 +204,6 @@ function getLog(raw: string) {
   }
 
   // If both "deflate" and "zlib" fail, you may need to handle other compression methods here.
-
   console.error("Unable to inflate the data.");
   return null;
 }

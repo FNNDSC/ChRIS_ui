@@ -1,20 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useImmer } from "use-immer";
-import { useDispatch } from "react-redux";
 import { PageSection } from "@patternfly/react-core";
 import WrapperConnect from "../Wrapper";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { setIsNavOpen, setSidebarActive } from "../../store/ui/actions";
-
-import { ChNVROptions, ChNVRVolume } from "./models";
+import type { ChNVROptions, ChNVRVolume } from "./models";
 import { DEFAULT_OPTIONS } from "./defaults";
 import HeaderOptionBar from "./components/HeaderOptionBar";
-import SizedNiivueCanvas, { CrosshairLocation } from "../SizedNiivueCanvas";
-import { Problem, TagsDictionary, VisualDataset } from "./types";
+import SizedNiivueCanvas, {
+  type CrosshairLocation,
+} from "../SizedNiivueCanvas";
+import type { Problem, TagsDictionary, VisualDataset } from "./types";
 import {
-  DatasetFile,
-  DatasetFilesClient,
-  DatasetPreClient,
+  type DatasetFile,
+  type DatasetFilesClient,
+  type DatasetPreClient,
   getDataset,
   getPreClient,
 } from "./client";
@@ -31,10 +30,10 @@ import {
 } from "./content";
 import { parsePluginInstanceId } from "./client/helpers";
 import { getFeedOf } from "./client/getDataset";
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import {
-  DatasetFileState,
-  DatasetVolume,
+  type DatasetFileState,
+  type DatasetVolume,
   files2states,
   volumeIsLoaded,
 } from "./statefulTypes";
@@ -59,7 +58,6 @@ import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
  * is generally useful for other datasets of 3D medical images.
  */
 const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
-  const dispatch = useDispatch();
   const [dataset, setDataset] = useState<VisualDataset | null>(null);
   const [feed, setFeed] = useState<Feed | null>(null);
   /**
@@ -151,13 +149,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
   // when the web app is ready, hide the sidebar and set the page title.
   React.useEffect(() => {
     document.title = "Volume View";
-    dispatch(setIsNavOpen(false));
-    dispatch(
-      setSidebarActive({
-        activeItem: "dataset",
-      }),
-    );
-  }, [dispatch]);
+  }, []);
 
   // on first load, get the dataset's plugin instances.
   useEffect(() => {
@@ -277,9 +269,8 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
     }
     if (fileStates.findIndex(volumeIsLoaded) === -1) {
       return "Select an image in the sidebar.";
-    } else {
-      return "Loading images...";
     }
+    return "Loading images...";
   }, [fileStates]);
 
   // ELEMENT

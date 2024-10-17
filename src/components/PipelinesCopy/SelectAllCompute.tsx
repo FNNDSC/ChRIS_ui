@@ -1,13 +1,13 @@
-import { ComputeResource, Pipeline } from "@fnndsc/chrisapi";
+import type { ComputeResource, Pipeline } from "@fnndsc/chrisapi";
 import {
   MenuToggle,
-  MenuToggleElement,
+  type MenuToggleElement,
   Select,
   SelectList,
   SelectOption,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import { Avatar } from "antd";
+import { Avatar } from "../Antd";
 import React, { useContext } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";

@@ -1,4 +1,4 @@
-import type { FeedFile, PACSFile } from "@fnndsc/chrisapi";
+import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
 import {
   Button,
   Label,
@@ -8,13 +8,22 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
-import { useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { useMutation } from "@tanstack/react-query";
 import * as dicomParser from "dicom-parser";
-import React, { Fragment, ReactElement, useCallback } from "react";
+import React, {
+  Fragment,
+  useCallback,
+  useEffect,
+  useState,
+  type ReactElement,
+} from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { IFileBlob, fileViewerMap, getFileExtension } from "../../api/model";
-import { useTypedSelector } from "../../store/hooks";
+import {
+  fileViewerMap,
+  getFileExtension,
+  type IFileBlob,
+} from "../../api/model";
+import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import {
   AddIcon,
@@ -31,66 +40,69 @@ import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
 interface AllProps {
-  selectedFile?: FeedFile | PACSFile;
+  selectedFile?: FileBrowserFolderFile | PACSFile;
   isDicom?: boolean;
   preview: "large" | "small";
   handleNext?: () => void;
   handlePrevious?: () => void;
   gallery?: boolean;
-  isPublic?: boolean;
+  // These props enable pagination and fetch on scroll
+  list?: IFileBlob[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 }
 
 export interface ActionState {
   [key: string]: boolean | string;
 }
 
-const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
-
 const FileDetailView = (props: AllProps) => {
-  const [tagInfo, setTagInfo] = React.useState<any>();
-  const [actionState, setActionState] = React.useState<ActionState>({
+  const [tagInfo, setTagInfo] = useState<any>();
+  const [actionState, setActionState] = useState<ActionState>({
     Zoom: false,
     previouslyActive: "",
   });
-  const [error, setError] = React.useState("");
-  const drawerState = useTypedSelector((state) => state.drawers);
+  const [parsingError, setParsingError] = useState<string>("");
+  const drawerState = useAppSelector((state) => state.drawers);
 
-  const handleKeyboardEvents = (event: any) => {
-    switch (event.keyCode) {
-      case 39: {
-        event.preventDefault();
-        props.handleNext?.();
-        break;
+  const handleKeyboardEvents = useCallback(
+    (event: any) => {
+      switch (event.keyCode) {
+        case 39: {
+          event.preventDefault();
+          props.handleNext?.();
+          break;
+        }
+
+        case 37: {
+          event.preventDefault();
+          props.handlePrevious?.();
+          break;
+        }
+
+        default:
+          break;
       }
+    },
+    [props],
+  );
 
-      case 37: {
-        event.preventDefault();
-        props.handlePrevious?.();
-        break;
-      }
-
-      default:
-        break;
-    }
-  };
-
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("keydown", handleKeyboardEvents);
 
     return () => {
       window.removeEventListener("keydown", handleKeyboardEvents);
     };
-  });
+  }, [handleKeyboardEvents]);
 
-  const displayTagInfo = useCallback((result: any) => {
+  const displayTagInfo = useCallback(async (result: any) => {
     const reader = new FileReader();
 
     reader.onloadend = async () => {
       try {
         if (reader.result) {
-          //@ts-ignore
-          const byteArray = new Uint8Array(reader.result);
-          //@ts-ignore
+          const byteArray = new Uint8Array(reader.result as ArrayBuffer);
           const testOutput: any[] = [];
           const output: any[] = [];
           const dataSet = dicomParser.parseDicom(byteArray);
@@ -99,7 +111,7 @@ const FileDetailView = (props: AllProps) => {
           setTagInfo(merged);
         }
       } catch (error) {
-        setError("Failed to parse the file for dicom tags");
+        setParsingError("Failed to parse the file for dicom tags");
         return {
           blob: undefined,
           file: undefined,
@@ -109,62 +121,40 @@ const FileDetailView = (props: AllProps) => {
     };
 
     if (result) {
-      reader.readAsArrayBuffer(result);
+      const blob = await selectedFile?.getFileBlob();
+      if (blob) {
+        reader.readAsArrayBuffer(blob);
+      } else {
+        throw new Error("Failed to parse the file for dicom tags");
+      }
     }
   }, []);
 
-  const { selectedFile, preview } = props;
+  const mutation = useMutation({
+    mutationFn: async (selectedFile: FileBrowserFolderFile | PACSFile) => {
+      await displayTagInfo(selectedFile);
+    },
 
-  const fetchData = async (selectedFile: FeedFile | PACSFile) => {
-    setError("");
-    const fileName = selectedFile.data.fname;
-    const fileType = getFileExtension(fileName);
+    onError: (error: any) => {
+      setParsingError(error.message);
+    },
+  });
 
-    if (props.isPublic && !fileTypes.includes(fileType)) {
-      return {
-        blob: undefined,
-        file: selectedFile,
-        fileType,
-        url: selectedFile?.collection.items[0].links[0].href, // Corrected semicolon to comma
-      };
-    }
-
-    try {
-      const blob = await selectedFile.getFileBlob();
-
-      return {
-        blob,
-        file: selectedFile,
-        fileType,
-        url: "",
-      };
-    } catch (error: any) {
-      setError("Failed to fetch the data for preview");
-      throw error;
-    }
-  };
-
-  const { data, isLoading }: { data?: IFileBlob; isLoading: boolean } =
-    useQuery({
-      queryKey: ["preview", selectedFile],
-      queryFn: () => selectedFile && fetchData(selectedFile),
-      enabled: !!selectedFile,
-    });
-
+  const { selectedFile, preview, fetchMore, handlePagination, filesLoading } =
+    props;
   let viewerName = "";
-
-  if (data?.fileType) {
-    const { fileType } = data;
+  const fileType = getFileExtension(selectedFile?.data.fname);
+  if (fileType) {
     if (!fileViewerMap[fileType]) {
-      viewerName = "TextDisplay";
+      viewerName = "CatchallDisplay";
     } else {
       viewerName = fileViewerMap[fileType];
     }
   }
 
   const handleEvents = (action: string, previouslyActive: string) => {
-    if (action === "TagInfo" && data) {
-      displayTagInfo(data.blob);
+    if (action === "TagInfo" && selectedFile) {
+      mutation.mutate(selectedFile);
     }
     const currentAction = actionState[action];
     setActionState({
@@ -196,7 +186,7 @@ const FileDetailView = (props: AllProps) => {
         <Text component="p">
           {error
             ? error
-            : "Oh snap ! Looks like there was an error. Please refresh the browser or try again."}
+            : "Oh snap! Looks like there was an error. Please refresh the browser or try again."}
         </Text>
       </Label>
     </span>
@@ -218,30 +208,30 @@ const FileDetailView = (props: AllProps) => {
               />
             )}
 
-            {isLoading && (
-              <SpinContainer title="Please wait as the file is being fetched..." />
-            )}
-
-            {error && <Alert closable type="error" description={error} />}
-
-            {data && (
+            {selectedFile && (
               <ViewerDisplay
                 preview={preview}
                 viewerName={viewerName}
-                fileItem={data}
                 actionState={actionState}
+                selectedFile={selectedFile}
+                // Optional for dicom scrolling
+                list={props.list}
+                fetchMore={fetchMore}
+                handlePagination={handlePagination}
+                filesLoading={filesLoading}
               />
             )}
           </div>
 
           <TagInfoModal
+            isDrawer={true}
             handleModalToggle={(actionState, toolState) => {
               const previouslyActive = Object.keys(actionState)[0];
               handleModalToggle(actionState, toolState, previouslyActive);
             }}
             isModalOpen={actionState.TagInfo as boolean}
             output={tagInfo}
-            parsingError={error}
+            parsingError={parsingError}
           />
         </ErrorBoundary>
       </React.Suspense>
@@ -283,7 +273,6 @@ const actions = [
     name: "Length",
     icon: <RulerIcon />,
   },
-
   {
     name: "TagInfo",
     icon: <InfoIcon />,

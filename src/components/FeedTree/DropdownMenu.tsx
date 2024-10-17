@@ -1,9 +1,8 @@
-import { Dropdown, type MenuProps } from "antd";
-import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../store/hooks";
-import { getNodeOperations } from "../../store/plugin/actions";
+import type React from "react";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { getNodeOperations } from "../../store/plugin/pluginSlice";
+import { Dropdown, type MenuProps } from "../Antd";
 import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
-import React from "react";
 
 const DropdownMenu = ({
   children,
@@ -12,13 +11,13 @@ const DropdownMenu = ({
   children: React.ReactElement;
   handleZip: () => void;
 }) => {
-  const { selectedPlugin } = useTypedSelector((state) => {
+  const dispatch = useAppDispatch();
+  const { selectedPlugin } = useAppSelector((state) => {
     return state.instance;
   });
   const cancelled =
     selectedPlugin?.data.status === "cancelled" ||
     selectedPlugin?.data.status === "finishedWithError";
-  const dispatch = useDispatch();
   const items: MenuProps["items"] = [
     {
       key: "1",

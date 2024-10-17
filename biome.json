@@ -30,7 +30,7 @@
         "noForEach": "off"
       },
       "correctness": {
-        "useExhaustiveDependencies": "off"
+        "useExhaustiveDependencies": "warn"
       },
       "suspicious": {
         "noExplicitAny": "off"

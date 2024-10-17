@@ -9,22 +9,22 @@ import {
   LoginMainFooterBandItem,
   LoginPage,
 } from "@patternfly/react-core";
-import { ExclamationCircleIcon } from "../Icons";
 import queryString from "query-string";
 import React from "react";
 import { useCookies } from "react-cookie";
-import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 import ChRIS_Logo from "../../assets/chris-logo.png";
-import { setAuthTokenSuccess } from "../../store/user/actions";
+import { setAuthTokenSuccess } from "../../store/user/userSlice";
+import { ExclamationCircleIcon } from "../Icons";
 import "./Login.css";
+import { useAppDispatch } from "../../store/hooks.ts";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [_cookies, setCookie] = useCookies<string>([""]);
   const [showHelperText, setShowHelperText] = React.useState(false);
   const [username, setUsername] = React.useState("");
@@ -60,14 +60,12 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           path: "/",
           maxAge: oneDayToSeconds,
         });
-
         const client = ChrisAPIClient.getClient();
         const user = await client.getUser();
         setCookie("isStaff", user.data.is_staff, {
           path: "/",
           maxAge: oneDayToSeconds,
         });
-
         dispatch(
           setAuthTokenSuccess({
             token,
@@ -79,8 +77,16 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
         const { redirectTo } = queryString.parse(location.search) as {
           redirectTo: string;
         };
-
-        if (redirectTo) {
+        if (redirectTo?.startsWith("/library")) {
+          navigate(`/library/home/${username}`);
+        } else if (redirectTo?.startsWith("/feeds")) {
+          const feedIdMatch = redirectTo.match(/^\/feeds\/\d+/);
+          if (feedIdMatch) {
+            navigate("/feeds?type=private");
+          } else {
+            navigate(redirectTo);
+          }
+        } else if (redirectTo) {
           const decodedRedirectTo = decodeURIComponent(redirectTo);
           navigate(decodedRedirectTo);
         } else {

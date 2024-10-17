@@ -243,21 +243,22 @@ const StudyCardCopy = ({ study }: { study: any }) => {
               </>
             )}
             <div className="flex-studies-item button-container">
-              {import.meta.env.VITE_OHIF_URL && (
-                <Tooltip content="Open in OHIF">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    style={{ marginRight: "0.25em" }}
-                    icon={<ThLargeIcon />}
-                    component="a"
-                    href={`${
-                      import.meta.env.VITE_OHIF_URL
-                    }viewer?StudyInstanceUIDs=${study.StudyInstanceUID.value}`}
-                    target="_blank"
-                  />
-                </Tooltip>
-              )}
+              {import.meta.env.VITE_OHIF_URL &&
+                import.meta.env.VITE_OHIF_URL.length > 0 && (
+                  <Tooltip content="Open in OHIF">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      style={{ marginRight: "0.25em" }}
+                      icon={<ThLargeIcon />}
+                      component="a"
+                      href={`${
+                        import.meta.env.VITE_OHIF_URL
+                      }viewer?StudyInstanceUIDs=${study.StudyInstanceUID.value}`}
+                      target="_blank"
+                    />
+                  </Tooltip>
+                )}
               <Tooltip
                 content={
                   preview === true ? "Hide All Previews" : "Show All Previews"

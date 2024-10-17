@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { TextArea, FormGroup, Form, Button } from "@patternfly/react-core";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { fetchNote } from "../../api/common";
 
 const FeedNote = () => {
   const [value, setValue] = React.useState("");
 
-  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
+  const feed = useAppSelector((state) => state.feed.currentFeed.data);
 
   useEffect(() => {
     fetchNote(feed).then((note) => {

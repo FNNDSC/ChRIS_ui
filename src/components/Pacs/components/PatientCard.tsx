@@ -6,7 +6,7 @@ import {
   Skeleton,
   Tooltip,
 } from "@patternfly/react-core";
-import { notification } from "antd";
+import { notification } from "../../Antd";
 import { format, parse } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import { PacsQueryContext } from "../context";

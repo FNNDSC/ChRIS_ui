@@ -1,10 +1,10 @@
 import { Button, Checkbox } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
-import { Popover } from "antd";
+import { Popover } from "../../Antd";
 import axios from "axios";
 import { useState } from "react";
 import ChrisApiClient from "../../../api/chrisapiclient";
-import { useTypedSelector } from "../../../store/hooks";
+import { useAppSelector } from "../../../store/hooks";
 import { NodeDetailsPanelIcon } from "../../Icons";
 
 export const CardHeaderComponent = ({
@@ -57,7 +57,7 @@ export const SettingsComponent = ({
   handleModalClose: () => void;
 }) => {
   const queryClient = useQueryClient();
-  const username = useTypedSelector((state) => state.user.username);
+  const username = useAppSelector((state) => state.user.username);
 
   const [recordDict, setRecordDict] = useState<Record<string, boolean>>({});
 

@@ -3,7 +3,7 @@ import React from "react";
 import { DatasetSearchResult, getDatasets } from "./getDatasets.ts";
 import NotFound from "../NotFound";
 import { Link } from "react-router-dom";
-import { useTypedSelector } from "../../store/hooks.ts";
+import { useAppSelector } from "../../store/hooks.ts";
 
 /**
  * A page which redirects to a dataset viewer.
@@ -20,7 +20,7 @@ import { useTypedSelector } from "../../store/hooks.ts";
  */
 const DatasetRedirect = () => {
   const params = useParams();
-  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const [result, setResult] = React.useState<DatasetSearchResult | null>(null);
   // biome-ignore lint/suspicious/noExplicitAny: catch error is untyped
   const [error, setError] = React.useState<any>();

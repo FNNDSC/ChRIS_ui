@@ -1,4 +1,4 @@
-import { Plugin, PluginInstance, PluginMeta } from "@fnndsc/chrisapi";
+import type { Plugin, PluginInstance, PluginMeta } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
   Badge,
@@ -32,11 +32,11 @@ import {
 } from "@patternfly/react-core";
 import { CheckCircleIcon, UserAltIcon } from "@patternfly/react-icons";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Spin } from "antd";
 import React from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import PluginImg from "../../assets/brainy-pointer.png";
+import { Alert, Spin } from "../Antd";
 import { ClipboardCopyFixed } from "../Common";
 
 export const HeaderComponent = ({
@@ -145,9 +145,7 @@ export const DropdownPluginVersions = ({
               key={plugin.data.id}
               name={plugin.data.version}
               value={plugin.data.version}
-              autoFocus={
-                plugin.data.version === parameterPayload?.version ? true : false
-              }
+              autoFocus={plugin.data.version === parameterPayload?.version}
             >
               {plugin.data.version}
             </DropdownItem>
@@ -293,9 +291,7 @@ export const HeaderCardPlugin = ({
               </Tab>
               <Tab eventKey={1} title={<TabTitleText>Resources</TabTitleText>}>
                 {parameterPayload && (
-                  <>
-                    <TabResources parameterPayload={parameterPayload} />
-                  </>
+                  <TabResources parameterPayload={parameterPayload} />
                 )}
               </Tab>
 

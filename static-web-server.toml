@@ -1,0 +1,9 @@
+# Documentation: https://static-web-server.net/configuration/config-file/
+
+[general]
+host = "0.0.0.0"
+root = "/srv"
+
+redirect-trailing-slash = false
+page-fallback = "/srv/index.html"
+

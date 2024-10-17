@@ -1,19 +1,20 @@
-import React, { useContext, useEffect } from "react";
+import type { PluginParameter } from "@fnndsc/chrisapi";
 import {
+  Button,
   Dropdown,
-  MenuToggle,
   DropdownItem,
   DropdownList,
+  MenuToggle,
   TextInput,
 } from "@patternfly/react-core";
+import React, { useContext, useEffect } from "react";
 import { CloseIcon } from "../Icons";
-import { SimpleDropdownProps, SimpleDropdownState } from "./types";
+import type { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./utils";
-import { PluginParameter } from "@fnndsc/chrisapi";
 
+import { v4 } from "uuid";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
-import { v4 } from "uuid";
 
 function getInitialState() {
   return {
@@ -68,7 +69,7 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
     const placeholder = param.data.help;
     const type = param.data.type;
 
-    if (params && params["dropdown"].length > 0) {
+    if (params && params.dropdown.length > 0) {
       dispatch({
         type: Types.SetComponentList,
         payload: {
@@ -121,27 +122,25 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
 
   const dropdownItems = () => {
     const useParam = findUsedParam();
-    const parameters =
-      params &&
-      params["dropdown"]
-        .filter(
-          (param) =>
-            param.data.optional === true && !useParam.has(param.data.flag),
-        )
-        .map((param) => {
-          return (
-            <DropdownItem
-              key={param.data.id}
-              onClick={() => handleClick(param)}
-              className="plugin-configuration__parameter"
-              value={param.data.flag}
-              name={param.data.help}
-              style={{ fontFamily: "monospace" }}
-            >
-              {param.data.flag}
-            </DropdownItem>
-          );
-        });
+    const parameters = params?.dropdown
+      .filter(
+        (param) =>
+          param.data.optional === true && !useParam.has(param.data.flag),
+      )
+      .map((param) => {
+        return (
+          <DropdownItem
+            key={param.data.id}
+            onClick={() => handleClick(param)}
+            className="plugin-configuration__parameter"
+            value={param.data.flag}
+            name={param.data.help}
+            style={{ fontFamily: "monospace" }}
+          >
+            {param.data.flag}
+          </DropdownItem>
+        );
+      });
     return parameters;
   };
 
@@ -156,12 +155,12 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
                 ref={toggleRef}
                 id="toggle-id"
                 onClick={onToggle}
-                isDisabled={params && params["dropdown"].length == 0}
+                isDisabled={params && params.dropdown.length === 0}
               >
                 <div style={{ fontFamily: "monospace" }}>
                   {paramFlag
                     ? `${paramFlag}`
-                    : params && params["dropdown"].length == 0
+                    : params && params.dropdown.length === 0
                       ? "No Parameters"
                       : "Choose a Parameter"}
                 </div>
@@ -182,13 +181,11 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
           placeholder={placeholder}
           value={value}
           isDisabled={
-            type === "boolean" || (params && params["dropdown"].length == 0)
+            type === "boolean" || (params && params.dropdown.length === 0)
           }
         />
 
-        <div onClick={deleteDropdown}>
-          <CloseIcon />
-        </div>
+        <Button variant="link" onClick={deleteDropdown} icon={<CloseIcon />} />
       </div>
     </>
   );
