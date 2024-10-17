@@ -7,7 +7,7 @@ import { Cookies } from "react-cookie";
  * passed the token, declare process.env variables, etc.
  */
 
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+// biome-ignore lint/complexity/noStaticOnlyClass: Singleton pattern
 class ChrisAPIClient {
   private static client: Client;
   private static isTokenAuthorized: boolean;

@@ -1,6 +1,6 @@
 import "@patternfly/react-core/dist/styles/base.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider, App as AntdApp, theme } from "antd";
 import { useContext } from "react";
 import { CookiesProvider } from "react-cookie";
 import { Provider } from "react-redux";
@@ -60,10 +60,24 @@ function App(props: AllProps) {
                   algorithm: isDarkTheme
                     ? theme.darkAlgorithm
                     : theme.defaultAlgorithm,
+                  token: {
+                    // var(--pf-v5-global--primary-color--200)
+                    colorSuccess: "#004080",
+                  },
+                  components: {
+                    Progress: {
+                      // var(--pf-v5-global--primary-color--100)
+                      defaultColor: "#0066CC",
+                    },
+                  },
                 }}
               >
-                <Cart />
-                <Routes />
+                <AntdApp>
+                  <div className="patternfly-font">
+                    <Cart />
+                    <Routes />
+                  </div>
+                </AntdApp>
               </ConfigProvider>
             </QueryClientProvider>
           </BrowserRouter>
