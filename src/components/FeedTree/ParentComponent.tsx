@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector } from "../../store/hooks";
 import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
@@ -23,17 +23,24 @@ const ParentComponent = (props: ParentComponentProps) => {
     (state) => state.instance.pluginInstances,
   );
   const { data: instances, error, loading } = pluginInstances;
-  const [data, setData] = React.useState<TreeNodeDatum[]>([]);
-  const [tsIds, setTsIds] = React.useState<TSID>();
+  const [data, setData] = useState<TreeNodeDatum[]>([]);
+  const [tsIds, setTsIds] = useState<TSID>();
+  const [creating, setCreating] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (instances && instances.length > 0) {
-      const data = getFeedTree(instances);
-
-      getTsNodes(instances).then((nodes) => {
-        setTsIds(nodes);
-      });
-      setData(data);
+      setCreating(true);
+      try {
+        const data = getFeedTree(instances);
+        setData(data);
+        getTsNodes(instances).then((nodes) => {
+          setTsIds(nodes);
+        });
+      } catch (e) {
+        setCreating(false);
+      } finally {
+        setCreating(false);
+      }
     }
   }, [instances]);
 
@@ -45,7 +52,7 @@ const ParentComponent = (props: ParentComponentProps) => {
       changeLayout={changeLayout}
       currentLayout={currentLayout}
     />
-  ) : loading ? (
+  ) : loading || creating ? (
     <SpinContainer title="Loading the tree" />
   ) : error ? (
     <Alert type="error" description={error} />

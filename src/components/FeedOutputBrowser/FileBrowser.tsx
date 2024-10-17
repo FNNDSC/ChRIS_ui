@@ -9,6 +9,7 @@ import {
   Button,
   Grid,
   Tooltip,
+  Skeleton,
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
 import { useEffect } from "react";
@@ -246,82 +247,71 @@ const FileBrowser = (props: FileBrowserProps) => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {filesMap?.map(
-                        (resource: FileBrowserFolderFile, index) => {
-                          return (
-                            <FileRow
-                              rowIndex={index}
-                              key={resource.data.fname}
-                              resource={resource}
-                              name={getFileName(resource)}
-                              date={resource.data.creation_date}
-                              owner={resource.data.owner_username}
-                              size={resource.data.fsize}
-                              computedPath={additionalKey}
-                              handleFolderClick={() => {
-                                return;
-                              }}
-                              handleFileClick={() => {
-                                toggleAnimation();
-                                dispatch(
-                                  setSelectedFile(
-                                    resource as FileBrowserFolderFile,
-                                  ),
-                                );
-                                !drawerState.preview.open &&
-                                  dispatch(setFilePreviewPanel());
-                              }}
-                              origin={origin}
-                            />
-                          );
-                        },
-                      )}
-                      {linkFilesMap?.map(
-                        (resource: FileBrowserFolderLinkFile, index) => {
-                          return (
-                            <LinkRow
-                              rowIndex={index}
-                              key={resource.data.path}
-                              resource={resource}
-                              name={getLinkFileName(resource)}
-                              date={resource.data.creation_date}
-                              owner={resource.data.owner_username}
-                              size={resource.data.fsize}
-                              computedPath={additionalKey}
-                              handleFolderClick={() => {
-                                return;
-                              }}
-                              handleFileClick={() => {
-                                handleFileClick(resource.data.path);
-                              }}
-                              origin={origin}
-                            />
-                          );
-                        },
-                      )}
-
-                      {subFoldersMap?.map(
-                        (resource: FileBrowserFolder, index) => {
-                          return (
-                            <FolderRow
-                              rowIndex={index}
-                              key={resource.data.path}
-                              resource={resource}
-                              name={getFolderName(resource, additionalKey)}
-                              date={resource.data.creation_date}
-                              owner=" "
-                              size={0}
-                              computedPath={additionalKey}
-                              handleFolderClick={() =>
-                                handleFileClick(resource.data.path)
-                              }
-                              handleFileClick={() => {
-                                return;
-                              }}
-                              origin={origin}
-                            />
-                          );
-                        },
+                      {isLoading ? (
+                        renderSkeletonRows()
+                      ) : (
+                        <>
+                          {filesMap?.map(
+                            (resource: FileBrowserFolderFile, index) => (
+                              <FileRow
+                                key={resource.data.fname}
+                                rowIndex={index}
+                                resource={resource}
+                                name={getFileName(resource)}
+                                date={resource.data.creation_date}
+                                owner={resource.data.owner_username}
+                                size={resource.data.fsize}
+                                computedPath={additionalKey}
+                                handleFolderClick={() => {}}
+                                handleFileClick={() => {
+                                  toggleAnimation();
+                                  dispatch(setSelectedFile(resource));
+                                  !drawerState.preview.open &&
+                                    dispatch(setFilePreviewPanel());
+                                }}
+                                origin={origin}
+                              />
+                            ),
+                          )}
+                          {linkFilesMap?.map(
+                            (resource: FileBrowserFolderLinkFile, index) => (
+                              <LinkRow
+                                key={resource.data.path}
+                                rowIndex={index}
+                                resource={resource}
+                                name={getLinkFileName(resource)}
+                                date={resource.data.creation_date}
+                                owner={resource.data.owner_username}
+                                size={resource.data.fsize}
+                                computedPath={additionalKey}
+                                handleFolderClick={() => {}}
+                                handleFileClick={() =>
+                                  handleFileClick(resource.data.path)
+                                }
+                                origin={origin}
+                              />
+                            ),
+                          )}
+                          {subFoldersMap?.map(
+                            (resource: FileBrowserFolder, index) => (
+                              <FolderRow
+                                key={resource.data.path}
+                                rowIndex={index}
+                                resource={resource}
+                                name={getFolderName(resource, additionalKey)}
+                                date={resource.data.creation_date}
+                                owner=" "
+                                size={0}
+                                computedPath={additionalKey}
+                                handleFolderClick={() =>
+                                  handleFileClick(resource.data.path)
+                                }
+                                handleFileClick={() => {}}
+                                origin={origin}
+                              />
+                            ),
+                          )}
+                        </>
                       )}
                     </Tbody>
                   </Table>
@@ -380,3 +370,32 @@ const FileBrowser = (props: FileBrowserProps) => {
 };
 
 export default FileBrowser;
+
+const renderSkeletonRows = () => (
+  <>
+    {Array.from({ length: 5 }).map((_, index) => (
+      <Tr
+        key={`skeleton-row-${
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+          index
+        }`}
+      >
+        <Th>
+          <Skeleton width="20px" />
+        </Th>
+        <Th>
+          <Skeleton width="100px" />
+        </Th>
+        <Th>
+          <Skeleton width="80px" />
+        </Th>
+        <Th>
+          <Skeleton width="80px" />
+        </Th>
+        <Th>
+          <Skeleton width="60px" />
+        </Th>
+      </Tr>
+    ))}
+  </>
+);
