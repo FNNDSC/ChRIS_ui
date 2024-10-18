@@ -17,7 +17,7 @@ import {
   getDataset,
   getPreClient,
 } from "./client";
-import { flexRowSpaceBetween, hideOnMobile } from "./cssUtils";
+import { flexRowSpaceBetween, hideOnMobile } from "../../cssUtils.ts";
 import { FpClient } from "../../api/fp/chrisapi";
 import { pipe } from "fp-ts/function";
 import * as TE from "fp-ts/TaskEither";
