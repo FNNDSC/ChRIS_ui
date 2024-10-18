@@ -1,13 +1,14 @@
+import "./app.css";
 import "@patternfly/react-core/dist/styles/base.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ConfigProvider, App as AntdApp, theme } from "antd";
+import { App as AntdApp, ConfigProvider, theme } from "antd";
 import { useContext } from "react";
 import { CookiesProvider } from "react-cookie";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 //@ts-ignore
 import useAckee from "use-ackee";
-import "./app.css";
+
 import { ThemeContext } from "./components/DarkTheme/useTheme";
 import "./components/Feeds/Feeds.css";
 import type { EnhancedStore } from "@reduxjs/toolkit";

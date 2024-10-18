@@ -44,7 +44,6 @@
     "@cornerstonejs/streaming-image-volume-loader": "^1.84.4",
     "@cornerstonejs/tools": "^1.84.4",
     "@fnndsc/chrisapi": "^1.22.0",
-    "@fontsource/inter": "^5.0.20",
     "@niivue/niivue": "0.44.2",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.4.0",
