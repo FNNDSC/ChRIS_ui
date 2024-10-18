@@ -86,7 +86,6 @@
     "react-error-boundary": "^4.0.13",
     "react-force-graph-2d": "^1.25.5",
     "react-json-view": "^1.21.3",
-    "react-lazylog": "^4.5.3",
     "react-redux": "^9.1.2",
     "react-resizable-panels": "^2.1.4",
     "react-responsive": "^10.0.0",
