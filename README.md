@@ -136,6 +136,21 @@ pnpm run test:e2e:local  # run tests using "local" backend
 For more information, consult the wiki:
 https://github.com/FNNDSC/ChRIS_ui/wiki/E2E-Testing-with-Playwright
 
+## Pfdcm Client
+
+The code in `src/api/pfdcm/generated` were automatically generated using the [OpenAPI generator](https://openapi-generator.tech).
+
+```shell
+docker run --rm --net=host -u "$(id -u):$(id -g)" \
+  -v "$(npm prefix)/src:/src" \
+  docker.io/openapitools/openapi-generator-cli:v7.8.0 \
+  generate -g typescript-fetch -i http://localhost:4005/openapi.json -o /src/api/pfdcm/generated
+```
+
+## Development Notes
+
+- Do not use `ReadonlyArray` because it is not supported by `antd` prop types.
+
 <!-- Image Links -->
 
 [license-badge]: https://img.shields.io/github/license/fnndsc/chris_ui.svg

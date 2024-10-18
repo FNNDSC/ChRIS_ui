@@ -45,6 +45,7 @@ find -type d -exec mkdir -p "$target/{}" \;
 
 # set default values
 CHRIS_STORE_URL="${CHRIS_STORE_URL-https://cube.chrisproject.org/api/v1/}"
+CUBE_POLL_INTERVAL_MS="${CUBE_POLL_INTERVAL_MS-2000}"
 # OHIF_URL, ACKEE_SERVER, ACKEE_DOMAIN_ID default values are empty
 
 # required values
@@ -66,6 +67,7 @@ find -type f -exec sh -c "cat '{}' \
   | sed 's#$VITE_OHIF_URL#$OHIF_URL#g' \
   | sed 's#$VITE_ACKEE_SERVER#$ACKEE_SERVER#g' \
   | sed 's#$VITE_ACKEE_DOMAIN_ID#$ACKEE_DOMAIN_ID#g' \
+  | sed 's#$VITE_CUBE_POLL_INTERVAL_MS#$CUBE_POLL_INTERVAL_MS#g' \
   > $target/{}" \;
 
 # run specified command

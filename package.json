@@ -27,6 +27,7 @@
     "chrisomatic": "testing/chrisomatic.sh",
     "get-dicoms": "./testing/getDicoms.mjs",
     "list-mrns": "./testing/miniChRIS/scripts/list_mrns.sh",
+    "upload-dicom": "./testing/miniChRIS/scripts/upload2orthanc.sh",
     "lint": "biome lint .",
     "fix": "biome check --apply .",
     "fix:unsafe": "biome check --apply-unsafe .",
@@ -37,6 +38,7 @@
     "print-version": "node printVersion.js"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.5.1",
     "@cornerstonejs/core": "^1.84.4",
     "@cornerstonejs/dicom-image-loader": "^1.84.4",
     "@cornerstonejs/streaming-image-volume-loader": "^1.84.4",
@@ -91,6 +93,7 @@
     "react-responsive": "^10.0.0",
     "react-router": "^6.26.2",
     "react-router-dom": "^6.26.2",
+    "react-use-websocket": "^4.8.1",
     "redux-saga": "^1.3.0",
     "rusha": "^0.8.14",
     "sanitize-html": "^2.13.0",
@@ -106,6 +109,9 @@
     "@faker-js/faker": "^9.0.1",
     "@playwright/test": "^1.46.1",
     "@redux-devtools/extension": "^3.3.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
     "@types/d3-hierarchy": "3.1.7",
     "@types/d3-selection": "3.0.10",
     "@types/d3-shape": "^3.1.6",
@@ -125,8 +131,8 @@
     "redux-logger": "4.0.0",
     "vite": "5.4.6",
     "vite-plugin-istanbul": "^6.0.2",
-    "vite-plugin-node-polyfills": "^0.22.0",
-    "vitest": "2.1.1"
+    "vitest": "^2.1.1",
+    "vitest-websocket-mock": "^0.4.0"
   },
   "type": "module",
   "packageManager": "pnpm@9.11.0+sha512.0a203ffaed5a3f63242cd064c8fb5892366c103e328079318f78062f24ea8c9d50bc6a47aa3567cabefd824d170e78fa2745ed1f16b132e16436146b7688f19b"
