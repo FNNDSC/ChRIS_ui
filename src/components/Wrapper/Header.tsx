@@ -1,41 +1,41 @@
-import * as React from "react";
 import {
   Masthead,
-  MastheadToggle,
-  MastheadMain,
-  MastheadBrand,
   MastheadContent,
+  MastheadToggle,
   PageToggleButton,
-  Brand,
 } from "@patternfly/react-core";
-
-import brandImg from "../../assets/logo_chris_dashboard.png";
-import BarsIcon from "@patternfly/react-icons/dist/esm/icons/bars-icon";
+import type React from "react";
+import { useAppSelector } from "../../store/hooks";
+import type { IUserState } from "../../store/user/userSlice";
+import { BarsIcon } from "../Icons";
 import ToolbarComponent from "./Toolbar";
-import { IUserState } from "../../store/user/types";
-import { useTypedSelector } from "../../store/hooks";
-
-const brand = (
-  <React.Fragment>
-    <Brand src={brandImg} alt="ChRIS Logo" />
-  </React.Fragment>
-);
 
 interface IHeaderProps {
   user: IUserState;
   onNavToggle: () => void;
+  titleComponent?: React.ReactElement;
 }
 
 export default function Header(props: IHeaderProps) {
-  const showToolbar = useTypedSelector((state) => state.feed.showToolbar);
+  const showToolbar = useAppSelector((state) => state.feed.showToolbar);
+  const isNavOpen = useAppSelector((state) => state.ui.isNavOpen); // Get the sidebar open state
+
+  // Apply margin-left to MastheadContent if sidebar is open
+  const mastheadContentStyle = {
+    marginLeft: isNavOpen ? "12rem" : "0", // Adjust based on sidebar state
+  };
 
   const pageToolbar = (
-    <ToolbarComponent showToolbar={showToolbar} token={props.user.token} />
+    <ToolbarComponent
+      showToolbar={showToolbar}
+      token={props.user.token}
+      titleComponent={props.titleComponent}
+    />
   );
 
   return (
-    <Masthead>
-      <MastheadToggle>
+    <Masthead display={{ default: "inline" }}>
+      <MastheadToggle style={{ width: "3em" }}>
         <PageToggleButton
           variant="plain"
           aria-label="Global navigation"
@@ -46,12 +46,9 @@ export default function Header(props: IHeaderProps) {
           <BarsIcon />
         </PageToggleButton>
       </MastheadToggle>
-      <MastheadMain>
-        <MastheadBrand href="" target="_blank">
-          {brand}
-        </MastheadBrand>
-      </MastheadMain>
-      <MastheadContent>{pageToolbar}</MastheadContent>
+      <MastheadContent style={mastheadContentStyle}>
+        {pageToolbar}
+      </MastheadContent>
     </Masthead>
   );
 }

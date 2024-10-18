@@ -1,9 +1,9 @@
 import { SimpleList, SimpleListItem } from "@patternfly/react-core";
-import { FeedFile } from "@fnndsc/chrisapi";
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 
 interface FsmFileSelectProps {
-  files: FeedFile[];
-  handleSelect: (file: FeedFile) => void;
+  files: FileBrowserFolderFile[];
+  handleSelect: (file: FileBrowserFolderFile) => void;
 }
 
 const FsmFileSelect = (props: FsmFileSelectProps) => {
@@ -13,7 +13,7 @@ const FsmFileSelect = (props: FsmFileSelectProps) => {
     <SimpleList
       onSelect={(_: any, listItemProps: any) => {
         // data passing between item and handler is done through props
-        const file = (listItemProps as any)["x-file"] as FeedFile;
+        const file = (listItemProps as any)["x-file"] as FileBrowserFolderFile;
         handleSelect(file);
       }}
       className="fsm-file-list"

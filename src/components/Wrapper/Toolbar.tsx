@@ -1,78 +1,73 @@
-import * as React from "react";
-import { connect } from "react-redux";
-import { useNavigate, useLocation } from "react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { Dispatch } from "redux";
-import FeedDetails from "../FeedDetails";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { IUserState } from "../../store/user/types";
-import { onDropdownSelect } from "../../store/ui/actions";
-import { setLogoutSuccess } from "../../store/user/actions";
 import {
+  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
+  Flex,
+  FlexItem,
   MenuToggle,
-  Toolbar,
-  ToolbarGroup,
-  ToolbarItem,
+  Modal,
   Switch,
-  Button,
+  Tooltip,
 } from "@patternfly/react-core";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { ThemeContext } from "../DarkTheme/useTheme";
+import { BarsIcon } from "@patternfly/react-icons"; // Add a tools icon
+import { useQueryClient } from "@tanstack/react-query";
+import React from "react";
 import { useCookies } from "react-cookie";
-import { useTypedSelector } from "../../store/hooks";
+import { useMediaQuery } from "react-responsive";
+import { useLocation, useNavigate } from "react-router";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { clearCartOnLogout } from "../../store/cart/cartSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setLogoutSuccess } from "../../store/user/userSlice";
+import { ThemeContext } from "../DarkTheme/useTheme";
+import FeedDetails from "../FeedDetails";
+import CartNotify from "./CartNotify";
 
-interface IPropsFromDispatch {
-  onDropdownSelect: typeof onDropdownSelect;
-  setLogoutSuccess: typeof setLogoutSuccess;
-  token?: string | null;
-}
-
-interface ComponentProps {
+type ToolbarComponentProps = {
   showToolbar: boolean;
-}
-type AllProps = IUserState & IUiState & IPropsFromDispatch & ComponentProps;
+  titleComponent?: React.ReactElement;
+  token?: string | null;
+};
 
-const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
-  const drawerState = useTypedSelector((state) => state.drawers);
+const ToolbarComponent: React.FC<ToolbarComponentProps> = (
+  props: ToolbarComponentProps,
+) => {
+  const isSmallerScreen = useMediaQuery({ maxWidth: 1224 });
 
-  const fullScreen = drawerState?.preview.open && drawerState.preview.maximized;
+  const { token, titleComponent } = props;
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [_, _setCookie, removeCookie] = useCookies();
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
   const queryClient = useQueryClient();
-  const { setLogoutSuccess, token }: IPropsFromDispatch = props;
-  const { username, isDropdownOpen }: AllProps = props;
-  const onDropdownToggle = () => {
-    const { onDropdownSelect } = props;
-    onDropdownSelect(!props.isDropdownOpen);
-  };
+  const username = useAppSelector((state) => state.user.username);
+  const [dropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [trayOpen, setTrayOpen] = React.useState(false); // State for tray visibility
 
   const handleChange = () => {
     toggleTheme();
   };
 
-  // Description: Logout user
   const onLogout = () => {
     queryClient.clear();
     ChrisAPIClient.setIsTokenAuthorized(false);
     removeCookie("username", {
       path: "/",
     });
-
     removeCookie(`${username}_token`, {
       path: "/",
     });
-
     removeCookie("isStaff", {
       path: "/",
     });
+    dispatch(clearCartOnLogout());
+    dispatch(setLogoutSuccess());
+  };
 
-    setLogoutSuccess();
+  const onDropdownToggle = () => {
+    setIsDropdownOpen(!dropdownOpen);
   };
 
   const copyLoginCommand = () => {
@@ -92,79 +87,105 @@ const ToolbarComponent: React.FC<AllProps> = (props: AllProps) => {
       Sign out
     </DropdownItem>,
   ];
+
+  const toggleTray = () => {
+    setTrayOpen(!trayOpen);
+  };
+
   return (
-    <Toolbar className="toolbar">
-      <ToolbarGroup className="feed-details">
-        {props.showToolbar && !fullScreen && <FeedDetails />}
-      </ToolbarGroup>
-      <ToolbarGroup className="authentication">
-        <ToolbarItem>
-          <Switch
-            id="simple switch"
-            label="Theme"
-            isChecked={isDarkTheme}
-            onChange={handleChange}
-            ouiaId="Basic Switch"
-          />
-        </ToolbarItem>
+    <>
+      <Flex
+        justifyContent={{ default: "justifyContentSpaceBetween" }}
+        alignItems={{ default: "alignItemsCenter" }}
+        style={{
+          width: "100%",
+        }}
+      >
+        <FlexItem>{titleComponent && titleComponent}</FlexItem>
+        {/* Center */}
+        <FlexItem flex={{ default: "flex_1" }}>
+          {props.showToolbar && !isSmallerScreen && <FeedDetails />}
+        </FlexItem>
 
-        {token ? (
-          <ToolbarItem>
-            <Dropdown
-              isPlain
-              onSelect={() => onDropdownToggle()}
-              isOpen={isDropdownOpen}
-              toggle={(toggleRef) => {
-                return (
-                  <MenuToggle ref={toggleRef} onClick={onDropdownToggle}>
-                    {username}
-                  </MenuToggle>
-                );
-              }}
-            >
-              <DropdownList>{userDropdownItems}</DropdownList>
-            </Dropdown>
-          </ToolbarItem>
-        ) : (
-          <>
-            <ToolbarItem>
-              <Button
-                style={{ padding: "0" }}
-                variant="link"
-                onClick={() => {
-                  navigate(
-                    `/login?redirectTo=${location.pathname}${location.search}`,
-                  );
-                }}
-              >
-                Login
-              </Button>
-            </ToolbarItem>
+        {/* Right section */}
+        <FlexItem align={{ default: "alignRight" }}>
+          <Flex
+            alignItems={{ default: "alignItemsCenter" }}
+            spaceItems={{ default: "spaceItemsMd" }}
+          >
+            {isSmallerScreen && (
+              <FlexItem>
+                <Tooltip position="bottom" content="Configure Panels">
+                  <Button
+                    variant="plain"
+                    aria-label="Tools"
+                    onClick={toggleTray}
+                    icon={<BarsIcon />}
+                  />
+                </Tooltip>
+              </FlexItem>
+            )}
+            <FlexItem>
+              <CartNotify />
+            </FlexItem>
+            <FlexItem>
+              <Switch
+                id="simple-switch"
+                label="Theme"
+                isChecked={isDarkTheme}
+                onChange={handleChange}
+                ouiaId="Basic Switch"
+              />
+            </FlexItem>
+            <FlexItem>
+              {token ? (
+                <Dropdown
+                  isPlain
+                  onSelect={onDropdownToggle}
+                  isOpen={dropdownOpen}
+                  toggle={(toggleRef) => (
+                    <MenuToggle ref={toggleRef} onClick={onDropdownToggle}>
+                      {username}
+                    </MenuToggle>
+                  )}
+                >
+                  <DropdownList>{userDropdownItems}</DropdownList>
+                </Dropdown>
+              ) : (
+                <>
+                  <Button
+                    style={{ padding: "0.25em" }}
+                    variant="link"
+                    onClick={() => {
+                      navigate(
+                        `/login?redirectTo=${location.pathname}${location.search}`,
+                      );
+                    }}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    style={{ padding: "0.25em" }}
+                    variant="link"
+                    onClick={() => navigate("/signup")}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )}
+            </FlexItem>
+          </Flex>
+        </FlexItem>
+      </Flex>
 
-            <ToolbarItem>
-              <Button
-                style={{ padding: "0" }}
-                variant="link"
-                onClick={() => navigate("/signup")}
-              >
-                Sign Up
-              </Button>
-            </ToolbarItem>
-          </>
-        )}
-      </ToolbarGroup>
-    </Toolbar>
+      {/* Modal tray for FeedDetails */}
+      {isSmallerScreen && trayOpen && (
+        <Modal isOpen={trayOpen} onClose={toggleTray} title="" variant="small">
+          <FeedDetails />
+        </Modal>
+      )}
+    </>
   );
 };
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onDropdownSelect: (isOpened: boolean) => dispatch(onDropdownSelect(isOpened)),
-  setLogoutSuccess: () => dispatch(setLogoutSuccess()),
-});
-
-const mapStateToProps = ({ ui, user }: ApplicationState) => ({
-  isDropdownOpen: ui.isDropdownOpen,
-  username: user.username,
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ToolbarComponent);
+export default ToolbarComponent;

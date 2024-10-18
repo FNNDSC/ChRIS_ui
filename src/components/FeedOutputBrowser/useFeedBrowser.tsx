@@ -1,97 +1,125 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { getPluginFilesRequest } from "../../store/resources/actions";
-import { useTypedSelector } from "../../store/hooks";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useAppSelector } from "../../store/hooks";
+import { fetchFolders } from "../NewLibrary";
 
 const status = ["finishedSuccessfully", "finishedWithError", "cancelled"];
 
-const getInitialDownloadState = () => {
-  return {
-    count: 0,
-    status: false,
-    plugin_name: "",
-    error: "",
-    fetchingFiles: false,
-  };
-};
+const getInitialDownloadState = () => ({
+  count: 0,
+  status: false,
+  plugin_name: "",
+  error: "",
+  fetchingFiles: false,
+});
 
 export const useFeedBrowser = () => {
-  const dispatch = useDispatch();
-  const drawerState = useTypedSelector((state) => state.drawers);
-  const [download, setDownload] = React.useState(getInitialDownloadState);
+  const drawerState = useAppSelector((state) => state.drawers);
+  const [download, setDownload] = useState(getInitialDownloadState);
+  const [currentPath, setCurrentPath] = useState("");
+  const [pageNumber, setPageNumber] = useState(1);
 
-  const pluginInstances = useTypedSelector(
+  const pluginInstances = useAppSelector(
     (state) => state.instance.pluginInstances,
   );
-  const { pluginFiles, loading: filesLoading } = useTypedSelector(
-    (state) => state.resource,
-  );
 
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+  const selected = useAppSelector((state) => state.instance.selectedPlugin);
   const { data: plugins } = pluginInstances;
 
-  const pluginFilesPayload = selected && pluginFiles[selected.data.id];
-
-  const statusTitle = useTypedSelector((state) => {
+  const statusTitle = useAppSelector((state) => {
     if (selected) {
       const id = selected.data.id;
-      if (selected.data.id && state.resource.pluginInstanceStatus[id]) {
+      if (id && state.resource.pluginInstanceStatus[id]) {
         return state.resource.pluginInstanceStatus[id].status;
       }
     }
   });
 
-  const finished = selected && status.includes(selected.data.status);
+  const finished = !!(
+    (selected && status.includes(selected?.data.status)) ||
+    (statusTitle && status.includes(statusTitle))
+  );
 
-  React.useEffect(() => {
+  const queryKey = ["pluginFiles", currentPath, pageNumber];
+
+  const {
+    data: pluginFilesPayload,
+    isFetching: filesLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: queryKey,
+    queryFn: () => fetchFolders(currentPath, pageNumber),
+    enabled: !!selected && !!currentPath && finished,
+    placeholderData: keepPreviousData,
+    structuralSharing: true,
+  });
+
+  // Handle pagination by incrementing the page number
+  const handlePagination = useCallback(() => {
+    setPageNumber((prevState) => prevState + 1);
+  }, []);
+
+  const observerTarget = useRef(null);
+
+  const fetchMore =
+    pluginFilesPayload?.foldersPagination?.hasNextPage ||
+    pluginFilesPayload?.filesPagination?.hasNextPage ||
+    pluginFilesPayload?.linksPagination?.hasNextPage;
+
+  // Set up an intersection observer to load more data when the user scrolls to the bottom of the page
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && fetchMore) {
+          handlePagination();
+        }
+      },
+      { threshold: 0.5 },
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [fetchMore, handlePagination]);
+
+  useEffect(() => {
     if ((statusTitle && status.includes(statusTitle)) || finished) {
+      // User is trying to download a file before it is available
       if (download.error) {
-        setDownload((state) => {
-          return {
-            ...state,
-            error: "Files are ready for download now...",
-          };
-        });
-      }
+        setDownload((state) => ({
+          ...state,
+          error: "Files are not ready for download now...",
+        }));
 
-      if (selected && !pluginFilesPayload) {
-        dispatch(
-          getPluginFilesRequest({
-            id: selected.data.id,
-            path: selected.data.output_path,
-          }),
-        );
-      }
-
-      if (download.error) {
         setTimeout(() => {
           setDownload(getInitialDownloadState);
         }, 3000);
       }
     }
-  }, [
-    selected,
-    finished,
-    dispatch,
-    pluginFilesPayload,
-    statusTitle,
-    download.error,
-  ]);
+  }, [finished, statusTitle, download.error]);
+
+  useEffect(() => {
+    setCurrentPath(selected?.data.output_path);
+  }, [selected]);
 
   const handleFileClick = (path: string) => {
     if (selected) {
-      dispatch(
-        getPluginFilesRequest({
-          id: selected.data.id,
-          path,
-        }),
-      );
+      setCurrentPath(path);
     }
   };
 
   return {
     handleFileClick,
     filesLoading,
+    isError,
+    error,
     plugins,
     statusTitle,
     download,
@@ -99,5 +127,9 @@ export const useFeedBrowser = () => {
     pluginFilesPayload,
     filesStatus: drawerState.files,
     previewStatus: drawerState.preview,
+    currentPath,
+    observerTarget,
+    fetchMore,
+    handlePagination,
   };
 };

@@ -1,18 +1,19 @@
-import * as React from "react";
-import { IFileBlob } from "../../../api/model";
+import type * as React from "react";
+import type { ActionState } from "../FileDetailView";
 import {
   CatchallDisplay,
-  JsonDisplay,
+  DcmDisplay,
   IframeDisplay,
   ImageDisplay,
-  DcmDisplay,
-  PdfDisplay,
-  XtkDisplay,
-  TextDisplay,
+  JsonDisplay,
   NiiVueDisplay,
+  PdfDisplay,
+  TextDisplay,
   VideoDisplay,
+  XtkDisplay,
 } from "./index";
-import { ActionState } from "../FileDetailView";
+import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
+import type { IFileBlob } from "../../../api/model";
 
 const components = {
   JsonDisplay,
@@ -29,9 +30,13 @@ const components = {
 
 interface ViewerDisplayProps {
   viewerName: string;
-  fileItem: IFileBlob;
   preview?: string;
   actionState: ActionState;
+  selectedFile: FileBrowserFolderFile | PACSFile;
+  list?: IFileBlob[];
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
 }
 
 const ViewerDisplay: React.FC<ViewerDisplayProps> = (

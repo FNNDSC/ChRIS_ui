@@ -1,17 +1,16 @@
-import React from "react";
-import { Alert } from "antd";
-import { useDispatch } from "react-redux";
-import { PluginInstance } from "@fnndsc/chrisapi";
-import { setFeedTreeProp } from "../../store/feed/actions";
-import FeedTree from "./FeedTree";
-import TreeNodeDatum, { getFeedTree, getTsNodes } from "./data";
-import { useTypedSelector } from "../../store/hooks";
+import { useEffect, useState } from "react";
+import { useAppSelector } from "../../store/hooks";
+import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
+import FeedTree from "./FeedTree";
+import type { TreeNodeDatum } from "./data";
+import { getFeedTree, getTsNodes } from "./data";
 import "./FeedTree.css";
 
 interface ParentComponentProps {
-  onNodeClickTs: (node: PluginInstance) => void;
   onNodeClick: (node: any) => void;
+  changeLayout: () => void;
+  currentLayout: boolean;
 }
 
 export type TSID = {
@@ -19,51 +18,41 @@ export type TSID = {
 };
 
 const ParentComponent = (props: ParentComponentProps) => {
-  const { onNodeClick, onNodeClickTs } = props;
-  const pluginInstances = useTypedSelector(
+  const { onNodeClick, changeLayout, currentLayout } = props;
+  const pluginInstances = useAppSelector(
     (state) => state.instance.pluginInstances,
   );
   const { data: instances, error, loading } = pluginInstances;
-  const [data, setData] = React.useState<TreeNodeDatum[]>([]);
-  const [tsIds, setTsIds] = React.useState<TSID>();
-  const dispatch = useDispatch();
+  const [data, setData] = useState<TreeNodeDatum[]>([]);
+  const [tsIds, setTsIds] = useState<TSID>();
+  const [creating, setCreating] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (instances && instances.length > 0) {
-      const data = getFeedTree(instances);
-
-      //Get Topological joins as well
-      getTsNodes(instances).then((nodes) => {
-        setTsIds(nodes);
-      });
-      setData(data);
+      setCreating(true);
+      try {
+        const data = getFeedTree(instances);
+        setData(data);
+        getTsNodes(instances).then((nodes) => {
+          setTsIds(nodes);
+        });
+      } catch (e) {
+        setCreating(false);
+      } finally {
+        setCreating(false);
+      }
     }
   }, [instances]);
 
-  const changeOrientation = (orientation: string) => {
-    dispatch(setFeedTreeProp(orientation));
-  };
-
   return data && data.length > 0 ? (
     <FeedTree
-      onNodeClickTs={onNodeClickTs}
       data={data}
       tsIds={tsIds}
       onNodeClick={onNodeClick}
-      separation={
-        instances && instances.length > 15
-          ? {
-              siblings: 1.0,
-              nonSiblings: 2.0,
-            }
-          : {
-              siblings: 0.75,
-              nonSiblings: 1.0,
-            }
-      }
-      changeOrientation={changeOrientation}
+      changeLayout={changeLayout}
+      currentLayout={currentLayout}
     />
-  ) : loading ? (
+  ) : loading || creating ? (
     <SpinContainer title="Loading the tree" />
   ) : error ? (
     <Alert type="error" description={error} />

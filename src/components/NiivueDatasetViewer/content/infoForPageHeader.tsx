@@ -1,6 +1,6 @@
 import { InfoIcon } from "../../Common";
-import { Typography } from "antd";
-import React from "react";
+import { Typography } from "../../Antd";
+import type React from "react";
 
 const InfoForPageHeader: React.FC = () => (
   <InfoIcon

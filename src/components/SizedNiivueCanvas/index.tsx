@@ -5,7 +5,7 @@ import {
   NiivueCanvas,
 } from "niivue-react/src/NiivueCanvas.tsx";
 import styles from "./index.module.css";
-import { useTypedSelector } from "../../store/hooks.ts";
+import { useAppSelector } from "../../store/hooks.ts";
 import ChrisAPIClient from "../../api/chrisapiclient.ts";
 
 /**
@@ -65,7 +65,8 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     // Internal to niivue, the font size scales with the outer canvas size.
     // To undo this effect, we need to divide by the canvas' width or height.
     // See https://github.com/niivue/niivue/issues/857
-    const multiplier = 2 / (isScaling ? Math.min(canvasWidth, canvasHeight) : 800);
+    const multiplier =
+      2 / (isScaling ? Math.min(canvasWidth, canvasHeight) : 800);
     const textHeight = multiplier * (size || 10);
     return options ? { ...options, textHeight } : { textHeight };
   }, [options, size, isScaling, canvasWidth, canvasHeight]);
@@ -77,7 +78,7 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     }
   };
 
-  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const client = ChrisAPIClient.getClient();
   const authedVolumes =
     isLoggedIn && volumes !== undefined

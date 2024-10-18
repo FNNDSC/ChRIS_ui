@@ -12,8 +12,10 @@
    * to subtract the height of the tab buttons.
    */
   height: calc(
-          100%
-          - 2 * var(--pf-v5-global--spacer--sm)
-          - 1em * var(--pf-v5-global--LineHeight--md)
+    100% -
+    2 *
+    var(--pf-v5-global--spacer--sm) -
+    1em *
+    var(--pf-v5-global--LineHeight--md)
   );
 }

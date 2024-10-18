@@ -1,12 +1,12 @@
 import React, { Fragment } from "react";
 import { linkHorizontal, linkVertical } from "d3-shape";
-import { Datum } from "./data";
-import { HierarchyPointNode } from "d3-hierarchy";
+import type TreeNodeDatum from "./data";
+import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 
 export interface TreeLinkDatum {
-  source: HierarchyPointNode<Datum>;
-  target: HierarchyPointNode<Datum>;
+  source: HierarchyPointNode<TreeNodeDatum>;
+  target: HierarchyPointNode<TreeNodeDatum>;
 }
 
 interface LinkProps {
@@ -53,17 +53,17 @@ class Link extends React.Component<LinkProps, LinkState> {
 
     const { source, target } = linkData;
 
-    const deltaX = target.x - source.x,
-      deltaY = target.y - source.y,
-      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-      normX = deltaX / dist,
-      normY = deltaY / dist,
-      sourcePadding = this.nodeRadius,
-      targetPadding = this.nodeRadius + 4,
-      sourceX = source.x + sourcePadding * normX,
-      sourceY = source.y + sourcePadding * normY,
-      targetX = target.x - targetPadding * normX,
-      targetY = target.y - targetPadding * normY;
+    const deltaX = target.x - source.x;
+    const deltaY = target.y - source.y;
+    const dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const normX = deltaX / dist;
+    const normY = deltaY / dist;
+    const sourcePadding = this.nodeRadius;
+    const targetPadding = this.nodeRadius + 4;
+    const sourceX = source.x + sourcePadding * normX;
+    const sourceY = source.y + sourcePadding * normY;
+    const targetX = target.x - targetPadding * normX;
+    const targetY = target.y - targetPadding * normY;
 
     if (ts) {
       return orientation === "horizontal"

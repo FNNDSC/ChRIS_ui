@@ -1,40 +1,37 @@
-import type { Plugin, PluginInstance } from "@fnndsc/chrisapi";
 import {
-  Button,
   Modal,
   ModalVariant,
   Wizard,
   WizardHeader,
   WizardStep,
-  useWizardContext,
 } from "@patternfly/react-core";
-import React, { useContext, useEffect } from "react";
-import { connect, useDispatch } from "react-redux";
-import { Dispatch } from "redux";
+import type React from "react";
+import { useCallback, useContext } from "react";
 import { catchError } from "../../api/common";
-import { useTypedSelector } from "../../store/hooks";
-import { getNodeOperations, getParams } from "../../store/plugin/actions";
-import { addNodeRequest } from "../../store/pluginInstance/actions";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { getNodeOperations } from "../../store/plugin/pluginSlice";
+import { addNode } from "../../store/pluginInstance/pluginInstanceSlice";
 import type { ApplicationState } from "../../store/root/applicationState";
-import { getRequiredObject } from "../CreateFeed/createFeedHelper";
+import { Alert } from "../Antd";
+import {
+  getParameterInput,
+  sanitizeAdvancedConfig,
+} from "../CreateFeed/createFeedHelper";
 import BasicConfiguration from "./BasicConfiguration";
 import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
 import { AddNodeContext } from "./context";
-import type { AddNodeProps } from "./types";
 import { Types } from "./types";
 
-const AddNode = ({
-  selectedPlugin,
-  pluginInstances,
-  addNode,
-  params,
-}: AddNodeProps) => {
-  const dispatch = useDispatch();
-
-  const { childNode } = useTypedSelector(
-    (state) => state.plugin.nodeOperations,
+const AddNode: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { childNode } = useAppSelector(
+    (state: ApplicationState) => state.plugin.nodeOperations,
   );
+  const { pluginInstances, selectedPlugin } = useAppSelector(
+    (state) => state.instance,
+  );
+  const params = useAppSelector((state) => state.plugin.parameters);
   const { state, dispatch: nodeDispatch } = useContext(AddNodeContext);
 
   const {
@@ -47,110 +44,76 @@ const AddNode = ({
     memoryLimit,
   } = state;
 
-  const { goToNextStep: onNextStep } = useWizardContext();
-
   const isDisabled =
     params && Object.keys(requiredInput).length !== params.required.length;
 
-  useEffect(() => {
-    window.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        if (pluginMeta) {
-          onNextStep();
-        }
-      }
-    });
-  });
-
-  const toggleOpen = React.useCallback(() => {
-    nodeDispatch({
-      type: Types.ResetState,
-      payload: {},
-    });
-
+  const toggleOpen = useCallback(() => {
+    nodeDispatch({ type: Types.ResetState, payload: {} });
     dispatch(getNodeOperations("childNode"));
   }, [dispatch, nodeDispatch]);
 
-  const errorCallback = (error: any) => {
-    nodeDispatch({
-      type: Types.SetError,
-      payload: {
-        error,
-      },
-    });
-  };
+  const errorCallback = useCallback(
+    (error: any) => {
+      nodeDispatch({ type: Types.SetError, payload: { error } });
+    },
+    [nodeDispatch],
+  );
 
-  const handleSave = async () => {
-    if (!plugin || !selectedPlugin || !pluginInstances) {
-      return;
-    }
+  const handleSave = useCallback(async () => {
+    if (!plugin || !selectedPlugin || !pluginInstances) return;
 
-    const advancedConfigErrors: any = {};
-    const sanitizedInput: any = {};
-
-    for (const i in advancedConfig) {
-      const inputValue = advancedConfig[i];
-      //@ts-ignore
-      if (Number.isNaN(1 * inputValue)) {
-        advancedConfigErrors[i] = "A valid integer is required";
-      } else {
-        if (i === "cpu_limit") {
-          //@ts-ignore
-          sanitizedInput[i] = `${inputValue * 1 * 1000}m`;
-        }
-        if (i === "memory_limit") {
-          sanitizedInput[i] = `${inputValue}${memoryLimit}`;
-        }
-      }
-    }
+    const { advancedConfigErrors, sanitizedInput } = sanitizeAdvancedConfig(
+      advancedConfig,
+      memoryLimit,
+    );
 
     if (Object.keys(advancedConfigErrors).length > 0) {
       errorCallback(advancedConfigErrors);
       return;
     }
 
-    const { data: nodes } = pluginInstances;
-
-    let parameterInput = await getRequiredObject(
-      dropdownInput,
-      requiredInput,
-      plugin,
-      selectedPlugin,
-    );
-
-    parameterInput = {
-      ...parameterInput,
-      compute_resource_name: selectedComputeEnv,
-      ...sanitizedInput,
-    };
-
     try {
+      const parameterInput = await getParameterInput(
+        dropdownInput,
+        requiredInput,
+        plugin,
+        selectedComputeEnv,
+        sanitizedInput,
+        selectedPlugin,
+      );
+
+      const { data: nodes } = pluginInstances;
       const pluginInstance = await plugin.getPluginInstances();
       await pluginInstance.post(parameterInput);
       const nodeList = pluginInstance.getItems();
+
       if (nodeList) {
-        addNode({
-          pluginItem: nodeList[0],
-          nodes,
-        });
+        dispatch(addNode({ pluginItem: nodeList[0], nodes }));
         toggleOpen();
       }
     } catch (error: any) {
       const errObj = catchError(error);
-
-      nodeDispatch({
-        type: Types.SetError,
-        payload: {
-          error: errObj,
-        },
-      });
+      nodeDispatch({ type: Types.SetError, payload: { error: errObj } });
     }
-  };
+  }, [
+    plugin,
+    selectedPlugin,
+    pluginInstances,
+    dropdownInput,
+    requiredInput,
+    selectedComputeEnv,
+    advancedConfig,
+    memoryLimit,
+    errorCallback,
+    toggleOpen,
+    dispatch,
+    nodeDispatch,
+  ]);
 
   return (
     <Modal
       aria-label="Wizard Modal"
-      showClose={true}
+      showClose
       hasNoBodyWrapper
       variant={ModalVariant.large}
       isOpen={childNode}
@@ -166,28 +129,26 @@ const AddNode = ({
         onClose={toggleOpen}
         onSave={handleSave}
         height={500}
-        width={"100%"}
+        width="100%"
       >
         <WizardStep
-          id={"1"}
+          id="1"
           name="Plugin Selection"
-          footer={{
-            isNextDisabled: pluginMeta ? false : true,
-          }}
+          footer={{ isNextDisabled: !pluginMeta }}
         >
           {selectedPlugin ? (
             <BasicConfiguration selectedPlugin={selectedPlugin} />
           ) : (
-            <span>No Plugin Selected</span>
+            <Alert
+              type="error"
+              description="Please select a plugin to add this node to"
+            />
           )}
         </WizardStep>
         <WizardStep
-          id={"2"}
+          id="2"
           name="Plugin Form"
-          footer={{
-            nextButtonText: "Add Node",
-            isNextDisabled: !isDisabled ? false : true,
-          }}
+          footer={{ nextButtonText: "Add Node", isNextDisabled: isDisabled }}
         >
           <GuidedConfig />
         </WizardStep>
@@ -196,18 +157,4 @@ const AddNode = ({
   );
 };
 
-const mapStateToProps = (state: ApplicationState) => ({
-  selectedPlugin: state.instance.selectedPlugin,
-  pluginInstances: state.instance.pluginInstances,
-  params: state.plugin.parameters,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  getParams: (plugin: Plugin) => dispatch(getParams(plugin)),
-  addNode: (item: { pluginItem: PluginInstance; nodes?: PluginInstance[] }) =>
-    dispatch(addNodeRequest(item)),
-});
-
-const AddNodeConnect = connect(mapStateToProps, mapDispatchToProps)(AddNode);
-
-export default AddNodeConnect;
+export default AddNode;

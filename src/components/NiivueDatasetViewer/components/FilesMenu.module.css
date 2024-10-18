@@ -2,6 +2,7 @@
   background-color: var(--pf-v5-global--BackgroundColor--300);
 }
 
-.fileMenuItem.selected, .fileMenuItem:hover {
+.fileMenuItem.selected,
+.fileMenuItem:hover {
   background-color: var(--pf-v5-global--BackgroundColor--400);
 }

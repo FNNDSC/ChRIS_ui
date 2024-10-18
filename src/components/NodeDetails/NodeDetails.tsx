@@ -1,4 +1,4 @@
-import {
+import type {
   Plugin,
   PluginInstance,
   PluginInstanceDescendantList,
@@ -10,12 +10,11 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-import React, { Fragment, ReactNode } from "react";
+import React, { Fragment, type ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
-import { quote } from "shlex";
-import { needsQuoting } from "../../api/common";
-import { useTypedSelector } from "../../store/hooks";
+import { needsQuoting, customQuote } from "../../api/common";
+import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
 import FeedNote from "../FeedDetails/FeedNote";
@@ -43,12 +42,12 @@ function getInitialState() {
 
 const NodeDetails: React.FC = () => {
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
-  const selectedPlugin = useTypedSelector(
+  const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
   );
   const navigate = useNavigate();
-  const feed = useTypedSelector((state) => state.feed.currentFeed.data);
-  const drawerState = useTypedSelector((state) => state.drawers);
+  const feed = useAppSelector((state) => state.feed.currentFeed.data);
+  const drawerState = useAppSelector((state) => state.drawers);
 
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isExpanded, setIsExpanded] = React.useState(true);
@@ -155,7 +154,7 @@ const NodeDetails: React.FC = () => {
             >
               <Grid className="node-details__grid">
                 {renderGridItem("Feed Name", feed?.data?.name)}
-                {renderGridItem("Feed Author", feed?.data.creator_username)}
+                {renderGridItem("Feed Author", feed?.data.owner_username)}
                 {selectedPlugin.data.previous_id &&
                   renderGridItem(
                     "Parent Node ID",
@@ -301,7 +300,7 @@ function getCommand(
         const value = instanceParameters[i].data.value;
 
         const safeValue =
-          isString && needsQuoting(value) ? quote(value) : value;
+          isString && needsQuoting(value) ? customQuote(value) : value;
 
         modifiedParams.push({
           name: pluginParameters[j].data.flag,

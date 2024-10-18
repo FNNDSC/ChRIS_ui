@@ -1,104 +1,185 @@
 import type { Feed } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
-  Bullseye,
   Button,
-  Checkbox,
   EmptyState,
-  EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
   PageSection,
   Pagination,
   Skeleton,
+  Title,
   ToggleGroup,
   ToggleGroupItem,
-  ToggleGroupItemProps,
+  type ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
-import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { useQuery } from "@tanstack/react-query";
-import { Typography } from "antd";
-import { cujs } from "chris-utility";
-import { format } from "date-fns";
-import React, { useContext } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
 import {
-  removeAllSelect,
-  removeBulkSelect,
-  setAllSelect,
-  setBulkSelect,
-  toggleSelectAll,
-} from "../../store/feed/actions";
-import { useTypedSelector } from "../../store/hooks";
-import { setSidebarActive } from "../../store/ui/actions";
+  SortByDirection,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+} from "@patternfly/react-table";
+import { useQueries } from "@tanstack/react-query";
+import { format } from "date-fns";
+import { debounce } from "lodash";
+import type React from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import { useAppSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
-import { DataTableToolbar, InfoIcon } from "../Common";
+import { Typography } from "../Antd";
+import { InfoSection } from "../Common";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import IconContainer from "../IconContainer";
 import { SearchIcon } from "../Icons";
+import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
+import Operations from "../NewLibrary/components/Operations";
+import { OperationContext } from "../NewLibrary/context";
+import useLongPress from "../NewLibrary/utils/longpress";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
-import { usePaginate, useSearchQueryParams } from "./usePaginate";
-import { fetchFeeds, fetchPublicFeeds } from "./utilties";
-
+import FeedSearch from "./FeedsSearch";
+import { useFeedListData } from "./useFeedListData";
+import { formatBytes, getPluginInstanceDetails } from "./utilties";
 const { Paragraph } = Typography;
 
-function useSearchQuery(query: URLSearchParams) {
-  const page = query.get("page") || 1;
-  const search = query.get("search") || "";
-  const searchType = query.get("searchType") || "name";
-  const perPage = query.get("perPage") || 14;
-  const type = query.get("type") || "public";
-
-  return {
-    page,
-    perPage,
-    search,
-    searchType,
-    type,
-  };
+interface ColumnDefinition {
+  id: string;
+  label: string;
+  comparator: (a: Feed, b: Feed, detailsA: any, detailsB: any) => number;
 }
-const TableSelectable: React.FunctionComponent = () => {
-  const query = useSearchQueryParams();
+
+const COLUMN_DEFINITIONS: ColumnDefinition[] = [
+  {
+    id: "id",
+    label: "ID",
+    comparator: (a, b) => a.data.id - b.data.id,
+  },
+  {
+    id: "analysis",
+    label: "Analysis",
+    comparator: (a, b) => a.data.name.localeCompare(b.data.name),
+  },
+  {
+    id: "created",
+    label: "Created",
+    comparator: (a, b) =>
+      new Date(a.data.creation_date).getTime() -
+      new Date(b.data.creation_date).getTime(),
+  },
+  {
+    id: "creator",
+    label: "Creator",
+    comparator: (a, b) =>
+      a.data.owner_username.localeCompare(b.data.owner_username),
+  },
+  {
+    id: "runtime",
+    label: "Run Time",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const timeA = detailsA?.time || "0";
+      const timeB = detailsB?.time || "0";
+      return timeA.localeCompare(timeB);
+    },
+  },
+  {
+    id: "size",
+    label: "Size",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const sizeA = detailsA?.size || "0";
+      const sizeB = detailsB?.size || "0";
+      return sizeA - sizeB;
+    },
+  },
+  {
+    id: "status",
+    label: "Status",
+    comparator: (_a, _b, detailsA, detailsB) => {
+      const progressA = detailsA?.progress || 0;
+      const progressB = detailsB?.progress || 0;
+      return progressA - progressB;
+    },
+  },
+];
+
+const TableSelectable: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const searchFolderData = useSearchQuery(query);
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-
+  const { feedCount, loadingFeedState, feedsToDisplay, searchFolderData } =
+    useFeedListData();
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { perPage, page, type, search, searchType } = searchFolderData;
+  const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
+  const [activeSortDirection, setActiveSortDirection] =
+    useState<SortByDirection>(SortByDirection.desc);
 
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["feeds", searchFolderData],
-    queryFn: () => fetchFeeds(searchFolderData),
-    enabled: type === "private",
+  const feedQueries = useQueries({
+    queries: feedsToDisplay.map((feed) => ({
+      queryKey: ["feedDetails", feed.data.id],
+      queryFn: async () => {
+        const res = await getPluginInstanceDetails(feed);
+        return { [feed.data.id]: { details: res } };
+      },
+      refetchInterval: (data: any) => {
+        const state = data.state.data;
+        const details = state?.[feed.data.id]?.details;
+        if (!details) return false;
+        if (details?.progress === 100 || details?.error === true) {
+          return false; // Stop polling
+        }
+        return 2000; // Poll every 2 seconds
+      },
+    })),
   });
 
-  const {
-    data: publicFeeds,
-    isLoading: publicFeedLoading,
-    isFetching: publicFeedFetching,
-  } = useQuery({
-    queryKey: ["publicFeeds", searchFolderData],
-    queryFn: () => fetchPublicFeeds(searchFolderData),
-    enabled: type === "public",
+  const feedDetails = useMemo(() => {
+    return Object.assign({}, ...feedQueries.map((query) => query.data || {}));
+  }, [feedQueries]);
+
+  const getSortParams = (columnIndex: number) => ({
+    sortBy: {
+      index: activeSortIndex as number,
+      direction: activeSortDirection,
+    },
+    onSort: (
+      _event: React.MouseEvent,
+      index: number,
+      direction: SortByDirection,
+    ) => {
+      setActiveSortIndex(index);
+      setActiveSortDirection(direction);
+    },
+    columnIndex,
   });
 
-  const authenticatedFeeds = data ? data.feeds : [];
-  const publicFeedsToDisplay = publicFeeds ? publicFeeds.feeds : [];
-
-  const feedsToDisplay =
-    type === "private" ? authenticatedFeeds : publicFeedsToDisplay;
-
-  const { selectAllToggle, bulkSelect } = useTypedSelector(
-    (state) => state.feed,
-  );
+  const sortedFeeds = useMemo(() => {
+    if (activeSortIndex !== null && feedDetails) {
+      const comparator = COLUMN_DEFINITIONS[activeSortIndex].comparator;
+      return [...feedsToDisplay].sort((a, b) =>
+        activeSortDirection === SortByDirection.asc
+          ? comparator(
+              a,
+              b,
+              feedDetails[a.data.id]?.details,
+              feedDetails[b.data.id]?.details,
+            )
+          : comparator(
+              b,
+              a,
+              feedDetails[b.data.id]?.details,
+              feedDetails[a.data.id]?.details,
+            ),
+      );
+    }
+    return feedsToDisplay;
+  }, [feedsToDisplay, activeSortIndex, activeSortDirection, feedDetails]);
 
   const onSetPage = (
-    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPage: number,
   ) => {
     navigate(
@@ -107,7 +188,7 @@ const TableSelectable: React.FunctionComponent = () => {
   };
 
   const onPerPageSelect = (
-    _e: React.MouseEvent | React.KeyboardEvent | MouseEvent,
+    _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPerPage: number,
     newPage: number,
   ) => {
@@ -116,65 +197,24 @@ const TableSelectable: React.FunctionComponent = () => {
     );
   };
 
-  const handleFilterChange = (search: string, searchType: string) => {
+  const handleFilterChange = debounce((search: string, searchType: string) => {
     navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
-  };
+  });
 
-  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (
-    event,
-    _isSelected,
-  ) => {
+  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
     const id = event.currentTarget.id;
-
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${1}&perPage=${perPage}&type=${id}`,
+      `/feeds?search=${search}&searchType=${searchType}&page=1&perPage=${perPage}&type=${id}`,
     );
   };
 
-  const bulkData = React.useRef<Feed[]>();
-  bulkData.current = bulkSelect;
-
-  React.useEffect(() => {
-    document.title = "All Analyses - ChRIS UI ";
-    dispatch(
-      setSidebarActive({
-        activeItem: "analyses",
-      }),
-    );
-    if (bulkData?.current) {
-      dispatch(removeAllSelect(bulkData.current));
-    }
-  }, [dispatch]);
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (!type || (!isLoggedIn && type === "private")) {
       navigate(
         `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=public`,
       );
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
-
-  const columnNames = {
-    id: "ID",
-    analysis: "Analysis",
-    created: "Created",
-    creator: "Creator",
-    runtime: "Run Time",
-    size: "Size",
-    status: "Status",
-  };
-
-  const feedCount =
-    type === "private"
-      ? data?.totalFeedsCount === -1
-        ? 0
-        : data?.totalFeedsCount
-      : publicFeeds?.totalFeedsCount === -1
-        ? 0
-        : publicFeeds?.totalFeedsCount;
-
-  const loadingFeedState =
-    isLoading || isFetching || publicFeedLoading || publicFeedFetching;
 
   const generatePagination = (feedCount?: number) => {
     if (!feedCount && loadingFeedState) {
@@ -183,132 +223,141 @@ const TableSelectable: React.FunctionComponent = () => {
 
     return (
       <Pagination
+        style={{
+          marginTop: "0.5em",
+        }}
         itemCount={feedCount}
         perPage={+perPage}
         page={+page}
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
+        isCompact
+        aria-label="Feed table pagination"
       />
     );
   };
 
+  const feedCountText =
+    !feedCount && loadingFeedState
+      ? "Fetching..."
+      : feedCount === -1
+        ? 0
+        : feedCount;
+  const TitleComponent = (
+    <InfoSection
+      title={`New and Existing Analyses (${feedCountText})`}
+      content="Analyses (aka ChRIS feeds) are computational experiments where data
+      are organized and processed by ChRIS plugins. In this view, you may
+      view your analyses and also the ones shared with you."
+    />
+  );
+
   return (
-    <React.Fragment>
-      <WrapperConnect>
-        <PageSection className="feed-header">
-          <InfoIcon
-            data-test-id="analysis-count"
-            title={`New and Existing Analyses (${
-              !feedCount && loadingFeedState
-                ? "Fetching..."
-                : feedCount === -1
-                  ? 0
-                  : feedCount
-            })`}
-            p1={
-              <Paragraph>
-                Analyses (aka ChRIS feeds) are computational experiments where
-                data are organized and processed by ChRIS plugins. In this view
-                you may view your analyses and also the ones shared with you.
-              </Paragraph>
-            }
-          />
-          <CreateFeedProvider>
-            <PipelineProvider>
-              <AddNodeProvider>
-                <CreateFeed />
-              </AddNodeProvider>
-            </PipelineProvider>
-          </CreateFeedProvider>
-        </PageSection>
-        <PageSection className="feed-list">
-          <div className="feed-list__split">
-            <div>
-              <ToggleGroup aria-label="Default with single selectable">
-                <ToggleGroupItem
-                  text="Private Feeds"
-                  buttonId="private"
-                  isSelected={type === "private"}
-                  onChange={onExampleTypeChange}
-                  isDisabled={!isLoggedIn}
-                />
-                <ToggleGroupItem
-                  text="Public Feeds"
-                  buttonId="public"
-                  isSelected={type === "public"}
-                  onChange={onExampleTypeChange}
-                />
-              </ToggleGroup>
-            </div>
-            {generatePagination(feedCount)}
-          </div>
-          <div className="feed-list__split">
-            <DataTableToolbar
-              onSearch={handleFilterChange}
-              label="Filter by name"
-              searchType={searchType}
+    <WrapperConnect titleComponent={TitleComponent}>
+      <PageSection
+        stickyOnBreakpoint={{
+          default: "top",
+        }}
+        style={{ paddingTop: "0.25em", paddingBottom: "0" }}
+      >
+        <div className="feed-header">
+          <div>
+            <FeedSearch
+              loading={loadingFeedState}
               search={search}
+              searchType={searchType}
+              onSearch={handleFilterChange}
             />
-
-            {feedsToDisplay && <IconContainer />}
           </div>
-          {loadingFeedState ? (
-            <LoadingTable />
-          ) : feedsToDisplay.length > 0 ? (
-            <Table variant="compact" aria-label="Feed Table">
-              <Thead>
-                <Tr>
-                  <Th>
-                    <Checkbox
-                      id="test"
-                      isChecked={selectAllToggle}
-                      onChange={() => {
-                        if (!selectAllToggle) {
-                          if (data) {
-                            dispatch(setAllSelect(feedsToDisplay));
-                          }
+          {generatePagination(feedCount)}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <ToggleGroup
+              style={{ marginRight: "0.5em" }}
+              aria-label="Default with single selectable"
+            >
+              <ToggleGroupItem
+                text="Private Feeds"
+                buttonId="private"
+                isSelected={type === "private"}
+                onChange={onExampleTypeChange}
+                isDisabled={!isLoggedIn}
+              />
+              <ToggleGroupItem
+                text="Public Feeds"
+                buttonId="public"
+                isSelected={type === "public"}
+                onChange={onExampleTypeChange}
+              />
+            </ToggleGroup>
+            <CreateFeedProvider>
+              <PipelineProvider>
+                <AddNodeProvider>
+                  <CreateFeed />
+                </AddNodeProvider>
+              </PipelineProvider>
+            </CreateFeedProvider>
+          </div>
+        </div>
 
-                          dispatch(toggleSelectAll(true));
-                        } else {
-                          if (data) {
-                            dispatch(removeAllSelect(feedsToDisplay));
-                          }
-                          dispatch(toggleSelectAll(false));
-                        }
-                      }}
-                    />
+        <Operations
+          origin={{
+            type: OperationContext.FEEDS,
+            additionalKeys: [perPage, page, type, search, searchType],
+          }}
+          customStyle={{
+            toolbarItem: { paddingInlineStart: "0" },
+            toolbar: {
+              paddingTop: "0",
+              paddingBottom: "0",
+              background: "inherit",
+            },
+          }}
+        />
+      </PageSection>
+      <PageSection style={{ paddingBlockStart: "0.5em" }}>
+        {loadingFeedState ? (
+          <LoadingTable />
+        ) : feedsToDisplay.length > 0 ? (
+          <Table
+            className="feed-table"
+            variant="compact"
+            aria-label="Feed Table"
+          >
+            <Thead>
+              <Tr>
+                <Th scope="col" aria-label="feed-selection-checkbox" />
+                {COLUMN_DEFINITIONS.map((column, columnIndex) => (
+                  <Th key={column.id} sort={getSortParams(columnIndex)}>
+                    {column.label}
                   </Th>
-                  <Th>{columnNames.id}</Th>
-                  <Th>{columnNames.analysis}</Th>
-                  <Th>{columnNames.created}</Th>
-                  <Th>{columnNames.creator}</Th>
-                  <Th>{columnNames.runtime}</Th>
-                  <Th>{columnNames.size}</Th>
-                  <Th>{columnNames.status}</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {feedsToDisplay.map((feed, rowIndex) => {
-                  return (
-                    <TableRow
-                      key={feed.data.id}
-                      feed={feed}
-                      rowIndex={rowIndex}
-                      bulkSelect={bulkSelect}
-                      columnNames={columnNames}
-                      allFeeds={feedsToDisplay}
-                      type={type}
-                    />
-                  );
-                })}
-              </Tbody>
-            </Table>
-          ) : (
-            <EmptyStateTable />
-          )}
-        </PageSection>
-      </WrapperConnect>
-    </React.Fragment>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {sortedFeeds.map((feed, rowIndex) => (
+                <TableRow
+                  key={feed.data.id}
+                  feed={feed}
+                  rowIndex={rowIndex}
+                  allFeeds={feedsToDisplay}
+                  type={type}
+                  additionalKeys={[perPage, page, type, search, searchType]}
+                  details={feedDetails?.[feed.data.id]?.details}
+                />
+              ))}
+            </Tbody>
+          </Table>
+        ) : (
+          <EmptyStateTable />
+        )}
+      </PageSection>
+    </WrapperConnect>
   );
 };
 
@@ -318,77 +367,141 @@ interface TableRowProps {
   rowIndex: number;
   feed: Feed;
   allFeeds: Feed[];
-  bulkSelect: Feed[];
-  columnNames: {
-    id: string;
-    analysis: string;
-    created: string;
-    creator: string;
-    runtime: string;
-    size: string;
-    status: string;
-  };
   type: string;
+  additionalKeys: string[];
+  details: any;
 }
 
-function TableRow({
+const TableRow: React.FC<TableRowProps> = ({
+  rowIndex,
   feed,
-  allFeeds,
-  bulkSelect,
-  columnNames,
-  type,
-}: TableRowProps) {
+  additionalKeys,
+  details,
+}) => {
+  const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
+  const { handlers } = useLongPress();
+  const { handleOnClick } = handlers;
   const navigate = useNavigate();
-  const [intervalMs, setIntervalMs] = React.useState(2000);
   const { isDarkTheme } = useContext(ThemeContext);
+  const getFolderForThisFeed = async () => {
+    const payload = await feed.getFolder();
+    return payload;
+  };
+  const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
+  const backgroundRow =
+    details && details.progress < 100 && !details.error
+      ? backgroundColor
+      : "inherit";
+  const isSelected =
+    selectedPaths.length > 0 &&
+    selectedPaths.some((payload) => payload.path === feed.data.folder_path);
+  const selectedBgRow = isSelected ? backgroundColor : backgroundRow;
 
-  const { data } = useQuery({
-    queryKey: ["feedResources", feed],
-    queryFn: async () => {
-      try {
-        const res = await cujs.getPluginInstanceDetails(feed);
+  const onFeedNameClick = () => {
+    navigate(
+      `/feeds/${feed.data.id}?type=${feed.data.public ? "public" : "private"}`,
+    );
+  };
 
-        if (res.progress === 100 || res.error === true) {
-          setIntervalMs(0);
-        }
+  return (
+    <FolderContextMenu
+      origin={{
+        type: OperationContext.FEEDS,
+        additionalKeys: additionalKeys,
+      }}
+    >
+      <Tr
+        key={feed.data.id}
+        style={{
+          backgroundColor: selectedBgRow,
+          cursor: "pointer",
+        }}
+        data-test-id={`${feed.data.name}-test`}
+        onContextMenu={async (e) => {
+          const payload = await getFolderForThisFeed();
+          handleOnClick(e, payload, feed.data.folder_path, "folder");
+        }}
+        onClick={async (e) => {
+          e?.stopPropagation();
+          const payload = await getFolderForThisFeed();
+          handleOnClick(e, payload, feed.data.folder_path, "folder", () => {
+            onFeedNameClick();
+          });
+        }}
+        isRowSelected={isSelected}
+        role="row"
+      >
+        <Td
+          onClick={(e) => e.stopPropagation()}
+          select={{
+            rowIndex: rowIndex,
+            isSelected: isSelected,
+            onSelect: async (event) => {
+              event.stopPropagation();
+              const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
+              const payload = await getFolderForThisFeed();
 
-        return {
-          [feed.data.id]: {
-            details: res,
-          },
-        };
-      } catch (error) {
-        setIntervalMs(0);
-        return {};
-      }
-    },
+              // Create a new event object with the captured properties
+              const newEvent = {
+                ...event,
+                stopPropagation: () => event.stopPropagation(),
+                preventDefault: () => event.preventDefault(),
+                currentTarget: { ...event.currentTarget, checked: isChecked },
+              };
 
-    refetchInterval: intervalMs,
-  });
+              // Pass the new event object to the handler function
+              handlers.handleCheckboxChange(
+                newEvent,
+                feed.data.folder_path,
+                payload,
+                "folder",
+              );
+            },
+          }}
+        />
+        <Td dataLabel="ID">{feed.data.id}</Td>
 
-  const feedResources = data || {};
+        <Td dataLabel="analysis">
+          <FeedInfoColumn feed={feed} onClick={onFeedNameClick} />
+        </Td>
+        <Td dataLabel="created">
+          {format(new Date(feed.data.creation_date), "dd MMM yyyy, HH:mm")}
+        </Td>
+        <Td dataLabel="creator">{feed.data.owner_username}</Td>
+        <Td dataLabel="runtime">{details?.time}</Td>
+        <Td dataLabel="size">
+          {details?.size ? (
+            formatBytes(details?.size, 0)
+          ) : (
+            <Skeleton width="100%" height="40px" />
+          )}
+        </Td>
+        <Td dataLabel="status">
+          <DonutUtilization details={details} />
+        </Td>
+      </Tr>
+    </FolderContextMenu>
+  );
+};
 
-  const { id, name: feedName, creation_date, creator_username } = feed.data;
+const DonutUtilization = (props: {
+  details: any;
+}) => {
+  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
+  const { details } = props;
 
-  const { dispatch } = usePaginate();
-  const progress = feedResources[id]?.details.progress;
-
-  const size = feedResources[id]?.details.size;
-  const feedError = feedResources[id]?.details.error;
-  const runtime = feedResources[id]?.details.time;
-
-  const feedProgressText = feedResources[id]?.details.feedProgressText;
-
-  let threshold = Infinity;
-
-  // If error in a feed => reflect in progres
-
-  let title = `${progress ? progress : 0}%`;
+  if (!details) {
+    return <div>N/A</div>;
+  }
+  let threshold = Number.POSITIVE_INFINITY;
+  const { progress, error: feedError } = details;
+  let title = `${progress ?? 0}%`;
   let color = "blue";
-
+  let ariaLabel = `Progress: ${progress ?? 0}%`;
   if (feedError) {
     color = "#ff0000";
     threshold = progress;
+    ariaLabel = "Error in feed processing";
   }
 
   // If initial node in a feed fails
@@ -396,7 +509,6 @@ function TableRow({
     color = "#00ff00";
     title = "❌";
   }
-
   // If progress less than 100%, display green
   if (progress < 100 && !feedError) {
     color = "#00ff00";
@@ -404,127 +516,82 @@ function TableRow({
   }
   if (progress === 100) {
     title = "✔️";
+    ariaLabel = "Feed processing complete";
   }
 
   const mode = isDarkTheme ? "dark" : "light";
-  const circularProgress = (
-    <div className={`chart ${mode}`}>
-      <ChartDonutUtilization
-        ariaTitle={feedProgressText}
-        data={{ x: "Analysis Progress", y: progress }}
-        height={125}
-        title={title}
-        thresholds={[{ value: threshold, color: color }]}
-        width={125}
-      />
-    </div>
-  );
-
-  const name = (
-    <Tooltip content={<div>View feed details</div>}>
-      <Button
-        variant="link"
-        onClick={() => {
-          navigate(`/feeds/${id}?type=${type}`);
-        }}
-      >
-        {feedName}
-      </Button>
-    </Tooltip>
-  );
-
-  const created = (
-    <span>
-      {creation_date && (
-        <span>{format(new Date(creation_date), "dd MMM yyyy, HH:mm")}</span>
-      )}
-    </span>
-  );
-  const isSelected = (bulkSelect: any, feed: Feed) => {
-    for (const selectedFeed of bulkSelect) {
-      if (selectedFeed.data.id === feed.data.id) {
-        return true;
-      }
-    }
-    return false;
-  };
-  const bulkCheckbox = (
-    <Checkbox
-      isChecked={isSelected(bulkSelect, feed)}
-      id="check"
-      className={`${feed.data.name}-checkbox`}
-      aria-label={`${feed.data.name}-checkbox`}
-      onChange={() => {
-        if (!isSelected(bulkSelect, feed)) {
-          const newBulkSelect = [...bulkSelect, feed];
-          const selectAllToggle = newBulkSelect.length === allFeeds.length;
-          dispatch(setBulkSelect(newBulkSelect, selectAllToggle));
-        } else {
-          const filteredBulkSelect = bulkSelect.filter((selectedFeed) => {
-            return selectedFeed.data.id !== feed.data.id;
-          });
-          const selectAllToggle = filteredBulkSelect.length === allFeeds.length;
-          dispatch(removeBulkSelect(filteredBulkSelect, selectAllToggle));
-        }
-      }}
-    />
-  );
-
-  const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
-
-  const backgroundRow =
-    progress && progress < 100 && !feedError ? backgroundColor : "inherit";
-  const selectedBgRow = isSelected(bulkSelect, feed)
-    ? backgroundColor
-    : backgroundRow;
 
   return (
-    <Tr
-      isSelectable
-      key={feed.data.id}
-      style={{
-        backgroundColor: selectedBgRow,
-      }}
-      data-test-id={`${feed.data.name}-test`}
-    >
-      <Td>{bulkCheckbox}</Td>
-      <Td dataLabel={columnNames.id}>{id}</Td>
-      <Td dataLabel={columnNames.analysis}>{name}</Td>
-      <Td dataLabel={columnNames.created}>{created}</Td>
-      <Td dataLabel={columnNames.creator}>{creator_username}</Td>
-      <Td dataLabel={columnNames.runtime}>{runtime}</Td>
-      <Td dataLabel={columnNames.size}>{size}</Td>
-      <Td dataLabel={columnNames.status}>{circularProgress}</Td>
-    </Tr>
+    <Tooltip content={`Progress: ${details.progress}%`}>
+      <div className={`chart ${mode}`}>
+        <ChartDonutUtilization
+          ariaTitle={ariaLabel}
+          data={{ x: "Analysis Progress", y: progress }}
+          height={125}
+          title={title}
+          thresholds={[{ value: threshold, color: color }]}
+          width={125}
+        />
+      </div>
+    </Tooltip>
   );
-}
+};
+
+const FeedInfoColumn = ({
+  feed,
+  onClick,
+}: { feed: Feed; onClick: (feed: Feed) => void }) => (
+  <Button
+    variant="link"
+    onClick={(e) => {
+      e.stopPropagation();
+      onClick(feed);
+    }}
+    style={{
+      padding: 0,
+    }}
+    aria-label={`View details for ${feed.data.name}`}
+  >
+    {feed.data.name}
+  </Button>
+);
+
+const COLUMN_ORDER = [
+  { id: "id", label: "ID" },
+  { id: "analysis", label: "Analysis" },
+  { id: "created", label: "Created" },
+  { id: "creator", label: "Creator" },
+  { id: "runtime", label: "Run Time" },
+  { id: "size", label: "Size" },
+  { id: "status", label: "Status" },
+];
 
 function EmptyStateTable() {
   return (
     <Table variant="compact" aria-label="Empty Table">
       <Thead>
         <Tr>
-          <Th>ID</Th>
-          <Th>Analysis</Th>
-          <Th>Created</Th>
-          <Th>Creator</Th>
-          <Th>Run Time</Th>
-          <Th>Size</Th>
-          <Th>Status</Th>
+          <Th />
+          {COLUMN_ORDER.map(({ label }) => (
+            <Th scope="col" key={label}>
+              {label}
+            </Th>
+          ))}
         </Tr>
       </Thead>
       <Tbody>
         <Tr>
-          <Td colSpan={12}>
-            <Bullseye>
-              <EmptyState variant={EmptyStateVariant.sm}>
-                <EmptyStateHeader
-                  icon={<EmptyStateIcon icon={SearchIcon} />}
-                  titleText="No results found"
-                  headingLevel="h2"
-                />
-              </EmptyState>
-            </Bullseye>
+          <Td colSpan={COLUMN_ORDER.length + 1}>
+            <EmptyState variant={EmptyStateVariant.full}>
+              <EmptyStateIcon icon={SearchIcon} />
+              <Title headingLevel="h4" size="lg">
+                No Data Available
+              </Title>
+              <Paragraph>
+                There are no analyses to display at this time. Please check back
+                later or adjust your filters.
+              </Paragraph>
+            </EmptyState>
           </Td>
         </Tr>
       </Tbody>
@@ -534,12 +601,25 @@ function EmptyStateTable() {
 
 function LoadingTable() {
   return (
-    <div style={{ height: "100%" }}>
-      <Skeleton
-        aria-label="Loading Feed Table"
-        height="100%"
-        screenreaderText="Loading large rectangle contents"
-      />
-    </div>
+    <Table variant="compact" aria-label="Loading Table">
+      <Thead>
+        <Tr>
+          <Th />
+          {COLUMN_ORDER.map(({ label }) => (
+            <Th key={label}>{label}</Th>
+          ))}
+        </Tr>
+      </Thead>
+      <Tbody>
+        {Array.from({ length: 20 }).map((_, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+          <Tr key={index}>
+            <Td colSpan={COLUMN_ORDER.length + 1}>
+              <Skeleton width="100%" height="40px" />
+            </Td>
+          </Tr>
+        ))}
+      </Tbody>
+    </Table>
   );
 }

@@ -1,4 +1,4 @@
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import {
   Button,
   Modal,
@@ -8,13 +8,13 @@ import {
   WizardStep,
 } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
-import { notification } from "antd";
 import * as React from "react";
 import { useContext } from "react";
 import { catchError } from "../../api/common";
 import { MainRouterContext } from "../../routes";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { AddNodeContext } from "../AddNode/context";
+import { notification } from "../Antd";
 import { CodeBranchIcon } from "../Icons";
 import PipelinesCopy from "../PipelinesCopy";
 import { PipelineContext } from "../PipelinesCopy/context";
@@ -28,7 +28,7 @@ import { createFeed, createFeedInstanceWithFS } from "./createFeedHelper";
 import { Types } from "./types/feed";
 
 export default function CreateFeed() {
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const [feedProcessing, setFeedProcessing] = React.useState(false);
   const queryClient = useQueryClient();
   const router = useContext(MainRouterContext);
@@ -39,9 +39,13 @@ export default function CreateFeed() {
   const { state: pipelineState, dispatch: pipelineDispatch } =
     useContext(PipelineContext);
 
-  const user = useTypedSelector((state) => state.user);
-  const { pluginMeta, selectedPluginFromMeta, dropdownInput, requiredInput } =
-    addNodeState;
+  const user = useAppSelector((state) => state.user);
+  const {
+    pluginMeta,
+
+    dropdownInput,
+    requiredInput,
+  } = addNodeState;
   const { wizardOpen, data, selectedConfig } = state;
 
   const getUploadFileCount = (value: number) => {
@@ -71,14 +75,13 @@ export default function CreateFeed() {
     router.actions.clearFeedData();
   };
 
-  const enableSave =
+  const enableSave = !!(
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
     Object.keys(requiredInput).length > 0 ||
     Object.keys(dropdownInput).length > 0 ||
     pluginMeta !== undefined
-      ? true
-      : false;
+  );
 
   const handleSave = async () => {
     setFeedProcessing(true);
@@ -107,11 +110,7 @@ export default function CreateFeed() {
       }
 
       if (selectedConfig.includes("fs_plugin")) {
-        feed = await createFeedInstanceWithFS(
-          dropdownInput,
-          requiredInput,
-          selectedPluginFromMeta,
-        );
+        feed = await createFeedInstanceWithFS(addNodeState);
       }
 
       if (feed) {
@@ -120,10 +119,16 @@ export default function CreateFeed() {
           name: state.data.feedName,
         });
 
-        // Set analysis tags
-        for (const tag of state.data.tags) {
+        /**
+         * @deprecated
+         * The following code is deprecated and should not be used.
+         * It sets analysis tags on the feed.
+        
+          
+          for (const tag of state.data.tags) {
           feed.tagFeed(tag.data.id);
-        }
+           }
+          */
 
         // Set analysis description
         const note = await feed.getNote();
@@ -133,7 +138,7 @@ export default function CreateFeed() {
           content: state.data.feedDescription,
         });
 
-        queryClient.invalidateQueries({
+        queryClient.refetchQueries({
           queryKey: ["feeds"],
         });
 
@@ -200,11 +205,8 @@ export default function CreateFeed() {
     [handleDispatch],
   );
 
-  const allRequiredFieldsNotEmpty: boolean = selectedConfig.includes(
-    "fs_plugin",
-  )
-    ? true
-    : false;
+  const allRequiredFieldsNotEmpty: boolean =
+    !!selectedConfig.includes("fs_plugin");
 
   const filesChoosen = data.chrisFiles.length > 0 || data.localFiles.length > 0;
 
@@ -256,7 +258,7 @@ export default function CreateFeed() {
             id={1}
             name="Basic-Information"
             footer={{
-              isNextDisabled: data.feedName ? false : true,
+              isNextDisabled: !data.feedName,
               isBackDisabled: true,
             }}
           >
@@ -266,17 +268,14 @@ export default function CreateFeed() {
             id={2}
             name="Analysis Data Selection"
             footer={{
-              isNextDisabled:
-                filesChoosen || allRequiredFieldsNotEmpty ? false : true,
+              isNextDisabled: !(filesChoosen || allRequiredFieldsNotEmpty),
             }}
           >
             {withSelectionAlert(
               <ChooseConfig
                 user={user}
                 handleFileUpload={handleChoseFilesClick}
-                showAlert={
-                  filesChoosen || allRequiredFieldsNotEmpty ? false : true
-                }
+                showAlert={!(filesChoosen || allRequiredFieldsNotEmpty)}
               />,
             )}
           </WizardStep>
@@ -289,7 +288,7 @@ export default function CreateFeed() {
             footer={{
               onNext: handleSave,
               nextButtonText: "Create Analysis",
-              isNextDisabled: !enableSave || feedProcessing ? true : false,
+              isNextDisabled: !!(!enableSave || feedProcessing),
             }}
           >
             <Review handleSave={handleSave} />

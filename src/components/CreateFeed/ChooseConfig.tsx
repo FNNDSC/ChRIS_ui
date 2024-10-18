@@ -18,14 +18,17 @@ import {
   Tooltip,
   useWizardContext,
 } from "@patternfly/react-core";
-import { SettingsIcon, DeleteIcon as TrashIcon, UploadIcon } from "../Icons";
-import { Alert, Steps, notification } from "antd";
+import { Alert, Steps, notification } from "../Antd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { AddNodeContext } from "../AddNode/context";
-import { Types as AddNodeTypes, chooseConfigProps } from "../AddNode/types";
+import {
+  Types as AddNodeTypes,
+  type chooseConfigProps,
+} from "../AddNode/types";
 import DragAndUpload from "../DragFileUpload";
+import { SettingsIcon, DeleteIcon as TrashIcon, UploadIcon } from "../Icons";
 import ChrisFileSelect from "./ChrisFileSelect";
 import DataPacks from "./DataPacks";
 import { FileList } from "./HelperComponent";
@@ -47,7 +50,7 @@ const ChooseConfig = ({
   const { goToNextStep: onNext, goToPrevStep: onBack } = useWizardContext();
   const [isRightDrawerExpand, setRightDrawerExpand] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const params = useTypedSelector((state) => state.plugin.parameters);
+  const params = useAppSelector((state) => state.plugin.parameters);
   const [selectedCard, setSelectedCard] = useState("");
   const [showDragAndDrop, setShowDragAndDrop] = useState(false);
 
@@ -81,7 +84,7 @@ const ChooseConfig = ({
         case "ArrowRight":
           if (
             selectedConfig.includes("fs_plugin") &&
-            params?.required.length != Object.keys(requiredInput).length
+            params?.required.length !== Object.keys(requiredInput).length
           ) {
             return;
           }
@@ -301,14 +304,17 @@ const ChooseConfig = ({
           <Grid style={navigationButtonStyle}>
             {currentStep === 0 && (
               <Button
+                size="sm"
                 onClick={() => nextStep()}
                 isDisabled={pluginMeta === undefined}
               >
-                Next
+                Next Page
               </Button>
             )}
             {currentStep > 0 && (
-              <Button onClick={() => prevStep()}>Previous</Button>
+              <Button size="sm" onClick={() => prevStep()}>
+                Previous Page
+              </Button>
             )}
           </Grid>
         </DrawerPanelBody>
@@ -338,7 +344,13 @@ const ChooseConfig = ({
   }, [localFiles.length]);
 
   return (
-    <Drawer isExpanded={isRightDrawerExpand} position="right">
+    <Drawer
+      style={{
+        height: "100vh",
+      }}
+      isExpanded={isRightDrawerExpand}
+      position="right"
+    >
       <DrawerContent panelContent={panelContent}>
         <Flex
           className="pf-v5-c-wizard__main-body"
@@ -495,7 +507,10 @@ const ChooseConfig = ({
             </Grid>
             {showAlert && (
               <Alert
-                type="warning"
+                style={{
+                  marginTop: "1rem",
+                }}
+                type="info"
                 closable
                 description="Please select a data source to create a feed"
               />

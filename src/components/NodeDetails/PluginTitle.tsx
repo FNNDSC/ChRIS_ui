@@ -7,16 +7,15 @@ import {
 } from "@patternfly/react-core";
 import { EditIcon } from "../Icons";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useTypedSelector } from "../../store/hooks";
-import { setPluginTitle } from "../../store/pluginInstance/actions";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setPluginTitle } from "../../store/pluginInstance/pluginInstanceSlice";
 import { SpinContainer } from "../Common";
 
 const PluginTitle = () => {
-  const dispatch = useDispatch();
-  const { selectedPlugin } = useTypedSelector((state) => state.instance);
+  const dispatch = useAppDispatch();
+  const { selectedPlugin } = useAppSelector((state) => state.instance);
   const [isOpen, setIsOpen] = useState(false);
   const [value, setValue] = useState("");
 
@@ -29,6 +28,7 @@ const PluginTitle = () => {
       if (!pluginItem) throw new Error("Failed to set title...");
       dispatch(setPluginTitle(pluginItem));
     } catch (e) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw e;
     }
   };

@@ -1,37 +1,36 @@
-import {
+import type {
   Plugin,
   PluginInstance,
   PluginMeta,
   PluginParameter,
 } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert } from "../Antd";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import React from "react";
 import { useParams } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { unpackParametersIntoString } from "../AddNode/utils";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import WrapperConnect from "../Wrapper";
 import {
   HeaderCardPlugin,
   HeaderSinglePlugin,
-  ParameterPayload,
+  type ParameterPayload,
 } from "./PluginCatalogComponents";
 import "./singlePlugin.css";
 
 const SinglePlugin = () => {
-  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const { id } = useParams() as { id: string };
   const [parameterPayload, setParameterPayload] =
     React.useState<ParameterPayload>();
 
   // Function to fetch the Readme from the Repo.
-  const fetchReadme = async (currentPluginMeta?: PluginMeta) => {
-    if (!currentPluginMeta) return;
+  const fetchReadme = async (currentPluginMeta: PluginMeta) => {
     const repo = currentPluginMeta.data.public_repo.split("github.com/")[1];
     const ghreadme = await fetch(`https://api.github.com/repos/${repo}/readme`);
     if (!ghreadme.ok) {
@@ -60,6 +59,9 @@ const SinglePlugin = () => {
 
     try {
       const pluginMeta = await client.getPluginMeta(id);
+
+      if (!pluginMeta) throw new Error("Failed to fetch the plugin meta");
+
       document.title = pluginMeta.data.name;
 
       const fn = pluginMeta.getPlugins;
@@ -77,7 +79,9 @@ const SinglePlugin = () => {
         readme,
       };
     } catch (error: any) {
-      throw new Error(error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
     }
   };
 
@@ -166,6 +170,8 @@ const SinglePlugin = () => {
     <WrapperConnect>
       {isLoading || isFetching ? (
         <SpinContainer title="Please wait as resources for this plugin are being fetched..." />
+      ) : isError ? (
+        <Alert type="error" description={error.message} />
       ) : data ? (
         <>
           <HeaderSinglePlugin currentPluginMeta={data.currentPluginMeta} />
@@ -181,7 +187,6 @@ const SinglePlugin = () => {
       ) : (
         <EmptyStateComponent />
       )}
-      {isError && <Alert type="error" description={error.message} />}
     </WrapperConnect>
   );
 };

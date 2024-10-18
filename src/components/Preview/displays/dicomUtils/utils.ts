@@ -1,27 +1,28 @@
 import {
-  RenderingEngine,
-  init,
-  Types,
   Enums,
+  RenderingEngine,
+  type Types,
   imageLoader,
+  init,
   metaData,
   volumeLoader,
+  EVENTS,
 } from "@cornerstonejs/core";
-import registerWebImageLoader from "./webImageLoader";
-import {
-  init as csToolsInit,
-  Types as CornerstoneToolTypes,
-} from "@cornerstonejs/tools";
-import dicomParser from "dicom-parser";
 import * as cornerstone from "@cornerstonejs/core";
-import * as cornerstoneTools from "@cornerstonejs/tools";
-import {
-  cornerstoneStreamingImageVolumeLoader,
-  cornerstoneStreamingDynamicImageVolumeLoader,
-} from "@cornerstonejs/streaming-image-volume-loader";
-import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
 import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+import {
+  cornerstoneStreamingDynamicImageVolumeLoader,
+  cornerstoneStreamingImageVolumeLoader,
+} from "@cornerstonejs/streaming-image-volume-loader";
+import {
+  type Types as CornerstoneToolTypes,
+  init as csToolsInit,
+} from "@cornerstonejs/tools";
+import * as cornerstoneTools from "@cornerstonejs/tools";
+import dicomParser from "dicom-parser";
+import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
 import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
+import registerWebImageLoader from "./webImageLoader";
 
 //@ts-ignore
 window.cornerstone = cornerstone;
@@ -43,6 +44,7 @@ const {
   Enums: csToolsEnums,
 } = cornerstoneTools;
 const { MouseBindings } = csToolsEnums;
+export const events = EVENTS;
 
 let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
 
@@ -96,10 +98,11 @@ export const cleanupCornerstoneTooling = () => {
 export function setUpTooling(uniqueToolId: string) {
   // Check if tool group already exists
   const id = toolGroup?.id;
+
   if (!id) {
     // Tool group doesn't exist, create a new one
+    registerToolingOnce();
     toolGroup = ToolGroupManager.createToolGroup(uniqueToolId);
-
     if (toolGroup) {
       toolGroup.addTool(WindowLevelTool.toolName);
       toolGroup.addTool(PanTool.toolName);
@@ -180,6 +183,8 @@ export const handleEvents = (
   const previousTool = actionState.previouslyActive as string;
   const id = toolGroup?.id;
 
+  if (activeTool === "TagInfo") return;
+
   if (id) {
     toolGroup?.setToolPassive(previousTool);
     if (activeTool === "Reset") {
@@ -194,8 +199,19 @@ export const handleEvents = (
   }
 };
 
-export const loadDicomImage = (blob: Blob) => {
-  return cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+export const loadDicomImage = async (blob: Blob) => {
+  const imageID = cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+  const image = await cornerstone.imageLoader.loadImage(imageID);
+
+  // Detect if the DICOM is a multi-frame image
+  //@ts-ignore
+  const numberOfFrames = image.data.string("x00280008");
+  const framesCount = numberOfFrames ? Number.parseInt(numberOfFrames, 10) : 1;
+
+  return {
+    imageID,
+    framesCount,
+  };
 };
 
 type ImagePoint = [number, number];
@@ -206,7 +222,6 @@ interface DisplayArea {
     imagePoint: ImagePoint;
     canvasPoint: ImagePoint;
   };
-  // storeAsInitialCamera?: boolean;
 }
 
 interface ViewportInputOptions {
@@ -238,7 +253,6 @@ function createDisplayArea(
         imagePoint,
         canvasPoint,
       },
-      // storeAsInitialCamera: true,
     },
   };
 }
@@ -267,7 +281,6 @@ export const displayDicomImage = async (
       type: ViewportType.STACK,
       element,
     };
-
     renderingEngine.enableElement(viewportInput);
     toolGroup?.addViewport(viewportId, renderingEngineId);
     const viewport = <Types.IStackViewport>(
@@ -276,11 +289,11 @@ export const displayDicomImage = async (
     const displayArea: ViewportInputOptions = createDisplayArea(1, 0.5);
     viewport.setOptions(displayArea, true);
     viewport.setProperties(displayArea);
-
     await viewport.setStack(imageIds);
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
-
+    // Set the stack scroll mouse wheel tool
+    toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
     return {
       viewport,
       renderingEngine,
