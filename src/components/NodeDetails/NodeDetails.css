@@ -165,14 +165,12 @@
   }
 }
 
-.pf-v5-c-log-viewer__main, 
+.pf-v5-c-log-viewer__main,
 .pf-v5-c-log-viewer__list {
   flex-grow: 1 !important;
   overflow: auto;
-  
 }
 
-.pf-v5-c-log-viewer__scroll-container{
-  height:100% !important;
+.pf-v5-c-log-viewer__scroll-container {
+  height: 100% !important;
 }
-
