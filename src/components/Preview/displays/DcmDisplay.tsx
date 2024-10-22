@@ -14,7 +14,6 @@ import {
   handleEvents,
 } from "./dicomUtils/utils";
 import type { IStackViewport } from "./dicomUtils/utils";
-import { Button } from "@patternfly/react-core";
 
 export type DcmImageProps = {
   selectedFile: IFileBlob;
@@ -50,8 +49,9 @@ const DcmDisplay = (props: DcmImageProps) => {
   const [multiFrameDisplay, setMultiFrameDisplay] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lastLoadedIndex, setLastLoadedIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(24); // frames per second
+  // Remove isPlaying and playbackSpeed states
+  // const [isPlaying, setIsPlaying] = useState(false);
+  // const [playbackSpeed, setPlaybackSpeed] = useState(24); // frames per second
 
   // Refs
   const dicomImageRef = useRef<HTMLDivElement>(null);
@@ -395,7 +395,8 @@ const DcmDisplay = (props: DcmImageProps) => {
     )
       return;
 
-    const frameDuration = 1000 / playbackSpeed; // Calculate frame duration in milliseconds
+    const defaultPlaybackSpeed = 24; // Use default playback speed (fps)
+    const frameDuration = 1000 / defaultPlaybackSpeed; // Calculate frame duration in milliseconds
 
     cineIntervalIdRef.current = setInterval(() => {
       if (activeViewportRef.current) {
@@ -406,12 +407,13 @@ const DcmDisplay = (props: DcmImageProps) => {
         setCurrentImageIndex(currentIndex);
       }
     }, frameDuration);
-  }, [playbackSpeed, imageStack, fname, imageCount]);
+  }, [imageStack, fname, imageCount]);
 
   /**
-   * Manage cine playback based on `isPlaying` state.
+   * Manage cine playback based on `actionState["Play"]` state.
    */
   useEffect(() => {
+    const isPlaying = actionState.Play === true;
     if (isPlaying && imageCount > 1) {
       startCinePlay();
     } else {
@@ -420,10 +422,9 @@ const DcmDisplay = (props: DcmImageProps) => {
     return () => {
       stopCinePlay();
     };
-  }, [isPlaying, startCinePlay, stopCinePlay, imageCount]);
+  }, [actionState.Play, startCinePlay, stopCinePlay, imageCount]);
 
   /* Manage Tooling */
-
   useEffect(() => {
     if (actionState && activeViewportRef.current) {
       handleEvents(actionState, activeViewportRef.current);
@@ -459,36 +460,6 @@ const DcmDisplay = (props: DcmImageProps) => {
             >
               {`Current Index: ${currentIndexDisplay}/${imageCountDisplay}`}
             </div>
-          )}
-
-          {imageCount > 1 && (
-            <>
-              {/* Play/Pause Button */}
-              <div style={{ marginBottom: "0.5em" }}>
-                <Button
-                  variant="control"
-                  size="sm"
-                  onClick={() => setIsPlaying(!isPlaying)}
-                >
-                  {isPlaying ? "Pause" : "Play"}
-                </Button>
-              </div>
-
-              {/* Playback Speed Control */}
-              <div style={{ color: "#fff", marginBottom: "0.5em" }}>
-                <label>
-                  Speed:
-                  <input
-                    type="number"
-                    value={playbackSpeed}
-                    min="1"
-                    max="60"
-                    onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-                  />
-                  fps
-                </label>
-              </div>
-            </>
           )}
 
           {/* Loading More Indicator */}

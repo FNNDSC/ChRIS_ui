@@ -33,6 +33,8 @@ import {
   BarsIcon,
   GripVerticalIcon,
   ToolsIcon,
+  PlayIcon,
+  PauseIcon,
 } from "@patternfly/react-icons";
 
 const CartIcon = ({
@@ -310,4 +312,6 @@ export {
   BarsIcon,
   GripVerticalIcon,
   ToolsIcon,
+  PlayIcon,
+  PauseIcon,
 };

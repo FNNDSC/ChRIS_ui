@@ -25,7 +25,7 @@ const IframeDisplay: React.FC<IframeDisplayProps> = ({
     return () => {
       URL.revokeObjectURL(url);
     };
-  }, [selectedFile]);
+  }, [url, selectedFile]);
 
   return (
     <Fragment>

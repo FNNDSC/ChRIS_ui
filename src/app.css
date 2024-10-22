@@ -63,21 +63,23 @@
 }
 
 .small-button {
-  width: 20px;
-  height: 20px;
-  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  font-size: 0.8rem
 }
 
 .large-button {
-  width: 40px;
-  height: 40px;
+  width: 24px;
+  height: 24px;
+  font-size:1rem;
 }
 
 .button-style {
   border-radius: 50% !important;
-  padding: 1rem !important;
+  padding: 1rem !important; /* Remove default padding */
   border: none !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
+  line-height:0 !important
 }

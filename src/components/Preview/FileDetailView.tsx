@@ -29,11 +29,13 @@ import {
   AddIcon,
   BrightnessIcon,
   InfoIcon,
+  PlayIcon,
   RotateIcon,
   RulerIcon,
   SearchIcon,
   ZoomIcon,
-} from "../Icons";
+  PauseIcon,
+} from "../Icons"; // Import PlayIcon
 import { TagInfoModal } from "./HelperComponent";
 import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 
@@ -277,6 +279,10 @@ const actions = [
     name: "TagInfo",
     icon: <InfoIcon />,
   },
+  {
+    name: "Play",
+    icon: <PlayIcon />, // Add Play icon
+  },
 ];
 
 const getViewerSpecificActions: {
@@ -315,6 +321,13 @@ export const DicomHeader = ({
         md: "spacerMd",
         sm: "spacerSm",
       };
+
+      // Dynamically set the icon for Play/Pause button
+      let icon = action.icon;
+      if (action.name === "Play") {
+        icon = actionState.Play ? <PauseIcon /> : <PlayIcon />;
+      }
+
       return (
         <ToolbarItem spacer={spacer} key={action.name}>
           <Tooltip content={<span>{action.name}</span>}>
@@ -325,12 +338,14 @@ export const DicomHeader = ({
               variant={
                 actionState[action.name] === true ? "primary" : "control"
               }
-              icon={action.icon}
+              size="sm"
+              icon={icon}
               onClick={(ev) => {
                 const previouslyActive = Object.keys(actionState)[0];
                 ev.preventDefault();
                 handleEvents(action.name, previouslyActive);
               }}
+              aria-label={action.name}
             />
           </Tooltip>
         </ToolbarItem>
