@@ -119,6 +119,7 @@ const BaseRow: React.FC<RowProps> = ({
       handleFileClick();
     }
   };
+
   const path =
     type === "folder" || type === "link"
       ? resource.data.path
@@ -170,9 +171,12 @@ const BaseRow: React.FC<RowProps> = ({
         <Td dataLabel={columnNames.date} modifier="truncate">
           <TruncatedText text={format(new Date(date), "dd MMM yyyy, HH:mm")} />
         </Td>
-        <Td dataLabel={columnNames.owner} modifier="truncate">
-          <TruncatedText text={owner} />
-        </Td>
+        {origin.type !== "fileBrowser" && (
+          <Td dataLabel={columnNames.owner} modifier="truncate">
+            <TruncatedText text={owner} />
+          </Td>
+        )}
+
         <Td dataLabel={columnNames.size} modifier="truncate">
           {size > 0 ? formatBytes(size, 0) : " "}
         </Td>

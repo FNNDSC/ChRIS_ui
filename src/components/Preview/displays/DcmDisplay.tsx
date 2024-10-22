@@ -11,6 +11,7 @@ import {
   loadDicomImage,
   setUpTooling,
   events,
+  handleEvents,
 } from "./dicomUtils/utils";
 import type { IStackViewport } from "./dicomUtils/utils";
 import { Button } from "@patternfly/react-core";
@@ -40,6 +41,7 @@ const DcmDisplay = (props: DcmImageProps) => {
     fetchMore,
     preview,
     filesLoading,
+    actionState,
   } = props;
 
   // State variables
@@ -328,7 +330,7 @@ const DcmDisplay = (props: DcmImageProps) => {
 
       if (
         filteredList &&
-        newIndex >= filteredList.length - 5 &&
+        newIndex >= filteredList.length - 15 &&
         fetchMore &&
         !filesLoading &&
         !isLoadingMore &&
@@ -388,7 +390,8 @@ const DcmDisplay = (props: DcmImageProps) => {
     if (
       cineIntervalIdRef.current ||
       !activeViewportRef.current ||
-      !imageStack[fname]
+      !imageStack[fname] ||
+      imageCount <= 1
     )
       return;
 
@@ -409,7 +412,7 @@ const DcmDisplay = (props: DcmImageProps) => {
    * Manage cine playback based on `isPlaying` state.
    */
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && imageCount > 1) {
       startCinePlay();
     } else {
       stopCinePlay();
@@ -417,7 +420,15 @@ const DcmDisplay = (props: DcmImageProps) => {
     return () => {
       stopCinePlay();
     };
-  }, [isPlaying, startCinePlay, stopCinePlay]);
+  }, [isPlaying, startCinePlay, stopCinePlay, imageCount]);
+
+  /* Manage Tooling */
+
+  useEffect(() => {
+    if (actionState && activeViewportRef.current) {
+      handleEvents(actionState, activeViewportRef.current);
+    }
+  }, [actionState]);
 
   return (
     <>
@@ -438,41 +449,47 @@ const DcmDisplay = (props: DcmImageProps) => {
           }}
         >
           {/* Current Index Display */}
-          <div
-            style={{
-              color: "#fff",
-              marginBottom: "0.5em",
-              fontFamily: "monospace", // Use monospaced font
-            }}
-          >
-            {`Current Index: ${currentIndexDisplay}/${imageCountDisplay}`}
-          </div>
-
-          {/* Play/Pause Button */}
-          <div style={{ marginBottom: "0.5em" }}>
-            <Button
-              variant="control"
-              size="sm"
-              onClick={() => setIsPlaying(!isPlaying)}
+          {imageCount > 1 && (
+            <div
+              style={{
+                color: "#fff",
+                marginBottom: "0.5em",
+                fontFamily: "monospace", // Use monospaced font
+              }}
             >
-              {isPlaying ? "Pause" : "Play"}
-            </Button>
-          </div>
+              {`Current Index: ${currentIndexDisplay}/${imageCountDisplay}`}
+            </div>
+          )}
 
-          {/* Playback Speed Control */}
-          <div style={{ color: "#fff", marginBottom: "0.5em" }}>
-            <label>
-              Speed:
-              <input
-                type="number"
-                value={playbackSpeed}
-                min="1"
-                max="60"
-                onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-              />
-              fps
-            </label>
-          </div>
+          {imageCount > 1 && (
+            <>
+              {/* Play/Pause Button */}
+              <div style={{ marginBottom: "0.5em" }}>
+                <Button
+                  variant="control"
+                  size="sm"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                >
+                  {isPlaying ? "Pause" : "Play"}
+                </Button>
+              </div>
+
+              {/* Playback Speed Control */}
+              <div style={{ color: "#fff", marginBottom: "0.5em" }}>
+                <label>
+                  Speed:
+                  <input
+                    type="number"
+                    value={playbackSpeed}
+                    min="1"
+                    max="60"
+                    onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
+                  />
+                  fps
+                </label>
+              </div>
+            </>
+          )}
 
           {/* Loading More Indicator */}
           {isLoadingMore && (

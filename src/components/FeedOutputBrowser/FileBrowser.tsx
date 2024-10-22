@@ -238,9 +238,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         <Th aria-label="file-creator" width={20}>
                           {columnNames.created}
                         </Th>
-                        <Th aria-label="file-owner" width={20}>
-                          {columnNames.creator}
-                        </Th>
+
                         <Th aria-label="file-size" width={20}>
                           {columnNames.size}
                         </Th>
