@@ -74,9 +74,14 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
   const username = useAppSelector((state) => state.user.username);
-  const { subFoldersMap, linkFilesMap, filesMap } = pluginFilesPayload;
+  const { subFoldersMap, linkFilesMap, filesMap, filesPagination, folderList } =
+    pluginFilesPayload;
   const breadcrumb = additionalKey.split("/");
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
+  const noFiles =
+    filesMap?.length === 0 &&
+    subFoldersMap?.length === 0 &&
+    linkFilesMap?.length === 0;
 
   useEffect(() => {
     if (isSuccess) {
@@ -191,7 +196,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                     }}
                     origin={origin}
                     computedPath={additionalKey}
-                    folderList={pluginFilesPayload.folderList}
+                    folderList={folderList}
                   />
                   <div className="file-browser__header">
                     <div className="file-browser__header--breadcrumbContainer">
@@ -245,7 +250,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {isLoading ? (
+                      {isLoading && noFiles ? (
                         renderSkeletonRows()
                       ) : (
                         <>
@@ -353,7 +358,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                   gallery={true}
                   selectedFile={selectedFile}
                   preview="large"
-                  list={pluginFilesPayload.filesMap}
+                  list={filesMap}
                   fetchMore={fetchMore}
                   handlePagination={handlePagination}
                   filesLoading={isLoading}
