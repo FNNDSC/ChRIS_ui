@@ -9,7 +9,7 @@ import {
 } from "@patternfly/react-core";
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
 import { useMutation } from "@tanstack/react-query";
-import * as dicomParser from "dicom-parser";
+import * as dcmjs from "dcmjs";
 import React, {
   Fragment,
   useCallback,
@@ -19,9 +19,9 @@ import React, {
 } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import {
+  type IFileBlob,
   fileViewerMap,
   getFileExtension,
-  type IFileBlob,
 } from "../../api/model";
 import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
@@ -29,15 +29,14 @@ import {
   AddIcon,
   BrightnessIcon,
   InfoIcon,
+  PauseIcon,
   PlayIcon,
   RotateIcon,
   RulerIcon,
   SearchIcon,
   ZoomIcon,
-  PauseIcon,
 } from "../Icons"; // Import PlayIcon
 import { TagInfoModal } from "./HelperComponent";
-import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
@@ -98,45 +97,36 @@ const FileDetailView = (props: AllProps) => {
     };
   }, [handleKeyboardEvents]);
 
-  const displayTagInfo = useCallback(async (result: any) => {
-    const reader = new FileReader();
-
-    reader.onloadend = async () => {
-      try {
-        if (reader.result) {
-          const byteArray = new Uint8Array(reader.result as ArrayBuffer);
-          const testOutput: any[] = [];
-          const output: any[] = [];
-          const dataSet = dicomParser.parseDicom(byteArray);
-          dumpDataSet(dataSet, output, testOutput);
-          const merged = Object.assign({}, ...testOutput);
-          setTagInfo(merged);
-        }
-      } catch (error) {
-        setParsingError("Failed to parse the file for dicom tags");
-        return {
-          blob: undefined,
-          file: undefined,
-          fileType: "",
-        };
-      }
-    };
-
-    if (result) {
+  const displayTagInfo = useCallback(async () => {
+    try {
       const blob = await selectedFile?.getFileBlob();
-      if (blob) {
-        reader.readAsArrayBuffer(blob);
-      } else {
-        throw new Error("Failed to parse the file for dicom tags");
+      if (!blob) {
+        setParsingError("Failed to retrieve the file blob");
+        return;
       }
+
+      const arrayBuffer = await blob.arrayBuffer();
+      const dicomData = dcmjs.data.DicomMessage.readFile(arrayBuffer);
+      const dataset = dcmjs.data.DicomMetaDictionary.naturalizeDataset(
+        dicomData.dict,
+      );
+      // Sort the dataset keys alphabetically
+      const sortedDataset = Object.keys(dataset)
+        .sort()
+        .reduce((sortedObj: any, key) => {
+          sortedObj[key] = dataset[key];
+          return sortedObj;
+        }, {});
+
+      setTagInfo(sortedDataset);
+    } catch (error) {
+      console.error("Error parsing DICOM file:", error);
+      setParsingError("Failed to parse the file for DICOM tags");
     }
   }, []);
 
   const mutation = useMutation({
-    mutationFn: async (selectedFile: FileBrowserFolderFile | PACSFile) => {
-      await displayTagInfo(selectedFile);
-    },
-
+    mutationFn: displayTagInfo,
     onError: (error: any) => {
       setParsingError(error.message);
     },
@@ -156,7 +146,7 @@ const FileDetailView = (props: AllProps) => {
 
   const handleEvents = (action: string, previouslyActive: string) => {
     if (action === "TagInfo" && selectedFile) {
-      mutation.mutate(selectedFile);
+      mutation.mutate();
     }
     const currentAction = actionState[action];
     setActionState({
