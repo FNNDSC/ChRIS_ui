@@ -4,13 +4,16 @@
  *  Author:          ChRIS UI
  *  Notes:           Work in progres ...
  */
-import { FeedFile } from "@fnndsc/chrisapi";
-import keyMirror from "keymirror";
+
+import type {
+  FileBrowserFolder,
+  FileBrowserFolderFile,
+} from "@fnndsc/chrisapi";
 
 export type Key = string | number;
 
 type FileInfo = {
-  file?: FeedFile;
+  file?: FileBrowserFolder;
   fileSize: string;
 };
 
@@ -65,10 +68,5 @@ export type CheckInfo = {
 
 // Description state for main user items[] and item
 export interface IExplorerState {
-  selectedFile?: FeedFile;
+  selectedFile?: FileBrowserFolderFile;
 }
-
-export const ExplorerActionTypes = keyMirror({
-  SET_SELECTED_FILE: null,
-  CLEAR_SELECTED_FILE: null,
-});

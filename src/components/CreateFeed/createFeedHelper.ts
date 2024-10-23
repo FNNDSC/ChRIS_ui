@@ -1,4 +1,4 @@
-import {
+import type {
   Feed,
   Plugin,
   PluginInstance,
@@ -10,10 +10,11 @@ import {
   limitConcurrency,
   uploadWrapper,
 } from "../../api/common";
-import { InputType } from "../AddNode/types";
+import type { InputType } from "../AddNode/types";
 import { unpackParametersIntoObject } from "../AddNode/utils";
-import { PipelineState } from "../PipelinesCopy/context";
-import { CreateFeedData } from "./types/feed";
+import type { PipelineState } from "../PipelinesCopy/context";
+import type { CreateFeedData } from "./types/feed";
+import type { AddNodeState } from "../AddNode/types";
 
 export const createFeed = async (
   data: CreateFeedData,
@@ -24,16 +25,16 @@ export const createFeed = async (
 ) => {
   const { chrisFiles, localFiles } = data;
 
-  let dirpath: string[] = [];
+  const dirpath: string[] = [];
   let feed: Feed;
 
   if (selectedConfig.includes("swift_storage")) {
-    dirpath = chrisFiles.map((path: string) => path);
+    dirpath.push(...chrisFiles);
   }
 
   if (selectedConfig.includes("local_select")) {
     const generateUnique = generatePathForLocalFile(data);
-    const path = `${username}/uploads/${generateUnique}`;
+    const path = `home/${username}/uploads/${generateUnique}`;
     dirpath.push(path);
 
     try {
@@ -48,54 +49,58 @@ export const createFeed = async (
     const client = ChrisAPIClient.getClient();
     const dircopy = await getPlugin("pl-dircopy");
 
-    if (dircopy) {
-      const createdInstance = await client.createPluginInstance(
-        dircopy.data.id,
-        {
-          //@ts-ignore
-          dir: dirpath.join(","),
-        },
-      );
-      const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
-      const id = pipelineToAdd?.data.id;
-      const resources = selectedPipeline?.[id];
-      if (createdInstance) {
-        if (resources) {
-          const { parameters } = resources;
+    if (!dircopy) {
+      throw new Error("Failed to find pl-dircopy. Is pl-dircopy installed? ");
+    }
 
-          const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
+    const createdInstance = await client.createPluginInstance(dircopy.data.id, {
+      //@ts-ignore
+      dir: dirpath.join(","),
+    });
 
-          for (const node of nodes_info) {
-            // Set compute info
-            const activeNode = computeInfo?.[id][node.piping_id];
-            // Set Title
-            const titleSet = titleInfo?.[id][node.piping_id];
-
-            if (activeNode) {
-              const compute_node = activeNode.currentlySelected;
-              node.compute_resource_name = compute_node;
-            }
-
-            if (titleSet) {
-              node.title = titleSet;
-            }
-          }
-
-          await client.createWorkflow(id, {
-            previous_plugin_inst_id: createdInstance.data.id,
-            nodes_info: JSON.stringify(nodes_info),
-          });
-        }
-
-        feed = (await createdInstance.getFeed()) as Feed;
-        return feed;
-      }
+    if (!createdInstance) {
       throw new Error("Failed to create a dircopy instance");
     }
-    return undefined;
-  } catch (e: any) {
-    // biome-ignore lint/complexity/noUselessCatch: <explanation>
-    throw e;
+
+    const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
+    const id = pipelineToAdd?.data.id;
+    const resources = selectedPipeline?.[id];
+
+    if (resources) {
+      const { parameters } = resources;
+
+      const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
+
+      for (const node of nodes_info) {
+        // Set compute info
+        const activeNode = computeInfo?.[id][node.piping_id];
+        // Set Title
+        const titleSet = titleInfo?.[id][node.piping_id];
+
+        if (activeNode) {
+          const compute_node = activeNode.currentlySelected;
+          node.compute_resource_name = compute_node;
+        }
+
+        if (titleSet) {
+          node.title = titleSet;
+        }
+      }
+
+      await client.createWorkflow(id, {
+        previous_plugin_inst_id: createdInstance.data.id,
+        nodes_info: JSON.stringify(nodes_info),
+      });
+    }
+
+    feed = (await createdInstance.getFeed()) as Feed;
+    return feed;
+  } catch (e) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
+
+    throw new Error("Unhandled error. Failed to create a Feed.");
   }
 };
 
@@ -129,7 +134,9 @@ function generatePathForLocalFile(data: CreateFeedData) {
   return `${normalizedFeedName}-upload-${randomCode}`;
 }
 
-export const getPlugin = async (pluginName: string) => {
+export const getPlugin = async (
+  pluginName: string,
+): Promise<Plugin | undefined> => {
   const client = ChrisAPIClient.getClient();
 
   try {
@@ -143,33 +150,48 @@ export const getPlugin = async (pluginName: string) => {
     }
     return undefined;
   } catch (e) {
-    // biome-ignore lint/complexity/noUselessCatch: <explanation>
-    throw e;
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
   }
 };
 
-export const createFeedInstanceWithFS = async (
-  dropdownInput: InputType,
-  requiredInput: InputType,
-  selectedPlugin: Plugin | undefined,
-) => {
+export const createFeedInstanceWithFS = async (state: AddNodeState) => {
+  const {
+    dropdownInput,
+    requiredInput,
+    advancedConfig,
+    selectedComputeEnv,
+    selectedPluginFromMeta: selectedPlugin,
+    memoryLimit,
+  } = state;
+
   try {
     if (selectedPlugin) {
-      const data = await getRequiredObject(
+      const { advancedConfigErrors, sanitizedInput } = sanitizeAdvancedConfig(
+        advancedConfig,
+        memoryLimit,
+      );
+
+      if (Object.keys(advancedConfigErrors).length > 0) {
+        throw new Error("Advanced config errors");
+      }
+
+      const parameterInput = await getParameterInput(
         dropdownInput,
         requiredInput,
         selectedPlugin,
+        selectedComputeEnv,
+        sanitizedInput,
       );
-      const pluginId = selectedPlugin.data.id;
-      const client = ChrisAPIClient.getClient();
-      const fsPluginInstance = await client.createPluginInstance(
-        pluginId,
-        //@ts-ignore
-        data,
+
+      const { feed } = await createPluginInstance(
+        selectedPlugin.data.id,
+        parameterInput,
       );
-      const feed = await fsPluginInstance.getFeed();
       return feed;
     }
+
     return undefined;
   } catch (e: any) {
     // biome-ignore lint/complexity/noUselessCatch: <explanation>
@@ -263,4 +285,65 @@ export const getRequiredObject = async (
     // biome-ignore lint/complexity/noUselessCatch: <explanation>
     throw error;
   }
+};
+
+export const sanitizeAdvancedConfig = (
+  advancedConfig: Record<string, string>,
+  memoryLimit: string,
+) => {
+  const advancedConfigErrors: Record<string, string> = {};
+  const sanitizedInput: Record<string, string> = {};
+
+  for (const key in advancedConfig) {
+    const inputValue = +advancedConfig[key];
+
+    if (Number.isNaN(inputValue)) {
+      advancedConfigErrors[key] = "A valid integer is required";
+    } else {
+      if (key === "cpu_limit") {
+        sanitizedInput[key] = `${inputValue * 1000}m`;
+      }
+      if (key === "memory_limit") {
+        sanitizedInput[key] = `${inputValue}${memoryLimit}`;
+      }
+    }
+  }
+
+  return { advancedConfigErrors, sanitizedInput };
+};
+
+export const createPluginInstance = async (
+  pluginId: number,
+  parameterInput: Record<string, any>,
+) => {
+  const client = ChrisAPIClient.getClient();
+  const pluginInstance = await client.createPluginInstance(
+    pluginId,
+    //@ts-ignore
+    parameterInput,
+  );
+  const feed = await pluginInstance.getFeed();
+  return { pluginInstance, feed };
+};
+
+export const getParameterInput = async (
+  dropdownInput: Record<string, any>,
+  requiredInput: Record<string, any>,
+  plugin: any,
+  selectedComputeEnv: string,
+  sanitizedInput: Record<string, any>,
+  selectedPlugin?: PluginInstance,
+) => {
+  let parameterInput = await getRequiredObject(
+    dropdownInput,
+    requiredInput,
+    plugin,
+    selectedPlugin,
+  );
+  parameterInput = {
+    ...parameterInput,
+    compute_resource_name: selectedComputeEnv,
+    ...sanitizedInput,
+  };
+  return parameterInput;
 };

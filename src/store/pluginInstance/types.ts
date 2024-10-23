@@ -5,8 +5,7 @@
  *
  */
 
-import keyMirror from "keymirror";
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 
 export interface PluginInstanceObj {
   selected: PluginInstance;
@@ -14,14 +13,14 @@ export interface PluginInstanceObj {
 }
 
 export interface PluginInstancePayload {
-  data?: PluginInstance[];
-  error: any;
+  data: PluginInstance[];
+  error: string;
   loading: boolean;
 }
 
 export interface AddNodePayload {
   pluginItem: PluginInstance;
-  nodes?: PluginInstance[];
+  nodes: PluginInstance[];
 }
 
 export interface SplitNodesPayload {
@@ -33,22 +32,4 @@ export interface SplitNodesPayload {
 export interface IPluginInstanceState {
   pluginInstances: PluginInstancePayload;
   selectedPlugin?: PluginInstance;
-  selectedD3Node?: any;
 }
-
-export const PluginInstanceTypes = keyMirror({
-  GET_SELECTED_D3_NODE: null,
-  GET_SELECTED_PLUGIN: null,
-  GET_PLUGIN_INSTANCES_REQUEST: null,
-  GET_PLUGIN_INSTANCES_SUCCESS: null,
-  GET_PLUGIN_INSTANCES_ERROR: null,
-  ADD_NODE_REQUEST: null,
-  ADD_NODE_SUCCESS: null,
-  SET_PLUGIN_TITLE: null,
-  SWITCH_TREE_MODE: null,
-  ADD_TS_NODE: null,
-  DELETE_TS_NODE: null,
-  ADD_SPLIT_NODES: null,
-  ADD_SPLIT_NODES_SUCCESS: null,
-  RESET_PLUGIN_INSTANCES: null,
-});

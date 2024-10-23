@@ -1,43 +1,42 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import {
-  PageSidebar,
   Nav,
+  NavGroup,
   NavItem,
   NavList,
-  NavGroup,
+  PageSidebar,
   PageSidebarBody,
+  Brand,
 } from "@patternfly/react-core";
-import { setSidebarActive } from "../../store/ui/actions";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { IUserState } from "../../store/user/types";
-import { useTypedSelector } from "../../store/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
+import { Link } from "react-router-dom";
+import { useAppSelector } from "../../store/hooks";
+import type { IUiState } from "../../store/ui/uiSlice";
+import type { IUserState } from "../../store/user/userSlice";
+import brandImg from "../../assets/logo_chris_dashboard.png";
 
-type ReduxProp = {
-  setSidebarActive: (active: { activeItem: string }) => void;
-};
+type AllProps = IUiState & IUserState;
 
-type AllProps = IUiState & IUserState & ReduxProp;
-
-const Sidebar: React.FC<AllProps> = ({
-  isNavOpen,
-  sidebarActiveItem,
-  setSidebarActive,
-}) => {
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
-
-  const onSelect = (selectedItem: any) => {
-    const { itemId } = selectedItem;
-    if (sidebarActiveItem !== itemId) {
-      setSidebarActive({ activeItem: itemId });
-    }
-  };
+const Sidebar: React.FC<AllProps> = () => {
+  const queryClient = useQueryClient();
+  const { sidebarActiveItem, isNavOpen } = useAppSelector((state) => state.ui);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
   const urlParam = isLoggedIn ? "private" : "public";
+
+  const onSelect = (
+    _event: React.FormEvent<HTMLInputElement>,
+    selectedItem: any,
+  ) => {
+    const { itemId } = selectedItem;
+    // Invalidate feeds if "analyses" is selected
+    if (itemId === "analyses") {
+      const queryKey = isLoggedIn ? "feeds" : "publicFeeds";
+      queryClient.refetchQueries({
+        queryKey: [queryKey], // This assumes your query key for feeds is ["feeds"]
+      });
+    }
+  };
 
   const renderLink = (to: string, label: string, itemId: string) =>
     sidebarActiveItem === itemId && sidebarActiveItem !== "analyses" ? (
@@ -98,10 +97,19 @@ const Sidebar: React.FC<AllProps> = ({
 
   return (
     <PageSidebar isSidebarOpen={isNavOpen}>
-      <PageSidebarBody>{PageNav}</PageSidebarBody>
+      <PageSidebarBody>
+        <div
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
+          <div style={{ flexGrow: 1 }}>{PageNav}</div>
+          <Brand src={brandImg} alt="ChRIS Logo" />
+        </div>
+      </PageSidebarBody>
     </PageSidebar>
   );
 };
+
+export default Sidebar;
 
 const AnonSidebarImpl: React.FC<AllProps> = ({
   isNavOpen,
@@ -141,26 +149,18 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
 
   return (
     <PageSidebar isSidebarOpen={isNavOpen}>
-      <PageSidebarBody>{PageNav}</PageSidebarBody>
+      <PageSidebarBody>
+        <div
+          style={{ display: "flex", flexDirection: "column", height: "100%" }}
+        >
+          <div style={{ flexGrow: 1 }}>{PageNav}</div>
+          <div style={{ padding: "16px" }}>
+            <Brand src={brandImg} alt="ChRIS Logo" />
+          </div>
+        </div>
+      </PageSidebarBody>
     </PageSidebar>
   );
 };
 
-const mapStateToProps = ({ user, ui }: ApplicationState) => ({
-  isLoggedIn: user.isLoggedIn,
-  sidebarActiveItem: ui.sidebarActiveItem,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  setSidebarActive: (active: { activeItem: string }) =>
-    dispatch(setSidebarActive(active)),
-});
-
-const AnonSidebar = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(AnonSidebarImpl);
-export { AnonSidebar };
-
-const SidebarConnect = connect(mapStateToProps, mapDispatchToProps)(Sidebar);
-export default SidebarConnect;
+export { AnonSidebarImpl as AnonSidebar };

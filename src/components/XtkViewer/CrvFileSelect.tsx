@@ -5,13 +5,13 @@ import {
   SimpleListItem,
 } from "@patternfly/react-core";
 import { useState } from "react";
-import { FeedFile } from "@fnndsc/chrisapi";
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 
 interface CrvFileSelectProps {
-  files: FeedFile[];
-  selectedFile?: FeedFile;
+  files: FileBrowserFolderFile[];
+  selectedFile?: FileBrowserFolderFile;
   title?: string;
-  handleSelect: (file: FeedFile) => void;
+  handleSelect: (file: FileBrowserFolderFile) => void;
 }
 
 const CrvFileSelect = (props: CrvFileSelectProps) => {
@@ -23,7 +23,7 @@ const CrvFileSelect = (props: CrvFileSelectProps) => {
     <SimpleList
       onSelect={(listItemProps: any) => {
         // data passing between item and handler is done through props
-        const file = (listItemProps as any)["x-file"] as FeedFile;
+        const file = (listItemProps as any)["x-file"] as FileBrowserFolderFile;
         handleSelect(file);
         setOpen(false);
       }}

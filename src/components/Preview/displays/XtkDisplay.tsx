@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import { IFileBlob } from "../../../api/model";
+import type React from "react";
+import { useEffect, useRef } from "react";
+import type { IFileBlob } from "../../../api/model";
 import { getXtkFileMode } from "../../XtkViewer/XtkViewer";
 
 type AllProps = {
@@ -17,7 +18,7 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
     async function renderFileData() {
       const fileData = await fileItem.blob?.arrayBuffer();
       const fileName = fileItem.file?.data.fname;
-      let object;
+      let object: any = {};
 
       if (mode === "volume") {
         r = new X.renderer2D();
@@ -73,7 +74,7 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
         <div
           style={{ height: "100%", background: "black" }}
           ref={renderContainerRef}
-        ></div>
+        />
       )}
     </div>
   );

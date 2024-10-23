@@ -1,12 +1,9 @@
-declare module "keymirror";
 declare module "pako";
-declare module "chris-utility";
 declare module "@patternfly/react-log-viewer";
-declare module "cornerstone-core";
-declare module "cornerstone-tools";
 declare module "xtk";
 declare module "dicom-parser";
 declare module "rusha";
 declare module "hammerjs";
 declare module "preval.macro";
 declare module "@cornerstonejs/dicom-image-loader";
+declare module "dcmjs";

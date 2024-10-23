@@ -1,0 +1,49 @@
+/*
+ * - On mobile: show two rows.
+ * - On desktop: show everything in one row.
+ */
+
+.seriesRow {
+  width: 100%;
+  --modality-width: 8em;
+  --pullbutton-width: 4em;
+  --filecount-width: 8em;
+  --pullbutton-margin-left: 1em;
+  --row-max: 100%;
+}
+
+.seriesRow.xl {
+  --row-max: 50%;
+  --filecount-width: 6em;
+}
+
+.seriesRow .modality {
+  width: var(--modality-width);
+}
+
+.seriesRow .description {
+  width: calc(var(--row-max) - var(--modality-width));
+}
+
+.seriesRow .progress {
+  width: calc(
+    var(--row-max) -
+    var(--filecount-width) -
+    var(--pullbutton-width) -
+    var(--pullbutton-margin-left)
+  );
+}
+
+.seriesRow .fileCount {
+  width: var(--filecount-width);
+}
+
+.seriesRow .pullButton {
+  margin-left: var(--pullbutton-margin-left);
+  width: var(--pullbutton-width);
+}
+
+.seriesInstanceUid {
+  margin-left: var(--modality-width);
+  width: 100%;
+}

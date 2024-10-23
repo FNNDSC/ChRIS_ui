@@ -9,7 +9,6 @@ type RouterContextType<S, A = any> = React.Context<RouterObjectType<S, A>>;
 type RouterObjectType<S, A = any> = {
   state: S;
   actions: A;
-  route: (path: string) => any;
 };
 
 export function RouterContext<S, A = any>({
@@ -19,7 +18,6 @@ export function RouterContext<S, A = any>({
   return [
     state,
     React.createContext<RouterObjectType<S, A>>({
-      route: (path: string) => path,
       actions: actions ? actions : ({} as A),
       state,
     }),
@@ -30,8 +28,6 @@ interface RouterProviderProps<S = any, A = any> {
   context: RouterContextType<S>;
   state: S;
   actions: A;
-  route?: string;
-  setRoute: (route?: string) => any;
   children: React.ReactNode;
 }
 
@@ -39,16 +35,12 @@ export function RouterProvider({
   context,
   actions,
   state,
-  route,
-  setRoute,
   children,
 }: RouterProviderProps) {
   const props = {
     context,
     actions,
     state,
-    route,
-    setRoute,
     children,
   };
   return <RouterComponent propsElement={props} />;
@@ -62,9 +54,6 @@ const RouterComponent = ({
   return (
     <context.Provider
       value={{
-        route: () => {
-          console.log("NEEDED");
-        },
         state,
         actions,
       }}

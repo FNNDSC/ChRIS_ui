@@ -1,32 +1,30 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "antd";
-import React, { useContext } from "react";
-import { useDispatch } from "react-redux";
+import React, { Fragment, useContext } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useTypedSelector } from "../../store/hooks";
-import { getNodeOperations } from "../../store/plugin/actions";
-import {
-  getPluginInstancesSuccess,
-  getSelectedPlugin,
-} from "../../store/pluginInstance/actions";
-import { getPluginInstanceStatusRequest } from "../../store/resources/actions";
-import { SpinContainer } from "../Common";
-import { Form, Tag } from "antd";
 import { fetchResource } from "../../api/common";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { getNodeOperations } from "../../store/plugin/pluginSlice";
+import {
+  getSelectedPlugin,
+  setPluginInstancesAndSelectedPlugin,
+} from "../../store/pluginInstance/pluginInstanceSlice";
+import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
+import { Alert, Form, Tag } from "../Antd";
+import { SpinContainer } from "../Common";
 import Pipelines from "../PipelinesCopy";
 import { PipelineContext, Types } from "../PipelinesCopy/context";
 
 const AddPipeline = () => {
   const { state, dispatch } = useContext(PipelineContext);
   const { pipelineToAdd, selectedPipeline, computeInfo, titleInfo } = state;
-  const reactDispatch = useDispatch();
-  const { childPipeline } = useTypedSelector(
+  const reactDispatch = useAppDispatch();
+  const { childPipeline } = useAppSelector(
     (state) => state.plugin.nodeOperations,
   );
 
-  const { pluginInstances, selectedPlugin } = useTypedSelector(
+  const { pluginInstances, selectedPlugin } = useAppSelector(
     (state) => state.instance,
   );
 
@@ -90,13 +88,11 @@ const AddPipeline = () => {
             selected: firstInstance,
             pluginInstances: completeList,
           };
-          reactDispatch(getPluginInstancesSuccess(pluginInstanceObj));
+          reactDispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
           reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
         }
-
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       } catch (e: any) {
-        throw new Error(e.message ? e.message : e);
+        if (e instanceof Error) throw new Error(e.message);
       }
     }
   };
@@ -121,10 +117,11 @@ const AddPipeline = () => {
     }
   });
 
-  const isButtonDisabled =
-    pipelineToAdd && computeInfo?.[pipelineToAdd.data.id] && !mutation.isPending
-      ? false
-      : true;
+  const isButtonDisabled = !(
+    pipelineToAdd &&
+    computeInfo?.[pipelineToAdd.data.id] &&
+    !mutation.isPending
+  );
 
   return (
     <Modal
@@ -145,7 +142,7 @@ const AddPipeline = () => {
         <Button key="cancel" variant="link" onClick={handleToggle}>
           Cancel
         </Button>,
-        <>
+        <Fragment key="status">
           {state.pipelineToAdd && (
             <div>
               <Form.Item
@@ -168,7 +165,7 @@ const AddPipeline = () => {
               </Form.Item>
             </div>
           )}
-        </>,
+        </Fragment>,
       ]}
     >
       <Pipelines />

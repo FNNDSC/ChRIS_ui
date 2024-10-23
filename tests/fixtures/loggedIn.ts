@@ -1,6 +1,6 @@
 import { test as baseTest } from "./notLoggedIn";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { faker } from "@faker-js/faker";
 import createAccountHelper from "../helpers/createAccount";
 export * from "@playwright/test";

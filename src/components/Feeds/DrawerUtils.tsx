@@ -1,11 +1,11 @@
-import { ReactNode } from "react";
 import {
   Button,
-  Tooltip,
+  DrawerActions,
   DrawerCloseButton,
   DrawerHead,
-  DrawerActions,
+  Tooltip,
 } from "@patternfly/react-core";
+import type { ReactNode } from "react";
 import { CompressArrowsAltIcon, ExpandArrowsAltIcon } from "../Icons";
 
 interface ButtonProps {
@@ -86,7 +86,7 @@ export const DrawerActionButton = ({
           />
         ) : (
           <Button
-            style={{ paddingLeft: "0.5em", paddingRight: "0.5em" }}
+            style={{ paddingLeft: "0.5em", paddingRight: "0.5em", zIndex: 999 }}
             onClick={handleMaximize}
             variant="link"
             icon={<ExpandArrowsAltIcon />}

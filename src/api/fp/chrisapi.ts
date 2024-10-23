@@ -1,17 +1,14 @@
 import Client, {
   AllPluginInstanceList,
+  DownloadToken,
   Feed,
   FeedPluginInstanceList,
-  FileBrowserPath,
-  FileBrowserPathFileList,
   PluginInstance,
   PublicFeedList,
 } from "@fnndsc/chrisapi";
 import * as TE from "fp-ts/TaskEither";
 import * as E from "fp-ts/Either";
-import * as Console from "fp-ts/Console";
 import { pipe } from "fp-ts/function";
-import FpFileBrowserFile from "./fpFileBrowserFile";
 
 /**
  * fp-ts friendly wrapper for @fnndsc/chrisapi
@@ -27,7 +24,7 @@ class FpClient {
     ...params: Parameters<Client["getPluginInstance"]>
   ): TE.TaskEither<Error, PluginInstance> {
     return TE.tryCatch(
-      () => this.client.getPluginInstance(...params),
+      () => this.client.getPluginInstance(...params).then(notNull),
       E.toError,
     );
   }
@@ -48,6 +45,7 @@ class FpClient {
       },
     };
     if (this.client.auth.token) {
+      // @ts-ignore
       options.headers.Authorization = `Token ${this.client.auth.token}`;
     }
     return pipe(
@@ -115,55 +113,22 @@ class FpClient {
     return TE.tryCatch(() => feed.getPluginInstances(...params), E.toError);
   }
 
-  /**
-   * A wrapper which calles `getFileBrowserPath` then `getFiles`,
-   * and processes the returned objects to have a more sane type.
-   *
-   * Pretty much gives you back what CUBE would return from
-   * `api/v1/filebrowser-files/.../` with HTTP header `Accept: application/json`
-   *
-   * Pagination is not implemented, hence the name "get **few** files under"...
-   */
-  public getFewFilesUnder(
-    ...args: Parameters<Client["getFileBrowserPath"]>
-  ): TE.TaskEither<Error, ReadonlyArray<FpFileBrowserFile>> {
-    return pipe(
-      this.getFileBrowserPath(...args),
-      TE.flatMap((fb) => FpClient.filebrowserGetFiles(fb, { limit: 100 })),
-      TE.tapIO((list) => {
-        if (list.hasNextPage) {
-          return Console.warn(
-            `Not all elements from ${list.url} were fetched, ` +
-              "and pagination not implemented.",
-          );
-        }
-        return () => undefined;
-      }),
-      TE.map(saneReturnOfFileBrowserPathFileList),
-    );
-  }
-
-  public getFileBrowserPath(
-    ...args: Parameters<Client["getFileBrowserPath"]>
-  ): TE.TaskEither<Error, FileBrowserPath> {
+  public createDownloadToken(
+    ...params: Parameters<Client["createDownloadToken"]>
+  ): TE.TaskEither<Error, DownloadToken> {
     return TE.tryCatch(
-      () => this.client.getFileBrowserPath(...args),
+      () => this.client.createDownloadToken(...params).then(notNull),
       E.toError,
     );
   }
+}
 
-  public static filebrowserGetFiles(
-    fbp: FileBrowserPath,
-    ...params: Parameters<FileBrowserPath["getFiles"]>
-  ): TE.TaskEither<Error, FileBrowserPathFileList> {
-    return TE.tryCatch(() => fbp.getFiles(...params), E.toError);
+function notNull<T>(x: T | null): T {
+  if (x === null) {
+    throw Error();
   }
+  return x;
 }
 
-function saneReturnOfFileBrowserPathFileList(
-  fbpfl: FileBrowserPathFileList,
-): ReadonlyArray<FpFileBrowserFile> {
-  return fbpfl.getItems()!.map((file) => new FpFileBrowserFile(file));
-}
-
-export { FpClient, saneReturnOfFileBrowserPathFileList, FpFileBrowserFile };
+export default FpClient;
+export { FpClient };

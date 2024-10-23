@@ -3,7 +3,7 @@ import { WizardContext } from "@patternfly/react-core";
 import { CreateFeedContext } from "./context";
 import { Types } from "./types/feed";
 import { LocalFileList } from "./HelperComponent";
-import { notification } from "antd";
+import { notification } from "../Antd";
 
 const LocalFileUpload = () => {
   const { state, dispatch } = useContext(CreateFeedContext);
@@ -64,9 +64,9 @@ const FileUploadComponent = ({
 }: FileUploadProps) => {
   const handleKeyDown = useCallback(
     (e: any) => {
-      if (e.code == "ArrowLeft") {
+      if (e.code === "ArrowLeft") {
         onBack();
-      } else if (e.code == "ArrowRight" && localFiles.length > 0) {
+      } else if (e.code === "ArrowRight" && localFiles.length > 0) {
         onNext();
       }
     },

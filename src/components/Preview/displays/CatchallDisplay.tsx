@@ -1,36 +1,27 @@
-import * as React from "react";
-import { Alert } from "@patternfly/react-core";
-import { IFileBlob } from "../../../api/model";
+import { memo } from "react";
+import { Alert } from "../../Antd";
+import { getFileExtension, type IFileBlob } from "../../../api/model";
 
 type AllProps = {
-  fileItem: IFileBlob;
+  selectedFile?: IFileBlob;
 };
 
 const CatchallDisplay: React.FunctionComponent<AllProps> = (
   props: AllProps,
 ) => {
   const noPreviewMessage = () => {
-    const { fileItem } = props;
-    const ext = fileItem.fileType ? fileItem.fileType : "";
-    const alertText = (
-      <React.Fragment>
-        <label>
-          <b>File Type:</b> {ext}
-        </label>
-      </React.Fragment>
-    );
+    const { selectedFile } = props;
+    const extension = getFileExtension(selectedFile?.data.fname);
     return (
       <Alert
-        variant="info"
-        title={`No preview available for the filetype ${ext}`}
-      >
-        {alertText}
-      </Alert>
+        type="info"
+        description={`No preview available for the filetype ${extension}`}
+      />
     );
   };
   return noPreviewMessage();
 };
 
-const MemoedCatchAllDisplay = React.memo(CatchallDisplay);
+const MemoedCatchAllDisplay = memo(CatchallDisplay);
 
 export default MemoedCatchAllDisplay;

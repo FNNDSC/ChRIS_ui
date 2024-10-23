@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useLocation } from "react-router";
-import { useDispatch } from "react-redux";
 import { debounce } from "lodash";
+import { useAppDispatch } from "../../store/hooks.ts";
 
 export interface FilterState {
   perPage: number;
@@ -12,13 +12,13 @@ export interface FilterState {
 
 export const usePaginate = () => {
   const [filterState, setFilterState] = useState<FilterState>({
-    perPage: 14,
+    perPage: 18,
     page: 1,
     search: "",
     searchType: "name",
   });
   const { perPage, page, search, searchType } = filterState;
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handlePageSet = (_e: any, page: number) => {
     setFilterState({

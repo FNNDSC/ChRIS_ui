@@ -1,6 +1,5 @@
-import { ComputeResource } from "@fnndsc/chrisapi";
-import { Avatar, Checkbox, List } from "antd";
-
+import type { ComputeResource } from "@fnndsc/chrisapi";
+import { Avatar, Checkbox, List } from "../Antd";
 import { stringToColour } from "../CreateFeed/utils";
 
 type OwnProps = {

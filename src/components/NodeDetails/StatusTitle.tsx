@@ -2,13 +2,13 @@ import React from "react";
 
 import usePluginInstanceResource from "./usePluginInstanceResource";
 import { SpinContainer } from "../Common";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import FillCheckIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 import ExclaimationIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 
 const StatusTitle = () => {
   const pluginInstanceResource = usePluginInstanceResource();
-  const selected = useTypedSelector((state) => state.instance.selectedPlugin);
+  const selected = useAppSelector((state) => state.instance.selectedPlugin);
 
   let statusTitle:
     | {

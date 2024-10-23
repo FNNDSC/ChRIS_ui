@@ -1,44 +1,88 @@
-import React, { useEffect, useState } from "react";
-import type { IFileBlob } from "../../../api/model";
+import React, { useEffect, useState, useRef } from "react";
+import { getFileExtension, type IFileBlob } from "../../../api/model";
+import useSize from "../../FeedTree/useSize";
 
 type AllProps = {
-  fileItem: IFileBlob;
+  selectedFile?: IFileBlob;
 };
 
-const ImageDisplay: React.FunctionComponent<AllProps> = (props: AllProps) => {
-  const { fileItem } = props;
+const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
   const [url, setUrl] = useState<string>("");
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const size = useSize(containerRef); // Get the dimensions of the container
 
   useEffect(() => {
-    if (fileItem.url) {
-      setUrl(fileItem.url);
-    } else if (fileItem.blob) {
-      // Specify the correct MIME type when creating the Blob
-      const blob = new Blob([fileItem.blob], { type: "image/png" });
-      const objectUrl = URL.createObjectURL(blob);
-      setUrl(objectUrl);
+    let objectUrl: string | null = null;
 
-      // Clean up the object URL when the component unmounts
-      return () => {
-        URL.revokeObjectURL(objectUrl);
-      };
+    async function constructUrl() {
+      if (!selectedFile) {
+        setUrl("");
+        return;
+      }
+
+      try {
+        // Get the Blob if the file doesn't have a URL
+        const blob = await selectedFile.getFileBlob();
+        if (blob) {
+          let type = "";
+          const fileType = getFileExtension(
+            selectedFile.data.fname,
+          ).toLowerCase();
+          if (fileType === "png") {
+            type = "image/png";
+          } else if (fileType === "jpg" || fileType === "jpeg") {
+            type = "image/jpeg";
+          } else {
+            // use antd notifications here
+            // Handle unsupported file types if necessary
+            console.warn(`Unsupported file type: ${fileType}`);
+            return;
+          }
+
+          // Create a Blob URL with the correct MIME type for images
+          objectUrl = window.URL.createObjectURL(new Blob([blob], { type }));
+          setUrl(objectUrl);
+        }
+      } catch (error) {
+        console.error("Error constructing image URL:", error);
+      }
     }
-  }, [fileItem]);
 
+    constructUrl();
+
+    // Cleanup the object URL to avoid memory leaks
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [selectedFile]);
+
+  // Don't render if the URL isn't ready
   if (!url) return null;
 
+  // Calculate image dimensions based on container size
+  const imageStyles: React.CSSProperties = {
+    width: size ? `${size.width}px` : "100%",
+    height: "auto",
+    objectFit: "scale-down",
+    transition: "width 0.2s, height 0.2s",
+  };
+
   return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: <explanation>
-    <img
-      id={fileItem.file ? fileItem.file.data.fname : ""}
-      src={url}
-      alt=""
-      // Prevent default behavior on click
-      onClick={(e) => e.preventDefault()}
-    />
+    <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
+      <img
+        id={selectedFile?.data.fname || ""}
+        src={url}
+        alt={selectedFile?.data.fname}
+        onClick={(e) => e.preventDefault()} // Prevent default behavior on click
+        onKeyDown={(e) => e.preventDefault()}
+        style={imageStyles} // Apply dynamic styles
+      />
+    </div>
   );
 };
 
-const ImageDisplayMemoed = React.memo(ImageDisplay);
+const MemoedImageDisplay = React.memo(ImageDisplay);
 
-export default ImageDisplayMemoed;
+export default MemoedImageDisplay;

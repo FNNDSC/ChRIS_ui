@@ -1,26 +1,23 @@
+import * as cornerstone from "@cornerstonejs/core";
 import {
-  RenderingEngine,
-  init,
-  Types,
+  EVENTS,
   Enums,
-  imageLoader,
-  metaData,
+  RenderingEngine,
+  type Types,
+  init,
   volumeLoader,
 } from "@cornerstonejs/core";
-import registerWebImageLoader from "./webImageLoader";
+import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 import {
-  init as csToolsInit,
-  Types as CornerstoneToolTypes,
-} from "@cornerstonejs/tools";
-import dicomParser from "dicom-parser";
-import * as cornerstone from "@cornerstonejs/core";
+  cornerstoneStreamingDynamicImageVolumeLoader,
+  cornerstoneStreamingImageVolumeLoader,
+} from "@cornerstonejs/streaming-image-volume-loader";
 import * as cornerstoneTools from "@cornerstonejs/tools";
 import {
-  cornerstoneStreamingImageVolumeLoader,
-  cornerstoneStreamingDynamicImageVolumeLoader,
-} from "@cornerstonejs/streaming-image-volume-loader";
-import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
-import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+  type Types as CornerstoneToolTypes,
+  init as csToolsInit,
+} from "@cornerstonejs/tools";
+import dicomParser from "dicom-parser";
 import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
 
 //@ts-ignore
@@ -43,6 +40,7 @@ const {
   Enums: csToolsEnums,
 } = cornerstoneTools;
 const { MouseBindings } = csToolsEnums;
+export const events = EVENTS;
 
 let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
 
@@ -96,10 +94,11 @@ export const cleanupCornerstoneTooling = () => {
 export function setUpTooling(uniqueToolId: string) {
   // Check if tool group already exists
   const id = toolGroup?.id;
+
   if (!id) {
     // Tool group doesn't exist, create a new one
+    registerToolingOnce();
     toolGroup = ToolGroupManager.createToolGroup(uniqueToolId);
-
     if (toolGroup) {
       toolGroup.addTool(WindowLevelTool.toolName);
       toolGroup.addTool(PanTool.toolName);
@@ -167,7 +166,6 @@ export const basicInit = async () => {
   initVolumeLoader();
   await init();
   csToolsInit();
-  registerWebImageLoader(imageLoader);
 };
 
 export type IStackViewport = Types.IStackViewport;
@@ -179,6 +177,8 @@ export const handleEvents = (
   const activeTool = Object.keys(actionState)[0];
   const previousTool = actionState.previouslyActive as string;
   const id = toolGroup?.id;
+
+  if (activeTool === "TagInfo") return;
 
   if (id) {
     toolGroup?.setToolPassive(previousTool);
@@ -194,8 +194,46 @@ export const handleEvents = (
   }
 };
 
-export const loadDicomImage = (blob: Blob) => {
-  return cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+export const loadDicomImage = async (blob: Blob) => {
+  try {
+    const imageID = cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+
+    let bufferSize = 256 * 1024; // Start with 256 KB
+    const maxBufferSize = 5 * 1024 * 1024; // Maximum 5 MB
+
+    let arrayBuffer: ArrayBuffer;
+    let dataSet: dicomParser.DataSet | undefined = undefined;
+
+    while (bufferSize <= maxBufferSize) {
+      arrayBuffer = await blob.slice(0, bufferSize).arrayBuffer();
+      try {
+        dataSet = dicomParser.parseDicom(new Uint8Array(arrayBuffer), {
+          untilTag: "x00280008",
+        });
+        break; // Parsing succeeded, exit the loop
+      } catch (error: any) {
+        if (error?.exception?.includes("buffer overrun")) {
+          // Increase the buffer size and try again
+          bufferSize *= 2; // Double the buffer size
+        } else {
+          // Other parsing error
+          throw error;
+        }
+      }
+    }
+    if (!dataSet) {
+      throw new Error("Unable to parse DICOM file within buffer size limit.");
+    }
+    // Get the Number of Frames
+    const numberOfFramesString = dataSet.string("x00280008") || "1";
+    const framesCount = Number.parseInt(numberOfFramesString, 10);
+    return {
+      imageID,
+      framesCount,
+    };
+  } catch (e) {
+    throw new Error("Error parsing the DICOM file");
+  }
 };
 
 type ImagePoint = [number, number];
@@ -206,7 +244,6 @@ interface DisplayArea {
     imagePoint: ImagePoint;
     canvasPoint: ImagePoint;
   };
-  // storeAsInitialCamera?: boolean;
 }
 
 interface ViewportInputOptions {
@@ -238,7 +275,6 @@ function createDisplayArea(
         imagePoint,
         canvasPoint,
       },
-      // storeAsInitialCamera: true,
     },
   };
 }
@@ -255,19 +291,12 @@ export const displayDicomImage = async (
     const viewportId = uniqueId;
     const renderingEngineId = `myRenderingEngine_${uniqueId}`;
     const imageIds = [imageId];
-    if (imageId.startsWith("web")) {
-      metaData.addProvider(
-        (type, imageId) => hardcodedMetaDataProvider(type, imageId, imageIds),
-        10000,
-      );
-    }
     const renderingEngine = new RenderingEngine(renderingEngineId);
     const viewportInput = {
       viewportId,
       type: ViewportType.STACK,
       element,
     };
-
     renderingEngine.enableElement(viewportInput);
     toolGroup?.addViewport(viewportId, renderingEngineId);
     const viewport = <Types.IStackViewport>(
@@ -276,11 +305,11 @@ export const displayDicomImage = async (
     const displayArea: ViewportInputOptions = createDisplayArea(1, 0.5);
     viewport.setOptions(displayArea, true);
     viewport.setProperties(displayArea);
-
     await viewport.setStack(imageIds);
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
     viewport.render();
-
+    // Set the stack scroll mouse wheel tool
+    toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
     return {
       viewport,
       renderingEngine,

@@ -1,16 +1,32 @@
-import { FeedFile, PluginInstance } from "@fnndsc/chrisapi";
-import { DataNode } from "../../store/explorer/types";
+import type {
+  FileBrowserFolder,
+  FileBrowserFolderFile,
+  FileBrowserFolderLinkFile,
+  FileBrowserFolderList,
+  PluginInstance,
+} from "@fnndsc/chrisapi";
+import type { DataNode } from "../../store/explorer/types";
+
+export interface FilesPayload {
+  filesMap?: FileBrowserFolderFile[];
+  subFoldersMap?: FileBrowserFolder[];
+  linkFilesMap?: FileBrowserFolderLinkFile[];
+  folderList?: FileBrowserFolderList;
+  filesPagination?: {
+    totalCount: number;
+    hasNextPage: boolean;
+  };
+}
 
 export interface FileBrowserProps {
-  pluginFilesPayload: {
-    files: FeedFile[];
-    folders: string[];
-    error: any;
-    path: string;
-  };
+  pluginFilesPayload: FilesPayload;
   handleFileClick: (path: string) => void;
   selected: PluginInstance;
-  filesLoading: boolean;
+  currentPath: string;
+  isLoading: boolean;
+  handlePagination: () => void;
+  fetchMore?: boolean;
+  observerTarget?: React.MutableRefObject<any>;
 }
 
 export interface FileBrowserState {

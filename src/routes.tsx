@@ -1,13 +1,17 @@
-import * as React from "react";
-import { useNavigate, useRoutes } from "react-router-dom";
+import React from "react";
+import {
+  useNavigate,
+  useRoutes,
+  matchPath,
+  useLocation,
+} from "react-router-dom";
 import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
-import LibraryCopyPage from "./components/LibraryCopy";
-import LibrarySearch from "./components/LibrarySearch";
 import Login from "./components/Login";
+import LibraryCopyPage from "./components/NewLibrary";
 import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import NotFound from "./components/NotFound";
 import Pacs from "./components/Pacs";
@@ -22,7 +26,9 @@ import {
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
-import { useTypedSelector } from "./store/hooks";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { setSidebarActive } from "./store/ui/uiSlice";
+import { OperationsProvider } from "./components/NewLibrary/context";
 
 interface IState {
   selectData?: Series;
@@ -42,10 +48,12 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
 });
 
 export const MainRouter: React.FC = () => {
+  const location = useLocation();
+  const dispatch = useAppDispatch();
   const [state, setState] = React.useState(State);
   const [route, setRoute] = React.useState<string>();
   const navigate = useNavigate();
-  const isLoggedIn = useTypedSelector((state) => state.user.isLoggedIn);
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
   const actions: IActions = {
     createFeedWithData: (selectData: Series) => {
@@ -61,6 +69,55 @@ export const MainRouter: React.FC = () => {
     },
   };
 
+  // Define the routes and their corresponding sidebar items
+  const routeToSidebarItem: Record<string, string> = {
+    "/": "overview",
+    "library/*": "lib",
+    "feeds/*": "analyses",
+    "feeds/:id": "analyses",
+    "plugin/:id": "catalog",
+    pacs: "pacs",
+    login: "login",
+    signup: "signup",
+    pipelines: "pipelines",
+    catalog: "catalog",
+    compute: "compute",
+    "dataset/:feedName?": "dataset",
+    "niivue/:plinstId": "niivue",
+    store: "store",
+    "install/*": "install",
+    "*": "notFound",
+  };
+
+  const matchRoute = (path: string) => {
+    const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+
+    // Exact match first
+    if (routeToSidebarItem[normalizedPath]) {
+      return routeToSidebarItem[normalizedPath];
+    }
+
+    // Wildcard match
+    for (const routePath of Object.keys(routeToSidebarItem)) {
+      if (matchPath({ path: routePath, end: true }, path)) {
+        return routeToSidebarItem[routePath];
+      }
+    }
+
+    // Default to notFound if no match
+    return routeToSidebarItem["*"];
+  };
+  // Update the active sidebar item based on the current route
+  React.useEffect(() => {
+    const currentPath = location.pathname;
+    const sidebarItem = matchRoute(currentPath);
+    dispatch(
+      setSidebarActive({
+        activeItem: sidebarItem,
+      }),
+    );
+  }, [location.pathname, dispatch]);
+
   const element = useRoutes([
     {
       path: "/",
@@ -74,20 +131,9 @@ export const MainRouter: React.FC = () => {
             {...{ actions, state, route, setRoute }}
             context={MainRouterContext}
           >
-            <LibraryCopyPage />
-          </RouterProvider>
-        </PrivateRoute>
-      ),
-    },
-    {
-      path: "librarysearch/*",
-      element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <LibrarySearch />
+            <OperationsProvider>
+              <LibraryCopyPage />
+            </OperationsProvider>
           </RouterProvider>
         </PrivateRoute>
       ),
@@ -100,13 +146,24 @@ export const MainRouter: React.FC = () => {
           {...{ actions, state, route, setRoute }}
           context={MainRouterContext}
         >
-          <FeedsListView />
+          <OperationsProvider>
+            <FeedsListView />
+          </OperationsProvider>
         </RouterProvider>
       ),
     },
     {
       path: "feeds/:id",
-      element: <FeedView />,
+      element: (
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <OperationsProvider>
+            <FeedView />
+          </OperationsProvider>
+        </RouterProvider>
+      ),
     },
     {
       path: "plugin/:id",
@@ -154,10 +211,12 @@ export const MainRouter: React.FC = () => {
       path: "dataset/:feedName?",
       element: <DatasetRedirect />,
     },
+
     {
       path: "niivue/:plinstId",
       element: <NiivueDatasetViewerPage />,
     },
+
     {
       path: "store",
       element: <Store />,

@@ -1,20 +1,14 @@
-import React, { RefObject, MutableRefObject } from "react";
+import React, { type RefObject, type MutableRefObject } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
 
 const useSize = (
   target:
     | MutableRefObject<HTMLDivElement | SVGSVGElement | null>
-    | RefObject<SVGGElement>,
+    | RefObject<SVGGElement | HTMLDivElement | SVGSVGElement>,
 ) => {
-  const [size, setSize] = React.useState();
+  // size is of type DOMRectReadOnly or undefined initially
+  const [size, setSize] = React.useState<DOMRectReadOnly | undefined>();
 
-  React.useLayoutEffect(() => {
-    if (target.current) {
-      //@ts-ignore
-      setSize(target.current.getBoundingClientRect());
-    }
-  }, [target]);
-  //@ts-ignore
   useResizeObserver(target, (entry) => setSize(entry.contentRect));
 
   return size;

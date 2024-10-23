@@ -1,8 +1,8 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useTypedSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const isLoggedIn = useTypedSelector(({ user }) => user.isLoggedIn);
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const location = useLocation();
   const redirectTo = encodeURIComponent(
     `${location.pathname}${location.search}`,
