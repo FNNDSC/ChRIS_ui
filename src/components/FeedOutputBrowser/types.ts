@@ -12,6 +12,10 @@ export interface FilesPayload {
   subFoldersMap?: FileBrowserFolder[];
   linkFilesMap?: FileBrowserFolderLinkFile[];
   folderList?: FileBrowserFolderList;
+  filesPagination?: {
+    totalCount: number;
+    hasNextPage: boolean;
+  };
 }
 
 export interface FileBrowserProps {
