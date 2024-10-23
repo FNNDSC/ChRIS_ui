@@ -1,28 +1,24 @@
+import * as cornerstone from "@cornerstonejs/core";
 import {
+  EVENTS,
   Enums,
   RenderingEngine,
   type Types,
-  imageLoader,
   init,
-  metaData,
   volumeLoader,
-  EVENTS,
 } from "@cornerstonejs/core";
-import * as cornerstone from "@cornerstonejs/core";
 import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 import {
   cornerstoneStreamingDynamicImageVolumeLoader,
   cornerstoneStreamingImageVolumeLoader,
 } from "@cornerstonejs/streaming-image-volume-loader";
+import * as cornerstoneTools from "@cornerstonejs/tools";
 import {
   type Types as CornerstoneToolTypes,
   init as csToolsInit,
 } from "@cornerstonejs/tools";
-import * as cornerstoneTools from "@cornerstonejs/tools";
 import dicomParser from "dicom-parser";
-import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
 import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
-import registerWebImageLoader from "./webImageLoader";
 
 //@ts-ignore
 window.cornerstone = cornerstone;
@@ -170,7 +166,6 @@ export const basicInit = async () => {
   initVolumeLoader();
   await init();
   csToolsInit();
-  registerWebImageLoader(imageLoader);
 };
 
 export type IStackViewport = Types.IStackViewport;
@@ -200,18 +195,45 @@ export const handleEvents = (
 };
 
 export const loadDicomImage = async (blob: Blob) => {
-  const imageID = cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
-  const image = await cornerstone.imageLoader.loadImage(imageID);
+  try {
+    const imageID = cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
 
-  // Detect if the DICOM is a multi-frame image
-  //@ts-ignore
-  const numberOfFrames = image.data.string("x00280008");
-  const framesCount = numberOfFrames ? Number.parseInt(numberOfFrames, 10) : 1;
+    let bufferSize = 256 * 1024; // Start with 256 KB
+    const maxBufferSize = 5 * 1024 * 1024; // Maximum 5 MB
 
-  return {
-    imageID,
-    framesCount,
-  };
+    let arrayBuffer: ArrayBuffer;
+    let dataSet: dicomParser.DataSet | undefined = undefined;
+
+    while (bufferSize <= maxBufferSize) {
+      arrayBuffer = await blob.slice(0, bufferSize).arrayBuffer();
+      try {
+        dataSet = dicomParser.parseDicom(new Uint8Array(arrayBuffer), {
+          untilTag: "x00280008",
+        });
+        break; // Parsing succeeded, exit the loop
+      } catch (error: any) {
+        if (error?.exception?.includes("buffer overrun")) {
+          // Increase the buffer size and try again
+          bufferSize *= 2; // Double the buffer size
+        } else {
+          // Other parsing error
+          throw error;
+        }
+      }
+    }
+    if (!dataSet) {
+      throw new Error("Unable to parse DICOM file within buffer size limit.");
+    }
+    // Get the Number of Frames
+    const numberOfFramesString = dataSet.string("x00280008") || "1";
+    const framesCount = Number.parseInt(numberOfFramesString, 10);
+    return {
+      imageID,
+      framesCount,
+    };
+  } catch (e) {
+    throw new Error("Error parsing the DICOM file");
+  }
 };
 
 type ImagePoint = [number, number];
@@ -269,12 +291,6 @@ export const displayDicomImage = async (
     const viewportId = uniqueId;
     const renderingEngineId = `myRenderingEngine_${uniqueId}`;
     const imageIds = [imageId];
-    if (imageId.startsWith("web")) {
-      metaData.addProvider(
-        (type, imageId) => hardcodedMetaDataProvider(type, imageId, imageIds),
-        10000,
-      );
-    }
     const renderingEngine = new RenderingEngine(renderingEngineId);
     const viewportInput = {
       viewportId,
