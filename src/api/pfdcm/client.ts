@@ -208,7 +208,9 @@ function getValue(
 }
 
 function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
-  const numInstances = parseInt(getValue(data, 'NumberOfSeriesRelatedInstances'));
+  const numInstances = parseInt(
+    getValue(data, "NumberOfSeriesRelatedInstances"),
+  );
   const NumberOfSeriesRelatedInstances = Number.isNaN(numInstances)
     ? null
     : numInstances;
@@ -228,8 +230,10 @@ function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
     PatientAge: getValue(data, "PatientAge"),
     ProtocolName: getValue(data, "ProtocolName"),
     AcquisitionProtocolName: getValue(data, "AcquisitionProtocolName"),
-    AcquisitionProtocolDescription:
-      getValue(data, "AcquisitionProtocolDescription"),
+    AcquisitionProtocolDescription: getValue(
+      data,
+      "AcquisitionProtocolDescription",
+    ),
     StudyInstanceUID: getValue(data, "StudyInstanceUID"),
     SeriesInstanceUID: getValue(data, "SeriesInstanceUID"),
     NumberOfSeriesRelatedInstances,

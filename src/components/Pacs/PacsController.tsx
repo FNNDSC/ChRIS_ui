@@ -371,7 +371,8 @@ const PacsController: React.FC<PacsControllerProps> = ({
   }, [preferences, studies]);
 
   const error = React.useMemo(
-    () => wsError || pfdcmServices.error?.message || pfdcmStudies.error?.message,
+    () =>
+      wsError || pfdcmServices.error?.message || pfdcmStudies.error?.message,
     [wsError, pfdcmServices.error, pfdcmStudies.error],
   );
 
