@@ -178,7 +178,7 @@ export const handleEvents = (
   const previousTool = actionState.previouslyActive as string;
   const id = toolGroup?.id;
 
-  if (activeTool === "TagInfo") return;
+  if (activeTool === "TagInfo" || activeTool === "Play") return;
 
   if (id) {
     toolGroup?.setToolPassive(previousTool);
