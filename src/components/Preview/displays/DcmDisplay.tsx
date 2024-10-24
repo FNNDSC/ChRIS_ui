@@ -188,15 +188,7 @@ const DcmDisplay = (props: DcmImageProps) => {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw e;
     }
-  }, [
-    selectedFile,
-    cacheStack,
-    fname,
-    currentImageIndex,
-    selectedIndex,
-    displayDicomImage,
-    loadDicomImage,
-  ]);
+  }, [selectedFile, cacheStack, fname, currentImageIndex, selectedIndex]);
 
   // Use React Query to fetch and cache the preview data
   const { isLoading, data, isError, error } = useQuery({
