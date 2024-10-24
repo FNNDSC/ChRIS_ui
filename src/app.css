@@ -65,13 +65,13 @@
 .small-button {
   width: 16px;
   height: 16px;
-  font-size: 0.8rem
+  font-size: 0.8rem;
 }
 
 .large-button {
   width: 24px;
   height: 24px;
-  font-size:1rem;
+  font-size: 1rem;
 }
 
 .button-style {
@@ -81,5 +81,5 @@
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
-  line-height:0 !important
+  line-height: 0 !important;
 }
