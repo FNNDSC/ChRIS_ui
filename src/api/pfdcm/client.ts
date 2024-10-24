@@ -198,6 +198,9 @@ function getValue(
   data: { [key: string]: PypxTag | ReadonlyArray<{ [key: string]: PypxTag }> },
   name: string,
 ): string {
+  if (!(name in data)) {
+    return "";
+  }
   if ("value" in data[name]) {
     return "" + data[name].value;
   }
@@ -205,35 +208,32 @@ function getValue(
 }
 
 function simplifyPypxSeriesData(data: { [key: string]: PypxTag }): Series {
-  const parsedNumInstances =
-    data.NumberOfSeriesRelatedInstances.value === 0
-      ? NaN
-      : parseInt(data.NumberOfSeriesRelatedInstances.value);
-  const NumberOfSeriesRelatedInstances = Number.isNaN(parsedNumInstances)
+  const numInstances = parseInt(getValue(data, 'NumberOfSeriesRelatedInstances'));
+  const NumberOfSeriesRelatedInstances = Number.isNaN(numInstances)
     ? null
-    : parsedNumInstances;
+    : numInstances;
   return {
-    SpecificCharacterSet: "" + data.SpecificCharacterSet.value,
+    SpecificCharacterSet: getValue(data, "SpecificCharacterSet"),
     StudyDate: parsePypxDicomDate(data.StudyDate),
     SeriesDate: parsePypxDicomDate(data.SeriesDate),
-    AccessionNumber: "" + data.AccessionNumber.value,
-    RetrieveAETitle: "" + data.RetrieveAETitle.value,
-    Modality: "" + data.Modality.value,
-    StudyDescription: "" + data.StudyDescription.value,
-    SeriesDescription: "" + data.SeriesDescription.value,
-    PatientName: "" + data.PatientName.value,
-    PatientID: "" + data.PatientID.value,
+    AccessionNumber: getValue(data, "AccessionNumber"),
+    RetrieveAETitle: getValue(data, "RetrieveAETitle"),
+    Modality: getValue(data, "Modality"),
+    StudyDescription: getValue(data, "StudyDescription"),
+    SeriesDescription: getValue(data, "SeriesDescription"),
+    PatientName: getValue(data, "PatientName"),
+    PatientID: getValue(data, "PatientID"),
     PatientBirthDate: parsePypxDicomDate(data.PatientBirthDate),
-    PatientSex: "" + data.PatientSex.value,
-    PatientAge: "" + data.PatientAge.value,
-    ProtocolName: "" + data.ProtocolName.value,
-    AcquisitionProtocolName: "" + data.AcquisitionProtocolName.value,
+    PatientSex: getValue(data, "PatientSex"),
+    PatientAge: getValue(data, "PatientAge"),
+    ProtocolName: getValue(data, "ProtocolName"),
+    AcquisitionProtocolName: getValue(data, "AcquisitionProtocolName"),
     AcquisitionProtocolDescription:
-      "" + data.AcquisitionProtocolDescription.value,
-    StudyInstanceUID: "" + data.StudyInstanceUID.value,
-    SeriesInstanceUID: "" + data.SeriesInstanceUID.value,
+      getValue(data, "AcquisitionProtocolDescription"),
+    StudyInstanceUID: getValue(data, "StudyInstanceUID"),
+    SeriesInstanceUID: getValue(data, "SeriesInstanceUID"),
     NumberOfSeriesRelatedInstances,
-    PerformedStationAETitle: "" + data.PerformedStationAETitle.value,
+    PerformedStationAETitle: getValue(data, "PerformedStationAETitle"),
   };
 }
 
