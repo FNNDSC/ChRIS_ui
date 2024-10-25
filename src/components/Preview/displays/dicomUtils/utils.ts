@@ -5,13 +5,8 @@ import {
   RenderingEngine,
   type Types,
   init,
-  volumeLoader,
 } from "@cornerstonejs/core";
 import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
-import {
-  cornerstoneStreamingDynamicImageVolumeLoader,
-  cornerstoneStreamingImageVolumeLoader,
-} from "@cornerstonejs/streaming-image-volume-loader";
 import * as cornerstoneTools from "@cornerstonejs/tools";
 import {
   type Types as CornerstoneToolTypes,
@@ -142,28 +137,11 @@ export const initializeCornerstoneForDicoms = () => {
   cornerstonejsDICOMImageLoader.webWorkerManager.initialize(config);
 };
 
-function initVolumeLoader() {
-  volumeLoader.registerUnknownVolumeLoader(
-    //@ts-ignore
-    cornerstoneStreamingImageVolumeLoader,
-  );
-  volumeLoader.registerVolumeLoader(
-    "cornerstoneStreamingImageVolume",
-    //@ts-ignore
-    cornerstoneStreamingImageVolumeLoader,
-  );
-  volumeLoader.registerVolumeLoader(
-    "cornerstoneStreamingDynamicImageVolume",
-    //@ts-ignore
-    cornerstoneStreamingDynamicImageVolumeLoader,
-  );
-}
-
 export const basicInit = async () => {
   cornerstone.setUseSharedArrayBuffer(Enums.SharedArrayBufferModes.FALSE);
   initProviders();
   initializeCornerstoneForDicoms();
-  initVolumeLoader();
+
   await init();
   csToolsInit();
 };
@@ -196,43 +174,28 @@ export const handleEvents = (
 
 export const loadDicomImage = async (blob: Blob) => {
   try {
+    // Generate a unique file ID for the blob
     const imageID = cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
+    // Load the image using Cornerstone; this ensures the image and metadata are available
+    await cornerstone.imageLoader.loadImage(imageID);
 
-    let bufferSize = 256 * 1024; // Start with 256 KB
-    const maxBufferSize = 5 * 1024 * 1024; // Maximum 5 MB
+    // Retrieve metadata using the metadata provider
+    const generalImageModule = await cornerstone.metaData.get(
+      "multiframeModule",
+      imageID,
+    );
 
-    let arrayBuffer: ArrayBuffer;
-    let dataSet: dicomParser.DataSet | undefined = undefined;
+    // Extract the Number of Frames; default to 1 if not available
+    const framesCount = generalImageModule?.NumberOfFrames
+      ? Number.parseInt(generalImageModule.NumberOfFrames, 10)
+      : 1;
 
-    while (bufferSize <= maxBufferSize) {
-      arrayBuffer = await blob.slice(0, bufferSize).arrayBuffer();
-      try {
-        dataSet = dicomParser.parseDicom(new Uint8Array(arrayBuffer), {
-          untilTag: "x00280008",
-        });
-        break; // Parsing succeeded, exit the loop
-      } catch (error: any) {
-        if (error?.exception?.includes("buffer overrun")) {
-          // Increase the buffer size and try again
-          bufferSize *= 2; // Double the buffer size
-        } else {
-          // Other parsing error
-          throw error;
-        }
-      }
-    }
-    if (!dataSet) {
-      throw new Error("Unable to parse DICOM file within buffer size limit.");
-    }
-    // Get the Number of Frames
-    const numberOfFramesString = dataSet.string("x00280008") || "1";
-    const framesCount = Number.parseInt(numberOfFramesString, 10);
     return {
       imageID,
       framesCount,
     };
   } catch (e) {
-    throw new Error("Error parsing the DICOM file");
+    throw new Error(`Error loading the DICOM image: ${(e as Error).message}`);
   }
 };
 
@@ -281,7 +244,7 @@ function createDisplayArea(
 
 export const displayDicomImage = async (
   element: HTMLDivElement,
-  imageId: string,
+  imageIds: string[],
   uniqueId: string,
 ): Promise<{
   viewport: Types.IStackViewport;
@@ -290,7 +253,6 @@ export const displayDicomImage = async (
   try {
     const viewportId = uniqueId;
     const renderingEngineId = `myRenderingEngine_${uniqueId}`;
-    const imageIds = [imageId];
     const renderingEngine = new RenderingEngine(renderingEngineId);
     const viewportInput = {
       viewportId,
@@ -307,9 +269,9 @@ export const displayDicomImage = async (
     viewport.setProperties(displayArea);
     await viewport.setStack(imageIds);
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
-    viewport.render();
     // Set the stack scroll mouse wheel tool
     toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
+    viewport.render();
     return {
       viewport,
       renderingEngine,

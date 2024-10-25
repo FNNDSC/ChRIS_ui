@@ -39,10 +39,9 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
-    "@cornerstonejs/core": "^1.84.4",
-    "@cornerstonejs/dicom-image-loader": "^1.84.4",
-    "@cornerstonejs/streaming-image-volume-loader": "^1.84.4",
-    "@cornerstonejs/tools": "^1.84.4",
+    "@cornerstonejs/core": "^1.86.0",
+    "@cornerstonejs/dicom-image-loader": "^1.86.0",
+    "@cornerstonejs/tools": "^1.86.0",
     "@fnndsc/chrisapi": "^1.22.0",
     "@niivue/niivue": "0.44.2",
     "@patternfly/react-catalog-view-extension": "^5.0.0",
