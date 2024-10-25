@@ -122,7 +122,7 @@ const DcmDisplay = (props: DcmImageProps) => {
    * If the image is already cached, it uses the cached data.
    * Otherwise, it loads the image and caches it.
    */
-  const previewFile = useCallback(async () => {
+  const previewFile = async () => {
     try {
       if (!elementRef.current) return {};
       const existingImageEntry = cacheStack?.[fname];
@@ -162,7 +162,7 @@ const DcmDisplay = (props: DcmImageProps) => {
         framesCount > 1
           ? Array.from(
               { length: framesCount },
-              (_, i) => `${imageID}?frame=${i}`,
+              (_, i) => `${imageID}#frame=${i + 1}`,
             )
           : imageID;
 
@@ -173,7 +173,7 @@ const DcmDisplay = (props: DcmImageProps) => {
       const elementId = `cornerstone-element-${fname}`;
       const { viewport, renderingEngine } = await displayDicomImage(
         elementRef.current,
-        framesCount > 1 ? framesList[0] : imageID,
+        framesCount > 1 ? framesList : [imageID],
         elementId,
       );
 
@@ -188,7 +188,7 @@ const DcmDisplay = (props: DcmImageProps) => {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw e;
     }
-  }, [selectedFile, cacheStack, fname, currentImageIndex, selectedIndex]);
+  };
 
   // Use React Query to fetch and cache the preview data
   const { isLoading, data, isError, error } = useQuery({
@@ -239,18 +239,6 @@ const DcmDisplay = (props: DcmImageProps) => {
       stopCinePlay();
     };
   }, [stopCinePlay]);
-
-  /**
-   * Load multi-frame images into the viewport.
-   */
-  const loadMultiFrames = useCallback(async () => {
-    if (activeViewportRef.current) {
-      const currentIndex = activeViewportRef.current.getCurrentImageIdIndex();
-      const imageIDs = imageStack[fname] as string[];
-      await activeViewportRef.current.setStack(imageIDs, currentIndex);
-      activeViewportRef.current.render();
-    }
-  }, [imageStack, fname]);
 
   /**
    * Generator function to yield image files starting from a specific index.
@@ -315,8 +303,6 @@ const DcmDisplay = (props: DcmImageProps) => {
   // Check if the first frame is still loading
   const loadingFirstFrame = isLoading && !data;
 
-  console.log("isError", isError);
-
   /**
    * Load more images when scrolling near the end.
    * Also handles loading multi-frame images.
@@ -324,16 +310,13 @@ const DcmDisplay = (props: DcmImageProps) => {
   useEffect(() => {
     if (
       !loadingFirstFrame &&
-      !Array.isArray(data?.[selectedFile.data.fname]) &&
+      data &&
+      !Array.isArray(data[fname]) &&
       filteredList.length > lastLoadedIndex &&
       Object.keys(cacheStack).length !== filteredList.length &&
       !multiFrameDisplay
     ) {
       loadMoreImages(filteredList);
-    }
-
-    if (!loadingFirstFrame && multiFrameDisplay) {
-      loadMultiFrames();
     }
   }, [
     loadingFirstFrame,
@@ -342,9 +325,8 @@ const DcmDisplay = (props: DcmImageProps) => {
     cacheStack,
     multiFrameDisplay,
     loadMoreImages,
-    loadMultiFrames,
     data,
-    selectedFile,
+    fname,
   ]);
 
   /**
