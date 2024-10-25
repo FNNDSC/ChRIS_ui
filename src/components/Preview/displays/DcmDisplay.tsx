@@ -313,7 +313,7 @@ const DcmDisplay = (props: DcmImageProps) => {
   );
 
   // Check if the first frame is still loading
-  const loadingFirstFrame = isLoading || !data;
+  const loadingFirstFrame = isLoading && !data;
 
   /**
    * Load more images when scrolling near the end.
