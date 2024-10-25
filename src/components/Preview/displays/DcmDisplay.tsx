@@ -12,7 +12,9 @@ import {
   displayDicomImage,
   handleEvents,
   loadDicomImage,
+  playClip,
   setUpTooling,
+  stopClip,
 } from "./dicomUtils/utils";
 import type { IStackViewport } from "./dicomUtils/utils";
 
@@ -59,7 +61,6 @@ const DcmDisplay = (props: DcmImageProps) => {
   const cacheRef = useRef<{ [key: string]: ImageStackType }>({
     [CACHE_KEY]: {},
   });
-  const cineIntervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
   // Derived values
   const size = useSize(dicomImageRef);
@@ -213,9 +214,8 @@ const DcmDisplay = (props: DcmImageProps) => {
    * Stop cine playback.
    */
   const stopCinePlay = useCallback(() => {
-    if (cineIntervalIdRef.current) {
-      clearInterval(cineIntervalIdRef.current);
-      cineIntervalIdRef.current = null;
+    if (elementRef.current) {
+      stopClip(elementRef.current);
     }
   }, []);
 
@@ -239,6 +239,44 @@ const DcmDisplay = (props: DcmImageProps) => {
       stopCinePlay();
     };
   }, [stopCinePlay]);
+
+  /**
+   * Start cine playback.
+   */
+
+  const startCinePlay = useCallback(() => {
+    if (elementRef.current) {
+      const clipOptions = {
+        framesPerSecond: 24,
+        loop: true,
+      };
+
+      try {
+        playClip(elementRef.current, clipOptions);
+      } catch (error) {
+        notification.error({ message: "Failed to play this clip" });
+      }
+    } else {
+      notification.error({
+        message: "Cine playback cannot start: conditions not met.",
+      });
+    }
+  }, []);
+
+  /**
+   * Manage cine playback based on `actionState["Play"]` state.
+   */
+  useEffect(() => {
+    const isPlaying = actionState.Play === true;
+    if (isPlaying) {
+      startCinePlay();
+    } else {
+      stopCinePlay();
+    }
+    return () => {
+      stopCinePlay();
+    };
+  }, [actionState.Play, startCinePlay, stopCinePlay]);
 
   /**
    * Generator function to yield image files starting from a specific index.
@@ -395,46 +433,6 @@ const DcmDisplay = (props: DcmImageProps) => {
     .toString()
     .padStart(totalDigits, "0");
   const imageCountDisplay = imageCount.toString().padStart(totalDigits, "0");
-
-  /**
-   * Start cine playback.
-   */
-  const startCinePlay = useCallback(() => {
-    if (
-      cineIntervalIdRef.current ||
-      !activeViewportRef.current ||
-      !imageStack[fname] ||
-      imageCount <= 1
-    )
-      return;
-
-    const defaultPlaybackSpeed = 24; // Default playback speed (fps)
-    const frameDuration = 1000 / defaultPlaybackSpeed; // Frame duration in milliseconds
-
-    cineIntervalIdRef.current = setInterval(() => {
-      if (activeViewportRef.current) {
-        let currentIndex = activeViewportRef.current.getCurrentImageIdIndex();
-        currentIndex = (currentIndex + 1) % imageCount;
-        activeViewportRef.current.setImageIdIndex(currentIndex);
-        setCurrentImageIndex(currentIndex);
-      }
-    }, frameDuration);
-  }, [imageStack, fname, imageCount]);
-
-  /**
-   * Manage cine playback based on `actionState["Play"]` state.
-   */
-  useEffect(() => {
-    const isPlaying = actionState.Play === true;
-    if (isPlaying && imageCount > 1) {
-      startCinePlay();
-    } else {
-      stopCinePlay();
-    }
-    return () => {
-      stopCinePlay();
-    };
-  }, [actionState.Play, startCinePlay, stopCinePlay, imageCount]);
 
   /* Manage Tooling */
   useEffect(() => {

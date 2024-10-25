@@ -33,11 +33,15 @@ const {
   LengthTool,
   ToolGroupManager,
   Enums: csToolsEnums,
+  utilities,
 } = cornerstoneTools;
 const { MouseBindings } = csToolsEnums;
 export const events = EVENTS;
 
 let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
+
+export const stopClip = utilities.cine.stopClip;
+export const playClip = utilities.cine.playClip;
 
 function initProviders() {
   cornerstone.metaData.addProvider(
