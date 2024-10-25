@@ -71,7 +71,7 @@ export const useDownloadSource = () => {
     onSuccess: (fileName: string) => {
       notification.success({
         message: "Download Successful",
-        description: `The file "${fileName}" has been downloaded successfully.`,
+        description: `The pipeline "${fileName}" has been downloaded successfully.`,
       });
       data.reset();
     },
