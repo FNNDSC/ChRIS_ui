@@ -5,25 +5,32 @@ import {
   MenuToggle,
   Pagination,
   TextInput,
+  Button,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Alert, Collapse } from "../Antd";
 import { useContext, useState } from "react";
 import { fetchPipelines, fetchResources } from "../../api/common";
+import { Alert, Collapse } from "../Antd";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { usePaginate } from "../Feeds/usePaginate";
 import "./Pipelines.css";
-import PipelinesComponent from "./PipelinesComponent";
 import PipelineUpload from "./PipelineUpload";
+import PipelinesComponent from "./PipelinesComponent";
 import {
   PIPELINEQueryTypes,
   type PerPipelinePayload,
   PipelineContext,
   Types,
 } from "./context";
-import { useAppSelector } from "../../store/hooks";
+import { DownloadIcon } from "@patternfly/react-icons";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import type {
+  PipelineSourceFile,
+  PipelineSourceFileList,
+} from "@fnndsc/chrisapi";
+import { useDownloadSource } from "./useDownloadSource";
 
 type LoadingResources = {
   [key: string]: boolean;
@@ -170,6 +177,10 @@ const PipelinesCopy = () => {
     handlePipelineSearch("");
   };
 
+  /* Code to Download Pipeline Source Files */
+
+  const downloadPipelineMutation = useDownloadSource();
+
   return (
     <div>
       <div
@@ -238,7 +249,11 @@ const PipelinesCopy = () => {
               key: id,
               label: (
                 <div
-                  style={{ display: "flex", justifyContent: "space-between" }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
                 >
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <span>{name}</span>
@@ -251,6 +266,19 @@ const PipelinesCopy = () => {
                       {description}
                     </span>
                   </div>
+                  <Button
+                    variant="tertiary"
+                    size="sm"
+                    style={{
+                      padding: "0.5em",
+                    }}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+
+                      downloadPipelineMutation.mutate(pipeline);
+                    }}
+                    icon={<DownloadIcon />}
+                  />
                 </div>
               ),
               children: (

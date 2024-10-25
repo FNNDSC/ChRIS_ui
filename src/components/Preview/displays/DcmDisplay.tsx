@@ -195,6 +195,7 @@ const DcmDisplay = (props: DcmImageProps) => {
     queryKey: ["cornerstone-preview", fname],
     queryFn: previewFile,
     enabled: !!selectedFile && !!elementRef.current,
+    retry: false,
   });
 
   useEffect(() => {
