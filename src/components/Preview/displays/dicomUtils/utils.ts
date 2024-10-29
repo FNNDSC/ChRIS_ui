@@ -14,6 +14,8 @@ import {
 } from "@cornerstonejs/tools";
 import dicomParser from "dicom-parser";
 import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
+import type { IFileBlob } from "../../../../api/model";
+import { Collection } from "@fnndsc/chrisapi";
 
 //@ts-ignore
 window.cornerstone = cornerstone;
@@ -284,3 +286,20 @@ export const displayDicomImage = async (
     throw new Error(e as string);
   }
 };
+
+/**
+ * Get the `file_resource` URL. (Collection+JSON is very annoying).
+ *
+ * FIXME: there is a huge inefficiency here.
+ * Prior to the rendering of the {@link NiiVueDisplay} component, the file
+ * data was already retrieved by ChRIS_ui, and its blob data are stored in
+ * the props. But for NiiVue to work (well) it wants the file's URL to
+ * retrieve the file itself. So the file is retrieved a total of two times,
+ * even though it should only be retrieved once.
+ */
+export function stupidlyGetFileResourceUrl(file: IFileBlob): string {
+  return Collection.getLinkRelationUrls(
+    file?.collection.items[0],
+    "file_resource",
+  )[0];
+}

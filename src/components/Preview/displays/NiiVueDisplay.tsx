@@ -1,4 +1,3 @@
-import { Collection } from "@fnndsc/chrisapi";
 import { SLICE_TYPE } from "@niivue/niivue";
 import {
   FreeSurferColorLUT,
@@ -9,6 +8,7 @@ import React from "react";
 import type { IFileBlob } from "../../../api/model.ts";
 import SizedNiivueCanvas from "../../SizedNiivueCanvas";
 import styles from "./NiiVueDisplay.module.css";
+import { stupidlyGetFileResourceUrl } from "./dicomUtils/utils.ts";
 
 type NiiVueDisplayProps = {
   selectedFile?: IFileBlob;
@@ -96,23 +96,6 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ selectedFile }) => {
     </>
   );
 };
-
-/**
- * Get the `file_resource` URL. (Collection+JSON is very annoying).
- *
- * FIXME: there is a huge inefficiency here.
- * Prior to the rendering of the {@link NiiVueDisplay} component, the file
- * data was already retrieved by ChRIS_ui, and its blob data are stored in
- * the props. But for NiiVue to work (well) it wants the file's URL to
- * retrieve the file itself. So the file is retrieved a total of two times,
- * even though it should only be retrieved once.
- */
-function stupidlyGetFileResourceUrl(file: IFileBlob): string {
-  return Collection.getLinkRelationUrls(
-    file?.collection.items[0],
-    "file_resource",
-  )[0];
-}
 
 const MemoedNiiVueDisplay = React.memo(NiiVueDisplay);
 export default MemoedNiiVueDisplay;

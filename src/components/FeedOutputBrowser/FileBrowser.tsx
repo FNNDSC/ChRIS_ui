@@ -74,7 +74,7 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
   const username = useAppSelector((state) => state.user.username);
-  const { subFoldersMap, linkFilesMap, filesMap, filesPagination, folderList } =
+  const { subFoldersMap, linkFilesMap, filesMap, folderList } =
     pluginFilesPayload;
   const breadcrumb = additionalKey.split("/");
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
