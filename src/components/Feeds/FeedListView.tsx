@@ -305,20 +305,22 @@ const TableSelectable: React.FC = () => {
           </div>
         </div>
 
-        <Operations
-          origin={{
-            type: OperationContext.FEEDS,
-            additionalKeys: [perPage, page, type, search, searchType],
-          }}
-          customStyle={{
-            toolbarItem: { paddingInlineStart: "0" },
-            toolbar: {
-              paddingTop: "0",
-              paddingBottom: "0",
-              background: "inherit",
-            },
-          }}
-        />
+        {isLoggedIn && (
+          <Operations
+            origin={{
+              type: OperationContext.FEEDS,
+              additionalKeys: [perPage, page, type, search, searchType],
+            }}
+            customStyle={{
+              toolbarItem: { paddingInlineStart: "0" },
+              toolbar: {
+                paddingTop: "0",
+                paddingBottom: "0",
+                background: "inherit",
+              },
+            }}
+          />
+        )}
       </PageSection>
       <PageSection style={{ paddingBlockStart: "0.5em" }}>
         {loadingFeedState ? (

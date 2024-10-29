@@ -1,5 +1,6 @@
 import type { RenderingEngine } from "@cornerstonejs/core";
 import { useQuery } from "@tanstack/react-query";
+import axios, { type AxiosProgressEvent } from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type IFileBlob, getFileExtension } from "../../../api/model";
 import { notification } from "../../Antd";
@@ -8,6 +9,7 @@ import useSize from "../../FeedTree/useSize";
 import type { ActionState } from "../FileDetailView";
 import {
   events,
+  type IStackViewport,
   basicInit,
   displayDicomImage,
   handleEvents,
@@ -15,8 +17,9 @@ import {
   playClip,
   setUpTooling,
   stopClip,
+  getFileResourceUrl,
 } from "./dicomUtils/utils";
-import type { IStackViewport } from "./dicomUtils/utils";
+import { Progress } from "antd";
 
 export type DcmImageProps = {
   selectedFile: IFileBlob;
@@ -52,6 +55,7 @@ const DcmDisplay = (props: DcmImageProps) => {
   const [multiFrameDisplay, setMultiFrameDisplay] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lastLoadedIndex, setLastLoadedIndex] = useState(0);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   // Refs
   const dicomImageRef = useRef<HTMLDivElement>(null);
@@ -118,6 +122,31 @@ const DcmDisplay = (props: DcmImageProps) => {
     [filteredList, selectedFile.data.id],
   );
 
+  /** Fetch File Blob */
+
+  const downloadDicomFile = async (url: string, token: string) => {
+    try {
+      const response = await axios.get(url, {
+        responseType: "blob",
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total,
+            );
+            setDownloadProgress(percentCompleted);
+          }
+        },
+      });
+      return response.data; // This is the Blob
+    } catch (e) {
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
+      throw e;
+    }
+  };
+
   /**
    * Preview the selected DICOM file.
    * If the image is already cached, it uses the cached data.
@@ -155,7 +184,9 @@ const DcmDisplay = (props: DcmImageProps) => {
       }
 
       // Load new image if not in cache
-      const blob = await selectedFile.getFileBlob();
+
+      const url = getFileResourceUrl(selectedFile);
+      const blob = await downloadDicomFile(url, selectedFile.auth.token);
       const imageData = await loadDicomImage(blob);
       const { framesCount, imageID } = imageData;
 
@@ -186,8 +217,7 @@ const DcmDisplay = (props: DcmImageProps) => {
       cacheRef.current[CACHE_KEY] = newImageStack;
       return newImageStack;
     } catch (e) {
-      // biome-ignore lint/complexity/noUselessCatch: <explanation>
-      throw e;
+      throw new Error("Failed to load the dicom image");
     }
   };
 
@@ -201,6 +231,7 @@ const DcmDisplay = (props: DcmImageProps) => {
 
   useEffect(() => {
     if (isError) {
+      console.log("Error", error);
       notification.error({
         message: "Error Loading DICOM Image",
         description:
@@ -443,7 +474,9 @@ const DcmDisplay = (props: DcmImageProps) => {
 
   return (
     <>
-      {loadingFirstFrame && <SpinContainer title="Displaying image..." />}
+      {downloadProgress > 0 && downloadProgress < 100 && (
+        <Progress percent={downloadProgress} />
+      )}
       <div
         id="content"
         ref={dicomImageRef}
