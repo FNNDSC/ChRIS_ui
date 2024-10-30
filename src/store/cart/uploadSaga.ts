@@ -22,8 +22,9 @@ function createUploadChannel(config: any) {
   return eventChannel((emitter) => {
     const onUploadProgress = (progressEvent: AxiosProgressEvent) => {
       if (progressEvent.progress) {
+        const { loaded, total } = progressEvent;
         const progress = Math.round(progressEvent.progress * 100);
-        emitter({ progress });
+        emitter({ progress, loaded, total });
       }
     };
 
@@ -113,7 +114,7 @@ function* uploadFileBatch(
         return call(function* () {
           try {
             while (true) {
-              const { progress, response, error, cancelled } =
+              const { progress, loaded, total, response, error, cancelled } =
                 yield take(uploadChannel);
 
               if (cancelled) {
@@ -156,6 +157,8 @@ function* uploadFileBatch(
                   updateFileUploadStatus,
                   name,
                   progress,
+                  loaded,
+                  total,
                   response,
                   currentPath,
                   controller,
@@ -215,6 +218,8 @@ function* uploadFileBatch(
             step: "Error: Failed to create a feed",
             fileName: nameForFeed as string,
             progress: 0,
+            loaded: 0,
+            total: 0,
             controller: null,
             path: currentPath,
             type: "file",
@@ -325,6 +330,8 @@ function* handleUploadError(
         step,
         fileName: name,
         progress: 0,
+        loaded: 0,
+        total: 0,
         controller: null,
         path: currentPath,
         type: "file",
@@ -335,6 +342,8 @@ function* handleUploadError(
 function* updateFileUploadStatus(
   name: string,
   progress: number,
+  loaded: number,
+  total: number,
   response: any,
   currentPath: string,
   controller: AbortController,
@@ -357,6 +366,8 @@ function* updateFileUploadStatus(
       step,
       fileName: name,
       progress,
+      loaded,
+      total,
       controller,
       path: currentPath,
       type: "file",
