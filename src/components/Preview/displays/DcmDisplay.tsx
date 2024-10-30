@@ -1,10 +1,10 @@
 import type { RenderingEngine } from "@cornerstonejs/core";
 import { useQuery } from "@tanstack/react-query";
+import { Progress } from "antd";
 import axios, { type AxiosProgressEvent } from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type IFileBlob, getFileExtension } from "../../../api/model";
 import { notification } from "../../Antd";
-import { SpinContainer } from "../../Common";
 import useSize from "../../FeedTree/useSize";
 import type { ActionState } from "../FileDetailView";
 import {
@@ -19,7 +19,6 @@ import {
   stopClip,
   getFileResourceUrl,
 } from "./dicomUtils/utils";
-import { Progress } from "antd";
 
 export type DcmImageProps = {
   selectedFile: IFileBlob;
@@ -474,9 +473,6 @@ const DcmDisplay = (props: DcmImageProps) => {
 
   return (
     <>
-      {downloadProgress > 0 && downloadProgress < 100 && (
-        <Progress percent={downloadProgress} />
-      )}
       <div
         id="content"
         ref={dicomImageRef}
@@ -512,6 +508,10 @@ const DcmDisplay = (props: DcmImageProps) => {
             </div>
           )}
         </div>
+
+        {downloadProgress > 0 && downloadProgress < 100 && (
+          <Progress percent={downloadProgress} />
+        )}
 
         {/* DICOM Image Display */}
         <div

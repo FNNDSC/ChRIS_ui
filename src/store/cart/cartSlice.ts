@@ -84,16 +84,28 @@ const cartSlice = createSlice({
         step: string;
         fileName: string;
         progress: number;
+        loaded: number;
+        total: number;
         controller: AbortController | null;
         path: string;
         type: string;
       }>,
     ) {
-      const { step, fileName, progress, controller, path, type } =
-        action.payload;
+      const {
+        step,
+        fileName,
+        progress,
+        loaded,
+        total,
+        controller,
+        path,
+        type,
+      } = action.payload;
       state.fileUploadStatus[fileName] = {
         currentStep: step,
         progress,
+        loaded,
+        total,
         controller,
         path,
         type,

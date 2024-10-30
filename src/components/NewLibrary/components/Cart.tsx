@@ -21,9 +21,13 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Drawer, List, Popconfirm, Space } from "../../Antd";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
-import { ShowInFolder, TitleNameClipped, elipses } from "../utils/longpress";
+import {
+  ShowInFolder,
+  TitleNameClipped,
+  elipses,
+  formatBytesWithPadding,
+} from "../utils/longpress";
 import "./Cart.css";
-import ProgressRing from "./RadialProgress";
 
 const Cart = () => {
   const dispatch = useAppDispatch();
@@ -274,6 +278,7 @@ interface UploadStatusProps {
   name: string;
   dispatch: AppDispatch;
 }
+
 const UploadStatus: React.FC<UploadStatusProps> = ({
   status,
   type,
@@ -283,13 +288,13 @@ const UploadStatus: React.FC<UploadStatusProps> = ({
   const isError =
     status.currentStep.includes("Cancelled") ||
     status.currentStep.startsWith("Error");
-  const isComplete =
-    type === "file"
-      ? (status as FileUploadObject).progress === 100 &&
-        status.currentStep === "Upload Complete"
-      : (status as FolderUploadObject).done ===
-          (status as FolderUploadObject).total &&
-        status.currentStep === "Upload Complete";
+
+  // Determine if the upload is complete
+  const isComplete = status.currentStep === "Upload Complete";
+
+  // Determine when to show the status text
+  const showStatusText =
+    status.currentStep === "Server Processing..." || isError || isComplete;
 
   const handleAction = () => {
     if (status.currentStep === "Uploading...") {
@@ -299,53 +304,88 @@ const UploadStatus: React.FC<UploadStatusProps> = ({
     }
   };
 
-  return (
-    <List.Item
-      key={name}
-      actions={[
-        <div key={`status-${name}`}>
-          <TitleNameClipped value={35} name={status.currentStep} />
-        </div>,
-        isComplete ? (
-          <CheckCircleIcon
-            key={`anon-${name}-progress`}
-            color="#3E8635"
-            width="2em"
-            height="2em"
-          />
-        ) : isError ? (
-          <CloseIcon
-            color="red"
-            width="2em"
-            height="2em"
-            key={`anon-${name}-cancel`}
-          />
-        ) : type === "file" ? (
-          <ProgressRing
-            key={`anon-${name}-progress`}
-            value={(status as FileUploadObject).progress}
-          />
-        ) : (
-          <div key={`anon-${name}-progress`}>
-            {(status as FolderUploadObject).done}/
-            {(status as FolderUploadObject).total}
-          </div>
-        ),
-        <ShowInFolder
-          isError={isError}
-          key={`anon-${name}-show`}
-          path={status.path}
-        />,
-        <Button
-          onClick={handleAction}
-          variant="secondary"
-          size="sm"
-          key={`a-${name}`}
-        >
-          {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
-        </Button>,
-      ]}
+  const loadedBytes = formatBytesWithPadding(
+    (status as FileUploadObject).loaded || 0,
+  );
+  const totalBytes = formatBytesWithPadding(
+    (status as FileUploadObject).total || 0,
+  );
+
+  // Build the actions array based on the current status
+  const actions = [];
+
+  if (showStatusText) {
+    // Conditionally add the status text (e.g., "Server Processing...", errors, completion)
+    actions.push(
+      <div key={`status-${name}`}>
+        <TitleNameClipped value={35} name={status.currentStep} />
+      </div>,
+    );
+  }
+
+  if (isComplete) {
+    // Add the appropriate icon or progress
+    actions.push(
+      <CheckCircleIcon
+        key={`anon-${name}-progress`}
+        color="#3E8635"
+        width="2em"
+        height="2em"
+      />,
+    );
+  } else if (isError) {
+    actions.push(
+      <CloseIcon
+        color="red"
+        width="2em"
+        height="2em"
+        key={`anon-${name}-cancel`}
+      />,
+    );
+  } else if (type === "file" && !showStatusText) {
+    // Show progress during upload
+    actions.push(
+      <div
+        key={`anon-${name}-bytes`}
+        style={{
+          fontFamily: "monospace",
+        }}
+      >
+        {loadedBytes}/{totalBytes}
+      </div>,
+    );
+  } else if (type === "folder") {
+    actions.push(
+      <div key={`anon-${name}-progress`}>
+        {(status as FolderUploadObject).done}/
+        {(status as FolderUploadObject).total}
+      </div>,
+    );
+  }
+
+  // Add the "Show in Folder" component
+  actions.push(
+    <ShowInFolder
+      isError={isError}
+      key={`anon-${name}-show`}
+      path={status.path}
+    />,
+  );
+
+  // Add the action button ("Cancel" or "Clear")
+  actions.push(
+    <Button
+      onClick={handleAction}
+      variant="secondary"
+      size="sm"
+      key={`a-${name}`}
     >
+      {status.currentStep === "Uploading..." ? "Cancel" : "Clear"}
+    </Button>,
+  );
+
+  return (
+    <List.Item key={name} actions={actions}>
       <List.Item.Meta
         avatar={type === "file" ? <FileIcon /> : <FolderIcon />}
         title={<TitleNameClipped name={name} value={30} />}

@@ -28,6 +28,8 @@ export type FolderUploadObject = {
 export type FileUploadObject = {
   currentStep: string;
   progress: number;
+  loaded: number;
+  total: number;
   controller: AbortController | null;
   path: string;
   type: string;
