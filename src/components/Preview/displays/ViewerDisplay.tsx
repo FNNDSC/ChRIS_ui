@@ -1,4 +1,6 @@
+import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
 import type * as React from "react";
+import type { IFileBlob } from "../../../api/model";
 import type { ActionState } from "../FileDetailView";
 import {
   CatchallDisplay,
@@ -12,8 +14,6 @@ import {
   VideoDisplay,
   XtkDisplay,
 } from "./index";
-import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
-import type { IFileBlob } from "../../../api/model";
 
 const components = {
   JsonDisplay,

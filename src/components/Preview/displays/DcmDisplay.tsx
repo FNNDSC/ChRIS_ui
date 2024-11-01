@@ -19,6 +19,7 @@ import {
   stopClip,
   getFileResourceUrl,
 } from "./dicomUtils/utils";
+import { useDicomCache } from "./DicomCacheContext";
 
 export type DcmImageProps = {
   selectedFile: IFileBlob;
@@ -47,6 +48,7 @@ const DcmDisplay = (props: DcmImageProps) => {
     filesLoading,
     actionState,
   } = props;
+  const { cache, setCache } = useDicomCache();
 
   // State variables
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -61,13 +63,10 @@ const DcmDisplay = (props: DcmImageProps) => {
   const elementRef = useRef<HTMLDivElement>(null);
   const renderingEngineRef = useRef<RenderingEngine | null>(null);
   const activeViewportRef = useRef<IStackViewport | null>(null);
-  const cacheRef = useRef<{ [key: string]: ImageStackType }>({
-    [CACHE_KEY]: {},
-  });
 
   // Derived values
   const size = useSize(dicomImageRef);
-  const cacheStack = cacheRef.current[CACHE_KEY];
+  const cacheStack = cache[CACHE_KEY] || {};
   const fname = selectedFile.data.fname;
 
   /**
@@ -173,10 +172,12 @@ const DcmDisplay = (props: DcmImageProps) => {
           setMultiFrameDisplay(false);
         }
 
-        await activeViewportRef.current.setStack(
-          imageIDs,
-          index !== -1 ? index : 0,
-        );
+        // Ensure index is valid
+        if (index < 0 || index >= imageIDs.length) {
+          index = 0;
+        }
+
+        await activeViewportRef.current.setStack(imageIDs, index);
         activeViewportRef.current.render();
         setCurrentImageIndex(index);
         return cacheStack;
@@ -212,11 +213,18 @@ const DcmDisplay = (props: DcmImageProps) => {
       activeViewportRef.current = viewport;
       renderingEngineRef.current = renderingEngine;
       setImageStack(newImageStack);
-      setCurrentImageIndex(selectedIndex);
-      cacheRef.current[CACHE_KEY] = newImageStack;
+      setCurrentImageIndex(selectedIndex || 0);
+      // Update the cache using the context
+      setCache(() => {
+        const updatedCache = {
+          [CACHE_KEY]: newImageStack,
+        };
+        return updatedCache;
+      });
       return newImageStack;
     } catch (e) {
-      throw new Error("Failed to load the dicom image");
+      // biome-ignore lint/complexity/noUselessCatch: <explanation>
+      throw e;
     }
   };
 
@@ -230,12 +238,9 @@ const DcmDisplay = (props: DcmImageProps) => {
 
   useEffect(() => {
     if (isError) {
-      console.log("Error", error);
       notification.error({
-        message: "Error Loading DICOM Image",
-        description:
-          (error as Error)?.message ||
-          "An error occurred while loading the DICOM Image",
+        message: error.name,
+        description: (error as Error)?.message,
       });
     }
   }, [isError, error]);
@@ -251,12 +256,12 @@ const DcmDisplay = (props: DcmImageProps) => {
 
   /**
    * Clean up when the component unmounts.
-   * Destroys the rendering engine and clears caches and intervals.
+   * Destroys the rendering engine and clears intervals.
    */
   useEffect(() => {
     return () => {
       renderingEngineRef.current?.destroy();
-      cacheRef.current = { [CACHE_KEY]: {} };
+
       setIsLoadingMore(false);
       setLastLoadedIndex(0);
       setImageStack({});
@@ -273,7 +278,6 @@ const DcmDisplay = (props: DcmImageProps) => {
   /**
    * Start cine playback.
    */
-
   const startCinePlay = useCallback(() => {
     if (elementRef.current) {
       const clipOptions = {
@@ -331,8 +335,11 @@ const DcmDisplay = (props: DcmImageProps) => {
         setImageStack(cacheStack);
         if (activeViewportRef.current) {
           const imageIDs = Object.values(cacheStack).flat() as string[];
-          await activeViewportRef.current.setStack(imageIDs, selectedIndex);
+          // Ensure currentImageIndex is within bounds
+          const index = Math.min(currentImageIndex, imageIDs.length - 1);
+          await activeViewportRef.current.setStack(imageIDs, index);
           activeViewportRef.current.render();
+          setCurrentImageIndex(index);
         }
         return;
       }
@@ -340,32 +347,38 @@ const DcmDisplay = (props: DcmImageProps) => {
       setIsLoadingMore(true);
       const generator = imageFileGenerator(filteredList, lastLoadedIndex);
       const newImages: ImageStackType = {};
-
       for (let next = generator.next(); !next.done; next = generator.next()) {
         const file = next.value;
         if (cacheStack[file.data.fname]) {
           continue; // Skip if already in cache
         }
-
         const blob = await file.getFileBlob();
         const imageData = await loadDicomImage(blob);
         newImages[file.data.fname] = imageData.imageID;
       }
-
       const updatedImageStack = { ...cacheStack, ...newImages };
       setImageStack(updatedImageStack);
-      cacheRef.current[CACHE_KEY] = updatedImageStack;
+      // Update the cache using the context
+      setCache(() => {
+        const updatedCache = {
+          [CACHE_KEY]: updatedImageStack,
+        };
+        return updatedCache;
+      });
 
       if (activeViewportRef.current) {
         const imageIDs = Object.values(updatedImageStack).flat() as string[];
-        await activeViewportRef.current.setStack(imageIDs, selectedIndex);
+        // Ensure currentImageIndex is within bounds
+        const index = Math.min(currentImageIndex, imageIDs.length - 1);
+        await activeViewportRef.current.setStack(imageIDs, index);
         activeViewportRef.current.render();
+        setCurrentImageIndex(index);
       }
 
       setLastLoadedIndex(lastLoadedIndex + Object.keys(newImages).length);
       setIsLoadingMore(false);
     },
-    [cacheStack, lastLoadedIndex, selectedIndex, loadDicomImage],
+    [cacheStack, lastLoadedIndex, currentImageIndex, loadDicomImage],
   );
 
   // Check if the first frame is still loading
@@ -408,7 +421,9 @@ const DcmDisplay = (props: DcmImageProps) => {
         (!multiFrameDisplay && Object.keys(imageStack).length > 1)
       ) {
         const newIndex = activeViewportRef.current.getCurrentImageIdIndex();
-        setCurrentImageIndex(newIndex);
+        if (newIndex !== currentImageIndex) {
+          setCurrentImageIndex(newIndex);
+        }
       }
 
       if (
@@ -429,6 +444,7 @@ const DcmDisplay = (props: DcmImageProps) => {
     filesLoading,
     loadingFirstFrame,
     handlePagination,
+    currentImageIndex,
   ]);
 
   // Add event listener for image rendered event
@@ -504,7 +520,7 @@ const DcmDisplay = (props: DcmImageProps) => {
           {/* Loading More Indicator */}
           {isLoadingMore && (
             <div style={{ color: "#fff" }}>
-              <i>Loading more...</i>
+              <i>More Files are being loaded...</i>
             </div>
           )}
         </div>

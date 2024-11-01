@@ -32,7 +32,7 @@ import {
 } from "@patternfly/react-core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { type Ref, useEffect, useState, useCallback, useMemo } from "react";
+import { type Ref, useCallback, useEffect, useMemo, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
@@ -40,6 +40,7 @@ import { Alert, Spin, notification } from "../Antd";
 import { SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
+import { useMediaQuery } from "react-responsive";
 import { InfoSection } from "../Common";
 import {
   fetchPluginForMeta,
@@ -66,6 +67,15 @@ const Store: React.FC = () => {
     string[]
   >([]);
   const [dropdown, setDropdown] = useState(false);
+
+  // New state variables
+  const [installingPluginInfo, setInstallingPluginInfo] = useState<{
+    name: string;
+    version: string;
+  } | null>(null);
+  const [installationErrors, setInstallationErrors] = useState<string[]>([]);
+
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const defaultStoreURL = import.meta.env.VITE_CHRIS_STORE_URL;
   const localCubeURL = import.meta.env.VITE_CHRIS_UI_URL;
@@ -218,6 +228,105 @@ const Store: React.FC = () => {
     }
   };
 
+  const bulkInstallPlugins = async (pluginsWithVersions: Plugin[]) => {
+    const failedPlugins = [];
+    const installedPlugins = [];
+
+    const notificationKey = "installing-plugins";
+    for (const selectedPlugin of pluginsWithVersions) {
+      if (selectedPlugin) {
+        try {
+          // Update the state to indicate which plugin is being installed
+          setInstallingPluginInfo({
+            name: selectedPlugin.data.name,
+            version: selectedPlugin.data.version,
+          });
+
+          if (isMobile) {
+            api.info({
+              key: notificationKey,
+              message: "Installing Plugins",
+              description: (
+                <span>
+                  Installing plugin: {selectedPlugin.data.name} version:{" "}
+                  {selectedPlugin.data.version}
+                </span>
+              ),
+              duration: 0,
+            });
+          }
+
+          await handleInstall(selectedPlugin);
+          installedPlugins.push(selectedPlugin.data.name);
+        } catch (error: any) {
+          failedPlugins.push({
+            name: selectedPlugin.data.name,
+            error: error.message,
+          });
+          api.destroy(notificationKey);
+        }
+      }
+    }
+    // After installation is complete, reset the installingPluginInfo
+    setInstallingPluginInfo(null);
+    api.destroy(notificationKey);
+    if (failedPlugins.length > 0) {
+      // Update the installationErrors state
+      setInstallationErrors(
+        failedPlugins.map((fp) => `${fp.name}: ${fp.error}`),
+      );
+      throw new Error("Failed to install some plugins");
+    }
+
+    return installedPlugins;
+  };
+
+  const bulkInstallMutation = useMutation({
+    mutationFn: bulkInstallPlugins,
+    onSuccess: () => {
+      api.success({
+        message: "All selected plugins were successfully installed.",
+      });
+      // Invalidate queries to refresh installed plugins
+      queryClient.invalidateQueries({ queryKey: ["existingStorePlugins"] });
+    },
+    onError: () => {
+      api.error({
+        message: "Failed to install the plugins",
+        description: (
+          <ul>
+            {installationErrors.map((error, index) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        ),
+      });
+    },
+  });
+
+  const handleInstallAll = async () => {
+    // Ensure configuration is set
+    if (!username || !password || !computeResource || !configureURL) {
+      setIsConfigModalOpen(true);
+      return;
+    }
+
+    const pluginsToInstall = data?.pluginMetaList || [];
+
+    // For each plugin, determine the selected version or default version
+    const pluginsWithVersions = pluginsToInstall.map((plugin) => {
+      const selectedVersion = version[plugin.data.id] || plugin.data.version;
+      const selectedPlugin = plugin.data.plugins.find(
+        (p: any) => p.data.version === selectedVersion,
+      );
+      return selectedPlugin;
+    });
+
+    // Trigger the mutation
+    bulkInstallMutation.mutate(pluginsWithVersions);
+  };
+
   const handleInstallMutation = useMutation({
     mutationFn: (selectedPlugin: Plugin) => handleInstall(selectedPlugin),
     onSuccess: (_data) => {
@@ -277,9 +386,13 @@ const Store: React.FC = () => {
       description: "Your configuration has been saved successfully.",
       duration: 1,
     });
-    // If there is a plugin pending installation, proceed to install
     if (installingPlugin) {
+      // If there is a plugin pending installation, proceed to install
       handleSave();
+    }
+
+    if (bulkInstallMutation.isIdle) {
+      handleInstallAll();
     }
   };
 
@@ -393,17 +506,53 @@ const Store: React.FC = () => {
       </Modal>
 
       <PageSection>
-        <div>
-          <Text component={TextVariants.h6}>
-            You are currently viewing plugins fetched from {configureURL}
-          </Text>
+        <Text component={TextVariants.h6}>
+          You are currently viewing plugins fetched from {configureURL}
+        </Text>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            marginTop: "1em",
+            height: "40px",
+          }}
+        >
           <Button
-            style={{ marginTop: "1em" }}
             variant="secondary"
+            size="sm"
             onClick={() => setIsConfigModalOpen(true)}
           >
             Configure the store
           </Button>
+          <Button
+            style={{ margin: "0 1em 0 1em" }}
+            variant="secondary"
+            size="sm"
+            onClick={handleInstallAll}
+            isDisabled={
+              data?.pluginMetaList.length === 0 || bulkInstallMutation.isPending
+            }
+          >
+            {bulkInstallMutation.isPending ? "Installing..." : "Install All"}
+          </Button>
+          {/* Display installation progress */}
+
+          {bulkInstallMutation.isPending &&
+            installingPluginInfo &&
+            !isMobile && (
+              <Alert
+                type="info"
+                description={
+                  <span>
+                    {" "}
+                    Installing plugin: {installingPluginInfo.name} version:{" "}
+                    {installingPluginInfo.version}
+                  </span>
+                }
+                style={{ height: "100%", padding: "0.75em" }}
+              />
+            )}
         </div>
 
         <Grid style={{ marginTop: "1em", marginBottom: "1em" }}>

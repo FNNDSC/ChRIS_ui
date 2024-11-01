@@ -35,6 +35,7 @@ import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
 import TruncatedText from "./TruncatedText";
+import { DicomCacheProvider } from "../../Preview/displays/DicomCacheContext";
 
 interface TableProps {
   data: {
@@ -297,15 +298,17 @@ const LibraryTable: React.FC<TableProps> = ({
         placement="right"
       >
         {selectedFile && (
-          <FileDetailView
-            gallery={true}
-            selectedFile={selectedFile}
-            preview="large"
-            list={data.files}
-            fetchMore={fetchMore}
-            handlePagination={handlePagination}
-            filesLoading={filesLoading}
-          />
+          <DicomCacheProvider>
+            <FileDetailView
+              gallery={true}
+              selectedFile={selectedFile}
+              preview="large"
+              list={data.files}
+              fetchMore={fetchMore}
+              handlePagination={handlePagination}
+              filesLoading={filesLoading}
+            />
+          </DicomCacheProvider>
         )}
       </Drawer>
       <Table
@@ -361,6 +364,7 @@ const LibraryTable: React.FC<TableProps> = ({
               origin={origin}
             />
           ))}
+
           {data.files.map((resource: FileBrowserFolderFile, index) => (
             <FileRow
               rowIndex={index}
