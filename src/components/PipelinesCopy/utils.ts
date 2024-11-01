@@ -3,12 +3,9 @@ import type Client from "@fnndsc/chrisapi";
 import axios from "axios";
 import { fetchResource } from "../../api/common";
 
-interface Params {
-  limit: number;
-  offset: number;
-  name?: string;
-  name_exact?: string;
-}
+type Params = {
+  [key: string]: string | number;
+};
 
 /**
  * Fetches plugin metadata from the ChRIS store.

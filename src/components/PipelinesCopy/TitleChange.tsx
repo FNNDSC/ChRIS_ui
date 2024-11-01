@@ -1,8 +1,8 @@
 import type { Pipeline, PluginPiping } from "@fnndsc/chrisapi";
-import { Alert, Form, Space } from "../Antd";
+import { Button, TextInput } from "@patternfly/react-core";
 import { useContext, useEffect, useState } from "react";
+import { Alert, Form, Space } from "../Antd";
 import { PipelineContext, Types } from "./context";
-import { TextInput, Button } from "@patternfly/react-core";
 
 type OwnProps = {
   currentPipeline: Pipeline;
