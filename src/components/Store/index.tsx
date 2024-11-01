@@ -6,7 +6,7 @@ import Client, {
 import {
   ActionGroup,
   Badge,
-  Button,
+  Button as PFButton,
   Card,
   CardBody,
   Form,
@@ -20,7 +20,7 @@ import {
   type MenuToggleElement,
   Modal,
   PageSection,
-  Select,
+  Select as PFSelect,
   SelectOption,
   Split,
   SplitItem,
@@ -36,7 +36,7 @@ import { type Ref, useCallback, useEffect, useMemo, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
-import { Alert, Spin, notification } from "../Antd";
+import { Alert, Spin, notification, Dropdown, type MenuProps } from "antd"; // Imported Menu and Dropdown from antd
 import { SpinContainer } from "../Common";
 import { CheckCircleIcon, SearchIcon } from "../Icons";
 import "../SinglePlugin/singlePlugin.css";
@@ -48,6 +48,7 @@ import {
   handleInstallPlugin,
 } from "../PipelinesCopy/utils";
 import WrapperConnect from "../Wrapper";
+import { DownOutlined } from "@ant-design/icons"; // Imported DownOutlined icon
 
 const Store: React.FC = () => {
   const isStaff = useAppSelector((state) => state.user.isStaff);
@@ -67,6 +68,9 @@ const Store: React.FC = () => {
     string[]
   >([]);
   const [dropdown, setDropdown] = useState(false);
+  const [searchField, setSearchField] = useState<
+    "name" | "category" | "authors"
+  >("name");
 
   // New state variables
   const [installingPluginInfo, setInstallingPluginInfo] = useState<{
@@ -155,17 +159,21 @@ const Store: React.FC = () => {
     document.title = "Store Catalog";
     setTempURLValue(configure_url || defaultStoreURL);
     setConfigureURL(configure_url || defaultStoreURL);
-  }, [isStaff, configure_url, defaultStoreURL, isLoggedIn]);
+  }, [configure_url]);
 
   const fetchPlugins = useCallback(
     async (search: string) => {
       const client = new Client(configureURL);
       try {
-        const params = {
+        const params: {
+          [key: string]: number | string;
+        } = {
           limit: 20,
           offset: 0,
-          name: search.trim().toLowerCase(),
         };
+        if (search.trim() !== "") {
+          params[searchField] = search.trim().toLowerCase();
+        }
         const pluginMetas = await fetchPluginMetas(client, params);
 
         const newPluginPayload = await Promise.all(
@@ -181,7 +189,7 @@ const Store: React.FC = () => {
         throw error;
       }
     },
-    [configureURL],
+    [configureURL, searchField],
   );
 
   const fetchExistingPlugins = useCallback(async () => {
@@ -344,7 +352,7 @@ const Store: React.FC = () => {
   });
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["storePlugins", search, configureURL],
+    queryKey: ["storePlugins", search, configureURL, searchField],
     queryFn: () => fetchPlugins(search),
     retry: false,
   });
@@ -406,6 +414,18 @@ const Store: React.FC = () => {
     [],
   );
 
+  const items: MenuProps["items"] = [
+    {
+      key: "name",
+      label: "Name",
+    },
+    { key: "category", label: "Category" },
+    {
+      key: "authors",
+      label: "Author",
+    },
+  ];
+
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       {contextHolder}
@@ -451,7 +471,7 @@ const Store: React.FC = () => {
           </HelperText>
           <FormGroup label="Compute Resource" isRequired>
             {computeResourceOptions.length > 0 ? (
-              <Select
+              <PFSelect
                 id="compute_resource"
                 selected={computeResource}
                 onSelect={(_e, value) => {
@@ -477,7 +497,7 @@ const Store: React.FC = () => {
                     {resource}
                   </SelectOption>
                 ))}
-              </Select>
+              </PFSelect>
             ) : (
               <TextInput
                 id="compute_resource"
@@ -489,7 +509,7 @@ const Store: React.FC = () => {
             )}
           </FormGroup>
           <ActionGroup>
-            <Button
+            <PFButton
               type="submit"
               variant="primary"
               isDisabled={
@@ -497,10 +517,13 @@ const Store: React.FC = () => {
               }
             >
               Save
-            </Button>
-            <Button onClick={() => setIsConfigModalOpen(false)} variant="link">
+            </PFButton>
+            <PFButton
+              onClick={() => setIsConfigModalOpen(false)}
+              variant="link"
+            >
               Cancel
-            </Button>
+            </PFButton>
           </ActionGroup>
         </Form>
       </Modal>
@@ -518,14 +541,14 @@ const Store: React.FC = () => {
             height: "40px",
           }}
         >
-          <Button
+          <PFButton
             variant="secondary"
             size="sm"
             onClick={() => setIsConfigModalOpen(true)}
           >
             Configure the store
-          </Button>
-          <Button
+          </PFButton>
+          <PFButton
             style={{ margin: "0 1em 0 1em" }}
             variant="secondary"
             size="sm"
@@ -535,7 +558,7 @@ const Store: React.FC = () => {
             }
           >
             {bulkInstallMutation.isPending ? "Installing..." : "Install All"}
-          </Button>
+          </PFButton>
           {/* Display installation progress */}
 
           {bulkInstallMutation.isPending &&
@@ -556,15 +579,22 @@ const Store: React.FC = () => {
         </div>
 
         <Grid style={{ marginTop: "1em", marginBottom: "1em" }}>
-          <GridItem span={4}>
+          <GridItem span={8}>
             <TextInputGroup>
               <TextInputGroupMain
                 value={search}
                 onChange={(_e, value: string) => setSearch(value)}
                 icon={<SearchIcon />}
-                placeholder="Search for plugins by name"
+                placeholder={`Search for plugins by ${searchField}`}
               />
             </TextInputGroup>
+          </GridItem>
+          <GridItem span={4}>
+            <Dropdown menu={{ items }} trigger={["click"]}>
+              <PFButton variant="secondary" size="sm">
+                {`Filter by: ${searchField}`} <DownOutlined />
+              </PFButton>
+            </Dropdown>
           </GridItem>
         </Grid>
 
@@ -639,7 +669,7 @@ const Store: React.FC = () => {
                           <div>Installed</div>
                         </div>
                       ) : (
-                        <Button
+                        <PFButton
                           icon={
                             installingPlugin?.data.id === plugin.data.id &&
                             handleInstallMutation.isPending && <Spin />
@@ -664,7 +694,7 @@ const Store: React.FC = () => {
                           }
                         >
                           Install
-                        </Button>
+                        </PFButton>
                       )}
                     </CardBody>
                   </Card>
@@ -714,7 +744,7 @@ const VersionSelect = ({
   );
 
   return (
-    <Select
+    <PFSelect
       id="option-variations-select"
       isOpen={isOpen}
       selected={currentVersion}
@@ -728,6 +758,6 @@ const VersionSelect = ({
           {plugin.data.version}
         </SelectOption>
       ))}
-    </Select>
+    </PFSelect>
   );
 };

@@ -25,11 +25,6 @@ import {
   Types,
 } from "./context";
 import { DownloadIcon } from "@patternfly/react-icons";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import type {
-  PipelineSourceFile,
-  PipelineSourceFileList,
-} from "@fnndsc/chrisapi";
 import { useDownloadSource } from "./useDownloadSource";
 
 type LoadingResources = {

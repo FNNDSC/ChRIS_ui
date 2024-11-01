@@ -16,13 +16,6 @@ export function elipses(str: string, len: number) {
   return `${str.slice(0, len - 3)}...`;
 }
 
-interface FetchParams {
-  limit: number;
-  offset: number;
-  fname_icontains?: string;
-  fname_nslashes?: string;
-}
-
 export interface TreeType {
   id: number;
   plugin_id: number;
@@ -174,8 +167,7 @@ export const fetchResource = async <T>(
 
 // Type Definitions
 interface FetchParams {
-  limit: number;
-  offset: number;
+  [key: string]: string | number;
 }
 
 interface FetchResourcesResult {

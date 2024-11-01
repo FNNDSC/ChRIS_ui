@@ -1,12 +1,12 @@
+import type {
+  Pipeline,
+  PipelineSourceFile,
+  PipelineSourceFileList,
+} from "@fnndsc/chrisapi";
 // hooks/useDownloadPipeline.ts
 import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import type {
-  PipelineSourceFileList,
-  PipelineSourceFile,
-  Pipeline,
-} from "@fnndsc/chrisapi";
 
 const fetchPipelineSourceFiles = async (pipeline: Pipeline) => {
   const client = ChrisAPIClient.getClient();
