@@ -418,11 +418,17 @@ const Store: React.FC = () => {
     {
       key: "name",
       label: "Name",
+      onClick: () => setSearchField("name"),
     },
-    { key: "category", label: "Category" },
+    {
+      key: "category",
+      label: "Category",
+      onClick: () => setSearchField("category"),
+    },
     {
       key: "authors",
       label: "Author",
+      onClick: () => setSearchField("authors"),
     },
   ];
 
