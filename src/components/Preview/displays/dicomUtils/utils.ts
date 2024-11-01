@@ -200,8 +200,9 @@ export const loadDicomImage = async (blob: Blob) => {
       imageID,
       framesCount,
     };
-  } catch (e) {
-    throw new Error(`Error loading the DICOM image: ${(e as Error).message}`);
+  } catch (e: any) {
+    const error_message = e?.error?.message || "Failed to load";
+    throw new Error(`${error_message}`);
   }
 };
 
