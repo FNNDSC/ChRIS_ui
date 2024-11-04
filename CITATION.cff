@@ -7,8 +7,12 @@ repository-code: https://github.com/FNNDSC/ChRIS_ui
 license: MIT
 type: software
 authors:
-  - family-names: Gideon
-    given-names: Pinto
+  - family-names: Pinto
+    given-names: Gideon
+  - family-names: Samal
+    given-names: Sandip
+  - family-names: Ruisel-Bernal
+    given-names: Jorge
   - family-names: Zhang
     given-names: Jennings
     orcid: https://orcid.org/0000-0001-6473-3316
