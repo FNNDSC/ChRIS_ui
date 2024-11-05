@@ -1,7 +1,5 @@
 import ChrisApiClient from "@fnndsc/chrisapi";
 import {
-  HelperText,
-  HelperTextItem,
   ListItem,
   ListVariant,
   LoginFooterItem,
@@ -9,34 +7,37 @@ import {
   LoginMainFooterBandItem,
   LoginPage,
 } from "@patternfly/react-core";
+import { App } from "antd";
 import queryString from "query-string";
-import React from "react";
+// src/components/LoginPage/SimpleLoginPage.tsx
+import type React from "react";
+import { useState } from "react";
 import { useCookies } from "react-cookie";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 import ChRIS_Logo from "../../assets/chris-logo.png";
-import { setAuthTokenSuccess } from "../../store/user/userSlice";
-import { ExclamationCircleIcon } from "../Icons";
-import "./Login.css";
 import { useAppDispatch } from "../../store/hooks.ts";
+import { setAuthTokenSuccess } from "../../store/user/userSlice";
+import "./Login.css";
+import { useSignUpAllowed } from "../../store/hooks.ts";
+
+type Status = "idle" | "loading" | "success" | "error";
 
 export const SimpleLoginPage: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
   const [_cookies, setCookie] = useCookies<string>([""]);
-  const [showHelperText, setShowHelperText] = React.useState(false);
-  const [username, setUsername] = React.useState("");
-  const [isValidUsername, setIsValidUsername] = React.useState(true);
-  const [password, setPassword] = React.useState("");
-  const [isValidPassword, setIsValidPassword] = React.useState(true);
-  const [errorMessage, setErrorMessage] = React.useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [status, setStatus] = useState<Status>("idle");
 
-  enum LoginErrorMessage {
-    invalidCredentials = "Invalid Credentials",
-    serverError = "There was a problem connecting to the server!",
-  }
+  // Use the custom hook
+  const { signUpAllowed } = useSignUpAllowed();
+
+  // Use the message API from Ant Design
+  const { message } = App.useApp();
 
   async function handleSubmit(
     event:
@@ -46,10 +47,15 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
     event.preventDefault();
 
     const authURL = import.meta.env.VITE_CHRIS_UI_AUTH_URL;
-    let token: string;
+
+    setStatus("loading");
 
     try {
-      token = await ChrisApiClient.getAuthToken(authURL, username, password);
+      const token = await ChrisApiClient.getAuthToken(
+        authURL,
+        username,
+        password,
+      );
       if (token && username) {
         const oneDayToSeconds = 24 * 60 * 60;
         setCookie(`${username}_token`, token, {
@@ -74,6 +80,8 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           }),
         );
 
+        setStatus("success");
+
         const { redirectTo } = queryString.parse(location.search) as {
           redirectTo: string;
         };
@@ -93,17 +101,13 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           navigate("/");
         }
       }
-    } catch (error: unknown) {
-      setShowHelperText(true);
-      // Allows error message to be displayed in red
-      setIsValidUsername(false);
-      setIsValidPassword(false);
-
-      setErrorMessage(() =>
-        //@ts-ignore
+    } catch (error: any) {
+      setStatus("error");
+      message.error(
         error.response
-          ? LoginErrorMessage.invalidCredentials
-          : LoginErrorMessage.serverError,
+          ? "Invalid Credentials"
+          : "There was a problem connecting to the server!",
+        3,
       );
     }
   }
@@ -122,20 +126,12 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
     setPassword(value);
   };
 
-  let helperText: React.ReactNode = null;
-  if (showHelperText) {
-    helperText = (
-      <HelperText>
-        <HelperTextItem variant="error">{errorMessage}</HelperTextItem>
-      </HelperText>
-    );
-  }
-
-  const signUpForAccountMessage = (
+  // Conditionally render the "Sign up" link based on signUpAllowed state
+  const signUpForAccountMessage = signUpAllowed ? (
     <LoginMainFooterBandItem>
       Need an account? <Link to="/signup">Sign up.</Link>
     </LoginMainFooterBandItem>
-  );
+  ) : null;
 
   const forgotCredentials = (
     <LoginMainFooterBandItem>
@@ -144,7 +140,7 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   );
 
   const listItem = (
-    <React.Fragment>
+    <>
       <ListItem>
         <LoginFooterItem href="https://web.chrisproject.org/">
           Terms of Use{" "}
@@ -160,24 +156,20 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           Privacy Policy
         </LoginFooterItem>
       </ListItem>
-    </React.Fragment>
+    </>
   );
 
   const loginForm = (
     <LoginForm
-      showHelperText={showHelperText}
-      helperText={helperText}
-      helperTextIcon={<ExclamationCircleIcon />}
       usernameLabel="Username"
       usernameValue={username}
       onChangeUsername={handleUsernameChange}
-      isValidUsername={isValidUsername}
       passwordLabel="Password"
       passwordValue={password}
       onChangePassword={handlePasswordChange}
-      isValidPassword={isValidPassword}
       onLoginButtonClick={handleSubmit}
       loginButtonLabel="Log in"
+      isLoginButtonDisabled={status === "loading"}
     />
   );
 
