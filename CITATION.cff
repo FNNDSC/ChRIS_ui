@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+title: ChRIS User Interface
+version: 2.0.0
+date-released: 2024-11-04
+repository-code: https://github.com/FNNDSC/ChRIS_ui
+license: MIT
+type: software
+authors:
+  - family-names: Pinto
+    given-names: Gideon
+  - family-names: Samal
+    given-names: Sandip
+  - family-names: Ruisel-Bernal
+    given-names: Jorge
+  - family-names: Zhang
+    given-names: Jennings
+    orcid: https://orcid.org/0000-0001-6473-3316
+  - family-names: Pienaar
+    given-names: Rudolph
+    orcid: https://orcid.org/0000-0002-8684-3185
+keywords:
+  - ChRIS
+  - web-based user interface
+  - medical imaging
+  - DICOM
+  - PACS
+abstract: |
+  ChRIS_ui is the reference user interface for the ChRIS project. This interface is a web-based
+  and communicates with the core underlying backend (CUBE) to provide a full and rich interface
+  experience, including an internal filesystem browser, many built-in image file type rendering
+  support, management of computational workflows, sharing of data and results, and much more.
+references:
+  - type: software
+    title: "ChRIS Backend"
+    url: "https://github.com/FNNDSC/ChRIS_ultron_backEnd"
