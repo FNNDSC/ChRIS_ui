@@ -44,7 +44,20 @@ export interface ActionState {
   [key: string]: boolean | string;
 }
 
-const fileTypes = ["nii", "dcm", "fsm", "crv", "smoothwm", "pial", "nii.gz"];
+/**
+ * List of file extensions of files which should be loaded from the network
+ * and given to the viewer component as base64 data instead of as a URI.
+ */
+const fileTypes = [
+  "nii",
+  "dcm",
+  "fsm",
+  "crv",
+  "smoothwm",
+  "pial",
+  "nii.gz",
+  "mgz",
+];
 
 const FileDetailView = (props: AllProps) => {
   const [tagInfo, setTagInfo] = React.useState<any>();
