@@ -18,7 +18,11 @@ import { useMediaQuery } from "react-responsive";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { clearCartOnLogout } from "../../store/cart/cartSlice";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useSignUpAllowed,
+} from "../../store/hooks";
 import { setLogoutSuccess } from "../../store/user/userSlice";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
@@ -34,7 +38,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   props: ToolbarComponentProps,
 ) => {
   const isSmallerScreen = useMediaQuery({ maxWidth: 1224 });
-
+  const { signUpAllowed } = useSignUpAllowed();
   const { token, titleComponent } = props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -164,13 +168,15 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
                   >
                     Login
                   </Button>
-                  <Button
-                    style={{ padding: "0.25em" }}
-                    variant="link"
-                    onClick={() => navigate("/signup")}
-                  >
-                    Sign Up
-                  </Button>
+                  {signUpAllowed && (
+                    <Button
+                      style={{ padding: "0.25em" }}
+                      variant="link"
+                      onClick={() => navigate("/signup")}
+                    >
+                      Sign Up
+                    </Button>
+                  )}
                 </>
               )}
             </FlexItem>
