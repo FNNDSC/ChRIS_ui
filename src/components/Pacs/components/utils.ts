@@ -1,4 +1,4 @@
-import { parse, format } from "date-fns";
+import { format, parse } from "date-fns";
 
 export const formatStudyDate = (studyDateString: string) => {
   // Parse the input string to a Date object
