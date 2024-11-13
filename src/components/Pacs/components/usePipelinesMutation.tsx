@@ -1,5 +1,5 @@
 import { LoadingOutlined } from "@ant-design/icons";
-import type { Pipeline, Feed } from "@fnndsc/chrisapi";
+import type { Feed, Pipeline } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
 import { notification } from "antd";
 import ChrisAPIClient from "../../../api/chrisapiclient";
@@ -9,7 +9,6 @@ type MutationPayload = {
   type: string;
   paths: string[];
   accessionNumber: string;
-  // Removed seriesInstanceUID since it's per path now
 };
 
 export const handlePipelineCreation = async (payload: MutationPayload) => {
