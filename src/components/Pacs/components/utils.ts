@@ -34,3 +34,21 @@ const getDayWithSuffix = (day: number) => {
       return `${day}th`;
   }
 };
+
+export function getBackgroundRowColor(
+  isSelected: boolean,
+  isDarkTheme: boolean,
+) {
+  const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
+
+  const backgroundRow = "inherit";
+  const selectedBgRow = isSelected ? backgroundColor : backgroundRow;
+
+  return selectedBgRow;
+}
+
+export function getSeriesPath(path: string): string {
+  const pathSegments = path.split("/");
+  const seriesPathSegments = pathSegments.slice(0, -1); // Remove last segments
+  return seriesPathSegments.join("/");
+}

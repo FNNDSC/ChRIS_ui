@@ -37,6 +37,10 @@ import PFDCMClient, { type DataFetchQuery } from "../pfdcmClient";
 import useSettings from "../useSettings";
 import { CardHeaderComponent } from "./SettingsComponents";
 import PQueue from "p-queue";
+import { Dropdown } from "antd";
+import { usePipelinesMutation } from "./usePipelinesMutation";
+import { ThemeContext } from "../../DarkTheme/useTheme";
+import { getBackgroundRowColor, getSeriesPath } from "./utils";
 
 async function getPacsFile(file: PACSFile["data"]) {
   const { id } = file;
@@ -50,8 +54,8 @@ async function getPacsFile(file: PACSFile["data"]) {
     }
   }
 }
-
-async function getTestData(
+// Renamed function from getTestData to fetchPACSFilesData
+async function fetchPACSFilesData(
   pacsIdentifier: string,
   pullQuery: DataFetchQuery,
   protocolName?: string,
@@ -117,6 +121,8 @@ const queue = new PQueue({ concurrency: 10 }); // Set concurrency limit here
 const SeriesCardCopy = ({ series }: { series: any }) => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
+  const selectedSeries = state.selectedSeries; // Accessed only once
+
   // Load user Preference Data
   const {
     data: userPreferenceData,
@@ -125,6 +131,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   } = useSettings();
   const userPreferences = userPreferenceData?.series;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
+
+  // Pipeline creation mutation
+  const { isDarkTheme } = useContext(ThemeContext);
+  const { mutate } = usePipelinesMutation();
 
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const { selectedPacsService, pullStudy, preview } = state;
@@ -140,7 +150,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const seriesInstanceUID = SeriesInstanceUID.value;
   const accessionNumber = AccessionNumber.value;
 
-  // disable the card completely in this case
+  // Disable the card completely in this case
   const isDisabled = seriesInstances === 0;
   // This flag controls the start/stop for polling cube for files and display progress indicators
   const [isFetching, setIsFetching] = useState(false);
@@ -176,7 +186,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   } = handleRetrieveMutation;
 
   // Polling cube files after a successful retrieve request from pfdcm;
-
   async function fetchCubeFiles() {
     try {
       if (isDisabled) {
@@ -194,7 +203,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       const [response, seriesRelatedInstance, pushCountInstance] =
         await Promise.all([
           queue.add(() =>
-            getTestData(
+            fetchPACSFilesData(
               selectedPacsService,
               pullQuery,
               "",
@@ -202,14 +211,14 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
             ),
           ),
           queue.add(() =>
-            getTestData(
+            fetchPACSFilesData(
               "org.fnndsc.oxidicom",
               pullQuery,
               "NumberOfSeriesRelatedInstances",
             ),
           ),
           queue.add(() =>
-            getTestData(
+            fetchPACSFilesData(
               "org.fnndsc.oxidicom",
               pullQuery,
               "OxidicomAttemptedPushCount",
@@ -290,10 +299,9 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     queryKey: [SeriesInstanceUID.value, StudyInstanceUID.value],
     queryFn: fetchCubeFiles,
     refetchInterval: () => {
-      // Only fetch after a successfull response from pfdcm
+      // Only fetch after a successful response from pfdcm
       // Decrease polling frequency to avoid overwhelming cube with network requests
-      if (isFetching) return 1500;
-      return false;
+      return 1500;
     },
     refetchOnMount: true,
   });
@@ -319,7 +327,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   useEffect(() => {
     // This is the preview all mode clicked on the study card
-
     async function fetchPacsFile() {
       try {
         const file = await getPacsFile(data?.fileToPreview);
@@ -328,14 +335,16 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           setFilePreviewForViewer(file);
         }
       } catch (e) {
-        //handle error
+        // Handle error
         if (e instanceof Error) {
           setPacsFileError(e.message);
         }
       }
     }
 
-    preview && data?.fileToPreview && fetchPacsFile();
+    if (preview && data?.fileToPreview) {
+      fetchPacsFile();
+    }
   }, [preview]);
 
   // Error and loading state indicators for retrieving from pfdcm and polling cube for files.
@@ -609,19 +618,79 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </CardHeader>
   );
 
-  return (
-    <Card
-      isDisabled={isDisabled}
-      isFlat={true}
-      isFullHeight={true}
-      isCompact={true}
-      isRounded={true}
-    >
-      {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
-      {data?.fileToPreview && largeFilePreview}
+  const items = [
+    {
+      key: "anonymize and push",
+      label: "Anonymize and Push",
+      icon: <DownloadIcon />,
+      disabled: selectedSeries.length === 0, // Use selectedSeries
+    },
+  ];
 
-      {pacsFileError && <Alert type="error" description={pacsFileError} />}
-    </Card>
+  // Get the series path for the current card
+  //@ts-ignore
+  const fname = data?.fileToPreview?.fname;
+  const seriesPath = fname ? getSeriesPath(fname) : "";
+
+  // Check if the current series is selected
+  const isSelected = selectedSeries.includes(seriesPath);
+
+  const backgroundColor = getBackgroundRowColor(isSelected, isDarkTheme);
+
+  return (
+    <Dropdown
+      aria-role="menu"
+      menu={{
+        items,
+        onClick: (info) => {
+          const clippedPaths = selectedSeries; // Paths are already series paths
+          mutate({
+            type: info.key,
+            paths: clippedPaths,
+            accessionNumber,
+          });
+        },
+      }}
+      trigger={["contextMenu"]}
+    >
+      <Card
+        isDisabled={isDisabled}
+        isFlat={true}
+        isFullHeight={true}
+        isCompact={true}
+        isRounded={true}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (seriesPath) {
+            if (!isSelected) {
+              dispatch({
+                type: Types.SET_SELECTED_SERIES,
+                payload: {
+                  path: seriesPath,
+                },
+              });
+            } else {
+              dispatch({
+                type: Types.REMOVE_SELECTED_SERIES,
+                payload: {
+                  path: seriesPath,
+                },
+              });
+            }
+          }
+        }}
+        style={{
+          backgroundColor,
+        }}
+      >
+        {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
+        {data?.fileToPreview && largeFilePreview}
+
+        {pacsFileError && <Alert type="error" description={pacsFileError} />}
+      </Card>
+    </Dropdown>
   );
 };
 

@@ -1,4 +1,4 @@
-import {
+import type {
   Feed,
   Plugin,
   PluginInstance,
@@ -10,10 +10,10 @@ import {
   limitConcurrency,
   uploadWrapper,
 } from "../../api/common";
-import { InputType } from "../AddNode/types";
+import type { InputType } from "../AddNode/types";
 import { unpackParametersIntoObject } from "../AddNode/utils";
-import { PipelineState } from "../PipelinesCopy/context";
-import { CreateFeedData } from "./types/feed";
+import type { PipelineState } from "../PipelinesCopy/context";
+import type { CreateFeedData } from "./types/feed";
 
 export const createFeed = async (
   data: CreateFeedData,
