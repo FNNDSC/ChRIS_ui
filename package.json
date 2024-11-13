@@ -8,6 +8,7 @@
     "dev": "npm run dev:local",
     "dev:local": "npm run test:prepare && vite",
     "dev:public": "vite -c testing/publicCUBE/vite.config.ts",
+    "dev:metal": "vite",
     "build": "vite build",
     "test": "vitest",
     "__test:prepare:comment": "# test:prepare runs CUBE locally and loads sample DICOM data into the PACS.",
