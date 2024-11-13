@@ -18,7 +18,7 @@ import {
   pluralize,
 } from "@patternfly/react-core";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
+import { Alert, Modal as AntModal, Form, Input } from "antd";
 import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -30,6 +30,7 @@ import {
   DownloadIcon,
   LibraryIcon,
   PreviewIcon,
+  SettingsIcon,
 } from "../../Icons";
 import FileDetailView from "../../Preview/FileDetailView";
 import { PacsQueryContext, Types } from "../context";
@@ -159,6 +160,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const [filePreviewForViewer, setFilePreviewForViewer] =
     useState<PACSFile | null>(null);
   const [pacsFileError, setPacsFileError] = useState("");
+  const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
 
   const pullQuery: DataFetchQuery = {
     StudyInstanceUID: studyInstanceUID,
@@ -622,8 +624,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     {
       key: "anonymize and push",
       label: "Anonymize and Push",
+      disabled: selectedSeries.length === 0,
       icon: <DownloadIcon />,
-      disabled: selectedSeries.length === 0, // Use selectedSeries
+    },
+    {
+      key: "configure",
+      label: "Configure anon and push",
+      icon: <SettingsIcon />,
     },
   ];
 
@@ -637,60 +644,106 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   const backgroundColor = getBackgroundRowColor(isSelected, isDarkTheme);
 
-  return (
-    <Dropdown
-      aria-role="menu"
-      menu={{
-        items,
-        onClick: (info) => {
-          const clippedPaths = selectedSeries; // Paths are already series paths
-          mutate({
-            type: info.key,
-            paths: clippedPaths,
-            accessionNumber,
-          });
-        },
-      }}
-      trigger={["contextMenu"]}
-    >
-      <Card
-        isDisabled={isDisabled}
-        isFlat={true}
-        isFullHeight={true}
-        isCompact={true}
-        isRounded={true}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
+  const [form] = Form.useForm();
+  const handleConfigureSubmit = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        // Handle form submission
 
-          if (seriesPath) {
-            if (!isSelected) {
-              dispatch({
-                type: Types.SET_SELECTED_SERIES,
-                payload: {
-                  path: seriesPath,
-                },
-              });
+        setIsConfigureModalOpen(false);
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  };
+
+  return (
+    <>
+      <Dropdown
+        aria-role="menu"
+        menu={{
+          items,
+          onClick: (info) => {
+            console.log("info", info);
+            if (info.key === "configure") {
+              setIsConfigureModalOpen(true);
             } else {
-              dispatch({
-                type: Types.REMOVE_SELECTED_SERIES,
-                payload: {
-                  path: seriesPath,
-                },
+              const clippedPaths = selectedSeries;
+              mutate({
+                type: info.key,
+                paths: clippedPaths,
+                accessionNumber,
               });
             }
-          }
+          },
         }}
-        style={{
-          backgroundColor,
-        }}
+        trigger={["contextMenu"]}
       >
-        {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
-        {data?.fileToPreview && largeFilePreview}
+        <Card
+          isDisabled={isDisabled}
+          isFlat={true}
+          isFullHeight={true}
+          isCompact={true}
+          isRounded={true}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-        {pacsFileError && <Alert type="error" description={pacsFileError} />}
-      </Card>
-    </Dropdown>
+            if (seriesPath) {
+              if (!isSelected) {
+                dispatch({
+                  type: Types.SET_SELECTED_SERIES,
+                  payload: {
+                    path: seriesPath,
+                  },
+                });
+              } else {
+                dispatch({
+                  type: Types.REMOVE_SELECTED_SERIES,
+                  payload: {
+                    path: seriesPath,
+                  },
+                });
+              }
+            }
+          }}
+          style={{
+            backgroundColor,
+          }}
+        >
+          {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
+          {data?.fileToPreview && largeFilePreview}
+
+          {pacsFileError && <Alert type="error" description={pacsFileError} />}
+        </Card>
+      </Dropdown>
+      {/* Configuration Modal */}
+      <AntModal
+        title="Configuration"
+        open={isConfigureModalOpen}
+        onOk={handleConfigureSubmit}
+        onCancel={() => setIsConfigureModalOpen(false)}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Input 1"
+            name="input1"
+            rules={[{ required: true, message: "Please input something!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Input 2"
+            name="input2"
+            rules={[{ required: true, message: "Please input something!" }]}
+          >
+            <Input />
+          </Form.Item>
+          {/* Add more input boxes as needed */}
+        </Form>
+      </AntModal>
+    </>
   );
 };
 
