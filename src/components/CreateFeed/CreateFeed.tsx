@@ -1,4 +1,4 @@
-import { Feed } from "@fnndsc/chrisapi";
+import type { Feed } from "@fnndsc/chrisapi";
 import {
   Button,
   Modal,
@@ -71,14 +71,13 @@ export default function CreateFeed() {
     router.actions.clearFeedData();
   };
 
-  const enableSave =
+  const enableSave = !!(
     data.chrisFiles.length > 0 ||
     data.localFiles.length > 0 ||
     Object.keys(requiredInput).length > 0 ||
     Object.keys(dropdownInput).length > 0 ||
     pluginMeta !== undefined
-      ? true
-      : false;
+  );
 
   const handleSave = async () => {
     setFeedProcessing(true);

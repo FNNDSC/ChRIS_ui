@@ -1,9 +1,9 @@
-import * as React from "react";
+import type * as React from "react";
 import { connect } from "react-redux";
-import { Dispatch } from "redux";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { IUserState } from "../../store/user/types";
+import type { Dispatch } from "redux";
+import type { ApplicationState } from "../../store/root/applicationState";
+import type { IUiState } from "../../store/ui/types";
+import type { IUserState } from "../../store/user/types";
 import { onSidebarToggle, setIsNavOpen } from "../../store/ui/actions";
 import { Page } from "@patternfly/react-core";
 import Header from "./Header";

@@ -10,10 +10,14 @@ import {
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
 import { useQuery } from "@tanstack/react-query";
 import { Alert } from "antd";
-import * as dicomParser from "dicom-parser";
-import React, { Fragment, ReactElement, useCallback } from "react";
+import * as dcmjs from "dcmjs";
+import React, { Fragment, type ReactElement, useCallback } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { IFileBlob, fileViewerMap, getFileExtension } from "../../api/model";
+import {
+  type IFileBlob,
+  fileViewerMap,
+  getFileExtension,
+} from "../../api/model";
 import { useTypedSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import {
@@ -26,7 +30,6 @@ import {
   ZoomIcon,
 } from "../Icons";
 import { TagInfoModal } from "./HelperComponent";
-import { dumpDataSet } from "./displays/dicomUtils/dicomDict";
 
 const ViewerDisplay = React.lazy(() => import("./displays/ViewerDisplay"));
 
@@ -95,34 +98,29 @@ const FileDetailView = (props: AllProps) => {
     };
   });
 
-  const displayTagInfo = useCallback((result: any) => {
-    const reader = new FileReader();
-
-    reader.onloadend = async () => {
-      try {
-        if (reader.result) {
-          //@ts-ignore
-          const byteArray = new Uint8Array(reader.result);
-          //@ts-ignore
-          const testOutput: any[] = [];
-          const output: any[] = [];
-          const dataSet = dicomParser.parseDicom(byteArray);
-          dumpDataSet(dataSet, output, testOutput);
-          const merged = Object.assign({}, ...testOutput);
-          setTagInfo(merged);
-        }
-      } catch (error) {
-        setError("Failed to parse the file for dicom tags");
-        return {
-          blob: undefined,
-          file: undefined,
-          fileType: "",
-        };
+  const displayTagInfo = useCallback(async () => {
+    try {
+      const blob = await selectedFile?.getFileBlob();
+      if (!blob) {
+        throw new Error("Failed to fetch the file");
       }
-    };
 
-    if (result) {
-      reader.readAsArrayBuffer(result);
+      const arrayBuffer = await blob.arrayBuffer();
+      const dicomData = dcmjs.data.DicomMessage.readFile(arrayBuffer);
+      const dataset = dcmjs.data.DicomMetaDictionary.naturalizeDataset(
+        dicomData.dict,
+      );
+      // Sort the dataset keys alphabetically
+      const sortedDataset = Object.keys(dataset)
+        .sort()
+        .reduce((sortedObj: any, key) => {
+          sortedObj[key] = dataset[key];
+          return sortedObj;
+        }, {});
+
+      setTagInfo(sortedDataset);
+    } catch (error) {
+      throw new Error("Failed to parse the file for DICOM tags");
     }
   }, []);
 
@@ -177,7 +175,7 @@ const FileDetailView = (props: AllProps) => {
 
   const handleEvents = (action: string, previouslyActive: string) => {
     if (action === "TagInfo" && data) {
-      displayTagInfo(data.blob);
+      displayTagInfo();
     }
     const currentAction = actionState[action];
     setActionState({
