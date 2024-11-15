@@ -29,6 +29,7 @@ import {
   Select,
   Button as AntButton,
   Space,
+  message,
 } from "antd";
 import axios from "axios";
 import PQueue from "p-queue";
@@ -713,8 +714,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           });
         }
       })
-      .catch((info) => {
-        console.log("Validate Failed:", info);
+      .catch(() => {
+        message.error(
+          "Form validation failed. Please check the highlighted fields.",
+        );
       });
   };
 
