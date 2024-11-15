@@ -670,12 +670,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     {
       key: "anonymize and push",
       label: "Anonymize and Push",
-      disabled: selectedSeries.length === 0,
+      disabled: selectedSeries.length === 0, // Disabled when no series is selected
       icon: <DownloadIcon />,
     },
     {
       key: "configure and push",
       label: "Configure anon and push",
+      disabled: selectedSeries.length === 0, // Disabled when no series is selected
       icon: <SettingsIcon />,
     },
   ];
@@ -741,6 +742,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           },
         }}
         trigger={["contextMenu"]}
+        onOpenChange={(open) => {
+          if (open && selectedSeries.length === 0) {
+            message.warning(
+              "Please select a series before running a pipeline.",
+            );
+          }
+        }}
       >
         <Card
           isDisabled={isDisabled}
@@ -845,7 +853,11 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                     );
 
                     return (
-                      <Form.Item required={false} key={field.key}>
+                      <Form.Item
+                        required={false}
+                        key={field.key}
+                        style={{ marginBottom: "2px" }}
+                      >
                         <Space.Compact style={{ display: "flex" }}>
                           <Form.Item
                             name={[field.name, "tag"]}
@@ -881,7 +893,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                             style={{
                               flexGrow: 1,
                               flexBasis: "60%",
-                              marginRight: "2px",
+                              marginRight: "4px",
                             }}
                             key={`value_${field.key}`} // Unique key
                           >
