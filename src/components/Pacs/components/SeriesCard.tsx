@@ -27,6 +27,8 @@ import {
   type FormListFieldData,
   Input,
   Select,
+  Button as AntButton,
+  Space,
 } from "antd";
 import axios from "axios";
 import PQueue from "p-queue";
@@ -76,7 +78,7 @@ async function getPacsFile(file: PACSFile["data"]) {
     }
   }
 }
-// Renamed function from getTestData to fetchPACSFilesData
+
 async function fetchPACSFilesData(
   pacsIdentifier: string,
   pullQuery: DataFetchQuery,
@@ -183,7 +185,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const [pacsFileError, setPacsFileError] = useState("");
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
   // Save form data for submission on "Anonymize and Push"
-  const [formData, setFormData] = useState<AnonymizeTags>({});
+  const [formData, setFormData] = useState<AnonymizeTags>(() => {
+    const savedFormData = localStorage.getItem("savedFormData");
+    return savedFormData ? JSON.parse(savedFormData) : {};
+  });
   const [form] = Form.useForm();
 
   const pullQuery: DataFetchQuery = {
@@ -375,7 +380,17 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   useEffect(() => {
     if (isConfigureModalOpen) {
-      form.setFieldsValue({ tags: [{}] });
+      const savedFormData = localStorage.getItem("savedFormData");
+      if (savedFormData) {
+        const parsedFormData = JSON.parse(savedFormData);
+        const tags = Object.entries(parsedFormData).map(([tag, value]) => ({
+          tag,
+          value,
+        }));
+        form.setFieldsValue({ tags });
+      } else {
+        form.setFieldsValue({ tags: [{}] });
+      }
     }
   }, [isConfigureModalOpen, form]);
 
@@ -658,7 +673,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       icon: <DownloadIcon />,
     },
     {
-      key: "configure",
+      key: "configure and push",
       label: "Configure anon and push",
       icon: <SettingsIcon />,
     },
@@ -677,15 +692,26 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     form
       .validateFields()
       .then((values) => {
-        const formData = {};
+        const newFormData: AnonymizeTags = {};
         values.tags.forEach((item: any) => {
           //@ts-ignore
-          formData[item.tag] = item.value;
+          newFormData[item.tag] = item.value;
         });
         // Update formData state
-        setFormData(formData);
-        // Handle form submission
+        setFormData(newFormData);
+        // Save formData to localStorage
+        localStorage.setItem("savedFormData", JSON.stringify(newFormData));
+        // Close the modal
         setIsConfigureModalOpen(false);
+        if (Object.keys(newFormData).length > 0) {
+          // Run the pipeline with formData
+          mutate({
+            type: "configure and push",
+            paths: selectedSeries,
+            accessionNumber,
+            formData: newFormData,
+          });
+        }
       })
       .catch((info) => {
         console.log("Validate Failed:", info);
@@ -699,16 +725,14 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         menu={{
           items,
           onClick: (info) => {
-            console.log("info", info);
-            if (info.key === "configure") {
+            if (info.key === "configure and push") {
               setIsConfigureModalOpen(true);
-            } else {
-              const clippedPaths = selectedSeries;
+            } else if (info.key === "anonymize and push") {
               mutate({
-                type: info.key,
-                paths: clippedPaths,
+                type: "anonymize and push",
+                paths: selectedSeries,
                 accessionNumber,
-                formData,
+                // No formData for default run
               });
             }
           },
@@ -758,11 +782,36 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         centered
         title="Configuration"
         open={isConfigureModalOpen}
-        onOk={handleConfigureSubmit}
         onCancel={() => setIsConfigureModalOpen(false)}
         destroyOnClose
         width={600}
-        style={{ top: 20 }}
+        footer={[
+          <AntButton
+            type="dashed"
+            key="clear"
+            onClick={() => {
+              localStorage.removeItem("savedFormData");
+              setFormData({});
+              form.setFieldsValue({ tags: [{}] });
+            }}
+          >
+            Clear Saved Values
+          </AntButton>,
+          <AntButton
+            type="dashed"
+            key="cancel"
+            onClick={() => setIsConfigureModalOpen(false)}
+          >
+            Cancel
+          </AntButton>,
+          <AntButton
+            type="primary"
+            key="submit"
+            onClick={handleConfigureSubmit}
+          >
+            Ok
+          </AntButton>,
+        ]}
       >
         <Form form={form} layout="horizontal">
           <Form.List name="tags">
@@ -794,9 +843,8 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
                     return (
                       <Form.Item required={false} key={field.key}>
-                        <Input.Group compact style={{ display: "flex" }}>
+                        <Space.Compact style={{ display: "flex" }}>
                           <Form.Item
-                            {...field}
                             name={[field.name, "tag"]}
                             rules={[
                               {
@@ -804,12 +852,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                                 message: "Please select a tag",
                               },
                             ]}
-                            className="full-width-row"
                             style={{
                               flexGrow: 1,
-                              flexBasis: "40%", // Adjust percentage as needed
+                              flexBasis: "40%",
                               marginRight: "2px",
                             }}
+                            key={`tag_${field.key}`} // Unique key
                           >
                             <Select
                               placeholder="Select tag"
@@ -820,7 +868,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                             />
                           </Form.Item>
                           <Form.Item
-                            {...field}
                             name={[field.name, "value"]}
                             rules={[
                               {
@@ -828,12 +875,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                                 message: "Please input a value",
                               },
                             ]}
-                            className="full-width-row"
                             style={{
                               flexGrow: 1,
-                              flexBasis: "60%", // Adjust percentage as needed
+                              flexBasis: "60%",
                               marginRight: "2px",
                             }}
+                            key={`value_${field.key}`} // Unique key
                           >
                             <Input
                               placeholder="Enter value"
@@ -844,7 +891,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                             />
                           </Form.Item>
                           {fields.length > 1 && (
-                            <Form.Item>
+                            <Form.Item key={`delete_${field.key}`}>
                               <MinusCircleOutlined
                                 onClick={() => {
                                   remove(field.name);
@@ -852,12 +899,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                                 style={{
                                   fontSize: "16px",
                                   cursor: "pointer",
-                                  verticalAlign: "center", // Center the delete icon vertically
+                                  verticalAlign: "center",
                                 }}
                               />
                             </Form.Item>
                           )}
-                        </Input.Group>
+                        </Space.Compact>
                       </Form.Item>
                     );
                   })}
