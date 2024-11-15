@@ -1,4 +1,5 @@
-import React, { createContext, useReducer, type Dispatch } from "react";
+import type React from "react";
+import { createContext, useReducer, type Dispatch, type Reducer } from "react";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -23,6 +24,8 @@ export enum Types {
   SET_PULL_STUDY = "SET_PULL_STUDY",
   SET_STUDY_PULL_TRACKER = "SET_STUDY_PULL_TRACKER",
   RESET_SEARCH_RESULTS = "RESET_SEARCH_RESULTS",
+  SET_SELECTED_SERIES = "SET_SELECTED_SERIES",
+  REMOVE_SELECTED_SERIES = "REMOVE_SELECTED_SERIES",
 }
 
 interface PacsQueryState {
@@ -41,9 +44,10 @@ interface PacsQueryState {
       [key: string]: boolean;
     };
   };
+  selectedSeries: any[];
 }
 
-const initialState = {
+const initialState: PacsQueryState = {
   selectedPacsService: "",
   pacsServices: [],
   currentQueryType: "PatientID",
@@ -53,6 +57,7 @@ const initialState = {
   preview: false,
   pullStudy: {},
   studyPullTracker: {},
+  selectedSeries: [],
 };
 
 type PacsQueryPayload = {
@@ -61,7 +66,7 @@ type PacsQueryPayload = {
   };
 
   [Types.SET_LIST_PACS_SERVICES]: {
-    pacsServices: ReadonlyArray<string>;
+    pacsServices: string[];
   };
 
   [Types.SET_CURRENT_QUERY_TYPE]: {
@@ -101,6 +106,13 @@ type PacsQueryPayload = {
     currentProgress: boolean;
   };
 
+  [Types.SET_SELECTED_SERIES]: {
+    path: string;
+  };
+  [Types.REMOVE_SELECTED_SERIES]: {
+    path: string;
+  };
+
   [Types.RESET_SEARCH_RESULTS]: null;
 };
 
@@ -120,7 +132,7 @@ export const QueryStages: {
 export function getIndex(value: string) {
   for (const key in QueryStages) {
     if (QueryStages[key] === value) {
-      return parseInt(key);
+      return Number.parseInt(key);
     }
   }
   return -1; // Return -1 if the value is not found in the object.
@@ -134,7 +146,10 @@ const PacsQueryContext = createContext<{
   dispatch: () => null,
 });
 
-const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
+const pacsQueryReducer: Reducer<PacsQueryState, PacsQueryActions> = (
+  state: PacsQueryState,
+  action: PacsQueryActions,
+) => {
   switch (action.type) {
     case Types.SET_LIST_PACS_SERVICES: {
       return {
@@ -161,6 +176,22 @@ const pacsQueryReducer = (state: PacsQueryState, action: PacsQueryActions) => {
       return {
         ...state,
         queryResult: [...state.queryResult, action.payload.queryResult],
+      };
+    }
+
+    case Types.SET_SELECTED_SERIES: {
+      return {
+        ...state,
+        selectedSeries: [...state.selectedSeries, action.payload.path],
+      };
+    }
+
+    case Types.REMOVE_SELECTED_SERIES: {
+      return {
+        ...state,
+        selectedSeries: state.selectedSeries.filter(
+          (series) => series !== action.payload.path,
+        ),
       };
     }
 

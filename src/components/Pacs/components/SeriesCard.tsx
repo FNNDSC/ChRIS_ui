@@ -1,3 +1,4 @@
+import { MinusCircleOutlined } from "@ant-design/icons";
 import type { PACSFile } from "@fnndsc/chrisapi";
 import {
   Badge,
@@ -18,25 +19,53 @@ import {
   pluralize,
 } from "@patternfly/react-core";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Alert } from "antd";
+import {
+  Alert,
+  Modal as AntModal,
+  Dropdown,
+  Form,
+  type FormListFieldData,
+  Input,
+  Select,
+  Button as AntButton,
+  Space,
+  message,
+} from "antd";
 import axios from "axios";
+import PQueue from "p-queue";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { MainRouterContext } from "../../../routes";
 import { DotsIndicator } from "../../Common";
+import { ThemeContext } from "../../DarkTheme/useTheme";
 import {
   CodeBranchIcon,
   DownloadIcon,
   LibraryIcon,
   PreviewIcon,
+  SettingsIcon,
 } from "../../Icons";
 import FileDetailView from "../../Preview/FileDetailView";
 import { PacsQueryContext, Types } from "../context";
 import PFDCMClient, { type DataFetchQuery } from "../pfdcmClient";
 import useSettings from "../useSettings";
 import { CardHeaderComponent } from "./SettingsComponents";
-import PQueue from "p-queue";
+import type { AnonymizeTags } from "./usePipelinesMutation";
+import { usePipelinesMutation } from "./usePipelinesMutation";
+import { getBackgroundRowColor, getSeriesPath } from "./utils";
+
+interface TagItem {
+  tag: string;
+  value: string;
+}
+
+const tagOptions = [
+  { label: "PatientName", value: "PatientName" },
+  { label: "PatientID", value: "PatientID" },
+  { label: "AccessionNumber", value: "AccessionNumber" },
+  { label: "PatientBirthDate", value: "PatientBirthDate" },
+];
 
 async function getPacsFile(file: PACSFile["data"]) {
   const { id } = file;
@@ -51,7 +80,7 @@ async function getPacsFile(file: PACSFile["data"]) {
   }
 }
 
-async function getTestData(
+async function fetchPACSFilesData(
   pacsIdentifier: string,
   pullQuery: DataFetchQuery,
   protocolName?: string,
@@ -117,6 +146,8 @@ const queue = new PQueue({ concurrency: 10 }); // Set concurrency limit here
 const SeriesCardCopy = ({ series }: { series: any }) => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
+  const selectedSeries = state.selectedSeries; // Accessed only once
+
   // Load user Preference Data
   const {
     data: userPreferenceData,
@@ -125,6 +156,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   } = useSettings();
   const userPreferences = userPreferenceData?.series;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
+
+  // Pipeline creation mutation
+  const { isDarkTheme } = useContext(ThemeContext);
+  const { mutate } = usePipelinesMutation();
 
   const createFeed = useContext(MainRouterContext).actions.createFeedWithData;
   const { selectedPacsService, pullStudy, preview } = state;
@@ -140,7 +175,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const seriesInstanceUID = SeriesInstanceUID.value;
   const accessionNumber = AccessionNumber.value;
 
-  // disable the card completely in this case
+  // Disable the card completely in this case
   const isDisabled = seriesInstances === 0;
   // This flag controls the start/stop for polling cube for files and display progress indicators
   const [isFetching, setIsFetching] = useState(false);
@@ -149,6 +184,13 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const [filePreviewForViewer, setFilePreviewForViewer] =
     useState<PACSFile | null>(null);
   const [pacsFileError, setPacsFileError] = useState("");
+  const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
+  // Save form data for submission on "Anonymize and Push"
+  const [formData, setFormData] = useState<AnonymizeTags>(() => {
+    const savedFormData = localStorage.getItem("savedFormData");
+    return savedFormData ? JSON.parse(savedFormData) : {};
+  });
+  const [form] = Form.useForm();
 
   const pullQuery: DataFetchQuery = {
     StudyInstanceUID: studyInstanceUID,
@@ -176,7 +218,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   } = handleRetrieveMutation;
 
   // Polling cube files after a successful retrieve request from pfdcm;
-
   async function fetchCubeFiles() {
     try {
       if (isDisabled) {
@@ -194,7 +235,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       const [response, seriesRelatedInstance, pushCountInstance] =
         await Promise.all([
           queue.add(() =>
-            getTestData(
+            fetchPACSFilesData(
               selectedPacsService,
               pullQuery,
               "",
@@ -202,14 +243,14 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
             ),
           ),
           queue.add(() =>
-            getTestData(
+            fetchPACSFilesData(
               "org.fnndsc.oxidicom",
               pullQuery,
               "NumberOfSeriesRelatedInstances",
             ),
           ),
           queue.add(() =>
-            getTestData(
+            fetchPACSFilesData(
               "org.fnndsc.oxidicom",
               pullQuery,
               "OxidicomAttemptedPushCount",
@@ -290,10 +331,9 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     queryKey: [SeriesInstanceUID.value, StudyInstanceUID.value],
     queryFn: fetchCubeFiles,
     refetchInterval: () => {
-      // Only fetch after a successfull response from pfdcm
+      // Only fetch after a successful response from pfdcm
       // Decrease polling frequency to avoid overwhelming cube with network requests
-      if (isFetching) return 1500;
-      return false;
+      return 1500;
     },
     refetchOnMount: true,
   });
@@ -319,7 +359,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   useEffect(() => {
     // This is the preview all mode clicked on the study card
-
     async function fetchPacsFile() {
       try {
         const file = await getPacsFile(data?.fileToPreview);
@@ -328,15 +367,33 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           setFilePreviewForViewer(file);
         }
       } catch (e) {
-        //handle error
+        // Handle error
         if (e instanceof Error) {
           setPacsFileError(e.message);
         }
       }
     }
 
-    preview && data?.fileToPreview && fetchPacsFile();
+    if (preview && data?.fileToPreview) {
+      fetchPacsFile();
+    }
   }, [preview]);
+
+  useEffect(() => {
+    if (isConfigureModalOpen) {
+      const savedFormData = localStorage.getItem("savedFormData");
+      if (savedFormData) {
+        const parsedFormData = JSON.parse(savedFormData);
+        const tags = Object.entries(parsedFormData).map(([tag, value]) => ({
+          tag,
+          value,
+        }));
+        form.setFieldsValue({ tags });
+      } else {
+        form.setFieldsValue({ tags: [{}] });
+      }
+    }
+  }, [isConfigureModalOpen, form]);
 
   // Error and loading state indicators for retrieving from pfdcm and polling cube for files.
   const isResourceBeingFetched = filesLoading || retrieveLoading;
@@ -609,19 +666,270 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </CardHeader>
   );
 
-  return (
-    <Card
-      isDisabled={isDisabled}
-      isFlat={true}
-      isFullHeight={true}
-      isCompact={true}
-      isRounded={true}
-    >
-      {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
-      {data?.fileToPreview && largeFilePreview}
+  const items = [
+    {
+      key: "anonymize and push",
+      label: "Anonymize and Push",
+      disabled: selectedSeries.length === 0, // Disabled when no series is selected
+      icon: <DownloadIcon />,
+    },
+    {
+      key: "configure and push",
+      label: "Configure anon and push",
+      disabled: selectedSeries.length === 0, // Disabled when no series is selected
+      icon: <SettingsIcon />,
+    },
+  ];
 
-      {pacsFileError && <Alert type="error" description={pacsFileError} />}
-    </Card>
+  // Get the series path for the current card
+  //@ts-ignore
+  const fname = data?.fileToPreview?.fname;
+  const seriesPath = fname ? getSeriesPath(fname) : "";
+
+  // Check if the current series is selected
+  const isSelected = selectedSeries.includes(seriesPath);
+  const backgroundColor = getBackgroundRowColor(isSelected, isDarkTheme);
+
+  const handleConfigureSubmit = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        const newFormData: AnonymizeTags = {};
+        values.tags.forEach((item: any) => {
+          //@ts-ignore
+          newFormData[item.tag] = item.value;
+        });
+        // Update formData state
+        setFormData(newFormData);
+        // Save formData to localStorage
+        localStorage.setItem("savedFormData", JSON.stringify(newFormData));
+        // Close the modal
+        setIsConfigureModalOpen(false);
+        if (Object.keys(newFormData).length > 0) {
+          // Run the pipeline with formData
+          mutate({
+            type: "configure and push",
+            paths: selectedSeries,
+            accessionNumber,
+            formData: newFormData,
+          });
+        }
+      })
+      .catch(() => {
+        message.error(
+          "Form validation failed. Please check the highlighted fields.",
+        );
+      });
+  };
+
+  return (
+    <>
+      <Dropdown
+        aria-role="menu"
+        menu={{
+          items,
+          onClick: (info) => {
+            if (info.key === "configure and push") {
+              setIsConfigureModalOpen(true);
+            } else if (info.key === "anonymize and push") {
+              mutate({
+                type: "anonymize and push",
+                paths: selectedSeries,
+                accessionNumber,
+                // No formData for default run
+              });
+            }
+          },
+        }}
+        trigger={["contextMenu"]}
+        onOpenChange={(open) => {
+          if (open && selectedSeries.length === 0) {
+            message.warning(
+              "Please select a series before running a pipeline.",
+            );
+          }
+        }}
+      >
+        <Card
+          isDisabled={isDisabled}
+          isFlat={true}
+          isFullHeight={true}
+          isCompact={true}
+          isRounded={true}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (seriesPath) {
+              if (!isSelected) {
+                dispatch({
+                  type: Types.SET_SELECTED_SERIES,
+                  payload: {
+                    path: seriesPath,
+                  },
+                });
+              } else {
+                dispatch({
+                  type: Types.REMOVE_SELECTED_SERIES,
+                  payload: {
+                    path: seriesPath,
+                  },
+                });
+              }
+            }
+          }}
+          style={{
+            backgroundColor,
+          }}
+        >
+          {preview && data?.fileToPreview ? filePreviewLayout : rowLayout}
+          {data?.fileToPreview && largeFilePreview}
+
+          {pacsFileError && <Alert type="error" description={pacsFileError} />}
+        </Card>
+      </Dropdown>
+      {/* Configuration Modal */}
+      <AntModal
+        centered
+        title="Configuration"
+        open={isConfigureModalOpen}
+        onCancel={() => setIsConfigureModalOpen(false)}
+        destroyOnClose
+        width={600}
+        footer={[
+          <AntButton
+            type="dashed"
+            key="clear"
+            onClick={() => {
+              localStorage.removeItem("savedFormData");
+              setFormData({});
+              form.setFieldsValue({ tags: [{}] });
+            }}
+          >
+            Clear Saved Values
+          </AntButton>,
+          <AntButton
+            type="dashed"
+            key="cancel"
+            onClick={() => setIsConfigureModalOpen(false)}
+          >
+            Cancel
+          </AntButton>,
+          <AntButton
+            type="primary"
+            key="submit"
+            onClick={handleConfigureSubmit}
+          >
+            Ok
+          </AntButton>,
+        ]}
+      >
+        <Form form={form} layout="horizontal">
+          <Form.List name="tags">
+            {(fields: FormListFieldData[], { add, remove }) => {
+              const selectedTags = (form.getFieldValue("tags") as TagItem[])
+                ?.map((item) => item?.tag)
+                .filter(Boolean);
+
+              const addFieldIfNeeded = () => {
+                const currentFields =
+                  (form.getFieldValue("tags") as TagItem[]) || [];
+                if (
+                  currentFields.length < tagOptions.length &&
+                  currentFields.every((field) => field.tag && field.value)
+                ) {
+                  add();
+                }
+              };
+
+              return (
+                <>
+                  {fields.map((field, index) => {
+                    const availableTags = tagOptions.filter(
+                      (option) =>
+                        !selectedTags?.includes(option.value) ||
+                        option.value ===
+                          form.getFieldValue(["tags", index, "tag"]),
+                    );
+
+                    return (
+                      <Form.Item
+                        required={false}
+                        key={field.key}
+                        style={{ marginBottom: "2px" }}
+                      >
+                        <Space.Compact style={{ display: "flex" }}>
+                          <Form.Item
+                            name={[field.name, "tag"]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please select a tag",
+                              },
+                            ]}
+                            style={{
+                              flexGrow: 1,
+                              flexBasis: "40%",
+                              marginRight: "2px",
+                            }}
+                            key={`tag_${field.key}`} // Unique key
+                          >
+                            <Select
+                              placeholder="Select tag"
+                              options={availableTags}
+                              onChange={() => {
+                                addFieldIfNeeded();
+                              }}
+                            />
+                          </Form.Item>
+                          <Form.Item
+                            name={[field.name, "value"]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please input a value",
+                              },
+                            ]}
+                            style={{
+                              flexGrow: 1,
+                              flexBasis: "60%",
+                              marginRight: "4px",
+                            }}
+                            key={`value_${field.key}`} // Unique key
+                          >
+                            <Input
+                              placeholder="Enter value"
+                              onPressEnter={(e) => {
+                                e.preventDefault();
+                                addFieldIfNeeded();
+                              }}
+                            />
+                          </Form.Item>
+                          {fields.length > 1 && (
+                            <Form.Item key={`delete_${field.key}`}>
+                              <MinusCircleOutlined
+                                onClick={() => {
+                                  remove(field.name);
+                                }}
+                                style={{
+                                  fontSize: "16px",
+                                  cursor: "pointer",
+                                  verticalAlign: "center",
+                                }}
+                              />
+                            </Form.Item>
+                          )}
+                        </Space.Compact>
+                      </Form.Item>
+                    );
+                  })}
+                </>
+              );
+            }}
+          </Form.List>
+        </Form>
+      </AntModal>
+    </>
   );
 };
 

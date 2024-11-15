@@ -10,3 +10,4 @@ declare module "rusha";
 declare module "hammerjs";
 declare module "preval.macro";
 declare module "@cornerstonejs/dicom-image-loader";
+declare module "dcmjs";
