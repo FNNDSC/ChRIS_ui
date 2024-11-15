@@ -4,7 +4,9 @@
   margin-top: 1em;
 }
 
-
+.full-width-row > .ant-row {
+  min-width: 100%;
+}
 
 .patient-studies,
 .patient-series {
