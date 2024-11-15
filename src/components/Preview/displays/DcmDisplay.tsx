@@ -1,27 +1,27 @@
-import { useEffect, useState, useRef } from "react";
+import type { RenderingEngine } from "@cornerstonejs/core";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { v4 } from "uuid";
 import {
   FileViewerModel,
-  IFileBlob,
+  type IFileBlob,
   getFileExtension,
 } from "../../../api/model";
+import { SpinContainer } from "../../Common";
+import useSize from "../../FeedTree/useSize";
+import type { ActionState } from "../FileDetailView";
 import {
-  displayDicomImage,
-  loadDicomImage,
-  basicInit,
-  handleEvents,
   type IStackViewport,
-  setUpTooling,
+  basicInit,
   cleanupCornerstoneTooling,
+  displayDicomImage,
+  handleEvents,
+  loadDicomImage,
   registerToolingOnce,
   removeTools,
+  setUpTooling,
 } from "./dicomUtils/utils";
-import useSize from "../../FeedTree/useSize";
-import { type ActionState } from "../FileDetailView";
 import { _loadImageIntoBuffer } from "./dicomUtils/webImageLoader";
-import { RenderingEngine } from "@cornerstonejs/core";
-import { v4 } from "uuid";
-import { useQuery } from "@tanstack/react-query";
-import { SpinContainer } from "../../Common";
 
 export type DcmImageProps = {
   fileItem: IFileBlob;

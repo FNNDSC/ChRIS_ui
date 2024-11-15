@@ -1,27 +1,27 @@
 import {
-  RenderingEngine,
-  init,
-  Types,
   Enums,
+  RenderingEngine,
+  type Types,
   imageLoader,
+  init,
   metaData,
   volumeLoader,
 } from "@cornerstonejs/core";
-import registerWebImageLoader from "./webImageLoader";
-import {
-  init as csToolsInit,
-  Types as CornerstoneToolTypes,
-} from "@cornerstonejs/tools";
-import dicomParser from "dicom-parser";
 import * as cornerstone from "@cornerstonejs/core";
-import * as cornerstoneTools from "@cornerstonejs/tools";
-import {
-  cornerstoneStreamingImageVolumeLoader,
-  cornerstoneStreamingDynamicImageVolumeLoader,
-} from "@cornerstonejs/streaming-image-volume-loader";
-import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
 import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+import {
+  cornerstoneStreamingDynamicImageVolumeLoader,
+  cornerstoneStreamingImageVolumeLoader,
+} from "@cornerstonejs/streaming-image-volume-loader";
+import {
+  type Types as CornerstoneToolTypes,
+  init as csToolsInit,
+} from "@cornerstonejs/tools";
+import * as cornerstoneTools from "@cornerstonejs/tools";
+import dicomParser from "dicom-parser";
+import hardcodedMetaDataProvider from "./hardcodedMetaDataProvider";
 import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
+import registerWebImageLoader from "./webImageLoader";
 
 //@ts-ignore
 window.cornerstone = cornerstone;

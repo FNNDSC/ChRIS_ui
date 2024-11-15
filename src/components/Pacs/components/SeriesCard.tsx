@@ -1,3 +1,4 @@
+import { MinusCircleOutlined } from "@ant-design/icons";
 import type { PACSFile } from "@fnndsc/chrisapi";
 import {
   Badge,
@@ -18,13 +19,23 @@ import {
   pluralize,
 } from "@patternfly/react-core";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Alert, Modal as AntModal, Form, Input } from "antd";
+import {
+  Alert,
+  Modal as AntModal,
+  Dropdown,
+  Form,
+  type FormListFieldData,
+  Input,
+  Select,
+} from "antd";
 import axios from "axios";
+import PQueue from "p-queue";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { MainRouterContext } from "../../../routes";
 import { DotsIndicator } from "../../Common";
+import { ThemeContext } from "../../DarkTheme/useTheme";
 import {
   CodeBranchIcon,
   DownloadIcon,
@@ -37,11 +48,21 @@ import { PacsQueryContext, Types } from "../context";
 import PFDCMClient, { type DataFetchQuery } from "../pfdcmClient";
 import useSettings from "../useSettings";
 import { CardHeaderComponent } from "./SettingsComponents";
-import PQueue from "p-queue";
-import { Dropdown } from "antd";
+import type { AnonymizeTags } from "./usePipelinesMutation";
 import { usePipelinesMutation } from "./usePipelinesMutation";
-import { ThemeContext } from "../../DarkTheme/useTheme";
 import { getBackgroundRowColor, getSeriesPath } from "./utils";
+
+interface TagItem {
+  tag: string;
+  value: string;
+}
+
+const tagOptions = [
+  { label: "PatientName", value: "PatientName" },
+  { label: "PatientID", value: "PatientID" },
+  { label: "AccessionNumber", value: "AccessionNumber" },
+  { label: "PatientBirthDate", value: "PatientBirthDate" },
+];
 
 async function getPacsFile(file: PACSFile["data"]) {
   const { id } = file;
@@ -161,6 +182,9 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     useState<PACSFile | null>(null);
   const [pacsFileError, setPacsFileError] = useState("");
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
+  // Save form data for submission on "Anonymize and Push"
+  const [formData, setFormData] = useState<AnonymizeTags>({});
+  const [form] = Form.useForm();
 
   const pullQuery: DataFetchQuery = {
     StudyInstanceUID: studyInstanceUID,
@@ -348,6 +372,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       fetchPacsFile();
     }
   }, [preview]);
+
+  useEffect(() => {
+    if (isConfigureModalOpen) {
+      form.setFieldsValue({ tags: [{}] });
+    }
+  }, [isConfigureModalOpen, form]);
 
   // Error and loading state indicators for retrieving from pfdcm and polling cube for files.
   const isResourceBeingFetched = filesLoading || retrieveLoading;
@@ -641,16 +671,20 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
   // Check if the current series is selected
   const isSelected = selectedSeries.includes(seriesPath);
-
   const backgroundColor = getBackgroundRowColor(isSelected, isDarkTheme);
 
-  const [form] = Form.useForm();
   const handleConfigureSubmit = () => {
     form
       .validateFields()
       .then((values) => {
+        const formData = {};
+        values.tags.forEach((item: any) => {
+          //@ts-ignore
+          formData[item.tag] = item.value;
+        });
+        // Update formData state
+        setFormData(formData);
         // Handle form submission
-
         setIsConfigureModalOpen(false);
       })
       .catch((info) => {
@@ -674,6 +708,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                 type: info.key,
                 paths: clippedPaths,
                 accessionNumber,
+                formData,
               });
             }
           },
@@ -720,27 +755,116 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       </Dropdown>
       {/* Configuration Modal */}
       <AntModal
+        centered
         title="Configuration"
         open={isConfigureModalOpen}
         onOk={handleConfigureSubmit}
         onCancel={() => setIsConfigureModalOpen(false)}
+        destroyOnClose
+        width={600}
+        style={{ top: 20 }}
       >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            label="Input 1"
-            name="input1"
-            rules={[{ required: true, message: "Please input something!" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label="Input 2"
-            name="input2"
-            rules={[{ required: true, message: "Please input something!" }]}
-          >
-            <Input />
-          </Form.Item>
-          {/* Add more input boxes as needed */}
+        <Form form={form} layout="horizontal">
+          <Form.List name="tags">
+            {(fields: FormListFieldData[], { add, remove }) => {
+              const selectedTags = (form.getFieldValue("tags") as TagItem[])
+                ?.map((item) => item?.tag)
+                .filter(Boolean);
+
+              const addFieldIfNeeded = () => {
+                const currentFields =
+                  (form.getFieldValue("tags") as TagItem[]) || [];
+                if (
+                  currentFields.length < tagOptions.length &&
+                  currentFields.every((field) => field.tag && field.value)
+                ) {
+                  add();
+                }
+              };
+
+              return (
+                <>
+                  {fields.map((field, index) => {
+                    const availableTags = tagOptions.filter(
+                      (option) =>
+                        !selectedTags?.includes(option.value) ||
+                        option.value ===
+                          form.getFieldValue(["tags", index, "tag"]),
+                    );
+
+                    return (
+                      <Form.Item required={false} key={field.key}>
+                        <Input.Group compact style={{ display: "flex" }}>
+                          <Form.Item
+                            {...field}
+                            name={[field.name, "tag"]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please select a tag",
+                              },
+                            ]}
+                            className="full-width-row"
+                            style={{
+                              flexGrow: 1,
+                              flexBasis: "40%", // Adjust percentage as needed
+                              marginRight: "2px",
+                            }}
+                          >
+                            <Select
+                              placeholder="Select tag"
+                              options={availableTags}
+                              onChange={() => {
+                                addFieldIfNeeded();
+                              }}
+                            />
+                          </Form.Item>
+                          <Form.Item
+                            {...field}
+                            name={[field.name, "value"]}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Please input a value",
+                              },
+                            ]}
+                            className="full-width-row"
+                            style={{
+                              flexGrow: 1,
+                              flexBasis: "60%", // Adjust percentage as needed
+                              marginRight: "2px",
+                            }}
+                          >
+                            <Input
+                              placeholder="Enter value"
+                              onPressEnter={(e) => {
+                                e.preventDefault();
+                                addFieldIfNeeded();
+                              }}
+                            />
+                          </Form.Item>
+                          {fields.length > 1 && (
+                            <Form.Item>
+                              <MinusCircleOutlined
+                                onClick={() => {
+                                  remove(field.name);
+                                }}
+                                style={{
+                                  fontSize: "16px",
+                                  cursor: "pointer",
+                                  verticalAlign: "center", // Center the delete icon vertically
+                                }}
+                              />
+                            </Form.Item>
+                          )}
+                        </Input.Group>
+                      </Form.Item>
+                    );
+                  })}
+                </>
+              );
+            }}
+          </Form.List>
         </Form>
       </AntModal>
     </>
