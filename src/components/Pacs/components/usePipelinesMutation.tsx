@@ -16,7 +16,7 @@ export type AnonymizeTags = { [tagName: string]: string };
 
 export const handlePipelineCreation = async (payload: MutationPayload) => {
   const { type, paths, accessionNumber, formData } = payload;
-  if (type !== "anonymize and push") return;
+  if (type !== "anonymize and push" && type !== "configure and push") return;
 
   const client = ChrisAPIClient.getClient();
   const dircopy = await getPlugin("pl-dircopy");
@@ -26,7 +26,7 @@ export const handlePipelineCreation = async (payload: MutationPayload) => {
 
   try {
     const pipelineList = await client.getPipelines({
-      name: "DICOM anonymization, extract, image conversion v20231027",
+      name: "DICOM anonymization simple v20230926",
     });
     const pipelines = pipelineList.getItems() as Pipeline[];
     if (pipelines.length === 0) {
@@ -66,9 +66,12 @@ export const handlePipelineCreation = async (payload: MutationPayload) => {
     );
     const targetNode = nodes_info.find((node) => node.piping_id === piping.id);
 
-    if (targetNode && formData && tagInfoParam) {
-      const updatedTagInfoParam = updateTagInfoParam(tagInfoParam, formData);
-      targetNode.plugin_parameter_defaults = [updatedTagInfoParam];
+    if (targetNode) {
+      if (type === "configure and push" && formData && tagInfoParam) {
+        const updatedTagInfoParam = updateTagInfoParam(tagInfoParam, formData);
+        targetNode.plugin_parameter_defaults = [updatedTagInfoParam];
+      }
+      // For "anonymize and push", keep default parameters
     }
 
     const feeds: Feed[] = [];
@@ -161,25 +164,28 @@ export const usePipelinesMutation = () => {
 function updateTagInfoParam(tagInfoParam: any, formData: AnonymizeTags): any {
   const tagMap: { [key: string]: string } = {};
 
+  // Handle cases where tagInfoParam.value might be undefined or empty
+  const existingValue = tagInfoParam.value || "";
+
   // Split the existing value into tag-value pairs and populate tagMap
-  tagInfoParam.value.split(" ++ ").forEach((pair: string) => {
-    const [tagName, value] = pair.split(",");
+  existingValue.split(",").forEach((pair: string) => {
+    const [tagName, value] = pair.split("=");
     if (tagName && value) {
-      tagMap[tagName] = value;
+      tagMap[tagName.trim()] = value.trim();
     }
   });
 
   // Update tagMap with formData values
   Object.entries(formData).forEach(([tagName, formValue]) => {
     if (formValue) {
-      tagMap[tagName] = formValue;
+      tagMap[tagName.trim()] = formValue.trim();
     }
   });
 
   // Reconstruct the updated 'value' string
   const updatedValue = Object.entries(tagMap)
-    .map(([tagName, value]) => `${tagName},${value}`)
-    .join(" ++ ");
+    .map(([tagName, value]) => `${tagName}=${value}`)
+    .join(",");
 
   return { name: "tagInfo", default: updatedValue };
 }
