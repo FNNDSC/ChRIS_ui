@@ -63,8 +63,10 @@ interface TagItem {
 const tagOptions = [
   { label: "PatientName", value: "PatientName" },
   { label: "PatientID", value: "PatientID" },
-  { label: "AccessionNumber", value: "AccessionNumber" },
   { label: "PatientBirthDate", value: "PatientBirthDate" },
+  { label: "InstitutionName", value: "InstitutionName" },
+  { label: "ReferringPhysicianName", value: "ReferringPhysicianName" },
+  { label: "AccessionNumber", value: "AccessionNumber" },
 ];
 
 async function getPacsFile(file: PACSFile["data"]) {
@@ -118,8 +120,6 @@ async function fetchPACSFilesData(
       if (error.request) {
         throw new Error("Error: No response received from server.");
       }
-      // Something else happened while setting up the request
-
       throw new Error(`Error: ${error.message}`);
     }
 
@@ -136,19 +136,13 @@ function getLatestPACSFile(pacsFiles: PACSFile["data"][]) {
   });
 }
 
-/**
- * The browser's limit on the number of concurrent connections to the same domain, which can result in requests being blocked if too many are fired simultaneously.
- * To manage this, we implement a queue system to control the concurrency of your async requests.
- */
-
-const queue = new PQueue({ concurrency: 10 }); // Set concurrency limit here
+const queue = new PQueue({ concurrency: 10 });
 
 const SeriesCardCopy = ({ series }: { series: any }) => {
   const navigate = useNavigate();
   const { state, dispatch } = useContext(PacsQueryContext);
-  const selectedSeries = state.selectedSeries; // Accessed only once
+  const selectedSeries = state.selectedSeries;
 
-  // Load user Preference Data
   const {
     data: userPreferenceData,
     isLoading: userDataLoading,
@@ -157,7 +151,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const userPreferences = userPreferenceData?.series;
   const userPreferencesArray = userPreferences && Object.keys(userPreferences);
 
-  // Pipeline creation mutation
   const { isDarkTheme } = useContext(ThemeContext);
   const { mutate } = usePipelinesMutation();
 
@@ -175,9 +168,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   const seriesInstanceUID = SeriesInstanceUID.value;
   const accessionNumber = AccessionNumber.value;
 
-  // Disable the card completely in this case
   const isDisabled = seriesInstances === 0;
-  // This flag controls the start/stop for polling cube for files and display progress indicators
   const [isFetching, setIsFetching] = useState(false);
   const [openSeriesPreview, setOpenSeriesPreview] = useState(false);
   const [isPreviewFileAvailable, setIsPreviewFileAvailable] = useState(false);
@@ -185,11 +176,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     useState<PACSFile | null>(null);
   const [pacsFileError, setPacsFileError] = useState("");
   const [isConfigureModalOpen, setIsConfigureModalOpen] = useState(false);
-  // Save form data for submission on "Anonymize and Push"
-  const [formData, setFormData] = useState<AnonymizeTags>(() => {
-    const savedFormData = localStorage.getItem("savedFormData");
-    return savedFormData ? JSON.parse(savedFormData) : {};
-  });
+
   const [form] = Form.useForm();
 
   const pullQuery: DataFetchQuery = {
@@ -197,14 +184,12 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     SeriesInstanceUID: seriesInstanceUID,
   };
 
-  // Handle Retrieve Request
   const handleRetrieveMutation = useMutation({
     mutationFn: async () => {
       try {
         await client.findRetrieve(selectedPacsService, pullQuery);
         setIsFetching(true);
       } catch (e) {
-        // Don't poll if the request fails
         // biome-ignore lint/complexity/noUselessCatch: <explanation>
         throw e;
       }
@@ -217,11 +202,9 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     error: retrieveErrorMessage,
   } = handleRetrieveMutation;
 
-  // Polling cube files after a successful retrieve request from pfdcm;
   async function fetchCubeFiles() {
     try {
       if (isDisabled) {
-        // Cancel polling for files that have zero number of series instances
         setIsFetching(false);
         return {
           fileToPreview: null,
@@ -231,7 +214,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
 
       const middleValue = Math.floor(seriesInstances / 2);
 
-      // Perform these three requests in parallel
       const [response, seriesRelatedInstance, pushCountInstance] =
         await Promise.all([
           queue.add(() =>
@@ -258,7 +240,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           ),
         ]);
 
-      // Process the response
       const fileItems = response.results;
       let fileToPreview: PACSFile | null = null;
       if (fileItems.length > 0) {
@@ -268,11 +249,9 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       const totalFilesCount = response.count;
 
       if (totalFilesCount >= middleValue) {
-        // Pick the middle image of the stack for preview. Set to true if that file is available
         setIsPreviewFileAvailable(true);
       }
 
-      // Get the series related instance in cube
       const seriesRelatedInstanceList = seriesRelatedInstance.results;
       const pushCountInstanceList = pushCountInstance.results;
 
@@ -292,13 +271,10 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
         pushCount = +pushCountLatest.SeriesDescription;
 
         if (pushCount > 0 && pushCount === totalFilesCount && isFetching) {
-          // This means oxidicom is done pushing as the push count file is available
-          // Cancel polling
           setIsFetching(false);
         }
       }
 
-      // Setting the study instance tracker if pull study is clicked
       if (pullStudy?.[accessionNumber]) {
         dispatch({
           type: Types.SET_STUDY_PULL_TRACKER,
@@ -331,21 +307,17 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     queryKey: [SeriesInstanceUID.value, StudyInstanceUID.value],
     queryFn: fetchCubeFiles,
     refetchInterval: () => {
-      // Only fetch after a successful response from pfdcm
-      // Decrease polling frequency to avoid overwhelming cube with network requests
       return 1500;
     },
     refetchOnMount: true,
   });
 
-  // Retrieve this series if the pull study is clicked and the series is not already being retrieved.
   useEffect(() => {
     if (pullStudy[accessionNumber] && !isFetching) {
       setIsFetching(true);
     }
   }, [pullStudy[accessionNumber]]);
 
-  // Start polling from where the user left off in case the user refreshed the screen.
   useEffect(() => {
     if (
       data &&
@@ -358,7 +330,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
   }, [data]);
 
   useEffect(() => {
-    // This is the preview all mode clicked on the study card
     async function fetchPacsFile() {
       try {
         const file = await getPacsFile(data?.fileToPreview);
@@ -367,7 +338,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           setFilePreviewForViewer(file);
         }
       } catch (e) {
-        // Handle error
         if (e instanceof Error) {
           setPacsFileError(e.message);
         }
@@ -395,7 +365,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     }
   }, [isConfigureModalOpen, form]);
 
-  // Error and loading state indicators for retrieving from pfdcm and polling cube for files.
   const isResourceBeingFetched = filesLoading || retrieveLoading;
   const resourceErrorFound = filesError || retrieveFetchError;
   const errorMessages = filesErrorMessage
@@ -410,7 +379,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     </HelperText>
   );
 
-  // This is opened when the 'preview' button is clicked
   const largeFilePreview = filePreviewForViewer && (
     <Modal
       variant={ModalVariant.large}
@@ -500,7 +468,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                   navigate(`/library/${url}`);
                 }
               } catch (e) {
-                // Handle Error
                 if (e instanceof Error) {
                   setPacsFileError(e.message);
                 }
@@ -541,7 +508,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       onClick={() => {
         handleRetrieveMutation.mutate();
       }}
-      // Only when the number of series related instances in a series is 0
       isDisabled={isDisabled}
     />
   );
@@ -670,23 +636,21 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
     {
       key: "anonymize and push",
       label: "Anonymize and Push",
-      disabled: selectedSeries.length === 0, // Disabled when no series is selected
+      disabled: selectedSeries.length === 0,
       icon: <DownloadIcon />,
     },
     {
       key: "configure and push",
-      label: "Configure anon and push",
-      disabled: selectedSeries.length === 0, // Disabled when no series is selected
+      label: "Configure Anonymization and Push",
+      disabled: selectedSeries.length === 0,
       icon: <SettingsIcon />,
     },
   ];
 
-  // Get the series path for the current card
   //@ts-ignore
   const fname = data?.fileToPreview?.fname;
   const seriesPath = fname ? getSeriesPath(fname) : "";
 
-  // Check if the current series is selected
   const isSelected = selectedSeries.includes(seriesPath);
   const backgroundColor = getBackgroundRowColor(isSelected, isDarkTheme);
 
@@ -696,17 +660,11 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
       .then((values) => {
         const newFormData: AnonymizeTags = {};
         values.tags.forEach((item: any) => {
-          //@ts-ignore
           newFormData[item.tag] = item.value;
         });
-        // Update formData state
-        setFormData(newFormData);
-        // Save formData to localStorage
         localStorage.setItem("savedFormData", JSON.stringify(newFormData));
-        // Close the modal
         setIsConfigureModalOpen(false);
         if (Object.keys(newFormData).length > 0) {
-          // Run the pipeline with formData
           mutate({
             type: "configure and push",
             paths: selectedSeries,
@@ -736,7 +694,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                 type: "anonymize and push",
                 paths: selectedSeries,
                 accessionNumber,
-                // No formData for default run
+                formData: {},
               });
             }
           },
@@ -788,7 +746,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
           {pacsFileError && <Alert type="error" description={pacsFileError} />}
         </Card>
       </Dropdown>
-      {/* Configuration Modal */}
       <AntModal
         centered
         title="Configuration"
@@ -802,7 +759,6 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
             key="clear"
             onClick={() => {
               localStorage.removeItem("savedFormData");
-              setFormData({});
               form.setFieldsValue({ tags: [{}] });
             }}
           >
@@ -872,7 +828,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                               flexBasis: "40%",
                               marginRight: "2px",
                             }}
-                            key={`tag_${field.key}`} // Unique key
+                            key={`tag_${field.key}`}
                           >
                             <Select
                               placeholder="Select tag"
@@ -895,7 +851,7 @@ const SeriesCardCopy = ({ series }: { series: any }) => {
                               flexBasis: "60%",
                               marginRight: "4px",
                             }}
-                            key={`value_${field.key}`} // Unique key
+                            key={`value_${field.key}`}
                           >
                             <Input
                               placeholder="Enter value"
