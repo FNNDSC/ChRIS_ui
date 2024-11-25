@@ -64,8 +64,8 @@ const tagOptions = [
   { label: "PatientName", value: "PatientName" },
   { label: "PatientID", value: "PatientID" },
   { label: "PatientBirthDate", value: "PatientBirthDate" },
-  { label: "InstitutionName", value: "InstitutionName" },
-  { label: "ReferringPhysicianName", value: "ReferringPhysicianName" },
+  { label: "Institution", value: "Institution" },
+  { label: "Physician", value: "Physician" },
   { label: "AccessionNumber", value: "AccessionNumber" },
 ];
 
