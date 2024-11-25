@@ -31,7 +31,7 @@ export const handlePipelineCreation = async (payload: MutationPayload) => {
     const pipelines = pipelineList.getItems() as Pipeline[];
     if (pipelines.length === 0) {
       throw new Error(
-        "The pipeline 'DICOM anonymization, extract, image conversion v20231027' is not registered.",
+        "The pipeline 'DICOM anonymization simple v20230926' is not registered.",
       );
     }
     const selectedPipeline = pipelines[0];
@@ -175,10 +175,18 @@ function updateTagInfoParam(tagInfoParam: any, formData: AnonymizeTags): any {
     }
   });
 
-  // Update tagMap with formData values
+  // Update tagMap with formData values without adding the "Institution" or "Physician" keys directly
   Object.entries(formData).forEach(([tagName, formValue]) => {
     if (formValue) {
-      tagMap[tagName.trim()] = formValue.trim();
+      let formattedTagName = tagName.trim();
+      if (tagName === "Institution") {
+        // Map "Institution" to "re:.*stitution"
+        formattedTagName = "re:.*stitution";
+      } else if (tagName === "Physician") {
+        // Map "Physician" to "re:.*hysician"
+        formattedTagName = "re:.*hysician";
+      }
+      tagMap[formattedTagName] = formValue.trim();
     }
   });
 
