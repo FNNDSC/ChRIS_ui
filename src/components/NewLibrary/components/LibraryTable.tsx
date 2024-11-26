@@ -5,7 +5,6 @@ import type {
 } from "@fnndsc/chrisapi";
 import { Button, Skeleton } from "@patternfly/react-core";
 import {
-  Caption,
   type ISortBy,
   type OnSort,
   type SortByDirection,
@@ -15,6 +14,7 @@ import {
   Th,
   Thead,
   Tr,
+  TableText,
 } from "@patternfly/react-table";
 import { Drawer, Tag } from "antd";
 import { format } from "date-fns";
@@ -34,7 +34,7 @@ import useNewResourceHighlight from "../utils/useNewResourceHighlight";
 import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
-import TruncatedText from "./TruncatedText";
+
 import { DicomCacheProvider } from "../../Preview/displays/DicomCacheContext";
 
 interface TableProps {
@@ -94,8 +94,9 @@ const BaseRow: React.FC<RowProps> = ({
   const { handlers } = useLongPress();
   const { handleOnClick, handleCheckboxChange } = handlers;
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
-  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
+  const { isDarkTheme } = useContext(ThemeContext);
   const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
+
   const isSelected =
     selectedPaths.length > 0 &&
     selectedPaths.some((payload) => {
@@ -105,18 +106,17 @@ const BaseRow: React.FC<RowProps> = ({
       if (type === "file") {
         return payload.path === resource.data.fname;
       }
+      return false;
     });
+
   const shouldHighlight = isNewResource || isSelected;
   const highlightedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
-  const icon = getIcon(type, isDarkTheme, {
-    marginRight: "0.5em",
-  });
+  const icon = getIcon(type, isDarkTheme, { marginRight: "0.5em" });
+
   const handleItem = () => {
     if (type === "folder") {
       handleFolderClick();
-    } else if (type === "link") {
-      handleFileClick();
-    } else if (type === "file") {
+    } else if (type === "link" || type === "file") {
       handleFileClick();
     }
   };
@@ -125,10 +125,11 @@ const BaseRow: React.FC<RowProps> = ({
     type === "folder" || type === "link"
       ? resource.data.path
       : resource.data.fname;
+
   return (
     <FolderContextMenu origin={origin} key={path} computedPath={computedPath}>
       <Tr
-        ref={scrollToNewResource} // Attach the ref to the row
+        ref={scrollToNewResource}
         style={{ background: highlightedBgRow, cursor: "pointer" }}
         onClick={(e) => {
           e.stopPropagation();
@@ -143,7 +144,6 @@ const BaseRow: React.FC<RowProps> = ({
         isRowSelected={isSelected}
       >
         <Td
-          onClick={(e) => e.stopPropagation()}
           select={{
             rowIndex: rowIndex,
             onSelect: (event) =>
@@ -151,35 +151,58 @@ const BaseRow: React.FC<RowProps> = ({
             isSelected: isSelected,
           }}
         />
-        <Td dataLabel={columnNames.name} modifier="truncate">
-          <Button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleItem();
-            }}
-            style={{ padding: "0.25em" }}
-            icon={icon}
-            variant="link"
+        {/* Name Column */}
+        <Td dataLabel={columnNames.name} modifier="nowrap">
+          <div style={{ display: "flex", alignItems: "center" }}>
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+            <div
+              onClick={handleItem}
+              style={{ cursor: "pointer", color: "#1fa7f8" }}
+            >
+              {icon}
+            </div>
+            <TableText
+              wrapModifier="truncate"
+              tooltip={name}
+              style={{
+                cursor: "pointer",
+                marginLeft: "0.5em",
+                color: "#1fa7f8",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleItem();
+              }}
+            >
+              {name}
+            </TableText>
+            {isNewResource && (
+              <span style={{ marginLeft: "0.5em" }}>
+                <Tag color="#3E8635">Newly Added</Tag>
+              </span>
+            )}
+          </div>
+        </Td>
+        {/* Date Column */}
+        <Td dataLabel={columnNames.date} modifier="nowrap">
+          <TableText
+            wrapModifier="truncate"
+            tooltip={format(new Date(date), "dd MMM yyyy, HH:mm")}
           >
-            <TruncatedText text={name} className="pf-c-button__text" />
-          </Button>
-          {isNewResource && (
-            <span style={{ marginLeft: "0.5em" }}>
-              <Tag color="#3E8635">Newly Added</Tag>
-            </span>
-          )}
+            {format(new Date(date), "dd MMM yyyy, HH:mm")}
+          </TableText>
         </Td>
-        <Td dataLabel={columnNames.date} modifier="truncate">
-          <TruncatedText text={format(new Date(date), "dd MMM yyyy, HH:mm")} />
-        </Td>
+        {/* Owner Column (if applicable) */}
         {origin.type !== "fileBrowser" && (
-          <Td dataLabel={columnNames.owner} modifier="truncate">
-            <TruncatedText text={owner} />
+          <Td dataLabel={columnNames.owner} modifier="nowrap">
+            <TableText wrapModifier="truncate" tooltip={owner}>
+              {owner}
+            </TableText>
           </Td>
         )}
-
-        <Td dataLabel={columnNames.size} modifier="truncate">
-          {size > 0 ? formatBytes(size, 0) : " "}
+        {/* Size Column */}
+        <Td dataLabel={columnNames.size} modifier="nowrap">
+          <TableText>{size > 0 ? formatBytes(size, 0) : " "}</TableText>
         </Td>
       </Tr>
     </FolderContextMenu>
