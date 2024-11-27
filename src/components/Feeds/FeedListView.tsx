@@ -431,7 +431,6 @@ const TableRow: React.FC<TableRowProps> = ({
           });
         }}
         isRowSelected={isSelected}
-        role="row"
       >
         <Td
           onClick={(e) => e.stopPropagation()}
@@ -486,52 +485,42 @@ const TableRow: React.FC<TableRowProps> = ({
   );
 };
 
-const DonutUtilization = (props: {
-  details: any;
-}) => {
-  const isDarkTheme = useContext(ThemeContext).isDarkTheme;
-  const { details } = props;
+const DonutUtilization = ({ details }: { details: any }) => {
+  const { isDarkTheme } = useContext(ThemeContext);
 
   if (!details) {
     return <div>N/A</div>;
   }
-  let threshold = Number.POSITIVE_INFINITY;
-  const { progress, error: feedError } = details;
-  let title = `${progress ?? 0}%`;
-  let color = "blue";
-  let ariaLabel = `Progress: ${progress ?? 0}%`;
-  if (feedError) {
-    color = "#ff0000";
-    threshold = progress;
-    ariaLabel = "Error in feed processing";
-  }
 
-  // If initial node in a feed fails
-  if (progress === 0 && feedError) {
-    color = "#00ff00";
-    title = "❌";
-  }
-  // If progress less than 100%, display green
-  if (progress < 100 && !feedError) {
-    color = "#00ff00";
+  const { progress = 0, error: feedError, feedProgressText } = details;
+
+  let title = `${progress}%`;
+  let color = "#0066cc"; // Default blue color
+  let threshold = 100; // Default threshold at 100%
+
+  // Determine color and title based on progress and error status
+  if (feedError) {
+    color = "#ff0000"; // Red color for errors
     threshold = progress;
-  }
-  if (progress === 100) {
+  } else if (progress === 100) {
     title = "✔️";
-    ariaLabel = "Feed processing complete";
+  } else {
+    color = "#00ff00"; // Green color for in-progress
+    threshold = progress;
   }
 
   const mode = isDarkTheme ? "dark" : "light";
 
   return (
-    <Tooltip content={`Progress: ${details.progress}%`}>
+    <Tooltip content={`Progress: ${progress}%`}>
       <div className={`chart ${mode}`}>
         <ChartDonutUtilization
-          ariaTitle={ariaLabel}
-          data={{ x: "Analysis Progress", y: progress }}
+          ariaTitle={feedProgressText}
+          data={{ x: "Analysis", y: progress }} // Set x to empty string to remove label
+          labels={() => null}
           height={125}
           title={title}
-          thresholds={[{ value: threshold, color: color }]}
+          thresholds={[{ value: threshold, color }]}
           width={125}
         />
       </div>
