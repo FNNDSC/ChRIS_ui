@@ -26,7 +26,7 @@ const SCALE_EXTENT = { min: 0.1, max: 1.5 };
 const INITIAL_SCALE = 1;
 const SEPARATION = {
   siblings: 0.75,
-  nonSiblings: 2.0,
+  nonSiblings: 0.75,
 };
 const SVG_CLASS_NAME = "feed-tree__svg";
 const GRAPH_CLASS_NAME = "feed-tree__graph";
