@@ -113,6 +113,9 @@ importers:
       pako:
         specifier: ^1.0.11
         version: 1.0.11
+      papaparse:
+        specifier: ^5.4.1
+        version: 5.4.1
       preval.macro:
         specifier: ^5.0.0
         version: 5.0.0
@@ -3118,6 +3121,9 @@ packages:
   pako@2.1.0:
     resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
 
+  papaparse@5.4.1:
+    resolution: {integrity: sha512-HipMsgJkZu8br23pW15uvo6sib6wne/4woLZPlFf3rpDyMe9ywEXUsuD7+6K9PRkJlVT51j/sCOYDKGGS3ZJrw==}
+
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -5103,7 +5109,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/types': 7.25.4
+      '@babel/types': 7.26.0
       esutils: 2.0.3
 
   '@babel/runtime-corejs3@7.25.9':
@@ -6202,8 +6208,8 @@ snapshots:
 
   autoprefixer@10.4.20(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.3
-      caniuse-lite: 1.0.30001653
+      browserslist: 4.24.2
+      caniuse-lite: 1.0.30001669
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.0
@@ -6389,7 +6395,7 @@ snapshots:
 
   core-js-compat@3.38.1:
     dependencies:
-      browserslist: 4.23.3
+      browserslist: 4.24.2
 
   core-js-pure@3.38.1: {}
 
@@ -7506,6 +7512,8 @@ snapshots:
   pako@1.0.11: {}
 
   pako@2.1.0: {}
+
+  papaparse@5.4.1: {}
 
   parent-module@1.0.1:
     dependencies:
@@ -8801,7 +8809,7 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.12.1
       acorn: 8.12.1
       acorn-import-attributes: 1.9.5(acorn@8.12.1)
-      browserslist: 4.23.3
+      browserslist: 4.24.2
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4

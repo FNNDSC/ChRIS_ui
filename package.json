@@ -73,6 +73,7 @@
     "micromark-extension-gfm": "^3.0.0",
     "niivue-react": "github:niivue/niivue-react",
     "pako": "^1.0.11",
+    "papaparse": "^5.4.1",
     "preval.macro": "^5.0.0",
     "query-string": "^9.1.0",
     "rc-tree": "^5.8.8",
