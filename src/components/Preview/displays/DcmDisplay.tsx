@@ -1,6 +1,8 @@
+// Import statements
 import type { RenderingEngine } from "@cornerstonejs/core";
+import { ToolGroupManager } from "@cornerstonejs/tools";
 import { useQuery } from "@tanstack/react-query";
-import { Progress } from "antd";
+import { Progress, message } from "antd"; // Import Antd message
 import axios, { type AxiosProgressEvent } from "axios";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type IFileBlob, getFileExtension } from "../../../api/model";
@@ -10,10 +12,10 @@ import useSize from "../../FeedTree/useSize";
 import type { ActionState } from "../FileDetailView";
 import { useDicomCache } from "./DicomCacheContext";
 import {
-  events,
   type IStackViewport,
   basicInit,
   displayDicomImage,
+  events,
   handleEvents,
   loadDicomImage,
   playClip,
@@ -34,6 +36,7 @@ export type DcmImageProps = {
 
 const TOOL_KEY = "cornerstone-display";
 const CACHE_KEY = "cornerstone-stack";
+const MESSAGE_KEY = "scroll-warning"; // Define a unique key for the message
 
 type ImageStackType = {
   [key: string]: string | string[];
@@ -206,7 +209,7 @@ const DcmDisplay = (props: DcmImageProps) => {
       const elementId = `cornerstone-element-${fname}`;
       const { viewport, renderingEngine } = await displayDicomImage(
         elementRef.current,
-        framesCount > 1 ? framesList : [imageID],
+        Array.isArray(framesList) ? framesList : [framesList],
         elementId,
       );
 
@@ -262,7 +265,6 @@ const DcmDisplay = (props: DcmImageProps) => {
   useEffect(() => {
     return () => {
       renderingEngineRef.current?.destroy();
-
       setIsLoadingMore(false);
       setLastLoadedIndex(0);
       setImageStack({});
@@ -297,21 +299,6 @@ const DcmDisplay = (props: DcmImageProps) => {
       });
     }
   }, []);
-
-  /**
-   * Manage cine playback based on `actionState["Play"]` state.
-   */
-  useEffect(() => {
-    const isPlaying = actionState.Play === true;
-    if (isPlaying) {
-      startCinePlay();
-    } else {
-      stopCinePlay();
-    }
-    return () => {
-      stopCinePlay();
-    };
-  }, [actionState.Play, startCinePlay, stopCinePlay]);
 
   /**
    * Generator function to yield image files starting from a specific index.
@@ -379,7 +366,7 @@ const DcmDisplay = (props: DcmImageProps) => {
       setLastLoadedIndex(lastLoadedIndex + Object.keys(newImages).length);
       setIsLoadingMore(false);
     },
-    [cacheStack, lastLoadedIndex, currentImageIndex, loadDicomImage],
+    [cacheStack, lastLoadedIndex, currentImageIndex],
   );
 
   // Check if the first frame is still loading
@@ -488,6 +475,86 @@ const DcmDisplay = (props: DcmImageProps) => {
     }
   }, [actionState]);
 
+  /**
+   * Determine if all images are loaded.
+   */
+  const isAllImagesLoaded = useMemo(
+    () => Object.keys(imageStack).length === filteredList.length,
+    [imageStack, filteredList],
+  );
+
+  /**
+   * Handle cine playback based on `actionState["Play"]` state.
+   */
+  useEffect(() => {
+    const isPlaying = actionState.Play === true;
+    if (isPlaying) {
+      if (multiFrameDisplay || isAllImagesLoaded) {
+        startCinePlay();
+      } else {
+        message.info({
+          content:
+            "Please wait for all the images to be loaded into the stack for scrolling.",
+          key: MESSAGE_KEY,
+          duration: 3,
+        });
+        // Reset the Play action
+        handleEvents(
+          { Play: false },
+          activeViewportRef.current as IStackViewport,
+        );
+      }
+    } else {
+      stopCinePlay();
+    }
+    return () => {
+      stopCinePlay();
+    };
+  }, [
+    actionState.Play,
+    isAllImagesLoaded,
+    multiFrameDisplay,
+    startCinePlay,
+    stopCinePlay,
+  ]);
+
+  /**
+   * Enable or disable stack scrolling based on image load status.
+   */
+  useEffect(() => {
+    if (elementRef.current) {
+      const toolGroup = ToolGroupManager.getToolGroup(TOOL_KEY);
+      if (multiFrameDisplay || isAllImagesLoaded) {
+        // Activate stack scrolling
+        toolGroup?.setToolActive("StackScrollMouseWheel");
+      } else {
+        // Deactivate stack scrolling
+        toolGroup?.setToolDisabled("StackScrollMouseWheel");
+      }
+    }
+  }, [isAllImagesLoaded, multiFrameDisplay]);
+
+  /**
+   * Intercept wheel events to prevent scrolling before all images are loaded.
+   */
+  useEffect(() => {
+    if (elementRef.current && !multiFrameDisplay && !isAllImagesLoaded) {
+      const handleWheelEvent = (event: WheelEvent) => {
+        event.preventDefault();
+        message.info({
+          content:
+            "Please wait for all the images to be loaded into the stack for scrolling.",
+          key: MESSAGE_KEY,
+          duration: 3,
+        });
+      };
+      elementRef.current.addEventListener("wheel", handleWheelEvent);
+      return () => {
+        elementRef.current?.removeEventListener("wheel", handleWheelEvent);
+      };
+    }
+  }, [isAllImagesLoaded, multiFrameDisplay]);
+
   const showProgress = downloadProgress > 0 && downloadProgress < 100;
 
   return (
@@ -528,7 +595,7 @@ const DcmDisplay = (props: DcmImageProps) => {
           )}
         </div>
         {isLoading && !showProgress && (
-          <SpinContainer title="Loading Dicom Image..." />
+          <SpinContainer title="Loading DICOM Image..." />
         )}
         {showProgress && <Progress percent={downloadProgress} />}
 
