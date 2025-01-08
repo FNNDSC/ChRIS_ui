@@ -12,14 +12,14 @@ importers:
         specifier: ^5.5.1
         version: 5.5.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@cornerstonejs/core':
-        specifier: ^1.86.0
-        version: 1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
+        specifier: ^2.14.9
+        version: 2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
       '@cornerstonejs/dicom-image-loader':
-        specifier: ^1.86.0
-        version: 1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
+        specifier: ^2.14.9
+        version: 2.14.9(@cornerstonejs/core@2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(dicom-parser@1.8.21)
       '@cornerstonejs/tools':
-        specifier: ^1.86.0
-        version: 1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(@icr/polyseg-wasm@0.4.0)(@kitware/vtk.js@30.4.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(@types/d3-array@3.2.1)(@types/d3-interpolate@3.0.4)(autoprefixer@10.4.20(postcss@8.4.47))(d3-array@3.2.4)(d3-interpolate@3.0.1)(gl-matrix@3.4.3)(webpack@5.95.0)(wslink@2.2.1)
+        specifier: ^2.14.9
+        version: 2.14.9(@cornerstonejs/core@2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(@kitware/vtk.js@32.1.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(@types/d3-array@3.2.1)(@types/d3-interpolate@3.0.4)(d3-array@3.2.4)(d3-interpolate@3.0.1)(gl-matrix@3.4.3)
       '@fnndsc/chrisapi':
         specifier: ^1.22.0
         version: 1.22.0
@@ -978,21 +978,24 @@ packages:
     resolution: {integrity: sha512-UT2su6xZZnCPSuWf2ldzKa/2+guQ7BGgfBSKqxanggwJHh48gZqIAzekmsLyJHMMK5YDK+ti+fzvVJhBS3Xi/g==}
     engines: {node: '>=0.14'}
 
-  '@cornerstonejs/codec-openjph@2.4.5':
-    resolution: {integrity: sha512-MZCUy8VG0VG5Nl1l58+g+kH3LujAzLYTfJqkwpWI2gjSrGXnP6lgwyy4GmPRZWVoS40/B1LDNALK905cNWm+sg==}
+  '@cornerstonejs/codec-openjph@2.4.7':
+    resolution: {integrity: sha512-qvP4q4JDib7mi9r7LqKOwqz7YZ8gjtDX4ZCezeYf8+eb7MBXCz5uXAMeVF3yz9Axw4XiIMdB/pqXkm8tqCl13w==}
     engines: {node: '>=0.14'}
 
-  '@cornerstonejs/core@1.86.0':
-    resolution: {integrity: sha512-yY3TC5abtU4hgcyBONQo+S0MXYgRyWzV/8bWujXilugAj5moDakex/zMc+YGIKlp4PvQBBRFjbu0H8YW3pseSw==}
+  '@cornerstonejs/core@2.14.9':
+    resolution: {integrity: sha512-DrMaJMOpiJ0XQxrSTJFgoS67HJ9BCMqtaB0ljmsmiMx4stsnDgMiH8V9qd1EPaJorMnNiQg68LP9slz0TnPzBg==}
 
-  '@cornerstonejs/dicom-image-loader@1.86.0':
-    resolution: {integrity: sha512-OPZCGdtdomj3TGktATQcLVIpTVv7ZqF8EyPgkEX+eIRXILzpu5Nm6gf3Lwofa5HVFwvmoJmVnU8jToKcoKPkqQ==}
-
-  '@cornerstonejs/tools@1.86.0':
-    resolution: {integrity: sha512-yyy7r9Vo0NrTYYeKQtVqpbLRrVaequd9Q6aU2ifiNusdi6w+8Xslh1U/AHfw2Y9fueK8JBkLnKL+o/nLfdaOuQ==}
+  '@cornerstonejs/dicom-image-loader@2.14.9':
+    resolution: {integrity: sha512-zmQiIM3VHeKBRr5EDexTzbAWL2z435g1PEg8jnh1fkQz6c5fEw6gVh/uH2PXfFiJdYrFAffElvr4gCwXFheKZA==}
     peerDependencies:
-      '@icr/polyseg-wasm': 0.4.0
-      '@kitware/vtk.js': 30.4.1
+      '@cornerstonejs/core': ^2.14.9
+      dicom-parser: ^1.8.9
+
+  '@cornerstonejs/tools@2.14.9':
+    resolution: {integrity: sha512-YYrH15O5mt+1tY0Fjxz5F40CPF9MKPStOXk/WLIf0UdjO6EuIOm5L2++B7jmL8ifN4vzV995pbZqu5npSSjaoA==}
+    peerDependencies:
+      '@cornerstonejs/core': ^2.14.9
+      '@kitware/vtk.js': 32.1.1
       '@types/d3-array': ^3.0.4
       '@types/d3-interpolate': ^3.0.1
       d3-array: ^3.2.3
@@ -1154,10 +1157,6 @@ packages:
   '@fnndsc/chrisapi@1.22.0':
     resolution: {integrity: sha512-npmjbFouPcQn56P6KAHUCFKS2VGf168VlqWzyzencbZQHNbTB6pMzw+LKTO3Xt9ShYy1iNrdelhr41HaP+AlCQ==}
 
-  '@icr/polyseg-wasm@0.4.0':
-    resolution: {integrity: sha512-3sZmiwG8I0NaqPle0L7+V/ZexiR7IjIUFkUsaOoFI9rNuBGyyMMmxAxnCmqcDFtBDk9h+JEYJf6e3NnqlHi/HQ==}
-    engines: {node: '>=0.14'}
-
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
@@ -1191,8 +1190,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
-  '@kitware/vtk.js@30.4.1':
-    resolution: {integrity: sha512-jBJFm8AyWpJjNFFBadXyvBwegdD9M6WRdxmIb+x/MVpCyA5lEZSMemhiMn71oKsznaEe5Pjv2VDVJWmwK0vhUg==}
+  '@kitware/vtk.js@32.1.1':
+    resolution: {integrity: sha512-rrh+PvmjpMDCOsgr7B8ZVxnF75TXjUJOVleMO5QJFh7DP+31927l9DJA4WRiJU7mbpYuZGt8/vAojO5fCizUkA==}
     hasBin: true
     peerDependencies:
       '@babel/preset-env': ^7.17.10
@@ -1450,6 +1449,11 @@ packages:
   '@rollup/rollup-linux-s390x-gnu@4.21.1':
     resolution: {integrity: sha512-z/9rtlGd/OMv+gb1mNSjElasMf9yXusAxnRDrBaYB+eS1shFm6/4/xDH1SAISO5729fFKUkJ88TkGPRUh8WSAA==}
     cpu: [s390x]
+    os: [linux]
+
+  '@rollup/rollup-linux-x64-gnu@4.13.0':
+    resolution: {integrity: sha512-yUD/8wMffnTKuiIsl6xU+4IA8UNhQ/f1sAnQebmE/lyQ8abjsVyDkyRkWop0kdMhKMprpNIhPmYlCxgHrPoXoA==}
+    cpu: [x64]
     os: [linux]
 
   '@rollup/rollup-linux-x64-gnu@4.21.1':
@@ -2275,9 +2279,6 @@ packages:
     resolution: {integrity: sha512-0je+qPKHEMohvfRTCEo3CrPG6cAzAYgmzKyxRiYSSDkS6eGJdyVJm7WaYA5ECaAD9wLB2T4EEeymA5aFVcYXCA==}
     engines: {node: '>=6'}
 
-  detect-gpu@5.0.53:
-    resolution: {integrity: sha512-RObVib0a6wjcNvljcTynCiqTGOV1pY+RnZojsdjr2tsI5fF8Uj4CFdsT7ccw4QQIAlO0l8FTYES+Pq64AirZQA==}
-
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
@@ -2724,6 +2725,9 @@ packages:
 
   jpeg-lossless-decoder-js@2.0.7:
     resolution: {integrity: sha512-tbZlhFkKmx+JaqVMkq47SKWGuXLkIaV8fTbnhO39dYEnQrSShLGuLCGb0n6ntXjtmk6oAWGiIriWOLwj9od0yQ==}
+
+  jpeg-lossless-decoder-js@2.1.2:
+    resolution: {integrity: sha512-fYf/plymnuKwVw+s8gJ8O/BPw8y8OLaN11MBvEcT05kuy3m45o7BEC4J0JbxMNUYyO+MdK/I/jq0q1gkVYZm2Q==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -4248,9 +4252,6 @@ packages:
     resolution: {integrity: sha512-TnbFSbcOCcDgjZ4piURLCbJ3nJhznVh9kw6F6iokjiFPl8ONxe9A6nMDVXDiNbrSfLILs6vB07F7wLBrwPYzJw==}
     engines: {node: '>=10.13.0'}
 
-  webgl-constants@1.1.1:
-    resolution: {integrity: sha512-LkBXKjU5r9vAW7Gcu3T5u+5cvSvh5WwINdr0C+9jpzVB41cjQAP5ePArDtk/WHYdVj0GefCgM73BA7FlIiNtdg==}
-
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -5219,42 +5220,36 @@ snapshots:
 
   '@cornerstonejs/codec-openjpeg@1.2.4': {}
 
-  '@cornerstonejs/codec-openjph@2.4.5': {}
+  '@cornerstonejs/codec-openjph@2.4.7': {}
 
-  '@cornerstonejs/core@1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)':
+  '@cornerstonejs/core@2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)':
     dependencies:
-      '@kitware/vtk.js': 30.4.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
+      '@kitware/vtk.js': 32.1.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
       comlink: 4.4.1
-      detect-gpu: 5.0.53
       gl-matrix: 3.4.3
-      lodash.clonedeep: 4.5.0
     transitivePeerDependencies:
       - '@babel/preset-env'
       - autoprefixer
       - webpack
       - wslink
 
-  '@cornerstonejs/dicom-image-loader@1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)':
+  '@cornerstonejs/dicom-image-loader@2.14.9(@cornerstonejs/core@2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(dicom-parser@1.8.21)':
     dependencies:
       '@cornerstonejs/codec-charls': 1.2.3
       '@cornerstonejs/codec-libjpeg-turbo-8bit': 1.2.2
       '@cornerstonejs/codec-openjpeg': 1.2.4
-      '@cornerstonejs/codec-openjph': 2.4.5
-      '@cornerstonejs/core': 1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
+      '@cornerstonejs/codec-openjph': 2.4.7
+      '@cornerstonejs/core': 2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
+      comlink: 4.4.1
       dicom-parser: 1.8.21
+      jpeg-lossless-decoder-js: 2.1.2
       pako: 2.1.0
       uuid: 9.0.1
-    transitivePeerDependencies:
-      - '@babel/preset-env'
-      - autoprefixer
-      - webpack
-      - wslink
 
-  '@cornerstonejs/tools@1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(@icr/polyseg-wasm@0.4.0)(@kitware/vtk.js@30.4.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(@types/d3-array@3.2.1)(@types/d3-interpolate@3.0.4)(autoprefixer@10.4.20(postcss@8.4.47))(d3-array@3.2.4)(d3-interpolate@3.0.1)(gl-matrix@3.4.3)(webpack@5.95.0)(wslink@2.2.1)':
+  '@cornerstonejs/tools@2.14.9(@cornerstonejs/core@2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(@kitware/vtk.js@32.1.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1))(@types/d3-array@3.2.1)(@types/d3-interpolate@3.0.4)(d3-array@3.2.4)(d3-interpolate@3.0.1)(gl-matrix@3.4.3)':
     dependencies:
-      '@cornerstonejs/core': 1.86.0(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
-      '@icr/polyseg-wasm': 0.4.0
-      '@kitware/vtk.js': 30.4.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
+      '@cornerstonejs/core': 2.14.9(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
+      '@kitware/vtk.js': 32.1.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)
       '@types/d3-array': 3.2.1
       '@types/d3-interpolate': 3.0.4
       '@types/offscreencanvas': 2019.7.3
@@ -5262,13 +5257,7 @@ snapshots:
       d3-array: 3.2.4
       d3-interpolate: 3.0.1
       gl-matrix: 3.4.3
-      lodash.clonedeep: 4.5.0
       lodash.get: 4.4.2
-    transitivePeerDependencies:
-      - '@babel/preset-env'
-      - autoprefixer
-      - webpack
-      - wslink
 
   '@ctrl/tinycolor@3.6.1': {}
 
@@ -5354,8 +5343,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@icr/polyseg-wasm@0.4.0': {}
-
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -5397,7 +5384,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kitware/vtk.js@30.4.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)':
+  '@kitware/vtk.js@32.1.1(@babel/preset-env@7.26.0(@babel/core@7.25.2))(autoprefixer@10.4.20(postcss@8.4.47))(webpack@5.95.0)(wslink@2.2.1)':
     dependencies:
       '@babel/preset-env': 7.26.0(@babel/core@7.25.2)
       '@babel/runtime': 7.22.11
@@ -5704,6 +5691,9 @@ snapshots:
     optional: true
 
   '@rollup/rollup-linux-s390x-gnu@4.21.1':
+    optional: true
+
+  '@rollup/rollup-linux-x64-gnu@4.13.0':
     optional: true
 
   '@rollup/rollup-linux-x64-gnu@4.21.1':
@@ -6584,10 +6574,6 @@ snapshots:
 
   dequal@2.0.3: {}
 
-  detect-gpu@5.0.53:
-    dependencies:
-      webgl-constants: 1.1.1
-
   devlop@1.1.0:
     dependencies:
       dequal: 2.0.3
@@ -7042,6 +7028,10 @@ snapshots:
       supports-color: 8.1.1
 
   jpeg-lossless-decoder-js@2.0.7: {}
+
+  jpeg-lossless-decoder-js@2.1.2:
+    optionalDependencies:
+      '@rollup/rollup-linux-x64-gnu': 4.13.0
 
   js-tokens@4.0.0: {}
 
@@ -8792,8 +8782,6 @@ snapshots:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
-
-  webgl-constants@1.1.1: {}
 
   webidl-conversions@3.0.1: {}
 
