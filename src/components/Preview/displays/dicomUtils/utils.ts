@@ -1,34 +1,46 @@
+/***********************************************************************
+ * Cornerstone + CornerstoneTools: New API references
+ ***********************************************************************/
+
 import * as cornerstone from "@cornerstonejs/core";
 import {
   EVENTS,
   Enums,
   RenderingEngine,
   type Types,
-  init,
+  init as csInitCore,
 } from "@cornerstonejs/core";
-import cornerstonejsDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
+
 import * as cornerstoneTools from "@cornerstonejs/tools";
 import {
   type Types as CornerstoneToolTypes,
   init as csToolsInit,
 } from "@cornerstonejs/tools";
-import dicomParser from "dicom-parser";
-import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
-import type { IFileBlob } from "../../../../api/model";
-import { Collection } from "@fnndsc/chrisapi";
 
-//@ts-ignore
+import { Collection } from "@fnndsc/chrisapi";
+import dicomParser from "dicom-parser";
+import type { IFileBlob } from "../../../../api/model";
+import ptScalingMetaDataProvider from "./ptScalingMetaDataProvider";
+
+// Attach (optionally) to global namespace for debug
+// @ts-ignore
 window.cornerstone = cornerstone;
-//@ts-ignore
+// @ts-ignore
 window.cornerstoneTools = cornerstoneTools;
-const { preferSizeOverAccuracy, useNorm16Texture } =
-  cornerstone.getConfiguration().rendering;
+
+/***********************************************************************
+ * Destructure what we need from the new Cornerstone 3+ imports
+ ***********************************************************************/
+
 const { ViewportType } = Enums;
+const { preferSizeOverAccuracy } = cornerstone.getConfiguration().rendering;
 const { calibratedPixelSpacingMetadataProvider } = cornerstone.utilities;
-const {
+
+export const {
   PanTool,
   WindowLevelTool,
-  StackScrollMouseWheelTool,
+  StackScrollTool,
   ZoomTool,
   PlanarRotateTool,
   MagnifyTool,
@@ -37,14 +49,24 @@ const {
   Enums: csToolsEnums,
   utilities,
 } = cornerstoneTools;
-const { MouseBindings } = csToolsEnums;
+
+export const { MouseBindings } = csToolsEnums;
+
+// Export a convenience alias for the EVENTS object
 export const events = EVENTS;
 
-let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
-
+// Tools from the new Cornerstone Tools utilities
 export const stopClip = utilities.cine.stopClip;
 export const playClip = utilities.cine.playClip;
 
+/***********************************************************************
+ * Local state: a single ToolGroup reference
+ ***********************************************************************/
+let toolGroup: CornerstoneToolTypes.IToolGroup | undefined;
+
+/***********************************************************************
+ * Providers: set up additional metaData providers
+ ***********************************************************************/
 function initProviders() {
   cornerstone.metaData.addProvider(
     ptScalingMetaDataProvider.get.bind(ptScalingMetaDataProvider),
@@ -58,53 +80,60 @@ function initProviders() {
   );
 }
 
+/***********************************************************************
+ * Tools: register/unregister sets of tools with the library
+ ***********************************************************************/
 export const registerToolingOnce = () => {
-  // Add tools to the tool group
+  // Add each tool to Cornerstone Tools so they can be used or instantiated
   cornerstoneTools.addTool(LengthTool);
   cornerstoneTools.addTool(PanTool);
   cornerstoneTools.addTool(WindowLevelTool);
-  cornerstoneTools.addTool(StackScrollMouseWheelTool);
+  cornerstoneTools.addTool(StackScrollTool);
   cornerstoneTools.addTool(ZoomTool);
   cornerstoneTools.addTool(MagnifyTool);
   cornerstoneTools.addTool(PlanarRotateTool);
 };
 
 export const removeTools = () => {
-  // Remove tools from the tool group
+  // Remove each registered tool
   cornerstoneTools.removeTool(LengthTool);
   cornerstoneTools.removeTool(PanTool);
   cornerstoneTools.removeTool(WindowLevelTool);
-  cornerstoneTools.removeTool(StackScrollMouseWheelTool);
+  cornerstoneTools.removeTool(StackScrollTool);
   cornerstoneTools.removeTool(ZoomTool);
   cornerstoneTools.removeTool(MagnifyTool);
   cornerstoneTools.removeTool(PlanarRotateTool);
 };
 
+/***********************************************************************
+ * Cleanup the tool group if needed
+ ***********************************************************************/
 export const cleanupCornerstoneTooling = () => {
-  // Remove the tool group
   const id = toolGroup?.id;
   if (id) {
-    const existingToolGroup = ToolGroupManager.getToolGroup(id);
-    if (existingToolGroup) {
+    const existing = ToolGroupManager.getToolGroup(id);
+    if (existing) {
       ToolGroupManager.destroyToolGroup(id);
       toolGroup = undefined;
     }
   }
 };
 
+/***********************************************************************
+ * Create or retrieve the tool group, add the relevant tools
+ ***********************************************************************/
 export function setUpTooling(uniqueToolId: string) {
-  // Check if tool group already exists
   const id = toolGroup?.id;
 
   if (!id) {
-    // Tool group doesn't exist, create a new one
     registerToolingOnce();
     toolGroup = ToolGroupManager.createToolGroup(uniqueToolId);
+
     if (toolGroup) {
       toolGroup.addTool(WindowLevelTool.toolName);
       toolGroup.addTool(PanTool.toolName);
       toolGroup.addTool(ZoomTool.toolName);
-      toolGroup.addTool(StackScrollMouseWheelTool.toolName, { loop: false });
+      toolGroup.addTool(StackScrollTool.toolName, { loop: true });
       toolGroup.addTool(PlanarRotateTool.toolName);
       toolGroup.addTool(LengthTool.toolName);
       toolGroup.addTool(MagnifyTool.toolName);
@@ -112,24 +141,31 @@ export function setUpTooling(uniqueToolId: string) {
   }
 }
 
+/***********************************************************************
+ * Cornerstone DICOM loader setup (new API)
+ ***********************************************************************/
 export const initializeCornerstoneForDicoms = () => {
-  cornerstonejsDICOMImageLoader.external.cornerstone = cornerstone;
-  cornerstonejsDICOMImageLoader.external.dicomParser = dicomParser;
-  cornerstonejsDICOMImageLoader.configure({
+  // Bridge DICOM image loader references
+  cornerstoneDICOMImageLoader.external.cornerstone = cornerstone;
+  cornerstoneDICOMImageLoader.external.dicomParser = dicomParser;
+
+  // Configure the decode pipeline
+  cornerstoneDICOMImageLoader.configure({
     useWebWorkers: true,
     decodeConfig: {
       convertFloatPixelDataToInt: false,
-      use16BitDataType: preferSizeOverAccuracy || useNorm16Texture,
+      use16BitDataType: preferSizeOverAccuracy,
     },
   });
 
+  // Decide how many web workers can run in parallel
   let maxWebWorkers = 1;
-
   if (navigator.hardwareConcurrency) {
     maxWebWorkers = Math.min(navigator.hardwareConcurrency, 7);
   }
 
-  const config = {
+  // Initialize the worker manager
+  cornerstoneDICOMImageLoader.webWorkerManager.initialize({
     maxWebWorkers,
     startWebWorkersOnDemand: false,
     taskConfiguration: {
@@ -138,22 +174,28 @@ export const initializeCornerstoneForDicoms = () => {
         strict: false,
       },
     },
-  };
-
-  cornerstonejsDICOMImageLoader.webWorkerManager.initialize(config);
+  });
 };
 
+/***********************************************************************
+ * Basic Cornerstone + Tools initialization
+ ***********************************************************************/
 export const basicInit = async () => {
-  cornerstone.setUseSharedArrayBuffer(Enums.SharedArrayBufferModes.FALSE);
   initProviders();
   initializeCornerstoneForDicoms();
-
-  await init();
+  // The "init" calls for core + tools
+  csInitCore();
   csToolsInit();
 };
 
+/***********************************************************************
+ * Cornerstone StackViewport type alias
+ ***********************************************************************/
 export type IStackViewport = Types.IStackViewport;
 
+/***********************************************************************
+ * Example of an action handler for tool usage
+ ***********************************************************************/
 export const handleEvents = (
   actionState: { [key: string]: boolean | string },
   activeViewport?: IStackViewport,
@@ -162,15 +204,23 @@ export const handleEvents = (
   const previousTool = actionState.previouslyActive as string;
   const id = toolGroup?.id;
 
+  // Bypass certain tools or states
   if (activeTool === "TagInfo" || activeTool === "Play") return;
 
   if (id) {
     toolGroup?.setToolPassive(previousTool);
+
     if (activeTool === "Reset") {
-      activeViewport?.resetCamera(true, true);
+      activeViewport?.resetCamera({
+        resetPan: true,
+        resetZoom: true,
+        resetToCenter: true,
+        suppressEvents: true,
+      });
       activeViewport?.resetProperties();
       activeViewport?.render();
     } else {
+      // Activate the selected tool
       toolGroup?.setToolActive(activeTool, {
         bindings: [{ mouseButton: MouseBindings.Primary }],
       });
@@ -178,20 +228,22 @@ export const handleEvents = (
   }
 };
 
+/***********************************************************************
+ * Load a single DICOM image (or multi-frame) from a Blob
+ ***********************************************************************/
 export const loadDicomImage = async (blob: Blob) => {
   try {
-    // Generate a unique file ID for the blob
-    const imageID = cornerstonejsDICOMImageLoader.wadouri.fileManager.add(blob);
-    // Load the image using Cornerstone; this ensures the image and metadata are available
+    // Add the Blob to wadouri's fileManager for loading
+    const imageID = cornerstoneDICOMImageLoader.wadouri.fileManager.add(blob);
+
+    // Force an image load via Cornerstone so metadata is accessible
     await cornerstone.imageLoader.loadImage(imageID);
 
-    // Retrieve metadata using the metadata provider
+    // Retrieve multi-frame info if present
     const generalImageModule = await cornerstone.metaData.get(
       "multiframeModule",
       imageID,
     );
-
-    // Extract the Number of Frames; default to 1 if not available
     const framesCount = generalImageModule?.NumberOfFrames
       ? Number.parseInt(generalImageModule.NumberOfFrames, 10)
       : 1;
@@ -200,27 +252,16 @@ export const loadDicomImage = async (blob: Blob) => {
       imageID,
       framesCount,
     };
-  } catch (e: any) {
-    const error_message = e?.error?.message || "Failed to load";
-    throw new Error(`${error_message}`);
+  } catch (err: any) {
+    const errorMessage = err?.error?.message || "Failed to load";
+    throw new Error(errorMessage);
   }
 };
 
+/***********************************************************************
+ * Helper to build a "display area" for the viewport
+ ***********************************************************************/
 type ImagePoint = [number, number];
-
-interface DisplayArea {
-  imageArea: ImagePoint;
-  imageCanvasPoint: {
-    imagePoint: ImagePoint;
-    canvasPoint: ImagePoint;
-  };
-}
-
-interface ViewportInputOptions {
-  rotation: number;
-  flipHorizontal: boolean;
-  displayArea: DisplayArea;
-}
 
 function createDisplayArea(
   size: number,
@@ -228,11 +269,11 @@ function createDisplayArea(
   canvasValue: number | [number, number] = pointValue,
   rotation = 0,
   flipHorizontal = false,
-): ViewportInputOptions {
+) {
   const imagePoint: ImagePoint = Array.isArray(pointValue)
     ? pointValue
     : [pointValue, pointValue];
-  const canvasPoint: [number, number] = Array.isArray(canvasValue)
+  const canvasPoint: ImagePoint = Array.isArray(canvasValue)
     ? canvasValue
     : [canvasValue, canvasValue];
 
@@ -249,6 +290,9 @@ function createDisplayArea(
   };
 }
 
+/***********************************************************************
+ * Set up a new RenderingEngine & StackViewport, then render images
+ ***********************************************************************/
 export const displayDicomImage = async (
   element: HTMLDivElement,
   imageIds: string[],
@@ -258,27 +302,49 @@ export const displayDicomImage = async (
   renderingEngine: RenderingEngine;
 }> => {
   try {
-    const viewportId = uniqueId;
+    // Create rendering engine
     const renderingEngineId = `myRenderingEngine_${uniqueId}`;
     const renderingEngine = new RenderingEngine(renderingEngineId);
-    const viewportInput = {
+
+    // Enable a stack viewport
+    const viewportId = uniqueId;
+    renderingEngine.enableElement({
       viewportId,
       type: ViewportType.STACK,
       element,
-    };
-    renderingEngine.enableElement(viewportInput);
+    });
+
+    // Add the newly created viewport to the existing toolGroup
     toolGroup?.addViewport(viewportId, renderingEngineId);
-    const viewport = <Types.IStackViewport>(
-      renderingEngine.getViewport(viewportId)
-    );
-    const displayArea: ViewportInputOptions = createDisplayArea(1, 0.5);
-    viewport.setOptions(displayArea, true);
+
+    // Grab the created viewport
+    const viewport = renderingEngine.getViewport(
+      viewportId,
+    ) as Types.IStackViewport;
+
+    // Optionally set additional properties (rotation, flipping, etc.)
+    const displayArea = createDisplayArea(1, 0.5);
+    // @ts-ignore - if our type doesn't line up 1:1, we can ignore
     viewport.setProperties(displayArea);
+
+    // Assign the images (single or stack)
     await viewport.setStack(imageIds);
+
+    // Example: enable stackPrefetch so images are downloaded in the background
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
-    // Set the stack scroll mouse wheel tool
-    toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
+
+    // Example: activate the stack scroll mouse wheel
+    console.log("ToolGroup", toolGroup);
+    toolGroup?.setToolActive(StackScrollTool.toolName, {
+      bindings: [
+        {
+          mouseButton: MouseBindings.Wheel,
+        },
+      ],
+    });
+
     viewport.render();
+
     return {
       viewport,
       renderingEngine,
@@ -288,16 +354,9 @@ export const displayDicomImage = async (
   }
 };
 
-/**
- * Get the `file_resource` URL. (Collection+JSON is very annoying).
- *
- * FIXME: there is a huge inefficiency here.
- * Prior to the rendering of the {@link NiiVueDisplay} component, the file
- * data was already retrieved by ChRIS_ui, and its blob data are stored in
- * the props. But for NiiVue to work (well) it wants the file's URL to
- * retrieve the file itself. So the file is retrieved a total of two times,
- * even though it should only be retrieved once.
- */
+/***********************************************************************
+ * Retrieve the file_resource URL from a Chris API file
+ ***********************************************************************/
 export function getFileResourceUrl(file: IFileBlob): string {
   return Collection.getLinkRelationUrls(
     file?.collection.items[0],

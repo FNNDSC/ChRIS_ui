@@ -3,7 +3,7 @@ export { default as CatchallDisplay } from "./CatchallDisplay";
 export { default as JsonDisplay } from "./JsonDisplay";
 export { default as IframeDisplay } from "./IframeDisplay";
 export { default as ImageDisplay } from "./ImageDisplay";
-export { default as DcmDisplay } from "./DcmDisplay";
+export { default as DcmDisplay } from "./DcmDisplayCopy";
 export { default as PdfDisplay } from "./PdfDisplay";
 export { default as XtkDisplay } from "./XtkDisplay";
 export { default as TextDisplay } from "./TextDisplay";
