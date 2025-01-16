@@ -40,7 +40,7 @@ const { calibratedPixelSpacingMetadataProvider } = cornerstone.utilities;
 export const {
   PanTool,
   WindowLevelTool,
-  StackScrollTool,
+  StackScrollMouseWheelTool,
   ZoomTool,
   PlanarRotateTool,
   MagnifyTool,
@@ -88,7 +88,7 @@ export const registerToolingOnce = () => {
   cornerstoneTools.addTool(LengthTool);
   cornerstoneTools.addTool(PanTool);
   cornerstoneTools.addTool(WindowLevelTool);
-  cornerstoneTools.addTool(StackScrollTool);
+  cornerstoneTools.addTool(StackScrollMouseWheelTool);
   cornerstoneTools.addTool(ZoomTool);
   cornerstoneTools.addTool(MagnifyTool);
   cornerstoneTools.addTool(PlanarRotateTool);
@@ -99,7 +99,7 @@ export const removeTools = () => {
   cornerstoneTools.removeTool(LengthTool);
   cornerstoneTools.removeTool(PanTool);
   cornerstoneTools.removeTool(WindowLevelTool);
-  cornerstoneTools.removeTool(StackScrollTool);
+  cornerstoneTools.removeTool(StackScrollMouseWheelTool);
   cornerstoneTools.removeTool(ZoomTool);
   cornerstoneTools.removeTool(MagnifyTool);
   cornerstoneTools.removeTool(PlanarRotateTool);
@@ -133,7 +133,7 @@ export function setUpTooling(uniqueToolId: string) {
       toolGroup.addTool(WindowLevelTool.toolName);
       toolGroup.addTool(PanTool.toolName);
       toolGroup.addTool(ZoomTool.toolName);
-      toolGroup.addTool(StackScrollTool.toolName);
+      toolGroup.addTool(StackScrollMouseWheelTool.toolName);
       toolGroup.addTool(PlanarRotateTool.toolName);
       toolGroup.addTool(LengthTool.toolName);
       toolGroup.addTool(MagnifyTool.toolName);
@@ -211,12 +211,7 @@ export const handleEvents = (
     toolGroup?.setToolPassive(previousTool);
 
     if (activeTool === "Reset") {
-      activeViewport?.resetCamera({
-        resetPan: true,
-        resetZoom: true,
-        resetToCenter: true,
-        suppressEvents: true,
-      });
+      activeViewport?.resetCamera(true, true);
       activeViewport?.resetProperties();
       activeViewport?.render();
     } else {
@@ -335,13 +330,7 @@ export const displayDicomImage = async (
 
     // Example: activate the stack scroll mouse wheel
 
-    toolGroup?.setToolActive(StackScrollTool.toolName, {
-      bindings: [
-        {
-          mouseButton: MouseBindings.Wheel,
-        },
-      ],
-    });
+    toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
 
     viewport.render();
 

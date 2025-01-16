@@ -1,5 +1,5 @@
 import type { RenderingEngine } from "@cornerstonejs/core";
-import type { IStackViewport } from "@cornerstonejs/core/types";
+import type { StackViewport } from "@cornerstonejs/core";
 import { Progress, message, notification } from "antd";
 import type { AxiosProgressEvent } from "axios";
 import axios from "axios";
@@ -48,7 +48,7 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<HTMLDivElement>(null);
   const renderingEngineRef = useRef<RenderingEngine | null>(null);
-  const activeViewportRef = useRef<IStackViewport | null>(null);
+  const activeViewportRef = useRef<StackViewport | null>(null);
 
   // State for progress, index, loaded image IDs, etc.
   const [downloadProgress, setDownloadProgress] = useState(0);
