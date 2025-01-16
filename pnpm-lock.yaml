@@ -26,9 +26,6 @@ importers:
       '@niivue/niivue':
         specifier: 0.44.2
         version: 0.44.2
-      '@patternfly/react-catalog-view-extension':
-        specifier: ^5.0.0
-        version: 5.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-charts':
         specifier: ^7.4.0
         version: 7.4.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1296,12 +1293,6 @@ packages:
   '@oozcitak/util@8.3.8':
     resolution: {integrity: sha512-T8TbSnGsxo6TDBJx/Sgv/BlVJL3tshxZP7Aq5R1mSnM5OcHY2dQaxLMu2+E8u3gN0MLOzdjurqN4ZRVuzQycOQ==}
     engines: {node: '>=8.0'}
-
-  '@patternfly/react-catalog-view-extension@5.0.0':
-    resolution: {integrity: sha512-Sg0iLAVhE7wAwBJERNdYp6peMO4THG7ez3xvMXEWh2biXghIv9XVj5BEy0TssihMxZa/pRMdROzcv3QZ9m24Yg==}
-    peerDependencies:
-      react: ^17 || ^18
-      react-dom: ^17 || ^18
 
   '@patternfly/react-charts@7.4.8':
     resolution: {integrity: sha512-Rv2ajbb7kmwcrZIolcaH8RzIMx3+6ldtJlKQoChmNggXGgKFtg3/QBlc9Qj+14LW0LSQ12ZprmRvHZ/Viyq+Qw==}
@@ -5512,13 +5503,6 @@ snapshots:
       '@oozcitak/util': 8.3.8
 
   '@oozcitak/util@8.3.8': {}
-
-  '@patternfly/react-catalog-view-extension@5.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@patternfly/react-core': 5.4.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@patternfly/react-styles': 5.4.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
 
   '@patternfly/react-charts@7.4.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
