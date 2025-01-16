@@ -44,7 +44,6 @@
     "@cornerstonejs/tools": "^1.86.0",
     "@fnndsc/chrisapi": "^1.22.0",
     "@niivue/niivue": "0.44.2",
-    "@patternfly/react-catalog-view-extension": "^5.0.0",
     "@patternfly/react-charts": "^7.4.0",
     "@patternfly/react-core": "^5.4.0",
     "@patternfly/react-icons": "^5.4.0",
