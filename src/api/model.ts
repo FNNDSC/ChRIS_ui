@@ -162,6 +162,7 @@ export const fileViewerMap: any = {
   pdf: "PdfDisplay",
   csv: "TextDisplay",
   md: "TextDisplay",
+  log: "TextDisplay",
   ctab: "TextDisplay",
   json: "JsonDisplay",
   png: "ImageDisplay",
