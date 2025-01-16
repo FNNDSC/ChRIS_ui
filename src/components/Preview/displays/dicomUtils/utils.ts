@@ -297,43 +297,27 @@ export const displayDicomImage = async (
   renderingEngine: RenderingEngine;
 }> => {
   try {
-    // Create rendering engine
+    const viewportId = uniqueId;
     const renderingEngineId = `myRenderingEngine_${uniqueId}`;
     const renderingEngine = new RenderingEngine(renderingEngineId);
-
-    // Enable a stack viewport
-    const viewportId = uniqueId;
-    renderingEngine.enableElement({
+    const viewportInput = {
       viewportId,
       type: ViewportType.STACK,
       element,
-    });
-
-    // Add the newly created viewport to the existing toolGroup
+    };
+    renderingEngine.enableElement(viewportInput);
     toolGroup?.addViewport(viewportId, renderingEngineId);
-
-    // Grab the created viewport
-    const viewport = renderingEngine.getViewport(
-      viewportId,
-    ) as Types.IStackViewport;
-
-    // Optionally set additional properties (rotation, flipping, etc.)
+    const viewport = <Types.IStackViewport>(
+      renderingEngine.getViewport(viewportId)
+    );
     const displayArea = createDisplayArea(1, 0.5);
-    // @ts-ignore - if our type doesn't line up 1:1, we can ignore
+    viewport.setOptions(displayArea, true);
     viewport.setProperties(displayArea);
-
-    // Assign the images (single or stack)
     await viewport.setStack(imageIds);
-
-    // Example: enable stackPrefetch so images are downloaded in the background
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
-
-    // Example: activate the stack scroll mouse wheel
-
+    // Set the stack scroll mouse wheel tool
     toolGroup?.setToolActive(StackScrollMouseWheelTool.toolName);
-
     viewport.render();
-
     return {
       viewport,
       renderingEngine,
@@ -342,7 +326,6 @@ export const displayDicomImage = async (
     throw new Error(e as string);
   }
 };
-
 /***********************************************************************
  * Retrieve the file_resource URL from a Chris API file
  ***********************************************************************/
