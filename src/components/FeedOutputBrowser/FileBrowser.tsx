@@ -75,14 +75,36 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
   const username = useAppSelector((state) => state.user.username);
-  const { subFoldersMap, linkFilesMap, filesMap, folderList } =
-    pluginFilesPayload;
+  const {
+    subFoldersMap,
+    linkFilesMap,
+    filesMap,
+    folderList,
+    linksPagination,
+    foldersPagination,
+    filesPagination,
+  } = pluginFilesPayload;
   const breadcrumb = additionalKey.split("/");
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
   const noFiles =
     filesMap?.length === 0 &&
     subFoldersMap?.length === 0 &&
     linkFilesMap?.length === 0;
+  // Example: Add up all valid totalCounts (ignore -1)
+  const linkCount =
+    linksPagination?.totalCount && linksPagination.totalCount !== -1
+      ? linksPagination.totalCount
+      : 0;
+  const folderCount =
+    foldersPagination?.totalCount && foldersPagination.totalCount !== -1
+      ? foldersPagination.totalCount
+      : 0;
+  const fileCount =
+    filesPagination?.totalCount && filesPagination.totalCount !== -1
+      ? filesPagination.totalCount
+      : 0;
+  // Combined total
+  const totalResources = linkCount + folderCount + fileCount;
 
   useEffect(() => {
     if (isSuccess) {
@@ -147,7 +169,7 @@ const FileBrowser = (props: FileBrowserProps) => {
       .querySelector(".preview-panel")
       ?.animate(previewAnimation, previewAnimationTiming);
     document
-      .querySelector(".small-preview")
+      .querySelector(".large-preview")
       ?.animate(previewAnimation, previewAnimationTiming);
   };
 
@@ -222,6 +244,9 @@ const FileBrowser = (props: FileBrowserProps) => {
                             </Button>
                           </Tooltip>
                         )}
+                    </div>
+                    <div style={{ textAlign: "right", fontStyle: "italic" }}>
+                      Total Resources: {`(${totalResources})`}
                     </div>
                   </div>
                 </div>

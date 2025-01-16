@@ -16,6 +16,14 @@ export interface FilesPayload {
     totalCount: number;
     hasNextPage: boolean;
   };
+  linksPagination?: {
+    totalCount: number;
+    hasNextPage: boolean;
+  };
+  foldersPagination?: {
+    totalCount: number;
+    hasNextPage: boolean;
+  };
 }
 
 export interface FileBrowserProps {
