@@ -453,6 +453,8 @@ const DcmDisplay = (props: DcmImageProps) => {
     };
   }, [handleImageRendered]);
 
+  console.log("Image stack", imageStack, fname);
+
   /**
    * Calculate the total number of images.
    */
