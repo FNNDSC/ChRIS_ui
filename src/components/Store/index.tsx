@@ -357,7 +357,7 @@ const Store: React.FC = () => {
     retry: false,
   });
 
-  const { data: existingPlugins } = useQuery({
+  const { data: existingPlugins, refetch: refetchExistingPlugins } = useQuery({
     queryKey: ["existingStorePlugins"],
     queryFn: fetchExistingPlugins,
   });
@@ -398,10 +398,7 @@ const Store: React.FC = () => {
       // If there is a plugin pending installation, proceed to install
       handleSave();
     }
-
-    if (bulkInstallMutation.isIdle) {
-      handleInstallAll();
-    }
+    refetchExistingPlugins();
   };
 
   const TitleComponent = useMemo(
