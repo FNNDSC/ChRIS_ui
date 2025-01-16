@@ -133,7 +133,7 @@ export function setUpTooling(uniqueToolId: string) {
       toolGroup.addTool(WindowLevelTool.toolName);
       toolGroup.addTool(PanTool.toolName);
       toolGroup.addTool(ZoomTool.toolName);
-      toolGroup.addTool(StackScrollTool.toolName, { loop: true });
+      toolGroup.addTool(StackScrollTool.toolName);
       toolGroup.addTool(PlanarRotateTool.toolName);
       toolGroup.addTool(LengthTool.toolName);
       toolGroup.addTool(MagnifyTool.toolName);
@@ -334,7 +334,7 @@ export const displayDicomImage = async (
     cornerstoneTools.utilities.stackPrefetch.enable(viewport.element);
 
     // Example: activate the stack scroll mouse wheel
-    console.log("ToolGroup", toolGroup);
+
     toolGroup?.setToolActive(StackScrollTool.toolName, {
       bindings: [
         {
