@@ -17,7 +17,7 @@ import {
   getSelectedPlugin,
   setPluginInstancesAndSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
-import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
+
 import AddNodeConnect from "../AddNode/AddNode";
 import { AddNodeProvider } from "../AddNode/context";
 import AddPipeline from "../AddPipeline/AddPipeline";
@@ -173,7 +173,7 @@ const usePipelineMutation = (
           };
 
           dispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
-          dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
+          //dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
         }
       } else {
         throw new Error(

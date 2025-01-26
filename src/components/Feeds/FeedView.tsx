@@ -1,8 +1,8 @@
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { Tooltip } from "@patternfly/react-core";
-import { PanelGroup, Panel, PanelResizeHandle } from "react-resizable-panels";
 import { Typography } from "antd";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
 import type { IDrawerState } from "../../store/drawer/drawerSlice";
@@ -14,13 +14,8 @@ import {
   setShowToolbar,
 } from "../../store/feed/feedSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import {
-  fetchPluginInstances,
-  getSelectedPlugin,
-  resetPluginInstances,
-} from "../../store/pluginInstance/pluginInstanceSlice";
-import { resetActiveResources } from "../../store/resources/resourceSlice";
-import type { DestroyActiveResources } from "../../store/resources/types";
+import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
+
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
 import ParentComponent from "../FeedTree/ParentComponent";
@@ -28,10 +23,10 @@ import { CodeBranchIcon } from "../Icons";
 import NodeDetails from "../NodeDetails/NodeDetails";
 import WrapperConnect from "../Wrapper";
 import { DrawerActionButton } from "./DrawerUtils";
+import "./Feeds.css"; // Import your CSS file
 import { useFetchFeed } from "./useFetchFeed";
 import { useSearchQueryParams } from "./usePaginate";
 import { handleMaximize, handleMinimize } from "./utilties";
-import "./Feeds.css"; // Import your CSS file
 
 const { Title } = Typography;
 
