@@ -2,8 +2,7 @@ import type { PluginInstance } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
 import { inflate, inflateRaw } from "pako";
 import ChrisAPIClient from "../../api/chrisapiclient"; // or your client
-import type { PluginStatusLabels } from "../../store/resources/types";
-import { getStatusLabels } from "../../store/resources/utils";
+import { getStatusLabels, type PluginStatusLabels } from "./utils";
 
 // Reuse your getLog function
 function getLog(raw: string) {
