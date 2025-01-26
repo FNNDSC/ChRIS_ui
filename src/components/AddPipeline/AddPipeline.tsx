@@ -10,7 +10,6 @@ import {
   getSelectedPlugin,
   setPluginInstancesAndSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
-import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
 import { Alert, Form, Tag } from "../Antd";
 import { SpinContainer } from "../Common";
 import Pipelines from "../PipelinesCopy";
@@ -89,7 +88,7 @@ const AddPipeline = () => {
             pluginInstances: completeList,
           };
           reactDispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
-          reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
+          //reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
         }
       } catch (e: any) {
         if (e instanceof Error) throw new Error(e.message);
