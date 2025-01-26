@@ -1,11 +1,6 @@
 import { Steps, Spin } from "../Antd";
-import usePluginInstanceResource from "./usePluginInstanceResource";
 
-const Status = () => {
-  const pluginInstanceResource = usePluginInstanceResource();
-
-  const pluginStatus = pluginInstanceResource?.pluginStatus;
-
+const Status = ({ pluginStatus }: { pluginStatus: any }) => {
   if (pluginStatus && pluginStatus.length > 0) {
     const items = pluginStatus.map((label: any, index: number) => {
       return {

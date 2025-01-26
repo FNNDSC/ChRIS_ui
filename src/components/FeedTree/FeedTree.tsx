@@ -42,7 +42,7 @@ enum Feature {
 
 // Interface Definitions
 interface FeedTreeProps {
-  onNodeClick: (node: PluginInstance) => void;
+  onNodeClick: (node: TreeNodeDatum) => void;
   tsIds?: TSID;
   data: TreeNodeDatum[];
   changeLayout: () => void;

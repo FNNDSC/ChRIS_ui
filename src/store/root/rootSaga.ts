@@ -8,9 +8,8 @@ import { all, fork } from "redux-saga/effects";
 
 /// ADD ALL Local Sagas:
 
-import { resourceSaga } from "../resources/saga";
 import { cartSaga } from "../cart/saga";
 
 export function* rootSaga() {
-  yield all([fork(resourceSaga), fork(cartSaga)]);
+  yield all([fork(cartSaga)]);
 }

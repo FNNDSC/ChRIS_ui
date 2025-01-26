@@ -5,11 +5,6 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import { catchError, fetchResource } from "../../api/common";
-import {
-  getPluginInstanceStatusRequest,
-  stopFetchingPluginResources,
-  stopFetchingStatusResources,
-} from "../resources/resourceSlice";
 import type { RootState } from "../root/applicationState";
 import type {
   AddNodePayload,
@@ -47,13 +42,8 @@ export const fetchPluginInstances = createAsyncThunk<
       );
 
       const selected = pluginInstances[pluginInstances.length - 1];
-      const pluginInstanceObj = {
-        selected,
-        pluginInstances,
-      };
       //This action triggers a resource fetch in the resource saga
       dispatch(getSelectedPlugin(selected));
-      dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
       return { selected, pluginInstances };
     } catch (error) {
       const errMessage = catchError(error).error_message;
@@ -73,12 +63,14 @@ export const addNode = createAsyncThunk<
     try {
       const pluginInstances = [...nodes, pluginItem];
       dispatch(getSelectedPlugin(pluginItem));
+      /*
       dispatch(
         getPluginInstanceStatusRequest({
           selected: pluginItem,
           pluginInstances,
         }),
       );
+      */
       return { selected: pluginItem, pluginInstances };
     } catch (error) {
       return rejectWithValue("Failed to add node.");
@@ -104,10 +96,13 @@ export const deletePluginInstance = createAsyncThunk<
       // Get all descendant ids
       const descendantIds = getAllDescendantIds(pluginInstances, id);
       // Stop fetching resources for all descendants
+
+      /*
       descendantIds.forEach((descendantId) => {
         dispatch(stopFetchingPluginResources(descendantId));
         dispatch(stopFetchingStatusResources(descendantId));
       });
+      */
 
       // Delete the plugin instance (assuming it will delete its descendants)
       await pluginInstance.delete();

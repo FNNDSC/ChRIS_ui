@@ -1,13 +1,11 @@
 import React from "react";
 
-import usePluginInstanceResource from "./usePluginInstanceResource";
-import { SpinContainer } from "../Common";
-import { useAppSelector } from "../../store/hooks";
 import FillCheckIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 import ExclaimationIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import { useAppSelector } from "../../store/hooks";
+import { SpinContainer } from "../Common";
 
-const StatusTitle = () => {
-  const pluginInstanceResource = usePluginInstanceResource();
+const StatusTitle = ({ pluginStatus }: { pluginStatus: any }) => {
   const selected = useAppSelector((state) => state.instance.selectedPlugin);
 
   let statusTitle:
@@ -16,8 +14,6 @@ const StatusTitle = () => {
         icon: any;
       }
     | undefined = undefined;
-  const pluginStatus =
-    pluginInstanceResource && pluginInstanceResource.pluginStatus;
 
   const finishedStatuses = [
     "finishedSuccessfully",
@@ -39,7 +35,8 @@ const StatusTitle = () => {
         <span>{statusTitle.title} </span>{" "}
       </>
     );
-  } else return <SpinContainer title="Fetching plugin's execution status" />;
+  }
+  return <SpinContainer title="Fetching plugin's execution status" />;
 };
 
 const StatusTitleMemoed = React.memo(StatusTitle);

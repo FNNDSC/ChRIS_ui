@@ -8,7 +8,6 @@ import type { IExplorerState } from "../explorer/types";
 import type { IFeedState } from "../feed/types";
 import type { IPluginState } from "../plugin/pluginSlice";
 import type { IPluginInstanceState } from "../pluginInstance/types";
-import type { IResourceState } from "../resources/types";
 import type { IUiState } from "../ui/uiSlice";
 import type { IUserState } from "../user/userSlice";
 import type { ICartState } from "../cart/types";
@@ -19,7 +18,6 @@ export interface ApplicationState {
   user: IUserState;
   plugin: IPluginState;
   instance: IPluginInstanceState;
-  resource: IResourceState;
   drawers: IDrawerState;
   explorer: IExplorerState;
   cart: ICartState;

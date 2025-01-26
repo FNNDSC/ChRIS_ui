@@ -25,6 +25,7 @@ import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
 import { getErrorCodeMessage } from "./utils";
+import { usePluginInstanceResourceQuery } from "./usePluginInstanceResource";
 
 interface INodeState {
   plugin?: Plugin;
@@ -48,7 +49,6 @@ const NodeDetails: React.FC = () => {
   const navigate = useNavigate();
   const feed = useAppSelector((state) => state.feed.currentFeed.data);
   const drawerState = useAppSelector((state) => state.drawers);
-
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isExpanded, setIsExpanded] = React.useState(true);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
@@ -78,6 +78,8 @@ const NodeDetails: React.FC = () => {
     fetchData();
   }, [selectedPlugin]);
 
+  const { data } = usePluginInstanceResourceQuery(selectedPlugin);
+
   const command = React.useCallback(getCommand, []);
 
   const text =
@@ -91,9 +93,7 @@ const NodeDetails: React.FC = () => {
     selectedPlugin?.data.status === "cancelled" ||
     selectedPlugin?.data.status === "finishedWithError";
 
-  //@ts-ignore
   const error_code = selectedPlugin?.data.error_code;
-  //@ts-ignore
   const compute_env = selectedPlugin?.data.compute_resource_name;
 
   const renderGridItem = (title: string, value: React.ReactNode) => {
@@ -133,16 +133,19 @@ const NodeDetails: React.FC = () => {
     >
       <div className="node-details">
         {drawerState.node.currentlyActive === "terminal" ? (
-          <PluginLog text={text} />
+          <PluginLog text={text} log={data?.pluginLog} />
         ) : drawerState.node.currentlyActive === "note" ? (
           <FeedNote />
         ) : (
           <>
             <PluginTitle />
             <Grid className="node-details__grid">
-              {renderGridItem("Status", <StatusTitle />)}
+              {renderGridItem(
+                "Status",
+                <StatusTitle pluginStatus={data?.pluginStatus} />,
+              )}
             </Grid>
-            <Status />
+            <Status pluginStatus={data?.pluginStatus} />
 
             <ExpandableSection
               toggleText={

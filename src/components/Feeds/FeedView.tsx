@@ -46,14 +46,6 @@ const FeedView: React.FC = () => {
   const location = useLocation();
   const { id } = params;
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
-  const { selectedPlugin, pluginInstances } = useAppSelector(
-    (state) => state.instance,
-  );
-  const dataRef = useRef<DestroyActiveResources>();
-  dataRef.current = {
-    data: pluginInstances.data,
-    selectedPlugin,
-  };
   const { feed, contextHolder } = useFetchFeed(id, type, isLoggedIn);
 
   useEffect(() => {
@@ -68,7 +60,7 @@ const FeedView: React.FC = () => {
   useEffect(() => {
     if (feed) {
       dispatch(getFeedSuccess(feed as Feed));
-      dispatch(fetchPluginInstances(feed));
+      // dispatch(fetchPluginInstances(feed));
     }
   }, [feed, dispatch]);
 
@@ -76,10 +68,6 @@ const FeedView: React.FC = () => {
     document.title = "My Analyses - CHRIS UI";
     dispatch(setShowToolbar(true));
     return () => {
-      if (dataRef.current?.selectedPlugin && dataRef.current.data) {
-        dispatch(resetActiveResources(dataRef.current));
-      }
-      dispatch(resetPluginInstances());
       dispatch(resetFeed());
       dispatch(clearSelectedFile());
       dispatch(resetDrawerState());
@@ -155,9 +143,9 @@ const FeedView: React.FC = () => {
                       {handleDrawerAction("graph")}
                       {!currentLayout ? (
                         <ParentComponent
-                          onNodeClick={onNodeClick}
                           changeLayout={changeLayout}
                           currentLayout={currentLayout}
+                          feed={feed}
                         />
                       ) : (
                         <FeedGraph
