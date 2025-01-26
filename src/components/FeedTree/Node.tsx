@@ -1,3 +1,8 @@
+import type { PluginInstance } from "@fnndsc/chrisapi";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { notification } from "antd";
+import type { HierarchyPointNode } from "d3-hierarchy";
+import { select } from "d3-selection";
 import {
   Fragment,
   memo,
@@ -6,12 +11,6 @@ import {
   useEffect,
   useRef,
 } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { notification } from "antd";
-import type { HierarchyPointNode } from "d3-hierarchy";
-import { select } from "d3-selection";
-import type { PluginInstance } from "@fnndsc/chrisapi";
-
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -19,7 +18,6 @@ import {
   setPluginInstancesAndSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
 import { getPluginInstanceStatusRequest } from "../../store/resources/resourceSlice";
-
 import AddNodeConnect from "../AddNode/AddNode";
 import { AddNodeProvider } from "../AddNode/context";
 import AddPipeline from "../AddPipeline/AddPipeline";
@@ -352,12 +350,30 @@ const NodeMemoed = memo(Node);
  */
 const NodeWrapper = (props: NodeWrapperProps) => {
   const { data, overlayScale } = props;
+  const intitalStatus = data.item?.data.status;
+  const instance = data?.item;
 
-  const status = useAppSelector((state) => {
-    if (data.id && state.resource.pluginInstanceStatus[data.id]) {
-      return state.resource.pluginInstanceStatus[data.id].status;
-    }
-    return undefined;
+  const activeStatus = useQuery<string | undefined, Error>({
+    queryKey: ["pluginInstance", instance?.data.id],
+    queryFn: async (): Promise<string | undefined> => {
+      if (instance) {
+        const pluginDetails = await instance.get();
+        return pluginDetails.data.status; // e.g. "finishedSuccessfully"
+      }
+      return undefined;
+    },
+    enabled: !!instance,
+    refetchInterval: (data) => {
+      const status = data.state.data;
+      if (
+        status === "finishedWithError" ||
+        status === "cancelled" ||
+        status === "finishedSuccessfully"
+      ) {
+        return false;
+      }
+      return 7000;
+    },
   });
 
   const currentId = useAppSelector((state) => {
@@ -377,7 +393,7 @@ const NodeWrapper = (props: NodeWrapperProps) => {
   return (
     <NodeMemoed
       {...props}
-      status={status || data.item?.data.status}
+      status={activeStatus.data || intitalStatus}
       overlaySize={scale}
       currentId={currentId}
     />

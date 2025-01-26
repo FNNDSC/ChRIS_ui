@@ -3,12 +3,7 @@ import type { NodeDetailsProps } from "../../store/resources/types";
 import LogTerminal from "./LogTerminal";
 import { isEmpty } from "lodash";
 
-import usePluginInstanceResource from "./usePluginInstanceResource";
-
-const PluginLog = ({ text }: NodeDetailsProps) => {
-  const pluginInstanceResource = usePluginInstanceResource();
-  const log = pluginInstanceResource?.pluginLog;
-
+const PluginLog = ({ text, log }: NodeDetailsProps) => {
   let terminalOutput = text ? text : "";
   terminalOutput +=
     log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";

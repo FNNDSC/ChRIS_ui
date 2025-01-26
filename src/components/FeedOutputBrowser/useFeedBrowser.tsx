@@ -18,28 +18,8 @@ export const useFeedBrowser = () => {
   const [download, setDownload] = useState(getInitialDownloadState);
   const [currentPath, setCurrentPath] = useState("");
   const [pageNumber, setPageNumber] = useState(1);
-
-  const pluginInstances = useAppSelector(
-    (state) => state.instance.pluginInstances,
-  );
-
   const selected = useAppSelector((state) => state.instance.selectedPlugin);
-  const { data: plugins } = pluginInstances;
-
-  const statusTitle = useAppSelector((state) => {
-    if (selected) {
-      const id = selected.data.id;
-      if (id && state.resource.pluginInstanceStatus[id]) {
-        return state.resource.pluginInstanceStatus[id].status;
-      }
-    }
-  });
-
-  const finished = !!(
-    (selected && status.includes(selected?.data.status)) ||
-    (statusTitle && status.includes(statusTitle))
-  );
-
+  const finished = selected && status.includes(selected?.data.status);
   const queryKey = ["pluginFiles", currentPath, pageNumber];
 
   const {
@@ -90,7 +70,7 @@ export const useFeedBrowser = () => {
   }, [fetchMore, handlePagination]);
 
   useEffect(() => {
-    if ((statusTitle && status.includes(statusTitle)) || finished) {
+    if (finished) {
       // User is trying to download a file before it is available
       if (download.error) {
         setDownload((state) => ({
@@ -103,7 +83,7 @@ export const useFeedBrowser = () => {
         }, 3000);
       }
     }
-  }, [finished, statusTitle, download.error]);
+  }, [finished, download.error]);
 
   useEffect(() => {
     setCurrentPath(selected?.data.output_path);
@@ -120,8 +100,6 @@ export const useFeedBrowser = () => {
     filesLoading,
     isError,
     error,
-    plugins,
-    statusTitle,
     download,
     selected,
     pluginFilesPayload,
@@ -130,6 +108,7 @@ export const useFeedBrowser = () => {
     currentPath,
     observerTarget,
     fetchMore,
+    finished,
     handlePagination,
   };
 };
