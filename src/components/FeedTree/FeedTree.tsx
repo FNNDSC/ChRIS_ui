@@ -8,14 +8,15 @@ import {
 } from "d3-hierarchy";
 import { select } from "d3-selection";
 import { type ZoomBehavior, zoom as d3Zoom, zoomIdentity } from "d3-zoom";
-import { useContext, useEffect, useRef, useCallback } from "react";
+import { throttle } from "lodash";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { useImmer } from "use-immer";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { RotateLeft, RotateRight } from "../Icons";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import Link from "./Link";
 import NodeWrapper from "./Node";
-import type { TSID } from "./ParentComponent";
+
 import TransitionGroupWrapper from "./TransitionGroupWrapper";
 import type { TreeNodeDatum } from "./data";
 import useSize from "./useSize";
@@ -44,9 +45,10 @@ enum Feature {
 interface FeedTreeProps {
   onNodeClick: (node: TreeNodeDatum) => void;
   tsIds?: TSID;
-  data: TreeNodeDatum[];
+  data: TreeNodeDatum;
   changeLayout: () => void;
   currentLayout: boolean;
+  addNodeLocally: (instance: PluginInstance) => void;
 }
 
 interface State {
@@ -67,6 +69,10 @@ interface State {
     };
   };
 }
+
+export type TSID = {
+  [key: string]: number[];
+};
 
 // Initial State Function
 const getInitialState = (): State => ({
@@ -95,6 +101,7 @@ const FeedTree = ({
   data,
   changeLayout,
   currentLayout,
+  addNodeLocally,
 }: FeedTreeProps) => {
   const divRef = useRef<HTMLDivElement>(null);
   const size = useSize(divRef);
@@ -123,91 +130,92 @@ const FeedTree = ({
   }, [size, updateState, switchState.orientation]);
 
   // Generate Tree Structure
-  const generateTree = useCallback(
-    (data: TreeNodeDatum[]) => {
-      const d3Tree = tree<TreeNodeDatum>()
-        .nodeSize(
-          switchState.orientation === "horizontal"
-            ? [NODE_SIZE.y, NODE_SIZE.x]
-            : [NODE_SIZE.x, NODE_SIZE.y],
-        )
-        .separation((a, b) =>
-          a.data.parentId === b.data.parentId
-            ? SEPARATION.siblings
-            : SEPARATION.nonSiblings,
-        );
+  // Generate Nodes and Links
 
-      let nodes: HierarchyPointNode<TreeNodeDatum>[] | undefined;
-      let links: HierarchyPointLink<TreeNodeDatum>[] | undefined;
-      let newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
+  /**
+   * Using `useMemo` to compute nodes/links so this logic
+   * only re-runs when `data`, `tsIds`, or `switchState.orientation` change.
+   */
+  const { nodes, links } = useMemo(() => {
+    if (!data) {
+      return { nodes: undefined, links: undefined };
+    }
 
-      if (data && data.length > 0) {
-        const rootNode = d3Tree(hierarchy(data[0], (d) => d.children));
-        nodes = rootNode.descendants();
-        links = rootNode.links();
+    // Build the base D3 Tree
+    const d3Tree = tree<TreeNodeDatum>()
+      .nodeSize(
+        switchState.orientation === "horizontal"
+          ? [NODE_SIZE.y, NODE_SIZE.x]
+          : [NODE_SIZE.x, NODE_SIZE.y],
+      )
+      .separation((a, b) =>
+        a.data.parentId === b.data.parentId
+          ? SEPARATION.siblings
+          : SEPARATION.nonSiblings,
+      );
 
-        const newLinksToAdd: HierarchyPointLink<TreeNodeDatum>[] = [];
+    const rootNode = d3Tree(hierarchy(data, (d) => d.children));
+    const computedNodes = rootNode.descendants();
+    const computedLinks = rootNode.links();
 
-        if (tsIds && Object.keys(tsIds).length > 0) {
-          for (const link of links) {
-            const targetId = link.target.data.id;
-            const sourceId = link.source.data.id;
+    // If `tsIds` is provided, we build additional "newLinks" for topological references
+    const newLinksToAdd: HierarchyPointLink<TreeNodeDatum>[] = [];
 
-            if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
-              const topologicalLink = tsIds[targetId]
-                ? link.target
-                : link.source;
+    if (tsIds && Object.keys(tsIds).length > 0) {
+      for (const link of computedLinks) {
+        const targetId = link.target.data.id;
+        const sourceId = link.source.data.id;
 
-              if (topologicalLink?.data.id) {
-                const parents = tsIds[topologicalLink.data.id];
+        if (targetId && sourceId && (tsIds[targetId] || tsIds[sourceId])) {
+          const topologicalLink = tsIds[targetId] ? link.target : link.source;
 
-                if (parents && parents.length > 0) {
-                  const dict: Record<
-                    string,
-                    HierarchyPointNode<TreeNodeDatum>
-                  > = {};
+          if (topologicalLink?.data.id) {
+            const parents = tsIds[topologicalLink.data.id];
+            if (parents && parents.length > 0) {
+              const dict: Record<
+                string,
+                HierarchyPointNode<TreeNodeDatum>
+              > = {};
 
-                  for (const innerLink of links) {
-                    if (innerLink.source && innerLink.target) {
-                      parents.forEach((parentId) => {
-                        if (
-                          innerLink.source.data.id === parentId &&
-                          !dict[parentId]
-                        ) {
-                          dict[parentId] = innerLink.source;
-                        }
-                        if (
-                          innerLink.target.data.id === parentId &&
-                          !dict[parentId]
-                        ) {
-                          dict[parentId] = innerLink.target;
-                        }
-                      });
+              // gather any parent references from the existing links
+              for (const innerLink of computedLinks) {
+                if (innerLink.source && innerLink.target) {
+                  parents.forEach((parentId: number) => {
+                    if (
+                      innerLink.source.data.id === parentId &&
+                      !dict[parentId]
+                    ) {
+                      dict[parentId] = innerLink.source;
                     }
-                  }
-
-                  Object.values(dict).forEach((node) => {
-                    newLinksToAdd.push({
-                      source: node,
-                      target: topologicalLink,
-                    });
+                    if (
+                      innerLink.target.data.id === parentId &&
+                      !dict[parentId]
+                    ) {
+                      dict[parentId] = innerLink.target;
+                    }
                   });
                 }
               }
+
+              Object.values(dict).forEach((node) => {
+                newLinksToAdd.push({
+                  source: node,
+                  target: topologicalLink,
+                });
+              });
             }
           }
         }
-
-        newLinks = [...links, ...newLinksToAdd];
       }
+    }
 
-      return { nodes, newLinks };
-    },
-    [switchState.orientation, tsIds],
-  );
+    const finalLinks = [...computedLinks, ...newLinksToAdd];
 
-  // Generate Nodes and Links
-  const { nodes, newLinks: links } = generateTree(data);
+    return {
+      nodes: computedNodes,
+      links: finalLinks,
+    };
+  }, [data, tsIds, switchState.orientation]);
 
   // Handle Switch Changes
   const handleChange = (feature: Feature, data?: any) => {
@@ -243,13 +251,16 @@ const FeedTree = ({
   const bindZoomListener = useCallback(() => {
     if (!svgRef.current || !gRef.current) return;
 
-    // Initialize Zoom Behavior if not already initialized
     if (!zoomBehaviorRef.current) {
+      // Create a throttled callback
+      const throttledZoomHandler = throttle((event) => {
+        gRef.current?.setAttribute("transform", event.transform.toString());
+      }, 50); // e.g. run at most every 50ms
+
       const zoomBehavior = d3Zoom<SVGSVGElement, unknown>()
         .scaleExtent([SCALE_EXTENT.min, SCALE_EXTENT.max])
-        .on("zoom", (event) => {
-          gRef.current?.setAttribute("transform", event.transform.toString());
-        });
+        // Instead of .on("zoom", (event) => {...}), use the throttled version
+        .on("zoom", throttledZoomHandler);
 
       zoomBehaviorRef.current = zoomBehavior;
       select(svgRef.current).call(
@@ -411,6 +422,7 @@ const FeedTree = ({
                     overlayScale.enabled ? overlayScale.type : undefined
                   }
                   searchFilter={switchState.searchFilter}
+                  addNodeLocally={addNodeLocally}
                 />
               ))}
             </TransitionGroupWrapper>

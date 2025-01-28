@@ -1,4 +1,4 @@
-import type { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance, Feed } from "@fnndsc/chrisapi";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { notification } from "antd";
 import type { HierarchyPointNode } from "d3-hierarchy";
@@ -39,6 +39,7 @@ type NodeWrapperProps = {
   overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
   searchFilter: string;
+  addNodeLocally: (instance: PluginInstance) => void;
 };
 
 type NodeProps = NodeWrapperProps & {
@@ -223,10 +224,12 @@ const usePipelineMutation = (
 /**
  * Modals component to render all modal components.
  */
-const Modals = () => (
+const Modals = ({
+  addNodeLocally,
+}: { addNodeLocally: (instance: PluginInstance) => void }) => (
   <>
     <AddNodeProvider>
-      <AddNodeConnect />
+      <AddNodeConnect addNodeLocally={addNodeLocally} />
     </AddNodeProvider>
     <DeleteNode />
     <PipelineProvider>
@@ -252,6 +255,7 @@ const Node = (props: NodeProps) => {
     currentId,
     overlaySize,
     searchFilter,
+    addNodeLocally,
   } = props;
 
   const dispatch = useAppDispatch();
@@ -304,7 +308,7 @@ const Node = (props: NodeProps) => {
 
   return (
     <Fragment>
-      <Modals />
+      <Modals addNodeLocally={addNodeLocally} />
       {contextHolder}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
       <g

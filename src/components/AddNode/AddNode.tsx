@@ -5,12 +5,10 @@ import {
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
-import type React from "react";
 import { useCallback, useContext } from "react";
 import { catchError } from "../../api/common";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
-import { addNode } from "../../store/pluginInstance/pluginInstanceSlice";
 import type { ApplicationState } from "../../store/root/applicationState";
 import { Alert } from "../Antd";
 import {
@@ -20,10 +18,14 @@ import {
 import BasicConfiguration from "./BasicConfiguration";
 import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
+import ChrisAPIClient from "../../api/chrisapiclient";
 
-const AddNode: React.FC = () => {
+const AddNode = ({
+  addNodeLocally,
+}: { addNodeLocally: (instance: PluginInstance) => void }) => {
   const dispatch = useAppDispatch();
   const { childNode } = useAppSelector(
     (state: ApplicationState) => state.plugin.nodeOperations,
@@ -82,13 +84,14 @@ const AddNode: React.FC = () => {
         selectedPlugin,
       );
 
-      const { data: nodes } = pluginInstances;
-      const pluginInstance = await plugin.getPluginInstances();
-      await pluginInstance.post(parameterInput);
-      const nodeList = pluginInstance.getItems();
+      const client = ChrisAPIClient.getClient();
+      const instance = await client.createPluginInstance(plugin.data.id, {
+        previous_id: selectedPlugin.data.id,
+        ...parameterInput,
+      });
 
-      if (nodeList) {
-        dispatch(addNode({ pluginItem: nodeList[0], nodes }));
+      if (instance) {
+        addNodeLocally(instance);
         toggleOpen();
       }
     } catch (error: any) {
@@ -106,8 +109,8 @@ const AddNode: React.FC = () => {
     memoryLimit,
     errorCallback,
     toggleOpen,
-    dispatch,
     nodeDispatch,
+    addNodeLocally,
   ]);
 
   return (
