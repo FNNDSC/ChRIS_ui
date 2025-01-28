@@ -5,10 +5,8 @@ import { Dropdown, type MenuProps } from "../Antd";
 import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
 
 const DropdownMenu = ({
-  children,
   handleZip,
 }: {
-  children: React.ReactElement;
   handleZip: () => void;
 }) => {
   const dispatch = useAppDispatch();
@@ -103,11 +101,10 @@ const DropdownMenu = ({
         onClick: !isMobile ? handleMenuClick : undefined,
         onTouchStart: isMobile ? handleLongPress : undefined,
       }}
-      trigger={isMobile ? ["click"] : ["contextMenu"]}
+      open={true} // Force it to be open
+      placement="bottomLeft"
       arrow
-    >
-      {children}
-    </Dropdown>
+    />
   );
 };
 
