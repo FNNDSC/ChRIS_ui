@@ -1,7 +1,7 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import React, { Fragment, useContext } from "react";
+import React, { Fragment, useCallback, useContext } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -29,7 +29,7 @@ const AddPipeline = () => {
 
   const alreadyAvailableInstances = pluginInstances.data;
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     if (childPipeline) {
       dispatch({
         type: Types.ResetState,
@@ -37,7 +37,7 @@ const AddPipeline = () => {
       mutation.reset();
     }
     reactDispatch(getNodeOperations("childPipeline"));
-  };
+  }, [childPipeline, dispatch, reactDispatch]);
 
   const addPipeline = async () => {
     const id = pipelineToAdd?.data.id;
@@ -106,7 +106,7 @@ const AddPipeline = () => {
         handleToggle();
       }, 1000);
     }
-  }, [mutation.isSuccess]);
+  }, [mutation.isSuccess, handleToggle]);
 
   React.useEffect(() => {
     const el = document.querySelector("#indicators");

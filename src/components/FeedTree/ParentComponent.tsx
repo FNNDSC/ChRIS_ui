@@ -6,7 +6,7 @@ import type { TreeNodeDatum } from "./data";
 
 import { SpinContainer } from "../Common";
 import { usePaginatedTreeQuery } from "./usePaginatedTreeQuery";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch } from "../../store/hooks";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 
 import FeedTree from "./FeedTree";

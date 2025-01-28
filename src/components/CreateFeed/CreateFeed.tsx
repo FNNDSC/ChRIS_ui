@@ -228,7 +228,7 @@ export default function CreateFeed() {
         onClick={() => closeWizard()}
         isDisabled={!isLoggedIn}
       >
-        Create Feed
+        Create Analysis
       </Button>
       <Modal
         aria-label="Wizard Modal"
