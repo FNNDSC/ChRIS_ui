@@ -13,7 +13,7 @@ import {
   Skeleton,
   ToggleGroup,
   ToggleGroupItem,
-  ToggleGroupItemProps,
+  type ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
@@ -255,7 +255,11 @@ const TableSelectable: React.FunctionComponent = () => {
           {loadingFeedState ? (
             <LoadingTable />
           ) : feedsToDisplay.length > 0 ? (
-            <Table variant="compact" aria-label="Feed Table">
+            <Table
+              className="feed-table"
+              variant="compact"
+              aria-label="Feed Table"
+            >
               <Thead>
                 <Tr>
                   <Th>
@@ -379,7 +383,7 @@ function TableRow({
 
   const feedProgressText = feedResources[id]?.details.feedProgressText;
 
-  let threshold = Infinity;
+  let threshold = Number.POSITIVE_INFINITY;
 
   // If error in a feed => reflect in progres
 

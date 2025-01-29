@@ -199,11 +199,8 @@ export default function CreateFeed() {
     [handleDispatch],
   );
 
-  const allRequiredFieldsNotEmpty: boolean = selectedConfig.includes(
-    "fs_plugin",
-  )
-    ? true
-    : false;
+  const allRequiredFieldsNotEmpty: boolean =
+    !!selectedConfig.includes("fs_plugin");
 
   const filesChoosen = data.chrisFiles.length > 0 || data.localFiles.length > 0;
 
@@ -225,7 +222,7 @@ export default function CreateFeed() {
         onClick={() => closeWizard()}
         isDisabled={!isLoggedIn}
       >
-        Create Feed
+        Create Analysis
       </Button>
       <Modal
         aria-label="Wizard Modal"

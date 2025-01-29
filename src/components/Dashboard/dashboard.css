@@ -2,13 +2,17 @@
   color: white;
 }
 
-@media screen and (min-width: pf-global--breakpoint--sm) and (max-width: pf-global--breakpoint--md) {
+@media screen and (min-width: pf-global--breakpoint--sm) and (
+    max-width: pf-global--breakpoint--md
+  ) {
   .dashboard-carddisplay img:nth-last-of-type(-n + 2) {
     display: none;
   }
 }
 
-@media screen and (min-width: pf-global--breakpoint--xs) and (max-width: pf-global--breakpoint--sm) {
+@media screen and (min-width: pf-global--breakpoint--xs) and (
+    max-width: pf-global--breakpoint--sm
+  ) {
   .dashboard-carddisplay img:nth-last-of-type(-n + 3) {
     display: none;
   }

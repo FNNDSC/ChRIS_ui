@@ -1,12 +1,9 @@
 import * as React from "react";
 import { useNavigate, useRoutes } from "react-router-dom";
-import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
-import LibraryCopyPage from "./components/LibraryCopy";
-import LibrarySearch from "./components/LibrarySearch";
 import Login from "./components/Login";
 import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import NotFound from "./components/NotFound";
@@ -22,6 +19,7 @@ import {
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import Store from "./components/Store";
+
 import { useTypedSelector } from "./store/hooks";
 
 interface IState {
@@ -66,7 +64,9 @@ export const MainRouter: React.FC = () => {
       path: "/",
       element: <Dashboard />,
     },
+
     {
+      /*
       path: "library/*",
       element: (
         <PrivateRoute>
@@ -78,8 +78,10 @@ export const MainRouter: React.FC = () => {
           </RouterProvider>
         </PrivateRoute>
       ),
+      */
     },
     {
+      /*
       path: "librarysearch/*",
       element: (
         <PrivateRoute>
@@ -91,6 +93,7 @@ export const MainRouter: React.FC = () => {
           </RouterProvider>
         </PrivateRoute>
       ),
+      */
     },
 
     {
@@ -147,8 +150,10 @@ export const MainRouter: React.FC = () => {
       element: <PluginCatalog />,
     },
     {
+      /*
       path: "compute",
       element: <ComputePage />,
+      */
     },
     {
       path: "dataset/:feedName?",

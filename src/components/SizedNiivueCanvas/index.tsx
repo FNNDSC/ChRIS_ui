@@ -65,7 +65,8 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     // Internal to niivue, the font size scales with the outer canvas size.
     // To undo this effect, we need to divide by the canvas' width or height.
     // See https://github.com/niivue/niivue/issues/857
-    const multiplier = 2 / (isScaling ? Math.min(canvasWidth, canvasHeight) : 800);
+    const multiplier =
+      2 / (isScaling ? Math.min(canvasWidth, canvasHeight) : 800);
     const textHeight = multiplier * (size || 10);
     return options ? { ...options, textHeight } : { textHeight };
   }, [options, size, isScaling, canvasWidth, canvasHeight]);
