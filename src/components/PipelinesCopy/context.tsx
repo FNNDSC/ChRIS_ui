@@ -1,4 +1,4 @@
-import {
+import type {
   ComputeResource,
   Pipeline,
   PipelinePipingDefaultParameterList,
@@ -258,6 +258,7 @@ export const pipelineReducer = (
       return {
         ...state,
         pipelineToAdd: undefined,
+        selectedPipeline: {},
       };
     }
 

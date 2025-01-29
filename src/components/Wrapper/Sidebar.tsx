@@ -1,21 +1,20 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
 import {
-  PageSidebar,
   Nav,
+  NavGroup,
   NavItem,
   NavList,
-  NavGroup,
+  PageSidebar,
   PageSidebarBody,
 } from "@patternfly/react-core";
-import { setSidebarActive } from "../../store/ui/actions";
-import { ApplicationState } from "../../store/root/applicationState";
-import { IUiState } from "../../store/ui/types";
-import { IUserState } from "../../store/user/types";
+import type * as React from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import type { Dispatch } from "redux";
 import { useTypedSelector } from "../../store/hooks";
-import { isEmpty } from "lodash";
+import type { ApplicationState } from "../../store/root/applicationState";
+import { setSidebarActive } from "../../store/ui/actions";
+import type { IUiState } from "../../store/ui/types";
+import type { IUserState } from "../../store/user/types";
 
 type ReduxProp = {
   setSidebarActive: (active: { activeItem: string }) => void;
@@ -53,9 +52,12 @@ const Sidebar: React.FC<AllProps> = ({
           {renderLink("/", "Overview", "overview")}
         </NavItem>
         <NavGroup title="Data">
-          <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
+          {/*
+         <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
             {renderLink("/library", "Library", "lib")}
           </NavItem>
+            */}
+
           <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
             {renderLink("/pacs", "PACS Query/Retrieve", "pacs")}
           </NavItem>
@@ -74,9 +76,12 @@ const Sidebar: React.FC<AllProps> = ({
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
             {renderLink("/catalog", "Installed Plugins", "catalog")}
           </NavItem>
+          {/*
           <NavItem itemId="compute" isActive={sidebarActiveItem === "compute"}>
             {renderLink("/compute", "Compute", "compute")}
           </NavItem>
+            */}
+
           <NavItem
             itemId="pipelines"
             isActive={sidebarActiveItem === "pipelines"}
@@ -86,11 +91,14 @@ const Sidebar: React.FC<AllProps> = ({
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
             {renderLink("/dataset", "Volume View", "dataset")}
           </NavItem>
-          {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
+
+          {/*
+          !isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
               {renderLink("/store", "Store", "store")}
             </NavItem>
-          )}
+          )
+            */}
         </NavGroup>
       </NavList>
     </Nav>
@@ -110,7 +118,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
   const PageNav = (
     <Nav>
       <NavList>
-        <NavGroup title="Discover ChRIS">
+        <NavGroup>
           <NavItem
             itemId="overview"
             isActive={sidebarActiveItem === "overview"}
@@ -126,14 +134,18 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
             <Link to="/catalog">Installed Plugins</Link>
           </NavItem>
+
           <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
             <Link to="/dataset">Volume View</Link>
           </NavItem>
-          {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
+
+          {/*
+          !isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
               <Link to="/store">Store</Link>
             </NavItem>
-          )}
+          )
+            */}
         </NavGroup>
       </NavList>
     </Nav>

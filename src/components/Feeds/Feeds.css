@@ -1,9 +1,20 @@
-
 .feed-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  padding: 1em !important;
+}
+
+.feed-list {
+  padding: 0 1em !important;
+}
+
+.feed-table
+  tbody:where(.pf-v5-c-table__tbody)
+  > tr:where(.pf-v5-c-table__tr)
+  > * {
+  vertical-align: middle !important;
 }
 
 .feed-list .error {
@@ -22,14 +33,13 @@
   outline: none;
 }
 
-
 .chart {
-   text-align: right;
-  height: 50px;
-  width: 50px;
+  text-align: right;
+  height: 40px;
+  width: 40px;
   display: block;
 }
-   
- .chart.dark tspan {
-    fill: white !important;
-  }
+
+.chart.dark tspan {
+  fill: white !important;
+}

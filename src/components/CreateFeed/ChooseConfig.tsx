@@ -435,7 +435,7 @@ const ChooseConfig = ({
                       <CardTitle>
                         <UploadIcon />
                         <br />
-                        Fetch Data from ChRIS
+                        Data in ChRIS
                       </CardTitle>
                       <CardBody>
                         Choose existing files already registered to ChRIS

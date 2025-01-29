@@ -75,16 +75,14 @@
   white-space: nowrap;
 }
 
-
 .retrieve-progress {
   .pf-v5-c-progress__description {
-    display:none !important;
+    display: none !important;
   }
 }
 
-
 .series-actions {
-  z-index:1;
+  z-index: 1;
   position: absolute;
   top: 0;
   left: 0;
@@ -107,19 +105,17 @@
 .action-button-container {
   display: flex;
   align-items: center;
-  flex-direction:column;
+  flex-direction: column;
 }
 
 .progress-active {
-  .pf-v5-c-progress__indicator{
-    background-color: #BEE1F4
+  .pf-v5-c-progress__indicator {
+    background-color: #bee1f4;
   }
 }
 
-.progress-success{
-   .pf-v5-c-progress__indicator{
-    background-color:#0066CC;
+.progress-success {
+  .pf-v5-c-progress__indicator {
+    background-color: #0066cc;
   }
 }
-
-
