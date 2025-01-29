@@ -1,18 +1,38 @@
+import type React from "react";
 import { useCallback, useContext, useEffect } from "react";
-import { Grid, WizardContext, Split, SplitItem } from "@patternfly/react-core";
+import {
+  Card,
+  CardBody,
+  Divider,
+  Grid,
+  GridItem,
+  Split,
+  SplitItem,
+  Text,
+  TextContent,
+  TextVariants,
+  Title,
+  WizardContext,
+} from "@patternfly/react-core";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
+import { AddNodeContext } from "../AddNode/context";
+import { unpackParametersIntoString } from "../AddNode/utils";
+import { ChrisFileDetails, LocalFileDetails } from "./HelperComponent";
 import { CreateFeedContext } from "./context";
 import { PipelineContext } from "../PipelinesCopy/context";
-import { unpackParametersIntoString } from "../AddNode/utils";
-import { PluginDetails } from "../AddNode/ReviewGrid";
-import { ChrisFileDetails, LocalFileDetails } from "./HelperComponent";
-import { AddNodeContext } from "../AddNode/context";
 import { ErrorAlert, RenderFlexItem } from "../../components/Common";
+import { PluginDetails } from "../AddNode/ReviewGrid";
+import { ThemeContext } from "../DarkTheme/useTheme";
 
-const Review = ({ handleSave }: { handleSave: () => void }) => {
+interface ReviewProps {
+  handleSave: () => void;
+}
+
+const Review: React.FC<ReviewProps> = ({ handleSave }) => {
   const { state } = useContext(CreateFeedContext);
   const { state: addNodeState } = useContext(AddNodeContext);
   const { state: pipelineState } = useContext(PipelineContext);
+
   const { feedName, feedDescription, tags, chrisFiles, localFiles } =
     state.data;
   const { selectedConfig, uploadProgress, feedError, creatingFeedStatus } =
@@ -24,20 +44,22 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     selectedPluginFromMeta,
     selectedComputeEnv,
   } = addNodeState;
-
   const { pipelineToAdd } = pipelineState;
 
-  // the installed version of @patternfly/react-core doesn't support read-only chips
+  const { goToNextStep: onNext, goToPrevStep: onBack } =
+    useContext(WizardContext);
+  useContext(ThemeContext);
+
+  // the installed version of @patternfly/react-core doesn't support read-only chips well
+  // but we can style them manually or use pf-c-chip
   const tagList = tags.map((tag: any) => (
     <div className="pf-c-chip pf-m-read-only tag" key={tag.data.id}>
       <span className="pf-c-chip__text">{tag.data.name}</span>
     </div>
   ));
-  const { goToNextStep: onNext, goToPrevStep: onBack } =
-    useContext(WizardContext);
 
   const handleKeyDown = useCallback(
-    (e: any) => {
+    (e: KeyboardEvent) => {
       if (e.code === "Enter" || e.code === "ArrowRight") {
         e.preventDefault();
         handleSave();
@@ -70,42 +92,41 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
     return (
       <>
         {selectedConfig.includes("fs_plugin") && (
-          <Grid hasGutter={true}>
-            <PluginDetails
-              generatedCommand={generatedCommand}
-              selectedPlugin={selectedPluginFromMeta}
-              computeEnvironment={selectedComputeEnv}
-            />
+          <Grid hasGutter className="pf-u-mb-md">
+            <GridItem span={12}>
+              <PluginDetails
+                generatedCommand={generatedCommand}
+                selectedPlugin={selectedPluginFromMeta}
+                computeEnvironment={selectedComputeEnv}
+              />
+            </GridItem>
           </Grid>
         )}
+
         {selectedConfig.includes("swift_storage") && (
-          <div style={{ width: "60%" }}>
+          <div className="pf-u-mb-md" style={{ maxWidth: "60%" }}>
             <ChrisFileDetails chrisFiles={chrisFiles} />
           </div>
         )}
+
         {selectedConfig.includes("local_select") && (
           <>
             <div
               style={{
                 height: "250px",
-                zIndex: "99999",
-                overflowY: "scroll",
-                width: "60%",
+                overflowY: "auto",
+                maxWidth: "60%",
               }}
+              className="pf-u-mb-md"
             >
               <LocalFileDetails localFiles={localFiles} />
             </div>
-
             <Split>
               <SplitItem>
                 <div style={{ height: "230px", width: "230px" }}>
-                  <p
-                    style={{
-                      marginBottom: "0",
-                    }}
-                  >
+                  <Text component={TextVariants.p} style={{ marginBottom: 0 }}>
                     Tracker for Pushing Files to Storage:
-                  </p>
+                  </Text>
                   <ChartDonutUtilization
                     ariaDesc="Storage capacity"
                     ariaTitle="Donut utilization chart example"
@@ -116,7 +137,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
                     }
                     themeColor={uploadProgress === 100 ? "green" : ""}
                     name="chart1"
-                    subTitle={"100"}
+                    subTitle="100"
                     title={`${uploadProgress}`}
                   />
                 </div>
@@ -129,66 +150,79 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
   };
 
   return (
-    <div className="review">
-      <h1>
-        Review the information below and click &apos;Finish&apos; to create your
-        new feed. Use the &apos;Back&apos; button to make changes.
-      </h1>
+    <div className="review pf-u-mt-lg pf-u-mb-lg">
+      <Card>
+        <CardBody>
+          <Title headingLevel="h1" size="xl" className="pf-u-mb-lg">
+            Review Your Submission
+          </Title>
+          <TextContent className="pf-u-mb-md">
+            <Text component={TextVariants.p}>
+              Check the details below and click <b>Finish</b> to create your new
+              feed. If you need to make changes, click <b>Back</b> to revise.
+            </Text>
+          </TextContent>
 
-      <br />
-      <br />
+          <Divider className="pf-u-mb-lg" />
 
-      <RenderFlexItem
-        title={<span className="review__title">Feed Name:</span>}
-        subTitle={<span className="review__value">{feedName}</span>}
-      />
-      <RenderFlexItem
-        title={<span className="review__title">Feed Description:</span>}
-        subTitle={
-          <span className="review__value">{feedDescription || "N/A"}</span>
-        }
-      />
+          {/* FEED NAME & DESCRIPTION */}
+          <RenderFlexItem
+            title={<span className="review__title">Feed Name:</span>}
+            subTitle={<span className="review__value">{feedName}</span>}
+          />
+          <RenderFlexItem
+            title={<span className="review__title">Feed Description:</span>}
+            subTitle={
+              <span className="review__value">{feedDescription || "N/A"}</span>
+            }
+          />
 
-      <RenderFlexItem
-        title={<span className="review__title">Tags:</span>}
-        subTitle={
-          <span className="review__value">
-            {tagList.length > 0 ? tagList : "N/A"}
-          </span>
-        }
-      />
-
-      <RenderFlexItem
-        title={<span className="review__title">Selected Pipeline:</span>}
-        subTitle={
-          <span className="review__value">
-            {pipelineToAdd ? pipelineToAdd.data.name : "None Selected"}
-          </span>
-        }
-      />
-
-      <RenderFlexItem
-        title={<span className="review__title">Feed Status:</span>}
-        subTitle={
-          <span className="review__value">
-            {creatingFeedStatus ? (
-              <span>
-                {creatingFeedStatus}
-                {creatingFeedStatus === "Creating Feed" && <span>...</span>}
+          <RenderFlexItem
+            title={<span className="review__title">Tags:</span>}
+            subTitle={
+              <span className="review__value">
+                {tagList.length > 0 ? tagList : "N/A"}
               </span>
-            ) : (
-              "N/A"
-            )}
-          </span>
-        }
-      />
+            }
+          />
 
-      {getReviewDetails()}
-      <br />
+          <RenderFlexItem
+            title={<span className="review__title">Selected Pipeline:</span>}
+            subTitle={
+              <span className="review__value">
+                {pipelineToAdd ? pipelineToAdd.data.name : "None Selected"}
+              </span>
+            }
+          />
 
-      <div style={{ marginTop: "1rem" }}>
-        {Object.keys(feedError).length > 0 && <ErrorAlert errors={feedError} />}
-      </div>
+          <RenderFlexItem
+            title={<span className="review__title">Feed Status:</span>}
+            subTitle={
+              <span className="review__value">
+                {creatingFeedStatus ? (
+                  <>
+                    {creatingFeedStatus}
+                    {creatingFeedStatus === "Creating Feed" && <span>...</span>}
+                  </>
+                ) : (
+                  "N/A"
+                )}
+              </span>
+            }
+          />
+
+          <Divider className="pf-u-mb-md pf-u-mt-md" />
+
+          {/* DYNAMIC REVIEW DETAILS */}
+          {getReviewDetails()}
+
+          {Object.keys(feedError).length > 0 && (
+            <div style={{ marginTop: "1rem" }}>
+              <ErrorAlert errors={feedError} />
+            </div>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 };
