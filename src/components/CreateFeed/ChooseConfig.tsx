@@ -24,7 +24,10 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useTypedSelector } from "../../store/hooks";
 import GuidedConfig from "../AddNode/GuidedConfig";
 import { AddNodeContext } from "../AddNode/context";
-import { Types as AddNodeTypes, chooseConfigProps } from "../AddNode/types";
+import {
+  Types as AddNodeTypes,
+  type chooseConfigProps,
+} from "../AddNode/types";
 import DragAndUpload from "../DragFileUpload";
 import ChrisFileSelect from "./ChrisFileSelect";
 import DataPacks from "./DataPacks";
@@ -49,7 +52,6 @@ const ChooseConfig = ({
   const [currentStep, setCurrentStep] = useState(0);
   const params = useTypedSelector((state) => state.plugin.parameters);
   const [selectedCard, setSelectedCard] = useState("");
-  const [showDragAndDrop, setShowDragAndDrop] = useState(false);
 
   const handleClick = useCallback(
     (event: React.MouseEvent, selectedPluginId = "") => {
@@ -58,8 +60,6 @@ const ChooseConfig = ({
       setSelectedCard(selectedCard);
       if (selectedCard === "swift_storage" || selectedCard === "fs_plugin") {
         setRightDrawerExpand(true);
-      } else if (selectedCard === "local_select") {
-        setShowDragAndDrop(true);
       }
     },
     [],
@@ -81,7 +81,7 @@ const ChooseConfig = ({
         case "ArrowRight":
           if (
             selectedConfig.includes("fs_plugin") &&
-            params?.required.length != Object.keys(requiredInput).length
+            params?.required.length !== Object.keys(requiredInput).length
           ) {
             return;
           }
@@ -318,6 +318,7 @@ const ChooseConfig = ({
   const fileList =
     chrisFiles.length > 0
       ? chrisFiles.map((file: string, index: number) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           <React.Fragment key={index}>
             <FileList file={file} index={index} />
           </React.Fragment>
@@ -330,12 +331,6 @@ const ChooseConfig = ({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
-
-  useEffect(() => {
-    if (localFiles.length === 0) {
-      setShowDragAndDrop(false);
-    }
-  }, [localFiles.length]);
 
   return (
     <Drawer isExpanded={isRightDrawerExpand} position="right">
@@ -457,35 +452,7 @@ const ChooseConfig = ({
               <GridItem>
                 <Grid>
                   <GridItem style={{ height: "230px" }}>
-                    {!showDragAndDrop ? (
-                      <Card
-                        id="local_select"
-                        isSelectable={isDataSelected}
-                        style={cardContainerStyle}
-                        onClick={handleClick}
-                        isSelected={selectedConfig.includes("local_select")}
-                      >
-                        <CardHeader style={cardHeaderStyle}>
-                          <Tooltip content="Press the U key to select">
-                            <Chip key="KeyboardShortcut" isReadOnly>
-                              U
-                            </Chip>
-                          </Tooltip>
-                        </CardHeader>
-                        <CardTitle>
-                          <UploadIcon />
-                          <br />
-                          Upload New Data
-                        </CardTitle>
-                        <CardBody>
-                          Upload new files from your local computer
-                        </CardBody>
-                      </Card>
-                    ) : (
-                      <DragAndUpload
-                        handleLocalUploadFiles={handleFileUpload}
-                      />
-                    )}
+                    <DragAndUpload handleLocalUploadFiles={handleFileUpload} />
                   </GridItem>
                   <GridItem>
                     {localFiles.length > 0 ? <LocalFileUpload /> : null}

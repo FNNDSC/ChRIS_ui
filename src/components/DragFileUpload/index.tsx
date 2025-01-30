@@ -1,71 +1,36 @@
-import { Tooltip } from "@patternfly/react-core";
-import { useCallback, useContext, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
-import { UploadIcon as IconUpload } from "../Icons";
-import { CreateFeedContext } from "../CreateFeed/context";
+import type React from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
+import { Card, CardBody, Button } from "@patternfly/react-core";
 import { Types } from "../CreateFeed/types/feed";
+import { CreateFeedContext } from "../CreateFeed/context";
 import "./DragFileUpload.css";
 
-const baseStyle = {
-  flex: 1,
+/**
+ * Inline styling to match other cards in ChooseConfig
+ * You can move these to CSS if desired.
+ */
+const cardContainerStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
+  height: "100%",
+  textAlign: "center",
+  border: "0.2px solid #D3D3D3",
   alignItems: "center",
-  padding: "20px",
-  borderWidth: 2,
-  borderRadius: 4,
-  borderColor: "#dfe1e6",
-  borderStyle: "dashed",
-  color: "white",
-  outline: "none",
-  transition: "border .24s ease-in-out",
+  justifyContent: "center",
 };
 
-const focusedStyle = {
-  borderColor: "#2188ff",
-};
+interface DragAndUploadProps {
+  handleLocalUploadFiles: (files: File[]) => void;
+}
 
-const activeStyle = {
-  borderColor: "#2188ff",
-};
-
-const acceptStyle = {
-  borderColor: "#37b24d",
-};
-
-const rejectStyle = {
-  borderColor: "#ff5252",
-};
-
-const DragAndUpload = ({
+const DragAndUpload: React.FC<DragAndUploadProps> = ({
   handleLocalUploadFiles,
-}: {
-  handleLocalUploadFiles: (files: any[]) => void;
 }) => {
-  const onDrop = useCallback(
-    (acceptedFiles: any) => {
-      handleLocalUploadFiles(acceptedFiles);
-    },
-    [handleLocalUploadFiles],
-  );
-
-  const {
-    getRootProps,
-    getInputProps,
-    open,
-    isFocused,
-    isDragReject,
-    isDragActive,
-    isDragAccept,
-  } = useDropzone({
-    onDrop,
-    // FS access API is not available on Firefox, and also causes trouble for testing.
-    // https://github.com/react-dropzone/react-dropzone/discussions/1339
-    useFsAccessApi: false,
-  });
-
   const { state, dispatch } = useContext(CreateFeedContext);
 
+  /**
+   * If user unselects all local files, remove "local_select" from selectedConfig
+   */
   useEffect(() => {
     if (state.data.localFiles.length === 0) {
       if (state.selectedConfig.includes("local_select")) {
@@ -81,54 +46,110 @@ const DragAndUpload = ({
     }
   }, [dispatch, state.data.localFiles.length, state.selectedConfig]);
 
-  const handleKeyDown = useCallback(
-    (e: any) => {
-      if (
-        e.code === "KeyU" &&
-        document &&
-        document.activeElement &&
-        document.activeElement.tagName !== "INPUT"
-      ) {
-        open();
-      }
+  // ---- File upload ----
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUploadClick = useCallback(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Reset so the same file can be chosen again
+      fileInputRef.current.click();
+    }
+  }, []);
+
+  const handleFileChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files) return;
+      handleLocalUploadFiles(Array.from(files));
     },
-    [open],
+    [handleLocalUploadFiles],
   );
 
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleKeyDown]);
+  // ---- Folder upload ----
+  const folderInputRef = useRef<HTMLInputElement>(null);
 
-  const style = {
-    ...baseStyle,
-    ...(isFocused ? focusedStyle : {}),
-    ...(isDragActive ? activeStyle : {}),
-    ...(isDragAccept ? acceptStyle : {}),
-    ...(isDragReject ? rejectStyle : {}),
-    height: "100%",
-  };
+  const handleFolderUploadClick = useCallback(() => {
+    if (folderInputRef.current) {
+      folderInputRef.current.value = ""; // Reset so the same folder can be chosen again
+      folderInputRef.current.click();
+    }
+  }, []);
+
+  const handleFolderChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (!files) return;
+      handleLocalUploadFiles(Array.from(files));
+    },
+    [handleLocalUploadFiles],
+  );
 
   return (
-    <section className="drag-and-upload-container">
-      <Tooltip content="Press the U key to select a file">
-        <div className="tag">
-          <span className="tag-text">U</span>
+    <Card
+      id="local_select"
+      isSelectable
+      className="local-upload-card"
+      style={cardContainerStyle}
+      // If you want to toggle "isSelected" based on your own conditions, you can do:
+      isSelected={state.selectedConfig.includes("local_select")}
+      onClick={() => {
+        // Add "local_select" to the selectedConfig if not already added:
+        if (!state.selectedConfig.includes("local_select")) {
+          dispatch({
+            type: Types.SelectedConfig,
+            payload: {
+              selectedConfig: [...state.selectedConfig, "local_select"],
+            },
+          });
+        }
+      }}
+    >
+      <CardBody>
+        <p>Select files or an entire folder from your local system.</p>
+
+        <div className="button-group" style={{ marginTop: "1rem" }}>
+          <Button
+            variant="secondary"
+            onClick={(e) => {
+              // Stop the card's onClick from triggering
+              e.stopPropagation();
+              handleFileUploadClick();
+            }}
+            style={{ marginRight: "0.5rem" }}
+          >
+            Upload a File
+          </Button>
+          <input
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            type="file"
+            multiple
+            onChange={handleFileChange}
+          />
+
+          <Button
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleFolderUploadClick();
+            }}
+          >
+            Upload a Folder
+          </Button>
+          <input
+            ref={folderInputRef}
+            style={{ display: "none" }}
+            type="file"
+            multiple
+            // The attributes below allow folder selection in Chromium
+            //@ts-ignore
+            webkitdirectory="true"
+            directory="true"
+            onChange={handleFolderChange}
+          />
         </div>
-      </Tooltip>
-      {/* @ts-ignore*/}
-      <div {...getRootProps({ style })}>
-        <input {...getInputProps()} />
-        <IconUpload />
-        <p>
-          Drag &apos;n&apos; drop some files here or click to select files.
-          <br />
-          Use the button below for Folder Uploads.
-        </p>
-      </div>
-    </section>
+      </CardBody>
+    </Card>
   );
 };
 

@@ -1,53 +1,43 @@
 .drag-and-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+/* The label or tag showing the 'U' key hint */
+.tag {
   position: relative;
-  height: 100%;
-  cursor: pointer;
+  margin-bottom: 0.5rem;
 }
-
-.tag {
-  position: absolute;
-  top: 10%;
-  right: 8%;
-  background-color: #36b37e;
+.tag .tag-text {
+  background: #2188ff;
   color: white;
-  padding: 5px 10px;
+  padding: 0.25rem 0.5rem;
   border-radius: 4px;
+  font-weight: 600;
 }
 
-.tag-text {
-  font-weight: bold;
+/* The dashed dropzone area */
+.dropzone-area {
+  width: 350px;
+  height: 150px;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
-.drag-and-upload-container p {
-  margin-top: 1rem;
+/* Additional text styling inside the dropzone */
+.dropzone-area p {
+  margin: 0.5rem;
+}
+.dropzone-area .text-subtle {
+  font-size: 0.85rem;
+  color: #666;
 }
 
-.drag-and-upload-container svg {
-  color: #6c757d;
-}
-
-/* Animation Styles */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Apply the animation to the drag-and-upload-section */
-.drag-and-upload-section {
-  animation: fadeInUp 0.5s ease-in-out;
-}
-
-/* Additional styling for animations/transitions */
-.tag {
-  transition: background-color 0.3s ease-in-out;
-}
-
-.drag-and-upload-container p {
-  transition: color 0.3s ease-in-out;
+/* Container for the two upload buttons */
+.button-container {
+  display: flex;
+  gap: 1rem;
 }
