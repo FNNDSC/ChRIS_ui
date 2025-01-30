@@ -1,4 +1,4 @@
-import {
+import type {
   Plugin,
   PluginInstance,
   PluginInstanceDescendantList,
@@ -10,7 +10,7 @@ import {
   Grid,
   GridItem,
 } from "@patternfly/react-core";
-import React, { Fragment, ReactNode } from "react";
+import React, { Fragment, type ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
 import { quote } from "shlex";

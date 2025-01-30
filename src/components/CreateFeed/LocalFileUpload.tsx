@@ -64,9 +64,9 @@ const FileUploadComponent = ({
 }: FileUploadProps) => {
   const handleKeyDown = useCallback(
     (e: any) => {
-      if (e.code == "ArrowLeft") {
+      if (e.code === "ArrowLeft") {
         onBack();
-      } else if (e.code == "ArrowRight" && localFiles.length > 0) {
+      } else if (e.code === "ArrowRight" && localFiles.length > 0) {
         onNext();
       }
     },
