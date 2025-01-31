@@ -1,14 +1,13 @@
 // usePaginatedTreeQuery.ts
 
-import { useEffect, useCallback } from "react";
 import type { Feed } from "@fnndsc/chrisapi";
+import { useCallback, useEffect } from "react";
 import type { TreeNodeDatum } from "./data";
 
-import { SpinContainer } from "../Common";
-import { usePaginatedTreeQuery } from "./usePaginatedTreeQuery";
 import { useAppDispatch } from "../../store/hooks";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
-
+import { SpinContainer } from "../Common";
+import { usePaginatedTreeQuery } from "./usePaginatedTreeQuery";
 import FeedTree from "./FeedTree";
 
 interface ParentComponentProps {
@@ -29,6 +28,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     isFetchingNextPage,
     isProcessing,
     addNodeLocally,
+    pluginInstances,
   } = usePaginatedTreeQuery(feed);
 
   const dispatch = useAppDispatch();
@@ -60,10 +60,12 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     return <div>No items found.</div>;
   }
 
+  console.log("RootNode", rootNode);
+
   return (
     <>
       {(isProcessing || isFetchingNextPage) && (
-        <span>Contructing the tree...</span>
+        <SpinContainer title="Constructing the tree..." />
       )}
       {rootNode && (
         <FeedTree
@@ -74,6 +76,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
           changeLayout={changeLayout}
           currentLayout={currentLayout}
           addNodeLocally={addNodeLocally}
+          pluginInstances={pluginInstances}
         />
       )}
     </>
