@@ -1,10 +1,18 @@
 // src/components/DashboardPage.tsx
 
-import { PageSection } from "@patternfly/react-core";
-import { Button, Card, Col, Row } from "antd";
+// PatternFly imports
+import {
+  Button,
+  Card,
+  CardBody,
+  CardTitle,
+  Grid,
+  GridItem,
+  PageSection,
+} from "@patternfly/react-core";
 import type React from "react";
-import BUILD_VERSION from "../../getBuildVersion";
 import { useEffect } from "react";
+import BUILD_VERSION from "../../getBuildVersion";
 import { InfoSection } from "../Common";
 import WrapperConnect from "../Wrapper";
 import FeedGraph from "./FeedGraph";
@@ -38,101 +46,92 @@ const DashboardPage: React.FC = () => {
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       <PageSection>
-        <Row gutter={[16, 16]}>
-          {/* Showcase Card: Leg Length Discrepancy Workflow */}
-          <Col xs={24}>
-            <Card
-              title="Leg Length Discrepancy Workflow"
-              bordered={false}
-              style={{ width: "100%" }}
-            >
-              <Row gutter={[16, 16]}>
-                {/* Description */}
-                <Col xs={24} md={12}>
-                  <div className="description-section">
-                    <p>
-                      The Leg Length Discrepancy (LLD) analysis is one of the
-                      most frequently used workflows in ChRIS. This process
-                      transforms leg X-rays from DICOM files into new DICOM
-                      files containing detailed measurements of the tibia and
-                      femur for both legs.
-                    </p>
-                  </div>
-                </Col>
+        <Grid hasGutter>
+          <GridItem span={12}>
+            <Card isFlat style={{ width: "100%" }}>
+              <CardTitle>Leg Length Discrepancy Workflow</CardTitle>
+              <CardBody>
+                <Grid hasGutter>
+                  <GridItem span={12} md={6}>
+                    <div className="description-section">
+                      <p>
+                        The Leg Length Discrepancy (LLD) analysis is one of the
+                        most frequently used workflows in ChRIS. This process
+                        transforms leg X-rays from DICOM files into new DICOM
+                        files containing detailed measurements of the tibia and
+                        femur for both legs.
+                      </p>
+                    </div>
+                  </GridItem>
 
-                {/* Graph */}
-                <Col xs={24} md={12}>
-                  <div className="tree-section">
-                    <FeedGraph graphData={lldDataset} />
-                  </div>
-                </Col>
-              </Row>
+                  <GridItem span={12} md={6}>
+                    <div className="tree-section">
+                      {/* Replace with your actual graph component/data */}
+                      <FeedGraph graphData={lldDataset} />
+                    </div>
+                  </GridItem>
+                </Grid>
+              </CardBody>
             </Card>
-          </Col>
-        </Row>
+          </GridItem>
+        </Grid>
 
-        {/* Row for the bottom two cards */}
-        <Row gutter={[16, 16]}>
-          {/* COVIDnet Workflow Card */}
-          <Col xs={24} md={12}>
+        <br />
+
+        {/* Two cards side-by-side */}
+        <Grid hasGutter>
+          {/* COVIDnet Workflow */}
+          <GridItem span={12} md={6}>
             <Card
-              title="COVIDnet Workflow"
-              bordered={false}
-              className="uniform-card-height" /* Ensure both cards have the same height */
+              isFlat
+              className="uniform-card-height"
               style={{ width: "100%", padding: "10px" }}
             >
-              <Row gutter={[16, 16]}>
-                {/* Graph */}
-                <Col xs={24}>
-                  <div className="tree-section">
-                    <FeedGraph graphData={covidnetDataset} />
-                  </div>
-                </Col>
-
-                {/* Read More Button */}
-                <Col xs={24}>
-                  <Button
-                    type="primary"
-                    target="_blank"
-                    href="https://github.com/FNNDSC/pl-covidnet?tab=readme-ov-file"
-                  >
-                    Read More
-                  </Button>
-                </Col>
-              </Row>
+              <CardTitle>COVIDnet Workflow</CardTitle>
+              <CardBody>
+                <div className="tree-section">
+                  <FeedGraph graphData={covidnetDataset} />
+                </div>
+                <br />
+                <Button
+                  variant="primary"
+                  component="a"
+                  href="https://github.com/FNNDSC/pl-covidnet?tab=readme-ov-file"
+                  target="_blank"
+                >
+                  Read More
+                </Button>
+              </CardBody>
             </Card>
-          </Col>
+          </GridItem>
 
-          {/* Automatic Fetal Brain Reconstruction Pipeline Card */}
-          <Col xs={24} md={12}>
+          {/* Automatic Fetal Brain Reconstruction Workflow */}
+          <GridItem span={12} md={6}>
             <Card
-              title="Automatic Fetal Brain Reconstruction Workflow"
-              bordered={false}
-              className="uniform-card-height" /* Ensure both cards have the same height */
+              isFlat
+              className="uniform-card-height"
               style={{ width: "100%", padding: "10px" }}
             >
-              <Row gutter={[16, 16]}>
-                {/* Graph */}
-                <Col xs={24}>
-                  <div className="tree-section">
-                    <FeedGraph graphData={fetalBrainReconstructionDataset} />
-                  </div>
-                </Col>
-
-                {/* Read More Button */}
-                <Col xs={24}>
-                  <Button
-                    type="primary"
-                    target="_blank"
-                    href="https://github.com/FNNDSC/Fetal_Brain_MRI_Reconstruction_Pipeline"
-                  >
-                    Read More
-                  </Button>
-                </Col>
-              </Row>
+              <CardTitle>
+                Automatic Fetal Brain Reconstruction Workflow
+              </CardTitle>
+              <CardBody>
+                <div className="tree-section">
+                  <FeedGraph graphData={fetalBrainReconstructionDataset} />
+                </div>
+                <br />
+                <Button
+                  variant="primary"
+                  component="a"
+                  href="https://github.com/FNNDSC/Fetal_Brain_MRI_Reconstruction_Pipeline"
+                  target="_blank"
+                >
+                  Read More
+                </Button>
+              </CardBody>
             </Card>
-          </Col>
-        </Row>
+          </GridItem>
+        </Grid>
       </PageSection>
     </WrapperConnect>
   );

@@ -3,7 +3,7 @@ import {
   useInfiniteQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
 export interface TreeNodeDatum {
@@ -173,6 +173,7 @@ function insertChildImmutable(
  */
 export function usePaginatedTreeQuery(feed?: Feed) {
   const queryClient = useQueryClient();
+  const [localItems, setLocalItems] = useState<PluginInstance[]>([]);
 
   // Step A: Fetch the total count
   const countQuery = useQuery({
@@ -198,7 +199,7 @@ export function usePaginatedTreeQuery(feed?: Feed) {
     enabled: !!feed && totalCount > 0,
     // Start from offset=0
     initialPageParam: 0,
-    queryFn: async ({ pageParam }) => {
+    queryFn: async ({ pageParam }: { pageParam: number }) => {
       const { items, totalCount } = await fetchPage(
         feed!,
         pageParam,
@@ -208,7 +209,7 @@ export function usePaginatedTreeQuery(feed?: Feed) {
       return { items, totalCount, nextOffset };
     },
     // If nextOffset is still within the total count, we have another page
-    getNextPageParam: (lastPage) =>
+    getNextPageParam: (lastPage: { nextOffset: number; totalCount: number }) =>
       lastPage.nextOffset < lastPage.totalCount
         ? lastPage.nextOffset
         : undefined,
@@ -217,6 +218,19 @@ export function usePaginatedTreeQuery(feed?: Feed) {
   // Step C: References we’ll need to build our tree
   const finalNodesByIdRef = useRef<Map<number, TreeNodeDatum>>(new Map());
   const rootIdRef = useRef<number | null>(null);
+
+  // 2) Compute final pluginInstances by concatenating server items + local items
+  const pluginInstances: PluginInstance[] = useMemo(() => {
+    // items from the infinite query
+    const serverItems =
+      infiniteData?.pages.flatMap(
+        (page: Partial<{ items: PluginInstance[] }>) => page.items ?? [],
+      ) ?? [];
+
+    // if plugin instance IDs are guaranteed unique,
+    // just do a simple concat:
+    return [...serverItems, ...localItems];
+  }, [infiniteData, localItems]);
 
   // Store the built root node in local state
   const [rootNode, setRootNode] = useState<TreeNodeDatum | null>(null);
@@ -318,6 +332,7 @@ export function usePaginatedTreeQuery(feed?: Feed) {
       );
       if (updatedRoot !== rootNode) {
         setRootNode(updatedRoot);
+        setLocalItems((prev) => [...prev, newItem]);
       }
     },
     [rootNode],
@@ -341,5 +356,6 @@ export function usePaginatedTreeQuery(feed?: Feed) {
     // Pagination
     fetchNextPage,
     addNodeLocally,
+    pluginInstances,
   };
 }
