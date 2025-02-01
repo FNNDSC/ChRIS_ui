@@ -1,14 +1,13 @@
 // usePaginatedTreeQuery.ts
 
 import type { Feed } from "@fnndsc/chrisapi";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import type { TreeNodeDatum } from "./data";
-
 import { useAppDispatch } from "../../store/hooks";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 import { SpinContainer } from "../Common";
-import { usePaginatedTreeQuery } from "./usePaginatedTreeQuery";
 import FeedTree from "./FeedTree";
+import { usePaginatedTreeQuery } from "./usePaginatedTreeQuery";
 
 interface ParentComponentProps {
   changeLayout: () => void;
@@ -33,12 +32,15 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
 
   const dispatch = useAppDispatch();
 
-  // Dispatch the first node as soon as we have at least one root
+  // Memoize rootNode to prevent unnecessary effect runs
+  const stableRootNode = useMemo(() => rootNode, [rootNode]);
+
   useEffect(() => {
-    if (rootNode?.item) {
-      dispatch(getSelectedPlugin(rootNode?.item));
+    if (stableRootNode?.item) {
+      // Optional: Add validation for rootNode.item if needed
+      dispatch(getSelectedPlugin(stableRootNode.item));
     }
-  }, [dispatch, rootNode]);
+  }, [stableRootNode, dispatch]);
 
   const onNodeClick = useCallback(
     (node: TreeNodeDatum) => {
@@ -59,8 +61,6 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     // No items in the feed
     return <div>No items found.</div>;
   }
-
-  console.log("RootNode", rootNode);
 
   return (
     <>

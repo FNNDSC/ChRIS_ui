@@ -134,7 +134,10 @@ const pluginInstanceSlice = createSlice({
   name: "pluginInstance",
   initialState,
   reducers: {
-    getSelectedPlugin(state, action: PayloadAction<PluginInstance>) {
+    getSelectedPlugin(
+      state,
+      action: PayloadAction<PluginInstance | undefined>,
+    ) {
       state.selectedPlugin = action.payload;
     },
 

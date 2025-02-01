@@ -102,7 +102,6 @@ const DropdownMenu = ({
         onTouchStart: isMobile ? handleLongPress : undefined,
       }}
       open={true} // Force it to be open
-      placement="bottomLeft"
       arrow
     />
   );
