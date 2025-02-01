@@ -204,8 +204,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     });
   }, [pluginInstances]);
 
-  console.log("IncompletePlugins", incompletePlugins);
-
   // 3) useQueries only for those incomplete items
   useQueries({
     queries: incompletePlugins.map((instance) => {
@@ -222,7 +220,11 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
 
           return latestStatus;
         },
-        refetchInterval: (result: Partial<{ state: { data: string } }>) => {
+        refetchInterval: (result: {
+          state?: {
+            data?: string;
+          };
+        }) => {
           const latestStatus = result?.state?.data;
           // If it transitions to a terminal state, stop polling
           if (isTerminalStatus(latestStatus)) return false;
@@ -491,12 +493,36 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     [transform, onNodeClick, d3.nodes],
   );
 
+  const getNodeScreenCoords = useCallback(
+    (
+      nodeX: number,
+      nodeY: number,
+      transform: { x: number; y: number; k: number },
+      containerRect: DOMRect,
+    ) => {
+      // 1) Account for the zoom/pan transform
+      //    “canvasX” = transform.x + transform.k * nodeX
+      //    “canvasY” = transform.y + transform.k * nodeY
+      const canvasX = transform.x + transform.k * nodeX;
+      const canvasY = transform.y + transform.k * nodeY;
+
+      // 2) Convert from “canvas space” to “page” coords
+      //    by adding the container’s bounding rect offsets
+      const screenX = containerRect.left + canvasX;
+      const screenY = containerRect.top + canvasY;
+
+      return { screenX, screenY };
+    },
+    [],
+  );
+
   // -------------- 7) Canvas contextmenu => open custom context menu --------------
   const handleCanvasContextMenu = useCallback(
     (evt: React.MouseEvent<HTMLCanvasElement>) => {
       evt.preventDefault();
       if (!canvasRef.current) return;
 
+      // We'll still do the 'hit test' to see if user right-clicked a node
       const rect = canvasRef.current.getBoundingClientRect();
       const mouseX = evt.clientX - rect.left;
       const mouseY = evt.clientY - rect.top;
@@ -513,24 +539,52 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         const dy = node.y - zoomedY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist <= DEFAULT_NODE_RADIUS) {
-          foundNode = node.data;
+          foundNode = node.data; // node.data is your “TreeNodeDatum”
           break;
         }
       }
 
       if (foundNode) {
-        setContextMenuNode(foundNode);
+        // We have a node. Now, instead of using evt.clientX, we want to get the
+        // node’s on-screen coords, so the menu is adjacent to the node circle.
+
+        const containerRect = containerRef.current?.getBoundingClientRect();
+        if (!containerRect) return;
+
+        // The node’s “layout” coords are in “foundNode.x, foundNode.y” inside your d3 Node
+        // but we stored “foundNode” as node.data. So we need the actual node’s x,y from d3
+        // If you have that in “(node.x, node.y)”, store it. For example, if your “foundNode” had that:
+        // For this snippet we assume “foundNode.x, foundNode.y” are available, or you could store them.
+        // If you only kept node.data, you need to keep the entire HierarchyPointNode instead.
+
+        // This is the tricky part: we need the “HierarchyPointNode”.
+        // Let’s say you keep it as nodeOfInterest: HierarchyPointNode<TreeNodeDatum>.
+        // Then nodeOfInterest.x, nodeOfInterest.y are the layout coords.
+        // For the sake of example:
+        const nodeOfInterest = d3.nodes.find((n) => n.data.id === foundNode.id);
+        if (!nodeOfInterest) return;
+
+        const { screenX, screenY } = getNodeScreenCoords(
+          nodeOfInterest.x,
+          nodeOfInterest.y,
+          transform,
+          containerRect,
+        );
+
+        // + some offset to not overlap the circle
         setContextMenuPosition({
-          x: evt.clientX,
-          y: evt.clientY,
+          x: screenX + 10,
+          y: screenY,
           visible: true,
         });
+        setContextMenuNode(foundNode);
       } else {
+        // user right-clicked empty space => maybe hide menu
         setContextMenuNode(null);
         setContextMenuPosition({ x: 0, y: 0, visible: false });
       }
     },
-    [transform, d3.nodes],
+    [transform, d3.nodes, getNodeScreenCoords],
   );
 
   // -------------- 8) Handle toggles & orientation --------------

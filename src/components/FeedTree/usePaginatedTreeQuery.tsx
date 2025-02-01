@@ -1,10 +1,12 @@
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import {
-  useQuery,
   useInfiniteQuery,
+  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 
 export interface TreeNodeDatum {
   id: number;
@@ -172,6 +174,7 @@ function insertChildImmutable(
  * 3) Construct a single-root tree, integrated in batches to reduce re-renders.
  */
 export function usePaginatedTreeQuery(feed?: Feed) {
+  const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const [localItems, setLocalItems] = useState<PluginInstance[]>([]);
 
@@ -322,6 +325,7 @@ export function usePaginatedTreeQuery(feed?: Feed) {
       // If there's no root or newChild has no parent, assume it’s a new root:
       if (!rootNode || newChild.parentId === undefined) {
         setRootNode(newChild);
+        dispatch(getSelectedPlugin(newItem));
         return;
       }
 
