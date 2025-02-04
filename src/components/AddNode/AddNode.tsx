@@ -19,13 +19,15 @@ import BasicConfiguration from "./BasicConfiguration";
 import GuidedConfig from "./GuidedConfig";
 import "./add-node.css";
 import type { PluginInstance } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
-import ChrisAPIClient from "../../api/chrisapiclient";
 
 const AddNode = ({
   addNodeLocally,
-}: { addNodeLocally: (instance: PluginInstance) => void }) => {
+}: {
+  addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
+}) => {
   const dispatch = useAppDispatch();
   const { childNode } = useAppSelector(
     (state: ApplicationState) => state.plugin.nodeOperations,

@@ -6,16 +6,16 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
-import {
-  getSelectedPlugin,
-  setPluginInstancesAndSelectedPlugin,
-} from "../../store/pluginInstance/pluginInstanceSlice";
 import { Alert, Form, Tag } from "../Antd";
 import { SpinContainer } from "../Common";
 import Pipelines from "../PipelinesCopy";
 import { PipelineContext, Types } from "../PipelinesCopy/context";
 
-const AddPipeline = () => {
+const AddPipeline = ({
+  addNodeLocally,
+}: {
+  addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
+}) => {
   const { state, dispatch } = useContext(PipelineContext);
   const { pipelineToAdd, selectedPipeline, computeInfo, titleInfo } = state;
   const reactDispatch = useAppDispatch();
@@ -78,17 +78,8 @@ const AddPipeline = () => {
           params,
           boundFn,
         );
-
         if (instanceItems && alreadyAvailableInstances) {
-          const firstInstance = instanceItems[instanceItems.length - 1];
-          const completeList = [...alreadyAvailableInstances, ...instanceItems];
-          reactDispatch(getSelectedPlugin(firstInstance));
-          const pluginInstanceObj = {
-            selected: firstInstance,
-            pluginInstances: completeList,
-          };
-          reactDispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
-          //reactDispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
+          addNodeLocally(instanceItems.reverse());
         }
       } catch (e: any) {
         if (e instanceof Error) throw new Error(e.message);

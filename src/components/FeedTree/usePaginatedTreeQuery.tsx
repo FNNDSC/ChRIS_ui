@@ -66,7 +66,7 @@ function integrateBatchDirectSingleRoot(
     const parentId = item.data.previous_id ?? null;
 
     // Generate a name for display
-    const nodeName = item.data.title || item.data.plugin_name || `Node ${id}`;
+    const nodeName = item.data.title || item.data.plugin_name;
 
     // Either update an existing node or create a new one
     let finalNode = finalNodesById.get(id);
@@ -161,19 +161,7 @@ function insertChildImmutable(
   };
 }
 
-// -- 2) The main hook
-
-/**
- * usePaginatedTreeQuery
- *
- * 1) Fetch the total count of PluginInstances.
- * 2) Fetch instances in "pages" (forward pagination):
- *    - If count > 100, use chunkSize=100,
- *      else chunkSize=20 (unless count < 20).
- *    - Start from offset=0, and fetch subsequent pages by offset += chunkSize.
- * 3) Construct a single-root tree, integrated in batches to reduce re-renders.
- */
-export function usePaginatedTreeQuery(feed?: Feed) {
+export default function usePaginatedTreeQuery(feed?: Feed) {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const [localItems, setLocalItems] = useState<PluginInstance[]>([]);
@@ -312,36 +300,69 @@ export function usePaginatedTreeQuery(feed?: Feed) {
   }, [feed, queryClient]);
 
   // Step E: A helper to insert a node locally (e.g. after creating a new instance)
+  /**
+   * Add one or more PluginInstances as local nodes.
+   *
+   * If a new node's parent is already in the tree,
+   * we'll insert it immutably. If there's no root or no parent, we skip it.
+   *
+   * This function can be called with:
+   *   addNodeLocally(aSinglePluginInstance)
+   * or
+   *   addNodeLocally([anArray, ofPluginInstances])
+   */
   const addNodeLocally = useCallback(
-    (newItem: PluginInstance) => {
-      const newChild: TreeNodeDatum = {
-        id: newItem.data.id,
-        name: newItem.data.title || newItem.data.plugin_name,
-        parentId: newItem.data.previous_id ?? undefined,
-        item: newItem,
-        children: [],
-      };
+    (arg: PluginInstance | PluginInstance[]) => {
+      // Step 1: Convert arg to an array
+      const newItems = Array.isArray(arg) ? arg : [arg];
 
-      // If there's no root or newChild has no parent, assume it’s a new root:
-      if (!rootNode || newChild.parentId === undefined) {
-        setRootNode(newChild);
-        dispatch(getSelectedPlugin(newItem));
-        return;
+      // If there's no existing root, we can't insert children
+      if (!rootNode) return;
+      // We collect each item that actually gets added so we can
+      // batch-update localItems once at the end
+      const addedItems: PluginInstance[] = [];
+      let updatedRoot = rootNode;
+      // Step 2: For each PluginInstance...
+      for (const newItem of newItems) {
+        const parentId = newItem.data.previous_id ?? undefined;
+        if (!parentId) {
+          // Don't add nodes without a previous id.
+          continue;
+        }
+
+        // Build the new TreeNode
+        const newChild: TreeNodeDatum = {
+          id: newItem.data.id,
+          name:
+            newItem.data.title ||
+            newItem.data.plugin_name ||
+            `Node ${newItem.data.id}`,
+          parentId,
+          item: newItem,
+          children: [],
+        };
+
+        // Insert immutably
+        const nextRoot = insertChildImmutable(updatedRoot, parentId, newChild);
+
+        // If insertChildImmutable changed the structure...
+        if (nextRoot !== updatedRoot) {
+          updatedRoot = nextRoot;
+          addedItems.push(newItem);
+        }
       }
 
-      const updatedRoot = insertChildImmutable(
-        rootNode,
-        newChild.parentId,
-        newChild,
-      );
-      if (updatedRoot !== rootNode) {
+      // Step 3: If we actually changed the root, update state
+      if (addedItems.length > 0) {
         setRootNode(updatedRoot);
-        setLocalItems((prev) => [...prev, newItem]);
+        setLocalItems((prev) => [...prev, ...addedItems]);
+
+        const lastAdded = addedItems[addedItems.length - 1];
+        dispatch(getSelectedPlugin(lastAdded));
       }
     },
-    [rootNode],
+    [rootNode, dispatch],
   );
-
   // Return final data + states
   return {
     // React Query states

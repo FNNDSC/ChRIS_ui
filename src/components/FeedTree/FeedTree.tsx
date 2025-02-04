@@ -1,4 +1,6 @@
+import { useMutation, useQueries } from "@tanstack/react-query";
 import { hierarchy, tree } from "d3-hierarchy";
+import type { HierarchyPointLink, HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import {
   type D3ZoomEvent,
@@ -15,8 +17,6 @@ import React, {
   useState,
 } from "react";
 import { useImmer } from "use-immer";
-import { useMutation, useQueries } from "@tanstack/react-query";
-import type { HierarchyPointLink, HierarchyPointNode } from "d3-hierarchy";
 // -------------- React Query & Redux --------------
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
@@ -68,7 +68,7 @@ interface FeedTreeProps {
   currentLayout: boolean; // 2D vs. 3D toggle
   changeLayout: () => void; // callback to switch 2D/3D
   onNodeClick: (node: TreeNodeDatum) => void; // callback if you want external usage
-  addNodeLocally: (instance: PluginInstance) => void;
+  addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
   pluginInstances: PluginInstance[];
 }
 
@@ -126,7 +126,7 @@ function getInitialState(): State {
 function Modals({
   addNodeLocally,
 }: {
-  addNodeLocally: (inst: PluginInstance) => void;
+  addNodeLocally: (inst: PluginInstance | PluginInstance[]) => void;
 }) {
   return (
     <>
@@ -135,7 +135,7 @@ function Modals({
       </AddNodeProvider>
       <DeleteNode />
       <PipelineProvider>
-        <AddPipeline />
+        <AddPipeline addNodeLocally={addNodeLocally} />
       </PipelineProvider>
     </>
   );
