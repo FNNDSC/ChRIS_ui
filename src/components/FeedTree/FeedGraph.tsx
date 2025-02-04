@@ -7,31 +7,32 @@ import ForceGraph2D, {
   type NodeObject,
 } from "react-force-graph-2d";
 import { type ITreeChart, TreeModel } from "../../api/model";
-import { setFeedLayout } from "../../store/feed/feedSlice";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
 import { SpinContainer } from "../Common";
 import useSize from "./useSize";
+import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
+import type { Feed } from "@fnndsc/chrisapi";
 
 interface IFeedProps {
   onNodeClick: (node: PluginInstance) => void;
   currentLayout: boolean;
   changeLayout: () => void;
+  feed?: Feed;
 }
 
 const FeedGraph: React.FC<IFeedProps> = ({
   onNodeClick,
   currentLayout,
   changeLayout,
+  feed,
 }) => {
-  const pluginInstances = useAppSelector(
-    (state) => state.instance.pluginInstances,
-  );
+  const { pluginInstances, isLoading: loading } = usePaginatedTreeQuery(feed);
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
   );
-  const { data: instances, loading } = pluginInstances;
+  //const { data: instances, loading } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef<ForceGraphMethods>();
 
@@ -74,12 +75,12 @@ const FeedGraph: React.FC<IFeedProps> = ({
   };
 
   React.useEffect(() => {
-    if (instances && instances.length > 0) {
-      const tree = new TreeModel(instances);
+    if (pluginInstances.length > 0) {
+      const tree = new TreeModel(pluginInstances);
 
       setGraphData(tree.treeChart);
     }
-  }, [instances]);
+  }, [pluginInstances]);
 
   return (
     <div className="feed-tree" ref={graphRef}>
