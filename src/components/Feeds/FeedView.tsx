@@ -55,7 +55,6 @@ const FeedView: React.FC = () => {
   useEffect(() => {
     if (feed) {
       dispatch(getFeedSuccess(feed as Feed));
-      // dispatch(fetchPluginInstances(feed));
     }
   }, [feed, dispatch]);
 

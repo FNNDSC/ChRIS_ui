@@ -2,17 +2,17 @@
 
 import type { Feed } from "@fnndsc/chrisapi";
 import { useCallback, useEffect, useMemo } from "react";
-import type { TreeNodeDatum } from "./data";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 import { SpinContainer } from "../Common";
 import FeedTree from "./FeedTree";
-import { usePaginatedTreeQuery } from "./usePaginatedTreeQuery";
+import type { TreeNodeDatum } from "./data";
+import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 
 interface ParentComponentProps {
   changeLayout: () => void;
   currentLayout: boolean;
-  feed: Feed;
+  feed?: Feed;
 }
 
 const ParentComponent: React.FC<ParentComponentProps> = ({
@@ -29,6 +29,9 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     addNodeLocally,
     pluginInstances,
   } = usePaginatedTreeQuery(feed);
+  const selectedPlugin = useAppSelector(
+    (state) => state.instance.selectedPlugin,
+  );
 
   const dispatch = useAppDispatch();
 
@@ -36,11 +39,10 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
   const stableRootNode = useMemo(() => rootNode, [rootNode]);
 
   useEffect(() => {
-    if (stableRootNode?.item) {
-      // Optional: Add validation for rootNode.item if needed
+    if (stableRootNode?.item && !selectedPlugin) {
       dispatch(getSelectedPlugin(stableRootNode.item));
     }
-  }, [stableRootNode, dispatch]);
+  }, [stableRootNode, dispatch, selectedPlugin]);
 
   const onNodeClick = useCallback(
     (node: TreeNodeDatum) => {
