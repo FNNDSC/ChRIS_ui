@@ -146,6 +146,7 @@ const FeedView: React.FC = () => {
                           currentLayout={currentLayout}
                           changeLayout={changeLayout}
                           onNodeClick={onNodeClick}
+                          feed={feed}
                         />
                       )}
                     </Panel>
