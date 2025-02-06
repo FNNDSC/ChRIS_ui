@@ -121,10 +121,11 @@ const TableSelectable: React.FC = () => {
     queries: feedsToDisplay.map((feed) => ({
       queryKey: ["feedDetails", feed.data.id],
       queryFn: async () => {
-        const res = await getPluginInstanceDetails(feed);
-        return { [feed.data.id]: { details: res } };
+        // const res = await getPluginInstanceDetails(feed);
+        return {};
       },
       refetchInterval: (data: any) => {
+        /*
         const state = data.state.data;
         const details = state?.[feed.data.id]?.details;
         if (!details) return false;
@@ -132,6 +133,8 @@ const TableSelectable: React.FC = () => {
           return false; // Stop polling
         }
         return 2000; // Poll every 2 seconds
+        */
+        return false;
       },
     })),
   });

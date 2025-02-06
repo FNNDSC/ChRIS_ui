@@ -16,6 +16,25 @@ export interface TreeNodeDatum {
   children: TreeNodeDatum[];
 }
 
+export interface PaginatedTreeQueryReturn {
+  // React Query states
+  isLoading: boolean;
+  error: unknown;
+  totalCount: number;
+  chunkSize: number; // for informational/debug use
+  hasNextPage?: boolean;
+  isFetchingNextPage: boolean;
+
+  // Local states
+  isProcessing: boolean;
+  rootNode: TreeNodeDatum | null;
+
+  // Pagination
+  fetchNextPage: () => Promise<unknown>;
+  addNodeLocally: (arg: PluginInstance | PluginInstance[]) => void;
+  pluginInstances: PluginInstance[];
+}
+
 // -- 1) Helpers
 
 /**
@@ -363,6 +382,7 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
     },
     [rootNode, dispatch],
   );
+
   // Return final data + states
   return {
     // React Query states
