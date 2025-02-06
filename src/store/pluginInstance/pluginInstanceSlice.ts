@@ -140,7 +140,9 @@ const pluginInstanceSlice = createSlice({
     ) {
       state.selectedPlugin = action.payload;
     },
-
+    resetSelectedPlugin(state) {
+      state.selectedPlugin = undefined;
+    },
     setPluginTitle(state, action: PayloadAction<PluginInstance>) {
       if (state.pluginInstances.data) {
         const foundIndex = state.pluginInstances.data.findIndex(
@@ -228,6 +230,7 @@ export const {
   getSelectedPlugin,
   setPluginTitle,
   resetPluginInstances,
+  resetSelectedPlugin,
   setPluginInstancesAndSelectedPlugin,
 } = pluginInstanceSlice.actions;
 

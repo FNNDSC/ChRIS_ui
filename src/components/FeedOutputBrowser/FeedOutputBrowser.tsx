@@ -14,11 +14,12 @@ import { useFeedBrowser } from "./useFeedBrowser";
 export interface FeedOutputBrowserProps {
   handlePluginSelect: (node: PluginInstance) => void;
   explore: boolean;
+  statuses: {
+    [id: number]: string;
+  };
 }
 
-const statusTitles = ["started", "scheduled", "registeringFiles", "created"];
-
-const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
+const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = (props) => {
   const {
     selected,
     pluginFilesPayload,
@@ -31,7 +32,7 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = () => {
     observerTarget,
     handlePagination,
     finished,
-  } = useFeedBrowser();
+  } = useFeedBrowser(props.statuses);
   return (
     <div style={{ height: "100%" }} className="feed-output-browser">
       {!finished ? (

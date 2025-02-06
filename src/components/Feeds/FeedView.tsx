@@ -14,7 +14,11 @@ import {
   setShowToolbar,
 } from "../../store/feed/feedSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
+import {
+  getSelectedPlugin,
+  resetSelectedPlugin,
+} from "../../store/pluginInstance/pluginInstanceSlice";
+import usePaginatedTreeQuery from "../FeedTree/usePaginatedTreeQuery";
 
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
@@ -26,6 +30,7 @@ import { DrawerActionButton } from "./DrawerUtils";
 import "./Feeds.css"; // Import your CSS file
 import { useFetchFeed } from "./useFetchFeed";
 import { useSearchQueryParams } from "./usePaginate";
+import { usePollAllPluginStatuses } from "./usePolledStatuses";
 import { handleMaximize, handleMinimize } from "./utilties";
 
 const { Title } = Typography;
@@ -42,6 +47,11 @@ const FeedView: React.FC = () => {
   const { id } = params;
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { feed, contextHolder } = useFetchFeed(id, type, isLoggedIn);
+  const treeQuery = usePaginatedTreeQuery(feed);
+  const statuses = usePollAllPluginStatuses(
+    treeQuery.pluginInstances,
+    treeQuery.totalCount,
+  );
 
   useEffect(() => {
     if (!type || (type === "private" && !isLoggedIn)) {
@@ -63,6 +73,7 @@ const FeedView: React.FC = () => {
     dispatch(setShowToolbar(true));
     return () => {
       dispatch(resetFeed());
+      dispatch(resetSelectedPlugin());
       dispatch(clearSelectedFile());
       dispatch(resetDrawerState());
       dispatch(setShowToolbar(false));
@@ -139,7 +150,8 @@ const FeedView: React.FC = () => {
                         <ParentComponent
                           changeLayout={changeLayout}
                           currentLayout={currentLayout}
-                          feed={feed}
+                          treeQuery={treeQuery}
+                          statuses={statuses}
                         />
                       ) : (
                         <FeedGraph
@@ -192,6 +204,7 @@ const FeedView: React.FC = () => {
             <FeedOutputBrowser
               explore={true}
               handlePluginSelect={onNodeBrowserClick}
+              statuses={statuses}
             />
           </Panel>
         )}

@@ -7,18 +7,22 @@ import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlic
 import { SpinContainer } from "../Common";
 import FeedTree from "./FeedTree";
 import type { TreeNodeDatum } from "./data";
-import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
+import type { PaginatedTreeQueryReturn } from "./usePaginatedTreeQuery";
 
 interface ParentComponentProps {
   changeLayout: () => void;
   currentLayout: boolean;
-  feed?: Feed;
+  treeQuery: PaginatedTreeQueryReturn;
+  statuses: {
+    [id: number]: string;
+  };
 }
 
 const ParentComponent: React.FC<ParentComponentProps> = ({
   changeLayout,
   currentLayout,
-  feed,
+  treeQuery,
+  statuses,
 }) => {
   const {
     isLoading,
@@ -28,7 +32,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     isProcessing,
     addNodeLocally,
     pluginInstances,
-  } = usePaginatedTreeQuery(feed);
+  } = treeQuery;
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
   );
@@ -51,17 +55,12 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     [dispatch],
   );
 
-  if (isLoading) {
+  if (isLoading && !rootNode) {
     return <SpinContainer title="Loading partial feed tree..." />;
   }
 
   if (error) {
     return <div style={{ color: "red" }}>Error: {String(error)}</div>;
-  }
-
-  if (!rootNode && !isProcessing && !isFetchingNextPage) {
-    // No items in the feed
-    return <div>No items found.</div>;
   }
 
   return (
@@ -79,6 +78,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
           currentLayout={currentLayout}
           addNodeLocally={addNodeLocally}
           pluginInstances={pluginInstances}
+          statuses={statuses}
         />
       )}
     </>

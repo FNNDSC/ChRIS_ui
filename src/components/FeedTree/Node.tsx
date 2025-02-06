@@ -1,4 +1,4 @@
-import type { PluginInstance, Feed } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { notification } from "antd";
 import type { HierarchyPointNode } from "d3-hierarchy";

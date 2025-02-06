@@ -1,6 +1,6 @@
-import { useMutation, useQueries } from "@tanstack/react-query";
-import { hierarchy, tree } from "d3-hierarchy";
+import { useMutation } from "@tanstack/react-query";
 import type { HierarchyPointLink, HierarchyPointNode } from "d3-hierarchy";
+import { hierarchy, tree } from "d3-hierarchy";
 import { select } from "d3-selection";
 import {
   type D3ZoomEvent,
@@ -70,6 +70,9 @@ interface FeedTreeProps {
   onNodeClick: (node: TreeNodeDatum) => void; // callback if you want external usage
   addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
   pluginInstances: PluginInstance[];
+  statuses: {
+    [id: number]: string;
+  };
 }
 
 // -------------- Canvas Layout Constants --------------
@@ -151,6 +154,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     onNodeClick,
     addNodeLocally,
     pluginInstances,
+    statuses,
   } = props;
   const dispatch = useAppDispatch();
   const { isDarkTheme } = useContext(ThemeContext);
@@ -189,50 +193,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   const selectedPlugin = useAppSelector(
     (store) => store.instance.selectedPlugin,
   );
-
-  // -------------- 2) Poll statuses for each plugin instance with useQueries --------------
-  const [statuses, setStatuses] = useState<{
-    [id: number]: string | undefined;
-  }>({});
-
-  // 2) Determine which plugin instances are * not * done
-  const incompletePlugins = React.useMemo(() => {
-    return pluginInstances.filter((inst) => {
-      // If we have a polled status, use it; else default to inst.data.status
-      const current = inst.data.status;
-      return !isTerminalStatus(current);
-    });
-  }, [pluginInstances]);
-
-  // 3) useQueries only for those incomplete items
-  useQueries({
-    queries: incompletePlugins.map((instance) => {
-      const id = instance.data.id;
-      return {
-        queryKey: ["pluginInstanceStatus", id],
-        queryFn: async () => {
-          const details = await instance.get();
-          const latestStatus = details.data.status as string;
-          setStatuses((prev) => ({
-            ...prev,
-            [id]: latestStatus,
-          }));
-
-          return latestStatus;
-        },
-        refetchInterval: (result: {
-          state?: {
-            data?: string;
-          };
-        }) => {
-          const latestStatus = result?.state?.data;
-          // If it transitions to a terminal state, stop polling
-          if (isTerminalStatus(latestStatus)) return false;
-          return 7000; // otherwise poll every 7s
-        },
-      };
-    }),
-  });
 
   // -------------- 3) Pipeline creation mutation --------------
   const [api, contextHolder] = notification.useNotification();
@@ -523,6 +483,8 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       if (!canvasRef.current) return;
 
       // We'll still do the 'hit test' to see if user right-clicked a node
+
+      // GEtting the mouse position relative to the canvas.
       const rect = canvasRef.current.getBoundingClientRect();
       const mouseX = evt.clientX - rect.left;
       const mouseY = evt.clientY - rect.top;
@@ -563,6 +525,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         // For the sake of example:
         const nodeOfInterest = d3.nodes.find((n) => n.data.id === foundNode.id);
         if (!nodeOfInterest) return;
+        console.log("node of interest", nodeOfInterest);
 
         const { screenX, screenY } = getNodeScreenCoords(
           nodeOfInterest.x,
@@ -573,8 +536,8 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
 
         // + some offset to not overlap the circle
         setContextMenuPosition({
-          x: screenX + 10,
-          y: screenY,
+          x: screenX + 20,
+          y: screenY + 10,
           visible: true,
         });
         setContextMenuNode(foundNode);
@@ -617,11 +580,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
 
   // -------------- 9) Render --------------
   return (
-    <div
-      className="feed-tree-canvas"
-      ref={containerRef}
-      style={{ width: "100%", height: "100%", position: "relative" }}
-    >
+    <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
       {/* Notification context holder for pipeline creation */}
       {contextHolder}
 
@@ -636,9 +595,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
             top: contextMenuPosition.y,
             left: contextMenuPosition.x,
             zIndex: 999,
-            background: isDarkTheme ? "#333" : "#fff",
-            border: "1px solid #ccc",
-            padding: 8,
           }}
           onMouseLeave={() => {
             setContextMenuPosition({ x: 0, y: 0, visible: false });
@@ -958,13 +914,4 @@ function getStatusColor(
   }
 
   return color;
-}
-
-// -------------- Helper to check if a status is "terminal" --------------
-function isTerminalStatus(status?: string) {
-  return (
-    status === "finishedSuccessfully" ||
-    status === "finishedWithError" ||
-    status === "cancelled"
-  );
 }
