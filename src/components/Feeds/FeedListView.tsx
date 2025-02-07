@@ -45,7 +45,7 @@ import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
-import { formatBytes, getPluginInstanceDetails } from "./utilties";
+import { formatBytes } from "./utilties";
 const { Paragraph } = Typography;
 
 interface ColumnDefinition {

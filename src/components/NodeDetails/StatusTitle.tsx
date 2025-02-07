@@ -4,6 +4,8 @@ import FillCheckIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 import ExclaimationIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
 import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
+import { Spin } from "antd";
+import { ClockIcon } from "@patternfly/react-icons";
 
 const StatusTitle = ({ pluginStatus }: { pluginStatus: any }) => {
   const selected = useAppSelector((state) => state.instance.selectedPlugin);
@@ -21,11 +23,15 @@ const StatusTitle = ({ pluginStatus }: { pluginStatus: any }) => {
     "cancelled",
   ];
 
-  if (pluginStatus) {
-    statusTitle =
-      selected && finishedStatuses.includes(selected.data.status) === true
-        ? getFinishedTitle(selected.data.status)
-        : getCurrentTitleFromStatus(pluginStatus);
+  statusTitle =
+    selected && finishedStatuses.includes(selected.data.status) === true
+      ? getFinishedTitle(selected.data.status)
+      : pluginStatus
+        ? getCurrentTitleFromStatus(pluginStatus)
+        : { title: "processing...", icon: ClockIcon };
+
+  if (!pluginStatus && !statusTitle) {
+    return <span>Failed to fetch status</span>;
   }
 
   if (statusTitle) {
