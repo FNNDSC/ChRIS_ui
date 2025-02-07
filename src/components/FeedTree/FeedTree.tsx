@@ -525,7 +525,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         // For the sake of example:
         const nodeOfInterest = d3.nodes.find((n) => n.data.id === foundNode.id);
         if (!nodeOfInterest) return;
-        console.log("node of interest", nodeOfInterest);
 
         const { screenX, screenY } = getNodeScreenCoords(
           nodeOfInterest.x,

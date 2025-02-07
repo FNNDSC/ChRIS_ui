@@ -1,6 +1,5 @@
 // usePaginatedTreeQuery.ts
 
-import type { Feed } from "@fnndsc/chrisapi";
 import { useCallback, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
@@ -55,7 +54,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     [dispatch],
   );
 
-  if (isLoading && !rootNode) {
+  if (isLoading || isProcessing || isFetchingNextPage) {
     return <SpinContainer title="Loading partial feed tree..." />;
   }
 
@@ -65,9 +64,6 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
 
   return (
     <>
-      {(isProcessing || isFetchingNextPage) && (
-        <SpinContainer title="Constructing the tree..." />
-      )}
       {rootNode && (
         <FeedTree
           data={rootNode}

@@ -1,6 +1,7 @@
 import { Steps, Spin } from "../Antd";
 
 const Status = ({ pluginStatus }: { pluginStatus: any }) => {
+  console.log("plugin status in STATUS Component", pluginStatus);
   if (pluginStatus && pluginStatus.length > 0) {
     const items = pluginStatus.map((label: any, index: number) => {
       return {
