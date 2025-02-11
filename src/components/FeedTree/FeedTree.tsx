@@ -33,10 +33,7 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { ThemeContext } from "../DarkTheme/useTheme";
 
 // -------------- Actions & Slices --------------
-import {
-  getSelectedPlugin,
-  setPluginInstancesAndSelectedPlugin,
-} from "../../store/pluginInstance/pluginInstanceSlice";
+import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 
 // -------------- Modals (AddNode, DeleteNode, Pipeline, etc.) --------------
 import AddNodeConnect from "../AddNode/AddNode";
@@ -68,7 +65,7 @@ export interface FeedTreeProps {
   changeLayout: () => void;
   onNodeClick: (node: TreeNodeDatum) => void;
   addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
-  removeNodeLocally: (ids: number[]) => void; // <-- NEW
+  removeNodeLocally: (ids: number[]) => void;
   pluginInstances: PluginInstance[];
   statuses: {
     [id: number]: string;
@@ -159,7 +156,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     onNodeClick,
     addNodeLocally,
     removeNodeLocally,
-    pluginInstances,
+
     statuses,
     feed,
   } = props;
@@ -176,6 +173,9 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Keep track if we've already centered the tree once
+  const initialRenderRef = useRef(true);
 
   // Get container dimensions
   const size = useSize(containerRef);
@@ -196,7 +196,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   const orientation = state.switchState.orientation;
 
   // -------------- Redux: entire pluginInstances array & selected plugin --------------
-
   const selectedPlugin = useAppSelector(
     (store) => store.instance.selectedPlugin,
   );
@@ -204,7 +203,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   // -------------- 3) Pipeline creation mutation --------------
   const [api, contextHolder] = notification.useNotification();
 
-  // 1) Remove onMutate, keep onSuccess/onError
   const pipelineMutation = useMutation({
     mutationFn: (nodeToZip: PluginInstance) => fetchPipeline(nodeToZip),
     onSuccess: () => {
@@ -219,30 +217,23 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     },
   });
 
-  // 2) Show "preparing" only if pipeline is found
   const fetchPipeline = async (pluginInst: PluginInstance) => {
     const client = ChrisAPIClient.getClient();
-
     // Attempt to find the pipeline
     const pipelineList = await client.getPipelines({ name: "zip v20240311" });
     const pipelines = pipelineList.getItems();
     if (!pipelines || pipelines.length === 0) {
-      // Throw error *before* showing the notification
       throw new Error("The zip pipeline is not registered. Contact admin.");
     }
-
-    // Only after confirming pipeline exists:
     api.info({
       message: "Preparing to initiate the zipping process...",
     });
 
-    // Then continue with normal logic
     const pipeline = pipelines[0];
     const { id: pipelineId } = pipeline.data;
 
     const workflow = await client.createWorkflow(
-      pipelineId,
-      // @ts-ignore: ignoring the mismatch if any
+      pipelineId, // @ts-ignore
       {
         previous_plugin_inst_id: pluginInst.data.id,
       },
@@ -253,7 +244,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     });
     const newItems = pluginInstancesResponse.getItems();
 
-    // Merge new items into local state
     if (newItems && newItems.length > 0) {
       const firstInstance = newItems[newItems.length - 1];
       dispatch(getSelectedPlugin(firstInstance));
@@ -264,7 +254,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   };
 
   // -------------- 1) Build a D3 tree layout in memory --------------
-  // We'll create a "hierarchy" and compute x,y for each node. Then optionally center root.
   const d3 = React.useMemo(() => {
     if (!data)
       return {
@@ -272,7 +261,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         links: [] as HierarchyPointLink<TreeNodeDatum>[],
       };
 
-    // Build a D3 tree with nodeSize & orientation
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
         orientation === "horizontal"
@@ -285,21 +273,18 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
           : SEPARATION.nonSiblings,
       );
 
-    // Convert root data -> hierarchical layout
     const root = hierarchy(data, (d) => d.children);
-    const layoutRoot = d3Tree(root); // <-- sets x, y on each node
+    const layoutRoot = d3Tree(root);
     const computedNodes = layoutRoot.descendants();
     const computedLinks = layoutRoot.links();
 
-    // 3) If you want to add "ts" cross-links (tsIds)
+    // Add any extra TS links if needed
     const newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
     if (tsIds && Object.keys(tsIds).length > 0) {
       for (const link of computedLinks) {
         const sourceId = link.source.data.id;
         const targetId = link.target.data.id;
-
         if (tsIds[targetId] || tsIds[sourceId]) {
-          // We'll just do a naive approach to add dash links
           const topologicalLink = tsIds[targetId] ? link.target : link.source;
           const parents = tsIds[topologicalLink.data.id];
           if (parents && parents.length > 0) {
@@ -330,10 +315,11 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     };
   }, [data, tsIds, orientation]);
 
-  // -------------- 4) Bind d3-zoom to the canvas with the updated transform --------------
+  // -------------- 2) Bind d3-zoom, center only once on mount --------------
   useEffect(() => {
     if (!canvasRef.current || !d3.rootNode || !width || !height) return;
 
+    // We'll throttle the "zoom" event so we don't set state too often.
     const handleZoom = throttle(
       (event: D3ZoomEvent<HTMLCanvasElement, unknown>) => {
         setTransform({
@@ -352,24 +338,30 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       .scaleExtent([SCALE_EXTENT.min, SCALE_EXTENT.max])
       .on("zoom", handleZoom);
 
-    const root = d3.rootNode; // HierarchyPointNode
-    const centerX = width / 2 - root.x;
-    const centerY = height / 7 - root.y;
+    // Attach the zoom behavior to the canvas
+    const selection = select(canvasRef.current).call(zoomBehavior);
 
-    select(canvasRef.current)
-      .call(zoomBehavior)
-      // Center the root node in the canvas
-      .call(
+    // Only center on the *first* render
+    if (initialRenderRef.current) {
+      const root = d3.rootNode;
+      const centerX = width / 2 - root.x;
+      const centerY = height / 7 - root.y;
+
+      // Programmatically set the initial zoom/pan
+      selection.call(
         zoomBehavior.transform,
         zoomIdentity.translate(centerX, centerY).scale(INITIAL_SCALE),
       );
 
+      initialRenderRef.current = false;
+    }
+
     return () => {
-      select(canvasRef.current).on(".zoom", null);
+      selection.on(".zoom", null);
     };
   }, [d3.rootNode, width, height]);
 
-  // -------------- 5) Draw the nodes/links onto the canvas --------------
+  // -------------- 3) Draw the tree on the canvas --------------
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !width || !height) return;
@@ -414,7 +406,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         overlayScale: state.overlayScale.enabled
           ? state.overlayScale.type
           : undefined,
-
         selectedId: selectedPlugin?.data.id,
         finalStatus,
       });
@@ -436,7 +427,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     selectedPlugin,
   ]);
 
-  // -------------- 6) Canvas click => left-click node selection --------------
+  // -------------- Canvas click => node hit test --------------
   const handleCanvasClick = useCallback(
     (evt: React.MouseEvent<HTMLCanvasElement>) => {
       if (!canvasRef.current) return;
@@ -451,7 +442,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       const zoomedY =
         (mouseY * ratio - transform.y * ratio) / (transform.k * ratio);
 
-      // Circle hit test
       for (const node of d3.nodes) {
         const dx = node.x - zoomedX;
         const dy = node.y - zoomedY;
@@ -465,6 +455,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     [transform, onNodeClick, d3.nodes],
   );
 
+  // Utility to convert node coords -> screen coords for context menu
   const getNodeScreenCoords = useCallback(
     (
       nodeX: number,
@@ -472,31 +463,21 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       transform: { x: number; y: number; k: number },
       containerRect: DOMRect,
     ) => {
-      // 1) Account for the zoom/pan transform
-      //    “canvasX” = transform.x + transform.k * nodeX
-      //    “canvasY” = transform.y + transform.k * nodeY
       const canvasX = transform.x + transform.k * nodeX;
       const canvasY = transform.y + transform.k * nodeY;
-
-      // 2) Convert from “canvas space” to “page” coords
-      //    by adding the container’s bounding rect offsets
       const screenX = containerRect.left + canvasX;
       const screenY = containerRect.top + canvasY;
-
       return { screenX, screenY };
     },
     [],
   );
 
-  // -------------- 7) Canvas contextmenu => open custom context menu --------------
+  // -------------- Canvas contextmenu => custom context menu --------------
   const handleCanvasContextMenu = useCallback(
     (evt: React.MouseEvent<HTMLCanvasElement>) => {
       evt.preventDefault();
       if (!canvasRef.current) return;
 
-      // We'll still do the 'hit test' to see if user right-clicked a node
-
-      // GEtting the mouse position relative to the canvas.
       const rect = canvasRef.current.getBoundingClientRect();
       const mouseX = evt.clientX - rect.left;
       const mouseY = evt.clientY - rect.top;
@@ -513,29 +494,18 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         const dy = node.y - zoomedY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist <= DEFAULT_NODE_RADIUS) {
-          foundNode = node.data; // node.data is your “TreeNodeDatum”
+          foundNode = node.data;
           break;
         }
       }
 
       if (foundNode) {
-        // We have a node. Now, instead of using evt.clientX, we want to get the
-        // node’s on-screen coords, so the menu is adjacent to the node circle.
-
         const containerRect = containerRef.current?.getBoundingClientRect();
         if (!containerRect) return;
 
-        // The node’s “layout” coords are in “foundNode.x, foundNode.y” inside your d3 Node
-        // but we stored “foundNode” as node.data. So we need the actual node’s x,y from d3
-        // If you have that in “(node.x, node.y)”, store it. For example, if your “foundNode” had that:
-        // For this snippet we assume “foundNode.x, foundNode.y” are available, or you could store them.
-        // If you only kept node.data, you need to keep the entire HierarchyPointNode instead.
-
-        // This is the tricky part: we need the “HierarchyPointNode”.
-        // Let’s say you keep it as nodeOfInterest: HierarchyPointNode<TreeNodeDatum>.
-        // Then nodeOfInterest.x, nodeOfInterest.y are the layout coords.
-        // For the sake of example:
-        const nodeOfInterest = d3.nodes.find((n) => n.data.id === foundNode.id);
+        const nodeOfInterest = d3.nodes.find(
+          (n) => n.data.id === foundNode!.id,
+        );
         if (!nodeOfInterest) return;
 
         const { screenX, screenY } = getNodeScreenCoords(
@@ -545,7 +515,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
           containerRect,
         );
 
-        // + some offset to not overlap the circle
         setContextMenuPosition({
           x: screenX + 20,
           y: screenY + 10,
@@ -553,7 +522,6 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         });
         setContextMenuNode(foundNode);
       } else {
-        // user right-clicked empty space => maybe hide menu
         setContextMenuNode(null);
         setContextMenuPosition({ x: 0, y: 0, visible: false });
       }
@@ -561,7 +529,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     [transform, d3.nodes, getNodeScreenCoords],
   );
 
-  // -------------- 8) Handle toggles & orientation --------------
+  // -------------- Toggle handlers --------------
   const handleChange = useCallback(
     (feature: Feature, payload?: any) => {
       updateState((draft) => {
@@ -589,19 +557,15 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     [updateState],
   );
 
-  // -------------- 9) Render --------------
   return (
     <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
-      {/* Notification context holder for pipeline creation */}
       {contextHolder}
-
-      {/* Modals for AddNode, DeleteNode, Pipeline, etc. */}
       <Modals
         feed={feed}
         addNodeLocally={addNodeLocally}
-        removeNodeLocally={removeNodeLocally} // <-- pass down to Modals
+        removeNodeLocally={removeNodeLocally}
       />
-      {/* Context menu (conditionally rendered) */}
+
       {contextMenuPosition.visible && contextMenuNode && (
         <div
           style={{
@@ -625,7 +589,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         </div>
       )}
 
-      {/* Controls for labels, orientation, layout switch, scaling, search */}
+      {/* Controls */}
       <div
         className="feed-tree__controls"
         style={{ display: "flex", gap: 10, margin: 10 }}
@@ -712,14 +676,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   );
 }
 
-// -------------- DRAWING FUNCTIONS --------------
-
-// A) Draw Link
-
-/**
- * Draw a simple straight line from parent->child,
- * then draw a small arrowhead near the child.
- */
+// -------------- DRAWING UTILS --------------
 function drawLink(
   ctx: CanvasRenderingContext2D,
   linkData: HierarchyPointLink<TreeNodeDatum>,
@@ -727,34 +684,26 @@ function drawLink(
 ) {
   const { source, target } = linkData;
   const nodeRadius = DEFAULT_NODE_RADIUS;
-
-  // If target is a "ts" plugin => dashed line
   const isTs = target.data.item.data.plugin_type === "ts";
 
-  // offset line so it doesn’t overlap the circle radius
   const dx = target.x - source.x;
   const dy = target.y - source.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
   if (dist === 0) return;
 
-  // unit direction from parent->child
   const nx = dx / dist;
   const ny = dy / dist;
 
-  // line start, offset by nodeRadius
   const sourceX = source.x + nodeRadius * nx;
   const sourceY = source.y + nodeRadius * ny;
-
-  // line end, offset behind the child’s node
-  const childOffset = nodeRadius + 4; // extra 4 so the arrow isn't too close
+  const childOffset = nodeRadius + 4;
   const targetX = target.x - childOffset * nx;
   const targetY = target.y - childOffset * ny;
 
-  // 1) Draw the line
   ctx.save();
   ctx.beginPath();
   ctx.strokeStyle = isDarkTheme ? "#F2F9F9" : "#6A6E73";
-  ctx.lineWidth = 0.5; // thinner lines
+  ctx.lineWidth = 0.5;
   if (isTs) {
     ctx.setLineDash([4, 2]);
   } else {
@@ -764,17 +713,10 @@ function drawLink(
   ctx.lineTo(targetX, targetY);
   ctx.stroke();
 
-  // 2) Draw an arrowhead at the child end
-  // We'll define a small helper to do so:
   drawArrowHead(ctx, sourceX, sourceY, targetX, targetY);
-
   ctx.restore();
 }
 
-/**
- * Draw a small arrowhead pointing from (x1,y1) -> (x2,y2).
- * We'll place the arrow tip exactly at (x2,y2).
- */
 function drawArrowHead(
   ctx: CanvasRenderingContext2D,
   x1: number,
@@ -783,14 +725,9 @@ function drawArrowHead(
   y2: number,
   arrowSize = 8,
 ) {
-  // angle from parent->child
   const angle = Math.atan2(y2 - y1, x2 - x1);
-
   ctx.beginPath();
-  // Move to the arrow tip
   ctx.moveTo(x2, y2);
-
-  // "wings" at angle ± some spread
   ctx.lineTo(
     x2 - arrowSize * Math.cos(angle - Math.PI / 7),
     y2 - arrowSize * Math.sin(angle - Math.PI / 7),
@@ -799,13 +736,11 @@ function drawArrowHead(
     x2 - arrowSize * Math.cos(angle + Math.PI / 7),
     y2 - arrowSize * Math.sin(angle + Math.PI / 7),
   );
-
   ctx.closePath();
-  // fill using the same color as the link stroke
-  ctx.fillStyle = ctx.strokeStyle;
+  ctx.fillStyle = ctx.strokeStyle as string;
   ctx.fill();
 }
-// B) Draw Node
+
 interface DrawNodeOptions {
   ctx: CanvasRenderingContext2D;
   node: HierarchyPointNode<TreeNodeDatum>;
@@ -817,10 +752,6 @@ interface DrawNodeOptions {
   finalStatus: string | undefined;
 }
 
-/**
- * Replicates Node logic: color by status, highlight if selected or if search hits,
- * optional overlay scaling, label toggles, parent error => notExecuted
- */
 function drawNode({
   ctx,
   node,
@@ -835,13 +766,9 @@ function drawNode({
   const data = node.data;
   const itemData = data.item.data;
 
-  // 1) Node color by status
   const color = getStatusColor(finalStatus, data, searchFilter);
-
-  // 2) If node is selected => highlight ring
   const isSelected = selectedId === itemData.id;
 
-  // 3) overlay scale factor (time, CPU, memory, etc.)
   let factor = 1;
   if (overlayScale === "time" && itemData.start_date && itemData.end_date) {
     const start = new Date(itemData.start_date).getTime();
@@ -851,7 +778,6 @@ function drawNode({
     if (factor < 1) factor = 1;
   }
 
-  // 4) Main circle
   ctx.save();
   ctx.beginPath();
   ctx.arc(node.x, node.y, baseRadius, 0, 2 * Math.PI);
@@ -864,7 +790,6 @@ function drawNode({
     ctx.stroke();
   }
 
-  // 5) If factor > 1, draw outer ring
   if (factor > 1) {
     ctx.beginPath();
     ctx.arc(node.x, node.y, baseRadius * factor, 0, 2 * Math.PI);
@@ -873,7 +798,6 @@ function drawNode({
     ctx.stroke();
   }
 
-  // 6) Label if toggled or search highlight
   const isSearchHit = color === "red" && searchFilter;
   if (toggleLabel || isSearchHit) {
     ctx.fillStyle = isDarkTheme ? "#fff" : "#000";
@@ -885,17 +809,11 @@ function drawNode({
   ctx.restore();
 }
 
-// -------------- Helper for node color --------------
 function getStatusColor(
   status: string | undefined,
   data: TreeNodeDatum,
-
   searchFilter: string,
 ): string {
-  // Default color
-  let color = "#F0AB00";
-
-  // If searchFilter is present, highlight matching name/title in red
   if (searchFilter) {
     const term = searchFilter.toLowerCase();
     const pluginName = data.item.data.plugin_name?.toLowerCase() || "";
@@ -910,22 +828,15 @@ function getStatusColor(
     case "scheduled":
     case "registeringFiles":
     case "created":
-      color = "#bee1f4";
-      break;
+      return "#bee1f4";
     case "waiting":
-      color = "#aaa";
-      break;
+      return "#aaa";
     case "finishedSuccessfully":
-      color = "#004080";
-      break;
+      return "#004080";
     case "finishedWithError":
     case "cancelled":
-      color = "#c9190b";
-      break;
+      return "#c9190b";
     default:
-      color = "#004080"; // fallback
-      break;
+      return "#F0AB00";
   }
-
-  return color;
 }
