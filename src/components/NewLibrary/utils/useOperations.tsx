@@ -34,6 +34,7 @@ export interface ModalState {
   additionalProps?: Record<string, any>;
 }
 
+// Utility to generate a unique timestamp-based string
 export const getCurrentTimestamp = () =>
   new Date()
     .toLocaleString("en-US", {
@@ -57,47 +58,57 @@ export const useFolderOperations = (
   const username = useAppSelector((state) => state.user.username) as string;
   const dispatch = useAppDispatch();
 
+  // Local states
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     type: "folder",
   });
   const [userRelatedError, setUserRelatedError] = useState<string>("");
 
+  // Refs for <input type="file" /> elements
   const folderInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Notification
   const [notificationAPI, notificationContextHolder] =
     notification.useNotification();
 
+  // Delete + merge/duplicate hooks
   const deleteMutation = useDeletePayload(origin, notificationAPI);
   const { handleDuplicateMutation, handleMergeMutation } = useFeedOperations(
     origin,
     notificationAPI,
   );
 
+  // For resetting file inputs after each upload
   const resetInputField = (inputRef: React.RefObject<HTMLInputElement>) => {
-    if (inputRef.current) inputRef.current.value = "";
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
+  // -------------- Upload --------------
   const handleUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
     isFolder: boolean,
     name?: string,
   ) => {
     const fileList = event.target.files;
-    // Process the origin data if applicable
+    // Mark the origin
     handleOrigin(origin);
-    // Convert selected files to an array for easier manipulation
+
     const files = Array.from(fileList || []);
-    // Generate a unique name based on the timestamp and the provided name (if any)
     const uniqueName = name
       ? `${name}_${getCurrentTimestamp()}`
       : getCurrentTimestamp();
-    // Determine the upload path based on the user's preferences (creating a new feed or using an existing path)
+
+    // If createFeed==true => place files in `home/username/uploads/<uniqueName>`
+    // Otherwise, use the current `computedPath`.
     const uploadPath = createFeed
       ? `home/${username}/uploads/${uniqueName}`
       : computedPath;
-    // Dispatch the upload action with all relevant details
+
+    // Dispatch startUpload
     dispatch(
       startUpload({
         files,
@@ -108,10 +119,12 @@ export const useFolderOperations = (
         nameForFeed: name,
       }),
     );
-    // Reset the input field after each upload to allow for subsequent uploads
+
+    // Reset input after uploading
     resetInputField(isFolder ? folderInputRef : fileInputRef);
   };
 
+  // -------------- Create a subfolder --------------
   const createFolder = async (folderName: string) => {
     handleOrigin(origin);
     const finalPath = `${computedPath}/${folderName}`;
@@ -126,6 +139,7 @@ export const useFolderOperations = (
     }
   };
 
+  // -------------- Create feed from file input --------------
   const createFeedWithFile = (
     event: React.ChangeEvent<HTMLInputElement>,
     type: string,
@@ -147,25 +161,36 @@ export const useFolderOperations = (
     });
   };
 
+  // -------------- Create feed from menu --------------
   const createFeedFromMenu = async (inputValue: string) => {
     handleOrigin(origin);
     const pathList = selectedPaths.map((payload) => payload.path);
     await createFeedSaga(pathList, inputValue, invalidateQueries);
   };
 
+  // -------------- Share Folder / Feed --------------
+  // UPDATED: If createFeed===true => if feed found and additionalValues?.share.public===true,
+  // just do feed.put({ type: "public" }). Skip user permission logic.
   const shareFolder = async (
     targetUsername: string,
     additionalValues?: AdditionalValues,
   ) => {
     const permissions = additionalValues?.share.write ? "w" : "r";
+
     for (const { payload } of selectedPaths) {
       try {
         if (createFeed) {
+          // If we're dealing with a feed, fetch it:
           const feed = await fetchFeedForPath(payload.data.path);
           if (feed) {
-            await feed.addUserPermission(targetUsername);
+            if (additionalValues?.share.public) {
+              await feed.put({ public: true });
+            } else {
+              await feed.addUserPermission(targetUsername);
+            }
           }
         } else {
+          // Otherwise, it's a normal folder -> addUserPermission
           await payload.addUserPermission(targetUsername, permissions);
         }
       } catch (error: any) {
@@ -178,14 +203,17 @@ export const useFolderOperations = (
     }
   };
 
+  // -------------- Rename folder --------------
   const renameFolder = async (inputValue: string): Promise<void> => {
     handleOrigin(origin);
 
     for (const { payload, type } of selectedPaths) {
       try {
         if (createFeed) {
+          // rename a feed by .put({name: newName})
           await handleFeedCreation(payload as FileBrowserFolder, inputValue);
         } else {
+          // rename a path in CUBE
           await handlePathRename(payload, type, inputValue);
         }
       } catch (error) {
@@ -196,6 +224,7 @@ export const useFolderOperations = (
     invalidateQueries();
   };
 
+  // Renaming a feed
   const handleFeedCreation = async (
     payload: FileBrowserFolder,
     inputValue: string,
@@ -207,6 +236,7 @@ export const useFolderOperations = (
     }
   };
 
+  // Renaming a path in CUBE
   const handlePathRename = async (
     payload:
       | FileBrowserFolder
@@ -248,9 +278,10 @@ export const useFolderOperations = (
       if (new_link_file_path) throw new Error(new_link_file_path[0]);
       if (new_file_path) throw new Error(new_file_path[0]);
     }
-    throw new Error("Failed to rename this folder"); // If it's not a known error, rethrow it
+    throw new Error("Failed to rename this folder");
   };
 
+  // -------------- Submit Modal --------------
   const handleModalSubmit = async (
     inputValue: string,
     additionalValues?: AdditionalValues,
@@ -267,12 +298,10 @@ export const useFolderOperations = (
       case "share":
         await shareFolder(inputValue, additionalValues);
         break;
-
       case "rename": {
         await renameFolder(inputValue);
         break;
       }
-
       case "createFeedWithFile": {
         const { event, type } =
           modalState.additionalProps?.createFeedWithFile || {};
@@ -290,6 +319,7 @@ export const useFolderOperations = (
     setModalState({ isOpen: false, type: "" });
   };
 
+  // -------------- React Query Mutation --------------
   const handleModalSubmitMutation = useMutation({
     mutationFn: async ({
       inputValue,
@@ -300,12 +330,14 @@ export const useFolderOperations = (
     }) => handleModalSubmit(inputValue, additionalValues),
   });
 
+  // -------------- Utility --------------
   const getFeedNameForSinglePath = (selectedPayload: SelectionPayload) => {
     const { payload } = selectedPayload;
     const name = payload.data.path || payload.data.fname;
     return getFileName(name);
   };
 
+  // -------------- Main "operations" map --------------
   const handleOperations = (operationKey: string) => {
     const operationsMap: Record<string, () => void> = {
       createFeed: () => {
@@ -348,6 +380,7 @@ export const useFolderOperations = (
     operationsMap[operationKey]?.();
   };
 
+  // Return everything needed by the parent
   return {
     modalState,
     userRelatedError,
