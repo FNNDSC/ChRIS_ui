@@ -55,6 +55,7 @@ export default function useLongPress() {
 
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clickCount = useRef(0);
+
   function handleOnClick(
     e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent,
     payload: PayloadTypes,
@@ -62,6 +63,7 @@ export default function useLongPress() {
     type: string,
     optionalCallback?: () => void,
   ) {
+    console.log("handle on click");
     const isExist = selectedPaths.some((item) => item.path === pathForCart);
 
     clickCount.current += 1;
@@ -124,7 +126,7 @@ export default function useLongPress() {
       | FileBrowserFolderLinkFile,
     type: string,
   ) => {
-    e.stopPropagation();
+    console.log("Handle checkbox change");
     if (e.currentTarget.checked) {
       selectFolder(path, type, payload);
     } else {

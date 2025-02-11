@@ -38,17 +38,30 @@ export const downloadPublicFile = async (file: FileBrowserFolderFile) => {
 
 export const downloadFile = async (file: FileBrowserFolderFile) => {
   const fileName = getFileName(file.data.fname);
-  const client = ChrisAPIClient.getClient();
-  const response = await client.createDownloadToken();
-  const url = file.collection.items[0].links[0].href;
-  if (!url) {
+
+  // The base URL for downloading
+  const baseUrl = file.collection.items[0].links[0].href;
+  if (!baseUrl) {
     throw new Error("Failed to construct the URL");
   }
-  if (!response) {
-    throw new Error("Failed to fetch the token...");
+
+  let authorizedUrl: string;
+
+  if (file.data.public === true) {
+    // If the file is public, no token needed
+    authorizedUrl = baseUrl;
+  } else {
+    // Otherwise, create a token
+    const client = ChrisAPIClient.getClient();
+    const response = await client.createDownloadToken();
+    if (!response) {
+      throw new Error("Failed to fetch the token...");
+    }
+    const token = response.data.token;
+    authorizedUrl = `${baseUrl}?download_token=${token}`;
   }
-  const token = response.data.token;
-  const authorizedUrl = `${url}?download_token=${token}`; // Adjust token assignment
+
+  // Finally, trigger the download
   createLinkAndDownload(authorizedUrl, fileName);
   return file;
 };

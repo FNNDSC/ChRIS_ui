@@ -17,7 +17,7 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { matchPath, useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
@@ -39,10 +39,11 @@ import { type ModalState, useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
 
+// -------------- 1) AdditionalValues interface --------------
 export type AdditionalValues = {
   share: {
-    public?: boolean;
-    write?: boolean;
+    public?: boolean; // If true => Make resource public
+    write?: boolean; // If true => Grant write permission
   };
 };
 
@@ -67,21 +68,28 @@ const Operations = ({
 }: OperationProps) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
+
+  // If path is exactly /feeds, we treat it as "feed table"
   const isFeedsTable =
-    matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
-  const OPERATION_ITEMS = useMemo(
-    () => [
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null;
+
+  // By default, show “New Folder”, “File Upload”, “Folder Upload”
+  // If user is at /feeds, disable "New Folder"
+  const OPERATION_ITEMS = useMemo(() => {
+    const baseItems = [
       { key: "newFolder", label: "New Folder", disabled: false },
       { key: "fileUpload", label: "File Upload", disabled: false },
       { key: "folderUpload", label: "Folder Upload", disabled: false },
-    ],
-    [],
-  );
+    ];
 
-  if (isFeedsTable) {
-    OPERATION_ITEMS[0].disabled = true;
-  }
+    if (isFeedsTable) {
+      // Can't create new folder in /feeds
+      baseItems[0].disabled = true;
+    }
+    return baseItems;
+  }, [isFeedsTable]);
 
+  // -------------- 2) Hook for all folder/file operations --------------
   const {
     modalState,
     userRelatedError,
@@ -97,27 +105,29 @@ const Operations = ({
     setModalState,
   } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
+  // -------------- 3) Redux cart: selectedPaths --------------
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
 
-  const renderOperationButton = (
-    icon: React.ReactNode,
-    operationKey: string,
-    ariaLabel: string,
-  ) => (
-    <Tooltip content={ariaLabel}>
-      <Button
-        style={{ marginRight: "1em" }}
-        icon={icon}
-        size="sm"
-        onClick={() => handleOperations(operationKey)}
-        variant="tertiary"
-        aria-label={ariaLabel}
-        isDisabled={operationKey === "duplicate"}
-      />
-    </Tooltip>
+  // -------------- 4) Render Buttons (Download, Anonymize, etc.) --------------
+  const renderOperationButton = useCallback(
+    (icon: React.ReactNode, operationKey: string, ariaLabel: string) => (
+      <Tooltip content={ariaLabel}>
+        <Button
+          style={{ marginRight: "1em" }}
+          icon={icon}
+          size="sm"
+          onClick={() => handleOperations(operationKey)}
+          variant="tertiary"
+          aria-label={ariaLabel}
+          isDisabled={operationKey === "duplicate"}
+        />
+      </Tooltip>
+    ),
+    [handleOperations],
   );
 
+  // -------------- 5) Build the set of items in the Toolbar --------------
   const toolbarItems = useMemo(
     () => (
       <Fragment>
@@ -151,6 +161,7 @@ const Operations = ({
             />
           )}
         </ToolbarItem>
+
         {selectedPathsCount > 0 && (
           <>
             {renderOperationButton(
@@ -183,13 +194,13 @@ const Operations = ({
               "share",
               "Share selected items",
             )}
-
             {renderOperationButton(<EditIcon />, "rename", "Rename")}
             {renderOperationButton(
               <DeleteIcon />,
               "delete",
               "Delete selected items",
             )}
+
             <ToolbarItem>
               <ChipGroup>
                 {selectedPaths.map((selection) => (
@@ -214,9 +225,12 @@ const Operations = ({
       dispatch,
       handleOperations,
       setUserRelatedError,
+      OPERATION_ITEMS,
+      renderOperationButton,
     ],
   );
 
+  // -------------- 6) Return the final JSX --------------
   return (
     <>
       <AddModal
@@ -235,6 +249,8 @@ const Operations = ({
           clearErrors: () => handleModalSubmitMutation.reset(),
         }}
       />
+
+      {/* Hidden file/folder pickers */}
       <input
         ref={fileInputRef}
         multiple
@@ -263,6 +279,8 @@ const Operations = ({
           }
         }}
       />
+
+      {/* The main toolbar */}
       <Toolbar
         style={customStyle?.toolbar}
         className={customClassName?.toolbar}
@@ -282,6 +300,7 @@ const Operations = ({
 
 export default Operations;
 
+// -------------------- 7) Modal Label definitions --------------------
 const MODAL_TYPE_LABELS: Record<
   string,
   { modalTitle: string; inputLabel: string; buttonLabel: string }
@@ -293,7 +312,7 @@ const MODAL_TYPE_LABELS: Record<
   },
   share: {
     modalTitle: "Share this Folder",
-    inputLabel: "User Name",
+    inputLabel: "User Name (optional if making public)",
     buttonLabel: "Share",
   },
   rename: {
@@ -318,6 +337,7 @@ const MODAL_TYPE_LABELS: Record<
   },
 };
 
+// -------------- 8) AddModal: share with optional username if “Make Public” is checked --------------
 interface AddModalProps {
   modalState: ModalState;
   onClose: () => void;
@@ -360,12 +380,24 @@ export const AddModal = ({
     if (modalState.additionalProps?.createFeed) {
       setInputValue(modalState.additionalProps.createFeed.defaultFeedName);
     }
-  }, [modalState.type]);
+  }, [modalState.type, modalState.additionalProps]);
 
   const handleClose = () => {
     setInputValue("");
     onClose();
   };
+
+  // We allow an empty username if “Make resource public” is checked
+  const isShareModal = modalState.type === "share";
+
+  // If user is in "share" mode, we only disable if both conditions are false:
+  // - user hasn't typed a name
+  // - user didn't check “Make public”
+  const isDisabled =
+    !inputValue && !additionalValues.share.public && isShareModal
+      ? true
+      : // For all other modes, disable if no input
+        !inputValue && !isShareModal;
 
   return (
     <Modal
@@ -384,28 +416,29 @@ export const AddModal = ({
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                onSubmit(inputValue);
+                onSubmit(inputValue, additionalValues);
               }
             }}
             aria-label={inputLabel}
             placeholder={inputLabel}
           />
           {modalState.type === "createFeedWithFile" ||
-            (modalState.type === "createFeed" && (
-              <HelperText>
-                <HelperTextItem>
-                  Please provide a name for your feed or hit 'Create' to use the
-                  default name
-                </HelperTextItem>
-              </HelperText>
-            ))}
+          modalState.type === "createFeed" ? (
+            <HelperText>
+              <HelperTextItem>
+                Please provide a name for your feed or hit 'Create' to use the
+                default name
+              </HelperTextItem>
+            </HelperText>
+          ) : null}
         </FormGroup>
+
         {modalState.type === "share" && (
           <Fragment>
             <FormGroup fieldId="share-checkbox-group">
               <Checkbox
                 label="Grant the user permission to edit this resource"
-                id="share-checkbox-2"
+                id="share-checkbox-write"
                 isChecked={additionalValues.share.write}
                 onChange={(_e, checked) =>
                   setAdditionalValues((prevState) => ({
@@ -414,8 +447,21 @@ export const AddModal = ({
                 }
               />
             </FormGroup>
+            <FormGroup fieldId="share-checkbox-public">
+              <Checkbox
+                label="Make this resource public"
+                id="share-checkbox-public"
+                isChecked={additionalValues.share.public}
+                onChange={(_e, checked) =>
+                  setAdditionalValues((prevState) => ({
+                    share: { ...prevState.share, public: checked },
+                  }))
+                }
+              />
+            </FormGroup>
           </Fragment>
         )}
+
         {indicators.isError && (
           <Alert
             message="Failed operation"
@@ -430,7 +476,7 @@ export const AddModal = ({
           <Button
             onClick={() => onSubmit(inputValue, additionalValues)}
             isLoading={indicators.isPending}
-            isDisabled={!inputValue}
+            isDisabled={isDisabled}
           >
             {buttonLabel}
           </Button>

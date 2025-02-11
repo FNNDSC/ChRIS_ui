@@ -3,7 +3,7 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button, Skeleton } from "@patternfly/react-core";
+import { Skeleton } from "@patternfly/react-core";
 import {
   type ISortBy,
   type OnSort,
@@ -78,8 +78,7 @@ interface RowProps {
   };
 }
 
-const BaseRow: React.FC<RowProps> = ({
-  rowIndex,
+export const BaseRow: React.FC<RowProps> = ({
   resource,
   name,
   date,
@@ -91,76 +90,101 @@ const BaseRow: React.FC<RowProps> = ({
   handleFileClick,
   origin,
 }) => {
+  // 1) Use your custom hook
   const { handlers } = useLongPress();
-  const { handleOnClick, handleCheckboxChange } = handlers;
+  const { handleOnClick } = handlers; // We won't do selection in handleOnClick anymore
+  // For the checkbox selection we have handleCheckboxChange, but let's do our own <input> below
+
+  // 2) Redux + theming
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { isDarkTheme } = useContext(ThemeContext);
+
+  // 3) "New resource" highlighting
   const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
 
-  const isSelected =
-    selectedPaths.length > 0 &&
-    selectedPaths.some((payload) => {
-      if (type === "folder" || type === "link") {
-        return payload.path === resource.data.path;
-      }
-      if (type === "file") {
-        return payload.path === resource.data.fname;
-      }
-      return false;
-    });
+  // 4) Check if item is selected
+  const isSelected = selectedPaths.some((payload) => {
+    if (type === "folder" || type === "link") {
+      return payload.path === resource.data.path;
+    }
+    if (type === "file") {
+      return payload.path === resource.data.fname;
+    }
+    return false;
+  });
 
+  // 5) Decide background color, icon, path
   const shouldHighlight = isNewResource || isSelected;
   const highlightedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
   const icon = getIcon(type, isDarkTheme, { marginRight: "0.5em" });
-
-  const handleItem = () => {
-    if (type === "folder") {
-      handleFolderClick();
-    } else if (type === "link" || type === "file") {
-      handleFileClick();
-    }
-  };
 
   const path =
     type === "folder" || type === "link"
       ? resource.data.path
       : resource.data.fname;
 
+  // 6) Row click => open item (no select/deselect logic here)
+  const handleItem = () => {
+    if (type === "folder") {
+      handleFolderClick();
+    } else {
+      handleFileClick();
+    }
+  };
+
+  // 7) Render
   return (
     <FolderContextMenu origin={origin} key={path} computedPath={computedPath}>
       <Tr
         ref={scrollToNewResource}
+        // Remove isSelectable={true}, so PatternFly's built-in row select doesn't conflict
         style={{ background: highlightedBgRow, cursor: "pointer" }}
+        // Row onClick is for *opening*, not selection
         onClick={(e) => {
           e.stopPropagation();
+          // handle single/double click logic inside handleOnClick
           handleOnClick(e, resource, path, type, () => {
+            // On double-click, open item
             handleItem();
           });
         }}
+        // For context menu events
         onContextMenu={(e) => {
           handleOnClick(e, resource, path, type);
         }}
-        isSelectable={true}
-        isRowSelected={isSelected}
       >
-        <Td
-          select={{
-            rowIndex: rowIndex,
-            onSelect: (event) =>
-              handleCheckboxChange(event, path, resource, type),
-            isSelected: isSelected,
-          }}
-        />
-        {/* Name Column */}
+        {/* 1) Custom checkbox in first column */}
+        <Td className="pf-v5-c-table__check">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onClick={(event) => {
+              // Stop row <Tr> from seeing the same click
+              event.stopPropagation();
+              event.nativeEvent.stopImmediatePropagation();
+            }}
+            // For toggling selection, call your own handleCheckboxChange
+            onChange={(event) => {
+              handlers.handleCheckboxChange(event, path, resource, type);
+            }}
+          />
+        </Td>
+
+        {/* 2) Name Column */}
         <Td dataLabel={columnNames.name} modifier="nowrap">
           <div style={{ display: "flex", alignItems: "center" }}>
+            {/* Icon */}
             {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <div
-              onClick={handleItem}
+              onClick={(e) => {
+                e.stopPropagation(); // so row click doesn't also fire
+                handleItem();
+              }}
               style={{ cursor: "pointer", color: "#1fa7f8" }}
             >
               {icon}
             </div>
+            {/* Filename/folder name */}
             <TableText
               wrapModifier="truncate"
               tooltip={name}
@@ -183,7 +207,8 @@ const BaseRow: React.FC<RowProps> = ({
             </TableText>
           </div>
         </Td>
-        {/* Date Column */}
+
+        {/* 3) Date Column */}
         <Td dataLabel={columnNames.date} modifier="nowrap">
           <TableText
             wrapModifier="truncate"
@@ -192,7 +217,8 @@ const BaseRow: React.FC<RowProps> = ({
             {format(new Date(date), "dd MMM yyyy, HH:mm")}
           </TableText>
         </Td>
-        {/* Owner Column (if applicable) */}
+
+        {/* 4) Owner Column (if applicable) */}
         {origin.type !== "fileBrowser" && (
           <Td dataLabel={columnNames.owner} modifier="nowrap">
             <TableText wrapModifier="truncate" tooltip={owner}>
@@ -200,7 +226,8 @@ const BaseRow: React.FC<RowProps> = ({
             </TableText>
           </Td>
         )}
-        {/* Size Column */}
+
+        {/* 5) Size Column */}
         <Td dataLabel={columnNames.size} modifier="nowrap">
           <TableText>{size > 0 ? formatBytes(size, 0) : " "}</TableText>
         </Td>
