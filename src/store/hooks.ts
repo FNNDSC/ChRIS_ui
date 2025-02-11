@@ -19,7 +19,6 @@ export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
 export const createLinkAndDownload = (url: string, fileName: string) => {
   const link = document.createElement("a");
   link.href = url;
-  link.target = "blank";
   link.download = fileName;
   document.body.appendChild(link);
   link.click();
