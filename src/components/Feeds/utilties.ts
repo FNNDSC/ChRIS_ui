@@ -152,98 +152,75 @@ export async function fetchPublicFeed(id?: string) {
   }
 }
 
-type PluginInstanceStatus =
-  | "cancelled"
-  | "finishedWithError"
-  | "waiting"
-  | "scheduled"
-  | "started"
-  | "registeringFiles"
-  | "finishedSuccessfully";
-
 interface PluginInstanceDetails {
-  size: number;
   progress: number;
-  time: string;
-  error: boolean;
   feedProgressText: string;
+  isFinished?: boolean;
+  foundError?: boolean;
 }
-
-const LOOKUP: Record<PluginInstanceStatus, number> = {
-  cancelled: 0,
-  finishedWithError: 0,
-  waiting: 1,
-  scheduled: 2,
-  started: 3,
-  registeringFiles: 4,
-  finishedSuccessfully: 5,
-};
 
 export const getPluginInstanceDetails = async (
   feed: Feed,
 ): Promise<PluginInstanceDetails> => {
-  const details: PluginInstanceDetails = {
-    size: 0,
-    progress: 0,
-    time: "",
-    error: false,
-    feedProgressText: "",
-  };
+  const {
+    created_jobs = 0,
+    waiting_jobs = 0,
+    scheduled_jobs = 0,
+    started_jobs = 0,
+    registering_jobs = 0,
+    finished_jobs = 0,
+    errored_jobs = 0,
+    cancelled_jobs = 0,
+  } = feed.data;
 
-  let totalSize = 0;
-  let totalRunTime = 0;
-  let error = false;
-  let finishedCount = 0;
-  let errorCount = 0;
+  // 1) Sum all jobs
+  const totalJobs =
+    created_jobs +
+    waiting_jobs +
+    scheduled_jobs +
+    started_jobs +
+    registering_jobs +
+    finished_jobs +
+    errored_jobs +
+    cancelled_jobs;
 
-  const params = { limit: 10000, offset: 0 };
-  const fn = feed.getPluginInstances;
-  const boundFn = fn.bind(feed);
-  const { resource: pluginInstances }: { resource: PluginInstance[] } =
-    await fetchResource(params, boundFn);
-
-  const totalMilestones = pluginInstances.length * LOOKUP.finishedSuccessfully;
-  let completedMilestones = 0;
-
-  for (const pluginInstance of pluginInstances) {
-    const startTime = new Date(pluginInstance.data.start_date).getTime();
-    const endTime = new Date(pluginInstance.data.end_date).getTime();
-
-    totalRunTime += endTime - startTime;
-    totalSize += pluginInstance.data.size;
-
-    const statusMilestone =
-      LOOKUP[pluginInstance.data.status as PluginInstanceStatus];
-    completedMilestones += statusMilestone;
-
-    if (
-      statusMilestone === LOOKUP.cancelled ||
-      statusMilestone === LOOKUP.finishedWithError
-    ) {
-      error = true;
-      errorCount += 1;
-      continue; // Skip further checks for this instance
-    }
-
-    if (pluginInstance.data.status === "finishedSuccessfully") {
-      finishedCount += 1;
-    }
+  // 2) If no jobs at all => done, "No jobs"
+  if (totalJobs === 0) {
+    return {
+      progress: 100,
+      feedProgressText: "No jobs",
+      isFinished: true,
+      foundError: false,
+    };
   }
 
-  const feedProgressText = error
-    ? `${errorCount}/${pluginInstances.length} jobs failed`
-    : `${finishedCount}/${pluginInstances.length} jobs completed`;
+  // 3) “Done” means finished, errored, or cancelled
+  const doneJobs = finished_jobs + errored_jobs + cancelled_jobs;
+  // 4) Calculate progress => % of jobs done
+  const progress = Math.floor((doneJobs / totalJobs) * 100);
 
-  const progressPercentage = (completedMilestones / totalMilestones) * 100;
+  // 5) Build feedProgressText
+  let feedProgressText: string;
+  if (errored_jobs > 0) {
+    feedProgressText = `${errored_jobs}/${totalJobs} jobs failed`;
+  } else {
+    feedProgressText = `${finished_jobs}/${totalJobs} jobs completed`;
+  }
 
-  details.size = totalSize;
-  details.progress = Math.floor(progressPercentage);
-  details.time = convertMsToHM(totalRunTime);
-  details.error = error;
-  details.feedProgressText = feedProgressText;
+  // 6) Flag if we have any errored OR cancelled jobs
+  const foundError = errored_jobs > 0 || cancelled_jobs > 0;
 
-  return details;
+  // 7) If doneJobs == totalJobs => feed is finished
+  const isFinished = doneJobs === totalJobs;
+
+  return {
+    progress,
+    feedProgressText,
+    isFinished,
+    foundError,
+  };
 };
+
 export const convertMsToHM = (milliseconds: number): string => {
   let seconds = Math.floor(milliseconds / 1000);
   let minutes = Math.floor(seconds / 60);

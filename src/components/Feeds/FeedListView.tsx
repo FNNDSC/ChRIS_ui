@@ -45,7 +45,9 @@ import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
-import { formatBytes } from "./utilties";
+import { getPluginInstanceDetails } from "./utilties";
+import ChrisAPIClient from "../../api/chrisapiclient";
+
 const { Paragraph } = Typography;
 
 interface ColumnDefinition {
@@ -54,6 +56,7 @@ interface ColumnDefinition {
   comparator: (a: Feed, b: Feed, detailsA: any, detailsB: any) => number;
 }
 
+// We remove 'runtime' + 'size' columns
 const COLUMN_DEFINITIONS: ColumnDefinition[] = [
   {
     id: "id",
@@ -79,24 +82,6 @@ const COLUMN_DEFINITIONS: ColumnDefinition[] = [
       a.data.owner_username.localeCompare(b.data.owner_username),
   },
   {
-    id: "runtime",
-    label: "Run Time",
-    comparator: (_a, _b, detailsA, detailsB) => {
-      const timeA = detailsA?.time || "0";
-      const timeB = detailsB?.time || "0";
-      return timeA.localeCompare(timeB);
-    },
-  },
-  {
-    id: "size",
-    label: "Size",
-    comparator: (_a, _b, detailsA, detailsB) => {
-      const sizeA = detailsA?.size || "0";
-      const sizeB = detailsB?.size || "0";
-      return sizeA - sizeB;
-    },
-  },
-  {
     id: "status",
     label: "Status",
     comparator: (_a, _b, detailsA, detailsB) => {
@@ -111,38 +96,50 @@ const TableSelectable: React.FC = () => {
   const navigate = useNavigate();
   const { feedCount, loadingFeedState, feedsToDisplay, searchFolderData } =
     useFeedListData();
+
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { perPage, page, type, search, searchType } = searchFolderData;
+
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [activeSortDirection, setActiveSortDirection] =
     useState<SortByDirection>(SortByDirection.desc);
 
+  // 1) Use Queries => each feed returns an object { [feedId]: details }
+  //    Then we merge them into one dictionary feedDetails.
   const feedQueries = useQueries({
     queries: feedsToDisplay.map((feed) => ({
       queryKey: ["feedDetails", feed.data.id],
       queryFn: async () => {
-        // const res = await getPluginInstanceDetails(feed);
-        return {};
+        const client = ChrisAPIClient.getClient();
+        const updatedFeed = await client.getFeed(feed.data.id);
+        if (!updatedFeed) return;
+        const res = await getPluginInstanceDetails(updatedFeed);
+
+        // Return an object with the feed ID as key, details as value
+        return { [feed.data.id]: res };
       },
-      refetchInterval: (data: any) => {
-        /*
-        const state = data.state.data;
-        const details = state?.[feed.data.id]?.details;
-        if (!details) return false;
-        if (details?.progress === 100 || details?.error === true) {
-          return false; // Stop polling
+      refetchInterval: (result: any) => {
+        const data = result.state.data;
+
+        if (!data) return 2000;
+
+        // data is e.g. { [feedId]: { progress: number } }
+        if (data[feed.data.id]?.progress === 100) {
+          return false;
         }
-        return 2000; // Poll every 2 seconds
-        */
-        return false;
+        return 2000; // poll every 2s
       },
     })),
   });
 
+  // 2) Merge each returned object into a single dictionary
   const feedDetails = useMemo(() => {
+    // e.g. feedQueries[i].data => { 3: { progress: 50, feedProgressText: ... } }
+    // We flatten them all into { 3: {...}, 5: {...}, etc. }
     return Object.assign({}, ...feedQueries.map((query) => query.data || {}));
   }, [feedQueries]);
 
+  // 3) Sorting
   const getSortParams = (columnIndex: number) => ({
     sortBy: {
       index: activeSortIndex as number,
@@ -159,28 +156,20 @@ const TableSelectable: React.FC = () => {
     columnIndex,
   });
 
+  // 4) Produce sorted feeds
   const sortedFeeds = useMemo(() => {
     if (activeSortIndex !== null && feedDetails) {
       const comparator = COLUMN_DEFINITIONS[activeSortIndex].comparator;
       return [...feedsToDisplay].sort((a, b) =>
         activeSortDirection === SortByDirection.asc
-          ? comparator(
-              a,
-              b,
-              feedDetails[a.data.id]?.details,
-              feedDetails[b.data.id]?.details,
-            )
-          : comparator(
-              b,
-              a,
-              feedDetails[b.data.id]?.details,
-              feedDetails[a.data.id]?.details,
-            ),
+          ? comparator(a, b, feedDetails[a.data.id], feedDetails[b.data.id])
+          : comparator(b, a, feedDetails[b.data.id], feedDetails[a.data.id]),
       );
     }
     return feedsToDisplay;
   }, [feedsToDisplay, activeSortIndex, activeSortDirection, feedDetails]);
 
+  // 5) Pagination
   const onSetPage = (
     _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPage: number,
@@ -211,6 +200,7 @@ const TableSelectable: React.FC = () => {
     );
   };
 
+  // 6) If user is not logged in + type=private => redirect to public
   useEffect(() => {
     if (!type || (!isLoggedIn && type === "private")) {
       navigate(
@@ -219,8 +209,9 @@ const TableSelectable: React.FC = () => {
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
 
-  const generatePagination = (feedCount?: number) => {
-    if (!feedCount && loadingFeedState) {
+  // 7) Show pagination or skeleton
+  const generatePagination = (count?: number) => {
+    if (!count && loadingFeedState) {
       return <Skeleton width="25%" screenreaderText="Loaded Feed Count" />;
     }
 
@@ -229,7 +220,7 @@ const TableSelectable: React.FC = () => {
         style={{
           marginTop: "0.5em",
         }}
-        itemCount={feedCount}
+        itemCount={count}
         perPage={+perPage}
         page={+page}
         onSetPage={onSetPage}
@@ -246,6 +237,7 @@ const TableSelectable: React.FC = () => {
       : feedCount === -1
         ? 0
         : feedCount;
+
   const TitleComponent = (
     <InfoSection
       title={`New and Existing Analyses (${feedCountText})`}
@@ -258,9 +250,7 @@ const TableSelectable: React.FC = () => {
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       <PageSection
-        stickyOnBreakpoint={{
-          default: "top",
-        }}
+        stickyOnBreakpoint={{ default: "top" }}
         style={{ paddingTop: "0.25em", paddingBottom: "0" }}
       >
         <div className="feed-header">
@@ -353,7 +343,7 @@ const TableSelectable: React.FC = () => {
                   allFeeds={feedsToDisplay}
                   type={type}
                   additionalKeys={[perPage, page, type, search, searchType]}
-                  details={feedDetails?.[feed.data.id]?.details}
+                  details={feedDetails[feed.data.id]}
                 />
               ))}
             </Tbody>
@@ -368,6 +358,7 @@ const TableSelectable: React.FC = () => {
 
 export default TableSelectable;
 
+// -------------- TableRow Props --------------
 interface TableRowProps {
   rowIndex: number;
   feed: Feed;
@@ -377,6 +368,7 @@ interface TableRowProps {
   details: any;
 }
 
+// -------------- TableRow --------------
 const TableRow: React.FC<TableRowProps> = ({
   rowIndex,
   feed,
@@ -388,18 +380,21 @@ const TableRow: React.FC<TableRowProps> = ({
   const { handleOnClick } = handlers;
   const navigate = useNavigate();
   const { isDarkTheme } = useContext(ThemeContext);
+
   const getFolderForThisFeed = async () => {
     const payload = await feed.getFolder();
     return payload;
   };
+
   const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
   const backgroundRow =
     details && details.progress < 100 && !details.error
       ? backgroundColor
       : "inherit";
-  const isSelected =
-    selectedPaths.length > 0 &&
-    selectedPaths.some((payload) => payload.path === feed.data.folder_path);
+
+  const isSelected = selectedPaths.some(
+    (payload) => payload.path === feed.data.folder_path,
+  );
   const selectedBgRow = isSelected ? backgroundColor : backgroundRow;
 
   const onFeedNameClick = () => {
@@ -417,10 +412,7 @@ const TableRow: React.FC<TableRowProps> = ({
     >
       <Tr
         key={feed.data.id}
-        style={{
-          backgroundColor: selectedBgRow,
-          cursor: "pointer",
-        }}
+        style={{ backgroundColor: selectedBgRow, cursor: "pointer" }}
         data-test-id={`${feed.data.name}-test`}
         onContextMenu={async (e) => {
           const payload = await getFolderForThisFeed();
@@ -442,10 +434,10 @@ const TableRow: React.FC<TableRowProps> = ({
             isSelected: isSelected,
             onSelect: async (event) => {
               event.stopPropagation();
-              const isChecked = event.currentTarget.checked; // Capture the checked value before the async call
+              const isChecked = event.currentTarget.checked; // Capture the checked value
               const payload = await getFolderForThisFeed();
 
-              // Create a new event object with the captured properties
+              // Create a new event object
               const newEvent = {
                 ...event,
                 stopPropagation: () => event.stopPropagation(),
@@ -453,7 +445,6 @@ const TableRow: React.FC<TableRowProps> = ({
                 currentTarget: { ...event.currentTarget, checked: isChecked },
               };
 
-              // Pass the new event object to the handler function
               handlers.handleCheckboxChange(
                 newEvent,
                 feed.data.folder_path,
@@ -464,7 +455,6 @@ const TableRow: React.FC<TableRowProps> = ({
           }}
         />
         <Td dataLabel="ID">{feed.data.id}</Td>
-
         <Td dataLabel="analysis">
           <FeedInfoColumn feed={feed} onClick={onFeedNameClick} />
         </Td>
@@ -472,14 +462,7 @@ const TableRow: React.FC<TableRowProps> = ({
           {format(new Date(feed.data.creation_date), "dd MMM yyyy, HH:mm")}
         </Td>
         <Td dataLabel="creator">{feed.data.owner_username}</Td>
-        <Td dataLabel="runtime">{details?.time}</Td>
-        <Td dataLabel="size">
-          {details?.size ? (
-            formatBytes(details?.size, 0)
-          ) : (
-            <Skeleton width="100%" height="40px" />
-          )}
-        </Td>
+        {/* We removed the "runtime" + "size" columns */}
         <Td dataLabel="status">
           <DonutUtilization details={details} />
         </Td>
@@ -488,6 +471,7 @@ const TableRow: React.FC<TableRowProps> = ({
   );
 };
 
+// -------------- DonutUtilization --------------
 const DonutUtilization = ({ details }: { details: any }) => {
   const { isDarkTheme } = useContext(ThemeContext);
 
@@ -495,20 +479,19 @@ const DonutUtilization = ({ details }: { details: any }) => {
     return <div>N/A</div>;
   }
 
-  const { progress = 0, error: feedError, feedProgressText } = details;
+  const { progress = 0, foundError, feedProgressText } = details;
 
   let title = `${progress}%`;
-  let color = "#0066cc"; // Default blue color
-  let threshold = 100; // Default threshold at 100%
+  let color = "#0066cc";
+  let threshold = 100;
 
-  // Determine color and title based on progress and error status
-  if (feedError) {
-    color = "#ff0000"; // Red color for errors
+  if (foundError) {
+    color = "#ff0000"; // red for errors
     threshold = progress;
   } else if (progress === 100) {
     title = "✔️";
   } else {
-    color = "#00ff00"; // Green color for in-progress
+    color = "#00ff00"; // green in-progress
     threshold = progress;
   }
 
@@ -519,7 +502,7 @@ const DonutUtilization = ({ details }: { details: any }) => {
       <div className={`chart ${mode}`}>
         <ChartDonutUtilization
           ariaTitle={feedProgressText}
-          data={{ x: "Analysis", y: progress }} // Set x to empty string to remove label
+          data={{ x: "Analysis", y: progress }}
           labels={() => null}
           height={125}
           title={title}
@@ -531,35 +514,37 @@ const DonutUtilization = ({ details }: { details: any }) => {
   );
 };
 
+// -------------- FeedInfoColumn --------------
 const FeedInfoColumn = ({
   feed,
   onClick,
-}: { feed: Feed; onClick: (feed: Feed) => void }) => (
+}: {
+  feed: Feed;
+  onClick: (feed: Feed) => void;
+}) => (
   <Button
     variant="link"
     onClick={(e) => {
       e.stopPropagation();
       onClick(feed);
     }}
-    style={{
-      padding: 0,
-    }}
+    style={{ padding: 0 }}
     aria-label={`View details for ${feed.data.name}`}
   >
     {feed.data.name}
   </Button>
 );
 
+// -------------- Column Order for Skeleton, etc. --------------
 const COLUMN_ORDER = [
   { id: "id", label: "ID" },
   { id: "analysis", label: "Analysis" },
   { id: "created", label: "Created" },
   { id: "creator", label: "Creator" },
-  { id: "runtime", label: "Run Time" },
-  { id: "size", label: "Size" },
   { id: "status", label: "Status" },
 ];
 
+// -------------- EmptyStateTable --------------
 function EmptyStateTable() {
   return (
     <Table variant="compact" aria-label="Empty Table">
@@ -593,6 +578,7 @@ function EmptyStateTable() {
   );
 }
 
+// -------------- LoadingTable --------------
 function LoadingTable() {
   return (
     <Table variant="compact" aria-label="Loading Table">
