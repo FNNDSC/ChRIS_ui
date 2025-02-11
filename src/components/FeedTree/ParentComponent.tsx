@@ -7,6 +7,7 @@ import { SpinContainer } from "../Common";
 import FeedTree from "./FeedTree";
 import type { TreeNodeDatum } from "./data";
 import type { PaginatedTreeQueryReturn } from "./usePaginatedTreeQuery";
+import type { Feed } from "@fnndsc/chrisapi";
 
 interface ParentComponentProps {
   changeLayout: () => void;
@@ -15,6 +16,7 @@ interface ParentComponentProps {
   statuses: {
     [id: number]: string;
   };
+  feed?: Feed;
 }
 
 const ParentComponent: React.FC<ParentComponentProps> = ({
@@ -22,6 +24,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
   currentLayout,
   treeQuery,
   statuses,
+  feed,
 }) => {
   const {
     isLoading,
@@ -31,6 +34,8 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     isProcessing,
     addNodeLocally,
     pluginInstances,
+    totalCount,
+    removeNodeLocally,
   } = treeQuery;
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
@@ -55,7 +60,17 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
   );
 
   if (isLoading || isProcessing || isFetchingNextPage) {
-    return <SpinContainer title="Loading partial feed tree..." />;
+    const loadedCount = pluginInstances.length;
+    const total = totalCount || 0; // guard against undefined
+    const progressPercent =
+      total > 0 ? Math.floor((loadedCount / total) * 100) : 0;
+
+    return (
+      <SpinContainer
+        // For instance, show "Loading Feed Tree (15/100) 15%..."
+        title={`Loading Feed Tree... (${loadedCount}/${total})  ${progressPercent}%`}
+      />
+    );
   }
 
   if (error) {
@@ -75,6 +90,8 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
           addNodeLocally={addNodeLocally}
           pluginInstances={pluginInstances}
           statuses={statuses}
+          removeNodeLocally={removeNodeLocally}
+          feed={feed}
         />
       )}
     </>

@@ -16,7 +16,7 @@ export function usePollAllPluginStatuses(
 
   const incompletePlugins = React.useMemo(() => {
     return pluginInstances.filter((inst) => {
-      // If we already have a status in `statuses`, use that, otherwise use the plugin's own status.
+      // If we already have a status in statuses, use that, otherwise use the plugin's own status.
       const knownStatus = statuses[inst.data.id] || inst.data.status;
       return !isTerminalStatus(knownStatus);
     });

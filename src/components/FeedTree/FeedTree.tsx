@@ -26,7 +26,7 @@ import { RotateLeft, RotateRight } from "../Icons";
 import DropdownMenu from "./DropdownMenu"; // Or your own context-menu component
 
 // -------------- ChRIS & APIs --------------
-import type { PluginInstance } from "@fnndsc/chrisapi";
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 
 // -------------- Dark theme context --------------
@@ -61,18 +61,19 @@ export interface TreeNodeDatum {
 }
 
 export type FeedTreeScaleType = "time" | "cpu" | "memory" | "none";
-
-interface FeedTreeProps {
-  data: TreeNodeDatum; // The entire root node of the feed tree
-  tsIds?: TSID; // Topological cross-links
-  currentLayout: boolean; // 2D vs. 3D toggle
-  changeLayout: () => void; // callback to switch 2D/3D
-  onNodeClick: (node: TreeNodeDatum) => void; // callback if you want external usage
+export interface FeedTreeProps {
+  data: TreeNodeDatum;
+  tsIds?: TSID;
+  currentLayout: boolean;
+  changeLayout: () => void;
+  onNodeClick: (node: TreeNodeDatum) => void;
   addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
+  removeNodeLocally: (ids: number[]) => void; // <-- NEW
   pluginInstances: PluginInstance[];
   statuses: {
     [id: number]: string;
   };
+  feed?: Feed;
 }
 
 // -------------- Canvas Layout Constants --------------
@@ -128,15 +129,19 @@ function getInitialState(): State {
 // -------------- Single place to keep modals --------------
 function Modals({
   addNodeLocally,
+  removeNodeLocally,
+  feed,
 }: {
   addNodeLocally: (inst: PluginInstance | PluginInstance[]) => void;
+  removeNodeLocally: (ids: number[]) => void;
+  feed?: Feed;
 }) {
   return (
     <>
       <AddNodeProvider>
         <AddNodeConnect addNodeLocally={addNodeLocally} />
       </AddNodeProvider>
-      <DeleteNode />
+      <DeleteNode removeNodeLocally={removeNodeLocally} feed={feed} />
       <PipelineProvider>
         <AddPipeline addNodeLocally={addNodeLocally} />
       </PipelineProvider>
@@ -153,8 +158,10 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     changeLayout,
     onNodeClick,
     addNodeLocally,
+    removeNodeLocally,
     pluginInstances,
     statuses,
+    feed,
   } = props;
   const dispatch = useAppDispatch();
   const { isDarkTheme } = useContext(ThemeContext);
@@ -197,48 +204,9 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   // -------------- 3) Pipeline creation mutation --------------
   const [api, contextHolder] = notification.useNotification();
 
-  const fetchPipeline = async (pluginInst: PluginInstance) => {
-    const client = ChrisAPIClient.getClient();
-    // Example pipeline name
-    const pipelineList = await client.getPipelines({ name: "zip v20240311" });
-    const pipelines = pipelineList.getItems();
-    if (!pipelines || pipelines.length === 0) {
-      throw new Error("The zip pipeline is not registered. Contact admin.");
-    }
-    const pipeline = pipelines[0];
-    const { id: pipelineId } = pipeline.data;
-
-    const workflow = await client.createWorkflow(
-      pipelineId,
-      //@ts-ignore
-      {
-        previous_plugin_inst_id: pluginInst.data.id,
-      },
-    );
-    const pluginInstancesResponse = await workflow.getPluginInstances({
-      limit: 1000,
-    });
-    const newItems = pluginInstancesResponse.getItems();
-    if (newItems && newItems.length > 0) {
-      const firstInstance = newItems[newItems.length - 1];
-      const fullList = [...pluginInstances, ...newItems];
-      dispatch(getSelectedPlugin(firstInstance));
-      const pluginInstanceObj = {
-        selected: firstInstance,
-        pluginInstances: fullList,
-      };
-      dispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
-    }
-    return pipelines;
-  };
-
+  // 1) Remove onMutate, keep onSuccess/onError
   const pipelineMutation = useMutation({
     mutationFn: (nodeToZip: PluginInstance) => fetchPipeline(nodeToZip),
-    onMutate: () => {
-      api.info({
-        message: "Preparing to initiate the zipping process...",
-      });
-    },
     onSuccess: () => {
       api.success({
         message: "Zipping process started...",
@@ -250,6 +218,50 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       });
     },
   });
+
+  // 2) Show "preparing" only if pipeline is found
+  const fetchPipeline = async (pluginInst: PluginInstance) => {
+    const client = ChrisAPIClient.getClient();
+
+    // Attempt to find the pipeline
+    const pipelineList = await client.getPipelines({ name: "zip v20240311" });
+    const pipelines = pipelineList.getItems();
+    if (!pipelines || pipelines.length === 0) {
+      // Throw error *before* showing the notification
+      throw new Error("The zip pipeline is not registered. Contact admin.");
+    }
+
+    // Only after confirming pipeline exists:
+    api.info({
+      message: "Preparing to initiate the zipping process...",
+    });
+
+    // Then continue with normal logic
+    const pipeline = pipelines[0];
+    const { id: pipelineId } = pipeline.data;
+
+    const workflow = await client.createWorkflow(
+      pipelineId,
+      // @ts-ignore: ignoring the mismatch if any
+      {
+        previous_plugin_inst_id: pluginInst.data.id,
+      },
+    );
+
+    const pluginInstancesResponse = await workflow.getPluginInstances({
+      limit: 1000,
+    });
+    const newItems = pluginInstancesResponse.getItems();
+
+    // Merge new items into local state
+    if (newItems && newItems.length > 0) {
+      const firstInstance = newItems[newItems.length - 1];
+      dispatch(getSelectedPlugin(firstInstance));
+      addNodeLocally(newItems);
+    }
+
+    return pipelines;
+  };
 
   // -------------- 1) Build a D3 tree layout in memory --------------
   // We'll create a "hierarchy" and compute x,y for each node. Then optionally center root.
@@ -584,8 +596,11 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       {contextHolder}
 
       {/* Modals for AddNode, DeleteNode, Pipeline, etc. */}
-      <Modals addNodeLocally={addNodeLocally} />
-
+      <Modals
+        feed={feed}
+        addNodeLocally={addNodeLocally}
+        removeNodeLocally={removeNodeLocally} // <-- pass down to Modals
+      />
       {/* Context menu (conditionally rendered) */}
       {contextMenuPosition.visible && contextMenuNode && (
         <div

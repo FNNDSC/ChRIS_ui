@@ -29,41 +29,45 @@ export interface PaginatedTreeQueryReturn {
   isProcessing: boolean;
   rootNode: TreeNodeDatum | null;
 
-  // Pagination
+  // Pagination methods
   fetchNextPage: () => Promise<unknown>;
+
+  // Local modifications
   addNodeLocally: (arg: PluginInstance | PluginInstance[]) => void;
+  removeNodeLocally: (ids: number[]) => void;
+
+  // Flattened pluginInstances array
   pluginInstances: PluginInstance[];
 }
 
-// -- 1) Helpers
+// -----------------------------------------
+// 1) Helpers
+// -----------------------------------------
 
-/**
- * Fetch just the total count of plugin instances for the Feed.
- */
+/** Fetch just the total count of plugin instances for the Feed. */
 async function fetchTotalCount(feed: Feed) {
   const resp = await feed.getPluginInstances({ limit: 1 });
   return resp.totalCount ?? 0;
 }
 
-/**
- * Fetch a page of plugin instances for the Feed, given offset + limit.
- */
-async function fetchPage(feed: Feed, offset: number, limit: number) {
-  const resp = await feed.getPluginInstances({ offset, limit });
+/** Fetch a page of plugin instances (offset -> offset+limit). */
+async function fetchPage(
+  feed: Feed,
+  offset: number,
+  limit: number,
+): Promise<{ items: PluginInstance[]; totalCount: number }> {
+  const resp = await feed.getPluginInstances({
+    offset,
+    limit,
+    // If the backend supports an ordering param, e.g. oldest->newest:
+    // ordering: "created", // or "id"
+  });
   const items = resp.getItems() || [];
-  return {
-    items,
-    totalCount: resp.totalCount ?? 0,
-  };
+  const totalCount = resp.totalCount ?? 0;
+  return { items, totalCount };
 }
 
-/**
- * Decide how big each page (chunk) should be, based on totalCount.
- *
- * - If totalCount > 100, we fetch in chunks of 100.
- * - Else if totalCount < 20, fetch exactly totalCount (only one small chunk).
- * - Else use a default chunk size of 20.
- */
+/** Decide how big each page (chunk) should be, based on totalCount. */
 function getChunkSize(count: number) {
   if (count === 0) return 20;
   if (count > 100) return 100;
@@ -72,8 +76,8 @@ function getChunkSize(count: number) {
 }
 
 /**
- * Integrate a batch of PluginInstances into our "global" map of TreeNodeDatum.
- * Tracks the single root node ID in `rootIdRef`.
+ * Insert or update plugin instances in the finalNodesById map.
+ * We assume the backend’s order is oldest->newest, so we do no local sorting.
  */
 function integrateBatchDirectSingleRoot(
   items: PluginInstance[],
@@ -83,11 +87,8 @@ function integrateBatchDirectSingleRoot(
   for (const item of items) {
     const id = item.data.id;
     const parentId = item.data.previous_id ?? null;
+    const nodeName = item.data.title || item.data.plugin_name || `Node ${id}`;
 
-    // Generate a name for display
-    const nodeName = item.data.title || item.data.plugin_name;
-
-    // Either update an existing node or create a new one
     let finalNode = finalNodesById.get(id);
     if (!finalNode) {
       finalNode = {
@@ -99,13 +100,13 @@ function integrateBatchDirectSingleRoot(
       };
       finalNodesById.set(id, finalNode);
     } else {
-      // Update existing node's relevant fields
+      // Update existing node
       finalNode.name = nodeName;
       finalNode.parentId = parentId ?? undefined;
       finalNode.item = item;
     }
 
-    // Identify the single root node if it has no parent
+    // Identify single root node if no parent
     if (!parentId) {
       if (rootIdRef.current === null) {
         rootIdRef.current = id;
@@ -113,15 +114,14 @@ function integrateBatchDirectSingleRoot(
         console.warn(
           "Found multiple root nodes! Existing root:",
           rootIdRef.current,
-          " New root candidate:",
+          " new root candidate:",
           id,
         );
       }
     } else {
-      // It's a child → link up with the parent
+      // Insert child under the parent
       let parentNode = finalNodesById.get(parentId);
       if (!parentNode) {
-        // Create a placeholder if the parent wasn't already in the map
         parentNode = {
           id: parentId,
           name: `Node ${parentId}`,
@@ -131,7 +131,6 @@ function integrateBatchDirectSingleRoot(
         };
         finalNodesById.set(parentId, parentNode);
       }
-      // Insert this child if not already in the parent's children array
       if (!parentNode.children.some((child) => child.id === id)) {
         parentNode.children.push(finalNode);
       }
@@ -139,18 +138,15 @@ function integrateBatchDirectSingleRoot(
   }
 }
 
+/** We'll batch re-renders after every BATCH_SIZE pages or if no more pages exist. */
 const BATCH_SIZE = 3;
 
-/**
- * Recursively insert `newChild` under the node that has `parentId`.
- * Returns a new root reference only if an insertion actually happens.
- */
+/** Insert a single child node immutably under a parent. */
 function insertChildImmutable(
   root: TreeNodeDatum,
   parentId: number,
   newChild: TreeNodeDatum,
 ): TreeNodeDatum {
-  // If this node is the parent:
   if (root.id === parentId) {
     return {
       ...root,
@@ -158,34 +154,54 @@ function insertChildImmutable(
     };
   }
 
-  // Otherwise, walk through children:
   let didChange = false;
-
   const newChildren = root.children.map((child) => {
-    const updatedChild = insertChildImmutable(child, parentId, newChild);
-    if (updatedChild !== child) {
+    const updated = insertChildImmutable(child, parentId, newChild);
+    if (updated !== child) {
       didChange = true;
     }
-    return updatedChild;
+    return updated;
   });
 
-  if (!didChange) {
-    return root; // no change
-  }
-
-  // At least one child changed => create a *new* root object
-  return {
-    ...root,
-    children: newChildren,
-  };
+  if (!didChange) return root;
+  return { ...root, children: newChildren };
 }
 
-export default function usePaginatedTreeQuery(feed?: Feed) {
+/** Recursively remove a set of node IDs (and their subtrees). */
+function removeManyRecursive(
+  root: TreeNodeDatum,
+  toRemove: Set<number>,
+): TreeNodeDatum | null {
+  if (toRemove.has(root.id)) {
+    return null;
+  }
+  let changed = false;
+  const newChildren: TreeNodeDatum[] = [];
+  for (const child of root.children) {
+    const updated = removeManyRecursive(child, toRemove);
+    if (updated) {
+      newChildren.push(updated);
+    } else {
+      changed = true;
+    }
+  }
+  if (!changed && newChildren.length === root.children.length) {
+    return root; // no change
+  }
+  return { ...root, children: newChildren };
+}
+
+// -----------------------------------------
+// 2) usePaginatedTreeQuery
+// -----------------------------------------
+export default function usePaginatedTreeQuery(
+  feed?: Feed,
+): PaginatedTreeQueryReturn {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const [localItems, setLocalItems] = useState<PluginInstance[]>([]);
 
-  // Step A: Fetch the total count
+  // A) Fetch total count
   const countQuery = useQuery({
     queryKey: ["feedPluginInstances", feed?.data.id, "countOnly"],
     enabled: !!feed,
@@ -193,10 +209,10 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
   });
   const totalCount = countQuery.data || 0;
 
-  // Decide our chunk size
+  // Decide chunk size
   const chunkSize = getChunkSize(totalCount);
 
-  // Step B: Use an infinite query for the actual items
+  // B) Infinite query that fetches from offset=0 upward
   const {
     data: infiniteData,
     error: infiniteError,
@@ -205,11 +221,12 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
     isFetchingNextPage,
     fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: ["feedPluginInstances", feed?.data.id, chunkSize],
+    // Unique query key to store pages in the cache
+    queryKey: ["instanceList", feed?.data.id],
+    // Only enable if feed is defined and we have >0 total count
     enabled: !!feed && totalCount > 0,
-    // Start from offset=0
-    initialPageParam: 0,
-    queryFn: async ({ pageParam }: { pageParam: number }) => {
+    initialPageParam: 0, // start offset=0
+    queryFn: async ({ pageParam = 0 }) => {
       const { items, totalCount } = await fetchPage(
         feed!,
         pageParam,
@@ -218,46 +235,39 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
       const nextOffset = pageParam + chunkSize;
       return { items, totalCount, nextOffset };
     },
-    // If nextOffset is still within the total count, we have another page
-    getNextPageParam: (lastPage: { nextOffset: number; totalCount: number }) =>
+    getNextPageParam: (lastPage) =>
       lastPage.nextOffset < lastPage.totalCount
         ? lastPage.nextOffset
         : undefined,
   });
 
-  // Step C: References we’ll need to build our tree
+  // C) We'll build the tree in finalNodesByIdRef
   const finalNodesByIdRef = useRef<Map<number, TreeNodeDatum>>(new Map());
   const rootIdRef = useRef<number | null>(null);
 
-  // 2) Compute final pluginInstances by concatenating server items + local items
-  const pluginInstances: PluginInstance[] = useMemo(() => {
-    // items from the infinite query
+  // Flatten server items + local items
+  const pluginInstances = useMemo(() => {
     const serverItems =
-      infiniteData?.pages.flatMap(
-        (page: Partial<{ items: PluginInstance[] }>) => page.items ?? [],
-      ) ?? [];
-
-    // if plugin instance IDs are guaranteed unique,
-    // just do a simple concat:
+      infiniteData?.pages.flatMap((page) => page.items ?? []) ?? [];
     return [...serverItems, ...localItems];
   }, [infiniteData, localItems]);
 
-  // Store the built root node in local state
+  // The final tree root
   const [rootNode, setRootNode] = useState<TreeNodeDatum | null>(null);
 
   // For batching re-renders
   const integratedPageCount = useRef(0);
   const pagesSinceLastRenderRef = useRef(0);
 
-  // Track if we’re integrating new pages
+  // Whether we are currently integrating new pages
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Step D: Integrate new pages as they come in
+  // D) Integrate new pages as they come in
   const processNewPages = useCallback(() => {
     if (!infiniteData) return;
     const { pages } = infiniteData;
 
-    // No new pages => do nothing
+    // If we haven't integrated these pages yet...
     if (pages.length <= integratedPageCount.current) return;
 
     setIsProcessing(true);
@@ -270,23 +280,20 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
           rootIdRef,
         );
       }
-      // How many new pages were integrated?
       const newPageCount = pages.length - integratedPageCount.current;
       integratedPageCount.current = pages.length;
       pagesSinceLastRenderRef.current += newPageCount;
 
-      // Decide if we should re-render now or wait
+      // If we've integrated BATCH_SIZE pages or there's no more pages left
       const noMorePages = !hasNextPage;
       const isBatchComplete =
         pagesSinceLastRenderRef.current >= BATCH_SIZE || noMorePages;
 
       if (isBatchComplete) {
-        // Build our single root node, if found
         let newRoot: TreeNodeDatum | null = null;
         if (rootIdRef.current != null) {
           newRoot = finalNodesByIdRef.current.get(rootIdRef.current) || null;
         }
-
         setRootNode(newRoot);
         pagesSinceLastRenderRef.current = 0;
       }
@@ -295,61 +302,43 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
     }
   }, [infiniteData, hasNextPage]);
 
-  // Whenever infiniteData changes, integrate new items
   useEffect(() => {
     processNewPages();
   }, [processNewPages]);
 
-  // Optionally auto-fetch next pages until we have them all
+  // Optionally keep fetching pages until all are loaded
   useEffect(() => {
     if (!infiniteLoading && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [infiniteLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Clean up if the component unmounts
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (feed) {
         queryClient.cancelQueries({
-          queryKey: ["feedPluginInstances", feed.data.id],
+          queryKey: ["instanceList", feed.data.id],
         });
       }
     };
   }, [feed, queryClient]);
 
-  // Step E: A helper to insert a node locally (e.g. after creating a new instance)
-  /**
-   * Add one or more PluginInstances as local nodes.
-   *
-   * If a new node's parent is already in the tree,
-   * we'll insert it immutably. If there's no root or no parent, we skip it.
-   *
-   * This function can be called with:
-   *   addNodeLocally(aSinglePluginInstance)
-   * or
-   *   addNodeLocally([anArray, ofPluginInstances])
-   */
+  // E) Insert a node locally
   const addNodeLocally = useCallback(
     (arg: PluginInstance | PluginInstance[]) => {
-      // Step 1: Convert arg to an array
+      if (!rootNode) return;
       const newItems = Array.isArray(arg) ? arg : [arg];
 
-      // If there's no existing root, we can't insert children
-      if (!rootNode) return;
-      // We collect each item that actually gets added so we can
-      // batch-update localItems once at the end
       const addedItems: PluginInstance[] = [];
       let updatedRoot = rootNode;
-      // Step 2: For each PluginInstance...
+
       for (const newItem of newItems) {
         const parentId = newItem.data.previous_id ?? undefined;
-        if (!parentId) {
-          // Don't add nodes without a previous id.
-          continue;
-        }
+        // If it has no parent, it's presumably a new root-level item.
+        // Here we skip it, but you could handle multiple roots differently.
+        if (!parentId) continue;
 
-        // Build the new TreeNode
         const newChild: TreeNodeDatum = {
           id: newItem.data.id,
           name:
@@ -361,21 +350,16 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
           children: [],
         };
 
-        // Insert immutably
         const nextRoot = insertChildImmutable(updatedRoot, parentId, newChild);
-
-        // If insertChildImmutable changed the structure...
         if (nextRoot !== updatedRoot) {
           updatedRoot = nextRoot;
           addedItems.push(newItem);
         }
       }
 
-      // Step 3: If we actually changed the root, update state
       if (addedItems.length > 0) {
         setRootNode(updatedRoot);
         setLocalItems((prev) => [...prev, ...addedItems]);
-
         const lastAdded = addedItems[addedItems.length - 1];
         dispatch(getSelectedPlugin(lastAdded));
       }
@@ -383,14 +367,25 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
     [rootNode, dispatch],
   );
 
-  // Return final data + states
+  // F) Remove multiple IDs from the local tree + localItems
+  const removeNodeLocally = useCallback(
+    (ids: number[]) => {
+      if (!rootNode || ids.length === 0) return;
+      const toRemove = new Set(ids);
+      const newRoot = removeManyRecursive(rootNode, toRemove);
+      setRootNode(newRoot);
+      //setLocalItems((prev) => prev.filter((inst) => !toRemove.has(inst.data.id)));
+    },
+    [rootNode],
+  );
+
+  // Return final data
   return {
     // React Query states
     isLoading: countQuery.isLoading || infiniteLoading,
     error: countQuery.error || infiniteError,
-
     totalCount,
-    chunkSize, // for informational/debug use
+    chunkSize,
     hasNextPage,
     isFetchingNextPage,
 
@@ -400,7 +395,12 @@ export default function usePaginatedTreeQuery(feed?: Feed) {
 
     // Pagination
     fetchNextPage,
+
+    // Insert or remove nodes locally
     addNodeLocally,
+    removeNodeLocally,
+
+    // Flattened plugin instances from local + server
     pluginInstances,
   };
 }
