@@ -8,11 +8,7 @@ import { elipses } from "../../api/common";
 import type { IDrawerState } from "../../store/drawer/drawerSlice";
 import { resetDrawerState } from "../../store/drawer/drawerSlice";
 import { clearSelectedFile } from "../../store/explorer/explorerSlice";
-import {
-  getFeedSuccess,
-  resetFeed,
-  setShowToolbar,
-} from "../../store/feed/feedSlice";
+import { getFeedSuccess, setShowToolbar } from "../../store/feed/feedSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   getSelectedPlugin,
@@ -72,7 +68,6 @@ const FeedView: React.FC = () => {
     document.title = "My Analyses - CHRIS UI";
     dispatch(setShowToolbar(true));
     return () => {
-      dispatch(resetFeed());
       dispatch(resetSelectedPlugin());
       dispatch(clearSelectedFile());
       dispatch(resetDrawerState());
