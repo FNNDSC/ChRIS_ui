@@ -231,7 +231,7 @@ function* handleIndividualDownload(
 function* handleDownload(action: IActionTypeParam) {
   const { paths, username } = action.payload;
   for (const path of paths) {
-    yield fork(handleIndividualDownload, path, username, "Download Pipeline");
+    yield call(handleIndividualDownload, path, username, "Download Pipeline");
   }
 }
 
