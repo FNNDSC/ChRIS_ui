@@ -52,11 +52,13 @@ export const downloadFile = async (file: FileBrowserFolderFile) => {
   } else {
     // Otherwise, create a token
     const client = ChrisAPIClient.getClient();
+    await new Promise((resolve) => setTimeout(resolve, 200)); // 200ms delay
     const response = await client.createDownloadToken();
     if (!response) {
       throw new Error("Failed to fetch the token...");
     }
     const token = response.data.token;
+
     authorizedUrl = `${baseUrl}?download_token=${token}`;
   }
 
