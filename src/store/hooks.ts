@@ -25,7 +25,7 @@ export const createLinkAndDownload = (url: string, fileName: string) => {
   document.body.removeChild(link);
 };
 
-export const downloadPublicFile = async (file: FileBrowserFolderFile) => {
+export const downloadPublicFile = (file: FileBrowserFolderFile) => {
   const fileName = getFileName(file.data.fname);
   const url = file.collection.items[0].links[0].href;
   if (!url) {
