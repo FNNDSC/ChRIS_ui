@@ -152,6 +152,7 @@ const FeedView: React.FC = () => {
                           currentLayout={currentLayout}
                           treeQuery={treeQuery}
                           statuses={statuses}
+                          feed={feed}
                         />
                       ) : (
                         <FeedGraph
