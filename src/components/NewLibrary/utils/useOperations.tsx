@@ -375,8 +375,9 @@ export const useFolderOperations = (
         if (selectedPaths.length === 0) return;
         // Assume rename is applied on the first selected resource.
         const { payload } = selectedPaths[0];
-        const resourcePath = payload.data.path;
+
         if (createFeed) {
+          const resourcePath = payload.data.path;
           // For feeds, expect resourcePath like "/home/username/feed_17"
           const parts = resourcePath.split("/");
           const feedSegment = parts[parts.length - 1]; // "feed_17"
@@ -402,6 +403,7 @@ export const useFolderOperations = (
             }
           })();
         } else {
+          const resourcePath = payload.data.path || payload.data.fname;
           // For folders, simply use the last part of the path as the default name.
           const parts = resourcePath.split("/");
           const defaultName = parts[parts.length - 1];

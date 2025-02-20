@@ -174,7 +174,9 @@ export const InfoIcon = ({
         {title}
       </Title>
       <Popover placement="top" trigger="hover" content={content}>
-        <InfoIconComponent style={{ alignSelf: "flex-start" }} />
+        <span style={{ display: "inline-flex", alignSelf: "flex-start" }}>
+          <InfoIconComponent />
+        </span>
       </Popover>
     </div>
   );
