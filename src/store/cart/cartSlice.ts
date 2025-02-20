@@ -64,6 +64,12 @@ const cartSlice = createSlice({
     ) {
       const { id, step, fileName, error } = action.payload;
       state.fileDownloadStatus[id] = { step, fileName, error };
+      if (step === DownloadTypes.finished) {
+        // When a file download finishes, remove its associated path
+        state.selectedPaths = state.selectedPaths.filter(
+          (selected) => selected.path !== fileName,
+        );
+      }
     },
     setFolderDownloadStatus(
       state,
@@ -77,6 +83,12 @@ const cartSlice = createSlice({
     ) {
       const { id, step, fileName, error, feed } = action.payload;
       state.folderDownloadStatus[id] = { step, error, fileName, feed };
+      if (step === DownloadTypes.finished && fileName) {
+        // When a folder download finishes, remove its associated path (if available)
+        state.selectedPaths = state.selectedPaths.filter(
+          (selected) => selected.path !== fileName,
+        );
+      }
     },
     setFileUploadStatus(
       state,
@@ -110,6 +122,12 @@ const cartSlice = createSlice({
         path,
         type,
       };
+      if (step === "Upload Complete") {
+        // When file upload is complete, remove its path from selectedPaths
+        state.selectedPaths = state.selectedPaths.filter(
+          (selected) => selected.path !== path,
+        );
+      }
     },
     setFolderUploadStatus(
       state,
@@ -140,6 +158,12 @@ const cartSlice = createSlice({
         path,
         type,
       };
+      if (step === "Upload Complete") {
+        // When folder upload is complete, remove its path from selectedPaths
+        state.selectedPaths = state.selectedPaths.filter(
+          (selected) => selected.path !== path,
+        );
+      }
     },
     removeSelectedPayload(state, action: PayloadAction<SelectionPayload>) {
       state.selectedPaths = state.selectedPaths.filter(
