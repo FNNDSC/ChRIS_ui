@@ -9,12 +9,12 @@ import {
   type OnSort,
   type SortByDirection,
   Table,
+  TableText,
   Tbody,
   Td,
   Th,
   Thead,
   Tr,
-  TableText,
 } from "@patternfly/react-table";
 import { Drawer, Tag } from "antd";
 import { format } from "date-fns";
@@ -34,8 +34,6 @@ import useNewResourceHighlight from "../utils/useNewResourceHighlight";
 import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
-
-import { DicomCacheProvider } from "../../Preview/displays/DicomCacheContext";
 
 interface TableProps {
   data: {
@@ -348,17 +346,15 @@ const LibraryTable: React.FC<TableProps> = ({
         placement="right"
       >
         {selectedFile && (
-          <DicomCacheProvider>
-            <FileDetailView
-              gallery={true}
-              selectedFile={selectedFile}
-              preview="large"
-              list={data.files}
-              fetchMore={fetchMore}
-              handlePagination={handlePagination}
-              filesLoading={filesLoading}
-            />
-          </DicomCacheProvider>
+          <FileDetailView
+            gallery={true}
+            selectedFile={selectedFile}
+            preview="large"
+            list={data.files}
+            fetchMore={fetchMore}
+            handlePagination={handlePagination}
+            filesLoading={filesLoading}
+          />
         )}
       </Drawer>
       <Table

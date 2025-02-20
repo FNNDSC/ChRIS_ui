@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { debounce } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useMemo, useState } from "react";
+import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
@@ -254,6 +255,8 @@ const TableSelectable: React.FC = () => {
     />
   );
 
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+
   return (
     <WrapperConnect titleComponent={TitleComponent}>
       <PageSection
@@ -317,6 +320,7 @@ const TableSelectable: React.FC = () => {
                 paddingTop: "0",
                 paddingBottom: "0",
                 background: "inherit",
+                marginTop: isMobile ? "0.5em" : undefined,
               },
             }}
           />
@@ -479,30 +483,49 @@ const TableRow: React.FC<TableRowProps> = ({
 };
 
 // -------------- DonutUtilization --------------
+// -------------- DonutUtilization --------------
 const DonutUtilization = ({ details }: { details: any }) => {
   const { isDarkTheme } = useContext(ThemeContext);
 
+  // Theme-based class name (if you already have .chart.dark / .chart.light)
+  const mode = isDarkTheme ? "dark" : "light";
+
   if (!details) {
-    return <div>N/A</div>;
+    // Show a "greyed out" donut labeled "N/A"
+    return (
+      <Tooltip content="No feed progress data available">
+        <div className={`chart ${mode}`}>
+          <ChartDonutUtilization
+            ariaTitle="Unknown Status"
+            data={{ x: "Analysis", y: 0 }}
+            labels={() => null}
+            // We'll use "N/A" as the big center label
+            title="?"
+            thresholds={[{ value: 100, color: "#d2d2d2" }]}
+            width={125}
+            height={125}
+          />
+        </div>
+      </Tooltip>
+    );
   }
 
   const { progress = 0, foundError, feedProgressText } = details;
-
+  // Decide the donut color & label
   let title = `${progress}%`;
-  let color = "#0066cc";
+  let color = "#0066cc"; // default color
   let threshold = 100;
 
   if (foundError) {
-    color = "#ff0000"; // red for errors
+    color = "#c9190b"; // PF Red-100
     threshold = progress;
   } else if (progress === 100) {
     title = "✔️";
   } else {
-    color = "#00ff00"; // green in-progress
+    // e.g. partial progress
+    color = "#06c"; // PF Blue-400 or a green if you prefer
     threshold = progress;
   }
-
-  const mode = isDarkTheme ? "dark" : "light";
 
   return (
     <Tooltip content={`Progress: ${progress}%`}>
@@ -511,10 +534,10 @@ const DonutUtilization = ({ details }: { details: any }) => {
           ariaTitle={feedProgressText}
           data={{ x: "Analysis", y: progress }}
           labels={() => null}
-          height={125}
           title={title}
           thresholds={[{ value: threshold, color }]}
           width={125}
+          height={125}
         />
       </div>
     </Tooltip>

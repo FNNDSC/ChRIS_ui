@@ -40,7 +40,6 @@ import { OperationContext } from "../NewLibrary/context";
 import FileDetailView from "../Preview/FileDetailView";
 import XtkViewer from "../XtkViewer/XtkViewer";
 import type { FileBrowserProps } from "./types";
-import { DicomCacheProvider } from "../Preview/displays/DicomCacheContext";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -380,17 +379,15 @@ const FileBrowser = (props: FileBrowserProps) => {
 
             {drawerState.preview.currentlyActive === "preview" &&
               selectedFile && (
-                <DicomCacheProvider>
-                  <FileDetailView
-                    gallery={true}
-                    selectedFile={selectedFile}
-                    preview="large"
-                    list={filesMap}
-                    fetchMore={fetchMore}
-                    handlePagination={handlePagination}
-                    filesLoading={isLoading}
-                  />
-                </DicomCacheProvider>
+                <FileDetailView
+                  gallery={true}
+                  selectedFile={selectedFile}
+                  preview="large"
+                  list={filesMap}
+                  fetchMore={fetchMore}
+                  handlePagination={handlePagination}
+                  filesLoading={isLoading}
+                />
               )}
             {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
           </Panel>
