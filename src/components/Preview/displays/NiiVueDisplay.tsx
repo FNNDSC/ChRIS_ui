@@ -1,4 +1,5 @@
 import { SLICE_TYPE } from "@niivue/niivue";
+import { Button } from "@patternfly/react-core";
 import {
   FreeSurferColorLUT,
   type NVROptions,
@@ -74,15 +75,18 @@ const NiiVueDisplay: React.FC<NiiVueDisplayProps> = ({ selectedFile }) => {
       ) : (
         <div className={styles.container}>
           <div className={styles.controlBar}>
-            <button
-              type="button"
+            <Button
+              style={{
+                marginRight: "0.5em",
+              }}
+              variant="secondary"
               onClick={() => setFreesurferLut(!freesurferLut)}
             >
               {freesurferLut ? "FreeSurfer" : "gray"}
-            </button>
-            <button type="button" onClick={rotateSliceType}>
+            </Button>
+            <Button variant="secondary" onClick={rotateSliceType}>
               {sliceTypeName}
-            </button>
+            </Button>
             {freesurferLut && <span>{crosshairText}</span>}
           </div>
           <SizedNiivueCanvas
