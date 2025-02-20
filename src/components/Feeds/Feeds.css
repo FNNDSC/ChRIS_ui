@@ -6,6 +6,7 @@
   padding-block-end: 0 !important;
   min-height: 60px;
   padding-block-start: 0;
+  gap: 0.5em;
 }
 
 .feed-list .error {

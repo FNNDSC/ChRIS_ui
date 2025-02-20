@@ -98,19 +98,6 @@ const AccessionInput: React.FC<InputFieldProps> = ({ onSubmit }) => {
   );
 };
 
-/** ------------------ Advanced Input ------------------ **/
-const AdvancedInput: React.FC<InputFieldProps> = ({ onSubmit }) => {
-  return (
-    <>
-      <h1>Advanced search not implemented.</h1>
-      {/*
-        In the future, you can expand this
-        to handle many fields for searching.
-      */}
-    </>
-  );
-};
-
 /**
  * A `<span>` which shows different text on mobile vs desktop layouts.
  */
@@ -131,7 +118,7 @@ const PacsInput: React.FC<PacsInputProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // "searchMode" can be "mrn", "accno", or "advanced".
+  // "searchMode" can be "mrn" or "accno"
   const searchMode = searchParams.get("searchMode") || "mrn";
 
   // Helper to update the search mode in the URL
@@ -140,10 +127,9 @@ const PacsInput: React.FC<PacsInputProps> = ({
       setSearchParams((prev) => {
         // Clean up old query params if switching between modes
         if (mode === "mrn") {
-          // remove "accno" if it existed
           prev.delete("accno");
-        } else if (mode === "accno") {
-          // remove "mrn"
+        } else {
+          // mode === "accno"
           prev.delete("mrn");
         }
         prev.set("searchMode", mode);
@@ -163,13 +149,11 @@ const PacsInput: React.FC<PacsInputProps> = ({
   let input: React.ReactNode;
   if (searchMode === "mrn") {
     input = <MrnInput onSubmit={curriedOnSubmit} />;
-  } else if (searchMode === "accno") {
-    input = <AccessionInput onSubmit={curriedOnSubmit} />;
   } else {
-    input = <AdvancedInput onSubmit={curriedOnSubmit} />;
+    input = <AccessionInput onSubmit={curriedOnSubmit} />;
   }
 
-  // Single segmented control with 3 options
+  // Single segmented control with 2 options
   const searchModeToggle = (
     <Segmented
       options={[
@@ -182,10 +166,6 @@ const PacsInput: React.FC<PacsInputProps> = ({
             <ScreenSizeSpan mobile="Accession" desktop="Accession Search" />
           ),
           value: "accno",
-        },
-        {
-          label: <ScreenSizeSpan mobile="Advanced" desktop="Advanced Search" />,
-          value: "advanced",
         },
       ]}
       value={searchMode}

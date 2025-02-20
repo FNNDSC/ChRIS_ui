@@ -227,6 +227,7 @@ export default function CreateFeed() {
         variant="primary"
         onClick={() => closeWizard()}
         isDisabled={!isLoggedIn}
+        size="sm"
       >
         Create Analysis
       </Button>
