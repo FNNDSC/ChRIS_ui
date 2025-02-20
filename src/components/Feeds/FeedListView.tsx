@@ -333,7 +333,7 @@ const TableSelectable: React.FC = () => {
           >
             <Thead>
               <Tr>
-                <Th scope="col" aria-label="feed-selection-checkbox" />
+                <Th scope="col" screenReaderText="Select Feed" />
                 {COLUMN_DEFINITIONS.map((column, columnIndex) => (
                   <Th key={column.id} sort={getSortParams(columnIndex)}>
                     {column.label}
@@ -591,7 +591,7 @@ function LoadingTable() {
     <Table variant="compact" aria-label="Loading Table">
       <Thead>
         <Tr>
-          <Th />
+          <Th screenReaderText="loading data" />
           {COLUMN_ORDER.map(({ label }) => (
             <Th key={label}>{label}</Th>
           ))}
