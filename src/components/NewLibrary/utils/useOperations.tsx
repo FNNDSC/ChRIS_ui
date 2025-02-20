@@ -1,5 +1,4 @@
 import type {
-  Feed,
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
@@ -26,7 +25,6 @@ import { type OriginState, useOperationsContext } from "../context";
 import useDeletePayload from "../utils/useDeletePayload";
 import { fetchFeedForPath } from "./longpress";
 import useFeedOperations from "./useFeedOperations";
-import { isEmpty } from "lodash";
 
 export interface ModalState {
   type: string;
@@ -373,7 +371,47 @@ export const useFolderOperations = (
       createGroup: () => setModalState({ isOpen: true, type: "group" }),
       merge: handleMergeMutation.mutate,
       share: () => setModalState({ isOpen: true, type: "share" }),
-      rename: () => setModalState({ isOpen: true, type: "rename" }),
+      rename: () => {
+        if (selectedPaths.length === 0) return;
+        // Assume rename is applied on the first selected resource.
+        const { payload } = selectedPaths[0];
+        const resourcePath = payload.data.path;
+        if (createFeed) {
+          // For feeds, expect resourcePath like "/home/username/feed_17"
+          const parts = resourcePath.split("/");
+          const feedSegment = parts[parts.length - 1]; // "feed_17"
+          const idPart = feedSegment.split("_")[1]; // "17"
+          const feedId = Number.parseInt(idPart, 10);
+          (async () => {
+            try {
+              const feed = await ChrisAPIClient.getClient().getFeed(feedId);
+              // Use the feed's title if available; otherwise fallback to the feedSegment.
+              const defaultName = feed?.data.name || feedSegment;
+              setModalState({
+                type: "rename",
+                isOpen: true,
+                additionalProps: { defaultName },
+              });
+            } catch (error) {
+              // Fallback: use the feed segment if the API call fails.
+              setModalState({
+                type: "rename",
+                isOpen: true,
+                additionalProps: { defaultName: feedSegment },
+              });
+            }
+          })();
+        } else {
+          // For folders, simply use the last part of the path as the default name.
+          const parts = resourcePath.split("/");
+          const defaultName = parts[parts.length - 1];
+          setModalState({
+            type: "rename",
+            isOpen: true,
+            additionalProps: { defaultName },
+          });
+        }
+      },
       duplicate: handleDuplicateMutation.mutate,
     };
 

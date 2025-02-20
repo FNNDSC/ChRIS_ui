@@ -380,24 +380,30 @@ export const AddModal = ({
     if (modalState.additionalProps?.createFeed) {
       setInputValue(modalState.additionalProps.createFeed.defaultFeedName);
     }
-  }, [modalState.type, modalState.additionalProps]);
+
+    if (
+      modalState.type === "rename" &&
+      modalState.additionalProps?.defaultName
+    ) {
+      setInputValue(modalState.additionalProps.defaultName);
+    }
+  }, [modalState.additionalProps, modalState.type]);
 
   const handleClose = () => {
     setInputValue("");
     onClose();
   };
 
-  // We allow an empty username if “Make resource public” is checked
   const isShareModal = modalState.type === "share";
 
-  // If user is in "share" mode, we only disable if both conditions are false:
-  // - user hasn't typed a name
-  // - user didn't check “Make public”
-  const isDisabled =
-    !inputValue && !additionalValues.share.public && isShareModal
-      ? true
-      : // For all other modes, disable if no input
-        !inputValue && !isShareModal;
+  // For "share" modals, disable if:
+  // - Neither checkbox is checked, OR
+  // - The "grant user permission" checkbox is checked but the text input is empty.
+  // For all other modal types, disable if the text input is empty.
+  const isDisabled = isShareModal
+    ? (!additionalValues.share.public && !additionalValues.share.write) ||
+      (additionalValues.share.write && !inputValue)
+    : !inputValue;
 
   return (
     <Modal
