@@ -29,6 +29,7 @@ import { debounce } from "lodash";
 import type React from "react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
@@ -45,8 +46,7 @@ import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
-import { getPluginInstanceDetails } from "./utilties";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import { fetchPublicFeed, getPluginInstanceDetails } from "./utilties";
 
 const { Paragraph } = Typography;
 
@@ -111,23 +111,30 @@ const TableSelectable: React.FC = () => {
       queryKey: ["feedDetails", feed.data.id],
       queryFn: async () => {
         const client = ChrisAPIClient.getClient();
-        const updatedFeed = await client.getFeed(feed.data.id);
-        if (!updatedFeed) return;
+        let updatedFeed = null;
+        // Choose the appropriate feed fetch function based on type
+        if (type === "public") {
+          updatedFeed = await fetchPublicFeed(feed.data.id);
+        } else if (type === "private") {
+          updatedFeed = await client.getFeed(feed.data.id);
+        } else {
+          // If no valid type is provided, default to null
+          return { [feed.data.id]: null };
+        }
+        if (!updatedFeed) return { [feed.data.id]: null };
         const res = await getPluginInstanceDetails(updatedFeed);
-
-        // Return an object with the feed ID as key, details as value
         return { [feed.data.id]: res };
       },
       refetchInterval: (result: any) => {
         const data = result.state.data;
-
-        if (!data) return 2000;
-
-        // data is e.g. { [feedId]: { progress: number } }
-        if (data[feed.data.id]?.progress === 100) {
-          return false;
-        }
-        return 2000; // poll every 2s
+        // Stop polling if an error occurs
+        if (result.state.error) return false;
+        // Stop polling if no feed is returned
+        if (data && data[feed.data.id] === null) return false;
+        // Stop polling if progress is 100
+        if (data && data[feed.data.id]?.progress === 100) return false;
+        // Otherwise poll every 2 seconds
+        return 2000;
       },
     })),
   });
