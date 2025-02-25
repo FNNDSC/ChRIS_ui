@@ -1,7 +1,8 @@
-import type { Plugin, PluginMeta } from "@fnndsc/chrisapi";
+import type { PluginMeta } from "@fnndsc/chrisapi";
 import type Client from "@fnndsc/chrisapi";
 import axios from "axios";
 import { fetchResource } from "../../api/common";
+import type { Plugin } from "../Store/utils/types";
 
 type Params = {
   [key: string]: string | number;
@@ -98,8 +99,8 @@ export const handleInstallPlugin = async (
 
   const pluginData = {
     compute_names: computeResource,
-    name: pluginToInstall.data.name,
-    version: pluginToInstall.data.version,
+    name: pluginToInstall.name,
+    version: pluginToInstall.version,
     plugin_store_url: pluginToInstall.url,
   };
   try {
