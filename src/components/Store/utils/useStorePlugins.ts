@@ -12,8 +12,6 @@ export function useStorePlugins(
   selectedEnv: string,
   envOptions: Record<string, string>,
 ) {
-  console.log("SelectedEnv", selectedEnv);
-
   return useInfiniteQuery({
     queryKey: ["storePluginsInfinite", selectedEnv],
     initialPageParam: { offset: 0 },

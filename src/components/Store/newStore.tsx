@@ -24,6 +24,7 @@ import { useStorePlugins } from "./utils/useStorePlugins";
 
 import { aggregatePlugins } from "./utils/aggregatePlugins";
 import type { Plugin } from "./utils/types";
+import { SpinContainer } from "../Common";
 
 // A record of environment names -> store URLs
 const envOptions: Record<string, string> = {
@@ -219,12 +220,7 @@ const NewStore: React.FC = () => {
 
         {/* LOADING STATE */}
         {isLoading && (
-          <div style={{ margin: "1rem 0" }}>
-            <Spinner size="lg" />
-            <p>
-              Loading plugins for <strong>{selectedEnv}</strong>...
-            </p>
-          </div>
+          <SpinContainer title={`Loading Plugins for ${selectedEnv}...`} />
         )}
 
         {/* ERROR STATE */}
@@ -233,7 +229,7 @@ const NewStore: React.FC = () => {
             <p>
               Error loading plugins for <strong>{selectedEnv}</strong>.
             </p>
-            <p>{error instanceof Error ? error.message : String(error)}</p>
+            <p>{error.message}</p>
           </div>
         )}
 
