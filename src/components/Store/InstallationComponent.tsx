@@ -1,21 +1,20 @@
-// InstallationComponent.tsx
-import type React from "react";
+import React from "react";
 import { Button, Icon } from "@patternfly/react-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import type { Plugin } from "./utils/types";
 import { CheckCircleIcon } from "../Icons";
+import type { Plugin } from "./utils/types";
 
 interface InstallationComponentProps {
   plugin: Plugin;
   versionMap: Record<string, Plugin>;
-  onInstall: (plugin: Plugin) => Promise<void>; // Make sure onInstall returns a Promise
+  onInstall: (plugin: Plugin) => Promise<void>; // The parent's staff vs non-staff logic
 }
 
 async function checkIfInstalled(name: string, version: string) {
   const client = ChrisAPIClient.getClient();
   const response = await client.getPlugins({ name, version });
-  // Assuming response.data is an array of plugin matches
+  // Adjust based on your actual API response
   return response.data && response.data.length > 0;
 }
 
@@ -25,11 +24,12 @@ export const InstallationComponent: React.FC<InstallationComponentProps> = ({
   onInstall,
 }) => {
   const queryClient = useQueryClient();
+  const [installing, setInstalling] = React.useState(false);
 
-  // Determine which version the user selected
+  // Determine which version user selected
   const selectedPlugin = versionMap[plugin.name] || plugin;
 
-  // 1) useQuery checks if the selected plugin is installed
+  // Check if selected plugin is installed
   const {
     data: isInstalled,
     isLoading,
@@ -42,17 +42,14 @@ export const InstallationComponent: React.FC<InstallationComponentProps> = ({
     ],
     queryFn: () =>
       checkIfInstalled(selectedPlugin.name, selectedPlugin.version),
-    // Optional: Stale time, cache time, etc. If you want to re-check frequently:
-    // staleTime: 0, cacheTime: 0
   });
 
-  // 2) Handler for install button
+  // Handler for "Install" button
   const handleInstall = async () => {
+    setInstalling(true);
     try {
-      // onInstall does staff vs. non-staff logic + actual install call
       await onInstall(selectedPlugin);
-
-      // Invalidate the query so we re-check the new status
+      // If onInstall resolves, re-check installation status
       queryClient.invalidateQueries({
         queryKey: [
           "pluginInstallationStatus",
@@ -61,27 +58,35 @@ export const InstallationComponent: React.FC<InstallationComponentProps> = ({
         ],
       });
     } catch (error) {
-      console.error("Install failed:", error);
+      // If onInstall rejects (non-staff or actual error), do nothing or handle error
+      console.error("Install call rejected or failed:", error);
+    } finally {
+      setInstalling(false);
     }
   };
 
-  // 3) Render logic
+  // 1) If we are checking the status, show "Checking..."
   if (isLoading) {
     return <p>Checking installation status...</p>;
   }
 
+  // 2) If the query errored out
   if (isError) {
-    // Show some fallback if needed
     return (
-      <div>
-        <p style={{ color: "red" }}>Error checking installation</p>
-        <Button variant="primary" onClick={handleInstall}>
-          Install
+      <div style={{ marginTop: "1em" }}>
+        <p style={{ color: "red" }}>Error checking installation status</p>
+        <Button
+          variant="primary"
+          onClick={handleInstall}
+          isDisabled={installing}
+        >
+          {installing ? "Installing..." : "Install"}
         </Button>
       </div>
     );
   }
 
+  // 3) If plugin is already installed
   if (isInstalled) {
     return (
       <div
@@ -99,9 +104,16 @@ export const InstallationComponent: React.FC<InstallationComponentProps> = ({
     );
   }
 
+  // 4) Otherwise, user can install
   return (
-    <Button variant="primary" onClick={handleInstall}>
-      Install
+    <Button
+      style={{ marginTop: "1em" }}
+      variant="primary"
+      onClick={handleInstall}
+      isDisabled={installing}
+      isLoading={installing}
+    >
+      {installing ? "Installing..." : "Install"}
     </Button>
   );
 };

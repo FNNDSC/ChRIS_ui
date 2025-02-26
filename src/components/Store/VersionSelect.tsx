@@ -1,11 +1,11 @@
-// components/VersionSelect.tsx
-import React from "react";
 import {
-  Select,
-  SelectOption,
   MenuToggle,
   type MenuToggleElement,
+  Select,
+  SelectOption,
 } from "@patternfly/react-core";
+// components/VersionSelect.tsx
+import React from "react";
 import type { Plugin } from "./utils/types";
 
 interface VersionSelectProps {
