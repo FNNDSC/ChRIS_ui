@@ -1,7 +1,7 @@
-// PluginCard.tsx
 import type React from "react";
 import { Card, CardBody } from "@patternfly/react-core";
 import { format } from "date-fns";
+
 import { VersionSelect } from "./VersionSelect";
 import { InstallationComponent } from "./InstallationComponent";
 import type { Plugin } from "./utils/types";
@@ -10,9 +10,6 @@ interface PluginCardProps {
   plugin: Plugin;
   versionMap: Record<string, Plugin>;
   setVersionMap: React.Dispatch<React.SetStateAction<Record<string, Plugin>>>;
-  /**
-   * Parent-provided handler for initiating an install
-   */
   onInstall: (plugin: Plugin) => Promise<void>;
 }
 
@@ -31,14 +28,15 @@ export const PluginCard: React.FC<PluginCardProps> = ({
         <p style={{ fontSize: "0.90rem" }}>
           {format(new Date(plugin.creation_date), "do MMMM, yyyy")}
         </p>
+
         {/* Version Select */}
         <div style={{ fontSize: "0.90rem", marginTop: "1em" }}>
           Version:{" "}
           <VersionSelect
-            handlePluginVersion={(selectedPlugin: Plugin) => {
+            handlePluginVersion={(newSelected: Plugin) => {
               setVersionMap((prev) => ({
                 ...prev,
-                [plugin.name]: selectedPlugin,
+                [plugin.name]: newSelected,
               }));
             }}
             currentVersion={versionMap[plugin.name]?.version || plugin.version}
@@ -46,10 +44,10 @@ export const PluginCard: React.FC<PluginCardProps> = ({
           />
         </div>
 
+        {/* Renders the installation UI */}
         <InstallationComponent
           plugin={plugin}
           versionMap={versionMap}
-          // Instead of opening a modal directly, call the parent's onInstall
           onInstall={onInstall}
         />
       </CardBody>

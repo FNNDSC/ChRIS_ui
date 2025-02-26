@@ -11,14 +11,16 @@ const LIMIT = 100;
 export function useStorePlugins(
   selectedEnv: string,
   envOptions: Record<string, string>,
+  searchTerm: string,
+  searchField: string,
 ) {
   return useInfiniteQuery({
-    queryKey: ["storePluginsInfinite", selectedEnv],
+    queryKey: ["storePluginsInfinite", selectedEnv, searchTerm, searchField],
     initialPageParam: { offset: 0 },
     enabled: !!selectedEnv,
     queryFn: async ({ pageParam = { offset: 0 } }) => {
       const baseUrl = envOptions[selectedEnv];
-      const url = `${baseUrl}/?limit=${LIMIT}&offset=${pageParam.offset}`;
+      const url = `${baseUrl}/search/?limit=${LIMIT}&offset=${pageParam.offset}&${searchField}=${searchTerm}`;
       const response = await axios.get<PluginsResponse>(url);
       return response.data;
     },

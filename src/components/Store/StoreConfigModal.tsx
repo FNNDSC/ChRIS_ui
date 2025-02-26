@@ -1,4 +1,3 @@
-// StoreConfigModal.tsx
 import React from "react";
 import {
   Modal,
@@ -11,6 +10,7 @@ import {
   SelectOption,
   MenuToggle,
   type MenuToggleElement,
+  Alert,
 } from "@patternfly/react-core";
 
 interface StoreConfigModalProps {
@@ -22,6 +22,9 @@ interface StoreConfigModalProps {
     computeResource: string;
   }) => void;
   computeResourceOptions: string[];
+
+  // A new prop to show an error message in the modal
+  modalError?: string;
 }
 
 export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
@@ -29,6 +32,7 @@ export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
   onClose,
   onSave,
   computeResourceOptions,
+  modalError,
 }) => {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -37,8 +41,19 @@ export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
 
   const handleConfigSave = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ username, password, computeResource });
-    onClose();
+
+    // If user didn't fill anything, default to 'host'
+    const finalComputeResource = computeResource.trim()
+      ? computeResource.trim()
+      : "host";
+
+    onSave({
+      username,
+      password,
+      computeResource: finalComputeResource,
+    });
+    // DON'T close if we want them to see the error if it fails
+    // you might remove onClose() here or do it only on success
   };
 
   return (
@@ -49,6 +64,16 @@ export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
       aria-label="Configure Store"
     >
       <Form isWidthLimited onSubmit={handleConfigSave}>
+        {/* If there's an error, show an inline Alert */}
+        {modalError && (
+          <Alert
+            variant="danger"
+            isInline
+            title={modalError}
+            style={{ marginBottom: "1rem" }}
+          />
+        )}
+
         {/* Admin Username */}
         <FormGroup label="Admin Username" isRequired>
           <TextInput
@@ -105,6 +130,7 @@ export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
               id="compute_resource"
               isRequired
               type="text"
+              placeholder="Enter a host to install this plugin on or leave this empty to use 'host'"
               value={computeResource}
               onChange={(_, val) => setComputeResource(val)}
             />
@@ -116,7 +142,7 @@ export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
           <PFButton
             type="submit"
             variant="primary"
-            isDisabled={!username || !password || !computeResource}
+            isDisabled={!username || !password}
           >
             Save
           </PFButton>

@@ -1,80 +1,55 @@
 import React from "react";
-import {
-  Button,
-  Grid,
-  GridItem,
-  MenuToggle,
-  Dropdown,
-  DropdownGroup,
-  DropdownList,
-  DropdownItem,
-  Spinner,
-} from "@patternfly/react-core";
-import { useQueryClient } from "@tanstack/react-query";
+import { Button, Grid, GridItem } from "@patternfly/react-core";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { notification } from "antd";
 
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { useAppSelector } from "../../store/hooks";
-import { handleInstallPlugin } from "../PipelinesCopy/utils";
 import Wrapper from "../Wrapper";
-
-import { PluginCard } from "./PluginCard";
-import { StoreConfigModal } from "./StoreConfigModal";
-import { useComputeResources } from "./utils/useComputeResources";
-import { useStorePlugins } from "./utils/useStorePlugins";
-
-import { aggregatePlugins } from "./utils/aggregatePlugins";
-import type { Plugin } from "./utils/types";
+import { useAppSelector } from "../../store/hooks";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { SpinContainer } from "../Common";
 
-// A record of environment names -> store URLs
+// Internal imports
+import { useStorePlugins } from "./utils/useStorePlugins";
+import { useComputeResources } from "./utils/useComputeResources";
+import { handleInstallPlugin } from "../PipelinesCopy/utils";
+import { aggregatePlugins } from "./utils/aggregatePlugins";
+import { PluginCard } from "./PluginCard";
+import { StoreConfigModal } from "./StoreConfigModal";
+import { StoreSearchBar } from "./utils/StoreSearchBar";
+import type { Plugin } from "./utils/types";
+
 const envOptions: Record<string, string> = {
   "PUBLIC CHRIS": "https://cube.chrisproject.org/api/v1/plugins",
-  "INTERNAL CHRIS": "https://internal.example.com/api/v1/plugins",
-  "EXTERNAL CHRIS": "https://external.example.com/api/v1/plugins",
 };
 
-// For example, from .env
 const LOCAL_CUBE_URL = import.meta.env.VITE_CHRIS_UI_URL || "";
 
 const NewStore: React.FC = () => {
   const queryClient = useQueryClient();
-  const { isStaff } = useAppSelector((state) => state.user);
-
-  // Track which environment is selected
+  const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
   const [selectedEnv, setSelectedEnv] = React.useState("PUBLIC CHRIS");
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchField, setSearchField] = React.useState<
+    "name" | "authors" | "category"
+  >("name");
 
-  // Keep track of which version the user selected for each plugin
-  const [versionMap, setVersionMap] = React.useState<Record<string, Plugin>>(
-    {},
-  );
-
-  // We'll store the aggregated plugin data here
-  const [aggregatedPlugins, setAggregatedPlugins] = React.useState<Plugin[]>(
-    [],
-  );
-
-  // For non-staff: open a config modal to get credentials
-  const [isConfigModalOpen, setIsConfigModalOpen] = React.useState(false);
-  const [pendingPlugin, setPendingPlugin] = React.useState<Plugin | null>(null);
-
-  // 1) React Query: fetch infinite pages of plugins, keyed by `selectedEnv`
+  // ---------------------------
+  // 2) FETCH PLUGINS
+  // ---------------------------
   const {
     data: pluginData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isLoading,
+    isError,
+    error,
+  } = useStorePlugins(selectedEnv, envOptions, searchTerm, searchField);
 
-    // React Query states for loading/error
-    isLoading, // True if query is in initial loading state
-    isError, // True if query encountered an error
-    error, // The actual error object
-  } = useStorePlugins(selectedEnv, envOptions);
+  const [aggregatedPlugins, setAggregatedPlugins] = React.useState<Plugin[]>(
+    [],
+  );
 
-  // 2) Fetch available compute resources (chris API)
-  const computeResourceOptions = useComputeResources();
-
-  // 3) Whenever pluginData changes, aggregate versions
   React.useEffect(() => {
     if (pluginData) {
       const results = pluginData.pages.flatMap((page) => page.results);
@@ -82,40 +57,102 @@ const NewStore: React.FC = () => {
     }
   }, [pluginData]);
 
+  // ---------------------------
+  // 3) INSTALLATION STATE
+  // ---------------------------
+  const [versionMap, setVersionMap] = React.useState<Record<string, Plugin>>(
+    {},
+  );
+  const [isConfigModalOpen, setIsConfigModalOpen] = React.useState(false);
+  const [pendingPlugin, setPendingPlugin] = React.useState<Plugin | null>(null);
+
   /**
-   * Called when user installs a plugin:
-   * - If staff => automatically install with token & default compute resource
-   * - If non-staff => open modal for credentials
+   * We'll store a local error to show in the modal. If staff installation fails,
+   * we can still do a global notification, or you can handle it the same way.
    */
+  const [modalError, setModalError] = React.useState("");
+
+  // Only fetch resources if logged in
+  const computeResourceOptions = useComputeResources(isLoggedIn);
+
+  // The actual function that does the plugin install
+  async function doInstall(args: {
+    plugin: Plugin;
+    authorization: string;
+    computeResource: string;
+  }) {
+    const { plugin, authorization, computeResource } = args;
+    return handleInstallPlugin(authorization, plugin, computeResource);
+  }
+
+  // React Query installation mutation
+  const installPluginMutation = useMutation({
+    mutationFn: doInstall,
+    onSuccess: (_data, variables) => {
+      // Invalidate / refresh
+      queryClient.invalidateQueries({
+        queryKey: [
+          "pluginInstallationStatus",
+          variables.plugin.name,
+          variables.plugin.version,
+        ],
+      });
+      // Show success globally or in modal
+      notification.success({
+        message: "Installation Successful",
+        description: `${variables.plugin.name} installed on ${variables.computeResource}.`,
+      });
+      // Clear any modal error
+      setModalError("");
+      setIsConfigModalOpen(false);
+      setPendingPlugin(null);
+    },
+    // We'll handle `onError` via isError below
+  });
+
+  // Destructure the mutation's error state
+  const { isError: isInstallError, error: installError } =
+    installPluginMutation;
+
+  // If the mutation fails while the modal is open => show the error in the modal
+  React.useEffect(() => {
+    if (isInstallError && installError && isConfigModalOpen) {
+      setModalError(
+        (installError as Error).message || "Unknown plugin installation error.",
+      );
+    }
+  }, [isInstallError, installError, isConfigModalOpen]);
+
+  // ---------------------------
+  // 4) Called by <PluginCard />
+  // ---------------------------
   const onInstallPlugin = async (plugin: Plugin) => {
     if (isStaff) {
+      // If staff, we do the mutate immediately
       const client = ChrisAPIClient.getClient();
       const tokenAuth = `Token ${client.auth.token}`;
       const compute = computeResourceOptions.length
         ? computeResourceOptions[0]
         : "host";
 
-      // Return so we can await in the child
-      return handleInstallPlugin(tokenAuth, plugin, compute)
-        .then(() => {
-          console.log("Installation successful for plugin:", plugin.name);
-        })
-        .catch((error) => {
-          console.error("Installation failed:", error);
-          throw error;
-        });
+      installPluginMutation.mutate({
+        plugin,
+        authorization: tokenAuth,
+        computeResource: compute,
+      });
+    } else {
+      // Non-staff => open the config modal
+      setPendingPlugin(plugin);
+      setModalError("");
+      setIsConfigModalOpen(true);
+      // Return a rejected promise so PluginCard doesn't set "Installed" yet
+      return Promise.reject("Non-staff: credentials needed");
     }
-    // Non-staff => open modal (no immediate install)
-    setIsConfigModalOpen(true);
-    setPendingPlugin(plugin);
-
-    // Return a rejected promise so the child doesn't set "Installed"
-    return Promise.reject("Non-staff: credentials needed");
   };
 
-  /**
-   * Called after non-staff user enters credentials in the modal
-   */
+  // ---------------------------
+  // 5) Called after modal "Save"
+  // ---------------------------
   const handleConfigSave = async ({
     username,
     password,
@@ -129,114 +166,57 @@ const NewStore: React.FC = () => {
 
     const adminURL = LOCAL_CUBE_URL.replace("/api/v1/", "/chris-admin/api/v1/");
     if (!adminURL) {
-      throw new Error("Please provide a link to your chris-admin URL");
+      // "Config" error, not an installation error. Show inline or global
+      setModalError("Please provide a link to your chris-admin URL.");
+      return;
     }
 
+    // Basic authorization
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`);
     const authorization = `Basic ${adminCredentials}`;
 
-    try {
-      await handleInstallPlugin(authorization, pendingPlugin, computeResource);
-      // Invalidate the plugin-installation query so it re-checks
-      queryClient.invalidateQueries({
-        queryKey: [
-          "pluginInstallationStatus",
-          pendingPlugin.name,
-          pendingPlugin.version,
-        ],
-      });
-      console.log("Installation successful for plugin:", pendingPlugin.name);
-    } catch (error) {
-      console.error("Installation failed:", error);
-    } finally {
-      setPendingPlugin(null);
-    }
+    // Use the same mutation
+    installPluginMutation.mutate({
+      plugin: pendingPlugin,
+      authorization,
+      computeResource,
+    });
   };
 
-  /**
-   * Environment selection dropdown handlers
-   */
-  const onSelectEnv = (
-    _event: React.MouseEvent<Element, MouseEvent> | undefined,
-    value?: string | number | undefined,
-  ) => {
-    if (typeof value === "string") {
-      setSelectedEnv(value);
-    }
-    setIsDropdownOpen(false);
-  };
-
-  const onToggleClick = () => {
-    setIsDropdownOpen((prev) => !prev);
-  };
-
-  // Build the grouped dropdown items
-  const dropdownContent = (
-    <DropdownGroup label="Select Environment" labelHeadingLevel="h3">
-      <DropdownList>
-        {Object.keys(envOptions).map((envKey) => (
-          <DropdownItem
-            value={envKey}
-            key={envKey}
-            isSelected={envKey === selectedEnv}
-          >
-            {envKey}
-          </DropdownItem>
-        ))}
-      </DropdownList>
-    </DropdownGroup>
-  );
-
-  /**
-   * Render:
-   * 1) The environment dropdown
-   * 2) If loading: show spinner or "Loading..."
-   * 3) If error: show error message
-   * 4) Else show the plugin grid + "Load more" button
-   */
   return (
     <Wrapper>
       <>
-        {/* Environment Selection */}
-        <div style={{ marginBottom: "1rem" }}>
-          <Dropdown
-            isOpen={isDropdownOpen}
-            onSelect={onSelectEnv}
-            onOpenChange={(open) => setIsDropdownOpen(open)}
-            toggle={(toggleRef) => (
-              <MenuToggle
-                ref={toggleRef}
-                onClick={onToggleClick}
-                isExpanded={isDropdownOpen}
-              >
-                {selectedEnv}
-              </MenuToggle>
-            )}
-            shouldFocusToggleOnSelect
-          >
-            {dropdownContent}
-          </Dropdown>
-        </div>
+        {/* Search & Env Toolbar */}
+        <StoreSearchBar
+          environment={selectedEnv}
+          environmentOptions={envOptions}
+          onEnvChange={(env) => setSelectedEnv(env)}
+          initialSearchTerm={searchTerm}
+          initialSearchField={searchField}
+          onChange={(term, field) => {
+            setSearchTerm(term);
+            setSearchField(field);
+          }}
+        />
 
-        {/* LOADING STATE */}
+        {/* Plugin Loading State */}
         {isLoading && (
           <SpinContainer title={`Loading Plugins for ${selectedEnv}...`} />
         )}
 
-        {/* ERROR STATE */}
+        {/* Plugin Error State (fetching the plugin list) */}
         {isError && (
           <div style={{ color: "red", margin: "1rem 0" }}>
             <p>
               Error loading plugins for <strong>{selectedEnv}</strong>.
             </p>
-            <p>{error.message}</p>
+            <p>{(error as Error)?.message}</p>
           </div>
         )}
 
-        {/* MAIN CONTENT WHEN LOADED & NO ERROR */}
+        {/* If plugin list is loaded */}
         {!isLoading && !isError && (
           <>
-            {/* Plugin Grid */}
             <Grid hasGutter>
               {aggregatedPlugins.map((plugin) => (
                 <GridItem key={plugin.id} span={6}>
@@ -250,7 +230,6 @@ const NewStore: React.FC = () => {
               ))}
             </Grid>
 
-            {/* "Load More" pagination button */}
             <Button
               variant="primary"
               onClick={() => fetchNextPage()}
@@ -266,13 +245,18 @@ const NewStore: React.FC = () => {
           </>
         )}
 
-        {/* Show the config modal only if non-staff */}
+        {/* The modal for non-staff credentials */}
         {!isStaff && (
           <StoreConfigModal
             isOpen={isConfigModalOpen}
-            onClose={() => setIsConfigModalOpen(false)}
+            onClose={() => {
+              setIsConfigModalOpen(false);
+              setModalError("");
+              setPendingPlugin(null);
+            }}
             onSave={handleConfigSave}
             computeResourceOptions={computeResourceOptions}
+            modalError={modalError} // <-- pass the error
           />
         )}
       </>
