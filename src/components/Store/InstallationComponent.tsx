@@ -1,76 +1,88 @@
 import React from "react";
-import { Button, Icon } from "@patternfly/react-core";
+import { Button, Icon, Label, LabelGroup } from "@patternfly/react-core";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { CheckCircleIcon } from "../Icons";
 import type { Plugin } from "./utils/types";
+import type { Plugin as ChrisPlugin } from "@fnndsc/chrisapi";
 
-interface InstallationComponentProps {
-  plugin: Plugin;
-  versionMap: Record<string, Plugin>;
-  onInstall: (plugin: Plugin) => Promise<void>; // The parent's staff vs non-staff logic
+// Example shape of what's returned by getPluginComputeResources():
+interface ComputeResourceItem {
+  compute_resource_identifier: string;
+  [key: string]: any; // additional fields
 }
 
-async function checkIfInstalled(name: string, version: string) {
+async function checkInstallation(name: string, version: string) {
+  // 1) Fetch the plugin by name/version
   const client = ChrisAPIClient.getClient();
   const response = await client.getPlugins({ name, version });
-  // Adjust based on your actual API response
-  return response.data && response.data.length > 0;
+
+  if (!response.data || !response.data.length) {
+    return { installed: false, computeResources: [] };
+  }
+
+  // 2) Parse the plugin + fetch associated compute resources
+  //    .getItems() => an array of ChrisPlugin objects
+  const pluginItems = response.getItems() as ChrisPlugin[];
+  const firstPluginObj = pluginItems[0];
+
+  // 3) For that plugin, retrieve its compute resources
+  const crResult = await firstPluginObj.getPluginComputeResources();
+  const computeResourceList = crResult?.data || [];
+  // e.g. [{ compute_resource_identifier: "host", ...}, ...]
+
+  return {
+    installed: true,
+    computeResources: computeResourceList,
+  };
+}
+
+interface InstallationComponentProps {
+  plugin: Plugin; // The selected plugin version
+  computeResource: string; // The user-chosen resource
+  onInstall: (plugin: Plugin, computeResource: string) => Promise<void>;
 }
 
 export const InstallationComponent: React.FC<InstallationComponentProps> = ({
   plugin,
-  versionMap,
+  computeResource,
   onInstall,
 }) => {
   const queryClient = useQueryClient();
   const [installing, setInstalling] = React.useState(false);
 
-  // Determine which version user selected
-  const selectedPlugin = versionMap[plugin.name] || plugin;
-
-  // Check if selected plugin is installed
-  const {
-    data: isInstalled,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: [
-      "pluginInstallationStatus",
-      selectedPlugin.name,
-      selectedPlugin.version,
-    ],
-    queryFn: () =>
-      checkIfInstalled(selectedPlugin.name, selectedPlugin.version),
+  // 1) Query for the plugin’s installation status + compute resources
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["pluginInstallationStatus", plugin.name, plugin.version],
+    queryFn: () => checkInstallation(plugin.name, plugin.version),
   });
 
-  // Handler for "Install" button
+  // 2) If data exists, destructure it
+  const installed = data?.installed || false;
+  const computeResources = data?.computeResources || [];
+
+  // 3) Install handler
   const handleInstall = async () => {
     setInstalling(true);
     try {
-      await onInstall(selectedPlugin);
-      // If onInstall resolves, re-check installation status
+      // call parent's onInstall with chosen plugin + resource
+      await onInstall(plugin, computeResource);
+      // re-check status
       queryClient.invalidateQueries({
-        queryKey: [
-          "pluginInstallationStatus",
-          selectedPlugin.name,
-          selectedPlugin.version,
-        ],
+        queryKey: ["pluginInstallationStatus", plugin.name, plugin.version],
       });
-    } catch (error) {
-      // If onInstall rejects (non-staff or actual error), do nothing or handle error
-      console.error("Install call rejected or failed:", error);
     } finally {
       setInstalling(false);
     }
   };
 
-  // 1) If we are checking the status, show "Checking..."
+  // 4) Only enable "Install" if we have a plugin version & a compute resource
+  const canInstall = !!plugin.version && !!computeResource;
+
+  // 5) Render conditions
   if (isLoading) {
     return <p>Checking installation status...</p>;
   }
-
-  // 2) If the query errored out
   if (isError) {
     return (
       <div style={{ marginTop: "1em" }}>
@@ -78,7 +90,7 @@ export const InstallationComponent: React.FC<InstallationComponentProps> = ({
         <Button
           variant="primary"
           onClick={handleInstall}
-          isDisabled={installing}
+          isDisabled={!canInstall || installing}
         >
           {installing ? "Installing..." : "Install"}
         </Button>
@@ -86,32 +98,34 @@ export const InstallationComponent: React.FC<InstallationComponentProps> = ({
     );
   }
 
-  // 3) If plugin is already installed
-  if (isInstalled) {
+  if (installed) {
+    // 6) Render a label for each compute resource
     return (
-      <div
-        style={{
-          marginTop: "1em",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
+      <div style={{ marginTop: "1em", display: "flex", alignItems: "center" }}>
         <Icon style={{ marginRight: "0.5em" }} status="success">
           <CheckCircleIcon />
         </Icon>
-        <div>Installed</div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span style={{ marginRight: "0.5em" }}>Installed on</span>
+          <LabelGroup>
+            {computeResources.map((rc: ComputeResourceItem) => (
+              <Label variant="filled" key={rc.name} color="green">
+                {rc.name}
+              </Label>
+            ))}
+          </LabelGroup>
+        </div>
       </div>
     );
   }
 
-  // 4) Otherwise, user can install
   return (
     <Button
-      style={{ marginTop: "1em" }}
       variant="primary"
       onClick={handleInstall}
-      isDisabled={installing}
+      isDisabled={!canInstall || installing}
       isLoading={installing}
+      style={{ marginTop: "1em" }}
     >
       {installing ? "Installing..." : "Install"}
     </Button>

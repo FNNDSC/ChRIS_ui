@@ -1,22 +1,19 @@
 import React from "react";
 import { Button, Grid, GridItem } from "@patternfly/react-core";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { notification } from "antd";
-
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { message } from "antd";
 import Wrapper from "../Wrapper";
 import { useAppSelector } from "../../store/hooks";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { SpinContainer } from "../Common";
-
-// Internal imports
-import { useStorePlugins } from "./utils/useStorePlugins";
-import { useComputeResources } from "./utils/useComputeResources";
 import { handleInstallPlugin } from "../PipelinesCopy/utils";
-import { aggregatePlugins } from "./utils/aggregatePlugins";
 import { PluginCard } from "./PluginCard";
 import { StoreConfigModal } from "./StoreConfigModal";
-import { StoreSearchBar } from "./utils/StoreSearchBar";
+import { StoreSearchBar } from "./StoreSearchBar";
+import { aggregatePlugins } from "./utils/aggregatePlugins";
+import { useComputeResources } from "./utils/useComputeResources";
 import type { Plugin } from "./utils/types";
+import { useStorePlugins } from "./utils/useStorePlugins";
 
 const envOptions: Record<string, string> = {
   "PUBLIC CHRIS": "https://cube.chrisproject.org/api/v1/plugins",
@@ -24,18 +21,25 @@ const envOptions: Record<string, string> = {
 
 const LOCAL_CUBE_URL = import.meta.env.VITE_CHRIS_UI_URL || "";
 
+interface InstallArgs {
+  plugin: Plugin;
+  authorization: string;
+  computeResource: string;
+  skipMessage?: boolean;
+}
+
 const NewStore: React.FC = () => {
   const queryClient = useQueryClient();
   const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
+
+  // ENV & SEARCH
   const [selectedEnv, setSelectedEnv] = React.useState("PUBLIC CHRIS");
   const [searchTerm, setSearchTerm] = React.useState("");
   const [searchField, setSearchField] = React.useState<
     "name" | "authors" | "category"
   >("name");
 
-  // ---------------------------
-  // 2) FETCH PLUGINS
-  // ---------------------------
+  // FETCH PLUGINS
   const {
     data: pluginData,
     fetchNextPage,
@@ -49,7 +53,6 @@ const NewStore: React.FC = () => {
   const [aggregatedPlugins, setAggregatedPlugins] = React.useState<Plugin[]>(
     [],
   );
-
   React.useEffect(() => {
     if (pluginData) {
       const results = pluginData.pages.flatMap((page) => page.results);
@@ -57,39 +60,46 @@ const NewStore: React.FC = () => {
     }
   }, [pluginData]);
 
-  // ---------------------------
-  // 3) INSTALLATION STATE
-  // ---------------------------
+  // We fetch or store the list of compute resources
+  // For instance, from your own custom hook "useComputeResources"
+  const computeResourceOptions = useComputeResources(isLoggedIn);
+  // e.g. => [] initially, later something like ["host", "pfe01", "pfe02"]
+
+  // Keep track of version selection per plugin
   const [versionMap, setVersionMap] = React.useState<Record<string, Plugin>>(
     {},
   );
+
+  // Keep track of user-selected plugins
+  const [selectedPlugins, setSelectedPlugins] = React.useState<Plugin[]>([]);
+  const toggleSelectPlugin = React.useCallback((plugin: Plugin) => {
+    setSelectedPlugins((prev) => {
+      const already = prev.find((p) => p.id === plugin.id);
+      return already
+        ? prev.filter((p) => p.id !== plugin.id)
+        : [...prev, plugin];
+    });
+  }, []);
+
+  // INSTALLATION STATE
   const [isConfigModalOpen, setIsConfigModalOpen] = React.useState(false);
   const [pendingPlugin, setPendingPlugin] = React.useState<Plugin | null>(null);
-
-  /**
-   * We'll store a local error to show in the modal. If staff installation fails,
-   * we can still do a global notification, or you can handle it the same way.
-   */
+  const [pendingPlugins, setPendingPlugins] = React.useState<Plugin[]>([]);
   const [modalError, setModalError] = React.useState("");
 
-  // Only fetch resources if logged in
-  const computeResourceOptions = useComputeResources(isLoggedIn);
+  // Bulk progress
+  const [isBulkInstalling, setIsBulkInstalling] = React.useState(false);
+  const [bulkProgress, setBulkProgress] = React.useState(0);
 
-  // The actual function that does the plugin install
-  async function doInstall(args: {
-    plugin: Plugin;
-    authorization: string;
-    computeResource: string;
-  }) {
+  // Plugin INSTALL logic
+  async function doInstall(args: InstallArgs) {
     const { plugin, authorization, computeResource } = args;
     return handleInstallPlugin(authorization, plugin, computeResource);
   }
 
-  // React Query installation mutation
   const installPluginMutation = useMutation({
     mutationFn: doInstall,
     onSuccess: (_data, variables) => {
-      // Invalidate / refresh
       queryClient.invalidateQueries({
         queryKey: [
           "pluginInstallationStatus",
@@ -97,62 +107,115 @@ const NewStore: React.FC = () => {
           variables.plugin.version,
         ],
       });
-      // Show success globally or in modal
-      notification.success({
-        message: "Installation Successful",
-        description: `${variables.plugin.name} installed on ${variables.computeResource}.`,
-      });
-      // Clear any modal error
+
+      if (!variables.skipMessage) {
+        message.success(
+          `Installed ${variables.plugin.name} on ${variables.computeResource}.`,
+        );
+      }
       setModalError("");
       setIsConfigModalOpen(false);
       setPendingPlugin(null);
     },
-    // We'll handle `onError` via isError below
   });
 
-  // Destructure the mutation's error state
   const { isError: isInstallError, error: installError } =
     installPluginMutation;
-
-  // If the mutation fails while the modal is open => show the error in the modal
   React.useEffect(() => {
     if (isInstallError && installError && isConfigModalOpen) {
       setModalError(
-        (installError as Error).message || "Unknown plugin installation error.",
+        (installError as Error)?.message ||
+          "Unknown plugin installation error.",
       );
     }
   }, [isInstallError, installError, isConfigModalOpen]);
 
-  // ---------------------------
-  // 4) Called by <PluginCard />
-  // ---------------------------
-  const onInstallPlugin = async (plugin: Plugin) => {
+  // Single install
+  const onInstallPlugin = async (plugin: Plugin, computeResource: string) => {
     if (isStaff) {
-      // If staff, we do the mutate immediately
       const client = ChrisAPIClient.getClient();
       const tokenAuth = `Token ${client.auth.token}`;
-      const compute = computeResourceOptions.length
-        ? computeResourceOptions[0]
-        : "host";
-
       installPluginMutation.mutate({
         plugin,
         authorization: tokenAuth,
-        computeResource: compute,
+        computeResource,
       });
     } else {
-      // Non-staff => open the config modal
       setPendingPlugin(plugin);
       setModalError("");
       setIsConfigModalOpen(true);
-      // Return a rejected promise so PluginCard doesn't set "Installed" yet
       return Promise.reject("Non-staff: credentials needed");
     }
   };
 
-  // ---------------------------
-  // 5) Called after modal "Save"
-  // ---------------------------
+  // Bulk install
+  async function bulkInstallPlugins(
+    pluginsToInstall: Plugin[],
+    authorization: string,
+    computeResource: string,
+  ) {
+    const total = pluginsToInstall.length;
+    let completedCount = 0;
+
+    setIsBulkInstalling(true);
+    setBulkProgress(0);
+
+    const allPromises = pluginsToInstall.map((pl) => {
+      return installPluginMutation
+        .mutateAsync({
+          plugin: pl,
+          authorization,
+          computeResource,
+          skipMessage: true,
+        })
+        .catch(() => {
+          // ignore
+        })
+        .finally(() => {
+          completedCount++;
+          setBulkProgress(Math.round((completedCount / total) * 100));
+        });
+    });
+    const results = await Promise.allSettled(allPromises);
+    setIsBulkInstalling(false);
+
+    const successCount = results.filter((r) => r.status === "fulfilled").length;
+    const failCount = total - successCount;
+
+    if (failCount > 0) {
+      message.info(
+        `Bulk install complete: ${successCount} succeeded, ${failCount} failed.`,
+      );
+    } else {
+      message.success(
+        `Bulk install complete! All ${successCount} plugin(s) installed successfully.`,
+      );
+    }
+  }
+
+  // "Install All" => selected or entire search results
+  const handleBulkInstall = async () => {
+    const pluginsToInstall = selectedPlugins.length
+      ? selectedPlugins
+      : aggregatedPlugins;
+    if (!pluginsToInstall.length) return;
+
+    if (isStaff) {
+      const client = ChrisAPIClient.getClient();
+      const tokenAuth = `Token ${client.auth.token}`;
+      // For bulk, pick the *first* resource or "host" if none
+      const compute = computeResourceOptions.length
+        ? computeResourceOptions[0]
+        : "host";
+      await bulkInstallPlugins(pluginsToInstall, tokenAuth, compute);
+    } else {
+      setPendingPlugins(pluginsToInstall);
+      setModalError("");
+      setIsConfigModalOpen(true);
+    }
+  };
+
+  // Non-staff modal => single or bulk
   const handleConfigSave = async ({
     username,
     password,
@@ -162,49 +225,64 @@ const NewStore: React.FC = () => {
     password: string;
     computeResource: string;
   }) => {
-    if (!pendingPlugin) return;
+    if (!pendingPlugin && !pendingPlugins.length) return;
 
     const adminURL = LOCAL_CUBE_URL.replace("/api/v1/", "/chris-admin/api/v1/");
     if (!adminURL) {
-      // "Config" error, not an installation error. Show inline or global
-      setModalError("Please provide a link to your chris-admin URL.");
+      setModalError("Please provide a valid chris-admin URL.");
       return;
     }
 
-    // Basic authorization
     const adminCredentials = btoa(`${username.trim()}:${password.trim()}`);
     const authorization = `Basic ${adminCredentials}`;
 
-    // Use the same mutation
-    installPluginMutation.mutate({
-      plugin: pendingPlugin,
-      authorization,
-      computeResource,
-    });
+    if (pendingPlugins.length > 0) {
+      await bulkInstallPlugins(pendingPlugins, authorization, computeResource);
+      setPendingPlugins([]);
+      setIsConfigModalOpen(false);
+      return;
+    }
+
+    if (pendingPlugin) {
+      installPluginMutation.mutate({
+        plugin: pendingPlugin,
+        authorization,
+        computeResource,
+      });
+    }
   };
+
+  // Show "Install All" if multiple selected or multiple search results
+  const multipleSelected = selectedPlugins.length > 1;
+  const multipleSearchResults =
+    searchTerm.trim() !== "" && aggregatedPlugins.length > 1;
+  const canBulkInstall = multipleSelected || multipleSearchResults;
+  const selectedCount = selectedPlugins.length;
 
   return (
     <Wrapper>
       <>
-        {/* Search & Env Toolbar */}
         <StoreSearchBar
           environment={selectedEnv}
           environmentOptions={envOptions}
-          onEnvChange={(env) => setSelectedEnv(env)}
+          onEnvChange={(env: string) => setSelectedEnv(env)}
           initialSearchTerm={searchTerm}
           initialSearchField={searchField}
-          onChange={(term, field) => {
+          onChange={(term: string, field: "name" | "authors" | "category") => {
             setSearchTerm(term);
             setSearchField(field);
           }}
+          canBulkInstall={canBulkInstall}
+          onBulkInstall={handleBulkInstall}
+          isBulkInstalling={isBulkInstalling}
+          bulkProgress={bulkProgress}
+          selectedCount={selectedCount}
         />
 
-        {/* Plugin Loading State */}
         {isLoading && (
           <SpinContainer title={`Loading Plugins for ${selectedEnv}...`} />
         )}
 
-        {/* Plugin Error State (fetching the plugin list) */}
         {isError && (
           <div style={{ color: "red", margin: "1rem 0" }}>
             <p>
@@ -214,20 +292,27 @@ const NewStore: React.FC = () => {
           </div>
         )}
 
-        {/* If plugin list is loaded */}
         {!isLoading && !isError && (
           <>
             <Grid hasGutter>
-              {aggregatedPlugins.map((plugin) => (
-                <GridItem key={plugin.id} span={6}>
-                  <PluginCard
-                    plugin={plugin}
-                    versionMap={versionMap}
-                    setVersionMap={setVersionMap}
-                    onInstall={onInstallPlugin}
-                  />
-                </GridItem>
-              ))}
+              {aggregatedPlugins.map((plugin) => {
+                const isSelected = selectedPlugins.some(
+                  (p) => p.id === plugin.id,
+                );
+                return (
+                  <GridItem key={plugin.id} span={6}>
+                    <PluginCard
+                      plugin={plugin}
+                      versionMap={versionMap}
+                      setVersionMap={setVersionMap}
+                      onInstall={onInstallPlugin}
+                      onSelect={toggleSelectPlugin}
+                      isSelected={isSelected}
+                      computeResourceOptions={computeResourceOptions} // Pass resources
+                    />
+                  </GridItem>
+                );
+              })}
             </Grid>
 
             <Button
@@ -245,7 +330,7 @@ const NewStore: React.FC = () => {
           </>
         )}
 
-        {/* The modal for non-staff credentials */}
+        {/* Non-staff modal */}
         {!isStaff && (
           <StoreConfigModal
             isOpen={isConfigModalOpen}
@@ -253,10 +338,11 @@ const NewStore: React.FC = () => {
               setIsConfigModalOpen(false);
               setModalError("");
               setPendingPlugin(null);
+              setPendingPlugins([]);
             }}
             onSave={handleConfigSave}
             computeResourceOptions={computeResourceOptions}
-            modalError={modalError} // <-- pass the error
+            modalError={modalError}
           />
         )}
       </>
