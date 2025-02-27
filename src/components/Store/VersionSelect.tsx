@@ -55,6 +55,9 @@ export const VersionSelect: React.FC<VersionSelectProps> = ({
       onOpenChange={(open) => setIsOpen(open)}
       toggle={toggle}
       shouldFocusToggleOnSelect
+      popperProps={{
+        appendTo: () => document.body,
+      }}
     >
       {plugins.map((plugin) => (
         <SelectOption
