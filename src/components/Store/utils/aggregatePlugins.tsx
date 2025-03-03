@@ -7,7 +7,7 @@ export const aggregatePlugins = (plugins: Plugin[]): Plugin[] => {
   plugins.forEach((plugin) => {
     const pluginName = plugin.name;
     if (!pluginMap[pluginName]) {
-      pluginMap[pluginName] = { ...plugin, pluginsList: [] };
+      pluginMap[pluginName] = { ...plugin, pluginsList: [plugin] };
     } else {
       pluginMap[pluginName].pluginsList?.push(plugin);
     }

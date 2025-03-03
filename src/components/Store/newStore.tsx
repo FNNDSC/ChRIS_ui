@@ -1,18 +1,23 @@
-import React from "react";
-import { Button, Grid, GridItem } from "@patternfly/react-core";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { ComputeResource } from "@fnndsc/chrisapi";
+import { Grid, GridItem } from "@patternfly/react-core";
 import { message } from "antd";
-import Wrapper from "../Wrapper";
-import { useAppSelector } from "../../store/hooks";
+import type React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
-import { handleInstallPlugin } from "../PipelinesCopy/utils";
+import Wrapper from "../Wrapper";
 import { PluginCard } from "./PluginCard";
 import { StoreConfigModal } from "./StoreConfigModal";
 import { StoreSearchBar } from "./StoreSearchBar";
 import { aggregatePlugins } from "./utils/aggregatePlugins";
-import { useComputeResources } from "./utils/useComputeResources";
 import type { Plugin } from "./utils/types";
+import { useComputeResources } from "./utils/useComputeResources";
+import { useInfiniteScroll } from "./utils/useInfiniteScroll";
+import {
+  useBulkInstaller,
+  usePluginInstaller,
+} from "./utils/usePluginInstallationHooks";
 import { useStorePlugins } from "./utils/useStorePlugins";
 
 const envOptions: Record<string, string> = {
@@ -21,25 +26,28 @@ const envOptions: Record<string, string> = {
 
 const LOCAL_CUBE_URL = import.meta.env.VITE_CHRIS_UI_URL || "";
 
-interface InstallArgs {
-  plugin: Plugin;
-  authorization: string;
-  computeResource: string;
-  skipMessage?: boolean;
-}
-
 const NewStore: React.FC = () => {
-  const queryClient = useQueryClient();
   const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
 
-  // ENV & SEARCH
-  const [selectedEnv, setSelectedEnv] = React.useState("PUBLIC CHRIS");
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [searchField, setSearchField] = React.useState<
+  const [selectedEnv, setSelectedEnv] = useState("PUBLIC CHRIS");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchField, setSearchField] = useState<
     "name" | "authors" | "category"
   >("name");
 
-  // FETCH PLUGINS
+  const [aggregatedPlugins, setAggregatedPlugins] = useState<Plugin[]>([]);
+  const [versionMap, setVersionMap] = useState<Record<string, Plugin>>({});
+  const [selectedPlugins, setSelectedPlugins] = useState<Plugin[]>([]);
+
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [pendingPlugin, setPendingPlugin] = useState<Plugin | null>(null);
+  const [pendingPlugins, setPendingPlugins] = useState<Plugin[]>([]);
+  const [modalError, setModalError] = useState("");
+  const [isBulkInstalling, setIsBulkInstalling] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState(0);
+
+  const observerTarget = useRef<HTMLDivElement | null>(null);
+
   const {
     data: pluginData,
     fetchNextPage,
@@ -50,214 +58,196 @@ const NewStore: React.FC = () => {
     error,
   } = useStorePlugins(selectedEnv, envOptions, searchTerm, searchField);
 
-  const [aggregatedPlugins, setAggregatedPlugins] = React.useState<Plugin[]>(
-    [],
-  );
-  React.useEffect(() => {
+  const computeResourceOptions = useComputeResources(isLoggedIn);
+  const installPluginMutation = usePluginInstaller();
+  const bulkInstall = useBulkInstaller(installPluginMutation);
+
+  useInfiniteScroll(observerTarget, { fetchNextPage, hasNextPage });
+
+  // Aggregate plugin data
+  useEffect(() => {
     if (pluginData) {
       const results = pluginData.pages.flatMap((page) => page.results);
       setAggregatedPlugins(aggregatePlugins(results));
     }
   }, [pluginData]);
 
-  // We fetch or store the list of compute resources
-  // For instance, from your own custom hook "useComputeResources"
-  const computeResourceOptions = useComputeResources(isLoggedIn);
-  // e.g. => [] initially, later something like ["host", "pfe01", "pfe02"]
+  // Show a small "info" message while fetching more
+  useEffect(() => {
+    if (isFetchingNextPage) {
+      message.info("Fetching more plugins...");
+    }
+  }, [isFetchingNextPage]);
 
-  // Keep track of version selection per plugin
-  const [versionMap, setVersionMap] = React.useState<Record<string, Plugin>>(
-    {},
-  );
-
-  // Keep track of user-selected plugins
-  const [selectedPlugins, setSelectedPlugins] = React.useState<Plugin[]>([]);
-  const toggleSelectPlugin = React.useCallback((plugin: Plugin) => {
-    setSelectedPlugins((prev) => {
-      const already = prev.find((p) => p.id === plugin.id);
-      return already
-        ? prev.filter((p) => p.id !== plugin.id)
-        : [...prev, plugin];
-    });
-  }, []);
-
-  // INSTALLATION STATE
-  const [isConfigModalOpen, setIsConfigModalOpen] = React.useState(false);
-  const [pendingPlugin, setPendingPlugin] = React.useState<Plugin | null>(null);
-  const [pendingPlugins, setPendingPlugins] = React.useState<Plugin[]>([]);
-  const [modalError, setModalError] = React.useState("");
-
-  // Bulk progress
-  const [isBulkInstalling, setIsBulkInstalling] = React.useState(false);
-  const [bulkProgress, setBulkProgress] = React.useState(0);
-
-  // Plugin INSTALL logic
-  async function doInstall(args: InstallArgs) {
-    const { plugin, authorization, computeResource } = args;
-    return handleInstallPlugin(authorization, plugin, computeResource);
-  }
-
-  const installPluginMutation = useMutation({
-    mutationFn: doInstall,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: [
-          "pluginInstallationStatus",
-          variables.plugin.name,
-          variables.plugin.version,
-        ],
-      });
-
-      if (!variables.skipMessage) {
-        message.success(
-          `Installed ${variables.plugin.name} on ${variables.computeResource}.`,
-        );
-      }
+  // Close modal on successful single install (unless skipMessage was used)
+  useEffect(() => {
+    if (
+      installPluginMutation.isSuccess &&
+      !installPluginMutation.variables?.skipMessage
+    ) {
       setModalError("");
       setIsConfigModalOpen(false);
       setPendingPlugin(null);
-    },
-  });
+    }
+  }, [installPluginMutation.isSuccess, installPluginMutation.variables]);
 
-  const { isError: isInstallError, error: installError } =
-    installPluginMutation;
-  React.useEffect(() => {
-    if (isInstallError && installError && isConfigModalOpen) {
+  // Show installation error in modal
+  useEffect(() => {
+    if (installPluginMutation.isError && isConfigModalOpen) {
       setModalError(
-        (installError as Error)?.message ||
+        (installPluginMutation.error as Error)?.message ||
           "Unknown plugin installation error.",
       );
     }
-  }, [isInstallError, installError, isConfigModalOpen]);
+  }, [
+    installPluginMutation.isError,
+    installPluginMutation.error,
+    isConfigModalOpen,
+  ]);
 
-  // Single install
-  const onInstallPlugin = async (plugin: Plugin, computeResource: string) => {
-    if (isStaff) {
-      const client = ChrisAPIClient.getClient();
-      const tokenAuth = `Token ${client.auth.token}`;
-      installPluginMutation.mutate({
-        plugin,
-        authorization: tokenAuth,
-        computeResource,
+  // Clear selected plugins if searchTerm changes
+  useEffect(() => {
+    setSelectedPlugins([]);
+  }, [searchTerm]);
+
+  const toggleSelectPlugin = useCallback(
+    (plugin: Plugin) => {
+      if (!isLoggedIn) return;
+      setSelectedPlugins((prev) => {
+        const alreadySelected = prev.some((p) => p.id === plugin.id);
+        return alreadySelected
+          ? prev.filter((p) => p.id !== plugin.id)
+          : [...prev, plugin];
       });
-    } else {
-      setPendingPlugin(plugin);
-      setModalError("");
-      setIsConfigModalOpen(true);
-      return Promise.reject("Non-staff: credentials needed");
-    }
-  };
+    },
+    [isLoggedIn],
+  );
 
-  // Bulk install
-  async function bulkInstallPlugins(
-    pluginsToInstall: Plugin[],
-    authorization: string,
-    computeResource: string,
-  ) {
-    const total = pluginsToInstall.length;
-    let completedCount = 0;
-
-    setIsBulkInstalling(true);
-    setBulkProgress(0);
-
-    const allPromises = pluginsToInstall.map((pl) => {
-      return installPluginMutation
-        .mutateAsync({
-          plugin: pl,
-          authorization,
+  const onInstallPlugin = useCallback(
+    async (plugin: Plugin, computeResource: ComputeResource) => {
+      if (!isLoggedIn) {
+        message.warning("You must be logged in to install plugins.");
+        return;
+      }
+      if (isStaff) {
+        const tokenAuth = `Token ${ChrisAPIClient.getClient().auth.token}`;
+        installPluginMutation.mutate({
+          plugin,
+          authorization: tokenAuth,
           computeResource,
-          skipMessage: true,
-        })
-        .catch(() => {
-          // ignore
-        })
-        .finally(() => {
-          completedCount++;
-          setBulkProgress(Math.round((completedCount / total) * 100));
         });
-    });
-    const results = await Promise.allSettled(allPromises);
-    setIsBulkInstalling(false);
+      } else {
+        setPendingPlugin(plugin);
+        setModalError("");
+        setIsConfigModalOpen(true);
+      }
+    },
+    [isLoggedIn, isStaff, installPluginMutation],
+  );
 
-    const successCount = results.filter((r) => r.status === "fulfilled").length;
-    const failCount = total - successCount;
-
-    if (failCount > 0) {
-      message.info(
-        `Bulk install complete: ${successCount} succeeded, ${failCount} failed.`,
-      );
-    } else {
-      message.success(
-        `Bulk install complete! All ${successCount} plugin(s) installed successfully.`,
-      );
+  /**
+   * If user has selected any plugins => install those.
+   * Otherwise => install entire search result list (aggregatedPlugins).
+   */
+  const handleBulkInstall = useCallback(() => {
+    if (!isLoggedIn) {
+      message.warning("You must be logged in to install plugins.");
+      return;
     }
-  }
-
-  // "Install All" => selected or entire search results
-  const handleBulkInstall = async () => {
     const pluginsToInstall = selectedPlugins.length
       ? selectedPlugins
       : aggregatedPlugins;
+
     if (!pluginsToInstall.length) return;
 
     if (isStaff) {
-      const client = ChrisAPIClient.getClient();
-      const tokenAuth = `Token ${client.auth.token}`;
-      // For bulk, pick the *first* resource or "host" if none
-      const compute = computeResourceOptions.length
-        ? computeResourceOptions[0]
-        : "host";
-      await bulkInstallPlugins(pluginsToInstall, tokenAuth, compute);
+      const tokenAuth = `Token ${ChrisAPIClient.getClient().auth.token}`;
+      if (!computeResourceOptions?.[0]) {
+        message.error("No compute resources available for bulk install.");
+        return;
+      }
+      setIsBulkInstalling(true);
+      bulkInstall(
+        pluginsToInstall,
+        tokenAuth,
+        computeResourceOptions[0],
+        (pct) => {
+          setBulkProgress(pct);
+        },
+      ).finally(() => {
+        setIsBulkInstalling(false);
+      });
     } else {
       setPendingPlugins(pluginsToInstall);
       setModalError("");
       setIsConfigModalOpen(true);
     }
-  };
+  }, [
+    isLoggedIn,
+    selectedPlugins,
+    aggregatedPlugins,
+    isStaff,
+    computeResourceOptions,
+    bulkInstall,
+  ]);
 
-  // Non-staff modal => single or bulk
-  const handleConfigSave = async ({
-    username,
-    password,
-    computeResource,
-  }: {
-    username: string;
-    password: string;
-    computeResource: string;
-  }) => {
-    if (!pendingPlugin && !pendingPlugins.length) return;
+  const handleConfigSave = useCallback(
+    async ({ username, password }: { username: string; password: string }) => {
+      if (!pendingPlugin && !pendingPlugins.length) return;
+      const adminURL = LOCAL_CUBE_URL.replace(
+        "/api/v1/",
+        "/chris-admin/api/v1/",
+      );
+      if (!adminURL) {
+        setModalError("Please provide a valid chris-admin URL.");
+        return;
+      }
+      const adminCredentials = btoa(`${username.trim()}:${password.trim()}`);
+      const authorization = `Basic ${adminCredentials}`;
+      if (!computeResourceOptions?.[0]) {
+        setModalError("No compute resources found. Please try again.");
+        return;
+      }
+      const resource = computeResourceOptions[0];
 
-    const adminURL = LOCAL_CUBE_URL.replace("/api/v1/", "/chris-admin/api/v1/");
-    if (!adminURL) {
-      setModalError("Please provide a valid chris-admin URL.");
-      return;
-    }
+      // Bulk
+      if (pendingPlugins.length > 0) {
+        setIsBulkInstalling(true);
+        await bulkInstall(pendingPlugins, authorization, resource, (pct) => {
+          setBulkProgress(pct);
+        });
+        setPendingPlugins([]);
+        setIsConfigModalOpen(false);
+        setIsBulkInstalling(false);
+      }
+      // Single
+      else if (pendingPlugin) {
+        installPluginMutation.mutate({
+          plugin: pendingPlugin,
+          authorization,
+          computeResource: resource,
+        });
+      }
+    },
+    [
+      pendingPlugin,
+      pendingPlugins,
+      computeResourceOptions,
+      installPluginMutation,
+      bulkInstall,
+    ],
+  );
 
-    const adminCredentials = btoa(`${username.trim()}:${password.trim()}`);
-    const authorization = `Basic ${adminCredentials}`;
-
-    if (pendingPlugins.length > 0) {
-      await bulkInstallPlugins(pendingPlugins, authorization, computeResource);
-      setPendingPlugins([]);
-      setIsConfigModalOpen(false);
-      return;
-    }
-
-    if (pendingPlugin) {
-      installPluginMutation.mutate({
-        plugin: pendingPlugin,
-        authorization,
-        computeResource,
-      });
-    }
-  };
-
-  // Show "Install All" if multiple selected or multiple search results
   const multipleSelected = selectedPlugins.length > 1;
   const multipleSearchResults =
     searchTerm.trim() !== "" && aggregatedPlugins.length > 1;
-  const canBulkInstall = multipleSelected || multipleSearchResults;
+
+  // Whether "Install All" is enabled
+  const canBulkInstall =
+    isLoggedIn && (multipleSelected || multipleSearchResults);
+
   const selectedCount = selectedPlugins.length;
+  const fetchedCount = aggregatedPlugins.length;
 
   return (
     <Wrapper>
@@ -265,10 +255,10 @@ const NewStore: React.FC = () => {
         <StoreSearchBar
           environment={selectedEnv}
           environmentOptions={envOptions}
-          onEnvChange={(env: string) => setSelectedEnv(env)}
+          onEnvChange={setSelectedEnv}
           initialSearchTerm={searchTerm}
           initialSearchField={searchField}
-          onChange={(term: string, field: "name" | "authors" | "category") => {
+          onChange={(term, field) => {
             setSearchTerm(term);
             setSearchField(field);
           }}
@@ -277,6 +267,8 @@ const NewStore: React.FC = () => {
           isBulkInstalling={isBulkInstalling}
           bulkProgress={bulkProgress}
           selectedCount={selectedCount}
+          fetchedCount={fetchedCount}
+          isLoggedIn={isLoggedIn}
         />
 
         {isLoading && (
@@ -293,45 +285,34 @@ const NewStore: React.FC = () => {
         )}
 
         {!isLoading && !isError && (
-          <>
-            <Grid hasGutter>
-              {aggregatedPlugins.map((plugin) => {
-                const isSelected = selectedPlugins.some(
-                  (p) => p.id === plugin.id,
-                );
-                return (
-                  <GridItem key={plugin.id} span={6}>
-                    <PluginCard
-                      plugin={plugin}
-                      versionMap={versionMap}
-                      setVersionMap={setVersionMap}
-                      onInstall={onInstallPlugin}
-                      onSelect={toggleSelectPlugin}
-                      isSelected={isSelected}
-                      computeResourceOptions={computeResourceOptions} // Pass resources
-                    />
-                  </GridItem>
-                );
-              })}
-            </Grid>
-
-            <Button
-              variant="primary"
-              onClick={() => fetchNextPage()}
-              isDisabled={!hasNextPage || isFetchingNextPage}
-              style={{ marginTop: "1rem" }}
-            >
-              {isFetchingNextPage
-                ? "Loading more..."
-                : hasNextPage
-                  ? "Load More"
-                  : "No more results"}
-            </Button>
-          </>
+          <Grid hasGutter>
+            {aggregatedPlugins.map((plugin) => {
+              const isSelected = selectedPlugins.some(
+                (p) => p.id === plugin.id,
+              );
+              return (
+                <GridItem key={plugin.id} span={6}>
+                  <PluginCard
+                    plugin={plugin}
+                    versionMap={versionMap}
+                    setVersionMap={setVersionMap}
+                    onInstall={onInstallPlugin}
+                    onSelect={toggleSelectPlugin}
+                    isSelected={isSelected}
+                    computeResourceOptions={
+                      isLoggedIn ? computeResourceOptions : undefined
+                    }
+                    isLoggedIn={isLoggedIn}
+                  />
+                </GridItem>
+              );
+            })}
+          </Grid>
         )}
 
-        {/* Non-staff modal */}
-        {!isStaff && (
+        <div ref={observerTarget} style={{ margin: "1rem 0" }} />
+
+        {isLoggedIn && !isStaff && (
           <StoreConfigModal
             isOpen={isConfigModalOpen}
             onClose={() => {
@@ -341,7 +322,6 @@ const NewStore: React.FC = () => {
               setPendingPlugins([]);
             }}
             onSave={handleConfigSave}
-            computeResourceOptions={computeResourceOptions}
             modalError={modalError}
           />
         )}

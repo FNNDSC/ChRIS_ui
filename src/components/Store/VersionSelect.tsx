@@ -1,11 +1,10 @@
+import React from "react";
 import {
   MenuToggle,
   type MenuToggleElement,
   Select,
   SelectOption,
 } from "@patternfly/react-core";
-// components/VersionSelect.tsx
-import React from "react";
 import type { Plugin } from "./utils/types";
 
 interface VersionSelectProps {
@@ -21,14 +20,19 @@ export const VersionSelect: React.FC<VersionSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const onToggleClick = () => {
+  const onToggleClick = (event: React.MouseEvent<MenuToggleElement>) => {
+    // Stop event propagation so the card's onClick won't fire.
+    event.stopPropagation();
     setIsOpen(!isOpen);
   };
 
   const onSelect = (
-    _event: React.MouseEvent<Element, MouseEvent> | undefined,
+    event: React.MouseEvent<Element, MouseEvent> | undefined,
     value?: string | number | Plugin,
   ) => {
+    // Also stop propagation when selecting an item
+    event?.stopPropagation();
+
     if (value) {
       handlePluginVersion(value as Plugin);
     }

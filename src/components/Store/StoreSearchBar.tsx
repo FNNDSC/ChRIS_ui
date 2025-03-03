@@ -19,24 +19,19 @@ import { DotsIndicator } from "../Common";
 type SearchField = "name" | "authors" | "category";
 
 interface StoreSearchBarProps {
-  // Environment
   environment: string;
   environmentOptions: Record<string, string>;
   onEnvChange: (env: string) => void;
-
-  // Search
   initialSearchTerm: string;
   initialSearchField: SearchField;
   onChange: (searchTerm: string, searchField: SearchField) => void;
-
-  // Bulk install
-  canBulkInstall: boolean;
+  canBulkInstall?: boolean;
   onBulkInstall: () => void;
   isBulkInstalling: boolean;
   bulkProgress: number;
-
-  // NEW: number of selected plugins
   selectedCount: number;
+  fetchedCount: number;
+  isLoggedIn?: boolean;
 }
 
 export const StoreSearchBar: React.FC<StoreSearchBarProps> = ({
@@ -51,11 +46,12 @@ export const StoreSearchBar: React.FC<StoreSearchBarProps> = ({
   isBulkInstalling,
   bulkProgress,
   selectedCount,
+  fetchedCount,
+  isLoggedIn,
 }) => {
   const [searchTerm, setSearchTerm] = React.useState(initialSearchTerm);
   const [searchField, setSearchField] =
     React.useState<SearchField>(initialSearchField);
-
   const [isEnvDropdownOpen, setIsEnvDropdownOpen] = React.useState(false);
   const [isSearchFieldOpen, setIsSearchFieldOpen] = React.useState(false);
 
@@ -111,115 +107,106 @@ export const StoreSearchBar: React.FC<StoreSearchBarProps> = ({
     </DropdownGroup>
   );
 
-  // Pass updated search info to parent
   React.useEffect(() => {
     onChange(searchTerm, searchField);
   }, [searchTerm, searchField, onChange]);
 
-  // We'll build the button label. If user selected some,
-  // show "Install All (X)" where X = selectedCount
+  // If user selected some plugins, show that number
+  // Otherwise, show the number of search results
+  const installCount = selectedCount > 0 ? selectedCount : fetchedCount;
+
   let installAllLabel = "Install All";
-  if (selectedCount > 1) {
-    installAllLabel = `Install All (${selectedCount})`;
-  } else if (selectedCount === 1) {
-    // Optional: maybe show the single selected plugin is 'Install All (1)'
+  if (installCount === 1) {
     installAllLabel = "Install All (1)";
+  } else if (installCount > 1) {
+    installAllLabel = `Install All (${installCount})`;
   }
 
+  const showInstallAll = isLoggedIn && canBulkInstall;
+
   return (
-    <div
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundColor: "#fff",
-        borderBottom: "1px solid #ccc",
-      }}
-    >
-      <Toolbar data-testid="store-search-toolbar">
-        <ToolbarContent>
-          {/* Environment Dropdown */}
-          <ToolbarItem>
-            <Dropdown
-              isOpen={isEnvDropdownOpen}
-              onSelect={handleSelectEnv}
-              onOpenChange={(open) => setIsEnvDropdownOpen(open)}
-              toggle={(toggleRef) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  onClick={() => setIsEnvDropdownOpen(!isEnvDropdownOpen)}
-                  isExpanded={isEnvDropdownOpen}
-                >
-                  {environment}
-                </MenuToggle>
-              )}
-              shouldFocusToggleOnSelect
-            >
-              {environmentDropdownItems}
-            </Dropdown>
-          </ToolbarItem>
-
-          {/* Search Field Dropdown */}
-          <ToolbarItem>
-            <Dropdown
-              isOpen={isSearchFieldOpen}
-              onSelect={handleSelectSearchField}
-              onOpenChange={(open) => setIsSearchFieldOpen(open)}
-              toggle={(toggleRef) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  onClick={() => setIsSearchFieldOpen(!isSearchFieldOpen)}
-                  isExpanded={isSearchFieldOpen}
-                >
-                  {`Filter By: ${searchField}`}
-                </MenuToggle>
-              )}
-              shouldFocusToggleOnSelect
-            >
-              {searchFieldDropdownItems}
-            </Dropdown>
-          </ToolbarItem>
-
-          {/* Search Input */}
-          <ToolbarItem>
-            <TextInputGroup style={{ width: "250px" }}>
-              <TextInputGroupMain
-                icon={<SearchIcon />}
-                value={searchTerm}
-                onChange={(_event, val) => setSearchTerm(val)}
-                placeholder={`Search by ${searchField}...`}
-              />
-            </TextInputGroup>
-          </ToolbarItem>
-
-          {/* "Install All" Button (shown only if canBulkInstall) */}
-          {canBulkInstall && (
-            <ToolbarItem>
-              <Button
-                variant="secondary"
-                onClick={onBulkInstall}
-                icon={
-                  isBulkInstalling ? (
-                    <Spin size="small" style={{ marginRight: 4 }} />
-                  ) : undefined
-                }
-                isDisabled={isBulkInstalling}
+    <Toolbar data-testid="store-search-toolbar" isSticky={true}>
+      <ToolbarContent>
+        <ToolbarItem>
+          <Dropdown
+            isOpen={isEnvDropdownOpen}
+            onSelect={handleSelectEnv}
+            onOpenChange={(open) => setIsEnvDropdownOpen(open)}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={() => setIsEnvDropdownOpen(!isEnvDropdownOpen)}
+                isExpanded={isEnvDropdownOpen}
               >
-                {isBulkInstalling
-                  ? `Installing ${bulkProgress}%...`
-                  : installAllLabel}
-              </Button>
-            </ToolbarItem>
-          )}
+                {environment}
+              </MenuToggle>
+            )}
+            shouldFocusToggleOnSelect
+          >
+            {environmentDropdownItems}
+          </Dropdown>
+        </ToolbarItem>
 
-          {/* Optional spinner indicator */}
-          {isBulkInstalling && (
-            <ToolbarItem>
-              <DotsIndicator title={`${bulkProgress}%`} />
-            </ToolbarItem>
-          )}
-        </ToolbarContent>
-      </Toolbar>
-    </div>
+        <ToolbarItem>
+          <Dropdown
+            isOpen={isSearchFieldOpen}
+            onSelect={handleSelectSearchField}
+            onOpenChange={(open) => setIsSearchFieldOpen(open)}
+            toggle={(toggleRef) => (
+              <MenuToggle
+                ref={toggleRef}
+                onClick={() => setIsSearchFieldOpen(!isSearchFieldOpen)}
+                isExpanded={isSearchFieldOpen}
+              >
+                {`Filter By: ${searchField}`}
+              </MenuToggle>
+            )}
+            shouldFocusToggleOnSelect
+          >
+            {searchFieldDropdownItems}
+          </Dropdown>
+        </ToolbarItem>
+
+        <ToolbarItem>
+          <TextInputGroup>
+            <TextInputGroupMain
+              icon={<SearchIcon />}
+              value={searchTerm}
+              onChange={(_event, val) => setSearchTerm(val)}
+              placeholder={`Search by ${searchField}...`}
+            />
+          </TextInputGroup>
+        </ToolbarItem>
+
+        {showInstallAll && (
+          <ToolbarItem>
+            <Button
+              variant="primary"
+              onClick={onBulkInstall}
+              icon={
+                isBulkInstalling ? (
+                  <Spin size="small" style={{ marginRight: 4 }} />
+                ) : undefined
+              }
+              isDisabled={isBulkInstalling}
+            >
+              {isBulkInstalling
+                ? `Installing ${bulkProgress}%...`
+                : installAllLabel}
+            </Button>
+          </ToolbarItem>
+        )}
+
+        {isBulkInstalling && (
+          <ToolbarItem>
+            <DotsIndicator title={`${bulkProgress}%`} />
+          </ToolbarItem>
+        )}
+
+        <ToolbarItem align={{ default: "alignRight" }}>
+          Total Plugins: {fetchedCount}
+        </ToolbarItem>
+      </ToolbarContent>
+    </Toolbar>
   );
 };

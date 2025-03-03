@@ -1,46 +1,51 @@
-import React from "react";
-import { Button, Icon, Label, LabelGroup } from "@patternfly/react-core";
+import type { Plugin as ChrisPlugin, ComputeResource } from "@fnndsc/chrisapi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type React from "react";
+import { useMemo, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { CheckCircleIcon } from "../Icons";
+import { useAppSelector } from "../../store/hooks";
+import {
+  ErrorState,
+  InstalledState,
+  LoadingState,
+  NotInstalledState,
+} from "./InstallSubComponents";
 import type { Plugin } from "./utils/types";
-import type { Plugin as ChrisPlugin } from "@fnndsc/chrisapi";
 
-// Example shape of what's returned by getPluginComputeResources():
-interface ComputeResourceItem {
-  compute_resource_identifier: string;
-  [key: string]: any; // additional fields
-}
-
-async function checkInstallation(name: string, version: string) {
-  // 1) Fetch the plugin by name/version
+async function checkInstallation(
+  name: string,
+  version: string,
+  isLoggedIn?: boolean,
+): Promise<{
+  installed: boolean;
+  computeResources: { id: number; name: string }[];
+}> {
   const client = ChrisAPIClient.getClient();
   const response = await client.getPlugins({ name, version });
-
   if (!response.data || !response.data.length) {
     return { installed: false, computeResources: [] };
   }
-
-  // 2) Parse the plugin + fetch associated compute resources
-  //    .getItems() => an array of ChrisPlugin objects
-  const pluginItems = response.getItems() as ChrisPlugin[];
-  const firstPluginObj = pluginItems[0];
-
-  // 3) For that plugin, retrieve its compute resources
-  const crResult = await firstPluginObj.getPluginComputeResources();
-  const computeResourceList = crResult?.data || [];
-  // e.g. [{ compute_resource_identifier: "host", ...}, ...]
-
+  if (!isLoggedIn) {
+    return { installed: true, computeResources: [] };
+  }
+  const items = response.getItems() as ChrisPlugin[];
+  const pluginObj = items[0];
+  const crResult = await pluginObj.getPluginComputeResources();
   return {
     installed: true,
-    computeResources: computeResourceList,
+    computeResources: crResult?.data || [],
   };
 }
 
+async function modifyComputeResource(pluginId: number, resourceId: number) {
+  // Replace with real logic as needed
+  console.log(`Assigning plugin #${pluginId} to resource #${resourceId}`);
+}
+
 interface InstallationComponentProps {
-  plugin: Plugin; // The selected plugin version
-  computeResource: string; // The user-chosen resource
-  onInstall: (plugin: Plugin, computeResource: string) => Promise<void>;
+  plugin: Plugin;
+  computeResource?: ComputeResource;
+  onInstall?: (plugin: Plugin, resource: ComputeResource) => Promise<void>;
 }
 
 export const InstallationComponent: React.FC<InstallationComponentProps> = ({
@@ -48,86 +53,109 @@ export const InstallationComponent: React.FC<InstallationComponentProps> = ({
   computeResource,
   onInstall,
 }) => {
+  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const queryClient = useQueryClient();
-  const [installing, setInstalling] = React.useState(false);
+  const [installing, setInstalling] = useState(false);
 
-  // 1) Query for the plugin’s installation status + compute resources
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["pluginInstallationStatus", plugin.name, plugin.version],
-    queryFn: () => checkInstallation(plugin.name, plugin.version),
+    queryKey: [
+      "pluginInstallationStatus",
+      plugin.name,
+      plugin.version,
+      isLoggedIn,
+    ],
+    queryFn: () => checkInstallation(plugin.name, plugin.version, isLoggedIn),
   });
 
-  // 2) If data exists, destructure it
   const installed = data?.installed || false;
   const computeResources = data?.computeResources || [];
 
-  // 3) Install handler
-  const handleInstall = async () => {
+  /**
+   * For logged-out users or if no computeResource is passed,
+   * we default to `false` for resource-level checks.
+   */
+  const isInstalledOnSelectedResource = useMemo(() => {
+    if (!isLoggedIn || !computeResource) return false;
+    return computeResources.some((rc) => rc.name === computeResource.data.name);
+  }, [computeResources, computeResource, isLoggedIn]);
+
+  const handlePluginInstall = async (
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    e.stopPropagation();
+    if (!onInstall || !computeResource) {
+      setInstalling(false);
+      return;
+    }
     setInstalling(true);
     try {
-      // call parent's onInstall with chosen plugin + resource
       await onInstall(plugin, computeResource);
-      // re-check status
       queryClient.invalidateQueries({
-        queryKey: ["pluginInstallationStatus", plugin.name, plugin.version],
+        queryKey: [
+          "pluginInstallationStatus",
+          plugin.name,
+          plugin.version,
+          isLoggedIn,
+        ],
       });
     } finally {
       setInstalling(false);
     }
   };
 
-  // 4) Only enable "Install" if we have a plugin version & a compute resource
-  const canInstall = !!plugin.version && !!computeResource;
+  const handleAddResource = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!computeResource) {
+      setInstalling(false);
+      return;
+    }
+    setInstalling(true);
+    try {
+      await modifyComputeResource(plugin.id, computeResource.data.id);
+      queryClient.invalidateQueries({
+        queryKey: [
+          "pluginInstallationStatus",
+          plugin.name,
+          plugin.version,
+          isLoggedIn,
+        ],
+      });
+    } finally {
+      setInstalling(false);
+    }
+  };
 
-  // 5) Render conditions
   if (isLoading) {
-    return <p>Checking installation status...</p>;
+    return <LoadingState />;
   }
+
   if (isError) {
+    return <ErrorState pluginName={plugin.name} />;
+  }
+
+  if (!installed) {
     return (
-      <div style={{ marginTop: "1em" }}>
-        <p style={{ color: "red" }}>Error checking installation status</p>
-        <Button
-          variant="primary"
-          onClick={handleInstall}
-          isDisabled={!canInstall || installing}
-        >
-          {installing ? "Installing..." : "Install"}
-        </Button>
-      </div>
+      <NotInstalledState
+        isLoggedIn={isLoggedIn}
+        onInstall={onInstall ? handlePluginInstall : undefined}
+        installing={installing}
+      />
     );
   }
 
-  if (installed) {
-    // 6) Render a label for each compute resource
-    return (
-      <div style={{ marginTop: "1em", display: "flex", alignItems: "center" }}>
-        <Icon style={{ marginRight: "0.5em" }} status="success">
-          <CheckCircleIcon />
-        </Icon>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <span style={{ marginRight: "0.5em" }}>Installed on</span>
-          <LabelGroup>
-            {computeResources.map((rc: ComputeResourceItem) => (
-              <Label variant="filled" key={rc.name} color="green">
-                {rc.name}
-              </Label>
-            ))}
-          </LabelGroup>
-        </div>
-      </div>
-    );
-  }
-
+  /**
+   * If installed globally, we handle resource-specific add actions
+   * only if a computeResource is defined. We pass an empty string
+   * if computeResource is undefined.
+   */
   return (
-    <Button
-      variant="primary"
-      onClick={handleInstall}
-      isDisabled={!canInstall || installing}
-      isLoading={installing}
-      style={{ marginTop: "1em" }}
-    >
-      {installing ? "Installing..." : "Install"}
-    </Button>
+    <InstalledState
+      computeResources={computeResources}
+      isLoggedIn={isLoggedIn}
+      isInstalledOnSelectedResource={isInstalledOnSelectedResource}
+      onAddResource={computeResource ? handleAddResource : undefined}
+      installing={installing}
+      resourceName={computeResource?.data.name || ""}
+    />
   );
 };
