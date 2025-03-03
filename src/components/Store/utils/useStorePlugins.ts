@@ -29,6 +29,7 @@ export function useStorePlugins(
         (acc, page) => acc + page.results.length,
         0,
       );
+
       if (itemsSoFar < lastPage.count) {
         return { offset: itemsSoFar };
       }

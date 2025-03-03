@@ -5,11 +5,12 @@ import {
   MenuToggle,
   type MenuToggleElement,
 } from "@patternfly/react-core";
+import type { ComputeResource } from "@fnndsc/chrisapi";
 
 interface ComputeResourceSelectProps {
-  resourceOptions: string[];
-  selected: string;
-  onChange: (value: string) => void;
+  resourceOptions: ComputeResource[];
+  selected?: ComputeResource;
+  onChange: (value: ComputeResource) => void;
 }
 
 const ComputeResourceSelect: React.FC<ComputeResourceSelectProps> = ({
@@ -19,23 +20,22 @@ const ComputeResourceSelect: React.FC<ComputeResourceSelectProps> = ({
 }) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
+  // Otherwise, show the PatternFly Select if logged in
   const toggle = (toggleRef: React.RefObject<MenuToggleElement>) => (
     <MenuToggle
       ref={toggleRef}
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={() => setIsOpen((prev) => !prev)}
       isExpanded={isOpen}
     >
-      {selected}
+      {selected?.data.name || "Select a resource"}
     </MenuToggle>
   );
 
   const handleSelect = (
     _e: React.MouseEvent<Element, MouseEvent> | undefined,
-    value?: string | number,
+    value?: ComputeResource | number | string,
   ) => {
-    if (typeof value === "string") {
-      onChange(value);
-    }
+    onChange(value as ComputeResource);
     setIsOpen(false);
   };
 
@@ -47,13 +47,16 @@ const ComputeResourceSelect: React.FC<ComputeResourceSelectProps> = ({
       onOpenChange={(open) => setIsOpen(open)}
       toggle={toggle}
       popperProps={{
-        // append to body so it won’t be clipped by the card
         appendTo: () => document.body,
       }}
     >
-      {resourceOptions.map((r) => (
-        <SelectOption key={r} value={r} isSelected={r === selected}>
-          {r}
+      {resourceOptions.map((resource) => (
+        <SelectOption
+          key={resource.data.id}
+          value={resource}
+          isSelected={resource.data.id === selected?.data.id}
+        >
+          {resource.data.name}
         </SelectOption>
       ))}
     </Select>

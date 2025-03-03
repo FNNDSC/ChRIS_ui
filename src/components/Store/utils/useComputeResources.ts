@@ -3,27 +3,20 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { notification } from "antd";
 import ChrisAPIClient from "../../../api/chrisapiclient";
+import type { ComputeResource } from "@fnndsc/chrisapi";
 
 export function useComputeResources(isLoggedIn?: boolean) {
   // 1) Use React Query to fetch the compute resources
-  const { data, error, isError } = useQuery<string[], Error>(
-    {
-      queryKey: ["computeResources"],
-      enabled: isLoggedIn,
-      queryFn: async () => {
-        const client = ChrisAPIClient.getClient();
-        const compute = await client.getComputeResources({ limit: 100 });
-        // Adjust depending on the actual shape of 'compute':
-        // If `compute.data` is an array, etc.
-        const resources = compute.data?.map(
-          (item: any) => item.compute_name || item.name,
-        );
-        return resources || [];
-      },
+  const { data, error, isError } = useQuery<ComputeResource[], Error>({
+    queryKey: ["computeResources"],
+    enabled: isLoggedIn,
+    queryFn: async () => {
+      const client = ChrisAPIClient.getClient();
+      const compute = await client.getComputeResources({ limit: 100 });
+      const resources = compute.getItems();
+      return resources || [];
     },
-    // Query key
-    // Query function
-  );
+  });
 
   // 2) Whenever `isError` becomes true, show a notification
   useEffect(() => {

@@ -1,4 +1,4 @@
-import type { PluginMeta } from "@fnndsc/chrisapi";
+import type { PluginMeta, ComputeResource } from "@fnndsc/chrisapi";
 import type Client from "@fnndsc/chrisapi";
 import axios from "axios";
 import { fetchResource } from "../../api/common";
@@ -88,21 +88,29 @@ export const uploadPipelineSourceFile = async (client: Client, file: File) => {
 export const handleInstallPlugin = async (
   adminCred: string,
   pluginToInstall: Plugin,
-  computeResource: string,
+  computeResource: ComputeResource,
 ) => {
+  // Construct the chris-admin URL from your environment variable
   const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
     "/api/v1/",
     "/chris-admin/api/v1/",
   );
-  if (!adminURL)
-    throw new Error("Please provide a link to your chris-admin url");
 
+  if (!adminURL) {
+    throw new Error("Please provide a link to your chris-admin URL.");
+  }
+
+  // Extract the name from the computeResource object
+  const computeResourceName = computeResource.data.name;
+
+  // Construct the body for the POST request
   const pluginData = {
-    compute_names: computeResource,
+    compute_names: computeResourceName,
     name: pluginToInstall.name,
     version: pluginToInstall.version,
     plugin_store_url: pluginToInstall.url,
   };
+
   try {
     const response = await axios.post(adminURL, pluginData, {
       headers: {
@@ -111,28 +119,28 @@ export const handleInstallPlugin = async (
       },
     });
 
-    const data = await response.data;
-    return data;
+    return response.data;
   } catch (e) {
+    // Check if this is an Axios error with a response payload
     if (axios.isAxiosError(e) && e.response?.data) {
       const message = e.response.data;
       // Log the entire error for more detailed context
       if (message.detail) {
-        // Handle case { detail: "Invalid Username/Password" }
+        // e.g. { detail: "Invalid Username/Password" }
         throw new Error(message.detail);
       }
-      // Check if it's an object with errors
+      // If it's an object with keys => we assume the first key has the first error
       if (typeof message === "object") {
-        const firstErrorKey = Object.keys(message)[0]; // Get the first error key
-        const firstErrorMessage = message[firstErrorKey][0]; // Get the first error message
-        throw new Error(`${firstErrorMessage}`);
+        const firstErrorKey = Object.keys(message)[0];
+        const firstErrorMessage =
+          message[firstErrorKey]?.[0] || "Unknown error";
+        throw new Error(firstErrorMessage);
       }
       throw new Error("An unexpected error occurred");
     }
     throw new Error("An unexpected error occurred");
   }
 };
-
 /**
  * Fetches a specific plugin from the store by its name and version.
  * @param {Client} storeClient - The ChRIS store client.

@@ -6,24 +6,17 @@ import {
   TextInput,
   ActionGroup,
   Button as PFButton,
-  Select as PFSelect,
-  SelectOption,
-  MenuToggle,
-  type MenuToggleElement,
   Alert,
 } from "@patternfly/react-core";
 
 interface StoreConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (config: {
-    username: string;
-    password: string;
-    computeResource: string;
-  }) => void;
-  computeResourceOptions: string[];
+  onSave: (config: { username: string; password: string }) => void;
+  // This no longer needs computeResourceOptions
+  // because we removed resource selection from the modal
 
-  // A new prop to show an error message in the modal
+  // A prop to show an error message in the modal
   modalError?: string;
 }
 
@@ -31,29 +24,18 @@ export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  computeResourceOptions,
   modalError,
 }) => {
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [computeResource, setComputeResource] = React.useState("");
-  const [dropdownOpen, setDropdownOpen] = React.useState(false);
 
   const handleConfigSave = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // If user didn't fill anything, default to 'host'
-    const finalComputeResource = computeResource.trim()
-      ? computeResource.trim()
-      : "host";
-
+    // We just gather username/password now
     onSave({
       username,
       password,
-      computeResource: finalComputeResource,
     });
-    // DON'T close if we want them to see the error if it fails
-    // you might remove onClose() here or do it only on success
   };
 
   return (
@@ -96,46 +78,7 @@ export const StoreConfigModal: React.FC<StoreConfigModalProps> = ({
           />
         </FormGroup>
 
-        {/* Compute Resource */}
-        <FormGroup label="Compute Resource" isRequired>
-          {computeResourceOptions.length > 0 ? (
-            <PFSelect
-              id="compute_resource"
-              selected={computeResource}
-              isOpen={dropdownOpen}
-              onOpenChange={(isOpen) => setDropdownOpen(isOpen)}
-              onSelect={(_, value) => {
-                setComputeResource(value as string);
-                setDropdownOpen(false);
-              }}
-              toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  onClick={() => setDropdownOpen(!dropdownOpen)}
-                  isExpanded={dropdownOpen}
-                  style={{ width: "200px" }}
-                >
-                  {computeResource || "Select a Compute Resource"}
-                </MenuToggle>
-              )}
-            >
-              {computeResourceOptions.map((resource) => (
-                <SelectOption key={resource} value={resource}>
-                  {resource}
-                </SelectOption>
-              ))}
-            </PFSelect>
-          ) : (
-            <TextInput
-              id="compute_resource"
-              isRequired
-              type="text"
-              placeholder="Enter a host to install this plugin on or leave this empty to use 'host'"
-              value={computeResource}
-              onChange={(_, val) => setComputeResource(val)}
-            />
-          )}
-        </FormGroup>
+        {/* No resource selection here! */}
 
         {/* Submit / Cancel buttons */}
         <ActionGroup>
