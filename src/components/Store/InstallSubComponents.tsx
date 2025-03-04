@@ -1,5 +1,5 @@
-import { Button, Icon, Label, LabelGroup } from "@patternfly/react-core";
 import type React from "react";
+import { Button, Icon, Label, LabelGroup } from "@patternfly/react-core";
 import { CheckCircleIcon } from "../Icons";
 
 export const LoadingState: React.FC = () => (
@@ -11,7 +11,6 @@ export const LoadingState: React.FC = () => (
 interface ErrorStateProps {
   pluginName: string;
 }
-
 export const ErrorState: React.FC<ErrorStateProps> = ({ pluginName }) => (
   <div style={{ minHeight: "5rem", display: "flex", flexDirection: "column" }}>
     <p style={{ color: "red" }}>Error checking plugin installation status</p>
@@ -22,18 +21,19 @@ export const ErrorState: React.FC<ErrorStateProps> = ({ pluginName }) => (
 );
 
 interface NotInstalledStateProps {
-  pluginName: string;
   isLoggedIn?: boolean;
-  onInstall?: () => void;
+  onInstall?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   installing: boolean;
 }
-
 export const NotInstalledState: React.FC<NotInstalledStateProps> = ({
   isLoggedIn,
   onInstall,
   installing,
 }) => (
   <div style={{ minHeight: "5rem", display: "flex", alignItems: "center" }}>
+    <p style={{ margin: 0 }}>
+      <strong>Plugin</strong> is not installed.
+    </p>
     {!isLoggedIn && (
       <p style={{ marginLeft: "1rem", color: "gray" }}>
         Please log in to install plugins.
@@ -45,6 +45,7 @@ export const NotInstalledState: React.FC<NotInstalledStateProps> = ({
         onClick={onInstall}
         isDisabled={installing}
         isLoading={installing}
+        style={{ marginLeft: "1rem" }}
       >
         {installing ? "Installing..." : "Install"}
       </Button>
@@ -53,15 +54,13 @@ export const NotInstalledState: React.FC<NotInstalledStateProps> = ({
 );
 
 interface InstalledStateProps {
-  pluginName: string;
   computeResources: { id: number; name: string }[];
   isLoggedIn?: boolean;
   isInstalledOnSelectedResource: boolean;
-  onAddResource?: () => void;
+  onAddResource?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   installing: boolean;
   resourceName: string;
 }
-
 export const InstalledState: React.FC<InstalledStateProps> = ({
   computeResources,
   isLoggedIn,
@@ -81,7 +80,7 @@ export const InstalledState: React.FC<InstalledStateProps> = ({
       <Icon status="success" style={{ marginRight: "0.5rem" }}>
         <CheckCircleIcon />
       </Icon>
-      <span style={{ marginRight: "0.5rem" }}>Installed on:</span>
+      <span style={{ marginRight: "0.5rem" }}>Plugin is installed on:</span>
       {isLoggedIn ? (
         <LabelGroup>
           {computeResources.map((rc) => (

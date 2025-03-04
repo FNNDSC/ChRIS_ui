@@ -1,5 +1,4 @@
-import type React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardBody } from "@patternfly/react-core";
 import { format } from "date-fns";
 import { VersionSelect } from "./VersionSelect";
@@ -12,14 +11,19 @@ interface PluginCardProps {
   plugin: Plugin;
   versionMap: Record<string, Plugin>;
   setVersionMap: React.Dispatch<React.SetStateAction<Record<string, Plugin>>>;
-  onInstall?: (
-    plugin: Plugin,
-    computeResource: ComputeResource,
-  ) => Promise<void>;
+  onInstall?: (plugin: Plugin, resource: ComputeResource) => Promise<void>;
   onSelect: (plugin: Plugin) => void;
   isSelected: boolean;
   computeResourceOptions?: ComputeResource[];
   isLoggedIn?: boolean;
+  /**
+   * We'll accept the real plugin data in the child's callback:
+   * onModifyResource: (realPlugin: { name: string, version: string, url?: string }, resource: ComputeResource) => void
+   */
+  onModifyResource?: (
+    realPlugin: { name: string; version: string; url?: string },
+    resource: ComputeResource,
+  ) => void;
 }
 
 export const PluginCard: React.FC<PluginCardProps> = ({
@@ -31,6 +35,7 @@ export const PluginCard: React.FC<PluginCardProps> = ({
   isSelected,
   computeResourceOptions,
   isLoggedIn,
+  onModifyResource,
 }) => {
   const selectedVersionPlugin = versionMap[plugin.name] || plugin;
   const [selectedComputeResource, setSelectedComputeResource] =
@@ -42,20 +47,20 @@ export const PluginCard: React.FC<PluginCardProps> = ({
     }
   }, [computeResourceOptions, selectedComputeResource]);
 
+  const handleCardClick = () => {
+    if (isLoggedIn) {
+      onSelect(plugin);
+    }
+  };
+
   return (
     <Card
-      className="plugin-item-card"
       isSelectable={isLoggedIn}
       isSelected={isLoggedIn && isSelected}
-      onClick={() => {
-        if (isLoggedIn) {
-          onSelect(plugin);
-        }
-      }}
+      onClick={handleCardClick}
       style={{ marginBottom: "1rem" }}
     >
       <CardBody
-        className="plugin-item-card-body"
         style={{
           minHeight: "320px",
           display: "flex",
@@ -65,8 +70,8 @@ export const PluginCard: React.FC<PluginCardProps> = ({
       >
         <div>
           <p style={{ fontSize: "0.9em", fontWeight: "bold" }}>{plugin.name}</p>
-          <div className="plugin-item-name">{plugin.title}</div>
-          <div className="plugin-item-author">{plugin.authors}</div>
+          <div>{plugin.title}</div>
+          <div>{plugin.authors}</div>
           <p style={{ fontSize: "0.90rem" }}>
             {format(new Date(plugin.creation_date), "do MMMM, yyyy")}
           </p>
@@ -103,12 +108,12 @@ export const PluginCard: React.FC<PluginCardProps> = ({
             </div>
           )}
         </div>
-
         <div style={{ marginTop: "1rem" }}>
           <InstallationComponent
             plugin={selectedVersionPlugin}
             computeResource={selectedComputeResource}
             onInstall={onInstall}
+            onModifyResource={onModifyResource}
           />
         </div>
       </CardBody>

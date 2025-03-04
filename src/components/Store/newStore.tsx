@@ -1,8 +1,10 @@
+// NewStore.tsx
 import type { ComputeResource } from "@fnndsc/chrisapi";
 import { Grid, GridItem } from "@patternfly/react-core";
 import { message } from "antd";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
@@ -19,6 +21,7 @@ import {
   usePluginInstaller,
 } from "./utils/usePluginInstallationHooks";
 import { useStorePlugins } from "./utils/useStorePlugins";
+import { modifyComputeResourceAPI } from "./utils/modifyResourceapi"; // Updated to not do a CUBE fetch
 
 const envOptions: Record<string, string> = {
   "PUBLIC CHRIS": "https://cube.chrisproject.org/api/v1/plugins",
@@ -47,6 +50,7 @@ const NewStore: React.FC = () => {
   const [bulkProgress, setBulkProgress] = useState(0);
 
   const observerTarget = useRef<HTMLDivElement | null>(null);
+  const queryClient = useQueryClient();
 
   const {
     data: pluginData,
@@ -64,7 +68,6 @@ const NewStore: React.FC = () => {
 
   useInfiniteScroll(observerTarget, { fetchNextPage, hasNextPage });
 
-  // Aggregate plugin data
   useEffect(() => {
     if (pluginData) {
       const results = pluginData.pages.flatMap((page) => page.results);
@@ -72,14 +75,13 @@ const NewStore: React.FC = () => {
     }
   }, [pluginData]);
 
-  // Show a small "info" message while fetching more
   useEffect(() => {
     if (isFetchingNextPage) {
       message.info("Fetching more plugins...");
     }
   }, [isFetchingNextPage]);
 
-  // Close modal on successful single install (unless skipMessage was used)
+  // Close modal on successful single install (unless skipMessage used)
   useEffect(() => {
     if (
       installPluginMutation.isSuccess &&
@@ -91,7 +93,6 @@ const NewStore: React.FC = () => {
     }
   }, [installPluginMutation.isSuccess, installPluginMutation.variables]);
 
-  // Show installation error in modal
   useEffect(() => {
     if (installPluginMutation.isError && isConfigModalOpen) {
       setModalError(
@@ -105,7 +106,7 @@ const NewStore: React.FC = () => {
     isConfigModalOpen,
   ]);
 
-  // Clear selected plugins if searchTerm changes
+  // Clear selection if user changes search
   useEffect(() => {
     setSelectedPlugins([]);
   }, [searchTerm]);
@@ -145,10 +146,6 @@ const NewStore: React.FC = () => {
     [isLoggedIn, isStaff, installPluginMutation],
   );
 
-  /**
-   * If user has selected any plugins => install those.
-   * Otherwise => install entire search result list (aggregatedPlugins).
-   */
   const handleBulkInstall = useCallback(() => {
     if (!isLoggedIn) {
       message.warning("You must be logged in to install plugins.");
@@ -157,7 +154,6 @@ const NewStore: React.FC = () => {
     const pluginsToInstall = selectedPlugins.length
       ? selectedPlugins
       : aggregatedPlugins;
-
     if (!pluginsToInstall.length) return;
 
     if (isStaff) {
@@ -191,6 +187,57 @@ const NewStore: React.FC = () => {
     bulkInstall,
   ]);
 
+  /**
+   * Here, we expect realPlugin = { name, version, url }
+   * (coming from InstallationComponent), so we do NOT need to fetch
+   */
+  const modifyResourceMutation = useMutation({
+    mutationFn: async (args: {
+      realPlugin: { name: string; version: string; url?: string };
+      newComputeResource: ComputeResource;
+      adminCred: string;
+    }) => {
+      return modifyComputeResourceAPI({
+        adminCred: args.adminCred,
+        realPlugin: args.realPlugin,
+        newComputeResource: args.newComputeResource,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pluginInstallationStatus"] });
+      message.success("Compute resource updated successfully!");
+    },
+    onError: (err: any) => {
+      message.error(err?.message || "Error updating compute resource.");
+    },
+  });
+
+  const onModifyComputeResource = useCallback(
+    (
+      realPlugin: { name: string; version: string; url?: string },
+      resource: ComputeResource,
+    ) => {
+      if (!isLoggedIn) {
+        message.warning("You must be logged in to modify resources.");
+        return;
+      }
+      if (isStaff) {
+        const token = ChrisAPIClient.getClient().auth.token;
+        const adminCred = `Token ${token}`;
+        modifyResourceMutation.mutate({
+          realPlugin,
+          newComputeResource: resource,
+          adminCred,
+        });
+      } else {
+        message.warning(
+          "Non-staff: please open the config modal for credentials.",
+        );
+      }
+    },
+    [isLoggedIn, isStaff, modifyResourceMutation],
+  );
+
   const handleConfigSave = useCallback(
     async ({ username, password }: { username: string; password: string }) => {
       if (!pendingPlugin && !pendingPlugins.length) return;
@@ -210,7 +257,6 @@ const NewStore: React.FC = () => {
       }
       const resource = computeResourceOptions[0];
 
-      // Bulk
       if (pendingPlugins.length > 0) {
         setIsBulkInstalling(true);
         await bulkInstall(pendingPlugins, authorization, resource, (pct) => {
@@ -219,9 +265,7 @@ const NewStore: React.FC = () => {
         setPendingPlugins([]);
         setIsConfigModalOpen(false);
         setIsBulkInstalling(false);
-      }
-      // Single
-      else if (pendingPlugin) {
+      } else if (pendingPlugin) {
         installPluginMutation.mutate({
           plugin: pendingPlugin,
           authorization,
@@ -241,11 +285,8 @@ const NewStore: React.FC = () => {
   const multipleSelected = selectedPlugins.length > 1;
   const multipleSearchResults =
     searchTerm.trim() !== "" && aggregatedPlugins.length > 1;
-
-  // Whether "Install All" is enabled
   const canBulkInstall =
     isLoggedIn && (multipleSelected || multipleSearchResults);
-
   const selectedCount = selectedPlugins.length;
   const fetchedCount = aggregatedPlugins.length;
 
@@ -270,11 +311,9 @@ const NewStore: React.FC = () => {
           fetchedCount={fetchedCount}
           isLoggedIn={isLoggedIn}
         />
-
         {isLoading && (
           <SpinContainer title={`Loading Plugins for ${selectedEnv}...`} />
         )}
-
         {isError && (
           <div style={{ color: "red", margin: "1rem 0" }}>
             <p>
@@ -283,7 +322,6 @@ const NewStore: React.FC = () => {
             <p>{(error as Error)?.message}</p>
           </div>
         )}
-
         {!isLoading && !isError && (
           <Grid hasGutter>
             {aggregatedPlugins.map((plugin) => {
@@ -303,15 +341,14 @@ const NewStore: React.FC = () => {
                       isLoggedIn ? computeResourceOptions : undefined
                     }
                     isLoggedIn={isLoggedIn}
+                    onModifyResource={onModifyComputeResource}
                   />
                 </GridItem>
               );
             })}
           </Grid>
         )}
-
         <div ref={observerTarget} style={{ margin: "1rem 0" }} />
-
         {isLoggedIn && !isStaff && (
           <StoreConfigModal
             isOpen={isConfigModalOpen}
