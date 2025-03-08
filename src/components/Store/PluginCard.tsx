@@ -20,11 +20,13 @@ async function checkInstallation(
   if (!response.data || !response.data.length) {
     return { installed: false, computeResources: [] };
   }
+
   const items = response.getItems() as ChrisPlugin[];
   const realPlugin = items[0];
   const realPluginName = realPlugin.data.name;
   const realPluginVersion = realPlugin.data.version;
   const realPluginURL = realPlugin.url;
+
   if (!isLoggedIn) {
     return {
       installed: true,
@@ -36,6 +38,7 @@ async function checkInstallation(
       },
     };
   }
+
   const crResultList = await realPlugin.getPluginComputeResources();
   const crResult = crResultList.getItems() || [];
   return {
@@ -62,57 +65,78 @@ interface PluginCardProps {
     realPlugin: { name: string; version: string; url?: string },
     resources: ComputeResource[],
   ) => void;
-  selectedComputeResources: ComputeResource[];
+  selectedComputeResources: {
+    [id: string]: ComputeResource[];
+  };
   onComputeResourceChange: (
     pluginId: number,
     resources: ComputeResource[],
   ) => void;
 }
 
-export const PluginCard: React.FC<PluginCardProps> = ({
-  plugin,
-  versionMap,
-  setVersionMap,
-  onInstall,
-  onSelect,
-  isSelected,
-  computeResourceOptions,
-  isLoggedIn,
-  onModifyResource,
-  selectedComputeResources,
-  onComputeResourceChange,
-}) => {
+export const PluginCard: React.FC<PluginCardProps> = (props) => {
+  const {
+    plugin,
+    versionMap,
+    setVersionMap,
+    onInstall,
+    onSelect,
+    isSelected,
+    computeResourceOptions,
+    isLoggedIn,
+    onModifyResource,
+    selectedComputeResources,
+    onComputeResourceChange,
+  } = props;
+
   const selectedVersionPlugin = versionMap[plugin.name] || plugin;
+
   const { data, isLoading, isError } = useQuery({
     queryKey: [
       "pluginInstallationStatus",
-      plugin.name,
-      plugin.version,
+      selectedVersionPlugin.name,
+      selectedVersionPlugin.version,
       isLoggedIn,
     ],
-    queryFn: () => checkInstallation(plugin.name, plugin.version, isLoggedIn),
+    queryFn: () =>
+      checkInstallation(
+        selectedVersionPlugin.name,
+        selectedVersionPlugin.version,
+        isLoggedIn,
+      ),
   });
 
   useEffect(() => {
     if (!data) return;
-    if (!selectedComputeResources.length) {
-      if (data.installed && data.computeResources.length > 0) {
-        onComputeResourceChange(plugin.id, data.computeResources);
-      } else if (!data.installed && computeResourceOptions?.[0]) {
-        onComputeResourceChange(plugin.id, [computeResourceOptions[0]]);
+
+    const { installed, computeResources } = data;
+
+    // If no selection has been made, set defaults based on installation status
+    const noCurrentSelection =
+      !selectedComputeResources[selectedVersionPlugin.id]?.length;
+
+    if (noCurrentSelection) {
+      if (installed && computeResources.length > 0) {
+        onComputeResourceChange(selectedVersionPlugin.id, computeResources);
+      } else if (!installed && computeResourceOptions?.[0]) {
+        onComputeResourceChange(selectedVersionPlugin.id, [
+          computeResourceOptions[0],
+        ]);
       }
     }
   }, [
     data,
     selectedComputeResources,
     computeResourceOptions,
-    plugin.id,
+    selectedVersionPlugin.id,
     onComputeResourceChange,
   ]);
 
+  const selectedList = selectedComputeResources[selectedVersionPlugin.id] || [];
+
   const handleCardClick = () => {
     if (isLoggedIn) {
-      onSelect(plugin);
+      onSelect(selectedVersionPlugin);
     }
   };
 
@@ -131,11 +155,16 @@ export const PluginCard: React.FC<PluginCardProps> = ({
         }}
       >
         <div>
-          <p style={{ fontSize: "0.9em", fontWeight: "bold" }}>{plugin.name}</p>
-          <div>{plugin.title}</div>
-          <div>{plugin.authors}</div>
+          <p style={{ fontSize: "0.9em", fontWeight: "bold" }}>
+            {selectedVersionPlugin.name}
+          </p>
+          <div>{selectedVersionPlugin.title}</div>
+          <div>{selectedVersionPlugin.authors}</div>
           <p style={{ fontSize: "0.90rem" }}>
-            {format(new Date(plugin.creation_date), "do MMMM, yyyy")}
+            {format(
+              new Date(selectedVersionPlugin.creation_date),
+              "do MMMM, yyyy",
+            )}
           </p>
           {isLoggedIn && computeResourceOptions && (
             <div
@@ -152,7 +181,7 @@ export const PluginCard: React.FC<PluginCardProps> = ({
                   handlePluginVersion={(newSelected) => {
                     setVersionMap((prev) => ({
                       ...prev,
-                      [plugin.name]: newSelected,
+                      [selectedVersionPlugin.name]: newSelected,
                     }));
                   }}
                   currentVersion={selectedVersionPlugin.version}
@@ -163,9 +192,12 @@ export const PluginCard: React.FC<PluginCardProps> = ({
                 <p>Compute Resources</p>
                 <ComputeResourceSelect
                   resourceOptions={computeResourceOptions}
-                  selectedList={selectedComputeResources}
+                  selectedList={selectedList}
                   onChange={(computeResource) => {
-                    onComputeResourceChange(plugin.id, computeResource);
+                    onComputeResourceChange(
+                      selectedVersionPlugin.id,
+                      computeResource,
+                    );
                   }}
                 />
               </div>
@@ -175,7 +207,7 @@ export const PluginCard: React.FC<PluginCardProps> = ({
         <div style={{ marginTop: "1rem" }}>
           <InstallationComponent
             plugin={selectedVersionPlugin}
-            selectedComputeResourcesList={selectedComputeResources}
+            selectedComputeResourcesList={selectedList}
             onInstall={onInstall}
             onModifyResource={onModifyResource}
             installed={data?.installed || false}

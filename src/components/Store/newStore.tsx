@@ -282,9 +282,7 @@ const NewStore: React.FC = () => {
                     }
                     isLoggedIn={isLoggedIn}
                     onModifyResource={onModifyComputeResource}
-                    selectedComputeResources={
-                      pluginResourceMap[plugin.id] || []
-                    }
+                    selectedComputeResources={pluginResourceMap}
                     onComputeResourceChange={handleComputeResourceChange}
                   />
                 </GridItem>
