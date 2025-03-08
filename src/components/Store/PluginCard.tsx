@@ -1,28 +1,71 @@
-import React, { useState, useEffect } from "react";
 import { Card, CardBody } from "@patternfly/react-core";
 import { format } from "date-fns";
+import type React from "react";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { VersionSelect } from "./VersionSelect";
-import { InstallationComponent } from "./InstallationComponent";
 import ComputeResourceSelect from "./ComputeResourceSelect";
+import { InstallationComponent } from "./InstallationComponent";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import type { Plugin } from "./utils/types";
-import type { ComputeResource } from "@fnndsc/chrisapi";
+import type { ComputeResource, Plugin as ChrisPlugin } from "@fnndsc/chrisapi";
+
+async function checkInstallation(
+  name: string,
+  version: string,
+  isLoggedIn?: boolean,
+) {
+  const client = ChrisAPIClient.getClient();
+  const response = await client.getPlugins({ name, version });
+  if (!response.data || !response.data.length) {
+    return { installed: false, computeResources: [] };
+  }
+  const items = response.getItems() as ChrisPlugin[];
+  const realPlugin = items[0];
+  const realPluginName = realPlugin.data.name;
+  const realPluginVersion = realPlugin.data.version;
+  const realPluginURL = realPlugin.url;
+  if (!isLoggedIn) {
+    return {
+      installed: true,
+      computeResources: [],
+      realPluginData: {
+        name: realPluginName,
+        version: realPluginVersion,
+        url: realPluginURL,
+      },
+    };
+  }
+  const crResultList = await realPlugin.getPluginComputeResources();
+  const crResult = crResultList.getItems() || [];
+  return {
+    installed: true,
+    computeResources: crResult,
+    realPluginData: {
+      name: realPluginName,
+      version: realPluginVersion,
+      url: realPluginURL,
+    },
+  };
+}
 
 interface PluginCardProps {
   plugin: Plugin;
   versionMap: Record<string, Plugin>;
   setVersionMap: React.Dispatch<React.SetStateAction<Record<string, Plugin>>>;
-  onInstall?: (plugin: Plugin, resource: ComputeResource) => Promise<void>;
+  onInstall?: (plugin: Plugin, resources: ComputeResource[]) => Promise<void>;
   onSelect: (plugin: Plugin) => void;
   isSelected: boolean;
   computeResourceOptions?: ComputeResource[];
   isLoggedIn?: boolean;
-  /**
-   * We'll accept the real plugin data in the child's callback:
-   * onModifyResource: (realPlugin: { name: string, version: string, url?: string }, resource: ComputeResource) => void
-   */
   onModifyResource?: (
     realPlugin: { name: string; version: string; url?: string },
-    resource: ComputeResource,
+    resources: ComputeResource[],
+  ) => void;
+  selectedComputeResources: ComputeResource[];
+  onComputeResourceChange: (
+    pluginId: number,
+    resources: ComputeResource[],
   ) => void;
 }
 
@@ -36,16 +79,36 @@ export const PluginCard: React.FC<PluginCardProps> = ({
   computeResourceOptions,
   isLoggedIn,
   onModifyResource,
+  selectedComputeResources,
+  onComputeResourceChange,
 }) => {
   const selectedVersionPlugin = versionMap[plugin.name] || plugin;
-  const [selectedComputeResource, setSelectedComputeResource] =
-    useState<ComputeResource>();
+  const { data, isLoading, isError } = useQuery({
+    queryKey: [
+      "pluginInstallationStatus",
+      plugin.name,
+      plugin.version,
+      isLoggedIn,
+    ],
+    queryFn: () => checkInstallation(plugin.name, plugin.version, isLoggedIn),
+  });
 
   useEffect(() => {
-    if (!selectedComputeResource && computeResourceOptions?.[0]) {
-      setSelectedComputeResource(computeResourceOptions[0]);
+    if (!data) return;
+    if (!selectedComputeResources.length) {
+      if (data.installed && data.computeResources.length > 0) {
+        onComputeResourceChange(plugin.id, data.computeResources);
+      } else if (!data.installed && computeResourceOptions?.[0]) {
+        onComputeResourceChange(plugin.id, [computeResourceOptions[0]]);
+      }
     }
-  }, [computeResourceOptions, selectedComputeResource]);
+  }, [
+    data,
+    selectedComputeResources,
+    computeResourceOptions,
+    plugin.id,
+    onComputeResourceChange,
+  ]);
 
   const handleCardClick = () => {
     if (isLoggedIn) {
@@ -65,7 +128,6 @@ export const PluginCard: React.FC<PluginCardProps> = ({
           minHeight: "320px",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
         }}
       >
         <div>
@@ -79,13 +141,13 @@ export const PluginCard: React.FC<PluginCardProps> = ({
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: "1rem",
+                gap: "1em",
                 marginTop: "1em",
+                flexWrap: "wrap",
               }}
             >
-              <div>
-                <p style={{ margin: 0 }}>Version:</p>
+              <div style={{ marginBottom: "0.5rem" }}>
+                <p>Version</p>
                 <VersionSelect
                   handlePluginVersion={(newSelected) => {
                     setVersionMap((prev) => ({
@@ -98,11 +160,13 @@ export const PluginCard: React.FC<PluginCardProps> = ({
                 />
               </div>
               <div>
-                <p style={{ margin: 0 }}>Compute Resource:</p>
+                <p>Compute Resources</p>
                 <ComputeResourceSelect
                   resourceOptions={computeResourceOptions}
-                  selected={selectedComputeResource}
-                  onChange={setSelectedComputeResource}
+                  selectedList={selectedComputeResources}
+                  onChange={(computeResource) => {
+                    onComputeResourceChange(plugin.id, computeResource);
+                  }}
                 />
               </div>
             </div>
@@ -111,9 +175,14 @@ export const PluginCard: React.FC<PluginCardProps> = ({
         <div style={{ marginTop: "1rem" }}>
           <InstallationComponent
             plugin={selectedVersionPlugin}
-            computeResource={selectedComputeResource}
+            selectedComputeResourcesList={selectedComputeResources}
             onInstall={onInstall}
             onModifyResource={onModifyResource}
+            installed={data?.installed || false}
+            installedComputeResources={data?.computeResources || []}
+            isLoading={isLoading}
+            isError={isError}
+            pluginData={data?.realPluginData}
           />
         </div>
       </CardBody>

@@ -6,7 +6,6 @@ import ChrisAPIClient from "../../../api/chrisapiclient";
 import type { ComputeResource } from "@fnndsc/chrisapi";
 
 export function useComputeResources(isLoggedIn?: boolean) {
-  // 1) Use React Query to fetch the compute resources
   const { data, error, isError } = useQuery<ComputeResource[], Error>({
     queryKey: ["computeResources"],
     enabled: isLoggedIn,
@@ -18,7 +17,6 @@ export function useComputeResources(isLoggedIn?: boolean) {
     },
   });
 
-  // 2) Whenever `isError` becomes true, show a notification
   useEffect(() => {
     if (isError && error) {
       // antd notification
@@ -29,6 +27,5 @@ export function useComputeResources(isLoggedIn?: boolean) {
     }
   }, [isError, error]);
 
-  // 3) Return data or an empty array (avoid returning undefined)
   return data || [];
 }
