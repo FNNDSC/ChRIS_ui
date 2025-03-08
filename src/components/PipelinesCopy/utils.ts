@@ -88,7 +88,7 @@ export const uploadPipelineSourceFile = async (client: Client, file: File) => {
 export const handleInstallPlugin = async (
   adminCred: string,
   pluginToInstall: Plugin,
-  computeResource: ComputeResource,
+  computeResource: ComputeResource[],
 ) => {
   // Construct the chris-admin URL from your environment variable
   const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
@@ -101,11 +101,13 @@ export const handleInstallPlugin = async (
   }
 
   // Extract the name from the computeResource object
-  const computeResourceName = computeResource.data.name;
+  const computeResourceNameList = computeResource
+    .map((r) => r.data.name)
+    .join(",");
 
   // Construct the body for the POST request
   const pluginData = {
-    compute_names: computeResourceName,
+    compute_names: computeResourceNameList,
     name: pluginToInstall.name,
     version: pluginToInstall.version,
     plugin_store_url: pluginToInstall.url,

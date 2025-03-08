@@ -12,6 +12,6 @@ export interface PluginsResponse {
 export interface InstallArgs {
   plugin: Plugin;
   authorization: string;
-  computeResource: ComputeResource;
+  computeResource: ComputeResource[];
   skipMessage?: boolean;
 }

@@ -1,6 +1,7 @@
 import type React from "react";
 import { Button, Icon, Label, LabelGroup } from "@patternfly/react-core";
 import { CheckCircleIcon } from "../Icons";
+import type { ComputeResource } from "@fnndsc/chrisapi";
 
 export const LoadingState: React.FC = () => (
   <div style={{ minHeight: "5rem", display: "flex", alignItems: "center" }}>
@@ -30,14 +31,9 @@ export const NotInstalledState: React.FC<NotInstalledStateProps> = ({
   onInstall,
   installing,
 }) => (
-  <div style={{ minHeight: "5rem", display: "flex", alignItems: "center" }}>
-    <p style={{ margin: 0 }}>
-      <strong>Plugin</strong> is not installed.
-    </p>
+  <div style={{ display: "flex", alignItems: "center" }}>
     {!isLoggedIn && (
-      <p style={{ marginLeft: "1rem", color: "gray" }}>
-        Please log in to install plugins.
-      </p>
+      <p style={{ color: "gray" }}>Please log in to install this plugin</p>
     )}
     {isLoggedIn && onInstall && (
       <Button
@@ -45,7 +41,6 @@ export const NotInstalledState: React.FC<NotInstalledStateProps> = ({
         onClick={onInstall}
         isDisabled={installing}
         isLoading={installing}
-        style={{ marginLeft: "1rem" }}
       >
         {installing ? "Installing..." : "Install"}
       </Button>
@@ -54,54 +49,67 @@ export const NotInstalledState: React.FC<NotInstalledStateProps> = ({
 );
 
 interface InstalledStateProps {
-  computeResources: { id: number; name: string }[];
+  installedComputeResources: ComputeResource[];
   isLoggedIn?: boolean;
   isInstalledOnSelectedResource: boolean;
   onAddResource?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   installing: boolean;
-  resourceName: string;
+  resourceNames: string;
 }
+
 export const InstalledState: React.FC<InstalledStateProps> = ({
-  computeResources,
+  installedComputeResources,
   isLoggedIn,
   isInstalledOnSelectedResource,
   onAddResource,
   installing,
-  resourceName,
+  resourceNames,
 }) => (
-  <div style={{ minHeight: "5rem", display: "flex", flexDirection: "column" }}>
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        marginBottom: "0.5rem",
-      }}
-    >
-      <Icon status="success" style={{ marginRight: "0.5rem" }}>
-        <CheckCircleIcon />
-      </Icon>
-      <span style={{ marginRight: "0.5rem" }}>Plugin is installed on:</span>
-      {isLoggedIn ? (
+  <div style={{ minHeight: "5rem" }}>
+    {isLoggedIn ? (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <Icon status="success" style={{ marginRight: "0.5rem" }}>
+          <CheckCircleIcon />
+        </Icon>
+        <span style={{ marginRight: "0.5rem" }}>Plugin is installed on:</span>
         <LabelGroup>
-          {computeResources.map((rc) => (
-            <Label variant="filled" key={rc.id} color="green">
-              {rc.name}
+          {installedComputeResources.map((rc) => (
+            <Label variant="filled" key={rc.data.id} color="green">
+              {rc.data.name}
             </Label>
           ))}
         </LabelGroup>
-      ) : (
-        <span style={{ color: "gray" }}>Login to view compute resources</span>
-      )}
-    </div>
+      </div>
+    ) : (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: "0.5rem",
+        }}
+      >
+        <Icon status="success" style={{ marginRight: "0.5rem" }}>
+          <CheckCircleIcon />
+        </Icon>
+        <span style={{ marginRight: "0.5rem" }}>Plugin is installed</span>
+      </div>
+    )}
+
+    {/* The currently selected compute resource is not installed */}
     {!isInstalledOnSelectedResource && isLoggedIn && onAddResource && (
       <Button
-        variant="secondary"
+        variant="primary"
         onClick={onAddResource}
         isDisabled={installing}
         isLoading={installing}
-        style={{ width: "auto" }}
       >
-        Install on {resourceName}
+        Install on {resourceNames}
       </Button>
     )}
   </div>
