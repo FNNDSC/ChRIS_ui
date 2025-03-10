@@ -1,8 +1,7 @@
-// NewStore.tsx
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
 import { Grid, GridItem } from "@patternfly/react-core";
 import { message } from "antd";
-import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCookies } from "react-cookie";
 import type { ComputeResource } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
@@ -12,11 +11,11 @@ import { PluginCard } from "./PluginCard";
 import { StoreConfigModal } from "./StoreConfigModal";
 import { StoreSearchBar } from "./StoreSearchBar";
 import { aggregatePlugins } from "./utils/aggregatePlugins";
-import type { Plugin } from "./utils/types";
 import { useComputeResources } from "./utils/useComputeResources";
 import { useInfiniteScroll } from "./utils/useInfiniteScroll";
 import { useStorePlugins } from "./utils/useStorePlugins";
 import { usePluginInstallManager } from "./utils/usePluginManager";
+import type { Plugin } from "./utils/types";
 
 const envOptions: Record<string, string> = {
   "PUBLIC CHRIS": "https://cube.chrisproject.org/api/v1/plugins",
@@ -24,7 +23,7 @@ const envOptions: Record<string, string> = {
 
 const LOCAL_CUBE_URL = import.meta.env.VITE_CHRIS_UI_URL || "";
 
-const NewStore: React.FC = () => {
+const NewStore: FC = () => {
   const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
   const [selectedEnv, setSelectedEnv] = useState("PUBLIC CHRIS");
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,8 +42,9 @@ const NewStore: React.FC = () => {
   const [pluginResourceMap, setPluginResourceMap] = useState<
     Record<number, ComputeResource[]>
   >({});
-
+  const [cookies, setCookie] = useCookies(["adminUsername", "adminPassword"]);
   const observerTarget = useRef<HTMLDivElement | null>(null);
+
   const { installPlugin, bulkInstallPlugins, modifyComputeResources } =
     usePluginInstallManager();
   const {
@@ -77,7 +77,15 @@ const NewStore: React.FC = () => {
     setSelectedPlugins([]);
   }, [searchTerm]);
 
-  const toggleSelectPlugin = useCallback((plugin: Plugin) => {
+  const getAuthorizationHeader = useCallback((): string | undefined => {
+    if (!cookies.adminUsername || !cookies.adminPassword) return undefined;
+    const adminCredentials = btoa(
+      `${cookies.adminUsername.trim()}:${cookies.adminPassword.trim()}`,
+    );
+    return `Basic ${adminCredentials}`;
+  }, [cookies.adminPassword, cookies.adminUsername]);
+
+  const togglePluginSelection = useCallback((plugin: Plugin) => {
     setSelectedPlugins((prev) => {
       const alreadySelected = prev.some((p) => p.id === plugin.id);
       return alreadySelected
@@ -86,25 +94,7 @@ const NewStore: React.FC = () => {
     });
   }, []);
 
-  const onInstallPlugin = useCallback(
-    async (plugin: Plugin, resources: ComputeResource[]) => {
-      if (!isLoggedIn) {
-        message.warning("You must be logged in to install plugins.");
-        return;
-      }
-      if (isStaff) {
-        const tokenAuth = `Token ${ChrisAPIClient.getClient().auth.token}`;
-        installPlugin(plugin, tokenAuth, resources);
-      } else {
-        setPendingPlugin(plugin);
-        setModalError("");
-        setIsConfigModalOpen(true);
-      }
-    },
-    [isLoggedIn, isStaff, installPlugin],
-  );
-
-  const handleComputeResourceChange = useCallback(
+  const handleResourceChange = useCallback(
     (pluginId: number, resources: ComputeResource[]) => {
       setPluginResourceMap((prev) => ({
         ...prev,
@@ -114,11 +104,30 @@ const NewStore: React.FC = () => {
     [],
   );
 
-  const handleBulkInstall = useCallback(() => {
-    if (!isLoggedIn) {
-      message.warning("You must be logged in to install plugins.");
-      return;
-    }
+  const handlePluginInstall = useCallback(
+    async (plugin: Plugin, resources: ComputeResource[]) => {
+      if (isStaff) {
+        const tokenAuth = `Token ${ChrisAPIClient.getClient().auth.token}`;
+        installPlugin(plugin, tokenAuth, resources);
+      } else {
+        const authorization = getAuthorizationHeader();
+        if (authorization) {
+          try {
+            installPlugin(plugin, authorization, resources);
+          } catch (e) {
+            setModalError((e as Error).message);
+          }
+        } else {
+          setPendingPlugin(plugin);
+          setModalError("");
+          setIsConfigModalOpen(true);
+        }
+      }
+    },
+    [installPlugin, isStaff, getAuthorizationHeader],
+  );
+
+  const handleBulkPluginInstall = useCallback(() => {
     const pluginsToInstall = selectedPlugins.length
       ? selectedPlugins
       : aggregatedPlugins;
@@ -140,23 +149,38 @@ const NewStore: React.FC = () => {
         setIsBulkInstalling(false);
       });
     } else {
-      setPendingPlugins(pluginsToInstall);
-      setModalError("");
-      setIsConfigModalOpen(true);
+      const authorization = getAuthorizationHeader();
+      if (authorization) {
+        setIsBulkInstalling(true);
+        bulkInstallPlugins(
+          pluginsToInstall,
+          authorization,
+          pluginResourceMap,
+          computeResourceOptions?.[0],
+          (pct) => setBulkProgress(pct),
+        )
+          .catch((err) => setModalError((err as Error).message))
+          .finally(() => setIsBulkInstalling(false));
+      } else {
+        setPendingPlugins(pluginsToInstall);
+        setModalError("");
+        setIsConfigModalOpen(true);
+      }
     }
   }, [
     isLoggedIn,
+    isStaff,
     selectedPlugins,
     aggregatedPlugins,
-    isStaff,
     computeResourceOptions,
-    bulkInstallPlugins,
     pluginResourceMap,
+    getAuthorizationHeader,
+    bulkInstallPlugins,
   ]);
 
-  const onModifyComputeResource = useCallback(
+  const handleResourceModification = useCallback(
     (
-      realPlugin: { name: string; version: string; url?: string },
+      plugin: { name: string; version: string; url?: string },
       resources: ComputeResource[],
     ) => {
       if (!isLoggedIn) {
@@ -166,7 +190,7 @@ const NewStore: React.FC = () => {
       if (isStaff) {
         const token = ChrisAPIClient.getClient().auth.token;
         const adminCred = `Token ${token}`;
-        modifyComputeResources(realPlugin, resources, adminCred);
+        modifyComputeResources(plugin, resources, adminCred);
       } else {
         message.warning(
           "Non-staff: please open the config modal for credentials.",
@@ -176,7 +200,7 @@ const NewStore: React.FC = () => {
     [isLoggedIn, isStaff, modifyComputeResources],
   );
 
-  const handleConfigSave = useCallback(
+  const handleCredentialSave = useCallback(
     async ({ username, password }: { username: string; password: string }) => {
       if (!pendingPlugin && !pendingPlugins.length) return;
       const adminURL = LOCAL_CUBE_URL.replace(
@@ -187,6 +211,8 @@ const NewStore: React.FC = () => {
         setModalError("Please provide a valid chris-admin URL.");
         return;
       }
+      setCookie("adminUsername", username, { path: "/" });
+      setCookie("adminPassword", password, { path: "/" });
       const adminCredentials = btoa(`${username.trim()}:${password.trim()}`);
       const authorization = `Basic ${adminCredentials}`;
       if (pendingPlugins.length > 0) {
@@ -197,7 +223,7 @@ const NewStore: React.FC = () => {
           pluginResourceMap,
           computeResourceOptions?.[0],
           (pct) => setBulkProgress(pct),
-        );
+        ).catch((err) => setModalError((err as Error).message));
         setPendingPlugins([]);
         setIsConfigModalOpen(false);
         setIsBulkInstalling(false);
@@ -209,7 +235,13 @@ const NewStore: React.FC = () => {
         const resources = pluginResourceMap[pendingPlugin.id]?.length
           ? pluginResourceMap[pendingPlugin.id]
           : [computeResourceOptions[0]];
-        installPlugin(pendingPlugin, authorization, resources);
+        try {
+          installPlugin(pendingPlugin, authorization, resources);
+          setIsConfigModalOpen(false);
+          setPendingPlugin(null);
+        } catch (e) {
+          setModalError((e as Error).message);
+        }
       }
     },
     [
@@ -219,6 +251,7 @@ const NewStore: React.FC = () => {
       installPlugin,
       bulkInstallPlugins,
       pluginResourceMap,
+      setCookie,
     ],
   );
 
@@ -244,7 +277,7 @@ const NewStore: React.FC = () => {
             setSearchField(field);
           }}
           canBulkInstall={canBulkInstall}
-          onBulkInstall={handleBulkInstall}
+          onBulkInstall={handleBulkPluginInstall}
           isBulkInstalling={isBulkInstalling}
           bulkProgress={bulkProgress}
           selectedCount={selectedCount}
@@ -274,16 +307,16 @@ const NewStore: React.FC = () => {
                     plugin={plugin}
                     versionMap={versionMap}
                     setVersionMap={setVersionMap}
-                    onInstall={onInstallPlugin}
-                    onSelect={toggleSelectPlugin}
+                    onInstall={handlePluginInstall}
+                    onSelect={togglePluginSelection}
                     isSelected={isSelected}
                     computeResourceOptions={
                       isLoggedIn ? computeResourceOptions : undefined
                     }
                     isLoggedIn={isLoggedIn}
-                    onModifyResource={onModifyComputeResource}
+                    onModifyResource={handleResourceModification}
                     selectedComputeResources={pluginResourceMap}
-                    onComputeResourceChange={handleComputeResourceChange}
+                    onComputeResourceChange={handleResourceChange}
                   />
                 </GridItem>
               );
@@ -300,7 +333,7 @@ const NewStore: React.FC = () => {
               setPendingPlugin(null);
               setPendingPlugins([]);
             }}
-            onSave={handleConfigSave}
+            onSave={handleCredentialSave}
             modalError={modalError}
           />
         )}

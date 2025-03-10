@@ -9,6 +9,7 @@ import { InstallationComponent } from "./InstallationComponent";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type { Plugin } from "./utils/types";
 import type { ComputeResource, Plugin as ChrisPlugin } from "@fnndsc/chrisapi";
+import { Link } from "react-router-dom";
 
 async function checkInstallation(
   name: string,
@@ -146,6 +147,7 @@ export const PluginCard: React.FC<PluginCardProps> = (props) => {
       isSelected={isLoggedIn && isSelected}
       onClick={handleCardClick}
       style={{ marginBottom: "1rem" }}
+      className="plugin-item-card"
     >
       <CardBody
         style={{
@@ -153,13 +155,18 @@ export const PluginCard: React.FC<PluginCardProps> = (props) => {
           display: "flex",
           flexDirection: "column",
         }}
+        className="plugin-item-card-body"
       >
         <div>
-          <p style={{ fontSize: "0.9em", fontWeight: "bold" }}>
-            {selectedVersionPlugin.name}
-          </p>
+          <div className="plugin-item-name">
+            <div style={{ fontSize: "0.9em", fontWeight: "bold" }}>
+              {selectedVersionPlugin.name}
+            </div>
+          </div>
           <div>{selectedVersionPlugin.title}</div>
-          <div>{selectedVersionPlugin.authors}</div>
+          <div className="plugin-item-authors">
+            {selectedVersionPlugin.authors}
+          </div>
           <p style={{ fontSize: "0.90rem" }}>
             {format(
               new Date(selectedVersionPlugin.creation_date),
