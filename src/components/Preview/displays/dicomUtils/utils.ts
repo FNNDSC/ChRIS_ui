@@ -184,7 +184,7 @@ export const basicInit = async () => {
   initProviders();
   initializeCornerstoneForDicoms();
   // The "init" calls for core + tools
-  csInitCore();
+  await csInitCore();
   csToolsInit();
 };
 
