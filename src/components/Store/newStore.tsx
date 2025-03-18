@@ -168,7 +168,6 @@ const NewStore: FC = () => {
       }
     }
   }, [
-    isLoggedIn,
     isStaff,
     selectedPlugins,
     aggregatedPlugins,

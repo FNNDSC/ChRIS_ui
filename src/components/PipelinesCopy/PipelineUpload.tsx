@@ -37,8 +37,7 @@ const PipelineUpload = ({
       type: "info",
       description: `Installing plugin: ${name} version: ${version}`,
     });
-    const storeUrl =
-      cookies.get("configure_url") || import.meta.env.VITE_CHRIS_STORE_URL;
+    const storeUrl = import.meta.env.VITE_CHRIS_STORE_URL;
     if (!storeUrl) {
       throw new Error("Failed to connect to a remote store");
     }
