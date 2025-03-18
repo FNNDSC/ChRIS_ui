@@ -44,61 +44,40 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
     actionState,
   } = props;
 
-  // DOM element refs and Cornerstone references
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<HTMLDivElement>(null);
   const renderingEngineRef = useRef<RenderingEngine | null>(null);
   const activeViewportRef = useRef<StackViewport | null>(null);
 
-  // State for progress, index, loaded image IDs, etc.
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageStack, setImageStack] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [singleFrame, setSingleFrame] = useState(false);
 
-  // For auto-resizing
   const size = useSize(dicomImageRef);
   const fname = selectedFile.data.fname;
 
-  /***************************************************
-   * Resizing logic
-   ***************************************************/
   const handleResize = useCallback(() => {
     if (!dicomImageRef.current || !elementRef.current || !size) return;
     const { width, height } = size;
     elementRef.current.style.width = `${width}px`;
     elementRef.current.style.height = `${height}px`;
-
-    // Force re-layout in Cornerstone
     renderingEngineRef.current?.resize(true, true);
     activeViewportRef.current?.resize();
   }, [size]);
 
   useEffect(() => {
     window.addEventListener("resize", handleResize);
-    handleResize(); // initial
+    handleResize();
     return () => window.removeEventListener("resize", handleResize);
   }, [handleResize]);
 
-  /***************************************************
-   * Cornerstone initialization
-   ***************************************************/
   const setupCornerstone = useCallback(async () => {
-    try {
-      await basicInit();
-      setUpTooling(TOOL_KEY);
-    } catch (error: any) {
-      notification.error({
-        message: "Cornerstone Initialization Error",
-        description: error?.message || String(error),
-      });
-    }
+    await basicInit();
+    setUpTooling(TOOL_KEY);
   }, []);
 
-  /***************************************************
-   * Download a DICOM file as a Blob
-   ***************************************************/
   const downloadDicomFile = useCallback(
     async (url: string, token: string, showProgress: boolean) => {
       try {
@@ -113,7 +92,7 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
             setDownloadProgress(percentCompleted);
           },
         });
-        return response.data; // Blob
+        return response.data;
       } catch (error: any) {
         notification.error({
           message: "Download DICOM Error",
@@ -125,21 +104,16 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
     [],
   );
 
-  /***************************************************
-   * Render images in the Cornerstone element
-   ***************************************************/
   const renderImagesOnElement = useCallback(
     async (imageIDs: string[]) => {
       if (!elementRef.current) return;
       const elementId = `cornerstone-element-${fname}`;
-
       try {
         const { viewport, renderingEngine } = await displayDicomImage(
           elementRef.current,
           imageIDs,
           elementId,
         );
-
         setImageStack(imageIDs);
         activeViewportRef.current = viewport;
         renderingEngineRef.current = renderingEngine;
@@ -153,17 +127,12 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
     [fname],
   );
 
-  /***************************************************
-   * Display the initially selected file
-   ***************************************************/
   const displayPreviewFile = useCallback(async () => {
     if (!elementRef.current) return;
     try {
       const url = stupidlyGetFileResourceUrl(selectedFile);
       const blob = await downloadDicomFile(url, selectedFile.auth.token, true);
       const { framesCount, imageID } = await loadDicomImage(blob);
-
-      // Single or multi-frame
       const framesList =
         framesCount > 1
           ? Array.from(
@@ -171,48 +140,45 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
               (_, i) => `${imageID}#frame=${i + 1}`,
             )
           : imageID;
-
       const imageIDs = Array.isArray(framesList) ? framesList : [framesList];
       setSingleFrame(imageIDs.length === 1);
-
       await renderImagesOnElement(imageIDs);
     } catch (error: any) {
       notification.error({
-        message: "Display File Error",
+        message: "Display Preview File Error",
         description: error?.message || String(error),
       });
     }
   }, [selectedFile, downloadDicomFile, renderImagesOnElement]);
 
-  /***************************************************
-   * Mount effect: initialize Cornerstone + preview file
-   ***************************************************/
   useEffect(() => {
-    setupCornerstone().catch((error) => {
-      notification.error({
-        message: "Setup Cornerstone Error",
-        description: error?.message || String(error),
-      });
-    });
-    displayPreviewFile().catch((error) => {
-      notification.error({
-        message: "Display Preview File Error",
-        description: error?.message || String(error),
-      });
-    });
+    const initialize = async () => {
+      try {
+        await setupCornerstone();
+      } catch (error: any) {
+        notification.error({
+          message: "Setup Cornerstone Error",
+          description: error?.message || String(error),
+        });
+        return;
+      }
+      try {
+        await displayPreviewFile();
+      } catch (error: any) {
+        notification.error({
+          message: "Display Preview File Error",
+          description: error?.message || String(error),
+        });
+      }
+    };
+    initialize();
   }, [setupCornerstone, displayPreviewFile]);
 
-  /***************************************************
-   * Tooling activation & responding to actionState
-   ***************************************************/
   useEffect(() => {
     const viewport = activeViewportRef.current;
-    if (!viewport) return;
-
+    if (!viewport || !actionState) return;
     try {
-      if (actionState) {
-        handleEvents(actionState, viewport);
-      }
+      handleEvents(actionState, viewport);
     } catch (error: any) {
       notification.error({
         message: "Tooling Activation Error",
@@ -221,9 +187,6 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
     }
   }, [actionState]);
 
-  /***************************************************
-   * Track current image index on IMAGE_RENDERED
-   ***************************************************/
   const handleImageRendered = useCallback(() => {
     try {
       const viewport = activeViewportRef.current;
@@ -241,37 +204,27 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
   useEffect(() => {
     const elem = elementRef.current;
     if (!elem) return;
-
     elem.addEventListener(events.IMAGE_RENDERED, handleImageRendered);
     return () => {
       elem.removeEventListener(events.IMAGE_RENDERED, handleImageRendered);
     };
   }, [handleImageRendered]);
 
-  /***************************************************
-   * Filter .dcm files
-   ***************************************************/
   const filteredList = useMemo(
     () =>
       list?.filter((file) => getFileExtension(file.data.fname) === "dcm") || [],
     [list],
   );
 
-  /***************************************************
-   * Load more single-frame images into the stack
-   ***************************************************/
   const loadMoreImages = useCallback(async () => {
     if (!elementRef.current || loading) return;
     setLoading(true);
-
     try {
       const newIDs: string[] = [];
       for (const file of filteredList) {
         const url = stupidlyGetFileResourceUrl(file);
         const blob = await downloadDicomFile(url, file.auth.token, false);
         const { framesCount, imageID } = await loadDicomImage(blob);
-
-        // If multi-frame, show info & stop
         if (framesCount > 1) {
           setSingleFrame(false);
           message.info("Multiframe dicom found. Click on the image to view");
@@ -279,11 +232,7 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
         }
         newIDs.push(imageID);
       }
-
-      // Replaces the existing stack with newly loaded images
       await renderImagesOnElement(newIDs);
-
-      // If we loaded the entire list, fetch more from parent if needed
       if (newIDs.length === filteredList.length && fetchMore && !filesLoading) {
         message.info({
           content:
@@ -311,16 +260,11 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
     renderImagesOnElement,
   ]);
 
-  /***************************************************
-   * Wheel event: load more images if needed
-   ***************************************************/
   const handleWheelEvent = useCallback(
-    (event: WheelEvent) => {
+    async (event: WheelEvent) => {
       try {
         event.preventDefault();
-
         if (imageStack.length === filteredList.length && !fetchMore) return;
-
         if (singleFrame || imageStack.length <= filteredList.length) {
           if (imageStack.length === 1) {
             message.info({
@@ -330,12 +274,7 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
               duration: 3,
             });
           }
-          loadMoreImages().catch((error) => {
-            notification.error({
-              message: "Load More Images on Wheel Error",
-              description: error?.message || String(error),
-            });
-          });
+          await loadMoreImages();
         }
       } catch (error: any) {
         notification.error({
@@ -349,15 +288,16 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
 
   useEffect(() => {
     const elem = elementRef.current;
-    elem?.addEventListener("wheel", handleWheelEvent);
+    if (!elem) return;
+    const wheelListener = (e: WheelEvent) => {
+      handleWheelEvent(e);
+    };
+    elem.addEventListener("wheel", wheelListener);
     return () => {
-      elem?.removeEventListener("wheel", handleWheelEvent);
+      elem.removeEventListener("wheel", wheelListener);
     };
   }, [handleWheelEvent]);
 
-  /***************************************************
-   * Cine playback logic (play/stop)
-   ***************************************************/
   const startCinePlay = useCallback(() => {
     try {
       if (!elementRef.current) {
@@ -390,49 +330,40 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
     }
   }, []);
 
-  /***************************************************
-   * Handle "Play" states from actionState
-   ***************************************************/
   useEffect(() => {
-    try {
-      const isPlaying = actionState.Play === true;
-
-      if (isPlaying) {
-        // If we already have the entire stack or no more to fetch, just play
-        if (
-          !singleFrame ||
-          (imageStack.length === filteredList.length && !fetchMore)
-        ) {
-          startCinePlay();
-          return;
-        }
-        // Otherwise, if singleFrame or partial, load more
-        if (singleFrame || imageStack.length <= filteredList.length) {
-          if (imageStack.length === 1) {
-            message.info({
-              content:
-                "Please wait for all the images to be loaded into the stack for scrolling.",
-              key: MESSAGE_KEY,
-              duration: 3,
-            });
+    const handlePlayState = async () => {
+      try {
+        const isPlaying = actionState.Play === true;
+        if (isPlaying) {
+          if (
+            !singleFrame ||
+            (imageStack.length === filteredList.length && !fetchMore)
+          ) {
+            startCinePlay();
+            return;
           }
-          loadMoreImages().catch((error) => {
-            notification.error({
-              message: "Load More Images on Play Error",
-              description: error?.message || String(error),
-            });
-          });
+          if (singleFrame || imageStack.length <= filteredList.length) {
+            if (imageStack.length === 1) {
+              message.info({
+                content:
+                  "Please wait for all the images to be loaded into the stack for scrolling.",
+                key: MESSAGE_KEY,
+                duration: 3,
+              });
+            }
+            await loadMoreImages();
+          }
+        } else {
+          stopCinePlay();
         }
-      } else {
-        // Not playing
-        stopCinePlay();
+      } catch (error: any) {
+        notification.error({
+          message: "Play State Error",
+          description: error?.message || String(error),
+        });
       }
-    } catch (error: any) {
-      notification.error({
-        message: "Play State Error",
-        description: error?.message || String(error),
-      });
-    }
+    };
+    handlePlayState();
   }, [
     actionState.Play,
     singleFrame,
@@ -444,27 +375,18 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
     loadMoreImages,
   ]);
 
-  /***************************************************
-   * Cleanup
-   ***************************************************/
   useEffect(() => {
     return () => {
-      // Destroy the Cornerstone engine
       renderingEngineRef.current?.destroy();
       setImageStack([]);
-      // Remove rendered event listener
       elementRef.current?.removeEventListener(
         events.IMAGE_RENDERED,
         handleImageRendered,
       );
-      // Stop any ongoing clip
       stopCinePlay();
     };
   }, [handleImageRendered, stopCinePlay]);
 
-  /***************************************************
-   * UI: progress bar, indexes, etc.
-   ***************************************************/
   const showProgress = downloadProgress > 0 && downloadProgress < 100;
   const imageCount = imageStack.length;
   const totalDigits = imageCount.toString().length;
@@ -479,10 +401,7 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
       ref={dicomImageRef}
       className={preview === "large" ? "dcm-preview" : ""}
     >
-      {/* Download progress bar */}
       {showProgress && <Progress percent={downloadProgress} />}
-
-      {/* Overlay Controls */}
       <div
         style={{
           position: "absolute",
@@ -505,8 +424,6 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
           </div>
         )}
       </div>
-
-      {/* Cornerstone Element */}
       <div
         id={`cornerstone-element-${fname}`}
         ref={elementRef}
