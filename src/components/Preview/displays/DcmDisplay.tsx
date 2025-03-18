@@ -118,6 +118,7 @@ const DcmDisplayCopy = (props: DcmImageProps) => {
         activeViewportRef.current = viewport;
         renderingEngineRef.current = renderingEngine;
       } catch (error: any) {
+        console.log("Error", error);
         notification.error({
           message: "Render Image Error",
           description: error?.message || String(error),
