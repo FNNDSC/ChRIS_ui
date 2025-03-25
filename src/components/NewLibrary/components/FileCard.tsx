@@ -319,14 +319,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
         isOpen={preview}
         onClose={() => setIsPreview(false)}
       >
-        <FileDetailView
-          selectedFile={file}
-          preview="large"
-          list={list}
-          fetchMore={fetchMore}
-          handlePagination={handlePagination}
-          filesLoading={filesLoading}
-        />
+        <FileDetailView selectedFile={file} preview="large" />
       </Modal>
     </>
   );

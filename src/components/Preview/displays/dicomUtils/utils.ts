@@ -142,7 +142,7 @@ export const handleEvents = (
   const activeTool = Object.keys(actionState)[0];
   const previousTool = actionState.previouslyActive as string;
   const id = toolGroup?.id;
-  if (activeTool === "TagInfo" || activeTool === "Play") return;
+
   if (id) {
     toolGroup?.setToolPassive(previousTool);
     if (activeTool === "Reset") {
@@ -239,8 +239,11 @@ export const displayDicomImage = async (
       viewport,
       renderingEngine,
     };
-  } catch (e) {
-    throw new Error(e as string);
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
+    throw new Error("Failed to render");
   }
 };
 

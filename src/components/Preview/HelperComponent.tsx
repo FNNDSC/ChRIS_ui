@@ -85,7 +85,7 @@ export const TagInfoModal = ({
         placement="right"
         onClose={() => handleModalToggle("TagInfo", !isModalOpen)}
         open={isModalOpen}
-        width={720} // You can adjust this value as needed
+        width={720}
       >
         {content}
       </Drawer>
