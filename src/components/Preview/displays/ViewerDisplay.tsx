@@ -1,7 +1,5 @@
 import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
 import type * as React from "react";
-import type { IFileBlob } from "../../../api/model";
-import type { ActionState } from "../FileDetailView";
 import {
   CatchallDisplay,
   DcmDisplay,
@@ -29,14 +27,9 @@ const components = {
 };
 
 interface ViewerDisplayProps {
+  selectedFile: FileBrowserFolderFile | PACSFile;
   viewerName: string;
   preview?: string;
-  actionState: ActionState;
-  selectedFile: FileBrowserFolderFile | PACSFile;
-  list?: IFileBlob[];
-  fetchMore?: boolean;
-  handlePagination?: () => void;
-  filesLoading?: boolean;
 }
 
 const ViewerDisplay: React.FC<ViewerDisplayProps> = (
