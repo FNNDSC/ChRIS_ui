@@ -6,7 +6,7 @@ import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlic
 import { SpinContainer } from "../Common";
 import FeedTree from "./FeedTree";
 import type { TreeNodeDatum } from "./data";
-import type { PaginatedTreeQueryReturn } from "./usePaginatedTreeQuery";
+import type { PaginatedTreeQueryReturn } from "../Feeds/usePaginatedTreeQuery";
 import type { Feed } from "@fnndsc/chrisapi";
 
 interface ParentComponentProps {

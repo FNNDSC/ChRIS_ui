@@ -12,7 +12,7 @@ import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
 import { SpinContainer } from "../Common";
 import useSize from "./useSize";
-import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
+import usePaginatedTreeQuery from "../Feeds/usePaginatedTreeQuery";
 import type { Feed } from "@fnndsc/chrisapi";
 
 interface IFeedProps {

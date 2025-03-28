@@ -89,7 +89,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     filesMap?.length === 0 &&
     subFoldersMap?.length === 0 &&
     linkFilesMap?.length === 0;
-  // Example: Add up all valid totalCounts (ignore -1)
   const linkCount =
     linksPagination?.totalCount && linksPagination.totalCount !== -1
       ? linksPagination.totalCount
@@ -102,7 +101,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     filesPagination?.totalCount && filesPagination.totalCount !== -1
       ? filesPagination.totalCount
       : 0;
-  // Combined total
   const totalResources = linkCount + folderCount + fileCount;
 
   useEffect(() => {
@@ -120,7 +118,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     if (isError) {
       api.error({
         message: "Download Error",
-        //@ts-ignore
         description: downloadError.message,
       });
     }
@@ -139,12 +136,10 @@ const FileBrowser = (props: FileBrowserProps) => {
       }
     };
 
-    // This is somewhat tricky. do not allow the user to click paths before the selected plugin.
     const disabledIndex = breadcrumb.findIndex(
       (path) => path === `${selected.data.plugin_name}_${selected.data.id}`,
     );
-    // If this selected plugin is of the type fs, assume that this is the first node of the tree and could have link files. All the paths
-    // that the user navigates to should not be clickable
+
     const shouldNotClick =
       (disabledIndex > 1 && index <= disabledIndex) ||
       selected.data.plugin_type === "fs";
@@ -181,7 +176,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     <Grid hasGutter className="file-browser">
       {contextHolder}
       <PanelGroup autoSaveId="conditional" direction="horizontal">
-        {/* Left Panel: File Browser */}
         {drawerState.files.open && (
           <>
             <Panel
@@ -192,7 +186,6 @@ const FileBrowser = (props: FileBrowserProps) => {
               minSize={20}
               style={{ display: "flex", flexDirection: "column" }}
             >
-              {/* Drawer Action Button for Files */}
               <DrawerActionButton
                 content="Files"
                 handleMaximize={() => {
@@ -205,7 +198,6 @@ const FileBrowser = (props: FileBrowserProps) => {
               />
 
               <>
-                {/* Sticky Container */}
                 <div className="sticky-container">
                   <Operations
                     customClassName={{
@@ -227,7 +219,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                         {breadcrumb.map(generateBreadcrumb)}
                       </Breadcrumb>
                     </div>
-                    {/* Optional Back Button */}
                     <div>
                       {additionalKey !== currentPath &&
                         selected.data.plugin_type === "fs" && (
@@ -249,7 +240,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                     </div>
                   </div>
                 </div>
-                {/* Scrollable Content */}
 
                 <div style={{ flex: 1, overflow: "auto" }}>
                   <Table
@@ -268,7 +258,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                         <Th aria-label="file-creator" width={20}>
                           {columnNames.created}
                         </Th>
-
                         <Th aria-label="file-size" width={20}>
                           {columnNames.size}
                         </Th>
@@ -343,13 +332,11 @@ const FileBrowser = (props: FileBrowserProps) => {
                       )}
                     </Tbody>
                   </Table>
-                  {/* Load More Button */}
                   {fetchMore && !isLoading && (
                     <Button onClick={handlePagination} variant="link">
                       Load more data...
                     </Button>
                   )}
-                  {/* Observer Target */}
                   <div
                     style={{ height: "1px", marginTop: "10px" }}
                     ref={observerTarget}
@@ -357,15 +344,11 @@ const FileBrowser = (props: FileBrowserProps) => {
                 </div>
               </>
             </Panel>
-            {/* Resize Handle */}
             <PanelResizeHandle className="ResizeHandle" />
           </>
         )}
-
-        {/* Right Panel: Preview Panel */}
         {drawerState.preview.open && (
           <Panel order={2} id="5" defaultSize={47} minSize={20}>
-            {/* Drawer Action Button for Preview */}
             <DrawerActionButton
               content="Preview"
               handleMaximize={() => {
@@ -379,15 +362,7 @@ const FileBrowser = (props: FileBrowserProps) => {
 
             {drawerState.preview.currentlyActive === "preview" &&
               selectedFile && (
-                <FileDetailView
-                  gallery={true}
-                  selectedFile={selectedFile}
-                  preview="large"
-                  list={filesMap}
-                  fetchMore={fetchMore}
-                  handlePagination={handlePagination}
-                  filesLoading={isLoading}
-                />
+                <FileDetailView selectedFile={selectedFile} preview="large" />
               )}
             {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
           </Panel>
@@ -402,12 +377,7 @@ export default FileBrowser;
 const renderSkeletonRows = () => (
   <>
     {Array.from({ length: 5 }).map((_, index) => (
-      <Tr
-        key={`skeleton-row-${
-          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-          index
-        }`}
-      >
+      <Tr key={`skeleton-row-${index}`}>
         <Th>
           <Skeleton width="20px" />
         </Th>

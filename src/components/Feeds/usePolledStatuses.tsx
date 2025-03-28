@@ -6,9 +6,9 @@ export function usePollAllPluginStatuses(
   pluginInstances: PluginInstance[],
   totalCount: number,
 ) {
+  console.log("Plugin instances", pluginInstances, totalCount);
   const [statuses, setStatuses] = React.useState<{ [id: number]: string }>({});
 
-  // Flag to indicate whether polling should start.
   const shouldStartPolling = React.useMemo(
     () => pluginInstances.length === totalCount,
     [pluginInstances.length, totalCount],
@@ -16,7 +16,6 @@ export function usePollAllPluginStatuses(
 
   const incompletePlugins = React.useMemo(() => {
     return pluginInstances.filter((inst) => {
-      // If we already have a status in statuses, use that, otherwise use the plugin's own status.
       const knownStatus = statuses[inst.data.id] || inst.data.status;
       return !isTerminalStatus(knownStatus);
     });
@@ -36,13 +35,10 @@ export function usePollAllPluginStatuses(
           }));
           return latestStatus;
         },
-        // Only enable polling if we have the correct number of instances AND there's something incomplete
         enabled: shouldStartPolling && incompletePlugins.length > 0,
         refetchInterval: (result: { state?: { data?: string } }) => {
           const latestStatus = result?.state?.data;
-          // If it transitions to a terminal state, stop polling
           if (isTerminalStatus(latestStatus)) return false;
-          // otherwise poll every 7s
           return 7000;
         },
       };
