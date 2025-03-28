@@ -14,7 +14,7 @@ import {
   getSelectedPlugin,
   resetSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
-import usePaginatedTreeQuery from "../FeedTree/usePaginatedTreeQuery";
+import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";

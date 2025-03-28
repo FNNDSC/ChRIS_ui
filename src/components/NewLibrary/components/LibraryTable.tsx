@@ -88,19 +88,11 @@ export const BaseRow: React.FC<RowProps> = ({
   handleFileClick,
   origin,
 }) => {
-  // 1) Use your custom hook
   const { handlers } = useLongPress();
-  const { handleOnClick } = handlers; // We won't do selection in handleOnClick anymore
-  // For the checkbox selection we have handleCheckboxChange, but let's do our own <input> below
-
-  // 2) Redux + theming
+  const { handleOnClick } = handlers;
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { isDarkTheme } = useContext(ThemeContext);
-
-  // 3) "New resource" highlighting
   const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
-
-  // 4) Check if item is selected
   const isSelected = selectedPaths.some((payload) => {
     if (type === "folder" || type === "link") {
       return payload.path === resource.data.path;
@@ -110,18 +102,13 @@ export const BaseRow: React.FC<RowProps> = ({
     }
     return false;
   });
-
-  // 5) Decide background color, icon, path
   const shouldHighlight = isNewResource || isSelected;
   const highlightedBgRow = getBackgroundRowColor(shouldHighlight, isDarkTheme);
   const icon = getIcon(type, isDarkTheme, { marginRight: "0.5em" });
-
   const path =
     type === "folder" || type === "link"
       ? resource.data.path
       : resource.data.fname;
-
-  // 6) Row click => open item (no select/deselect logic here)
   const handleItem = () => {
     if (type === "folder") {
       handleFolderClick();
@@ -129,60 +116,46 @@ export const BaseRow: React.FC<RowProps> = ({
       handleFileClick();
     }
   };
-
-  // 7) Render
   return (
     <FolderContextMenu origin={origin} key={path} computedPath={computedPath}>
       <Tr
         ref={scrollToNewResource}
-        // Remove isSelectable={true}, so PatternFly's built-in row select doesn't conflict
         style={{ background: highlightedBgRow, cursor: "pointer" }}
-        // Row onClick is for *opening*, not selection
         onClick={(e) => {
           e.stopPropagation();
-          // handle single/double click logic inside handleOnClick
           handleOnClick(e, resource, path, type, () => {
-            // On double-click, open item
             handleItem();
           });
         }}
-        // For context menu events
         onContextMenu={(e) => {
           handleOnClick(e, resource, path, type);
         }}
       >
-        {/* 1) Custom checkbox in first column */}
         <Td className="pf-v5-c-table__check">
           <input
             type="checkbox"
             checked={isSelected}
             onClick={(event) => {
-              // Stop row <Tr> from seeing the same click
               event.stopPropagation();
               event.nativeEvent.stopImmediatePropagation();
             }}
-            // For toggling selection, call your own handleCheckboxChange
             onChange={(event) => {
               handlers.handleCheckboxChange(event, path, resource, type);
             }}
           />
         </Td>
-
-        {/* 2) Name Column */}
         <Td dataLabel={columnNames.name} modifier="nowrap">
           <div style={{ display: "flex", alignItems: "center" }}>
-            {/* Icon */}
             {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
             <div
               onClick={(e) => {
-                e.stopPropagation(); // so row click doesn't also fire
+                e.stopPropagation();
                 handleItem();
               }}
               style={{ cursor: "pointer", color: "#1fa7f8" }}
             >
               {icon}
             </div>
-            {/* Filename/folder name */}
             <TableText
               wrapModifier="truncate"
               tooltip={name}
@@ -205,8 +178,6 @@ export const BaseRow: React.FC<RowProps> = ({
             </TableText>
           </div>
         </Td>
-
-        {/* 3) Date Column */}
         <Td dataLabel={columnNames.date} modifier="nowrap">
           <TableText
             wrapModifier="truncate"
@@ -215,8 +186,6 @@ export const BaseRow: React.FC<RowProps> = ({
             {format(new Date(date), "dd MMM yyyy, HH:mm")}
           </TableText>
         </Td>
-
-        {/* 4) Owner Column (if applicable) */}
         {origin.type !== "fileBrowser" && (
           <Td dataLabel={columnNames.owner} modifier="nowrap">
             <TableText wrapModifier="truncate" tooltip={owner}>
@@ -224,8 +193,6 @@ export const BaseRow: React.FC<RowProps> = ({
             </TableText>
           </Td>
         )}
-
-        {/* 5) Size Column */}
         <Td dataLabel={columnNames.size} modifier="nowrap">
           <TableText>{size > 0 ? formatBytes(size, 0) : " "}</TableText>
         </Td>
@@ -236,7 +203,6 @@ export const BaseRow: React.FC<RowProps> = ({
 
 export const FolderRow: React.FC<Omit<RowProps, "type">> = (props) => {
   const { data, isLoading } = useAssociatedFeed(props.name);
-
   if (isLoading) {
     return (
       <Tr>
@@ -246,14 +212,7 @@ export const FolderRow: React.FC<Omit<RowProps, "type">> = (props) => {
       </Tr>
     );
   }
-
-  return (
-    <BaseRow
-      {...props}
-      name={data ? data : props.name} // Example of adding feed info to the row name
-      type="folder"
-    />
-  );
+  return <BaseRow {...props} name={data ? data : props.name} type="folder" />;
 };
 
 export const FileRow: React.FC<Omit<RowProps, "type">> = (props) => (
@@ -268,9 +227,6 @@ const LibraryTable: React.FC<TableProps> = ({
   data,
   computedPath,
   handleFolderClick,
-  fetchMore,
-  handlePagination,
-  filesLoading,
 }) => {
   const navigate = useNavigate();
   const [preview, setShowPreview] = useState(false);
@@ -279,17 +235,14 @@ const LibraryTable: React.FC<TableProps> = ({
     index: 0,
     direction: "asc",
   });
-
   const handleFileClick = (file: FileBrowserFolderFile) => {
     setSelectedFile(file);
     setShowPreview(true);
   };
-
   const onSort: OnSort = (_event, columnIndex, sortByDirection) => {
     setSortBy({ index: columnIndex, direction: sortByDirection });
     return sortRows(columnIndex, sortByDirection);
   };
-
   const sortRows = (index: number, direction: SortByDirection) => {
     const sortedData = { ...data };
     if (index === 1) {
@@ -327,12 +280,10 @@ const LibraryTable: React.FC<TableProps> = ({
       });
     }
   };
-
   const origin = {
     type: OperationContext.LIBRARY,
     additionalKeys: [computedPath],
   };
-
   return (
     <React.Fragment>
       <Drawer
@@ -349,6 +300,7 @@ const LibraryTable: React.FC<TableProps> = ({
           <FileDetailView selectedFile={selectedFile} preview="large" />
         )}
       </Drawer>
+
       <Table
         className="library-table"
         variant="compact"
@@ -402,7 +354,6 @@ const LibraryTable: React.FC<TableProps> = ({
               origin={origin}
             />
           ))}
-
           {data.files.map((resource: FileBrowserFolderFile, index) => (
             <FileRow
               rowIndex={index}
