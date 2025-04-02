@@ -6,7 +6,6 @@ export function usePollAllPluginStatuses(
   pluginInstances: PluginInstance[],
   totalCount: number,
 ) {
-  console.log("Plugin instances", pluginInstances, totalCount);
   const [statuses, setStatuses] = React.useState<{ [id: number]: string }>({});
 
   const shouldStartPolling = React.useMemo(
