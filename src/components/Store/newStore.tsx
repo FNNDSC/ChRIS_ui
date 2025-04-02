@@ -27,7 +27,7 @@ const LOCAL_CUBE_URL = import.meta.env.VITE_CHRIS_UI_URL || "";
 
 const NewStore: FC = () => {
   const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
-  const [selectedEnv, setSelectedEnv] = useState("PUBLIC CHRIS");
+  const [selectedEnv, setSelectedEnv] = useState("PUBLIC ChRIS");
   const [searchTerm, setSearchTerm] = useState("");
   const [searchField, setSearchField] = useState<
     "name" | "authors" | "category"
