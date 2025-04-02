@@ -18,7 +18,9 @@ import { usePluginInstallManager } from "./utils/usePluginManager";
 import type { Plugin } from "./utils/types";
 
 const envOptions: Record<string, string> = {
-  "PUBLIC CHRIS": "https://cube.chrisproject.org/api/v1/plugins",
+  "PUBLIC ChRIS": "https://cube.chrisproject.org/api/v1/plugins",
+  "NEW ChRIS": "http://chris.tch.harvard.edu:3223/api/v1/plugins",
+  "STABLE ChRIS": "http://rc-live.tch.harvard.edu:32222/api/v1/plugins",
 };
 
 const LOCAL_CUBE_URL = import.meta.env.VITE_CHRIS_UI_URL || "";
