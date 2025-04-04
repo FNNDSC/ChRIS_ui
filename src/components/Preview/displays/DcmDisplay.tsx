@@ -28,6 +28,7 @@ import {
   loadDicomImage,
   setUpTooling,
 } from "./dicomUtils/utils";
+import { SpinContainer } from "../../Common";
 
 const TOOL_KEY = "cornerstone-display";
 
@@ -51,6 +52,7 @@ export default function DcmDisplay(props: DcmImageProps) {
   const [tagInfo, setTagInfo] = useState<any>(null);
   const [parsingError, setParsingError] = useState("");
   const [previouslyActive, setPreviouslyActive] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const size = useSize(dicomImageRef);
   const fname = selectedFile.data.fname;
 
@@ -155,6 +157,7 @@ export default function DcmDisplay(props: DcmImageProps) {
     const blob = await selectedFile.getFileBlob();
     setDicomBlob(blob);
     try {
+      setIsLoading(true);
       const { framesCount, imageID } = await loadDicomImage(blob);
       const framesList =
         framesCount > 1
@@ -167,6 +170,8 @@ export default function DcmDisplay(props: DcmImageProps) {
       await renderImagesOnElement(imageIDs);
     } catch (err: any) {
       setError(err?.message || "Unknown error in displayPreviewFile");
+    } finally {
+      setIsLoading(false);
     }
   }, [selectedFile, renderImagesOnElement]);
 
@@ -193,10 +198,13 @@ export default function DcmDisplay(props: DcmImageProps) {
 
   const initialize = useCallback(async () => {
     try {
+      setIsLoading(true);
       await setupCornerstone();
       await displayPreviewFile();
     } catch (err: any) {
       setError(err?.message || "Unknown error during DICOM initialization");
+    } finally {
+      setIsLoading(false);
     }
   }, [setupCornerstone, displayPreviewFile]);
 
@@ -280,6 +288,8 @@ export default function DcmDisplay(props: DcmImageProps) {
         })}
       </Toolbar>
 
+      {isLoading && <SpinContainer title="Fetching..." />}
+
       <div
         ref={elementRef}
         id={`cornerstone-element-${fname}`}
@@ -289,6 +299,7 @@ export default function DcmDisplay(props: DcmImageProps) {
           position: "relative",
         }}
       />
+
       {error && (
         <div
           style={{
