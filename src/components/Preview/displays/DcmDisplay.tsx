@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   AlertActionCloseButton,
@@ -7,19 +6,11 @@ import {
   ToolbarItem,
   Tooltip,
 } from "@patternfly/react-core";
-import { Progress } from "antd";
-import axios, { type AxiosRequestConfig, type AxiosProgressEvent } from "axios";
+import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
 import * as dcmjs from "dcmjs";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { IFileBlob } from "../../../api/model";
 import useSize from "../../FeedTree/useSize";
-import {
-  basicInit,
-  displayDicomImage,
-  loadDicomImage,
-  handleEvents,
-  setUpTooling,
-  getFileResourceUrl,
-} from "./dicomUtils/utils";
-import { TagInfoModal } from "../HelperComponent";
 import {
   AddIcon,
   BrightnessIcon,
@@ -29,8 +20,14 @@ import {
   SearchIcon,
   ZoomIcon,
 } from "../../Icons";
-import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
-import type { IFileBlob } from "../../../api/model";
+import { TagInfoModal } from "../HelperComponent";
+import {
+  basicInit,
+  displayDicomImage,
+  handleEvents,
+  loadDicomImage,
+  setUpTooling,
+} from "./dicomUtils/utils";
 
 const TOOL_KEY = "cornerstone-display";
 
@@ -47,18 +44,13 @@ export default function DcmDisplay(props: DcmImageProps) {
   const { selectedFile, preview } = props;
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<HTMLDivElement>(null);
-
-  // Keep a reference to the rendering engine and viewport so we can destroy them on file change
   const renderingEngineRef = useRef<any>(null);
   const activeViewportRef = useRef<any>(null);
-
-  const [downloadProgress, setDownloadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [dicomBlob, setDicomBlob] = useState<Blob | null>(null);
   const [tagInfo, setTagInfo] = useState<any>(null);
   const [parsingError, setParsingError] = useState("");
   const [previouslyActive, setPreviouslyActive] = useState<string>("");
-
   const size = useSize(dicomImageRef);
   const fname = selectedFile.data.fname;
 
@@ -143,24 +135,6 @@ export default function DcmDisplay(props: DcmImageProps) {
     setUpTooling(TOOL_KEY);
   }, []);
 
-  const downloadDicomFile = useCallback(async (url: string, token: string) => {
-    const config: AxiosRequestConfig = {
-      responseType: "blob",
-      onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
-        if (!progressEvent.total) return;
-        const percent = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total,
-        );
-        setDownloadProgress(percent);
-      },
-    };
-    if (token) {
-      config.headers = { Authorization: `Token ${token}` };
-    }
-    const response = await axios.get(url, config);
-    return response.data;
-  }, []);
-
   const renderImagesOnElement = useCallback(
     async (imageIDs: string[]) => {
       if (!elementRef.current) return;
@@ -178,21 +152,23 @@ export default function DcmDisplay(props: DcmImageProps) {
 
   const displayPreviewFile = useCallback(async () => {
     if (!elementRef.current) return;
-    const url = getFileResourceUrl(selectedFile);
-    const token = selectedFile.auth?.token || "";
-    const blob = await downloadDicomFile(url, token);
+    const blob = await selectedFile.getFileBlob();
     setDicomBlob(blob);
-    const { framesCount, imageID } = await loadDicomImage(blob);
-    const framesList =
-      framesCount > 1
-        ? Array.from(
-            { length: framesCount },
-            (_, i) => `${imageID}#frame=${i + 1}`,
-          )
-        : imageID;
-    const imageIDs = Array.isArray(framesList) ? framesList : [framesList];
-    await renderImagesOnElement(imageIDs);
-  }, [selectedFile, downloadDicomFile, renderImagesOnElement]);
+    try {
+      const { framesCount, imageID } = await loadDicomImage(blob);
+      const framesList =
+        framesCount > 1
+          ? Array.from(
+              { length: framesCount },
+              (_, i) => `${imageID}#frame=${i + 1}`,
+            )
+          : imageID;
+      const imageIDs = Array.isArray(framesList) ? framesList : [framesList];
+      await renderImagesOnElement(imageIDs);
+    } catch (err: any) {
+      setError(err?.message || "Unknown error in displayPreviewFile");
+    }
+  }, [selectedFile, renderImagesOnElement]);
 
   const parseDicomTags = useCallback(async () => {
     if (!dicomBlob) return;
@@ -276,7 +252,6 @@ export default function DcmDisplay(props: DcmImageProps) {
     }
   }, [toolState, parseDicomTags, previouslyActive]);
 
-  const showProgress = downloadProgress > 0 && downloadProgress < 100;
   const isTagModalOpen = toolState.TagInfo && tagInfo;
 
   return (
@@ -304,7 +279,7 @@ export default function DcmDisplay(props: DcmImageProps) {
           );
         })}
       </Toolbar>
-      {showProgress && <Progress percent={downloadProgress} />}
+
       <div
         ref={elementRef}
         id={`cornerstone-element-${fname}`}
