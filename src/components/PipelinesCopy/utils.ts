@@ -90,7 +90,6 @@ export const handleInstallPlugin = async (
   pluginToInstall: Plugin,
   computeResource: ComputeResource[],
 ) => {
-  // Construct the chris-admin URL from your environment variable
   const adminURL = import.meta.env.VITE_CHRIS_UI_URL.replace(
     "/api/v1/",
     "/chris-admin/api/v1/",
