@@ -24,7 +24,6 @@ export function useComputeResources(isLoggedIn?: boolean) {
 
   useEffect(() => {
     if (isError && error) {
-      // antd notification
       notification.error({
         message: "Failed to fetch compute resources",
         description: error.message,

@@ -1,6 +1,6 @@
 // Store.tsx
 import type React from "react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useCallback } from "react";
 import type { Plugin } from "@fnndsc/chrisapi";
 import {
   Button,
@@ -11,8 +11,10 @@ import {
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
+import { notification } from "antd";
+import { useCookies } from "react-cookie";
 import { useAppSelector } from "../../store/hooks";
-import { SpinContainer } from "../Common";
+import { InfoSection, SpinContainer } from "../Common";
 import Wrapper from "../Wrapper";
 import PluginCard from "./PluginCard";
 import StoreToggle from "./StoreToggle";
@@ -27,19 +29,27 @@ import { useComputeResources } from "./hooks/useFetchCompute";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { handleInstallPlugin } from "../PipelinesCopy/utils";
 import type { ComputeResource } from "@fnndsc/chrisapi";
+import postModifyComputeResource from "./hooks/updateComputeResource";
+import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
 
 const DEFAULT_SEARCH_FIELD = "name";
+const COOKIE_NAME = "storeCreds";
+const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // seconds
 
 const Store: React.FC = () => {
-  const { isStaff } = useAppSelector((state) => state.user);
+  const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
+  const [cookies, setCookie, removeCookie] = useCookies([COOKIE_NAME]);
   const [selectedEnv, setSelectedEnv] = useState<string>("PUBLIC ChRIS");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalError, setModalError] = useState<string | undefined>(undefined);
+  const [modalError, setModalError] = useState<string>();
   const [pending, setPending] = useState<{
-    plugin: StorePlugin;
+    plugin: StorePlugin | Plugin;
     resources: ComputeResource[];
+    isModify: boolean;
   } | null>(null);
+  const [refreshMap, setRefreshMap] = useState<Record<string, number>>({});
+  const [isBulkInstalling, setBulkInstalling] = useState(false);
 
   const {
     data,
@@ -55,59 +65,171 @@ const Store: React.FC = () => {
     DEFAULT_SEARCH_FIELD,
   );
 
-  const { data: computeList } = useComputeResources();
+  const { data: computeList } = useComputeResources(isLoggedIn);
 
-  const rawPlugins: Plugin[] = useMemo(
-    () => data?.pages.flatMap((page) => page.results) || [],
-    [data],
-  );
-
-  const allPlugins: StorePlugin[] = useMemo(
-    () => aggregatePlugins(rawPlugins),
-    [rawPlugins],
-  );
-
-  const handleInstall = (plugin: StorePlugin, resources: ComputeResource[]) => {
-    if (isStaff) {
-      const token = ChrisAPIClient.getClient().auth.token;
-      handleInstallPlugin(
-        `Token ${token}`,
-        { name: plugin.name, version: plugin.version, url: plugin.url },
-        resources,
-      );
-    } else {
-      setPending({ plugin, resources });
+  const getAuthHeaderOrPrompt = useCallback(
+    (
+      plugin: StorePlugin | Plugin,
+      resources: ComputeResource[],
+      isModify: boolean,
+    ): string | null => {
+      if (isStaff) {
+        const token = ChrisAPIClient.getClient().auth.token;
+        return `Token ${token}`;
+      }
+      const cookie = cookies[COOKIE_NAME];
+      if (cookie) {
+        return `Basic ${cookie}`;
+      }
+      setPending({ plugin, resources, isModify });
       setModalError(undefined);
       setModalOpen(true);
+      return null;
+    },
+    [cookies, isStaff],
+  );
+
+  const handleInstall = async (
+    plugin: StorePlugin,
+    resources: ComputeResource[],
+  ) => {
+    const hdr = getAuthHeaderOrPrompt(plugin, resources, false);
+    if (!hdr) return;
+    await handleInstallPlugin(
+      hdr,
+      { name: plugin.name, version: plugin.version, url: plugin.url },
+      resources,
+    );
+  };
+
+  const handleModify = async (plugin: Plugin, resources: ComputeResource[]) => {
+    const hdr = getAuthHeaderOrPrompt(plugin, resources, true);
+    if (!hdr) return;
+    try {
+      await postModifyComputeResource({
+        adminCred: hdr,
+        plugin,
+        newComputeResource: resources,
+      });
+    } catch (err: any) {
+      notification.error({
+        message: "Modification failed",
+        description: err.message || "Modification failed",
+        duration: 3,
+      });
     }
   };
 
   const handleModalConfirm = async (username: string, password: string) => {
     if (!pending) return;
     const creds = btoa(`${username}:${password}`);
+    const hdr = `Basic ${creds}`;
+
     try {
-      await handleInstallPlugin(
-        `Basic ${creds}`,
-        {
-          name: pending.plugin.name,
-          version: pending.plugin.version,
-          url: pending.plugin.url,
-        },
-        pending.resources,
-      );
+      if (pending.isModify) {
+        await postModifyComputeResource({
+          adminCred: hdr,
+          plugin: pending.plugin as Plugin,
+          newComputeResource: pending.resources,
+        });
+      } else {
+        const p = pending.plugin as StorePlugin;
+        await handleInstallPlugin(
+          hdr,
+          { name: p.name, version: p.version, url: p.url },
+          pending.resources,
+        );
+      }
+      setCookie(COOKIE_NAME, creds, { path: "/", maxAge: COOKIE_MAX_AGE });
       setModalOpen(false);
       setPending(null);
       setModalError(undefined);
     } catch (err: any) {
-      setModalError(err.message || "Installation failed");
+      notification.error({
+        message: pending.isModify
+          ? "Modification failed"
+          : "Installation failed",
+        description: err.message || "Operation failed",
+        duration: 3,
+      });
+      setModalError(err.message || "Operation failed");
     }
   };
 
+  const resetCredentials = () => {
+    removeCookie(COOKIE_NAME, { path: "/" });
+    setModalError(undefined);
+    setModalOpen(true);
+  };
+
+  const selectionMapRef = useRef<Record<string, ComputeResource[]>>({});
+  const handleResourcesChange = useCallback(
+    (pluginId: string, resources: ComputeResource[]) => {
+      selectionMapRef.current[pluginId] = resources;
+    },
+    [],
+  );
+
+  const rawPlugins: Plugin[] = useMemo(
+    () => data?.pages.flatMap((page) => page.results) || [],
+    [data],
+  );
+  const allPlugins: StorePlugin[] = useMemo(
+    () => aggregatePlugins(rawPlugins),
+    [rawPlugins],
+  );
+
+  const defaultResource = computeList?.[0];
+  const installAllPlugins = async () => {
+    setBulkInstalling(true);
+    const installs = allPlugins.map(async (plg) => {
+      const sel = selectionMapRef.current[plg.id] || [];
+      const resources = sel.length
+        ? sel
+        : defaultResource
+          ? [defaultResource]
+          : [];
+      try {
+        await handleInstall(plg, resources);
+      } finally {
+        setRefreshMap((prev) => ({
+          ...prev,
+          [plg.id]: (prev[plg.id] ?? 0) + 1,
+        }));
+      }
+    });
+    const results = await Promise.allSettled(installs);
+    const errors = results
+      .filter((r) => r.status === "rejected")
+      .map((r) => (r as PromiseRejectedResult).reason?.message || "");
+    if (errors.length) {
+      notification.error({
+        message: "Some installs failed",
+        description: errors.join("; "),
+        duration: 5,
+      });
+    } else {
+      notification.success({ message: "All plugins installed!", duration: 3 });
+    }
+    setBulkInstalling(false);
+  };
+
+  const showInstallAll = searchTerm.trim() !== "" && rawPlugins.length > 0;
+  const observerTarget = useRef<HTMLDivElement | null>(null);
+  useInfiniteScroll(observerTarget, { fetchNextPage, hasNextPage });
+
   return (
     <>
-      <Wrapper titleComponent={<div>Store</div>}>
-        <Toolbar id="store-toolbar" clearAllFilters={() => {}}>
-          <ToolbarGroup variant="filter-group">
+      <Wrapper
+        titleComponent={
+          <InfoSection title="Store" content="Work in Progress" />
+        }
+      >
+        <Toolbar isSticky id="store-toolbar" clearAllFilters={() => {}}>
+          <ToolbarGroup
+            variant="filter-group"
+            spaceItems={{ default: "spaceItemsMd" }}
+          >
             <ToolbarItem>
               <StoreToggle onEnvironmentChange={setSelectedEnv} />
             </ToolbarItem>
@@ -119,6 +241,25 @@ const Store: React.FC = () => {
                 onChange={(_e, val) => setSearchTerm(val)}
               />
             </ToolbarItem>
+            {showInstallAll && (
+              <ToolbarItem>
+                <Button
+                  variant="secondary"
+                  onClick={installAllPlugins}
+                  isDisabled={!allPlugins.length}
+                  isLoading={isBulkInstalling}
+                >
+                  Install All
+                </Button>
+              </ToolbarItem>
+            )}
+            {!isStaff && isLoggedIn && (
+              <ToolbarItem align={{ default: "alignRight" }}>
+                <Button variant="link" onClick={resetCredentials}>
+                  Reconfigure Admin
+                </Button>
+              </ToolbarItem>
+            )}
           </ToolbarGroup>
         </Toolbar>
 
@@ -128,18 +269,22 @@ const Store: React.FC = () => {
           <div>Error loading plugins.</div>
         ) : (
           <>
-            <Grid hasGutter style={{ marginTop: "1rem" }}>
+            <Grid hasGutter sm={12} lg={6} md={6} style={{ marginTop: "1rem" }}>
               {allPlugins.map((plugin) => (
                 <GridItem key={plugin.id} span={6}>
                   <PluginCard
                     basePlugin={plugin}
                     computeList={computeList || []}
                     onInstall={handleInstall}
+                    onModify={handleModify}
+                    onResourcesChange={handleResourcesChange}
+                    refreshMap={refreshMap}
                   />
                 </GridItem>
               ))}
             </Grid>
-            {hasNextPage ? (
+            <div ref={observerTarget} style={{ height: 1 }} />
+            {hasNextPage && (
               <Button
                 variant="primary"
                 onClick={() => fetchNextPage()}
@@ -148,7 +293,7 @@ const Store: React.FC = () => {
               >
                 {isFetchingNextPage ? "Loading more..." : "Load More"}
               </Button>
-            ) : null}
+            )}
           </>
         )}
       </Wrapper>

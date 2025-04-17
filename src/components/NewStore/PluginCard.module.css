@@ -1,0 +1,44 @@
+.card {
+  margin-bottom: 1rem;
+  min-height: 250px;
+}
+
+.error {
+  background-color: var(--pf-v5-global--danger-color--200);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+.nameText {
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.dateText {
+  font-size: 0.90rem;
+}
+
+.selectContainer {
+  display: flex;
+  gap: 1em;
+}
+
+.selectGroup {
+  margin-top: 1rem;
+}
+
+.toggle {
+  width: 200px;
+}
+
+.actions {
+  margin-top: 1rem;
+  min-height: 30px;
+}
+
+.checkIcon {
+  margin-right: 0.5rem;
+}
