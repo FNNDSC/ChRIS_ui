@@ -1,4 +1,3 @@
-// PluginCard.tsx
 import type React from "react";
 import { useState, useEffect, useMemo } from "react";
 import {
@@ -9,7 +8,6 @@ import {
   Button,
   Spinner,
   MenuToggle,
-  Label,
   Icon,
   type MenuToggleElement,
 } from "@patternfly/react-core";
@@ -210,55 +208,55 @@ const PluginCard: React.FC<PluginCardProps> = ({
           {format(new Date(current.creation_date), "do MMMM, yyyy")}
         </p>
 
-        <div style={{ marginTop: "1rem" }}>
-          <Label>Version</Label>
-          <Select
-            id="version-select"
-            isOpen={versionOpen}
-            onSelect={onVersionSelect}
-            onOpenChange={(open) => setVersionOpen(open)}
-            toggle={versionToggle}
-            shouldFocusToggleOnSelect
-            popperProps={{ appendTo: () => document.body }}
-          >
-            {basePlugin.pluginsList.map((v: StorePlugin) => (
-              <SelectOption
-                isSelected={v.id === current.id}
-                key={v.id}
-                value={v}
-              >
-                {v.version}
-              </SelectOption>
-            ))}
-          </Select>
+        <div id="config" style={{ display: "flex", gap: "1em" }}>
+          <div style={{ marginTop: "1rem" }}>
+            <Select
+              id="version-select"
+              isOpen={versionOpen}
+              onSelect={onVersionSelect}
+              onOpenChange={(open) => setVersionOpen(open)}
+              toggle={versionToggle}
+              shouldFocusToggleOnSelect
+              popperProps={{ appendTo: () => document.body }}
+            >
+              {basePlugin.pluginsList.map((v: StorePlugin) => (
+                <SelectOption
+                  isSelected={v.id === current.id}
+                  key={v.id}
+                  value={v}
+                >
+                  {v.version}
+                </SelectOption>
+              ))}
+            </Select>
+          </div>
+
+          <div style={{ marginTop: "1rem" }}>
+            <Select
+              id="resource-select"
+              isOpen={resourceOpen}
+              selected={selectedResources}
+              //@ts-ignore
+              onSelect={onResourceSelect}
+              onOpenChange={(open) => setResourceOpen(open)}
+              toggle={resourceToggle}
+              shouldFocusToggleOnSelect
+              popperProps={{ appendTo: () => document.body }}
+            >
+              {computeList.map((r: ComputeResource) => (
+                <SelectOption
+                  key={r.data.id}
+                  isSelected={selectedIds.has(r.data.id)}
+                  value={r}
+                >
+                  {r.data.name}
+                </SelectOption>
+              ))}
+            </Select>
+          </div>
         </div>
 
-        <div style={{ marginTop: "1rem" }}>
-          <Label>Compute</Label>
-          <Select
-            id="resource-select"
-            isOpen={resourceOpen}
-            selected={selectedResources}
-            //@ts-ignore
-            onSelect={onResourceSelect}
-            onOpenChange={(open) => setResourceOpen(open)}
-            toggle={resourceToggle}
-            shouldFocusToggleOnSelect
-            popperProps={{ appendTo: () => document.body }}
-          >
-            {computeList.map((r: ComputeResource) => (
-              <SelectOption
-                key={r.data.id}
-                isSelected={selectedIds.has(r.data.id)}
-                value={r}
-              >
-                {r.data.name}
-              </SelectOption>
-            ))}
-          </Select>
-        </div>
-
-        <div style={{ marginTop: "1rem" }}>
+        <div style={{ marginTop: "1rem", minHeight: "30px" }}>
           {checking ? (
             <Spinner size="sm" />
           ) : hasChanges ? (
