@@ -9,7 +9,6 @@ import { InstallationComponent } from "./InstallationComponent";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type { Plugin } from "./utils/types";
 import type { ComputeResource, Plugin as ChrisPlugin } from "@fnndsc/chrisapi";
-import { Link } from "react-router-dom";
 
 async function checkInstallation(
   name: string,

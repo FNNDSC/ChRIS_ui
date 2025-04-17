@@ -25,7 +25,7 @@ import {
 } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import Store from "./components/Store/newStore";
+import Store from "./components/NewStore";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setSidebarActive } from "./store/ui/uiSlice";
 import { OperationsProvider } from "./components/NewLibrary/context";
