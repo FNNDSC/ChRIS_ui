@@ -23,9 +23,7 @@ const StoreToggle: React.FC<StoreToggleProps> = ({ onEnvironmentChange }) => {
   ) => {
     if (typeof value === "string") {
       setEnvironment(value);
-      if (onEnvironmentChange) {
-        onEnvironmentChange(envOptions[value]);
-      }
+      onEnvironmentChange?.(value);
     }
     setIsEnvDropdownOpen(false);
   };
