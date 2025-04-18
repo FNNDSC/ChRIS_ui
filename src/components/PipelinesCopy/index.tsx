@@ -16,7 +16,7 @@ import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { usePaginate } from "../Feeds/usePaginate";
 import "./Pipelines.css";
-import PipelineUpload from "./PipelineUpload";
+import PipelineUpload from "./PipelineUploadCopy";
 import PipelinesComponent from "./PipelinesComponent";
 import {
   PIPELINEQueryTypes,
