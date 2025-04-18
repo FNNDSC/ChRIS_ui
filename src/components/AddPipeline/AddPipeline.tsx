@@ -49,11 +49,8 @@ const AddPipeline = ({
 
       try {
         const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
-
         for (const node of nodes_info) {
-          // Set compute info
           const activeNode = computeInfo?.[id][node.piping_id];
-          // Set Title
           const titleSet = titleInfo?.[id][node.piping_id];
 
           if (activeNode) {
