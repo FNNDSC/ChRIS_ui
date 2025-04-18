@@ -289,21 +289,19 @@ const PluginCard: React.FC<PluginCardProps> = ({
         <div className={styles.actions}>
           {checking || modifying ? (
             <Spinner size="sm" />
-          ) : hasChanges && isLoggedIn ? (
+          ) : isLoggedIn && hasChanges ? (
             <Button onClick={handleModifyClick}>Modify Compute</Button>
           ) : isInstalled ? (
-            <div>
-              <Icon status="success" className={styles.checkIcon}>
+            <span className={styles.installed}>
+              <Icon status="success">
                 <CheckCircleIcon />
-              </Icon>
-              <span>Installed</span>
-            </div>
-          ) : isLoggedIn ? (
-            <Button onClick={handleInstall}>Install</Button>
-          ) : (
-            <span color="#6A6E73">
-              <i>Not Installed</i>
+              </Icon>{" "}
+              Installed
             </span>
+          ) : isLoggedIn && selectedResources.length === 0 ? (
+            <span className={styles.noCompute}>No compute available</span>
+          ) : (
+            <Button onClick={handleInstall}>Install</Button>
           )}
         </div>
       </CardBody>
