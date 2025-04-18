@@ -260,9 +260,15 @@ const PluginCard: React.FC<PluginCardProps> = ({
                 // @ts-ignore
                 onSelect={(e, val: ComputeResource) => {
                   e?.stopPropagation();
-                  const next = selectedResources.some(
-                    (r) => r.data.id === val.data.id,
-                  )
+                  const isAlready = selectedIds.has(val.data.id);
+                  if (isAlready && selectedResources.length === 1) {
+                    notification.info({
+                      message: "At least one compute resource must be selected",
+                      duration: 2,
+                    });
+                    return;
+                  }
+                  const next = isAlready
                     ? selectedResources.filter((r) => r.data.id !== val.data.id)
                     : [...selectedResources, val];
                   setSelectedResources(next);
