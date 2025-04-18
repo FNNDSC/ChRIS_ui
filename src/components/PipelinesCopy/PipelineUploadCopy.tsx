@@ -50,7 +50,7 @@ const PipelineUpload = ({
   async function installPlugin(name: string, version: string) {
     setNotification({
       type: "info",
-      description: `Installing ${name}@${version}…`,
+      description: `Installing plugin: ${name} version: ${version}…`,
     });
     let pluginMeta: ApiPlugin | null = null;
 
@@ -166,27 +166,22 @@ const PipelineUpload = ({
         Upload a Pipeline
       </Button>
 
-      {lastSuccess && (
+      {lastSuccess ? (
         <div
           style={{
             display: "inline-flex",
             alignItems: "center",
-            marginLeft: 12,
+            marginLeft: "12px",
             color: "#3E8635",
           }}
         >
           <CheckCircleIcon />
           &nbsp;{lastSuccess}
         </div>
-      )}
-
-      {notification.type && notification.type !== "info" && (
-        <Alert
-          type={notification.type}
-          description={notification.description}
-          closable
-          style={{ marginTop: 8 }}
-        />
+      ) : (
+        !isEmpty(notification.type) && (
+          <span style={{ marginLeft: "12px" }}>{notification.description}</span>
+        )
       )}
 
       <input
