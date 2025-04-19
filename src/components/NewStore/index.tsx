@@ -214,7 +214,8 @@ const Store: React.FC = () => {
     setBulkInstalling(false);
   };
 
-  const showInstallAll = searchTerm.trim() !== "" && rawPlugins.length > 0;
+  const showInstallAll =
+    isLoggedIn && searchTerm.trim() !== "" && rawPlugins.length > 0;
   const observerTarget = useRef<HTMLDivElement | null>(null);
   useInfiniteScroll(observerTarget, { fetchNextPage, hasNextPage });
 
