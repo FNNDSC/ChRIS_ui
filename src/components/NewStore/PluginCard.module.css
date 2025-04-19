@@ -42,3 +42,7 @@
 .checkIcon {
   margin-right: 0.5rem;
 }
+
+.notLoggedIn {
+  color: #6a6e73;
+}
