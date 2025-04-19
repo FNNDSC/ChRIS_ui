@@ -295,6 +295,10 @@ const PluginCard: React.FC<PluginCardProps> = ({
         <div className={styles.actions}>
           {checking || modifying ? (
             <Spinner size="sm" />
+          ) : !isLoggedIn && !isInstalled ? (
+            <span className={styles.notLoggedIn}>
+              Not installed. Please log in to install.
+            </span>
           ) : isLoggedIn && hasChanges ? (
             <Button onClick={handleModifyClick}>Modify Compute</Button>
           ) : isInstalled ? (
