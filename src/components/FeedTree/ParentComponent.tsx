@@ -36,6 +36,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     pluginInstances,
     totalCount,
     removeNodeLocally,
+    tsIds,
   } = treeQuery;
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
@@ -43,7 +44,6 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
 
   const dispatch = useAppDispatch();
 
-  // Memoize rootNode to prevent unnecessary effect runs
   const stableRootNode = useMemo(() => rootNode, [rootNode]);
 
   useEffect(() => {
@@ -67,7 +67,6 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
 
     return (
       <SpinContainer
-        // For instance, show "Loading Feed Tree (15/100) 15%..."
         title={`Loading Feed Tree... (${loadedCount}/${total})  ${progressPercent}%`}
       />
     );
@@ -82,8 +81,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
       {rootNode && (
         <FeedTree
           data={rootNode}
-          // @ts-ignore
-          tsIds={[]}
+          tsIds={tsIds}
           onNodeClick={onNodeClick}
           changeLayout={changeLayout}
           currentLayout={currentLayout}
