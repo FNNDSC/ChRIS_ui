@@ -7,6 +7,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
+import { getTsNodes } from "../FeedTree/data";
 
 export interface TreeNodeDatum {
   id: number;
@@ -29,6 +30,9 @@ export interface PaginatedTreeQueryReturn {
   addNodeLocally: (arg: PluginInstance | PluginInstance[]) => void;
   removeNodeLocally: (ids: number[]) => void;
   pluginInstances: PluginInstance[];
+  tsIds?: {
+    [key: string]: number[];
+  };
 }
 
 async function fetchTotalCount(feed: Feed) {
@@ -225,6 +229,17 @@ export default function usePaginatedTreeQuery(
       infiniteData?.pages.flatMap((page) => page.items ?? []) ?? [];
     return [...serverItems, ...localItems];
   }, [infiniteData, localItems]);
+
+  const { data: tsIds } = useQuery({
+    queryKey: [
+      "tsIds",
+      feed?.data.id,
+      pluginInstances.length, // re-compute when list size changes
+    ],
+    enabled: !!feed && pluginInstances.length > 0,
+    queryFn: () => getTsNodes(pluginInstances),
+  });
+
   const [rootNode, setRootNode] = useState<TreeNodeDatum | null>(null);
   const integratedPageCount = useRef(0);
   const pagesSinceLastRenderRef = useRef(0);
@@ -261,9 +276,11 @@ export default function usePaginatedTreeQuery(
       setIsProcessing(false);
     }
   }, [infiniteData, hasNextPage]);
+
   useEffect(() => {
     processNewPages();
   }, [processNewPages]);
+
   useEffect(() => {
     if (!infiniteLoading && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -334,7 +351,6 @@ export default function usePaginatedTreeQuery(
       setLocalItems((prev) =>
         prev.filter((inst) => !toRemove.has(inst.data.id)),
       );
-
       await queryClient.invalidateQueries({
         queryKey: ["feedPluginInstances", feed?.data.id, "countOnly"],
       });
@@ -354,5 +370,6 @@ export default function usePaginatedTreeQuery(
     addNodeLocally,
     removeNodeLocally,
     pluginInstances,
+    tsIds,
   };
 }
