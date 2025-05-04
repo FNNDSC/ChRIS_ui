@@ -23,6 +23,7 @@ const StudyCard: React.FC<StudyCardProps> = ({
   preferences: { dateFormat, showUid } = DEFAULT_PREFERENCES,
   onRetrieve,
 }) => {
+  console.log("Study", study);
   return (
     <Row>
       <Col xs={21} sm={22} md={23}>
