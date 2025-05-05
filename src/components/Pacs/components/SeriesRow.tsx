@@ -228,9 +228,6 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
           className={`${styles.seriesRow} ${Grid.useBreakpoint().xl && styles.xl}`}
           bordered={false}
           hoverable
-          onClick={() =>
-            console.log("Series card clicked:", info.SeriesInstanceUID)
-          }
         >
           <Flex
             wrap
