@@ -12,7 +12,7 @@ import {
   Skeleton,
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
@@ -24,7 +24,6 @@ import { notification } from "../Antd";
 import { ClipboardCopyContainer } from "../Common";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
 import { handleMaximize, handleMinimize } from "../Feeds/utilties";
-import { HomeIcon } from "../Icons";
 import {
   getFileName,
   getLinkFileName,
@@ -74,34 +73,17 @@ const FileBrowser = (props: FileBrowserProps) => {
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
   const username = useAppSelector((state) => state.user.username);
-  const {
-    subFoldersMap,
-    linkFilesMap,
-    filesMap,
-    folderList,
-    linksPagination,
-    foldersPagination,
-    filesPagination,
-  } = pluginFilesPayload;
-  const breadcrumb = additionalKey.split("/");
+  const { subFoldersMap, linkFilesMap, filesMap, folderList } =
+    pluginFilesPayload;
+  const breadcrumb = useMemo(() => additionalKey.split("/"), [additionalKey]);
   const currentPath = `home/${username}/feeds/feed_${feed?.data.id}/${selected?.data.plugin_name}_${selected?.data.id}/data`;
-  const noFiles =
-    filesMap?.length === 0 &&
-    subFoldersMap?.length === 0 &&
-    linkFilesMap?.length === 0;
-  const linkCount =
-    linksPagination?.totalCount && linksPagination.totalCount !== -1
-      ? linksPagination.totalCount
-      : 0;
-  const folderCount =
-    foldersPagination?.totalCount && foldersPagination.totalCount !== -1
-      ? foldersPagination.totalCount
-      : 0;
-  const fileCount =
-    filesPagination?.totalCount && filesPagination.totalCount !== -1
-      ? filesPagination.totalCount
-      : 0;
-  const totalResources = linkCount + folderCount + fileCount;
+  const noFiles = useMemo(
+    () =>
+      filesMap?.length === 0 &&
+      subFoldersMap?.length === 0 &&
+      linkFilesMap?.length === 0,
+    [filesMap, subFoldersMap, linkFilesMap],
+  );
 
   useEffect(() => {
     if (isSuccess) {
@@ -198,7 +180,7 @@ const FileBrowser = (props: FileBrowserProps) => {
               />
 
               <>
-                <div className="sticky-container">
+                <div>
                   <Operations
                     customClassName={{
                       toolbar: "remove-toolbar-padding",
@@ -212,135 +194,152 @@ const FileBrowser = (props: FileBrowserProps) => {
                     computedPath={additionalKey}
                     folderList={folderList}
                   />
-                  <div className="file-browser__header">
-                    <div className="file-browser__header--breadcrumbContainer">
-                      <ClipboardCopyContainer path={additionalKey} />
-                      <Breadcrumb>
-                        {breadcrumb.map(generateBreadcrumb)}
-                      </Breadcrumb>
-                    </div>
-                    <div>
-                      {additionalKey !== currentPath &&
-                        selected.data.plugin_type === "fs" && (
-                          <Tooltip
-                            content={<span>Go back to the base directory</span>}
+                  <div className="file-browser-header">
+                    <div className="file-browser-header-row">
+                      <div className="file-browser-navigation">
+                        <Tooltip
+                          content={
+                            <div className="file-browser-breadcrumb-popover">
+                              <div className="file-browser-breadcrumb-row">
+                                <ClipboardCopyContainer path={additionalKey} />
+                                <Breadcrumb>
+                                  {breadcrumb.map(generateBreadcrumb)}
+                                </Breadcrumb>
+                              </div>
+                            </div>
+                          }
+                          position="bottom"
+                          maxWidth="80vw"
+                        >
+                          <Button
+                            variant="link"
+                            className="file-browser-path-button"
                           >
-                            <Button
-                              onClick={() => handleFileClick(currentPath)}
-                              variant="link"
-                              icon={<HomeIcon />}
-                            >
-                              Back
-                            </Button>
-                          </Tooltip>
-                        )}
-                    </div>
-                    <div style={{ textAlign: "right", fontStyle: "italic" }}>
-                      Total Resources: {`(${totalResources})`}
+                            <span className="file-browser-label">
+                              Show current path
+                            </span>
+                          </Button>
+                        </Tooltip>
+
+                        {additionalKey !== currentPath &&
+                          selected.data.plugin_type === "fs" && (
+                            <Tooltip content="Return to the plugin's root directory">
+                              <Button
+                                onClick={() => handleFileClick(currentPath)}
+                                variant="link"
+                                className="file-browser-path-button"
+                              >
+                                <span className="file-browser-label">
+                                  Go to root
+                                </span>
+                              </Button>
+                            </Tooltip>
+                          )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div style={{ flex: 1, overflow: "auto" }}>
-                  <Table
-                    style={{
-                      backgroundColor: "inherit",
-                    }}
-                    variant="compact"
-                    isStickyHeader={true}
-                  >
-                    <Thead aria-label="file-browser-table">
-                      <Tr>
-                        <Th aria-label="file-selection-checkbox" />
-                        <Th aria-label="file-name" width={40}>
-                          {columnNames.name}
-                        </Th>
-                        <Th aria-label="file-creator" width={20}>
-                          {columnNames.created}
-                        </Th>
-                        <Th aria-label="file-size" width={20}>
-                          {columnNames.size}
-                        </Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {isLoading && noFiles ? (
-                        renderSkeletonRows()
-                      ) : (
-                        <>
-                          {filesMap?.map(
-                            (resource: FileBrowserFolderFile, index) => (
-                              <FileRow
-                                key={resource.data.fname}
-                                rowIndex={index}
-                                resource={resource}
-                                name={getFileName(resource)}
-                                date={resource.data.creation_date}
-                                owner={resource.data.owner_username}
-                                size={resource.data.fsize}
-                                computedPath={additionalKey}
-                                handleFolderClick={() => {}}
-                                handleFileClick={() => {
-                                  toggleAnimation();
-                                  dispatch(setSelectedFile(resource));
-                                  !drawerState.preview.open &&
-                                    dispatch(setFilePreviewPanel());
-                                }}
-                                origin={origin}
-                              />
-                            ),
-                          )}
-                          {linkFilesMap?.map(
-                            (resource: FileBrowserFolderLinkFile, index) => (
-                              <LinkRow
-                                key={resource.data.path}
-                                rowIndex={index}
-                                resource={resource}
-                                name={getLinkFileName(resource)}
-                                date={resource.data.creation_date}
-                                owner={resource.data.owner_username}
-                                size={resource.data.fsize}
-                                computedPath={additionalKey}
-                                handleFolderClick={() => {}}
-                                handleFileClick={() =>
-                                  handleFileClick(resource.data.path)
-                                }
-                                origin={origin}
-                              />
-                            ),
-                          )}
-                          {subFoldersMap?.map(
-                            (resource: FileBrowserFolder, index) => (
-                              <FolderRow
-                                key={resource.data.path}
-                                rowIndex={index}
-                                resource={resource}
-                                name={getFolderName(resource, additionalKey)}
-                                date={resource.data.creation_date}
-                                owner=" "
-                                size={0}
-                                computedPath={additionalKey}
-                                handleFolderClick={() =>
-                                  handleFileClick(resource.data.path)
-                                }
-                                handleFileClick={() => {}}
-                                origin={origin}
-                              />
-                            ),
-                          )}
-                        </>
-                      )}
-                    </Tbody>
-                  </Table>
-                  {fetchMore && !isLoading && (
-                    <Button onClick={handlePagination} variant="link">
-                      Load more data...
-                    </Button>
-                  )}
-                  <div
-                    style={{ height: "1px", marginTop: "10px" }}
-                    ref={observerTarget}
-                  />
+                  <div style={{ flex: 1, overflow: "auto" }}>
+                    <Table
+                      style={{
+                        backgroundColor: "inherit",
+                      }}
+                      variant="compact"
+                      isStickyHeader={true}
+                    >
+                      <Thead aria-label="file-browser-table">
+                        <Tr>
+                          <Th aria-label="file-selection-checkbox" />
+                          <Th aria-label="file-name" width={40}>
+                            {columnNames.name}
+                          </Th>
+                          <Th aria-label="file-creator" width={20}>
+                            {columnNames.created}
+                          </Th>
+                          <Th aria-label="file-size" width={20}>
+                            {columnNames.size}
+                          </Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {isLoading && noFiles ? (
+                          renderSkeletonRows()
+                        ) : (
+                          <>
+                            {filesMap?.map(
+                              (resource: FileBrowserFolderFile, index) => (
+                                <FileRow
+                                  key={resource.data.fname}
+                                  rowIndex={index}
+                                  resource={resource}
+                                  name={getFileName(resource)}
+                                  date={resource.data.creation_date}
+                                  owner={resource.data.owner_username}
+                                  size={resource.data.fsize}
+                                  computedPath={additionalKey}
+                                  handleFolderClick={() => {}}
+                                  handleFileClick={() => {
+                                    toggleAnimation();
+                                    dispatch(setSelectedFile(resource));
+                                    !drawerState.preview.open &&
+                                      dispatch(setFilePreviewPanel());
+                                  }}
+                                  origin={origin}
+                                />
+                              ),
+                            )}
+                            {linkFilesMap?.map(
+                              (resource: FileBrowserFolderLinkFile, index) => (
+                                <LinkRow
+                                  key={resource.data.path}
+                                  rowIndex={index}
+                                  resource={resource}
+                                  name={getLinkFileName(resource)}
+                                  date={resource.data.creation_date}
+                                  owner={resource.data.owner_username}
+                                  size={resource.data.fsize}
+                                  computedPath={additionalKey}
+                                  handleFolderClick={() => {}}
+                                  handleFileClick={() =>
+                                    handleFileClick(resource.data.path)
+                                  }
+                                  origin={origin}
+                                />
+                              ),
+                            )}
+                            {subFoldersMap?.map(
+                              (resource: FileBrowserFolder, index) => (
+                                <FolderRow
+                                  key={resource.data.path}
+                                  rowIndex={index}
+                                  resource={resource}
+                                  name={getFolderName(resource, additionalKey)}
+                                  date={resource.data.creation_date}
+                                  owner=" "
+                                  size={0}
+                                  computedPath={additionalKey}
+                                  handleFolderClick={() =>
+                                    handleFileClick(resource.data.path)
+                                  }
+                                  handleFileClick={() => {}}
+                                  origin={origin}
+                                />
+                              ),
+                            )}
+                          </>
+                        )}
+                      </Tbody>
+                    </Table>
+                    {fetchMore && !isLoading && (
+                      <Button onClick={handlePagination} variant="link">
+                        Load more data...
+                      </Button>
+                    )}
+                    <div
+                      style={{ height: "1px", marginTop: "10px" }}
+                      ref={observerTarget}
+                    />
+                  </div>
                 </div>
               </>
             </Panel>

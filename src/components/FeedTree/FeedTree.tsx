@@ -1,13 +1,11 @@
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
+import { Input, Switch, notification } from "antd";
 import type { HierarchyPointLink, HierarchyPointNode } from "d3-hierarchy";
 import { hierarchy, tree } from "d3-hierarchy";
+import { type Quadtree, quadtree } from "d3-quadtree";
 import { select } from "d3-selection";
-import {
-  type D3ZoomEvent,
-  type ZoomBehavior,
-  zoom as d3Zoom,
-  zoomIdentity,
-} from "d3-zoom";
+import { type D3ZoomEvent, type ZoomBehavior, zoom as d3Zoom } from "d3-zoom";
 import { throttle } from "lodash";
 import React, {
   useCallback,
@@ -15,21 +13,20 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useLayoutEffect,
 } from "react";
 import { useImmer } from "use-immer";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { Input, Switch, notification } from "antd";
-import { RotateLeft, RotateRight } from "../Icons";
-import DropdownMenu from "./DropdownMenu";
-import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { ThemeContext } from "../DarkTheme/useTheme";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 import AddNodeConnect from "../AddNode/AddNode";
 import { AddNodeProvider } from "../AddNode/context";
 import AddPipeline from "../AddPipeline/AddPipeline";
+import { ThemeContext } from "../DarkTheme/useTheme";
 import DeleteNode from "../DeleteNode";
+import { RotateLeft, RotateRight } from "../Icons";
 import { PipelineProvider } from "../PipelinesCopy/context";
+import DropdownMenu from "./DropdownMenu";
 import useSize from "./useSize";
 
 export type TSID = {
@@ -150,12 +147,16 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     y: 0,
     k: INITIAL_SCALE,
   });
+  const qtRef = useRef<Quadtree<HierarchyPointNode<TreeNodeDatum>> | null>(
+    null,
+  );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initialRenderRef = useRef(true);
   const size = useSize(containerRef);
   const width = size?.width;
   const height = size?.height;
+  const frameIdRef = useRef<number | null>(null);
   const [contextMenuNode, setContextMenuNode] = useState<TreeNodeDatum | null>(
     null,
   );
@@ -169,6 +170,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     (store) => store.instance.selectedPlugin,
   );
   const [api, contextHolder] = notification.useNotification();
+
   const pipelineMutation = useMutation({
     mutationFn: (nodeToZip: PluginInstance) => fetchPipeline(nodeToZip),
     onSuccess: () => {
@@ -271,6 +273,29 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   }, [data, tsIds, orientation]);
 
   useEffect(() => {
+    if (!d3.nodes || d3.nodes.length === 0) return;
+    qtRef.current = quadtree<HierarchyPointNode<TreeNodeDatum>>()
+      .x((d) => d.x)
+      .y((d) => d.y)
+      .addAll(d3.nodes);
+  }, [d3.nodes]);
+
+  useLayoutEffect(() => {
+    if (
+      initialRenderRef.current &&
+      d3.rootNode != null &&
+      width != null &&
+      height != null
+    ) {
+      const root = d3.rootNode;
+      const centerX = width / 2 - root.x;
+      const centerY = height / 7 - root.y;
+      setTransform({ x: centerX, y: centerY, k: INITIAL_SCALE });
+      initialRenderRef.current = false;
+    }
+  }, [d3.rootNode, width, height]);
+
+  useEffect(() => {
     if (!canvasRef.current || !d3.rootNode || !width || !height) return;
     const handleZoom = throttle(
       (event: D3ZoomEvent<HTMLCanvasElement, unknown>) => {
@@ -289,22 +314,12 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       .scaleExtent([SCALE_EXTENT.min, SCALE_EXTENT.max])
       .on("zoom", handleZoom);
     const selection = select(canvasRef.current).call(zoomBehavior);
-    if (initialRenderRef.current) {
-      const root = d3.rootNode;
-      const centerX = width / 2 - root.x;
-      const centerY = height / 7 - root.y;
-      selection.call(
-        zoomBehavior.transform,
-        zoomIdentity.translate(centerX, centerY).scale(INITIAL_SCALE),
-      );
-      initialRenderRef.current = false;
-    }
     return () => {
       selection.on(".zoom", null);
     };
   }, [d3.rootNode, width, height]);
 
-  useEffect(() => {
+  const paint = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !width || !height) return;
     const ratio = window.devicePixelRatio || 1;
@@ -319,10 +334,9 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     ctx.scale(ratio, ratio);
     ctx.translate(transform.x, transform.y);
     ctx.scale(transform.k, transform.k);
-    d3.links.forEach((link) => {
-      drawLink(ctx, link, isDarkTheme);
-    });
-    d3.nodes.forEach((node: HierarchyPointNode<TreeNodeDatum>) => {
+    // Draw links and nodes
+    d3.links.forEach((link) => drawLink(ctx, link, isDarkTheme));
+    d3.nodes.forEach((node) => {
       const nodeId = node.data.item.data.id;
       const polledStatus = statuses[nodeId];
       const finalStatus = polledStatus || node.data.item.data.status;
@@ -355,6 +369,18 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     selectedPlugin,
   ]);
 
+  useEffect(() => {
+    if (frameIdRef.current != null) {
+      cancelAnimationFrame(frameIdRef.current);
+    }
+    frameIdRef.current = requestAnimationFrame(paint);
+    return () => {
+      if (frameIdRef.current != null) {
+        cancelAnimationFrame(frameIdRef.current);
+      }
+    };
+  }, [paint]);
+
   const handleCanvasClick = useCallback(
     (evt: React.MouseEvent<HTMLCanvasElement>) => {
       if (!canvasRef.current) return;
@@ -366,17 +392,12 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         (mouseX * ratio - transform.x * ratio) / (transform.k * ratio);
       const zoomedY =
         (mouseY * ratio - transform.y * ratio) / (transform.k * ratio);
-      for (const node of d3.nodes) {
-        const dx = node.x - zoomedX;
-        const dy = node.y - zoomedY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist <= DEFAULT_NODE_RADIUS) {
-          onNodeClick(node.data);
-          return;
-        }
+      const hit = qtRef.current?.find(zoomedX, zoomedY, DEFAULT_NODE_RADIUS);
+      if (hit) {
+        onNodeClick(hit.data);
       }
     },
-    [transform, onNodeClick, d3.nodes],
+    [transform, onNodeClick],
   );
 
   const getNodeScreenCoords = useCallback(
@@ -398,7 +419,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
   const handleCanvasContextMenu = useCallback(
     (evt: React.MouseEvent<HTMLCanvasElement>) => {
       evt.preventDefault();
-      if (!canvasRef.current) return;
+      if (!canvasRef.current || !qtRef.current) return;
       const rect = canvasRef.current.getBoundingClientRect();
       const mouseX = evt.clientX - rect.left;
       const mouseY = evt.clientY - rect.top;
@@ -407,41 +428,27 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         (mouseX * ratio - transform.x * ratio) / (transform.k * ratio);
       const zoomedY =
         (mouseY * ratio - transform.y * ratio) / (transform.k * ratio);
-      let foundNode: TreeNodeDatum | null = null;
-      for (const node of d3.nodes) {
-        const dx = node.x - zoomedX;
-        const dy = node.y - zoomedY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist <= DEFAULT_NODE_RADIUS) {
-          foundNode = node.data;
-          break;
-        }
-      }
-      if (foundNode) {
-        const containerRect = containerRef.current?.getBoundingClientRect();
-        if (!containerRect) return;
-        const nodeOfInterest = d3.nodes.find(
-          (n) => n.data.id === foundNode!.id,
-        );
-        if (!nodeOfInterest) return;
+
+      const hit = qtRef.current.find(zoomedX, zoomedY, DEFAULT_NODE_RADIUS);
+      if (hit) {
         const { screenX, screenY } = getNodeScreenCoords(
-          nodeOfInterest.x,
-          nodeOfInterest.y,
+          hit.x,
+          hit.y,
           transform,
-          containerRect,
+          containerRef.current!.getBoundingClientRect(),
         );
+        setContextMenuNode(hit.data);
         setContextMenuPosition({
           x: screenX + 20,
           y: screenY + 10,
           visible: true,
         });
-        setContextMenuNode(foundNode);
       } else {
         setContextMenuNode(null);
         setContextMenuPosition({ x: 0, y: 0, visible: false });
       }
     },
-    [transform, d3.nodes, getNodeScreenCoords],
+    [transform, getNodeScreenCoords],
   );
 
   const handleChange = useCallback(

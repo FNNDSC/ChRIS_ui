@@ -35,6 +35,7 @@ import {
   ToolsIcon,
   PlayIcon,
   PauseIcon,
+  ChevronRightIcon,
 } from "@patternfly/react-icons";
 
 const CartIcon = ({
@@ -299,6 +300,7 @@ export {
   CloseIcon,
   CubesIcon,
   CheckCircleIcon,
+  ChevronRightIcon,
   UploadIcon,
   CogsIcon as SettingsIcon,
   AngleDoubleLeftIcon as RotateLeft,

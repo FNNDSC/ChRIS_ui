@@ -16,17 +16,78 @@
   height: 100%;
 }
 
-.file-browser__header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-  margin-right: 0.25em;
+.file-browser-header {
+  padding: 8px 0;
 }
 
-@media screen and (min-width: 1024px) {
-  .file-browser__header {
-    display: flex;
-  }
+.file-browser-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.file-browser-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-browser-home-container {
+  width: 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.file-browser-button-placeholder {
+  width: 40px;
+  height: 36px;
+}
+
+.file-browser-button {
+  min-width: 40px;
+  height: 36px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-browser-path-button {
+  display: flex;
+  align-items: center;
+  min-height: 15px;
+  padding: 0 12px;
+}
+
+.file-browser-breadcrumb-popover {
+  max-width: 80vw;
+  overflow-x: auto;
+  padding: 12px;
+}
+
+.file-browser-breadcrumb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.file-browser-breadcrumb-row .pf-c-breadcrumb {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-browser-label {
+  font-size: 13px;
+  white-space: nowrap;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.file-browser-resources {
+  font-size: 12px;
+  color: var(--pf-global--Color--200);
+  white-space: nowrap;
 }
 
 .iframe-container {
