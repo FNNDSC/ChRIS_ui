@@ -644,7 +644,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
           onRetrieve={onRetrieve}
           expandedStudyUids={expandedStudyUids}
           onStudyExpand={changeExpandedStudies}
-          isLoadingStudies={pfdcmStudies.isLoading}
+          isLoadingStudies={pfdcmStudies.isFetching}
         />
       ) : (
         <PacsLoadingScreen />
