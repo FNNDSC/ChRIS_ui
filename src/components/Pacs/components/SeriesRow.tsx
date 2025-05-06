@@ -15,21 +15,22 @@ import {
   Progress,
   Tooltip,
   Typography,
-  type MenuProps,
   message,
   theme,
 } from "antd";
 import styles from "./SeriesList.module.css";
 import ModalityBadges from "./ModalityBadges.tsx";
-import {
-  ImportOutlined,
-  WarningFilled,
-  FolderOutlined,
-} from "@ant-design/icons";
-import { CodeBranchIcon } from "../../Icons";
+import { ImportOutlined, WarningFilled } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { createFeed } from "../../../store/cart/downloadSaga.ts";
 import { useTheme } from "../../DarkTheme/useTheme";
+import { useSeriesSelection } from "./SeriesSelectionContext";
+import { getBackgroundRowColor } from "../../NewLibrary/utils/longpress.tsx";
+import { generateFeedName } from "./pacsUtils";
+import {
+  getSeriesContextMenuItems,
+  createSeriesFeed,
+  type ContextMenuHandlers,
+} from "./SeriesContextMenu";
 
 type SeriesRowProps = PacsSeriesState & {
   showUid?: boolean;
@@ -108,38 +109,19 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   const [feedName, setFeedName] = React.useState("");
   const [isCreatingFeed, setIsCreatingFeed] = React.useState(false);
   const { isDarkTheme } = useTheme();
-
-  // Function to format birth date - reused for both library path and feed name
-  const formatBirthDate = (birthDate: Date) => {
-    if (!birthDate) return "";
-    const date = new Date(birthDate);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}${month}${day}`;
-  };
-
-  // Function to sanitize patient name by replacing ^ with _
-  const sanitizePatientName = (name: string) => {
-    return name.replace(/\^/g, "_");
-  };
-
-  // Generate the path for both library navigation and feed creation
-  const getFormattedPath = () => {
-    if (!info.PatientBirthDate) return "";
-    const formattedBirth = formatBirthDate(info.PatientBirthDate);
-    const sanitizedName = sanitizePatientName(info.PatientName);
-    return `SERVICES/PACS/${info.RetrieveAETitle}/${info.PatientID}-${sanitizedName}-${formattedBirth}`;
-  };
+  const [messageApi, contextHolder] = message.useMessage();
+  const { isSelected, toggleSelection, getSelectedSeriesData, selectedSeries } =
+    useSeriesSelection();
+  const seriesId = info.SeriesInstanceUID;
+  const selected = isSelected(seriesId);
+  const [isRightClicked, setIsRightClicked] = React.useState(false);
+  const hasMultipleSelected = selectedSeries.length > 1;
 
   const showModal = () => {
-    if (info.PatientBirthDate) {
-      const formattedBirth = formatBirthDate(info.PatientBirthDate);
-      const sanitizedName = sanitizePatientName(info.PatientName);
-      setFeedName(`${info.PatientID}-${sanitizedName}-${formattedBirth}`);
-    } else {
-      const sanitizedName = sanitizePatientName(info.PatientName);
-      setFeedName(`${info.PatientID}-${sanitizedName}`);
+    if (!hasMultipleSelected) {
+      setFeedName(
+        generateFeedName({ info, errors, pullState, inCube, receivedCount }),
+      );
     }
     setIsModalOpen(true);
   };
@@ -151,45 +133,54 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
     }
   };
 
-  const [messageApi, contextHolder] = message.useMessage();
+  const contextMenuHandlers: ContextMenuHandlers = {
+    showFeedCreationModal: showModal,
+    displayMessage: (type, content) => {
+      if (type === "success") {
+        messageApi.success(content);
+      } else {
+        messageApi.error(content);
+      }
+    },
+  };
 
-  const handleCreateFeed = async () => {
+  const handleFeedCreation = async () => {
     if (!feedName.trim()) {
       messageApi.error("Feed name cannot be empty");
-      return;
+      return false;
     }
-
     setIsCreatingFeed(true);
     try {
-      const path = getFormattedPath();
-      await createFeed([path], feedName);
-      messageApi.success(`Feed "${feedName}" created successfully!`);
-      setIsModalOpen(false);
-      setFeedName("");
+      const seriesToProcess =
+        selected && hasMultipleSelected ? getSelectedSeriesData() : [];
+
+      const success = await createSeriesFeed(
+        seriesToProcess,
+        feedName,
+        contextMenuHandlers,
+      );
+
+      if (success) {
+        setIsModalOpen(false);
+        setFeedName("");
+        return true;
+      }
+      return false;
     } catch (error) {
       messageApi.error("Failed to create feed");
+      return false;
     } finally {
       setIsCreatingFeed(false);
     }
   };
 
-  const contextMenuItems: MenuProps["items"] = [
-    {
-      key: "library",
-      label: "Go to Library",
-      icon: <FolderOutlined />,
-      onClick: () => {
-        const path = getFormattedPath();
-        navigate(`/library/${path}`);
-      },
-    },
-    {
-      key: "feed",
-      label: "Create Feed",
-      icon: <CodeBranchIcon />,
-      onClick: showModal,
-    },
-  ];
+  const contextMenuItems = getSeriesContextMenuItems(
+    { info, errors, pullState, inCube, receivedCount },
+    selected,
+    selectedSeries.length,
+    contextMenuHandlers,
+    navigate,
+  );
 
   return (
     <>
@@ -203,7 +194,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
       <Modal
         title="Create Feed"
         open={isModalOpen}
-        onOk={handleCreateFeed}
+        onOk={handleFeedCreation}
         onCancel={handleCancel}
         confirmLoading={isCreatingFeed}
         okButtonProps={{ disabled: !feedName.trim() || isCreatingFeed }}
@@ -217,17 +208,50 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
           onChange={(e) => setFeedName(e.target.value)}
           placeholder="Feed name"
           disabled={isCreatingFeed}
-          onPressEnter={handleCreateFeed}
+          onPressEnter={handleFeedCreation}
           autoFocus
         />
       </Modal>
 
-      <Dropdown menu={{ items: contextMenuItems }} trigger={["contextMenu"]}>
+      <Dropdown
+        menu={{ items: contextMenuItems }}
+        trigger={["contextMenu"]}
+        onOpenChange={(visible) => {
+          // Only set highlighting when menu is opened (not when closed)
+          if (visible) {
+            setIsRightClicked(true);
+          } else {
+            setIsRightClicked(false);
+          }
+        }}
+      >
         <Card
-          styles={{ body: { padding: 10 } }}
+          styles={{
+            body: {
+              padding: 10,
+              backgroundColor:
+                selected || isRightClicked
+                  ? getBackgroundRowColor(true, isDarkTheme)
+                  : undefined,
+            },
+          }}
           className={`${styles.seriesRow} ${Grid.useBreakpoint().xl && styles.xl}`}
-          bordered={false}
           hoverable
+          bordered={true}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (inCube) {
+              toggleSelection(seriesId, {
+                info,
+                errors,
+                pullState,
+                inCube,
+                receivedCount,
+              });
+            } else {
+              message.info("Please retrieve the series first");
+            }
+          }}
         >
           <Flex
             wrap
