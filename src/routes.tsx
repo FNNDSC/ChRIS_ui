@@ -11,7 +11,7 @@ import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
 import Login from "./components/Login";
-import LibraryCopyPage from "./components/NewLibrary";
+import GnomeLibrary from "./components/GnomeLibrary";
 import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import NotFound from "./components/NotFound";
 import Pacs from "./components/Pacs";
@@ -132,7 +132,7 @@ export const MainRouter: React.FC = () => {
             context={MainRouterContext}
           >
             <OperationsProvider>
-              <LibraryCopyPage />
+              <GnomeLibrary />
             </OperationsProvider>
           </RouterProvider>
         </PrivateRoute>
