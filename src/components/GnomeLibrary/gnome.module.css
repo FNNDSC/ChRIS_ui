@@ -1,0 +1,156 @@
+/* GnomeLibrary styles module */
+.gnomeLibraryContainer {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+
+.gnomeLibrarySidebar {
+  background-color: #1c1c1c;
+  color: #e0e0e0;
+  min-width: 200px;
+  height: 100%;
+  border-right: 1px solid #3a3a3a;
+  padding-top: 1rem;
+}
+
+.gnomeLibrarySidebar a {
+  color: #e0e0e0;
+  text-decoration: none;
+}
+
+.gnomeLibraryContent {
+  flex: 1;
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  height: 100%;
+  overflow: auto;
+  padding: 1rem;
+}
+
+.libraryMainContent {
+  background-color: #2a2a2a;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Centered breadcrumb styles */
+.breadcrumbContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.breadcrumbContainer nav {
+  font-size: 1.1rem;
+}
+
+.breadcrumbContainer li a {
+  cursor: pointer;
+}
+
+/* File list styles */
+.fileListContainer {
+  width: 100%;
+  margin-top: 1rem;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fileListHeader {
+  display: flex;
+  padding: 10px 16px;
+  background-color: #333;
+  border-bottom: 1px solid #444;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.fileNameHeader {
+  flex: 4;
+}
+
+.fileTypeHeader {
+  flex: 1;
+}
+
+.fileSizeHeader {
+  flex: 1;
+  text-align: right;
+}
+
+.fileList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fileListItem {
+  display: flex;
+  padding: 12px 16px;
+  border-bottom: 1px solid #3a3a3a;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.fileListItem:hover {
+  background-color: #3a3a3a;
+}
+
+.fileListItem:active {
+  background-color: #444;
+}
+
+.fileName {
+  display: flex;
+  align-items: center;
+  flex: 4;
+}
+
+.fileName svg {
+  color: #ffc107;
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.fileNameText {
+  font-weight: 500;
+}
+
+.fileType {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.fileSize {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.fileDate {
+  flex: 2;
+  display: flex;
+  align-items: center;
+}
+
+.fileOwner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.fileDateHeader {
+  flex: 2;
+}
+
+.fileOwnerHeader {
+  flex: 1;
+}
