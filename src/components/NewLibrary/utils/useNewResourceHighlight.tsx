@@ -3,7 +3,7 @@ import { differenceInSeconds } from "date-fns";
 
 // Custom hook to handle new resource highlighting
 const useNewResourceHighlight = (creationDate: string) => {
-  const rowRef = useRef<HTMLTableRowElement>(null);
+  const rowRef = useRef<HTMLLIElement>(null);
   const secondsSinceCreation = differenceInSeconds(
     new Date(),
     new Date(creationDate),
