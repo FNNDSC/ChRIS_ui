@@ -7,11 +7,11 @@ import {
 } from "@patternfly/react-core";
 import type React from "react";
 import {
-  useState,
-  useRef,
+  type KeyboardEvent,
   useEffect,
   useLayoutEffect,
-  type KeyboardEvent,
+  useRef,
+  useState,
 } from "react";
 import { HomeIcon } from "../Icons";
 import styles from "./gnome.module.css";

@@ -378,8 +378,6 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
                 handleSort(0);
               }
             }}
-            tabIndex={0}
-            role="button"
             aria-label="Sort by name"
           >
             Name {renderSortIcon(0)}
@@ -393,8 +391,6 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
                 handleSort(1);
               }
             }}
-            tabIndex={0}
-            role="button"
             aria-label="Sort by creation date"
           >
             Created {renderSortIcon(1)}
@@ -409,8 +405,6 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
                   handleSort(2);
                 }
               }}
-              tabIndex={0}
-              role="button"
               aria-label="Sort by creator"
             >
               Creator {renderSortIcon(2)}
@@ -425,8 +419,6 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
                 handleSort(3);
               }
             }}
-            tabIndex={0}
-            role="button"
             aria-label="Sort by size"
           >
             Size {renderSortIcon(3)}
@@ -524,11 +516,9 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    handlePagination();
+                    handlePagination?.();
                   }
                 }}
-                tabIndex={0}
-                role="button"
                 aria-label="Load more"
               >
                 Load More

@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
@@ -25,7 +25,7 @@ const GnomeLibrary = () => {
   const computedPath = currentPathSplit || `/home/${username}`;
   const queryKey = ["library_folders", computedPath, pageNumber];
 
-  const { data, isFetching, isError, error } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: queryKey,
     queryFn: () => fetchFolders(computedPath, pageNumber),
     placeholderData: keepPreviousData,
