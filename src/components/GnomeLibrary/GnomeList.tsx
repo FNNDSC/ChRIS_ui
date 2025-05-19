@@ -3,7 +3,7 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button, Skeleton, Tooltip } from "@patternfly/react-core";
+import { Button, Skeleton, Spinner } from "@patternfly/react-core";
 import { format } from "date-fns";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
@@ -236,14 +236,18 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
           handlePagination();
         }
       },
-      { threshold: 0.5 },
+      { threshold: 0.1 },
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    // Add a small delay before observing to prevent immediate loading on mount
+    const timer = setTimeout(() => {
+      if (observerTarget.current) {
+        observer.observe(observerTarget.current);
+      }
+    }, 1000);
 
     return () => {
+      clearTimeout(timer);
       if (observerTarget.current) {
         observer.unobserve(observerTarget.current);
       }
@@ -379,13 +383,6 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
 
       <div className={styles.fileListContainer}>
         {/* Loading indicator at the top when fetching data */}
-        {filesLoading && (
-          <div className={styles.loadingIndicator}>
-            <Skeleton height="20px" width="20px" shape="circle" />
-            <span className={styles.loadingText}>Loading items...</span>
-          </div>
-        )}
-
         <div className={styles.fileListHeader}>
           <div
             className={`${styles.fileNameHeader} ${styles.clickableHeader}`}
@@ -521,27 +518,44 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
           </ul>
         )}
 
-        {/* Pagination section */}
+        {/* Invisible observer target for infinite scroll */}
         {fetchMore && (
-          <div ref={observerTarget} className={styles.paginationContainer}>
-            {filesLoading ? (
-              <Skeleton height="30px" width="120px" />
-            ) : (
-              <Button
-                onClick={handlePagination}
-                variant="link"
-                isDisabled={filesLoading}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handlePagination?.();
-                  }
-                }}
-                aria-label="Load more"
-              >
-                Load More
-              </Button>
-            )}
+          <div
+            ref={observerTarget}
+            style={{
+              height: "1px",
+              width: "100%",
+              opacity: 0,
+              margin: "0",
+              padding: "0",
+            }}
+            data-testid="observer-target"
+          />
+        )}
+
+        {/* Bottom loading indicator that doesn't affect layout */}
+        {fetchMore && filesLoading && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: "20px",
+              left: "calc(50% + 100px)" /* Adjust for sidebar width (200px/2) */,
+              transform: "translateX(-50%)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: "8px 16px",
+              background: "rgba(20, 20, 20, 0.7)",
+              color: "#e0e0e0",
+              borderRadius: "8px",
+              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.3)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              zIndex: 10,
+            }}
+          >
+            <Spinner size="sm" aria-label="Loading more files" />
+            <span style={{ marginLeft: "8px" }}>Loading more files...</span>
           </div>
         )}
       </div>
