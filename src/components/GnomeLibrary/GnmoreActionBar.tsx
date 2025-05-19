@@ -1,5 +1,11 @@
-import { Button, Divider, Flex, FlexItem } from "@patternfly/react-core";
-import { useContext } from "react";
+import {
+  Button,
+  Divider,
+  Flex,
+  FlexItem,
+  Tooltip,
+} from "@patternfly/react-core";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import {
@@ -17,6 +23,7 @@ import {
   EditIcon,
   TrashIcon,
 } from "@patternfly/react-icons";
+import styles from "./gnome.module.css";
 
 type Props = {
   origin: OriginState;
@@ -27,11 +34,33 @@ type Props = {
 const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useAppSelector((s) => s.cart.selectedPaths);
+  const [useIconsOnly, setUseIconsOnly] = useState(false);
+  const actionBarRef = useRef<HTMLDivElement>(null);
 
   const { modalState, handleModalSubmitMutation, handleOperations } =
     useFolderOperations(origin, computedPath, folderList, false);
 
-  if (selectedPaths.length === 0) return null;
+  // Check available width and adjust display mode
+  useEffect(() => {
+    const checkWidth = () => {
+      if (actionBarRef.current) {
+        // Get the gnomeLibraryContent width as our reference
+        const libraryContent = document.querySelector(
+          `.${styles.gnomeLibraryContent}`,
+        );
+        const containerWidth = libraryContent
+          ? libraryContent.clientWidth
+          : window.innerWidth;
+
+        // Use icons only when container width is below 768px
+        setUseIconsOnly(containerWidth < 768);
+      }
+    };
+
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
 
   const handleCreateFeed = () => {
     handleOperations("createFeed");
@@ -49,10 +78,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
     handleOperations("share");
   };
 
-  const handleTag = () => {
-    handleOperations("tag");
-  };
-
   const handleRename = () => {
     handleOperations("rename");
   };
@@ -64,6 +89,9 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
   const handleClearSelection = () => {
     // dispatch(clearSelection());
   };
+
+  // If no items are selected, return null (but after all hooks are called)
+  if (selectedPaths.length === 0) return null;
 
   return (
     <>
@@ -88,58 +116,80 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
       />
 
       <div
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: isDarkTheme ? "#141414" : "white",
-          padding: "10px 20px",
-          borderRadius: "8px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-          zIndex: 1000,
-        }}
+        ref={actionBarRef}
+        className={`${styles.actionBarContainer} ${!isDarkTheme ? styles.actionBarContainerLight : ""}`}
       >
         <Flex
           alignItems={{ default: "alignItemsCenter" }}
           gap={{ default: "gapMd" }}
+          justifyContent={{ default: "justifyContentCenter" }}
         >
-          <FlexItem>
-            <span style={{ fontWeight: 600 }}>
-              {selectedPaths.length} items selected
-            </span>
-          </FlexItem>
-
           <FlexItem>
             <Flex gap={{ default: "gapSm" }}>
               <FlexItem>
-                <Button
-                  variant="primary"
-                  icon={<CodeBranchIcon />}
-                  onClick={handleCreateFeed}
-                >
-                  Create Feed
-                </Button>
+                {useIconsOnly ? (
+                  <Tooltip content="Create Feed">
+                    <Button
+                      variant="primary"
+                      aria-label="Create Feed"
+                      onClick={handleCreateFeed}
+                    >
+                      <CodeBranchIcon />
+                    </Button>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    variant="primary"
+                    icon={<CodeBranchIcon />}
+                    onClick={handleCreateFeed}
+                  >
+                    Create Feed
+                  </Button>
+                )}
               </FlexItem>
 
               <FlexItem>
-                <Button
-                  variant="primary"
-                  icon={<DownloadIcon />}
-                  onClick={handleDownload}
-                >
-                  Download
-                </Button>
+                {useIconsOnly ? (
+                  <Tooltip content="Download">
+                    <Button
+                      variant="primary"
+                      aria-label="Download"
+                      onClick={handleDownload}
+                    >
+                      <DownloadIcon />
+                    </Button>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    variant="primary"
+                    icon={<DownloadIcon />}
+                    onClick={handleDownload}
+                  >
+                    Download
+                  </Button>
+                )}
               </FlexItem>
 
               <FlexItem>
-                <Button
-                  variant="primary"
-                  icon={<ArchiveIcon />}
-                  onClick={handleAnonymize}
-                >
-                  Anonymize
-                </Button>
+                {useIconsOnly ? (
+                  <Tooltip content="Anonymize">
+                    <Button
+                      variant="primary"
+                      aria-label="Anonymize"
+                      onClick={handleAnonymize}
+                    >
+                      <ArchiveIcon />
+                    </Button>
+                  </Tooltip>
+                ) : (
+                  <Button
+                    variant="primary"
+                    icon={<ArchiveIcon />}
+                    onClick={handleAnonymize}
+                  >
+                    Anonymize
+                  </Button>
+                )}
               </FlexItem>
             </Flex>
           </FlexItem>
@@ -149,41 +199,41 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
           <FlexItem>
             <Flex gap={{ default: "gapSm" }}>
               <FlexItem>
-                <Button
-                  variant="plain"
-                  aria-label="Share"
-                  onClick={handleShare}
-                >
-                  <ShareIcon />
-                </Button>
+                <Tooltip content="Share">
+                  <Button
+                    variant="plain"
+                    aria-label="Share"
+                    onClick={handleShare}
+                  >
+                    <ShareIcon />
+                  </Button>
+                </Tooltip>
               </FlexItem>
 
               <FlexItem>
-                <Button
-                  variant="plain"
-                  aria-label="Rename"
-                  onClick={handleRename}
-                >
-                  <EditIcon />
-                </Button>
+                <Tooltip content="Rename">
+                  <Button
+                    variant="plain"
+                    aria-label="Rename"
+                    onClick={handleRename}
+                  >
+                    <EditIcon />
+                  </Button>
+                </Tooltip>
               </FlexItem>
 
               <FlexItem>
-                <Button
-                  variant="plain"
-                  aria-label="Delete"
-                  onClick={handleDelete}
-                >
-                  <TrashIcon />
-                </Button>
+                <Tooltip content="Delete">
+                  <Button
+                    variant="plain"
+                    aria-label="Delete"
+                    onClick={handleDelete}
+                  >
+                    <TrashIcon />
+                  </Button>
+                </Tooltip>
               </FlexItem>
             </Flex>
-          </FlexItem>
-
-          <FlexItem>
-            <Button variant="secondary" onClick={handleClearSelection}>
-              Clear Selection
-            </Button>
           </FlexItem>
         </Flex>
       </div>

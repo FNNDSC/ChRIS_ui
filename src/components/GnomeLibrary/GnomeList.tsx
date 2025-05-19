@@ -3,7 +3,7 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button, Skeleton } from "@patternfly/react-core";
+import { Button, Skeleton, Tooltip } from "@patternfly/react-core";
 import { format } from "date-fns";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
@@ -152,20 +152,30 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
             ) : (
               <FileIcon />
             )}
-            <span className={styles.fileNameText}>{name}</span>
+            <span className={styles.fileNameText} title={name}>
+              {name}
+            </span>
             {isNewResource && (
               <span className={styles.newlyAddedTag}>
                 <Tag color="#3E8635">Newly Added</Tag>
               </span>
             )}
           </div>
-          <div className={styles.fileDate}>
+          <div
+            className={styles.fileDate}
+            title={format(new Date(date), "dd MMM yyyy, HH:mm")}
+          >
             {format(new Date(date), "dd MMM yyyy, HH:mm")}
           </div>
           {origin.type !== "fileBrowser" && (
-            <div className={styles.fileOwner}>{owner}</div>
+            <div className={styles.fileOwner} title={owner}>
+              {owner}
+            </div>
           )}
-          <div className={styles.fileSize}>
+          <div
+            className={styles.fileSize}
+            title={size > 0 ? formatBytes(size, 0) : " "}
+          >
             {size > 0 ? formatBytes(size, 0) : " "}
           </div>
         </Button>
@@ -368,6 +378,14 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
       </Drawer>
 
       <div className={styles.fileListContainer}>
+        {/* Loading indicator at the top when fetching data */}
+        {filesLoading && (
+          <div className={styles.loadingIndicator}>
+            <Skeleton height="20px" width="20px" shape="circle" />
+            <span className={styles.loadingText}>Loading items...</span>
+          </div>
+        )}
+
         <div className={styles.fileListHeader}>
           <div
             className={`${styles.fileNameHeader} ${styles.clickableHeader}`}
