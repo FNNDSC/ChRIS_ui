@@ -10,9 +10,10 @@ import {
   Grid,
   Tooltip,
   Skeleton,
+  Spinner,
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
@@ -70,6 +71,7 @@ const FileBrowser = (props: FileBrowserProps) => {
     isLoading,
   } = props;
 
+  console.log("Fetch More", isLoading, fetchMore);
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
   const username = useAppSelector((state) => state.user.username);
@@ -153,6 +155,8 @@ const FileBrowser = (props: FileBrowserProps) => {
     type: OperationContext.FILEBROWSER,
     additionalKeys: [additionalKey],
   };
+
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
     <Grid hasGutter className="file-browser">
@@ -242,10 +246,34 @@ const FileBrowser = (props: FileBrowserProps) => {
                             </Tooltip>
                           )}
                       </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          minHeight: "32px",
+                          minWidth: "120px",
+                        }}
+                      >
+                        {isLoading && (
+                          <>
+                            <Spinner size="sm" aria-label="Loading files" />
+                            <span>Loading files...</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  <div style={{ flexGrow: 1, minHeight: 0, overflow: "auto" }}>
+                  <div
+                    className="file-list"
+                    style={{
+                      flexGrow: 1,
+                      minHeight: 0,
+                      overflow: "auto",
+                    }}
+                    ref={scrollRef}
+                  >
                     <Table
                       style={{
                         backgroundColor: "inherit",
@@ -336,15 +364,28 @@ const FileBrowser = (props: FileBrowserProps) => {
                         )}
                       </Tbody>
                     </Table>
-                    {fetchMore && !isLoading && (
-                      <Button onClick={handlePagination} variant="link">
-                        Load more data...
-                      </Button>
+                    {fetchMore && (
+                      <div
+                        ref={observerTarget}
+                        style={{
+                          height: "50px",
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          padding: "10px 0",
+                        }}
+                        data-testid="observer-target"
+                      >
+                        {isLoading ? (
+                          <Spinner size="sm" aria-label="Loading more files" />
+                        ) : (
+                          <Button onClick={handlePagination} variant="link">
+                            Load more data...
+                          </Button>
+                        )}
+                      </div>
                     )}
-                    <div
-                      style={{ height: "1px", marginTop: "10px" }}
-                      ref={observerTarget}
-                    />
                   </div>
                 </div>
               </>

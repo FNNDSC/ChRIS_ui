@@ -53,13 +53,20 @@ export const useFeedBrowser = (statuses: Record<number, string>) => {
 
   const observerTarget = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
+    // Get the scrollable container if available
+    const scrollableContainer = document.querySelector(".file-list") || null;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && fetchMore) {
+        if (entries[0].isIntersecting && fetchMore && !filesLoading) {
           handlePagination();
         }
       },
-      { threshold: 0.5 },
+      {
+        root: scrollableContainer, // Use the scrollable container as the viewport
+        threshold: 0, // Trigger as soon as any part of the element is visible
+        rootMargin: "100px 0px", // Add margin to trigger earlier
+      },
     );
     if (observerTarget.current) {
       observer.observe(observerTarget.current);
@@ -69,7 +76,7 @@ export const useFeedBrowser = (statuses: Record<number, string>) => {
         observer.unobserve(observerTarget.current);
       }
     };
-  }, [fetchMore, handlePagination]);
+  }, [fetchMore, handlePagination, filesLoading]);
 
   useEffect(() => {
     if (isFinished && download.error) {
