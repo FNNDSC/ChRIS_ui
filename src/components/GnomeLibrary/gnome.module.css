@@ -41,6 +41,7 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  position: relative; /* Added for proper action bar positioning */
 }
 
 .libraryMainContent {
@@ -71,6 +72,7 @@
   flex: 1; /* Take remaining space */
   display: flex;
   flex-direction: column;
+  position: relative; /* Added for proper action bar positioning */
 }
 
 .fileListHeader {
@@ -130,16 +132,21 @@
   display: flex;
   align-items: center;
   flex: 4;
+  min-width: 0; /* Allow flex item to shrink below content size */
 }
 
 .fileName svg {
   color: #ffc107;
   margin-right: 10px;
   font-size: 1.2rem;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
 .fileNameText {
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fileType {
@@ -153,18 +160,27 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fileDate {
   flex: 2;
   display: flex;
   align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fileOwner {
   flex: 1;
   display: flex;
   align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fileDateHeader {
@@ -201,16 +217,28 @@
   z-index: 10;
 }
 
+/* New styles for home icon alignment */
+.homeIconWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.homeText {
+  vertical-align: middle;
+  display: inline-block;
+}
+
 .crumbLink {
   font-size: 1rem;
   cursor: pointer;
   color: #1fa7f8;
   white-space: nowrap;
-}
-
-.icon {
-  vertical-align: text-bottom;
-  margin-right: 4px;
 }
 
 /* existing: */
@@ -299,4 +327,50 @@
 .emptyStateText {
   max-width: 500px;
   margin: 0 auto;
+}
+
+/* Action bar container styles */
+.actionBarContainer {
+  position: fixed;
+  bottom: 20px;
+  /* Center relative to the gnomeLibraryContent */
+  left: calc(50% + 100px); /* Adjust for sidebar width (200px/2) */
+  transform: translateX(-50%);
+  width: fit-content;
+  max-width: calc(100% - 240px); /* Account for sidebar and padding */
+  margin: 0 auto;
+  z-index: 1000;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(20, 20, 20, 0.7);
+  color: #e0e0e0;
+}
+
+/* Light theme version can be applied via a class added in the component */
+.actionBarContainerLight {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #151515;
+}
+
+/* Loading indicator styles */
+.loadingIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  width: 100%;
+  height: 40px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+.loadingText {
+  margin-left: 10px;
+  font-size: 14px;
+  color: inherit;
 }

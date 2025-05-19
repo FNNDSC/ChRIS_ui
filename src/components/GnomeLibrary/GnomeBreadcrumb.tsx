@@ -91,8 +91,10 @@ const GnomeBreadcrumb: React.FC<Props> = ({
             className={styles.crumbLink}
             onClick={() => onPathChange(`/home/${username ?? ""}`)}
           >
-            <HomeIcon className={styles.icon} />
-            home
+            <span className={styles.homeIconWrapper}>
+              <HomeIcon className={styles.icon} />
+              <span className={styles.homeText}>home</span>
+            </span>
           </BreadcrumbItem>
         )}
 
