@@ -5,15 +5,17 @@
   width: 100%;
   background-color: #2a2a2a;
   color: #e0e0e0;
+  overflow: hidden; /* Prevent outer scrollbar */
 }
 
 .gnomeLibrarySidebar {
   background-color: #1c1c1c;
   color: #e0e0e0;
-  min-width: 200px;
+  width: 200px; /* Fixed width instead of min-width */
   height: 100%;
   border-right: 1px solid #3a3a3a;
   padding-top: 1rem;
+  overflow-y: auto; /* Allow sidebar to scroll independently */
 }
 
 .gnomeLibrarySidebar a {
@@ -37,11 +39,11 @@
   background-color: #2a2a2a;
   color: #e0e0e0;
   height: 100%;
-  overflow: hidden; /* Changed from auto to hidden to prevent double scrollbars */
+  overflow: hidden; /* Prevent double scrollbars */
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  position: relative; /* Added for proper action bar positioning */
+  position: relative; /* Keep this for proper action bar positioning */
 }
 
 .libraryMainContent {
@@ -60,6 +62,7 @@
   background-color: #2a2a2a;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #3a3a3a;
+  margin-bottom: 1rem;
 }
 
 /* File list styles */
