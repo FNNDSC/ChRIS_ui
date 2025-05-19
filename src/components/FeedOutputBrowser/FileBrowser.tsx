@@ -180,7 +180,13 @@ const FileBrowser = (props: FileBrowserProps) => {
               />
 
               <>
-                <div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                  }}
+                >
                   <Operations
                     customClassName={{
                       toolbar: "remove-toolbar-padding",
@@ -239,7 +245,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                     </div>
                   </div>
 
-                  <div style={{ flex: 1, overflow: "auto" }}>
+                  <div style={{ flexGrow: 1, minHeight: 0, overflow: "auto" }}>
                     <Table
                       style={{
                         backgroundColor: "inherit",
