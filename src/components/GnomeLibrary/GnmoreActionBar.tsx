@@ -86,10 +86,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
     handleOperations("delete");
   };
 
-  const handleClearSelection = () => {
-    // dispatch(clearSelection());
-  };
-
   // If no items are selected, return null (but after all hooks are called)
   if (selectedPaths.length === 0) return null;
 

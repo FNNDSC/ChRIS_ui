@@ -61,8 +61,6 @@
   z-index: 10;
   background-color: #2a2a2a;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #3a3a3a;
-  margin-bottom: 1rem;
 }
 
 /* File list styles */
@@ -376,4 +374,37 @@
   margin-left: 10px;
   font-size: 14px;
   color: inherit;
+}
+
+/* Infinite scroll sentinel styles */
+.sentinel {
+  height: 100px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  background-color: transparent;
+}
+
+/* Loading spinner overlay for infinite scroll */
+.loadingSpinnerOverlay {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(20, 20, 20, 0.7);
+  color: #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+.loadingSpinnerText {
+  margin-left: 8px;
 }
