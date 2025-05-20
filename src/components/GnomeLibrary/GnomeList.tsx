@@ -5,7 +5,8 @@ import type {
 } from "@fnndsc/chrisapi";
 import { Button, Skeleton, Spinner } from "@patternfly/react-core";
 import { format } from "date-fns";
-import React, { useState, useEffect, useRef } from "react";
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { formatBytes } from "../Feeds/utilties";
 import FileDetailView from "../Preview/FileDetailView";
@@ -27,7 +28,6 @@ import {
   ExternalLinkSquareAltIcon,
   SortAmountDownIcon,
   SortAmountUpIcon,
-  FolderOpenIcon,
 } from "@patternfly/react-icons";
 import GnomeBulkActionBar from "./GnmoreActionBar";
 
@@ -225,34 +225,29 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
     direction: "asc",
   });
 
-  const observerTarget = useRef<HTMLDivElement>(null);
+  // ref to the scrolling <ul>
+  const listRef = useRef<HTMLUListElement>(null);
 
+  // attach a scroll listener instead of IntersectionObserver
   useEffect(() => {
-    if (!handlePagination || !fetchMore) return;
+    const ul = listRef.current;
+    if (!ul) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && fetchMore && !filesLoading) {
-          handlePagination();
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    // Add a small delay before observing to prevent immediate loading on mount
-    const timer = setTimeout(() => {
-      if (observerTarget.current) {
-        observer.observe(observerTarget.current);
-      }
-    }, 1000);
-
-    return () => {
-      clearTimeout(timer);
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
+    const onScroll = () => {
+      if (
+        fetchMore &&
+        !filesLoading &&
+        ul.scrollTop + ul.clientHeight >= ul.scrollHeight - 50
+      ) {
+        handlePagination?.();
       }
     };
-  }, [fetchMore, handlePagination, filesLoading]);
+
+    ul.addEventListener("scroll", onScroll);
+    return () => {
+      ul.removeEventListener("scroll", onScroll);
+    };
+  }, [fetchMore, filesLoading, handlePagination]);
 
   const handleFileClick = (file: FileBrowserFolderFile) => {
     setSelectedFile(file);
@@ -260,116 +255,83 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
   };
 
   const handleSort = (columnIndex: number) => {
-    setSortBy((prevSortBy) => {
-      const newDirection =
-        prevSortBy.index === columnIndex && prevSortBy.direction === "asc"
-          ? "desc"
-          : "asc";
-      return { index: columnIndex, direction: newDirection };
-    });
+    setSortBy((prev) => ({
+      index: columnIndex,
+      direction:
+        prev.index === columnIndex && prev.direction === "asc" ? "desc" : "asc",
+    }));
   };
 
   const sortRows = () => {
-    const sortedData = { ...data };
+    const sorted = { ...data };
     const { index, direction } = sortBy;
+    const dir = direction === "asc" ? 1 : -1;
 
     if (index === 0) {
-      // Name column
-      sortedData.folders.sort(
+      sorted.folders.sort(
         (a, b) =>
           getFolderName(a, computedPath).localeCompare(
             getFolderName(b, computedPath),
-          ) * (direction === "asc" ? 1 : -1),
+          ) * dir,
       );
-      sortedData.files.sort(
-        (a, b) =>
-          getFileName(a).localeCompare(getFileName(b)) *
-          (direction === "asc" ? 1 : -1),
+      sorted.files.sort(
+        (a, b) => getFileName(a).localeCompare(getFileName(b)) * dir,
       );
-      sortedData.linkFiles.sort(
-        (a, b) =>
-          getLinkFileName(a).localeCompare(getLinkFileName(b)) *
-          (direction === "asc" ? 1 : -1),
+      sorted.linkFiles.sort(
+        (a, b) => getLinkFileName(a).localeCompare(getLinkFileName(b)) * dir,
       );
     } else if (index === 1) {
-      // Date column
-      sortedData.folders.sort((a, b) => {
-        const dateA = new Date(a.data.creation_date).getTime();
-        const dateB = new Date(b.data.creation_date).getTime();
-        return (dateA - dateB) * (direction === "asc" ? 1 : -1);
-      });
-      sortedData.files.sort((a, b) => {
-        const dateA = new Date(a.data.creation_date).getTime();
-        const dateB = new Date(b.data.creation_date).getTime();
-        return (dateA - dateB) * (direction === "asc" ? 1 : -1);
-      });
-      sortedData.linkFiles.sort((a, b) => {
-        const dateA = new Date(a.data.creation_date).getTime();
-        const dateB = new Date(b.data.creation_date).getTime();
-        return (dateA - dateB) * (direction === "asc" ? 1 : -1);
-      });
+      sorted.folders.sort(
+        (a, b) =>
+          (new Date(a.data.creation_date).getTime() -
+            new Date(b.data.creation_date).getTime()) *
+          dir,
+      );
+      sorted.files.sort(
+        (a, b) =>
+          (new Date(a.data.creation_date).getTime() -
+            new Date(b.data.creation_date).getTime()) *
+          dir,
+      );
+      sorted.linkFiles.sort(
+        (a, b) =>
+          (new Date(a.data.creation_date).getTime() -
+            new Date(b.data.creation_date).getTime()) *
+          dir,
+      );
     } else if (index === 2) {
-      // Owner column
-      sortedData.folders.sort(
+      sorted.folders.sort(
         (a, b) =>
-          a.data.owner_username.localeCompare(b.data.owner_username) *
-          (direction === "asc" ? 1 : -1),
+          a.data.owner_username.localeCompare(b.data.owner_username) * dir,
       );
-      sortedData.files.sort(
+      sorted.files.sort(
         (a, b) =>
-          a.data.owner_username.localeCompare(b.data.owner_username) *
-          (direction === "asc" ? 1 : -1),
+          a.data.owner_username.localeCompare(b.data.owner_username) * dir,
       );
-      sortedData.linkFiles.sort(
+      sorted.linkFiles.sort(
         (a, b) =>
-          a.data.owner_username.localeCompare(b.data.owner_username) *
-          (direction === "asc" ? 1 : -1),
+          a.data.owner_username.localeCompare(b.data.owner_username) * dir,
       );
     } else if (index === 3) {
-      // Size column
-      sortedData.folders.sort(
-        () => 0, // Folders don't have size, so no sorting
-      );
-      sortedData.files.sort(
-        (a, b) =>
-          (a.data.fsize - b.data.fsize) * (direction === "asc" ? 1 : -1),
-      );
-      sortedData.linkFiles.sort(
-        (a, b) =>
-          (a.data.fsize - b.data.fsize) * (direction === "asc" ? 1 : -1),
-      );
+      sorted.files.sort((a, b) => (a.data.fsize - b.data.fsize) * dir);
+      sorted.linkFiles.sort((a, b) => (a.data.fsize - b.data.fsize) * dir);
     }
 
-    return sortedData;
+    return sorted;
   };
 
-  // Apply sorting to the data
   const sortedData = sortBy.index !== null ? sortRows() : data;
-
   const origin = {
     type: OperationContext.LIBRARY,
     additionalKeys: [computedPath],
   };
 
-  // Helper function to render sort icon
-  const renderSortIcon = (columnIndex: number) => {
-    if (sortBy.index === columnIndex) {
-      return sortBy.direction === "asc" ? (
-        <SortAmountUpIcon className={styles.sortIcon} />
-      ) : (
-        <SortAmountDownIcon className={styles.sortIcon} />
-      );
-    }
-    // Show a neutral sort icon for columns that are not currently sorted
-    return <SortAmountDownIcon className={styles.inactiveSortIcon} />;
-  };
-
   return (
-    <React.Fragment>
+    <>
       <Drawer
         width="100%"
         open={preview}
-        closable={true}
+        closable
         onClose={() => {
           setShowPreview(false);
           setSelectedFile(undefined);
@@ -382,186 +344,132 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
       </Drawer>
 
       <div className={styles.fileListContainer}>
-        {/* Loading indicator at the top when fetching data */}
         <div className={styles.fileListHeader}>
           <div
             className={`${styles.fileNameHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(0)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleSort(0);
-              }
-            }}
-            aria-label="Sort by name"
           >
-            Name {renderSortIcon(0)}
+            Name{" "}
+            {sortBy.index === 0 ? (
+              sortBy.direction === "asc" ? (
+                <SortAmountUpIcon />
+              ) : (
+                <SortAmountDownIcon />
+              )
+            ) : (
+              <SortAmountDownIcon className={styles.inactiveSortIcon} />
+            )}
           </div>
           <div
             className={`${styles.fileDateHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(1)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleSort(1);
-              }
-            }}
-            aria-label="Sort by creation date"
           >
-            Created {renderSortIcon(1)}
+            Created{" "}
+            {sortBy.index === 1 ? (
+              sortBy.direction === "asc" ? (
+                <SortAmountUpIcon />
+              ) : (
+                <SortAmountDownIcon />
+              )
+            ) : (
+              <SortAmountDownIcon className={styles.inactiveSortIcon} />
+            )}
           </div>
-          {origin.type !== "fileBrowser" && (
-            <div
-              className={`${styles.fileOwnerHeader} ${styles.clickableHeader}`}
-              onClick={() => handleSort(2)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleSort(2);
-                }
-              }}
-              aria-label="Sort by creator"
-            >
-              Creator {renderSortIcon(2)}
-            </div>
-          )}
+          <div
+            className={`${styles.fileOwnerHeader} ${styles.clickableHeader}`}
+            onClick={() => handleSort(2)}
+          >
+            Creator{" "}
+            {sortBy.index === 2 ? (
+              sortBy.direction === "asc" ? (
+                <SortAmountUpIcon />
+              ) : (
+                <SortAmountDownIcon />
+              )
+            ) : (
+              <SortAmountDownIcon className={styles.inactiveSortIcon} />
+            )}
+          </div>
           <div
             className={`${styles.fileSizeHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(3)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                handleSort(3);
-              }
-            }}
-            aria-label="Sort by size"
           >
-            Size {renderSortIcon(3)}
+            Size{" "}
+            {sortBy.index === 3 ? (
+              sortBy.direction === "asc" ? (
+                <SortAmountUpIcon />
+              ) : (
+                <SortAmountDownIcon />
+              )
+            ) : (
+              <SortAmountDownIcon className={styles.inactiveSortIcon} />
+            )}
           </div>
         </div>
 
-        {/* Empty state when no data is available */}
-        {!filesLoading &&
-        sortedData.folders.length === 0 &&
-        sortedData.files.length === 0 &&
-        sortedData.linkFiles.length === 0 ? (
-          <div className={styles.emptyStateContainer}>
-            <FolderOpenIcon className={styles.emptyStateIcon} />
-            <h2 className={styles.emptyStateTitle}>No items found</h2>
-            <p className={styles.emptyStateText}>
-              This folder is empty. Upload files or create a new folder to get
-              started.
-            </p>
-          </div>
-        ) : (
-          <ul className={styles.fileList}>
-            {sortedData.folders.map((resource: FileBrowserFolder, index) => (
-              <GnomeFolderRow
-                rowIndex={index}
-                key={resource.data.path}
-                resource={resource}
-                name={getFolderName(resource, computedPath)}
-                date={resource.data.creation_date}
-                owner={resource.data.owner_username}
-                size={0}
-                computedPath={computedPath}
-                handleFolderClick={() => {
-                  const name = getFolderName(resource, computedPath);
-                  handleFolderClick(name);
-                }}
-                handleFileClick={() => {
-                  return;
-                }}
-                origin={origin}
-              />
-            ))}
-            {sortedData.files.map((resource: FileBrowserFolderFile, index) => (
-              <GnomeFileRow
-                rowIndex={index}
-                key={resource.data.fname}
-                resource={resource}
-                name={getFileName(resource)}
-                date={resource.data.creation_date}
-                owner={resource.data.owner_username}
-                size={resource.data.fsize}
-                computedPath={computedPath}
-                handleFolderClick={() => {
-                  return;
-                }}
-                handleFileClick={() => {
-                  handleFileClick(resource);
-                }}
-                origin={origin}
-              />
-            ))}
-            {sortedData.linkFiles.map(
-              (resource: FileBrowserFolderLinkFile, index) => (
-                <GnomeLinkRow
-                  rowIndex={index}
-                  key={resource.data.path}
-                  resource={resource}
-                  name={getLinkFileName(resource)}
-                  date={resource.data.creation_date}
-                  owner={resource.data.owner_username}
-                  size={resource.data.fsize}
-                  computedPath={computedPath}
-                  handleFolderClick={() => {
-                    return;
-                  }}
-                  handleFileClick={() => {
-                    navigate(resource.data.path);
-                  }}
-                  origin={origin}
-                />
-              ),
-            )}
-          </ul>
-        )}
+        <ul ref={listRef} className={styles.fileList}>
+          {sortedData.folders.map((r, i) => (
+            <GnomeFolderRow
+              key={r.data.path}
+              rowIndex={i}
+              resource={r}
+              name={getFolderName(r, computedPath)}
+              date={r.data.creation_date}
+              owner={r.data.owner_username}
+              size={0}
+              computedPath={computedPath}
+              handleFolderClick={() =>
+                handleFolderClick(getFolderName(r, computedPath))
+              }
+              handleFileClick={() => {}}
+              origin={origin}
+            />
+          ))}
 
-        {/* Invisible observer target for infinite scroll */}
-        {fetchMore && (
-          <div
-            ref={observerTarget}
-            style={{
-              height: "1px",
-              width: "100%",
-              opacity: 0,
-              margin: "0",
-              padding: "0",
-            }}
-            data-testid="observer-target"
-          />
-        )}
+          {sortedData.files.map((r, i) => (
+            <GnomeFileRow
+              key={r.data.fname}
+              rowIndex={i}
+              resource={r}
+              name={getFileName(r)}
+              date={r.data.creation_date}
+              owner={r.data.owner_username}
+              size={r.data.fsize}
+              computedPath={computedPath}
+              handleFolderClick={() => {}}
+              handleFileClick={() => handleFileClick(r)}
+              origin={origin}
+            />
+          ))}
 
-        {/* Bottom loading indicator that doesn't affect layout */}
+          {sortedData.linkFiles.map((r, i) => (
+            <GnomeLinkRow
+              key={r.data.path}
+              rowIndex={i}
+              resource={r}
+              name={getLinkFileName(r)}
+              date={r.data.creation_date}
+              owner={r.data.owner_username}
+              size={r.data.fsize}
+              computedPath={computedPath}
+              handleFolderClick={() => {}}
+              handleFileClick={() => navigate(r.data.path)}
+              origin={origin}
+            />
+          ))}
+        </ul>
         {fetchMore && filesLoading && (
-          <div
-            style={{
-              position: "fixed",
-              bottom: "20px",
-              left: "calc(50% + 100px)" /* Adjust for sidebar width (200px/2) */,
-              transform: "translateX(-50%)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: "8px 16px",
-              background: "rgba(20, 20, 20, 0.7)",
-              color: "#e0e0e0",
-              borderRadius: "8px",
-              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.3)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
-              zIndex: 10,
-            }}
-          >
+          <li className={styles.loadingSpinnerOverlay}>
             <Spinner size="sm" aria-label="Loading more files" />
-            <span style={{ marginLeft: "8px" }}>Loading more files...</span>
-          </div>
+            <span className={styles.loadingSpinnerText}>
+              Loading more files…
+            </span>
+          </li>
         )}
       </div>
-      {/* Bulk Action Bar with updated props */}
+
       <GnomeBulkActionBar origin={origin} computedPath={computedPath} />
-    </React.Fragment>
+    </>
   );
 };
 
