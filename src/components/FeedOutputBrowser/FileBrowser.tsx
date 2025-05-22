@@ -1,4 +1,4 @@
-import type {
+import {
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
@@ -337,17 +337,28 @@ const FileBrowser = (props: FileBrowserProps) => {
                                     try {
                                       const linkedResource =
                                         await resource.getLinkedResource();
+                                      console.log(
+                                        "Test",
+                                        linkedResource instanceof
+                                          FileBrowserFolderFile,
+                                      );
 
                                       if (linkedResource) {
                                         // Check if it's a folder (has path property)
-                                        if ("path" in linkedResource.data) {
+                                        if (
+                                          "path" in linkedResource.data &&
+                                          linkedResource instanceof
+                                            FileBrowserFolder
+                                        ) {
                                           handleFileClick(
                                             linkedResource.data.path,
                                           );
                                         }
                                         // Check if it's a file (has fname property)
                                         else if (
-                                          "fname" in linkedResource.data
+                                          "fname" in linkedResource.data &&
+                                          linkedResource instanceof
+                                            FileBrowserFolderFile
                                         ) {
                                           toggleAnimation();
                                           dispatch(
