@@ -24,6 +24,7 @@ import { OperationContext } from "./context";
 
 // Fetch folders from the server
 export async function fetchFolders(computedPath: string, pageNumber?: number) {
+  console.log("current path", computedPath);
   const client = ChrisAPIClient.getClient();
   await client.setUrls();
 
