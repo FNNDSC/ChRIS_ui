@@ -1,4 +1,4 @@
-import type {
+import {
   FileBrowserFolder,
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
@@ -71,7 +71,6 @@ const FileBrowser = (props: FileBrowserProps) => {
     isLoading,
   } = props;
 
-  console.log("Fetch More", isLoading, fetchMore);
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
   const username = useAppSelector((state) => state.user.username);
@@ -334,9 +333,51 @@ const FileBrowser = (props: FileBrowserProps) => {
                                   size={resource.data.fsize}
                                   computedPath={additionalKey}
                                   handleFolderClick={() => {}}
-                                  handleFileClick={() =>
-                                    handleFileClick(resource.data.path)
-                                  }
+                                  handleFileClick={async () => {
+                                    try {
+                                      const linkedResource =
+                                        await resource.getLinkedResource();
+                                      console.log(
+                                        "Test",
+                                        linkedResource instanceof
+                                          FileBrowserFolderFile,
+                                      );
+
+                                      if (linkedResource) {
+                                        // Check if it's a folder (has path property)
+                                        if (
+                                          "path" in linkedResource.data &&
+                                          linkedResource instanceof
+                                            FileBrowserFolder
+                                        ) {
+                                          handleFileClick(
+                                            linkedResource.data.path,
+                                          );
+                                        }
+                                        // Check if it's a file (has fname property)
+                                        else if (
+                                          "fname" in linkedResource.data &&
+                                          linkedResource instanceof
+                                            FileBrowserFolderFile
+                                        ) {
+                                          toggleAnimation();
+                                          dispatch(
+                                            setSelectedFile(
+                                              linkedResource as FileBrowserFolderFile,
+                                            ),
+                                          );
+                                          !drawerState.preview.open &&
+                                            dispatch(setFilePreviewPanel());
+                                        }
+                                      }
+                                    } catch (error) {
+                                      // TODO: Handle error
+                                      console.error(
+                                        "Error handling link file:",
+                                        error,
+                                      );
+                                    }
+                                  }}
                                   origin={origin}
                                 />
                               ),
