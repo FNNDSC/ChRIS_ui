@@ -2,12 +2,12 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/hooks";
-import { SpinContainer } from "../Common";
+import { EmptyStateComponent, SpinContainer } from "../Common";
 import { OperationContext, OperationsProvider } from "../NewLibrary/context";
 import Wrapper from "../Wrapper";
-import GnomeBreadcrumb from "./GnomeBreadcrumb";
+import GnomeCentralBreadcrumb from "./GnomeCentralBreadcrumb";
 import GnomeLibraryTable from "./GnomeList";
-import GnomeLibrarySidebar from "./GnomreSidebar";
+import GnomeLibrarySidebar from "./GnomeSidebar";
 import styles from "./gnome.module.css";
 import { fetchFolders } from "./utils/hooks/useFolders";
 
@@ -76,18 +76,27 @@ const GnomeLibrary = () => {
 
           <div className={styles.gnomeLibraryContent}>
             <div className={styles.libraryMainContent}>
-              <div className={styles.breadcrumbContainer}>
-                <GnomeBreadcrumb
-                  path={computedPath}
-                  username={username}
-                  activeSidebarItem={activeSidebarItem}
-                  onPathChange={(newPath) => navigate(`/library/${newPath}`)}
-                />
-              </div>
+              <GnomeCentralBreadcrumb
+                path={computedPath}
+                username={username}
+                activeSidebarItem={activeSidebarItem}
+                onPathChange={(newPath) => navigate(`/library/${newPath}`)}
+                origin={{
+                  type: OperationContext.LIBRARY,
+                  additionalKeys: [computedPath],
+                }}
+                computedPath={computedPath}
+                foldersList={data?.folderList}
+              />
 
               <div className={styles.fileListContainer}>
                 {isFetching && !data ? (
                   <SpinContainer title="Loading library items..." />
+                ) : data &&
+                  data.folders.length === 0 &&
+                  data.files.length === 0 &&
+                  data.linkFiles.length === 0 ? (
+                  <EmptyStateComponent title="This folder is empty" />
                 ) : (
                   data && (
                     <GnomeLibraryTable

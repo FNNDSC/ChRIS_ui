@@ -12,7 +12,8 @@ import { formatBytes } from "../Feeds/utilties";
 import FileDetailView from "../Preview/FileDetailView";
 import { Drawer, Tag } from "antd";
 import { OperationContext } from "../NewLibrary/context";
-import useLongPress, { useAssociatedFeed } from "../NewLibrary/utils/longpress";
+import { useAssociatedFeed } from "../NewLibrary/utils/longpress";
+import useGnomeLongPress from "./utils/gnomeLongPress";
 import useNewResourceHighlight from "../NewLibrary/utils/useNewResourceHighlight";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
 import {
@@ -89,7 +90,7 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
   handleFileClick,
   origin,
 }) => {
-  const { handlers } = useLongPress();
+  const { handlers } = useGnomeLongPress();
   const { handleOnClick } = handlers;
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
@@ -348,6 +349,13 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
           <div
             className={`${styles.fileNameHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(0)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleSort(0);
+              }
+            }}
+            aria-label="Sort by name"
           >
             Name{" "}
             {sortBy.index === 0 ? (
@@ -363,6 +371,13 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
           <div
             className={`${styles.fileDateHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(1)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleSort(1);
+              }
+            }}
+            aria-label="Sort by creation date"
           >
             Created{" "}
             {sortBy.index === 1 ? (
@@ -378,6 +393,13 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
           <div
             className={`${styles.fileOwnerHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(2)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleSort(2);
+              }
+            }}
+            aria-label="Sort by creator"
           >
             Creator{" "}
             {sortBy.index === 2 ? (
@@ -393,6 +415,13 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
           <div
             className={`${styles.fileSizeHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(3)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleSort(3);
+              }
+            }}
+            aria-label="Sort by size"
           >
             Size{" "}
             {sortBy.index === 3 ? (
