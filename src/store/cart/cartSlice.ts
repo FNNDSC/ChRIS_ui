@@ -39,6 +39,9 @@ const cartSlice = createSlice({
         (pathObj) => pathObj.path !== action.payload,
       );
     },
+    clearAllPaths(state) {
+      state.selectedPaths = [];
+    },
     clearDownloadStatus(
       state,
       action: PayloadAction<{ path: string; type: string }>,
@@ -234,6 +237,7 @@ export const {
   setSelectedPaths,
   setBulkSelectedPaths,
   clearSelectedPaths,
+  clearAllPaths,
   clearDownloadStatus,
   setToggleCart,
   setFileDownloadStatus,

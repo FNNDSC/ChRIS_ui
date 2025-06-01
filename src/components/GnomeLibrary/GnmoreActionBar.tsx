@@ -1,12 +1,14 @@
 import {
+  Badge,
   Button,
   Divider,
   Flex,
   FlexItem,
+  Popover,
   Tooltip,
 } from "@patternfly/react-core";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useAppSelector } from "../../store/hooks";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import {
   useFolderOperations,
@@ -22,8 +24,12 @@ import {
   ShareIcon,
   EditIcon,
   TrashIcon,
+  TimesIcon,
+  FileIcon,
+  FolderIcon,
 } from "@patternfly/react-icons";
 import styles from "./gnome.module.css";
+import { clearAllPaths, clearSelectedPaths } from "../../store/cart/cartSlice";
 
 type Props = {
   origin: OriginState;
@@ -36,15 +42,16 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
   const selectedPaths = useAppSelector((s) => s.cart.selectedPaths);
   const [useIconsOnly, setUseIconsOnly] = useState(false);
   const actionBarRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+  const [isSelectionPopoverOpen, setIsSelectionPopoverOpen] = useState(false);
 
   const { modalState, handleModalSubmitMutation, handleOperations } =
     useFolderOperations(origin, computedPath, folderList, false);
 
-  // Check available width and adjust display mode
+  // Adjust display mode based on available width
   useEffect(() => {
     const checkWidth = () => {
       if (actionBarRef.current) {
-        // Get the gnomeLibraryContent width as our reference
         const libraryContent = document.querySelector(
           `.${styles.gnomeLibraryContent}`,
         );
@@ -52,7 +59,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
           ? libraryContent.clientWidth
           : window.innerWidth;
 
-        // Use icons only when container width is below 768px
         setUseIconsOnly(containerWidth < 768);
       }
     };
@@ -86,7 +92,19 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
     handleOperations("delete");
   };
 
-  // If no items are selected, return null (but after all hooks are called)
+  const handleClearAllSelections = () => {
+    dispatch(clearAllPaths());
+  };
+
+  const handleClearPath = (path: string) => {
+    dispatch(clearSelectedPaths(path));
+  };
+
+  const getFileNameFromPath = (path: string) => {
+    return path.split("/").pop() || path;
+  };
+
+  // If no items are selected, don’t render the action bar
   if (selectedPaths.length === 0) return null;
 
   return (
@@ -113,13 +131,86 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
 
       <div
         ref={actionBarRef}
-        className={`${styles.actionBarContainer} ${!isDarkTheme ? styles.actionBarContainerLight : ""}`}
+        className={`${styles.actionBarContainer} ${
+          !isDarkTheme ? styles.actionBarContainerLight : ""
+        }`}
       >
         <Flex
           alignItems={{ default: "alignItemsCenter" }}
           gap={{ default: "gapMd" }}
           justifyContent={{ default: "justifyContentCenter" }}
         >
+          {/* Selection Counter + “Clear All” */}
+          <FlexItem>
+            <div className={styles.selectionCounter}>
+              <Popover
+                position="bottom"
+                triggerAction="click"
+                appendTo={() => document.body}
+                isVisible={isSelectionPopoverOpen}
+                shouldClose={(_, hide) => {
+                  setIsSelectionPopoverOpen(false);
+                  hide?.();
+                }}
+                hasAutoWidth
+                minWidth="150px"
+                maxWidth="300px"
+                zIndex={9999}
+                hideOnOutsideClick
+                showClose={false}
+                flipBehavior={["bottom", "top"]}
+                distance={25}
+                className={styles.selectionPopover}
+                bodyContent={
+                  <div className={styles.selectionList}>
+                    {selectedPaths.map(({ path, type }) => (
+                      <div key={path} className={styles.selectionItem}>
+                        <span className={styles.selectionItemType}>
+                          {type === "folder" ? <FolderIcon /> : <FileIcon />}
+                        </span>
+                        <span className={styles.selectionItemName} title={path}>
+                          {getFileNameFromPath(path)}
+                        </span>
+                        <Button
+                          variant="plain"
+                          onClick={() => handleClearPath(path)}
+                          aria-label="Remove"
+                        >
+                          <TimesIcon />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                }
+              >
+                <div
+                  onClick={() =>
+                    setIsSelectionPopoverOpen(!isSelectionPopoverOpen)
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsSelectionPopoverOpen(!isSelectionPopoverOpen);
+                    }
+                  }}
+                  className={styles.selectionCountClickable}
+                >
+                  <Badge isRead>{selectedPaths.length}</Badge> selected
+                </div>
+              </Popover>
+              <Button
+                variant="plain"
+                icon={<TimesIcon />}
+                onClick={handleClearAllSelections}
+                className={styles.clearSelectionButton}
+                aria-label="Clear all selections"
+              />
+            </div>
+          </FlexItem>
+
+          <Divider orientation={{ default: "vertical" }} />
+
+          {/* Bulk Actions: Create Feed / Download / Anonymize */}
           <FlexItem>
             <Flex gap={{ default: "gapSm" }}>
               <FlexItem>
@@ -192,6 +283,7 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
 
           <Divider orientation={{ default: "vertical" }} />
 
+          {/* Secondary Actions: Share / Rename / Delete */}
           <FlexItem>
             <Flex gap={{ default: "gapSm" }}>
               <FlexItem>

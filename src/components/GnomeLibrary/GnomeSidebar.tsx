@@ -6,9 +6,9 @@ import {
   FolderIcon,
   ShareIcon,
   CubeIcon,
+  TreeviewIcon,
 } from "@patternfly/react-icons";
 import styles from "./gnome.module.css";
-import GnomeSidebarUploadButton from "./GnmoreUpload";
 import type { OriginState } from "../NewLibrary/context";
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 
@@ -22,18 +22,10 @@ interface GnomeLibrarySidebarProps {
 
 const GnomeLibrarySidebar: React.FC<GnomeLibrarySidebarProps> = ({
   activeSidebarItem,
-  computedPath,
   handleSidebarItemClick,
-  origin,
-  foldersList,
 }) => {
   return (
     <div className={styles.gnomeLibrarySidebar}>
-      <GnomeSidebarUploadButton
-        foldersList={foldersList}
-        computedPath={computedPath}
-        origin={origin}
-      />
       <Nav>
         <NavList>
           <NavItem
@@ -83,6 +75,18 @@ const GnomeLibrarySidebar: React.FC<GnomeLibrarySidebarProps> = ({
                 <CubeIcon />
               </FlexItem>
               <FlexItem>SERVICES</FlexItem>
+            </Flex>
+          </NavItem>
+          <NavItem
+            key="pipelines"
+            isActive={activeSidebarItem === "PIPELINES"}
+            onClick={() => handleSidebarItemClick("PIPELINES")}
+          >
+            <Flex>
+              <FlexItem>
+                <TreeviewIcon />
+              </FlexItem>
+              <FlexItem>PIPELINES</FlexItem>
             </Flex>
           </NavItem>
         </NavList>
