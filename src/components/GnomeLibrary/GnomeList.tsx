@@ -1,7 +1,7 @@
-import type {
+import {
   FileBrowserFolder,
   FileBrowserFolderFile,
-  FileBrowserFolderLinkFile,
+  type FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import { Button, Skeleton, Spinner } from "@patternfly/react-core";
 import { format } from "date-fns";
@@ -10,7 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { formatBytes } from "../Feeds/utilties";
 import FileDetailView from "../Preview/FileDetailView";
-import { Drawer, Tag } from "antd";
+import { Drawer, Tag, notification } from "antd";
 import { OperationContext } from "../NewLibrary/context";
 import { useAssociatedFeed } from "../NewLibrary/utils/longpress";
 import useGnomeLongPress from "./utils/gnomeLongPress";
@@ -30,7 +30,7 @@ import {
   SortAmountDownIcon,
   SortAmountUpIcon,
 } from "@patternfly/react-icons";
-import GnomeBulkActionBar from "./GnmoreActionBar";
+import GnomeBulkActionBar from "./GnomeActionBar";
 
 interface TableProps {
   data: {
@@ -90,6 +90,7 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
   handleFileClick,
   origin,
 }) => {
+  // handlers to capture single and double click events
   const { handlers } = useGnomeLongPress();
   const { handleOnClick } = handlers;
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
@@ -233,7 +234,6 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
   useEffect(() => {
     const ul = listRef.current;
     if (!ul) return;
-
     const onScroll = () => {
       if (
         fetchMore &&
@@ -243,7 +243,6 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
         handlePagination?.();
       }
     };
-
     ul.addEventListener("scroll", onScroll);
     return () => {
       ul.removeEventListener("scroll", onScroll);
@@ -253,6 +252,35 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
   const handleFileClick = (file: FileBrowserFolderFile) => {
     setSelectedFile(file);
     setShowPreview(true);
+  };
+
+  // Handle clicks on link entries: resolve to folder or file
+  const handleLinkClick = async (resource: FileBrowserFolderLinkFile) => {
+    try {
+      const linked = await resource.getLinkedResource();
+      // folder link
+      if (
+        linked &&
+        "path" in linked.data &&
+        linked instanceof FileBrowserFolder
+      ) {
+        navigate(`/library/${linked.data.path}`);
+      }
+      // file link
+      else if (
+        linked &&
+        "fname" in linked.data &&
+        linked instanceof FileBrowserFolderFile
+      ) {
+        setSelectedFile(linked);
+        setShowPreview(true);
+      }
+    } catch (err) {
+      notification.error({
+        message: "Error accessing link",
+        description: "Could not open the linked resource.",
+      });
+    }
   };
 
   const handleSort = (columnIndex: number) => {
@@ -322,6 +350,8 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
   };
 
   const sortedData = sortBy.index !== null ? sortRows() : data;
+
+  // origin for operations
   const origin = {
     type: OperationContext.LIBRARY,
     additionalKeys: [computedPath],
@@ -482,7 +512,7 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               size={r.data.fsize}
               computedPath={computedPath}
               handleFolderClick={() => {}}
-              handleFileClick={() => navigate(r.data.path)}
+              handleFileClick={() => handleLinkClick(r)}
               origin={origin}
             />
           ))}

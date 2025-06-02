@@ -9,6 +9,7 @@ import { useRef, useState } from "react";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { getFileName } from "../../../api/common";
 import {
+  clearAllPaths,
   clearSelectedPaths,
   setToggleCart,
   startAnonymize,
@@ -45,6 +46,10 @@ export const getCurrentTimestamp = () =>
     })
     .replace(/[^a-zA-Z0-9]/g, "_");
 
+// This hook can be called on folders/files in the Library Table and also feeds on the Feed Table
+
+// The createFeed flag is used to determine where this hook is called from.
+
 export const useFolderOperations = (
   origin: OriginState,
   computedPath?: string,
@@ -52,11 +57,12 @@ export const useFolderOperations = (
   createFeed?: boolean,
 ) => {
   const { handleOrigin, invalidateQueries } = useOperationsContext();
+
+  // perform operations on selected paths
   const { selectedPaths } = useAppSelector((state) => state.cart);
   const username = useAppSelector((state) => state.user.username) as string;
   const dispatch = useAppDispatch();
 
-  // Local states
   const [modalState, setModalState] = useState<ModalState>({
     isOpen: false,
     type: "folder",
@@ -67,7 +73,7 @@ export const useFolderOperations = (
   const folderInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Notification
+  // Notification for error handling
   const [notificationAPI, notificationContextHolder] =
     notification.useNotification();
 
@@ -85,7 +91,7 @@ export const useFolderOperations = (
     }
   };
 
-  // -------------- Upload --------------
+  // handle file upload
   const handleUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
     isFolder: boolean,
@@ -100,33 +106,34 @@ export const useFolderOperations = (
       ? `${name}_${getCurrentTimestamp()}`
       : getCurrentTimestamp();
 
-    // If createFeed==true => place files in `home/username/uploads/<uniqueName>`
-    // Otherwise, use the current `computedPath`.
     const uploadPath = createFeed
       ? `home/${username}/uploads/${uniqueName}`
       : computedPath;
 
-    // Dispatch startUpload
+    /*
+    // If createFeed==true => place files in `home/username/uploads/<uniqueName>`
+    // Otherwise, use the current `computedPath`.
+    */
+    // Dispatch startUpload through the store
     dispatch(
       startUpload({
         files,
         isFolder,
         currentPath: uploadPath as string,
+        //when this function is called in the store, the page resets
         invalidateFunc: invalidateQueries,
         createFeed,
         nameForFeed: name,
       }),
     );
-
     // Reset input after uploading
     resetInputField(isFolder ? folderInputRef : fileInputRef);
   };
 
-  // -------------- Create a subfolder --------------
+  // Create a folder under a given path
   const createFolder = async (folderName: string) => {
     handleOrigin(origin);
     const finalPath = `${computedPath}/${folderName}`;
-
     try {
       await folderList?.post({ path: finalPath });
       invalidateQueries();
@@ -137,7 +144,7 @@ export const useFolderOperations = (
     }
   };
 
-  // -------------- Create feed from file input --------------
+  //  Create Feed from a file/folder upload
   const createFeedWithFile = (
     event: React.ChangeEvent<HTMLInputElement>,
     type: string,
@@ -159,25 +166,23 @@ export const useFolderOperations = (
     });
   };
 
-  // -------------- Create feed from menu --------------
+  // ??
   const createFeedFromMenu = async (inputValue: string) => {
     handleOrigin(origin);
     const pathList = selectedPaths.map((payload) => payload.path);
     await createFeedSaga(pathList, inputValue, invalidateQueries);
   };
 
-  // -------------- Share Folder / Feed --------------
-  // UPDATED: If createFeed===true => if feed found and additionalValues?.share.public===true,
-  // just do feed.put({ type: "public" }). Skip user permission logic.
+  // Share Folder
   const shareFolder = async (
     targetUsername: string,
     additionalValues?: AdditionalValues,
   ) => {
-    const permissions = additionalValues?.share.write ? "w" : "r";
-
+    console.log("AdditionalValues", additionalValues, targetUsername);
     for (const { payload } of selectedPaths) {
       try {
         if (createFeed) {
+          // Make the feed public or set permissions on the feed
           // If we're dealing with a feed, fetch it:
           const feed = await fetchFeedForPath(payload.data.path);
           if (feed) {
@@ -188,8 +193,12 @@ export const useFolderOperations = (
             }
           }
         } else {
-          // Otherwise, it's a normal folder -> addUserPermission
-          await payload.addUserPermission(targetUsername, permissions);
+          if (additionalValues?.share.public) {
+            await payload.put({ public: true });
+          } else {
+            // Otherwise, it's a normal folder -> addUserPermission
+            await payload.addUserPermission(targetUsername, "w");
+          }
         }
       } catch (error: any) {
         const errorMessage =
@@ -201,7 +210,7 @@ export const useFolderOperations = (
     }
   };
 
-  // -------------- Rename folder --------------
+  // Rename Folder
   const renameFolder = async (inputValue: string): Promise<void> => {
     handleOrigin(origin);
 
@@ -211,14 +220,13 @@ export const useFolderOperations = (
           // rename a feed by .put({name: newName})
           await handleFeedCreation(payload as FileBrowserFolder, inputValue);
         } else {
-          // rename a path in CUBE
+          // rename a file/folder in the library page.
           await handlePathRename(payload, type, inputValue);
         }
       } catch (error) {
         handleRenameError(error);
       }
     }
-
     invalidateQueries();
   };
 
@@ -245,7 +253,6 @@ export const useFolderOperations = (
   ): Promise<void> => {
     const newPath = `${computedPath}/${inputValue}`;
     const oldPath = type === "folder" ? payload.data.path : payload.data.fname;
-
     switch (type) {
       case "folder":
         await (payload as FileBrowserFolder).put({
@@ -279,7 +286,7 @@ export const useFolderOperations = (
     throw new Error("Failed to rename this folder");
   };
 
-  // -------------- Submit Modal --------------
+  // Handle modal submit
   const handleModalSubmit = async (
     inputValue: string,
     additionalValues?: AdditionalValues,
@@ -317,7 +324,7 @@ export const useFolderOperations = (
     setModalState({ isOpen: false, type: "" });
   };
 
-  // -------------- React Query Mutation --------------
+  // Use a mutation to get loading, error, and success states
   const handleModalSubmitMutation = useMutation({
     mutationFn: async ({
       inputValue,
@@ -328,14 +335,64 @@ export const useFolderOperations = (
     }) => handleModalSubmit(inputValue, additionalValues),
   });
 
-  // -------------- Utility --------------
+  // Get the feed name for a single path
   const getFeedNameForSinglePath = (selectedPayload: SelectionPayload) => {
     const { payload } = selectedPayload;
     const name = payload.data.path || payload.data.fname;
     return getFileName(name);
   };
 
-  // -------------- Main "operations" map --------------
+  // Set up the rename modal with an appropriate default name based on context
+  const setRenameModalWithDefaultName = () => {
+    if (selectedPaths.length === 0) return;
+    // Assume rename is applied on the first selected resource.
+    const { payload } = selectedPaths[0];
+
+    if (createFeed) {
+      const resourcePath = payload.data.path;
+      // For feeds, expect resourcePath like "/home/username/feed_17"
+      const parts = resourcePath.split("/");
+      const feedSegment = parts[parts.length - 1]; // "feed_17"
+      const idPart = feedSegment.split("_")[1]; // "17"
+      const feedId = Number.parseInt(idPart, 10);
+      (async () => {
+        try {
+          const feed = await ChrisAPIClient.getClient().getFeed(feedId);
+          // Use the feed's title if available; otherwise fallback to the feedSegment.
+          const defaultName = feed?.data.name || feedSegment;
+          setModalState({
+            type: "rename",
+            isOpen: true,
+            additionalProps: { defaultName },
+          });
+        } catch (error) {
+          // Fallback: use the feed segment if the API call fails.
+          setModalState({
+            type: "rename",
+            isOpen: true,
+            additionalProps: { defaultName: feedSegment },
+          });
+        }
+      })();
+    } else {
+      const resourcePath = payload.data.path || payload.data.fname;
+      // For folders, simply use the last part of the path as the default name.
+      const parts = resourcePath.split("/");
+      const defaultName = parts[parts.length - 1];
+      setModalState({
+        type: "rename",
+        isOpen: true,
+        additionalProps: { defaultName },
+      });
+    }
+  };
+
+  // Function to clear all selections
+  const clearAllSelections = () => {
+    dispatch(clearAllPaths());
+  };
+
+  // Handle operations
   const handleOperations = (operationKey: string) => {
     const operationsMap: Record<string, () => void> = {
       createFeed: () => {
@@ -371,49 +428,7 @@ export const useFolderOperations = (
       createGroup: () => setModalState({ isOpen: true, type: "group" }),
       merge: handleMergeMutation.mutate,
       share: () => setModalState({ isOpen: true, type: "share" }),
-      rename: () => {
-        if (selectedPaths.length === 0) return;
-        // Assume rename is applied on the first selected resource.
-        const { payload } = selectedPaths[0];
-
-        if (createFeed) {
-          const resourcePath = payload.data.path;
-          // For feeds, expect resourcePath like "/home/username/feed_17"
-          const parts = resourcePath.split("/");
-          const feedSegment = parts[parts.length - 1]; // "feed_17"
-          const idPart = feedSegment.split("_")[1]; // "17"
-          const feedId = Number.parseInt(idPart, 10);
-          (async () => {
-            try {
-              const feed = await ChrisAPIClient.getClient().getFeed(feedId);
-              // Use the feed's title if available; otherwise fallback to the feedSegment.
-              const defaultName = feed?.data.name || feedSegment;
-              setModalState({
-                type: "rename",
-                isOpen: true,
-                additionalProps: { defaultName },
-              });
-            } catch (error) {
-              // Fallback: use the feed segment if the API call fails.
-              setModalState({
-                type: "rename",
-                isOpen: true,
-                additionalProps: { defaultName: feedSegment },
-              });
-            }
-          })();
-        } else {
-          const resourcePath = payload.data.path || payload.data.fname;
-          // For folders, simply use the last part of the path as the default name.
-          const parts = resourcePath.split("/");
-          const defaultName = parts[parts.length - 1];
-          setModalState({
-            type: "rename",
-            isOpen: true,
-            additionalProps: { defaultName },
-          });
-        }
-      },
+      rename: setRenameModalWithDefaultName,
       duplicate: handleDuplicateMutation.mutate,
     };
 
@@ -424,6 +439,8 @@ export const useFolderOperations = (
   return {
     modalState,
     userRelatedError,
+    setUserRelatedError,
+    setModalState,
     folderInputRef,
     fileInputRef,
     handleFileChange: (e: React.ChangeEvent<HTMLInputElement>, name?: string) =>
@@ -436,7 +453,6 @@ export const useFolderOperations = (
     handleModalSubmitMutation,
     handleOperations,
     contextHolder: notificationContextHolder,
-    setUserRelatedError,
-    setModalState,
+    clearAllSelections,
   };
 };

@@ -1,6 +1,8 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
+  Alert,
+  AlertActionCloseButton,
   Button,
   Checkbox,
   Chip,
@@ -22,7 +24,7 @@ import { matchPath, useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { Alert, Dropdown } from "../../Antd";
+import { Alert as AntdAlert, Dropdown } from "../../Antd";
 import {
   AddIcon,
   ArchiveIcon,
@@ -39,11 +41,9 @@ import { type ModalState, useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
 
-// -------------- 1) AdditionalValues interface --------------
 export type AdditionalValues = {
   share: {
-    public?: boolean; // If true => Make resource public
-    write?: boolean; // If true => Grant write permission
+    public?: boolean;
   };
 };
 
@@ -69,12 +69,9 @@ const Operations = ({
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  // If path is exactly /feeds, we treat it as "feed table"
   const isFeedsTable =
     matchPath({ path: "/feeds", end: true }, location.pathname) !== null;
 
-  // By default, show “New Folder”, “File Upload”, “Folder Upload”
-  // If user is at /feeds, disable "New Folder"
   const OPERATION_ITEMS = useMemo(() => {
     const baseItems = [
       { key: "newFolder", label: "New Folder", disabled: false },
@@ -83,13 +80,11 @@ const Operations = ({
     ];
 
     if (isFeedsTable) {
-      // Can't create new folder in /feeds
       baseItems[0].disabled = true;
     }
     return baseItems;
   }, [isFeedsTable]);
 
-  // -------------- 2) Hook for all folder/file operations --------------
   const {
     modalState,
     userRelatedError,
@@ -105,11 +100,9 @@ const Operations = ({
     setModalState,
   } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
-  // -------------- 3) Redux cart: selectedPaths --------------
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
 
-  // -------------- 4) Render Buttons (Download, Anonymize, etc.) --------------
   const renderOperationButton = useCallback(
     (icon: React.ReactNode, operationKey: string, ariaLabel: string) => (
       <Tooltip content={ariaLabel}>
@@ -127,7 +120,6 @@ const Operations = ({
     [handleOperations],
   );
 
-  // -------------- 5) Build the set of items in the Toolbar --------------
   const toolbarItems = useMemo(
     () => (
       <Fragment>
@@ -152,7 +144,7 @@ const Operations = ({
             </Button>
           </Dropdown>
           {userRelatedError && (
-            <Alert
+            <AntdAlert
               style={{ marginLeft: "1rem" }}
               type="error"
               description={userRelatedError}
@@ -230,7 +222,6 @@ const Operations = ({
     ],
   );
 
-  // -------------- 6) Return the final JSX --------------
   return (
     <>
       <AddModal
@@ -300,7 +291,6 @@ const Operations = ({
 
 export default Operations;
 
-// -------------------- 7) Modal Label definitions --------------------
 const MODAL_TYPE_LABELS: Record<
   string,
   { modalTitle: string; inputLabel: string; buttonLabel: string }
@@ -337,7 +327,6 @@ const MODAL_TYPE_LABELS: Record<
   },
 };
 
-// -------------- 8) AddModal: share with optional username if “Make Public” is checked --------------
 interface AddModalProps {
   modalState: ModalState;
   onClose: () => void;
@@ -358,7 +347,7 @@ export const AddModal = ({
 }: AddModalProps) => {
   const [inputValue, setInputValue] = useState("");
   const [additionalValues, setAdditionalValues] = useState<AdditionalValues>({
-    share: { write: false, public: false },
+    share: { public: false },
   });
 
   const { modalTitle, inputLabel, buttonLabel } = useMemo(() => {
@@ -370,6 +359,12 @@ export const AddModal = ({
       buttonLabel: modalType.buttonLabel,
     };
   }, [modalState.type]);
+
+  const userIsTypingUsername =
+    modalState.type === "share" && inputValue.length > 0;
+  const userSelectedPublic =
+    modalState.type === "share" && additionalValues.share.public;
+  const showMutualExclusiveAlert = userIsTypingUsername || userSelectedPublic;
 
   useEffect(() => {
     if (modalState.additionalProps?.createFeedWithFile) {
@@ -396,13 +391,8 @@ export const AddModal = ({
 
   const isShareModal = modalState.type === "share";
 
-  // For "share" modals, disable if:
-  // - Neither checkbox is checked, OR
-  // - The "grant user permission" checkbox is checked but the text input is empty.
-  // For all other modal types, disable if the text input is empty.
   const isDisabled = isShareModal
-    ? (!additionalValues.share.public && !additionalValues.share.write) ||
-      (additionalValues.share.write && !inputValue)
+    ? !additionalValues.share.public && !inputValue
     : !inputValue;
 
   return (
@@ -427,57 +417,80 @@ export const AddModal = ({
             }}
             aria-label={inputLabel}
             placeholder={inputLabel}
+            isDisabled={isShareModal && additionalValues.share.public}
           />
-          {modalState.type === "createFeedWithFile" ||
-          modalState.type === "createFeed" ? (
-            <HelperText>
-              <HelperTextItem>
-                Please provide a name for your feed or hit 'Create' to use the
-                default name
-              </HelperTextItem>
-            </HelperText>
-          ) : null}
+          {/* Reserved space for helper text to prevent layout shifts */}
+          <div style={{ minHeight: "20px", marginTop: "8px" }}>
+            {modalState.type === "createFeedWithFile" ||
+            modalState.type === "createFeed" ? (
+              <HelperText>
+                <HelperTextItem>
+                  Please provide a name for your feed or hit 'Create' to use the
+                  default name
+                </HelperTextItem>
+              </HelperText>
+            ) : isShareModal && showMutualExclusiveAlert ? (
+              <HelperText>
+                <HelperTextItem variant="warning">
+                  You can either share with a specific user OR make the resource
+                  public, not both.
+                </HelperTextItem>
+              </HelperText>
+            ) : (
+              /* Empty space to maintain consistent layout */
+              <div />
+            )}
+          </div>
         </FormGroup>
 
-        {modalState.type === "share" && (
-          <Fragment>
-            <FormGroup fieldId="share-checkbox-group">
-              <Checkbox
-                label="Grant the user permission to edit this resource"
-                id="share-checkbox-write"
-                isChecked={additionalValues.share.write}
-                onChange={(_e, checked) =>
-                  setAdditionalValues((prevState) => ({
-                    share: { ...prevState.share, write: checked },
-                  }))
-                }
-              />
-            </FormGroup>
-            <FormGroup fieldId="share-checkbox-public">
-              <Checkbox
-                label="Make this resource public"
-                id="share-checkbox-public"
-                isChecked={additionalValues.share.public}
-                onChange={(_e, checked) =>
-                  setAdditionalValues((prevState) => ({
-                    share: { ...prevState.share, public: checked },
-                  }))
-                }
-              />
-            </FormGroup>
-          </Fragment>
+        {isShareModal && (
+          <FormGroup>
+            <Checkbox
+              id="make-public"
+              label="Make this resource public"
+              isChecked={additionalValues.share.public}
+              isDisabled={userIsTypingUsername}
+              onChange={(_event, checked) => {
+                setAdditionalValues({
+                  ...additionalValues,
+                  share: { public: checked },
+                });
+              }}
+            />
+          </FormGroup>
         )}
 
-        {indicators.isError && (
-          <Alert
-            message="Failed operation"
-            description={indicators.error?.message}
-            type="error"
-            showIcon
-            closable
-            afterClose={() => indicators.clearErrors()}
-          />
-        )}
+        {/* Reserved space for error alerts to prevent layout shifts */}
+        <div style={{ minHeight: "44px", marginTop: "8px" }}>
+          <div
+            style={{
+              height: "52px",
+              display: "flex",
+              alignItems: "center",
+              border: "1px solid rgba(220, 53, 69, 0.5)",
+              borderRadius: "3px",
+              padding: "0 16px",
+              backgroundColor: "rgba(220, 53, 69, 0.08)",
+              color: "#dc3545",
+              opacity: indicators.isError ? 1 : 0,
+              transition: "opacity 0.2s ease-in-out",
+            }}
+          >
+            <span style={{ fontWeight: "bold", marginRight: "8px" }}>
+              Failed operation:
+            </span>{" "}
+            {indicators.error?.message || ""}
+            {indicators.isError && (
+              <Button
+                variant="plain"
+                style={{ marginLeft: "auto", padding: "0" }}
+                onClick={() => indicators.clearErrors()}
+              >
+                ×
+              </Button>
+            )}
+          </div>
+        </div>
         <ActionGroup>
           <Button
             onClick={() => onSubmit(inputValue, additionalValues)}

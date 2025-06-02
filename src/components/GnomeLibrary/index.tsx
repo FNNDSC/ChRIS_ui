@@ -23,8 +23,9 @@ const GnomeLibrary = () => {
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || `/home/${username}`;
-  const queryKey = ["library_folders", computedPath, pageNumber];
 
+  // fetch folders, files, link files
+  const queryKey = ["library_folders", computedPath, pageNumber];
   const { data, isFetching } = useQuery({
     queryKey: queryKey,
     queryFn: () => fetchFolders(computedPath, pageNumber),
@@ -43,8 +44,18 @@ const GnomeLibrary = () => {
     setPageNumber((prevState) => prevState + 1);
   }, []);
 
+  // Navigate to a folder when clicked
+  const handleFolderClick = useCallback(
+    (folderName: string) => {
+      const newPath = `${computedPath}/${folderName}`;
+      navigate(`/library/${newPath}`);
+    },
+    [computedPath, navigate],
+  );
+
   useEffect(() => {
     if (isFirstLoad && pathname === "/library") {
+      // Navigate to the home folder on the first render
       navigate(`/library/home/${username}`, { replace: true });
       setIsFirstLoad(false);
     }
@@ -102,10 +113,7 @@ const GnomeLibrary = () => {
                     <GnomeLibraryTable
                       data={data}
                       computedPath={computedPath}
-                      handleFolderClick={(folderName) => {
-                        const newPath = `${computedPath}/${folderName}`;
-                        navigate(`/library/${newPath}`);
-                      }}
+                      handleFolderClick={handleFolderClick}
                       fetchMore={fetchMore}
                       handlePagination={handlePagination}
                       filesLoading={isFetching && pageNumber > 1}

@@ -44,6 +44,7 @@ export const OperationsProvider: React.FC<
   };
 
   const invalidateQueries = () => {
+    // Helps to reset the page when operations are performed for instance feedbacl
     const additionalKeys = originRef.current?.additionalKeys || [];
     const type = originRef.current?.type;
 
