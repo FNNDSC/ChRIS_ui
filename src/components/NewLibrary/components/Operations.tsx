@@ -1,14 +1,11 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import {
   ActionGroup,
-  Alert,
-  AlertActionCloseButton,
   Button,
   Checkbox,
   Chip,
   ChipGroup,
   Form,
-  FormGroup,
   HelperText,
   HelperTextItem,
   Modal,
@@ -404,104 +401,106 @@ export const AddModal = ({
       onClose={handleClose}
     >
       <Form>
-        <FormGroup>
-          <TextInput
-            name="input"
-            value={inputValue}
-            onChange={(_e, value) => setInputValue(value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                onSubmit(inputValue, additionalValues);
-              }
-            }}
-            aria-label={inputLabel}
-            placeholder={inputLabel}
-            isDisabled={isShareModal && additionalValues.share.public}
-          />
-          {/* Reserved space for helper text to prevent layout shifts */}
-          <div style={{ minHeight: "20px", marginTop: "4px" }}>
-            {modalState.type === "createFeedWithFile" ||
-            modalState.type === "createFeed" ? (
-              <HelperText>
-                <HelperTextItem>
-                  Please provide a name for your feed or hit 'Create' to use the
-                  default name
-                </HelperTextItem>
-              </HelperText>
-            ) : isShareModal && showMutualExclusiveAlert ? (
-              <HelperText>
-                <HelperTextItem variant="warning">
-                  You can either share with a specific user OR make the resource
-                  public, not both.
-                </HelperTextItem>
-              </HelperText>
-            ) : (
-              /* Empty space to maintain consistent layout */
-              <div />
-            )}
-          </div>
-        </FormGroup>
-
-        {isShareModal && (
-          <FormGroup>
-            <Checkbox
-              id="make-public"
-              label="Make this resource public"
-              isChecked={additionalValues.share.public}
-              isDisabled={userIsTypingUsername}
-              onChange={(_event, checked) => {
-                setAdditionalValues({
-                  ...additionalValues,
-                  share: { public: checked },
-                });
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div>
+            <TextInput
+              name="input"
+              value={inputValue}
+              onChange={(_e, value) => setInputValue(value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  onSubmit(inputValue, additionalValues);
+                }
               }}
+              aria-label={inputLabel}
+              placeholder={inputLabel}
+              isDisabled={isShareModal && additionalValues.share.public}
             />
-          </FormGroup>
-        )}
-
-        {/* Reserved space for error alerts to prevent layout shifts */}
-        <div style={{ minHeight: "20px", marginTop: "4px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              border: "1px solid rgba(220, 53, 69, 0.5)",
-              borderRadius: "3px",
-              padding: "0 16px",
-              backgroundColor: "rgba(220, 53, 69, 0.08)",
-              color: "#dc3545",
-              opacity: indicators.isError ? 1 : 0,
-              transition: "opacity 0.2s ease-in-out",
-            }}
-          >
-            <span style={{ fontWeight: "bold", marginRight: "8px" }}>
-              Failed operation:
-            </span>{" "}
-            {indicators.error?.message || ""}
-            {indicators.isError && (
-              <Button
-                variant="plain"
-                style={{ marginLeft: "auto", padding: "0" }}
-                onClick={() => indicators.clearErrors()}
-              >
-                ×
-              </Button>
-            )}
+            {/* Reserved space for helper text to prevent layout shifts */}
+            <div style={{ minHeight: "20px", marginTop: "2px" }}>
+              {modalState.type === "createFeedWithFile" ||
+              modalState.type === "createFeed" ? (
+                <HelperText>
+                  <HelperTextItem>
+                    Please provide a name for your feed or hit 'Create' to use
+                    the default name
+                  </HelperTextItem>
+                </HelperText>
+              ) : isShareModal ? (
+                <HelperText>
+                  <HelperTextItem variant="warning">
+                    You can either share with a specific user OR make the
+                    resource public, not both.
+                  </HelperTextItem>
+                </HelperText>
+              ) : (
+                /* Empty space to maintain consistent layout */
+                <div />
+              )}
+            </div>
           </div>
+
+          {isShareModal && (
+            <div style={{ marginTop: "0.5rem" }}>
+              <Checkbox
+                id="make-public"
+                label="Make this resource public"
+                isChecked={additionalValues.share.public}
+                isDisabled={userIsTypingUsername}
+                onChange={(_event, checked) => {
+                  setAdditionalValues({
+                    ...additionalValues,
+                    share: { public: checked },
+                  });
+                }}
+              />
+            </div>
+          )}
+
+          {/* Reserved space for error alerts to prevent layout shifts */}
+          <div style={{ minHeight: "20px", marginTop: "2px" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid rgba(220, 53, 69, 0.5)",
+                borderRadius: "3px",
+                padding: "0 16px",
+                backgroundColor: "rgba(220, 53, 69, 0.08)",
+                color: "#dc3545",
+                opacity: indicators.isError ? 1 : 0,
+                transition: "opacity 0.2s ease-in-out",
+              }}
+            >
+              <span style={{ fontWeight: "bold", marginRight: "8px" }}>
+                Failed operation:
+              </span>{" "}
+              {indicators.error?.message || ""}
+              {indicators.isError && (
+                <Button
+                  variant="plain"
+                  style={{ marginLeft: "auto", padding: "0" }}
+                  onClick={() => indicators.clearErrors()}
+                >
+                  ×
+                </Button>
+              )}
+            </div>
+          </div>
+          <ActionGroup>
+            <Button
+              onClick={() => onSubmit(inputValue, additionalValues)}
+              isLoading={indicators.isPending}
+              isDisabled={isDisabled}
+            >
+              {buttonLabel}
+            </Button>
+            <Button variant="link" onClick={handleClose}>
+              Cancel
+            </Button>
+          </ActionGroup>
         </div>
-        <ActionGroup>
-          <Button
-            onClick={() => onSubmit(inputValue, additionalValues)}
-            isLoading={indicators.isPending}
-            isDisabled={isDisabled}
-          >
-            {buttonLabel}
-          </Button>
-          <Button variant="link" onClick={handleClose}>
-            Cancel
-          </Button>
-        </ActionGroup>
       </Form>
     </Modal>
   );
