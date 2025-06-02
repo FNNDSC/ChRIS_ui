@@ -15,7 +15,7 @@ import { OperationContext } from "../NewLibrary/context";
 import { useAssociatedFeed } from "../NewLibrary/utils/longpress";
 import useGnomeLongPress from "./utils/gnomeLongPress";
 import useNewResourceHighlight from "../NewLibrary/utils/useNewResourceHighlight";
-import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
+import { GnomeContextMenu } from "./GnomeContextMenu";
 import {
   getFileName,
   getLinkFileName,
@@ -119,7 +119,7 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
   };
 
   return (
-    <FolderContextMenu origin={origin} key={path} computedPath={computedPath}>
+    <GnomeContextMenu origin={origin} key={path} computedPath={computedPath}>
       <li
         ref={scrollToNewResource}
         className={isSelected ? styles.selectedItem : ""}
@@ -182,7 +182,7 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
           </div>
         </Button>
       </li>
-    </FolderContextMenu>
+    </GnomeContextMenu>
   );
 };
 

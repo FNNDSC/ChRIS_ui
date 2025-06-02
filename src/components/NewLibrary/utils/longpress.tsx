@@ -10,6 +10,7 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import {
+  clearAllPaths,
   clearSelectedPaths,
   setSelectedPaths,
   setToggleCart,
@@ -82,16 +83,13 @@ export default function useLongPress() {
           }
         } else if (e.type === "contextmenu") {
           e.preventDefault(); // Prevent the default context menu from appearing
-          if (!isExist) {
-            selectFolder(pathForCart, type, payload);
+          // First deselect all other items (unless holding Ctrl)
+          if (!e.ctrlKey) {
+            dispatch(clearAllPaths());
           }
-          // Toggle the menu state
-          setIsMenuOpen((prev) => {
-            if (prev) {
-              deselectFolder(pathForCart);
-            }
-            return !prev;
-          });
+          // Always select the item that was right-clicked
+          selectFolder(pathForCart, type, payload);
+          // No need to manage menu state here - the Dropdown component in ContextMenu.tsx handles it
         } else {
           if (isMenuOpen) {
             // The context menu is also closed by a right click
