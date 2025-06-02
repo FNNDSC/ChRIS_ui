@@ -1,7 +1,7 @@
 import {
   FileBrowserFolder,
   FileBrowserFolderFile,
-  FileBrowserFolderLinkFile,
+  type FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import {
   Breadcrumb,
@@ -337,11 +337,6 @@ const FileBrowser = (props: FileBrowserProps) => {
                                     try {
                                       const linkedResource =
                                         await resource.getLinkedResource();
-                                      console.log(
-                                        "Test",
-                                        linkedResource instanceof
-                                          FileBrowserFolderFile,
-                                      );
 
                                       if (linkedResource) {
                                         // Check if it's a folder (has path property)

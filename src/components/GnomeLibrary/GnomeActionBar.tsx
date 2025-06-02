@@ -17,17 +17,15 @@ import {
 import type { OriginState } from "../NewLibrary/context";
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import { AddModal } from "../NewLibrary/components/Operations";
+import { TimesIcon, FileIcon, FolderIcon } from "@patternfly/react-icons";
 import {
   CodeBranchIcon,
   DownloadIcon,
   ArchiveIcon,
   ShareIcon,
   EditIcon,
-  TrashIcon,
-  TimesIcon,
-  FileIcon,
-  FolderIcon,
-} from "@patternfly/react-icons";
+  DeleteIcon,
+} from "../Icons";
 import styles from "./gnome.module.css";
 import { clearAllPaths, clearSelectedPaths } from "../../store/cart/cartSlice";
 
@@ -48,7 +46,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
   const { modalState, handleModalSubmitMutation, handleOperations } =
     useFolderOperations(origin, computedPath, folderList, false);
 
-  // Adjust display mode based on available width
   useEffect(() => {
     const checkWidth = () => {
       if (actionBarRef.current) {
@@ -146,8 +143,9 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
               <Popover
                 position="bottom"
                 triggerAction="click"
-                appendTo={() => document.body}
+                appendTo={document.body}
                 isVisible={isSelectionPopoverOpen}
+                shouldOpen={() => false} // Only open when explicitly set by click handler
                 shouldClose={(_, hide) => {
                   setIsSelectionPopoverOpen(false);
                   hide?.();
@@ -158,6 +156,7 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                 zIndex={9999}
                 hideOnOutsideClick
                 showClose={false}
+                hasNoPadding
                 flipBehavior={["bottom", "top"]}
                 distance={25}
                 className={styles.selectionPopover}
@@ -184,10 +183,13 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                 }
               >
                 <div
-                  onClick={() =>
-                    setIsSelectionPopoverOpen(!isSelectionPopoverOpen)
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent event bubbling
+                    // Toggle popover only when badge is explicitly clicked
+                    setIsSelectionPopoverOpen(!isSelectionPopoverOpen);
+                  }}
                   onKeyDown={(e) => {
+                    // Handle keyboard accessibility
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       setIsSelectionPopoverOpen(!isSelectionPopoverOpen);
@@ -317,7 +319,7 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                     aria-label="Delete"
                     onClick={handleDelete}
                   >
-                    <TrashIcon />
+                    <DeleteIcon />
                   </Button>
                 </Tooltip>
               </FlexItem>
