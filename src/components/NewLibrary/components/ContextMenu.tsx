@@ -13,9 +13,8 @@ import {
   ShareIcon,
 } from "../../Icons";
 import type { OriginState } from "../context";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AddModal } from "./Operations";
 import { useFolderOperations } from "../utils/useOperations";
+import { AddModal } from "./Operations";
 
 interface ContextMenuProps {
   children: React.ReactElement;
@@ -26,10 +25,8 @@ interface ContextMenuProps {
 
 export const FolderContextMenu = (props: ContextMenuProps) => {
   const { children, origin, folderList, computedPath } = props;
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
   const isFeedsTable =
-    matchPath({ path: "/feeds", end: true }, location.pathname) !== null;
+    matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
   const {
     modalState,
     userRelatedError,
@@ -38,35 +35,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     contextHolder,
     setUserRelatedError,
     setModalState,
-    clearAllSelections,
   } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
-
-  // Handler for when menu is opened
-  const onOpenChange = useCallback(
-    (open: boolean) => {
-      setIsMenuOpen(open);
-      if (!open) {
-        // When menu is closed, clear selections
-        clearAllSelections();
-      }
-    },
-    [clearAllSelections],
-  );
-
-  // Click outside handler
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        isMenuOpen
-      ) {
-        clearAllSelections();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isMenuOpen, clearAllSelections]);
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
@@ -94,7 +63,6 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
 
   return (
     <>
-      {/* All the operations are managed through a modal */}
       <AddModal
         modalState={modalState}
         onClose={() => {
@@ -116,18 +84,13 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
       />
 
       {contextHolder}
-      <div ref={menuRef}>
-        <Dropdown
-          aria-role="menu"
-          menu={{ items, onClick: (info) => handleOperations(info.key) }}
-          trigger={["contextMenu"]}
-          open={isMenuOpen}
-          onOpenChange={onOpenChange}
-          destroyPopupOnHide
-        >
-          {children}
-        </Dropdown>
-      </div>
+      <Dropdown
+        aria-role="menu"
+        menu={{ items, onClick: (info) => handleOperations(info.key) }}
+        trigger={["contextMenu"]}
+      >
+        {children}
+      </Dropdown>
 
       {userRelatedError && (
         <Alert
