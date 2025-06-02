@@ -420,7 +420,7 @@ export const AddModal = ({
             isDisabled={isShareModal && additionalValues.share.public}
           />
           {/* Reserved space for helper text to prevent layout shifts */}
-          <div style={{ minHeight: "20px", marginTop: "8px" }}>
+          <div style={{ minHeight: "20px", marginTop: "4px" }}>
             {modalState.type === "createFeedWithFile" ||
             modalState.type === "createFeed" ? (
               <HelperText>
@@ -461,10 +461,9 @@ export const AddModal = ({
         )}
 
         {/* Reserved space for error alerts to prevent layout shifts */}
-        <div style={{ minHeight: "44px", marginTop: "8px" }}>
+        <div style={{ minHeight: "20px", marginTop: "4px" }}>
           <div
             style={{
-              height: "52px",
               display: "flex",
               alignItems: "center",
               border: "1px solid rgba(220, 53, 69, 0.5)",

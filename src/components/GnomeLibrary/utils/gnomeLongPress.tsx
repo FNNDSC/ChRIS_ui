@@ -6,6 +6,7 @@ import type {
 import { Tooltip } from "@patternfly/react-core";
 import { useRef, useState } from "react";
 import {
+  clearAllPaths,
   clearSelectedPaths,
   setSelectedPaths,
 } from "../../../store/cart/cartSlice";
@@ -20,7 +21,6 @@ export function elipses(str: string, len: number) {
 export default function useGnomeLongPress() {
   const dispatch = useAppDispatch();
   const [action, setAction] = useState<string>();
-  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false); // Track menu state
   const state = useAppSelector((state) => state.cart);
   const timerRef = useRef<ReturnType<typeof window.setTimeout>>();
   const isLongPress = useRef<boolean>();
@@ -72,16 +72,14 @@ export default function useGnomeLongPress() {
 
     if (e.type === "contextmenu") {
       e.preventDefault(); // Prevent the default context menu from appearing
-      if (!isExist) {
-        selectFolder(pathForCart, type, payload);
+
+      // Clear existing selections unless Ctrl is pressed (for multi-select)
+      if (!e.ctrlKey) {
+        dispatch(clearAllPaths());
       }
-      // Toggle the menu state
-      setIsMenuOpen((prev) => {
-        if (prev) {
-          deselectFolder(pathForCart);
-        }
-        return !prev;
-      });
+
+      // Always select the item that was right-clicked
+      selectFolder(pathForCart, type, payload);
       return;
     }
 
@@ -94,57 +92,23 @@ export default function useGnomeLongPress() {
     clickTimer.current = setTimeout(() => {
       if (clickCount.current === 1) {
         // Single click - just toggle selection
-        if (isMenuOpen) {
-          // The context menu is also closed by a right click
-          // We don't want it to confuse it with select/deselect of a folder
-          setIsMenuOpen(false);
+        if (isExist) {
+          deselectFolder(pathForCart);
         } else {
-          // Normal click: Select/Deselect
-          if (isExist) {
-            deselectFolder(pathForCart);
-          } else {
-            selectFolder(pathForCart, type, payload);
-          }
+          selectFolder(pathForCart, type, payload);
         }
       } else if (clickCount.current === 2) {
         // Double click - execute callback (navigate or show detail view)
-        if (type === "folder") {
-          // Clear all selections before navigating to folder
-          selectedPaths.forEach((item) => {
-            dispatch(clearSelectedPaths(item.path));
-          });
-        }
         if (optionalCallback) {
           optionalCallback();
         }
       }
-
       clickCount.current = 0;
-    }, 250); // Shorter timeout for better double-click detection
+    }, 200);
   }
-
-  const handleCheckboxChange = (
-    e: React.FormEvent<HTMLInputElement>,
-    path: string,
-    payload:
-      | FileBrowserFolder
-      | FileBrowserFolderFile
-      | FileBrowserFolderLinkFile,
-    type: string,
-  ) => {
-    if (e.currentTarget.checked) {
-      selectFolder(path, type, payload);
-    } else {
-      deselectFolder(path);
-    }
-  };
 
   function handleOnMouseDown() {
     startPressTimer();
-  }
-
-  function handleOnMouseUp() {
-    clearPressTimer();
   }
 
   function handleOnTouchStart() {
@@ -152,8 +116,20 @@ export default function useGnomeLongPress() {
   }
 
   function handleOnTouchEnd() {
-    if (action === "longpress") return;
     clearPressTimer();
+  }
+
+  function handleCheckboxChange(
+    pathForCart: string,
+    type: string,
+    payload: any,
+  ) {
+    const isExist = selectedPaths.some((item) => item.path === pathForCart);
+    if (isExist) {
+      deselectFolder(pathForCart);
+    } else {
+      selectFolder(pathForCart, type, payload);
+    }
   }
 
   return {
@@ -161,11 +137,9 @@ export default function useGnomeLongPress() {
     handlers: {
       handleOnClick,
       handleOnMouseDown,
-      handleOnMouseUp,
       handleOnTouchStart,
       handleOnTouchEnd,
       handleCheckboxChange,
-      isMenuOpen,
     },
   };
 }

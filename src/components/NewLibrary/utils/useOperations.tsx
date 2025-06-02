@@ -178,7 +178,6 @@ export const useFolderOperations = (
     targetUsername: string,
     additionalValues?: AdditionalValues,
   ) => {
-    console.log("AdditionalValues", additionalValues, targetUsername);
     for (const { payload } of selectedPaths) {
       try {
         if (createFeed) {

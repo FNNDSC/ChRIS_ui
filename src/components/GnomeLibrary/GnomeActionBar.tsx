@@ -94,7 +94,16 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
   };
 
   const handleClearPath = (path: string) => {
+    // Check if this is the last item before clearing
+    const isLastItem = selectedPaths.length === 1;
+
+    // Dispatch the action to clear this path
     dispatch(clearSelectedPaths(path));
+
+    // If it was the last item, also close the popover
+    if (isLastItem) {
+      setIsSelectionPopoverOpen(false);
+    }
   };
 
   const getFileNameFromPath = (path: string) => {
@@ -145,7 +154,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                 triggerAction="click"
                 appendTo={document.body}
                 isVisible={isSelectionPopoverOpen}
-                shouldOpen={() => false} // Only open when explicitly set by click handler
                 shouldClose={(_, hide) => {
                   setIsSelectionPopoverOpen(false);
                   hide?.();
@@ -155,7 +163,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                 maxWidth="300px"
                 zIndex={9999}
                 hideOnOutsideClick
-                showClose={false}
                 hasNoPadding
                 flipBehavior={["bottom", "top"]}
                 distance={25}
