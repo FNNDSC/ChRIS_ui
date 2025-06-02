@@ -25,6 +25,7 @@ import {
   ShareIcon,
   EditIcon,
   DeleteIcon,
+  ExternalLinkSquareAltIcon,
 } from "../Icons";
 import styles from "./gnome.module.css";
 import { clearAllPaths, clearSelectedPaths } from "../../store/cart/cartSlice";
@@ -172,7 +173,13 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                     {selectedPaths.map(({ path, type }) => (
                       <div key={path} className={styles.selectionItem}>
                         <span className={styles.selectionItemType}>
-                          {type === "folder" ? <FolderIcon /> : <FileIcon />}
+                          {type === "folder" ? (
+                            <FolderIcon />
+                          ) : type === "link" ? (
+                            <ExternalLinkSquareAltIcon />
+                          ) : (
+                            <FileIcon />
+                          )}
                         </span>
                         <span className={styles.selectionItemName} title={path}>
                           {getFileNameFromPath(path)}
