@@ -25,6 +25,14 @@ const GnomeLibrary = () => {
   const currentPathSplit = decodedPath.split("/library/")[1];
   const computedPath = currentPathSplit || `/home/${username}`;
 
+  // Reset pagination state when path changes
+  useEffect(() => {
+    if (computedPath) {
+      setPageNumber(1);
+      setIsPaginating(false);
+    }
+  }, [computedPath]);
+
   // fetch folders, files, link files
   const queryKey = ["library_folders", computedPath, pageNumber];
   const { data, isFetching } = useQuery({
@@ -40,20 +48,34 @@ const GnomeLibrary = () => {
     data?.filesPagination?.hasNextPage ||
     data?.linksPagination?.hasNextPage;
 
-  // Handle pagination
+  /**
+   * Handles infinite scroll pagination
+   * Keeps placeholder data visible while fetching more items
+   */
   const handlePagination = useCallback(() => {
     setIsPaginating(true);
     setPageNumber((prevState) => prevState + 1);
   }, []);
 
+  /**
+   * Handles navigation to a different path
+   * Clears placeholder data to show loading state immediately
+   */
+  const navigateToPath = useCallback(
+    (path: string) => {
+      setIsPaginating(false);
+      navigate(`/library/${path}`);
+    },
+    [navigate],
+  );
+
   // Navigate to a folder when clicked
   const handleFolderClick = useCallback(
     (folderName: string) => {
-      setIsPaginating(false);
       const newPath = `${computedPath}/${folderName}`;
-      navigate(`/library/${newPath}`);
+      navigateToPath(newPath);
     },
-    [computedPath, navigate],
+    [computedPath, navigateToPath],
   );
 
   useEffect(() => {
@@ -67,9 +89,9 @@ const GnomeLibrary = () => {
   const handleSidebarItemClick = (item: string) => {
     setActiveSidebarItem(item);
     if (item === "home") {
-      navigate(`/library/home/${username}`);
+      navigateToPath(`home/${username}`);
     } else {
-      navigate(`/library/${item}`);
+      navigateToPath(item);
     }
   };
 
@@ -94,10 +116,7 @@ const GnomeLibrary = () => {
                 path={computedPath}
                 username={username}
                 activeSidebarItem={activeSidebarItem}
-                onPathChange={(newPath) => {
-                  setIsPaginating(false);
-                  navigate(`/library/${newPath}`);
-                }}
+                onPathChange={navigateToPath}
                 origin={{
                   type: OperationContext.LIBRARY,
                   additionalKeys: [computedPath],
