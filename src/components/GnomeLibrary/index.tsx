@@ -29,7 +29,6 @@ const GnomeLibrary = () => {
   const { data, isFetching } = useQuery({
     queryKey: queryKey,
     queryFn: () => fetchFolders(computedPath, pageNumber),
-    placeholderData: keepPreviousData,
     structuralSharing: true,
   });
 
