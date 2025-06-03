@@ -54,7 +54,7 @@ const GnomeLibrarySidebar: React.FC<GnomeLibrarySidebarProps> = ({
           </NavItem>
           <NavItem
             key="public"
-            isActive={activeSidebarItem === "public"}
+            isActive={activeSidebarItem === "PUBLIC"}
             onClick={() => handleSidebarItemClick("PUBLIC")}
           >
             <Flex>
