@@ -37,7 +37,19 @@ const GnomeLibrarySidebar: React.FC<GnomeLibrarySidebarProps> = ({
               <FlexItem>
                 <HomeIcon />
               </FlexItem>
-              <FlexItem>Home</FlexItem>
+              <FlexItem>home</FlexItem>
+            </Flex>
+          </NavItem>
+          <NavItem
+            key="pipelines"
+            isActive={activeSidebarItem === "PIPELINES"}
+            onClick={() => handleSidebarItemClick("PIPELINES")}
+          >
+            <Flex>
+              <FlexItem>
+                <TreeviewIcon />
+              </FlexItem>
+              <FlexItem>PIPELINES</FlexItem>
             </Flex>
           </NavItem>
           <NavItem
@@ -50,18 +62,6 @@ const GnomeLibrarySidebar: React.FC<GnomeLibrarySidebarProps> = ({
                 <FolderIcon />
               </FlexItem>
               <FlexItem>PUBLIC</FlexItem>
-            </Flex>
-          </NavItem>
-          <NavItem
-            key="shared"
-            isActive={activeSidebarItem === "SHARED"}
-            onClick={() => handleSidebarItemClick("SHARED")}
-          >
-            <Flex>
-              <FlexItem>
-                <ShareIcon />
-              </FlexItem>
-              <FlexItem>SHARED</FlexItem>
             </Flex>
           </NavItem>
 
@@ -77,16 +77,17 @@ const GnomeLibrarySidebar: React.FC<GnomeLibrarySidebarProps> = ({
               <FlexItem>SERVICES</FlexItem>
             </Flex>
           </NavItem>
+
           <NavItem
-            key="pipelines"
-            isActive={activeSidebarItem === "PIPELINES"}
-            onClick={() => handleSidebarItemClick("PIPELINES")}
+            key="shared"
+            isActive={activeSidebarItem === "SHARED"}
+            onClick={() => handleSidebarItemClick("SHARED")}
           >
             <Flex>
               <FlexItem>
-                <TreeviewIcon />
+                <ShareIcon />
               </FlexItem>
-              <FlexItem>PIPELINES</FlexItem>
+              <FlexItem>SHARED</FlexItem>
             </Flex>
           </NavItem>
         </NavList>
