@@ -15,6 +15,7 @@ const GnomeLibrary = () => {
   const [activeSidebarItem, setActiveSidebarItem] = useState<string>("home");
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
+  const [isPaginating, setIsPaginating] = useState(false);
 
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const GnomeLibrary = () => {
   const { data, isFetching } = useQuery({
     queryKey: queryKey,
     queryFn: () => fetchFolders(computedPath, pageNumber),
+    placeholderData: isPaginating ? keepPreviousData : undefined,
     structuralSharing: true,
   });
 
@@ -40,12 +42,14 @@ const GnomeLibrary = () => {
 
   // Handle pagination
   const handlePagination = useCallback(() => {
+    setIsPaginating(true);
     setPageNumber((prevState) => prevState + 1);
   }, []);
 
   // Navigate to a folder when clicked
   const handleFolderClick = useCallback(
     (folderName: string) => {
+      setIsPaginating(false);
       const newPath = `${computedPath}/${folderName}`;
       navigate(`/library/${newPath}`);
     },
@@ -90,7 +94,10 @@ const GnomeLibrary = () => {
                 path={computedPath}
                 username={username}
                 activeSidebarItem={activeSidebarItem}
-                onPathChange={(newPath) => navigate(`/library/${newPath}`)}
+                onPathChange={(newPath) => {
+                  setIsPaginating(false);
+                  navigate(`/library/${newPath}`);
+                }}
                 origin={{
                   type: OperationContext.LIBRARY,
                   additionalKeys: [computedPath],
