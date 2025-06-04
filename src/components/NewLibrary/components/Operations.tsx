@@ -24,7 +24,6 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Alert as AntdAlert, Dropdown } from "../../Antd";
 import {
   AddIcon,
-  ArchiveIcon,
   CodeBranchIcon,
   DeleteIcon,
   DownloadIcon,
@@ -162,11 +161,6 @@ const Operations = ({
               <DownloadIcon />,
               "download",
               "Download selected items",
-            )}
-            {renderOperationButton(
-              <ArchiveIcon />,
-              "anonymize",
-              "Anonymize selected items",
             )}
             {renderOperationButton(
               <MergeIcon />,

@@ -1,4 +1,3 @@
-// GnomeCentralBreadcrumb.tsx
 import type React from "react";
 import { useRef, useState, useEffect, type KeyboardEvent } from "react";
 import {
@@ -28,40 +27,35 @@ import type { OriginState } from "../NewLibrary/context";
 
 interface GnomeCentralBreadcrumbProps {
   path: string;
-  username?: string | null;
-  activeSidebarItem: string;
+
   onPathChange: (p: string) => void;
   origin: OriginState;
-  computedPath: string;
   foldersList?: FileBrowserFolderList;
 }
 
 const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
   path,
-  username,
-  activeSidebarItem,
+
   onPathChange,
   origin,
-  computedPath,
   foldersList,
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditing, setEditing] = useState(false);
-  const [value, setValue] = useState(path);
+
+  // Ensure `value` always starts with a single leading slash
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  const [value, setValue] = useState(normalizedPath);
+
   const breadcrumbContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = breadcrumbContainerRef;
-  const el = scrollRef.current!;
   const [overflowing, setOverflowing] = useState(false);
 
-  // derive path segments
-  const segmentsFull =
-    path !== "/" ? path.replace(/^\/+|\/+$/g, "").split("/") : [];
-  const anchorIndex = segmentsFull.findIndex(
-    (s) => s.toLowerCase() === activeSidebarItem.toLowerCase(),
-  );
-  const segments =
-    anchorIndex >= 0 ? segmentsFull.slice(anchorIndex) : segmentsFull;
+  // Trim leading/trailing slashes, then split into segments
+  const trimmed = normalizedPath.replace(/^\/+|\/+$/g, "");
+  const segmentsFull = trimmed ? trimmed.split("/") : [];
 
   const {
     fileInputRef,
@@ -73,14 +67,17 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     handleModalSubmitMutation,
     contextHolder,
     setModalState,
-  } = useFolderOperations(origin, computedPath || "", foldersList, false);
+  } = useFolderOperations(origin, path || "", foldersList, false);
 
-  // Sync input value when path changes
+  // Sync input when `path` prop changes (unless editing)
   useEffect(() => {
-    if (!isEditing) setValue(path);
+    if (!isEditing) {
+      const withSlash = path.startsWith("/") ? path : `/${path}`;
+      setValue(withSlash);
+    }
   }, [path, isEditing]);
 
-  // Focus input when editing starts
+  // Auto-focus the input when entering edit mode
   useEffect(() => {
     if (isEditing && inputRef.current) {
       const el = inputRef.current;
@@ -89,16 +86,19 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     }
   }, [isEditing]);
 
-  // Detect overflow
+  // Detect overflow on the breadcrumb container
   useEffect(() => {
+    const el = scrollRef.current;
     if (!el) return;
-    const checkOverflow = () => setOverflowing(el.scrollWidth > el.clientWidth);
+    const checkOverflow = () => {
+      setOverflowing(el.scrollWidth > el.clientWidth);
+    };
     checkOverflow();
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
-  }, [el]);
+  }, [scrollRef]);
 
-  // Always scroll to the right end when path changes
+  // Scroll to the far right when `path` changes (unless editing)
   useEffect(() => {
     const container = breadcrumbContainerRef.current;
     if (container && !isEditing) {
@@ -107,19 +107,26 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
   }, [isEditing]);
 
   const commitPathEdit = () => {
+    // Strip leading/trailing slashes and re-add exactly one leading slash
     const cleaned = value.trim().replace(/^\/+|\/+$/g, "");
     onPathChange(cleaned ? `/${cleaned}` : "/");
     setEditing(false);
   };
 
   const cancelPathEdit = () => {
-    setValue(path);
+    // Revert `value` to the normalized `path` prop
+    const withSlash = path.startsWith("/") ? path : `/${path}`;
+    setValue(withSlash);
     setEditing(false);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") commitPathEdit();
-    if (e.key === "Escape") cancelPathEdit();
+    if (e.key === "Enter") {
+      commitPathEdit();
+    }
+    if (e.key === "Escape") {
+      cancelPathEdit();
+    }
   };
 
   const handleUploadFile = () => {
@@ -133,10 +140,8 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
   };
 
   const onToggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    setIsMenuOpen((open) => !open);
   };
-
-  const isHome = activeSidebarItem.toLowerCase() === "home";
 
   return (
     <>
@@ -172,7 +177,7 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
         ref={folderInputRef}
         type="file"
         hidden
-        //@ts-ignore
+        // @ts-ignore
         webkitdirectory=""
         directory=""
         onChange={handleFolderChange}
@@ -233,34 +238,28 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
                 aria-label="Edit path"
               >
                 <Breadcrumb className={styles.breadcrumb}>
-                  {isHome && (
-                    <BreadcrumbItem
-                      className={styles.crumbLink}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onPathChange(`/home/${username ?? ""}`);
-                      }}
-                    >
-                      <span className={styles.homeIconWrapper}>
-                        <HomeIcon className={styles.icon} />
-                        <span className={styles.homeText}>home</span>
-                      </span>
-                    </BreadcrumbItem>
-                  )}
+                  {segmentsFull.map((seg, idx) => {
+                    // Build the subpath up through this segment
+                    const subPath =
+                      "/" + segmentsFull.slice(0, idx + 1).join("/");
 
-                  {segments.slice(isHome ? 1 : 0).map((seg, idx) => {
-                    const origIdx = anchorIndex + idx;
-                    const subPath = `/${segmentsFull.slice(0, origIdx + 1).join("/")}`;
                     return (
                       <BreadcrumbItem
-                        key={seg + idx}
+                        key={`${seg}-${idx}`}
                         className={styles.crumbLink}
                         onClick={(e) => {
                           e.stopPropagation();
                           onPathChange(subPath);
                         }}
                       >
-                        {seg}
+                        {seg.toLowerCase() === "home" ? (
+                          <span className={styles.homeIconWrapper}>
+                            <HomeIcon className={styles.icon} />{" "}
+                            <span className={styles.homeText}>home</span>
+                          </span>
+                        ) : (
+                          seg
+                        )}
                       </BreadcrumbItem>
                     );
                   })}
@@ -298,18 +297,18 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
                       New Folder
                     </DropdownItem>
                     <DropdownItem
-                      icon={<FileUploadIcon />}
-                      key="file-upload"
-                      onClick={handleUploadFile}
-                    >
-                      File upload
-                    </DropdownItem>
-                    <DropdownItem
                       icon={<FolderIcon />}
                       key="folder-upload"
                       onClick={handleUploadFolder}
                     >
                       Folder upload
+                    </DropdownItem>
+                    <DropdownItem
+                      icon={<FileUploadIcon />}
+                      key="file-upload"
+                      onClick={handleUploadFile}
+                    >
+                      File upload
                     </DropdownItem>
                   </DropdownList>
                 </Dropdown>

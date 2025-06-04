@@ -114,14 +114,11 @@ const GnomeLibrary = () => {
             <div className={styles.libraryMainContent}>
               <GnomeCentralBreadcrumb
                 path={computedPath}
-                username={username}
-                activeSidebarItem={activeSidebarItem}
                 onPathChange={navigateToPath}
                 origin={{
                   type: OperationContext.LIBRARY,
                   additionalKeys: [computedPath],
                 }}
-                computedPath={computedPath}
                 foldersList={data?.folderList}
               />
 

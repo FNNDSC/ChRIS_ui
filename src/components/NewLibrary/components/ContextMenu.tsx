@@ -40,7 +40,6 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
     { key: "download", label: "Download", icon: <DownloadIcon /> },
-    { key: "anonymize", label: "Anonymize", icon: <ArchiveIcon /> },
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     {
       key: "duplicate",
