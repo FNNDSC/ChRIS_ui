@@ -136,7 +136,7 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     return "/" + segmentsFull.slice(0, idx + 1).join("/");
   };
 
-  const truncateMiddle = (text: string, maxLength = 35) => {
+  const truncateMiddle = (text: string, maxLength = 20) => {
     if (text.length <= maxLength) return text;
 
     // Check for common file extensions and preserve them
