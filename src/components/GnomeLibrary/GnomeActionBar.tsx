@@ -21,7 +21,6 @@ import { TimesIcon, FileIcon, FolderIcon } from "@patternfly/react-icons";
 import {
   CodeBranchIcon,
   DownloadIcon,
-  ArchiveIcon,
   ShareIcon,
   EditIcon,
   DeleteIcon,
@@ -72,10 +71,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
 
   const handleDownload = () => {
     handleOperations("download");
-  };
-
-  const handleAnonymize = () => {
-    handleOperations("anonymize");
   };
 
   const handleShare = () => {
@@ -226,7 +221,7 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
 
           <Divider orientation={{ default: "vertical" }} />
 
-          {/* Bulk Actions: Create Feed / Download / Anonymize */}
+          {/* Bulk Actions: Create Feed / Download */}
           <FlexItem>
             <Flex gap={{ default: "gapSm" }}>
               <FlexItem>
@@ -269,28 +264,6 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                     onClick={handleDownload}
                   >
                     Download
-                  </Button>
-                )}
-              </FlexItem>
-
-              <FlexItem>
-                {useIconsOnly ? (
-                  <Tooltip content="Anonymize">
-                    <Button
-                      variant="primary"
-                      aria-label="Anonymize"
-                      onClick={handleAnonymize}
-                    >
-                      <ArchiveIcon />
-                    </Button>
-                  </Tooltip>
-                ) : (
-                  <Button
-                    variant="primary"
-                    icon={<ArchiveIcon />}
-                    onClick={handleAnonymize}
-                  >
-                    Anonymize
                   </Button>
                 )}
               </FlexItem>

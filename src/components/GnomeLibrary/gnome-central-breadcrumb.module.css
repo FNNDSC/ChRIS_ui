@@ -83,14 +83,13 @@
 }
 
 .icon {
-  display: inline-flex;
-  vertical-align: middle;
+  display: flex;
+  align-items: center;
   color: #1fa7f8;
 }
 
 .homeText {
-  vertical-align: middle;
-  display: inline-block;
+  display: block;
 }
 
 /* Actions container for ellipsis menu */

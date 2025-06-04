@@ -4,7 +4,6 @@ import { matchPath } from "react-router";
 import { useLocation } from "react-router-dom";
 import { Alert, Dropdown, type MenuProps } from "antd";
 import {
-  ArchiveIcon,
   CodeBranchIcon,
   DeleteIcon,
   DownloadIcon,
@@ -59,7 +58,6 @@ export const GnomeContextMenu: React.FC<GnomeContextMenuProps> = ({
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
     { key: "download", label: "Download", icon: <DownloadIcon /> },
-    { key: "anonymize", label: "Anonymize", icon: <ArchiveIcon /> },
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     {
       key: "duplicate",
