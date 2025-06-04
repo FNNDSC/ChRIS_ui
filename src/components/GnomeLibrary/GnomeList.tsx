@@ -92,7 +92,13 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
 }) => {
   // handlers to capture single and double click events
   const { handlers } = useGnomeLongPress();
-  const { handleOnClick } = handlers;
+  const {
+    handlePointerEvent,
+    handlePointerDown,
+    handlePointerUp,
+    handlePointerCancel,
+    handleOnClick,
+  } = handlers;
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
   const isSelected = selectedPaths.some((payload) => {
@@ -127,21 +133,37 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
         <Button
           variant="plain"
           className={`${styles.fileListItem} ${styles.fileListButton}`}
-          onClick={(e) => {
+          onPointerDown={(e) => {
             e.stopPropagation();
-            handleOnClick(e, resource, path, type, () => {
-              handleItem();
-            });
+            // Only handle left-clicks with pointer events
+            if (e.button !== 2) {
+              handlePointerDown(e);
+            }
+          }}
+          onPointerUp={(e) => {
+            e.stopPropagation();
+            // Only handle left-clicks with pointer up
+            if (e.button !== 2) {
+              handlePointerUp(e);
+              handlePointerEvent(e, resource, path, type, () => {
+                handleItem();
+              });
+            }
+          }}
+          onPointerCancel={(e) => {
+            e.stopPropagation();
+            handlePointerCancel(e);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
-              handleOnClick(e, resource, path, type, () => {
+              handlePointerEvent(e, resource, path, type, () => {
                 handleItem();
               });
             }
           }}
           onContextMenu={(e) => {
+            // Use original handleOnClick for context menu
             handleOnClick(e, resource, path, type);
           }}
           aria-label={`${name} ${type}`}
