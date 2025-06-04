@@ -27,7 +27,6 @@ import type { OriginState } from "../NewLibrary/context";
 
 interface GnomeCentralBreadcrumbProps {
   path: string;
-
   onPathChange: (p: string) => void;
   origin: OriginState;
   foldersList?: FileBrowserFolderList;
@@ -35,7 +34,6 @@ interface GnomeCentralBreadcrumbProps {
 
 const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
   path,
-
   onPathChange,
   origin,
   foldersList,
@@ -43,7 +41,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditing, setEditing] = useState(false);
 
-  // Ensure `value` always starts with a single leading slash
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const [value, setValue] = useState(normalizedPath);
 
@@ -52,7 +49,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
   const scrollRef = breadcrumbContainerRef;
   const [overflowing, setOverflowing] = useState(false);
 
-  // Trim leading/trailing slashes, then split into segments
   const trimmed = normalizedPath.replace(/^\/+|\/+$/g, "");
   const segmentsFull = trimmed ? trimmed.split("/") : [];
 
@@ -68,7 +64,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     setModalState,
   } = useFolderOperations(origin, path || "", foldersList, false);
 
-  // Sync input when `path` prop changes (unless editing)
   useEffect(() => {
     if (!isEditing) {
       const withSlash = path.startsWith("/") ? path : `/${path}`;
@@ -76,7 +71,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     }
   }, [path, isEditing]);
 
-  // Auto-focus the input when entering edit mode
   useEffect(() => {
     if (isEditing && inputRef.current) {
       const el = inputRef.current;
@@ -85,7 +79,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     }
   }, [isEditing]);
 
-  // Detect overflow on the breadcrumb container
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -97,7 +90,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     return () => window.removeEventListener("resize", checkOverflow);
   }, [scrollRef]);
 
-  // Scroll to the far right when `path` changes (unless editing)
   useEffect(() => {
     const container = breadcrumbContainerRef.current;
     if (container && !isEditing) {
@@ -106,14 +98,12 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
   }, [isEditing]);
 
   const commitPathEdit = () => {
-    // Strip leading/trailing slashes and re-add exactly one leading slash
     const cleaned = value.trim().replace(/^\/+|\/+$/g, "");
     onPathChange(cleaned ? `/${cleaned}` : "/");
     setEditing(false);
   };
 
   const cancelPathEdit = () => {
-    // Revert `value` to the normalized `path` prop
     const withSlash = path.startsWith("/") ? path : `/${path}`;
     setValue(withSlash);
     setEditing(false);
@@ -142,108 +132,116 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     setIsMenuOpen((open) => !open);
   };
 
-  // Helper: build subpath up to a given index
   const buildSubPath = (idx: number) => {
     return "/" + segmentsFull.slice(0, idx + 1).join("/");
   };
 
-  // Breadcrumb clipping logic: if > 4 segments, show first 2, ellipsis, last 2
+  const truncateMiddle = (text: string, maxLength = 35) => {
+    if (text.length <= maxLength) return text;
+
+    // Check for common file extensions and preserve them
+    const match = text.match(/^(.+?)(\.[^.]+)$/);
+    if (match) {
+      const [, name, extension] = match;
+
+      // If the name without extension is still too long, truncate the middle of the name
+      if (name.length + extension.length > maxLength) {
+        const ellipsis = "...";
+        const availableChars = maxLength - extension.length - ellipsis.length;
+
+        if (availableChars <= 0) {
+          // If extension is very long, just truncate the whole thing
+          return truncateMiddle(text, maxLength);
+        }
+
+        // Show more of the front part (75% front, 25% back)
+        const frontChars = Math.ceil(availableChars * 0.75);
+        const backChars = Math.floor(availableChars * 0.25);
+
+        if (backChars <= 0) {
+          return `${name.substring(0, frontChars)}${ellipsis}${extension}`;
+        }
+
+        return `${name.substring(0, frontChars)}${ellipsis}${name.substring(name.length - backChars)}${extension}`;
+      }
+      return text;
+    }
+
+    // No extension found, do simple middle truncation
+    const ellipsis = "...";
+    const charsToShow = maxLength - ellipsis.length;
+
+    // Show more characters from the beginning (70%) than the end (30%)
+    const frontChars = Math.ceil(charsToShow * 0.7);
+    const backChars = Math.floor(charsToShow * 0.3);
+
+    return `${text.substring(0, frontChars)}${ellipsis}${text.substring(text.length - backChars)}`;
+  };
+
+  const renderSegment = (seg: string, idx: number) => (
+    <BreadcrumbItem
+      key={`${seg}-${idx}`}
+      className={styles.crumbLink}
+      onClick={(e) => {
+        e.stopPropagation();
+        onPathChange(buildSubPath(idx));
+      }}
+      title={seg} // Show full name on hover
+    >
+      {truncateMiddle(seg)}
+    </BreadcrumbItem>
+  );
+
+  const renderHomeSegment = (seg: string, idx: number) => (
+    <BreadcrumbItem
+      key={`${seg}-${idx}`}
+      className={styles.crumbLink}
+      onClick={(e) => {
+        e.stopPropagation();
+        onPathChange(buildSubPath(idx));
+      }}
+    >
+      <span className={styles.homeIconWrapper}>
+        <HomeIcon className={styles.icon} /> <span>home</span>
+      </span>
+    </BreadcrumbItem>
+  );
+
   const renderBreadcrumbItems = () => {
     const total = segmentsFull.length;
 
-    // If 4 or fewer segments, show all
-    if (total <= 4) {
-      return segmentsFull.map((seg, idx) => (
-        <BreadcrumbItem
-          key={`${seg}-${idx}`}
-          className={styles.crumbLink}
-          onClick={(e) => {
-            e.stopPropagation();
-            onPathChange(buildSubPath(idx));
-          }}
-        >
-          {seg.toLowerCase() === "home" ? (
-            <span className={styles.homeIconWrapper}>
-              <HomeIcon className={styles.icon} /> <span>home</span>
-            </span>
-          ) : (
-            seg
-          )}
-        </BreadcrumbItem>
-      ));
+    if (total === 0) {
+      return null;
     }
 
-    // More than 4 segments: show first two, ellipsis, last two
+    if (total <= 4) {
+      return segmentsFull.map((seg, idx) => {
+        if (seg.toLowerCase() === "home" && idx === 0) {
+          return renderHomeSegment(seg, idx);
+        }
+        return renderSegment(seg, idx);
+      });
+    }
+
     const items: React.ReactNode[] = [];
 
-    // First segment
-    items.push(
-      <BreadcrumbItem
-        key={`${segmentsFull[0]}-0`}
-        className={styles.crumbLink}
-        onClick={(e) => {
-          e.stopPropagation();
-          onPathChange(buildSubPath(0));
-        }}
-      >
-        {segmentsFull[0].toLowerCase() === "home" ? (
-          <span className={styles.homeIconWrapper}>
-            <HomeIcon className={styles.icon} /> <span>home</span>
-          </span>
-        ) : (
-          segmentsFull[0]
-        )}
-      </BreadcrumbItem>,
-    );
+    const firstSeg = segmentsFull[0];
+    if (firstSeg.toLowerCase() === "home") {
+      items.push(renderHomeSegment(firstSeg, 0));
+    } else {
+      items.push(renderSegment(firstSeg, 0));
+    }
 
-    // Second segment
-    items.push(
-      <BreadcrumbItem
-        key={`${segmentsFull[1]}-1`}
-        className={styles.crumbLink}
-        onClick={(e) => {
-          e.stopPropagation();
-          onPathChange(buildSubPath(1));
-        }}
-      >
-        {segmentsFull[1]}
-      </BreadcrumbItem>,
-    );
+    items.push(renderSegment(segmentsFull[1], 1));
 
-    // Ellipsis indicator (non-clickable)
     items.push(
       <BreadcrumbItem key="ellipsis" isActive={false}>
         <span className={styles.ellipsisText}>&hellip;</span>
       </BreadcrumbItem>,
     );
 
-    // Second-to-last segment
-    items.push(
-      <BreadcrumbItem
-        key={`${segmentsFull[total - 2]}-${total - 2}`}
-        className={styles.crumbLink}
-        onClick={(e) => {
-          e.stopPropagation();
-          onPathChange(buildSubPath(total - 2));
-        }}
-      >
-        {segmentsFull[total - 2]}
-      </BreadcrumbItem>,
-    );
-
-    // Last segment
-    items.push(
-      <BreadcrumbItem
-        key={`${segmentsFull[total - 1]}-${total - 1}`}
-        className={styles.crumbLink}
-        onClick={(e) => {
-          e.stopPropagation();
-          onPathChange(buildSubPath(total - 1));
-        }}
-      >
-        {segmentsFull[total - 1]}
-      </BreadcrumbItem>,
-    );
+    items.push(renderSegment(segmentsFull[total - 2], total - 2));
+    items.push(renderSegment(segmentsFull[total - 1], total - 1));
 
     return items;
   };
@@ -282,7 +280,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
         ref={folderInputRef}
         type="file"
         hidden
-        // @ts-ignore
         webkitdirectory=""
         directory=""
         onChange={handleFolderChange}
