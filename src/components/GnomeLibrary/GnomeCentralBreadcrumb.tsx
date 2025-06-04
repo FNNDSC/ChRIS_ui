@@ -45,7 +45,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
 
   // Ensure `value` always starts with a single leading slash
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-
   const [value, setValue] = useState(normalizedPath);
 
   const breadcrumbContainerRef = useRef<HTMLDivElement>(null);
@@ -143,6 +142,112 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     setIsMenuOpen((open) => !open);
   };
 
+  // Helper: build subpath up to a given index
+  const buildSubPath = (idx: number) => {
+    return "/" + segmentsFull.slice(0, idx + 1).join("/");
+  };
+
+  // Breadcrumb clipping logic: if > 4 segments, show first 2, ellipsis, last 2
+  const renderBreadcrumbItems = () => {
+    const total = segmentsFull.length;
+
+    // If 4 or fewer segments, show all
+    if (total <= 4) {
+      return segmentsFull.map((seg, idx) => (
+        <BreadcrumbItem
+          key={`${seg}-${idx}`}
+          className={styles.crumbLink}
+          onClick={(e) => {
+            e.stopPropagation();
+            onPathChange(buildSubPath(idx));
+          }}
+        >
+          {seg.toLowerCase() === "home" ? (
+            <span className={styles.homeIconWrapper}>
+              <HomeIcon className={styles.icon} /> <span>home</span>
+            </span>
+          ) : (
+            seg
+          )}
+        </BreadcrumbItem>
+      ));
+    }
+
+    // More than 4 segments: show first two, ellipsis, last two
+    const items: React.ReactNode[] = [];
+
+    // First segment
+    items.push(
+      <BreadcrumbItem
+        key={`${segmentsFull[0]}-0`}
+        className={styles.crumbLink}
+        onClick={(e) => {
+          e.stopPropagation();
+          onPathChange(buildSubPath(0));
+        }}
+      >
+        {segmentsFull[0].toLowerCase() === "home" ? (
+          <span className={styles.homeIconWrapper}>
+            <HomeIcon className={styles.icon} /> <span>home</span>
+          </span>
+        ) : (
+          segmentsFull[0]
+        )}
+      </BreadcrumbItem>,
+    );
+
+    // Second segment
+    items.push(
+      <BreadcrumbItem
+        key={`${segmentsFull[1]}-1`}
+        className={styles.crumbLink}
+        onClick={(e) => {
+          e.stopPropagation();
+          onPathChange(buildSubPath(1));
+        }}
+      >
+        {segmentsFull[1]}
+      </BreadcrumbItem>,
+    );
+
+    // Ellipsis indicator (non-clickable)
+    items.push(
+      <BreadcrumbItem key="ellipsis" isActive={false}>
+        <span className={styles.ellipsisText}>&hellip;</span>
+      </BreadcrumbItem>,
+    );
+
+    // Second-to-last segment
+    items.push(
+      <BreadcrumbItem
+        key={`${segmentsFull[total - 2]}-${total - 2}`}
+        className={styles.crumbLink}
+        onClick={(e) => {
+          e.stopPropagation();
+          onPathChange(buildSubPath(total - 2));
+        }}
+      >
+        {segmentsFull[total - 2]}
+      </BreadcrumbItem>,
+    );
+
+    // Last segment
+    items.push(
+      <BreadcrumbItem
+        key={`${segmentsFull[total - 1]}-${total - 1}`}
+        className={styles.crumbLink}
+        onClick={(e) => {
+          e.stopPropagation();
+          onPathChange(buildSubPath(total - 1));
+        }}
+      >
+        {segmentsFull[total - 1]}
+      </BreadcrumbItem>,
+    );
+
+    return items;
+  };
+
   return (
     <>
       {contextHolder}
@@ -238,31 +343,7 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
                 aria-label="Edit path"
               >
                 <Breadcrumb className={styles.breadcrumb}>
-                  {segmentsFull.map((seg, idx) => {
-                    // Build the subpath up through this segment
-                    const subPath =
-                      "/" + segmentsFull.slice(0, idx + 1).join("/");
-
-                    return (
-                      <BreadcrumbItem
-                        key={`${seg}-${idx}`}
-                        className={styles.crumbLink}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onPathChange(subPath);
-                        }}
-                      >
-                        {seg.toLowerCase() === "home" ? (
-                          <span className={styles.homeIconWrapper}>
-                            <HomeIcon className={styles.icon} />{" "}
-                            <span className={styles.homeText}>home</span>
-                          </span>
-                        ) : (
-                          seg
-                        )}
-                      </BreadcrumbItem>
-                    );
-                  })}
+                  {renderBreadcrumbItems()}
                 </Breadcrumb>
               </div>
 
@@ -297,18 +378,18 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
                       New Folder
                     </DropdownItem>
                     <DropdownItem
-                      icon={<FolderIcon />}
-                      key="folder-upload"
-                      onClick={handleUploadFolder}
-                    >
-                      Folder upload
-                    </DropdownItem>
-                    <DropdownItem
                       icon={<FileUploadIcon />}
                       key="file-upload"
                       onClick={handleUploadFile}
                     >
                       File upload
+                    </DropdownItem>
+                    <DropdownItem
+                      icon={<FolderIcon />}
+                      key="folder-upload"
+                      onClick={handleUploadFolder}
+                    >
+                      Folder upload
                     </DropdownItem>
                   </DropdownList>
                 </Dropdown>
