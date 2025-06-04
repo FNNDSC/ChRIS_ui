@@ -1,5 +1,11 @@
 import type React from "react";
-import { useRef, useState, useEffect, type KeyboardEvent } from "react";
+import {
+  useRef,
+  useState,
+  useEffect,
+  type KeyboardEvent,
+  type ChangeEvent,
+} from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,6 +30,13 @@ import { AddModal } from "../NewLibrary/components/Operations";
 import styles from "./gnome-central-breadcrumb.module.css";
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import type { OriginState } from "../NewLibrary/context";
+
+declare module "react" {
+  interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
+    directory?: string;
+    webkitdirectory?: string;
+  }
+}
 
 interface GnomeCentralBreadcrumbProps {
   path: string;

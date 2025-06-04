@@ -1,5 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useContext, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { clearAllPaths } from "../../../store/cart/cartSlice";
 
 export enum OperationContext {
   LIBRARY = "library",
@@ -38,17 +40,20 @@ export const OperationsProvider: React.FC<
 > = ({ children }) => {
   const queryClient = useQueryClient();
   const originRef = useRef<OriginState>();
+  const dispatch = useDispatch();
 
   const handleOrigin = (newOrigin: OriginState) => {
     originRef.current = newOrigin;
   };
 
   const invalidateQueries = () => {
-    // Helps to reset the page when operations are performed for instance feedbacl
+    // Helps to reset the page when operations are performed
     const additionalKeys = originRef.current?.additionalKeys || [];
     const type = originRef.current?.type;
 
     if (!type) return;
+
+    dispatch(clearAllPaths());
 
     switch (type) {
       case OperationContext.LIBRARY:
