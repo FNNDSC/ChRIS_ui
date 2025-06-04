@@ -62,14 +62,16 @@
   align-items: center;
 }
 
-/* Truncate long crumb labels */
+/* Breadcrumb item styling */
+/* Breadcrumb item styling */
 .crumbLink {
-  flex-shrink: 1;
-  min-width: 0; /* allows the item to shrink */
-  max-width: 6rem; /* adjust as needed */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: inline-block; /* Ensure ellipsis works */
+  vertical-align: middle;
+  flex-shrink: 0; /* Prevent shrinking inside flex container */
+  max-width: 12rem;
+  overflow: hidden; /* Clip overflow */
+  text-overflow: ellipsis; /* Show “...” when text is too long */
+  white-space: nowrap; /* Prevent wrapping */
   font-size: 1rem;
   cursor: pointer;
   color: #1fa7f8;

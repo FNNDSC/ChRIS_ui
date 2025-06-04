@@ -136,48 +136,6 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     return "/" + segmentsFull.slice(0, idx + 1).join("/");
   };
 
-  const truncateMiddle = (text: string, maxLength = 20) => {
-    if (text.length <= maxLength) return text;
-
-    // Check for common file extensions and preserve them
-    const match = text.match(/^(.+?)(\.[^.]+)$/);
-    if (match) {
-      const [, name, extension] = match;
-
-      // If the name without extension is still too long, truncate the middle of the name
-      if (name.length + extension.length > maxLength) {
-        const ellipsis = "...";
-        const availableChars = maxLength - extension.length - ellipsis.length;
-
-        if (availableChars <= 0) {
-          // If extension is very long, just truncate the whole thing
-          return truncateMiddle(text, maxLength);
-        }
-
-        // Show more of the front part (75% front, 25% back)
-        const frontChars = Math.ceil(availableChars * 0.75);
-        const backChars = Math.floor(availableChars * 0.25);
-
-        if (backChars <= 0) {
-          return `${name.substring(0, frontChars)}${ellipsis}${extension}`;
-        }
-
-        return `${name.substring(0, frontChars)}${ellipsis}${name.substring(name.length - backChars)}${extension}`;
-      }
-      return text;
-    }
-
-    // No extension found, do simple middle truncation
-    const ellipsis = "...";
-    const charsToShow = maxLength - ellipsis.length;
-
-    // Show more characters from the beginning (70%) than the end (30%)
-    const frontChars = Math.ceil(charsToShow * 0.7);
-    const backChars = Math.floor(charsToShow * 0.3);
-
-    return `${text.substring(0, frontChars)}${ellipsis}${text.substring(text.length - backChars)}`;
-  };
-
   const renderSegment = (seg: string, idx: number) => (
     <BreadcrumbItem
       key={`${seg}-${idx}`}
@@ -188,7 +146,7 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
       }}
       title={seg} // Show full name on hover
     >
-      {truncateMiddle(seg)}
+      {seg}
     </BreadcrumbItem>
   );
 
