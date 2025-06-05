@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/hooks";
 import { EmptyStateComponent, SpinContainer } from "../Common";
@@ -9,7 +9,7 @@ import GnomeCentralBreadcrumb from "./GnomeCentralBreadcrumb";
 import GnomeLibraryTable from "./GnomeList";
 import GnomeLibrarySidebar from "./GnomeSidebar";
 import styles from "./gnome.module.css";
-import { fetchFolders } from "./utils/hooks/useFolders";
+import { fetchFolders, type FolderHookData } from "./utils/hooks/useFolders";
 
 const GnomeLibrary = () => {
   const [activeSidebarItem, setActiveSidebarItem] = useState<string>("home");
@@ -35,11 +35,15 @@ const GnomeLibrary = () => {
 
   // fetch folders, files, link files
   const queryKey = ["library_folders", computedPath, pageNumber];
-  const { data, isFetching } = useQuery({
+  const { data, isFetching } = useQuery<FolderHookData>({
     queryKey: queryKey,
-    queryFn: () => fetchFolders(computedPath, pageNumber),
+    queryFn: (): Promise<FolderHookData> => {
+      return fetchFolders(computedPath, pageNumber, data);
+    },
     placeholderData: isPaginating ? keepPreviousData : undefined,
     structuralSharing: true,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Determine if there's more data to fetch
@@ -95,6 +99,24 @@ const GnomeLibrary = () => {
     }
   };
 
+  // Calculate total resources count with memoization
+  const totalResources = useMemo(() => {
+    if (!data) return 0;
+
+    return (
+      (data.folders?.length || 0) +
+      (data.files?.length || 0) +
+      (data.linkFiles?.length || 0)
+    );
+  }, [data]);
+
+  // Resource count label text - also memoized to avoid recalculation
+  const resourceLabelText = useMemo(() => {
+    if (isFetching) return "Calculating...";
+
+    return `${totalResources} ${totalResources === 1 ? "resource" : "resources"} retrieved`;
+  }, [isFetching, totalResources]);
+
   return (
     <OperationsProvider>
       <Wrapper>
@@ -138,12 +160,21 @@ const GnomeLibrary = () => {
                       handleFolderClick={handleFolderClick}
                       fetchMore={fetchMore}
                       handlePagination={handlePagination}
-                      filesLoading={isFetching && pageNumber > 1}
+                      filesLoading={isFetching && isPaginating}
                     />
                   )
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Resource count label - always visible */}
+          <div className={styles.resourceCountContainer}>
+            <span
+              className={`${styles.resourceCount} ${isFetching ? styles.calculating : ""}`}
+            >
+              {resourceLabelText}
+            </span>
           </div>
         </div>
       </Wrapper>
