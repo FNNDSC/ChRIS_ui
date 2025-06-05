@@ -4,33 +4,35 @@ import {
   type FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
 import { Button, Skeleton, Spinner } from "@patternfly/react-core";
+import {
+  AngleDownIcon,
+  ExternalLinkSquareAltIcon,
+  FileIcon,
+  FolderIcon,
+  SortAmountDownIcon,
+  SortAmountUpIcon,
+} from "@patternfly/react-icons";
+import { Drawer, Tag, notification } from "antd";
 import { format } from "date-fns";
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { useAppSelector } from "../../store/hooks";
 import { formatBytes } from "../Feeds/utilties";
-import FileDetailView from "../Preview/FileDetailView";
-import { Drawer, Tag, notification } from "antd";
-import { OperationContext } from "../NewLibrary/context";
-import { useAssociatedFeed } from "../NewLibrary/utils/longpress";
-import useGnomeLongPress from "./utils/gnomeLongPress";
-import useNewResourceHighlight from "../NewLibrary/utils/useNewResourceHighlight";
-import { GnomeContextMenu } from "./GnomeContextMenu";
 import {
   getFileName,
   getLinkFileName,
 } from "../NewLibrary/components/FileCard";
 import { getFolderName } from "../NewLibrary/components/FolderCard";
-import { useAppSelector } from "../../store/hooks";
-import styles from "./gnome.module.css";
-import {
-  FolderIcon,
-  FileIcon,
-  ExternalLinkSquareAltIcon,
-  SortAmountDownIcon,
-  SortAmountUpIcon,
-} from "@patternfly/react-icons";
+import { OperationContext } from "../NewLibrary/context";
+import { useAssociatedFeed } from "../NewLibrary/utils/longpress";
+import useNewResourceHighlight from "../NewLibrary/utils/useNewResourceHighlight";
+import FileDetailView from "../Preview/FileDetailView";
 import GnomeBulkActionBar from "./GnomeActionBar";
+import { GnomeContextMenu } from "./GnomeContextMenu";
+import styles from "./gnome.module.css";
+import useGnomeLongPress from "./utils/gnomeLongPress";
+import { useInfiniteScroll } from "./utils/hooks/useInfiniteScroll";
 
 interface TableProps {
   data: {
@@ -252,24 +254,15 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
   // ref to the scrolling <ul>
   const listRef = useRef<HTMLUListElement>(null);
 
-  // attach a scroll listener instead of IntersectionObserver
-  useEffect(() => {
-    const ul = listRef.current;
-    if (!ul) return;
-    const onScroll = () => {
-      if (
-        fetchMore &&
-        !filesLoading &&
-        ul.scrollTop + ul.clientHeight >= ul.scrollHeight - 50
-      ) {
-        handlePagination?.();
-      }
-    };
-    ul.addEventListener("scroll", onScroll);
-    return () => {
-      ul.removeEventListener("scroll", onScroll);
-    };
-  }, [fetchMore, filesLoading, handlePagination]);
+  // Use our custom infinite scroll hook
+  const { sentinelRef, isNearBottom } = useInfiniteScroll({
+    onLoadMore: handlePagination || (() => {}),
+    hasMore: !!fetchMore,
+    isLoading: !!filesLoading,
+    root: listRef, // Pass the ref directly, the hook will handle it
+    threshold: 200, // Load more when within 200px of the bottom
+    loadingDelay: 300, // Wait 300ms after loading before allowing another fetch
+  });
 
   const handleFileClick = (file: FileBrowserFolderFile) => {
     setSelectedFile(file);
@@ -538,15 +531,34 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               origin={origin}
             />
           ))}
+          {/* Sentinel element for infinite scrolling */}
+          <li
+            ref={sentinelRef as React.RefObject<HTMLLIElement>}
+            style={{ height: "1px", opacity: 0 }}
+          />
         </ul>
-        {fetchMore && filesLoading && (
-          <li className={styles.loadingSpinnerOverlay}>
-            <Spinner size="sm" aria-label="Loading more files" />
-            <span className={styles.loadingSpinnerText}>
-              Loading more files…
-            </span>
-          </li>
-        )}
+
+        {/* Loading indicator - always present with fixed height to prevent layout shift */}
+        <div className={styles.loadingContainer}>
+          {filesLoading && (
+            <>
+              <Spinner size="md" />
+              <span>Loading more files...</span>
+            </>
+          )}
+          {/* Show scroll indicator when near bottom and not loading */}
+          {isNearBottom && fetchMore && !filesLoading && (
+            <div
+              className={styles.scrollIndicator}
+              aria-label="Continue scrolling to load more items"
+            >
+              <div className={styles.scrollArrow}>
+                <AngleDownIcon />
+              </div>
+              <span>Continue scrolling to load more</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <GnomeBulkActionBar origin={origin} computedPath={computedPath} />
