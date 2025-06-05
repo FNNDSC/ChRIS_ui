@@ -27,7 +27,7 @@ import {
   type ModalState,
 } from "../NewLibrary/utils/useOperations";
 import { AddModal } from "../NewLibrary/components/Operations";
-import styles from "./gnome-central-breadcrumb.module.css";
+import styles from "./gnome.module.css";
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import type { OriginState } from "../NewLibrary/context";
 

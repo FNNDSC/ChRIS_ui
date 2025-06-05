@@ -6,7 +6,7 @@ import PacsStudiesView, {
 import { getDefaultPacsService } from "./components/helpers.ts";
 import { useSearchParams } from "react-router-dom";
 import type { PACSqueryCore } from "../../api/pfdcm";
-import { Empty, Flex, Spin } from "antd";
+import { Empty, Flex, Spin, Typography } from "antd";
 import type { IPacsState } from "./types.ts";
 
 type PacsViewProps = Pick<PacsInputProps, "services" | "onSubmit"> &
@@ -68,15 +68,34 @@ const PacsView: React.FC<PacsViewProps> = ({
       />
       <br />
       {studies ? (
-        <Spin spinning={isLoadingStudies}>
-          <PacsStudiesView
-            preferences={preferences}
-            studies={studies}
-            onRetrieve={curriedOnRetrieve}
-            expandedStudyUids={expandedStudyUids}
-            onStudyExpand={curriedOnStudyExpand}
+        <div
+          style={{
+            position: "relative",
+            minHeight: isLoadingStudies ? "200px" : "auto",
+          }}
+        >
+          <Spin
+            spinning={isLoadingStudies}
+            size="large"
+            tip={<Typography.Text strong>Loading studies...</Typography.Text>}
+            style={{
+              position: isLoadingStudies ? "absolute" : "static",
+              top: "50%",
+              left: "50%",
+              transform: isLoadingStudies ? "translate(-50%, -50%)" : "none",
+              zIndex: 100,
+            }}
           />
-        </Spin>
+          <div style={{ opacity: isLoadingStudies ? 0.5 : 1 }}>
+            <PacsStudiesView
+              preferences={preferences}
+              studies={studies}
+              onRetrieve={curriedOnRetrieve}
+              expandedStudyUids={expandedStudyUids}
+              onStudyExpand={curriedOnStudyExpand}
+            />
+          </div>
+        </div>
       ) : (
         <Flex align="center" justify="center" style={{ height: "100%" }}>
           <Empty

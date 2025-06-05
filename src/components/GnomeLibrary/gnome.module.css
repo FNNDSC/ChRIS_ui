@@ -1,4 +1,11 @@
-/* GnomeLibrary styles module */
+/* 
+ * GnomeLibrary styles module
+ * This file contains all styles for the Gnome Library components
+ * including the main layout, file list, action bar, and breadcrumb navigation
+ */
+
+/* ===== LAYOUT STYLES ===== */
+/* Main container for the entire library interface */
 .gnomeLibraryContainer {
   display: flex;
   height: 100vh;
@@ -8,16 +15,18 @@
   overflow: hidden; /* Prevent outer scrollbar */
 }
 
+/* Left sidebar navigation panel */
 .gnomeLibrarySidebar {
   background-color: #1c1c1c;
   color: #e0e0e0;
-  width: 200px; /* Fixed width instead of min-width */
+  width: 200px; /* Fixed width for consistent layout */
   height: 100%;
   border-right: 1px solid #3a3a3a;
   padding-top: 1rem;
   overflow-y: auto; /* Allow sidebar to scroll independently */
 }
 
+/* Sidebar link styling */
 .gnomeLibrarySidebar a {
   color: #e0e0e0;
   text-decoration: none;
@@ -34,6 +43,7 @@
   margin-bottom: 8px;
 }
 
+/* Main content area */
 .gnomeLibraryContent {
   flex: 1;
   background-color: #2a2a2a;
@@ -43,9 +53,10 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  position: relative; /* Keep this for proper action bar positioning */
+  position: relative; /* For proper action bar positioning */
 }
 
+/* Main content wrapper */
 .libraryMainContent {
   background-color: #2a2a2a;
   height: 100%;
@@ -54,16 +65,8 @@
   overflow: hidden; /* Prevent overflow at this level */
 }
 
-/* Breadcrumb container styles */
-.breadcrumbContainer {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: #2a2a2a;
-  padding-bottom: 0.5rem;
-}
-
-/* File list styles */
+/* ===== FILE LIST STYLES ===== */
+/* Container for the file list */
 .fileListContainer {
   width: 100%;
   margin-top: 1rem;
@@ -73,9 +76,10 @@
   flex: 1; /* Take remaining space */
   display: flex;
   flex-direction: column;
-  position: relative; /* Added for proper action bar positioning */
+  position: relative; /* For proper action bar positioning */
 }
 
+/* Header row for the file list */
 .fileListHeader {
   display: flex;
   padding: 10px 16px;
@@ -88,6 +92,7 @@
   z-index: 5;
 }
 
+/* Column headers */
 .fileNameHeader {
   flex: 4;
 }
@@ -101,16 +106,24 @@
   text-align: right;
 }
 
+.fileDateHeader {
+  flex: 2;
+}
+
+.fileOwnerHeader {
+  flex: 1;
+}
+
+/* File list container */
 .fileList {
   list-style-type: none;
   margin: 0;
-  margin: 0;
-  position: relative; /* Make sude we establish a positionind context:*/
-  position: relative; /* Make sure we establish a positioning context */
+  position: relative; /* Establish a positioning context */
   overflow-y: auto; /* Enable vertical scrolling */
   flex: 1; /* Take remaining space */
 }
 
+/* Individual file list item */
 .fileListItem {
   display: flex;
   padding: 12px 16px;
@@ -123,6 +136,7 @@
   background-color: #3a3a3a;
 }
 
+/* Selected item styling */
 .selectedItem {
   background-color: #3a3a3a !important;
 }
@@ -131,6 +145,18 @@
   background-color: #3a3a3a;
 }
 
+/* File list button styles */
+.fileListButton {
+  width: 100%;
+  height: auto;
+  display: flex;
+  text-align: left;
+  padding: 12px 16px;
+  color: inherit;
+  background-color: transparent;
+}
+
+/* File name column */
 .fileName {
   display: flex;
   align-items: center;
@@ -139,7 +165,7 @@
 }
 
 .fileName svg {
-  color: #ffc107;
+  color: #ffc107; /* Yellow folder/file icon */
   margin-right: 10px;
   font-size: 1.2rem;
   flex-shrink: 0; /* Prevent icon from shrinking */
@@ -152,6 +178,12 @@
   text-overflow: ellipsis;
 }
 
+/* Blue file icon for link files */
+.blueFileIcon {
+  color: #1fa7f8;
+}
+
+/* Other file columns */
 .fileType {
   flex: 1;
   display: flex;
@@ -186,35 +218,12 @@
   text-overflow: ellipsis;
 }
 
-.fileDateHeader {
-  flex: 2;
-}
-
-.fileOwnerHeader {
-  flex: 1;
-}
-
-/* File list button styles */
-.fileListButton {
-  width: 100%;
-  height: auto;
-  display: flex;
-  text-align: left;
-  padding: 12px 16px;
-  color: inherit;
-  background-color: transparent;
-}
-
-/* Blue file icon for link files */
-.blueFileIcon {
-  color: #1fa7f8;
-}
-
-/* Tag spacing for newly added items */
+/* Tag for newly added items */
 .newlyAddedTag {
   margin-left: 0.5em;
 }
 
+/* ===== SORTING STYLES ===== */
 /* Sort icon styles */
 .sortIcon {
   margin-left: 5px;
@@ -231,14 +240,7 @@
   cursor: pointer;
 }
 
-/* Pagination container */
-.paginationContainer {
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-  margin-top: 1rem;
-}
-
+/* ===== EMPTY STATE STYLES ===== */
 /* Empty state container */
 .emptyStateContainer {
   display: flex;
@@ -268,6 +270,7 @@
   margin: 0 auto;
 }
 
+/* ===== ACTION BAR STYLES ===== */
 /* Action bar container styles */
 .actionBarContainer {
   position: fixed;
@@ -289,6 +292,12 @@
   color: #e0e0e0;
 }
 
+/* Light theme version of action bar */
+.actionBarContainerLight {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: #151515;
+}
+
 /* Selection counter styles */
 .selectionCounter {
   display: flex;
@@ -303,6 +312,7 @@
   margin-right: 4px;
 }
 
+/* Clickable selection count */
 .selectionCountClickable {
   cursor: pointer;
   transition: color 0.2s;
@@ -315,27 +325,17 @@
   text-decoration: underline;
 }
 
-.selectionMenuContent {
-  width: 280px;
-  max-height: 350px;
-  background-color: var(--pf-v5-global--BackgroundColor--100);
-  border-radius: 4px;
+/* Selection menu styles */
+.selectionPopover {
+  backdrop-filter: none !important; /* Ensure popover doesn't inherit action bar's backdrop filter */
 }
 
-.selectionMenuHeader {
-  padding: 12px 16px;
-  font-weight: 600;
-  font-size: 14px;
+.selectionList {
+  /* fixed max height before scroll */
+  max-height: 300px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.selectionItems {
-  max-height: 250px;
+  flex-direction: column;
   overflow-y: auto;
-  padding: 0;
-  margin: 0;
 }
 
 .selectionItem {
@@ -368,14 +368,7 @@
   white-space: nowrap;
 }
 
-.selectionList {
-  /* fixed max height before scroll */
-  max-height: 300px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-}
-
+/* Clear selection button */
 .clearSelectionButton {
   margin-left: 8px;
   padding: 0;
@@ -396,66 +389,57 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Light theme version can be applied via a class added in the component */
-.actionBarContainerLight {
-  background-color: rgba(255, 255, 255, 0.7);
-  color: #151515;
-}
-
-/* Loading indicator styles */
-.loadingIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  width: 100%;
-  height: 40px;
-  background-color: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-  margin: 8px 0;
-}
-
-.loadingText {
-  margin-left: 10px;
-  font-size: 14px;
-  color: inherit;
-}
-
-/* Infinite scroll sentinel styles */
-.sentinel {
-  height: 100px;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  position: relative;
-  background-color: transparent;
-}
-
-/* Container for indicators (prevents layout shifts) */
-.indicatorContainer {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 48px; /* Fixed height to prevent layout shifts */
-  z-index: 100;
-}
-
-/* Indicators are absolutely positioned within the container */
-.scrollIndicator,
-.loadingSpinnerOverlay {
+/* ===== RESOURCE COUNT STYLES ===== */
+/* Resource count label styles */
+.resourceCountContainer {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  bottom: 0;
+  right: 0;
+  padding: 4px 12px;
+  background-color: #1c1c1c;
+  border-top: 1px solid #3a3a3a;
+  border-left: 1px solid #3a3a3a;
+  border-top-left-radius: 4px;
+  margin: 0;
+  z-index: 100;
+  min-width: 150px;
+  text-align: right;
+}
+
+.resourceCount {
+  font-size: 12px;
+  color: #999;
+  display: block;
+  white-space: nowrap;
+}
+
+/* Left align the text when in calculating state */
+.calculating {
+  text-align: left;
+}
+
+/* Fade transition for resource count */
+.fade {
+  transition: opacity 150ms ease-in-out;
+  opacity: 1;
+}
+
+/* ===== LOADING INDICATORS ===== */
+/* Loading container for infinite scroll */
+.loadingContainer {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--pf-global--BackgroundColor--dark-100);
-  border-top: 1px solid var(--pf-global--BorderColor--100);
+  padding: 16px;
+  gap: 8px;
+  width: 100%;
+  color: var(--pf-global--Color--100);
+  font-size: var(--pf-global--FontSize--sm);
+  height: 60px; /* Fixed height to prevent layout shift */
+  position: relative; /* For absolute positioning of children if needed */
 }
 
+/* Scroll indicator */
 .scrollIndicator {
   cursor: pointer;
   transition: background-color 0.2s;
@@ -488,101 +472,156 @@
   }
 }
 
-.loadingSpinnerText {
-  margin-left: 10px;
-  color: var(--pf-global--Color--light-100);
-  font-weight: 500;
+/* ===== BREADCRUMB STYLES ===== */
+/* Central Breadcrumb Container */
+.centralBreadcrumbContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  z-index: 10;
 }
 
-/* Ensure popover doesn't inherit action bar's backdrop filter */
-.selectionPopover {
-  backdrop-filter: none !important;
+/* Breadcrumb Box */
+.breadcrumbBox {
+  display: flex;
+  align-items: center;
+  max-width: 800px;
+  width: 80%;
+  height: 46px;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  background-color: #2a2a2a;
+  box-shadow: 0 0.0625rem 0.125rem 0 rgba(3, 3, 3, 0.2);
+  overflow: hidden;
+  position: relative;
 }
 
-/* Resource count label styles */
-.resourceCountContainer {
+/* Ellipsis button (reveals hidden early segments) */
+.ellipsisButton {
   position: absolute;
+  left: 0;
+  top: 0;
   bottom: 0;
-  right: 0;
-  padding: 4px 12px;
-  background-color: #1c1c1c;
-  border-top: 1px solid #3a3a3a;
-  border-left: 1px solid #3a3a3a;
-  border-top-left-radius: 4px;
-  margin: 0;
-  z-index: 100;
-  min-width: 150px;
-  text-align: right;
+  width: 2rem;
+  background: linear-gradient(to right, #2a2a2a, transparent);
+  border: none;
+  color: #e0e0e0;
+  font-size: 1.2rem;
+  cursor: pointer;
+  z-index: 12;
 }
 
-.resourceCount {
-  font-size: 12px;
-  color: #999;
-  display: block;
+/* Scrolling container for breadcrumb */
+.breadcrumbScrollContainer {
+  flex: 1;
+  overflow-x: auto;
   white-space: nowrap;
+  padding: 0 12px;
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
 }
 
-.input {
+/* Hide scrollbar in WebKit browsers */
+.breadcrumbScrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* Breadcrumb styling */
+.breadcrumb {
+  background: transparent;
+  min-width: min-content;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  height: 100%;
+  align-items: center;
+}
+
+/* Breadcrumb item styling */
+.crumbLink {
+  display: inline-block; /* Ensure ellipsis works */
+  vertical-align: middle;
+  flex-shrink: 0; /* Prevent shrinking inside flex container */
+  max-width: 12rem;
+  overflow: hidden; /* Clip overflow */
+  text-overflow: ellipsis; /* Show "..." when text is too long */
+  white-space: nowrap; /* Prevent wrapping */
+  font-size: 1rem;
+  cursor: pointer;
+  color: #1fa7f8;
+}
+
+/* Home icon wrapper */
+.homeIconWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  color: #1fa7f8;
+}
+
+/* Actions container for ellipsis menu */
+.actionsContainer {
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-left: 1px solid #3a3a3a;
+  background-color: #2a2a2a;
+  z-index: 11;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Ellipsis button hover effect */
+.actionsContainer button:hover {
+  background-color: #3a3a3a;
+}
+
+/* Make ellipsis icon more visible */
+.actionsContainer svg {
+  width: 18px;
+  height: 18px;
+  color: #e0e0e0;
+}
+
+/* Edit container for path input */
+.editContainer {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+}
+
+/* Path input styling */
+.pathInput {
+  flex: 1;
+  height: 100%;
   background: transparent;
   border: none;
   outline: none;
-  font: inherit;
-  width: 100%;
-  color: inherit;
+  font-size: 1rem;
+  color: #e0e0e0;
+  padding: 0;
 }
 
-.fade {
-  transition: opacity 150ms ease-in-out;
-  opacity: 1;
+/* Cancel edit button */
+.cancelEditButton {
+  margin-left: 8px;
+  color: #e0e0e0;
 }
 
-/* Left align the text when in calculating state */
-.calculating {
-  text-align: left;
+.cancelEditButton:hover {
+  background-color: #3a3a3a;
 }
 
-/* Fixed loading indicator at the bottom of the viewport */
-.fixedLoadingIndicator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px;
-  background: var(--pf-global--BackgroundColor--dark-100);
-  border-top: 1px solid var(--pf-global--BorderColor--100);
-  width: 100%;
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  z-index: 100;
-  box-shadow: 0px -4px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Container for the list and loading indicator */
-.listContainer {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Make the list take all available space */
-.gnomeLibraryTableList {
-  flex: 1;
-  overflow-y: auto;
-  padding-bottom: 60px; /* Reserve space for loading indicator */
-}
-
-/* Loading container for infinite scroll */
-.loadingContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-  gap: 8px;
-  width: 100%;
-  color: var(--pf-global--Color--100);
-  font-size: var(--pf-global--FontSize--sm);
-  height: 60px; /* Fixed height to prevent layout shift */
-  position: relative; /* For absolute positioning of children if needed */
+.cancelEditButton svg {
+  width: 16px;
+  height: 16px;
 }
