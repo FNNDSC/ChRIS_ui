@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { debounce } from "lodash";
 
 interface UseInfiniteScrollOptions {
   /**
@@ -37,11 +36,6 @@ interface UseInfiniteScrollOptions {
    * Threshold in pixels to determine if user is at bottom of container
    */
   bottomThreshold?: number;
-
-  /**
-   * Debounce delay for scroll events (in ms)
-   */
-  scrollDebounce?: number;
 }
 
 interface UseInfiniteScrollReturn {
@@ -72,7 +66,6 @@ export function useInfiniteScroll({
   threshold = 200,
   loadingDelay = 200,
   bottomThreshold = 10,
-  scrollDebounce = 100,
 }: UseInfiniteScrollOptions): UseInfiniteScrollReturn {
   // Ref to the sentinel element
   const sentinelRef = useRef<HTMLElement>(null);
@@ -202,7 +195,7 @@ export function useInfiniteScroll({
     let lastScrollTop = rootElement.scrollTop;
 
     // Type-safe event handlers
-    const handleScroll = (event: Event): void => {
+    const handleScroll = (): void => {
       // Detect scroll direction (down = positive delta)
       const currentScrollTop = rootElement.scrollTop;
       const scrollDelta = currentScrollTop - lastScrollTop;
@@ -216,9 +209,6 @@ export function useInfiniteScroll({
         }
       }
     };
-
-    // Create debounced version of scroll handler for better performance
-    const debouncedHandleScroll = debounce(handleScroll, scrollDebounce);
 
     // Type-safe wheel event handler
     const handleWheel = (event: Event): void => {
@@ -255,9 +245,7 @@ export function useInfiniteScroll({
     };
 
     // Add event listeners with proper type handling
-    rootElement.addEventListener("scroll", debouncedHandleScroll, {
-      passive: true,
-    });
+    rootElement.addEventListener("scroll", handleScroll, { passive: true });
     rootElement.addEventListener("wheel", handleWheel, { passive: true });
 
     // Add keyboard event listener to document for better keyboard navigation support
@@ -265,11 +253,9 @@ export function useInfiniteScroll({
 
     return () => {
       // Clean up all event listeners
-      rootElement.removeEventListener("scroll", debouncedHandleScroll);
+      rootElement.removeEventListener("scroll", handleScroll);
       rootElement.removeEventListener("wheel", handleWheel);
       document.removeEventListener("keydown", handleKeyDown);
-      // Cancel any pending debounced calls
-      debouncedHandleScroll.cancel();
     };
   }, [
     getRootElement,
@@ -277,7 +263,6 @@ export function useInfiniteScroll({
     loadMore,
     isAtBottomOfContainer,
     checkIfAtBottomAndLoadMore,
-    scrollDebounce,
   ]);
 
   return {
