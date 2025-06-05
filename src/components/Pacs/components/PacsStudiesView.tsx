@@ -5,6 +5,8 @@ import { Collapse, type CollapseProps, Space, Typography } from "antd";
 import React from "react";
 import SeriesList from "./SeriesList.tsx";
 import { isSeriesLoading } from "./helpers.ts";
+import { SeriesSelectionProvider } from "./SeriesSelectionContext";
+import BulkActionBar from "./BulkActionBar";
 
 type PacsStudiesViewProps = {
   preferences: PacsPreferences;
@@ -72,6 +74,7 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
       };
     });
   }, [studies, onRetrieve, preferences.showUid]);
+
   const numPatients = React.useMemo(() => {
     return studies
       .map((study) => study.info.PatientID)
@@ -80,25 +83,31 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
         [],
       ).length;
   }, [studies]);
+
   const onChange = React.useCallback(
     (studyUids: string[]) => onStudyExpand?.(studyUids),
     [onStudyExpand],
   );
+
   return (
-    <Space size="small" direction="vertical">
-      <Collapse
-        items={items}
-        defaultActiveKey={
-          studies.length === 1 ? [studies[0].info.StudyInstanceUID] : []
-        }
-        onChange={onChange}
-        activeKey={expandedStudyUids}
-      />
-      <Typography>
-        {numPatients === 1 ? "1 patient, " : `${numPatients} patients, `}
-        {studies.length === 1 ? "1 study" : `${studies.length} studies`} found.
-      </Typography>
-    </Space>
+    <SeriesSelectionProvider>
+      <Space size="small" direction="vertical" style={{ width: "100%" }}>
+        <Collapse
+          items={items}
+          defaultActiveKey={
+            studies.length === 1 ? [studies[0].info.StudyInstanceUID] : []
+          }
+          onChange={onChange}
+          activeKey={expandedStudyUids}
+        />
+        <Typography>
+          {numPatients === 1 ? "1 patient, " : `${numPatients} patients, `}
+          {studies.length === 1 ? "1 study" : `${studies.length} studies`}{" "}
+          found.
+        </Typography>
+        <BulkActionBar />
+      </Space>
+    </SeriesSelectionProvider>
   );
 };
 
