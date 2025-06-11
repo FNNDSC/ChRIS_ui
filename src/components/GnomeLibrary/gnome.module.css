@@ -82,7 +82,8 @@
 /* Header row for the file list */
 .fileListHeader {
   display: flex;
-  padding: 10px 16px;
+  width: 100%;
+  padding: 0;
   background-color: #333;
   border-bottom: 1px solid #444;
   font-weight: 500;
@@ -90,49 +91,29 @@
   position: sticky;
   top: 0;
   z-index: 5;
-}
-
-/* Column headers */
-.fileNameHeader {
-  flex: 4;
-}
-
-.fileTypeHeader {
-  flex: 1;
-}
-
-.fileSizeHeader {
-  flex: 1;
-  text-align: right;
-}
-
-.fileDateHeader {
-  flex: 2;
-}
-
-.fileOwnerHeader {
-  flex: 1;
+  height: 52px; /* Fixed height for headers */
 }
 
 /* File list container */
 .fileList {
   list-style-type: none;
   margin: 0;
-  position: relative; /* Establish a positioning context */
-  overflow-y: auto; /* Enable vertical scrolling */
-  flex: 1; /* Take remaining space */
+  padding: 0;
+  position: relative;
+  overflow-y: auto;
+  flex: 1;
 }
 
-/* Individual file list item */
-.fileListItem {
+/* File list row container */
+.fileListRow {
   display: flex;
-  padding: 12px 16px;
+  width: 100%;
   border-bottom: 1px solid #3a3a3a;
-  cursor: pointer;
   transition: background-color 0.2s;
+  height: 52px; /* Fixed height to match header */
 }
 
-.fileListItem:hover {
+.fileListRow:hover {
   background-color: #3a3a3a;
 }
 
@@ -141,81 +122,167 @@
   background-color: #3a3a3a !important;
 }
 
-.fileListItem:active {
-  background-color: #3a3a3a;
+/* Individual file list item */
+.fileListItem {
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex: 1;
 }
 
-/* File list button styles */
+/* File list button container */
 .fileListButton {
   width: 100%;
-  height: auto;
   display: flex;
   text-align: left;
-  padding: 12px 16px;
+  padding: 0;
+  margin: 0;
   color: inherit;
   background-color: transparent;
+  border: none;
 }
 
-/* File name column */
+/* 
+ * COLUMN SIZING
+ */
+/* Checkbox column */
+.fileCheckboxHeader,
+.checkboxCell {
+  width: 50px;
+  min-width: 50px;
+  flex-shrink: 0;
+}
+
+/* First column - Name */
+.fileNameHeader,
 .fileName {
+  flex: 4;
+  min-width: 200px;
+}
+
+/* Second column - Date */
+.fileDateHeader,
+.fileDate {
+  flex: 2;
+  min-width: 160px;
+}
+
+/* Third column - Owner/Creator */
+.fileOwnerHeader,
+.fileOwner {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* Fourth column - Size */
+.fileSizeHeader,
+.fileSize {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* 
+ * COLUMN CELL STYLING
+ */
+/* All cells get consistent padding and alignment */
+.fileNameHeader,
+.fileName,
+.fileDateHeader,
+.fileDate,
+.fileSizeHeader,
+.fileSize,
+.fileOwnerHeader,
+.fileOwner,
+.fileCheckboxHeader,
+.checkboxCell {
+  padding: 16px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  flex: 4;
-  min-width: 0; /* Allow flex item to shrink below content size */
-}
-
-.fileName svg {
-  color: #ffc107; /* Yellow folder/file icon */
-  margin-right: 10px;
-  font-size: 1.2rem;
-  flex-shrink: 0; /* Prevent icon from shrinking */
-}
-
-.fileNameText {
-  font-weight: 500;
-  white-space: nowrap;
+  height: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* Blue file icon for link files */
+/* Right-align size column */
+.fileSizeHeader,
+.fileSize {
+  justify-content: flex-end;
+}
+
+/* Checkbox is centered */
+.fileCheckboxHeader,
+.checkboxCell {
+  justify-content: center;
+}
+
+/* 
+ * HEADER CONTENT STRUCTURE
+ */
+/* All column headers have this wrapper for consistent structure */
+.columnHeaderContent {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Icon placeholder in name header to align with row content */
+.nameHeaderText {
+  margin-left: 28px; /* Icon width (18px) + margin (10px) */
+}
+
+/* Checkbox styling */
+.checkboxWrapper {
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.largeCheckbox {
+  transform: scale(1.2);
+  margin: 0;
+}
+
+/* Folder/File icons */
+.fileName svg {
+  color: #ffc107;
+  margin-right: 10px;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+/* Blue icon for links */
 .blueFileIcon {
   color: #1fa7f8;
 }
 
-/* Other file columns */
-.fileType {
-  flex: 1;
-  display: flex;
-  align-items: center;
-}
-
-.fileSize {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fileDate {
-  flex: 2;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
+/* Text truncation for all cells */
+.fileNameText,
+.fileDate,
+.fileSize,
 .fileOwner {
-  flex: 1;
-  display: flex;
-  align-items: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Font weight for file names */
+.fileNameText {
+  font-weight: 500;
+}
+
+/* Sort icon styling */
+.inactiveSortIcon {
+  opacity: 0.5;
+  margin-left: 5px;
+}
+
+/* Clickable header styling */
+.clickableHeader {
+  cursor: pointer;
 }
 
 /* Tag for newly added items */
@@ -321,7 +388,7 @@
 }
 
 .selectionCountClickable:hover {
-  color: var(--pf-v5-global--link--Color);
+  color: #1fa7f8;
   text-decoration: underline;
 }
 
@@ -343,7 +410,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px solid var(--pf-v5-global--BorderColor--100);
+  border-bottom: 1px solid #3a3a3a;
 }
 
 .selectionItem:last-child {
@@ -433,8 +500,8 @@
   padding: 16px;
   gap: 8px;
   width: 100%;
-  color: var(--pf-global--Color--100);
-  font-size: var(--pf-global--FontSize--sm);
+  color: #e0e0e0;
+  font-size: 1rem;
   height: 60px; /* Fixed height to prevent layout shift */
   position: relative; /* For absolute positioning of children if needed */
 }
@@ -446,14 +513,14 @@
 }
 
 .scrollIndicator:hover {
-  background-color: var(--pf-global--BackgroundColor--dark-200);
+  background-color: #3a3a3a;
 }
 
 .scrollArrow {
   display: inline-flex;
   margin-right: 8px;
   animation: bounce 1.2s infinite;
-  color: var(--pf-global--primary-color--100);
+  color: #1fa7f8;
 }
 
 @keyframes bounce {
