@@ -3,7 +3,7 @@ import {
   FileBrowserFolderFile,
   type FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button, Skeleton, Spinner } from "@patternfly/react-core";
+import { Button, Skeleton, Spinner, Checkbox } from "@patternfly/react-core";
 import {
   AngleDownIcon,
   ExternalLinkSquareAltIcon,
@@ -17,7 +17,7 @@ import { format } from "date-fns";
 import type React from "react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { formatBytes } from "../Feeds/utilties";
 import {
   getFileName,
@@ -31,8 +31,11 @@ import FileDetailView from "../Preview/FileDetailView";
 import GnomeBulkActionBar from "./GnomeActionBar";
 import { GnomeContextMenu } from "./GnomeContextMenu";
 import styles from "./gnome.module.css";
-import useGnomeLongPress from "./utils/gnomeLongPress";
 import { useInfiniteScroll } from "./utils/hooks/useInfiniteScroll";
+import {
+  setSelectedPaths,
+  clearSelectedPaths,
+} from "../../store/cart/cartSlice";
 
 interface TableProps {
   data: {
@@ -91,16 +94,10 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
   handleFolderClick,
   handleFileClick,
   origin,
+  rowIndex,
 }) => {
-  // handlers to capture single and double click events
-  const { handlers } = useGnomeLongPress();
-  const {
-    handlePointerEvent,
-    handlePointerDown,
-    handlePointerUp,
-    handlePointerCancel,
-    handleOnClick,
-  } = handlers;
+  // Redux dispatch for selection management
+  const dispatch = useAppDispatch();
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { isNewResource, scrollToNewResource } = useNewResourceHighlight(date);
   const isSelected = selectedPaths.some((payload) => {
@@ -113,61 +110,80 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
     return false;
   });
 
-  const path =
+  const pathForCart =
     type === "folder" || type === "link"
       ? resource.data.path
       : resource.data.fname;
 
-  const handleItem = () => {
-    if (type === "folder") {
-      handleFolderClick();
+  const toggleSelection = () => {
+    if (isSelected) {
+      dispatch(clearSelectedPaths(pathForCart));
     } else {
-      handleFileClick();
+      dispatch(
+        setSelectedPaths({ path: pathForCart, type, payload: resource }),
+      );
+    }
+  };
+
+  const handleRowClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    // Stop propagation to prevent other handlers from firing
+    e.stopPropagation();
+
+    // Handle ctrl+click for selection
+    if (e.ctrlKey) {
+      toggleSelection();
+    } else {
+      // Otherwise navigate
+      if (type === "folder") {
+        handleFolderClick();
+      } else {
+        handleFileClick();
+      }
+    }
+  };
+
+  // Handle context menu events
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    // Select the item that was right-clicked if not already selected
+    if (!isSelected) {
+      dispatch(
+        setSelectedPaths({ path: pathForCart, type, payload: resource }),
+      );
     }
   };
 
   return (
-    <GnomeContextMenu origin={origin} key={path} computedPath={computedPath}>
+    <GnomeContextMenu origin={origin} computedPath={computedPath}>
       <li
+        key={pathForCart}
         ref={scrollToNewResource}
-        className={isSelected ? styles.selectedItem : ""}
+        className={`${styles.fileListRow} ${isSelected ? styles.selectedItem : ""}`}
       >
+        <div className={styles.checkboxCell}>
+          <div className={styles.checkboxWrapper}>
+            <Checkbox
+              id={`select-${type}-${rowIndex}`}
+              aria-label="Select row"
+              isChecked={isSelected}
+              className={styles.largeCheckbox}
+              onChange={() => {
+                toggleSelection();
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+              }}
+            />
+          </div>
+        </div>
         <Button
           variant="plain"
           className={`${styles.fileListItem} ${styles.fileListButton}`}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            // Only handle left-clicks with pointer events
-            if (e.button !== 2) {
-              handlePointerDown(e);
-            }
-          }}
-          onPointerUp={(e) => {
-            e.stopPropagation();
-            // Only handle left-clicks with pointer up
-            if (e.button !== 2) {
-              handlePointerUp(e);
-              handlePointerEvent(e, resource, path, type, () => {
-                handleItem();
-              });
-            }
-          }}
-          onPointerCancel={(e) => {
-            e.stopPropagation();
-            handlePointerCancel(e);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handlePointerEvent(e, resource, path, type, () => {
-                handleItem();
-              });
-            }
-          }}
-          onContextMenu={(e) => {
-            // Use original handleOnClick for context menu
-            handleOnClick(e, resource, path, type);
-          }}
+          onClick={handleRowClick}
+          onContextMenu={handleContextMenu}
           aria-label={`${name} ${type}`}
         >
           <div className={styles.fileName}>
@@ -391,6 +407,8 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
 
       <div className={styles.fileListContainer}>
         <div className={styles.fileListHeader}>
+          {/* Checkbox header */}
+          <div className={styles.fileCheckboxHeader} />
           <div
             className={`${styles.fileNameHeader} ${styles.clickableHeader}`}
             onClick={() => handleSort(0)}
@@ -402,16 +420,18 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
             }}
             aria-label="Sort by name"
           >
-            Name{" "}
-            {sortBy.index === 0 ? (
-              sortBy.direction === "asc" ? (
-                <SortAmountUpIcon />
+            <div className={styles.columnHeaderContent}>
+              <span className={styles.columnHeaderText}>Name</span>
+              {sortBy.index === 0 ? (
+                sortBy.direction === "asc" ? (
+                  <SortAmountUpIcon />
+                ) : (
+                  <SortAmountDownIcon />
+                )
               ) : (
-                <SortAmountDownIcon />
-              )
-            ) : (
-              <SortAmountDownIcon className={styles.inactiveSortIcon} />
-            )}
+                <SortAmountDownIcon className={styles.inactiveSortIcon} />
+              )}
+            </div>
           </div>
           <div
             className={`${styles.fileDateHeader} ${styles.clickableHeader}`}
@@ -424,16 +444,18 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
             }}
             aria-label="Sort by creation date"
           >
-            Created{" "}
-            {sortBy.index === 1 ? (
-              sortBy.direction === "asc" ? (
-                <SortAmountUpIcon />
+            <div className={styles.columnHeaderContent}>
+              <span className={styles.columnHeaderText}>Created</span>
+              {sortBy.index === 1 ? (
+                sortBy.direction === "asc" ? (
+                  <SortAmountUpIcon />
+                ) : (
+                  <SortAmountDownIcon />
+                )
               ) : (
-                <SortAmountDownIcon />
-              )
-            ) : (
-              <SortAmountDownIcon className={styles.inactiveSortIcon} />
-            )}
+                <SortAmountDownIcon className={styles.inactiveSortIcon} />
+              )}
+            </div>
           </div>
           <div
             className={`${styles.fileOwnerHeader} ${styles.clickableHeader}`}
@@ -446,16 +468,18 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
             }}
             aria-label="Sort by creator"
           >
-            Creator{" "}
-            {sortBy.index === 2 ? (
-              sortBy.direction === "asc" ? (
-                <SortAmountUpIcon />
+            <div className={styles.columnHeaderContent}>
+              <span className={styles.columnHeaderText}>Creator</span>
+              {sortBy.index === 2 ? (
+                sortBy.direction === "asc" ? (
+                  <SortAmountUpIcon />
+                ) : (
+                  <SortAmountDownIcon />
+                )
               ) : (
-                <SortAmountDownIcon />
-              )
-            ) : (
-              <SortAmountDownIcon className={styles.inactiveSortIcon} />
-            )}
+                <SortAmountDownIcon className={styles.inactiveSortIcon} />
+              )}
+            </div>
           </div>
           <div
             className={`${styles.fileSizeHeader} ${styles.clickableHeader}`}
@@ -468,16 +492,18 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
             }}
             aria-label="Sort by size"
           >
-            Size{" "}
-            {sortBy.index === 3 ? (
-              sortBy.direction === "asc" ? (
-                <SortAmountUpIcon />
+            <div className={styles.columnHeaderContent}>
+              <span className={styles.columnHeaderText}>Size</span>
+              {sortBy.index === 3 ? (
+                sortBy.direction === "asc" ? (
+                  <SortAmountUpIcon />
+                ) : (
+                  <SortAmountDownIcon />
+                )
               ) : (
-                <SortAmountDownIcon />
-              )
-            ) : (
-              <SortAmountDownIcon className={styles.inactiveSortIcon} />
-            )}
+                <SortAmountDownIcon className={styles.inactiveSortIcon} />
+              )}
+            </div>
           </div>
         </div>
 
