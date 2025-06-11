@@ -1,11 +1,11 @@
 import {
+  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
   MenuToggle,
   Pagination,
   TextInput,
-  Button,
 } from "@patternfly/react-core";
 import SearchIcon from "@patternfly/react-icons/dist/esm/icons/search-icon";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,15 +16,10 @@ import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { usePaginate } from "../Feeds/usePaginate";
 import "./Pipelines.css";
+import { DownloadIcon } from "@patternfly/react-icons";
 import PipelineUpload from "./PipelineUploadCopy";
 import PipelinesComponent from "./PipelinesComponent";
-import {
-  PIPELINEQueryTypes,
-  type PerPipelinePayload,
-  PipelineContext,
-  Types,
-} from "./context";
-import { DownloadIcon } from "@patternfly/react-icons";
+import { PIPELINEQueryTypes, PipelineContext, Types } from "./context";
 import { useDownloadSource } from "./useDownloadSource";
 
 type LoadingResources = {
@@ -51,6 +46,7 @@ const PipelinesCopy = () => {
   const [dropdownValue, setDropdownValue] = useState<string>(
     PIPELINEQueryTypes.NAME[0],
   );
+  const [activeKeys, setActiveKeys] = useState<string[]>([]);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["pipelines", perPage, page, search, dropdownValue],
@@ -76,65 +72,93 @@ const PipelinesCopy = () => {
     });
   };
 
-  const handleChange = async (key: string | string[]) => {
-    // The pipelines that the user chooses to view appears as a list of ids.
-    const filteredPipelines = data?.registeredPipelines.filter((pipeline) =>
-      (key as string[]).includes(`${pipeline.data.id}`),
-    );
-
-    if (filteredPipelines) {
-      // a pipeline has already been selected;
-      if (filteredPipelines.length === 0) {
-        // Remove the exisiting pipeline
+  const handlePipelineSelect = async (
+    pipelineId: string,
+    isSelected: boolean,
+  ) => {
+    if (isSelected) {
+      // If the pipeline is already selected, deselect it
+      dispatch({
+        type: Types.PipelineToAdd,
+        payload: {
+          pipeline: undefined,
+        },
+      });
+      // Collapse the accordion panel
+      setActiveKeys([]);
+    } else {
+      // Find the pipeline and select it
+      const pipeline = data?.registeredPipelines.find(
+        (p) => `${p.data.id}` === pipelineId,
+      );
+      if (pipeline) {
         dispatch({
           type: Types.PipelineToAdd,
           payload: {
-            pipeline: undefined,
+            pipeline,
           },
         });
-      } else {
-        // add a pipeline
-        const pipelineToAdd = filteredPipelines[filteredPipelines.length - 1];
-        dispatch({
-          type: Types.PipelineToAdd,
-          payload: {
-            pipeline: pipelineToAdd,
-          },
-        });
-      }
-    }
 
-    /* Get this pipelines assosciated to the id's and then fetch all the resources for that particular pipelines 
-     to render the tree*/
-    if (filteredPipelines && filteredPipelines.length > 0) {
-      for (const pipeline of filteredPipelines) {
-        const { id } = pipeline.data;
-        if (!state.selectedPipeline?.[id]) {
-          try {
-            setLoadingResources((prev) => ({ ...prev, [id]: true }));
-            const data: PerPipelinePayload = await fetchResources(pipeline);
-            dispatch({
-              type: Types.SetPipelines,
-              payload: {
-                pipelineId: id,
-                ...data,
-              },
-            });
-            setLoadingResources((prev) => ({ ...prev, [id]: false }));
-          } catch (e) {
-            let error_message =
-              "Failed to fetch the resources for this pipeline...";
-            if (e instanceof Error) {
-              error_message = e.message;
-            }
-            setResourceError((prev) => ({
-              ...prev,
-              [id]: error_message,
-            }));
-            setLoadingResources((prev) => ({ ...prev, [id]: false }));
+        // Expand the accordion panel for this pipeline
+        setActiveKeys([pipelineId]);
+
+        // Always fetch resources
+        try {
+          setLoadingResources((prev) => ({
+            ...prev,
+            [pipeline.data.id]: true,
+          }));
+          const resourceData = await fetchResources(pipeline);
+          dispatch({
+            type: Types.SetPipelines,
+            payload: {
+              pipelineId: pipeline.data.id,
+              ...resourceData,
+            },
+          });
+          setLoadingResources((prev) => ({
+            ...prev,
+            [pipeline.data.id]: false,
+          }));
+        } catch (e) {
+          let error_message =
+            "Failed to fetch the resources for this pipeline...";
+          if (e instanceof Error) {
+            error_message = e.message;
           }
+          setResourceError((prev) => ({
+            ...prev,
+            [pipeline.data.id]: error_message,
+          }));
+          setLoadingResources((prev) => ({
+            ...prev,
+            [pipeline.data.id]: false,
+          }));
         }
       }
+    }
+  };
+
+  const handleChange = async (key: string | string[]) => {
+    // Update activeKeys to control which accordion panels are open
+    const selectedKeys = Array.isArray(key) ? key : [key];
+
+    // There should only be one selected item in the accordion
+    if (selectedKeys.length > 0) {
+      const pipelineId = selectedKeys[0];
+      const isSelected =
+        state.pipelineToAdd?.data.id === Number.parseInt(pipelineId);
+      // This will update state and also set activeKeys
+      await handlePipelineSelect(pipelineId, isSelected);
+    } else {
+      // If no keys are selected, deselect any current pipeline
+      dispatch({
+        type: Types.PipelineToAdd,
+        payload: {
+          pipeline: undefined,
+        },
+      });
+      setActiveKeys([]);
     }
   };
 
@@ -171,8 +195,6 @@ const PipelinesCopy = () => {
     setDropdownValue(type);
     handlePipelineSearch("");
   };
-
-  /* Code to Download Pipeline Source Files */
 
   const downloadPipelineMutation = useDownloadSource();
 
@@ -238,6 +260,7 @@ const PipelinesCopy = () => {
         <Collapse
           style={{ marginTop: "1em" }}
           onChange={handleChange}
+          activeKey={activeKeys}
           items={data.registeredPipelines.map((pipeline) => {
             const { name, id, description } = pipeline.data;
             return {
@@ -261,19 +284,43 @@ const PipelinesCopy = () => {
                       {description}
                     </span>
                   </div>
-                  <Button
-                    variant="tertiary"
-                    size="sm"
-                    style={{
-                      padding: "0.5em",
-                    }}
-                    onClick={async (e) => {
-                      e.stopPropagation();
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <Button
+                      variant={
+                        state.pipelineToAdd?.data.id === id
+                          ? "primary"
+                          : "secondary"
+                      }
+                      size="sm"
+                      isDisabled={loadingResources?.[id]}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const pipelineId = `${id}`;
+                        const isSelected = state.pipelineToAdd?.data.id === id;
+                        // This will handle both selection and accordion expansion
+                        handlePipelineSelect(pipelineId, isSelected);
+                      }}
+                    >
+                      {loadingResources?.[id]
+                        ? "Loading resources..."
+                        : state.pipelineToAdd?.data.id === id
+                          ? "Selected"
+                          : "Select pipeline"}
+                    </Button>
+                    <Button
+                      variant="tertiary"
+                      size="sm"
+                      style={{
+                        padding: "0.5em",
+                      }}
+                      onClick={async (e) => {
+                        e.stopPropagation();
 
-                      downloadPipelineMutation.mutate(pipeline);
-                    }}
-                    icon={<DownloadIcon />}
-                  />
+                        downloadPipelineMutation.mutate(pipeline);
+                      }}
+                      icon={<DownloadIcon />}
+                    />
+                  </div>
                 </div>
               ),
               children: (
