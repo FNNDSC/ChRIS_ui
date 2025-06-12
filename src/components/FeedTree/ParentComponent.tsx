@@ -33,6 +33,8 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     pluginInstances,
     removeNodeLocally,
     tsIds,
+    isProcessing,
+    processingProgress,
   } = treeQuery;
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
@@ -60,13 +62,60 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
   }
 
   // Show loading spinner only when we have no nodes at all
-  // This prevents spinner flickering during incremental updates
   if (!rootNode) {
-    return <SpinContainer title="Contructing your feed tree" />;
+    return (
+      <SpinContainer
+        title={`Constructing your feed tree (${processingProgress}% complete)`}
+      />
+    );
   }
 
   return (
     <>
+      {/* Full-screen progress overlay */}
+      {isProcessing && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            left: "0",
+            width: "100%",
+            padding: "15px",
+            backgroundColor: "rgba(0, 0, 0, 0.7)",
+            color: "white",
+            textAlign: "center",
+            fontSize: "18px",
+            zIndex: 9999,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <div style={{ marginBottom: "10px", fontWeight: "bold" }}>
+              Processing Tree: {processingProgress}%
+            </div>
+            <div
+              style={{
+                width: "300px",
+                height: "20px",
+                backgroundColor: "rgba(255,255,255,0.3)",
+                borderRadius: "10px",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${processingProgress}%`,
+                  height: "100%",
+                  backgroundColor: "#00bfff",
+                  transition: "width 0.3s ease-in-out",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
       <FeedTree
         data={rootNode}
         tsIds={tsIds}
