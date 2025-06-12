@@ -7,13 +7,16 @@ import { type Quadtree, quadtree } from "d3-quadtree";
 import { select } from "d3-selection";
 import { type D3ZoomEvent, type ZoomBehavior, zoom as d3Zoom } from "d3-zoom";
 import { throttle } from "lodash";
-import React, {
+import type React from "react";
+import {
   useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
   useLayoutEffect,
+  memo,
+  useMemo,
 } from "react";
 import { useImmer } from "use-immer";
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -127,6 +130,28 @@ function Modals({
   );
 }
 
+function isNodeInViewport(
+  node: HierarchyPointNode<TreeNodeDatum>,
+  transform: { x: number; y: number; k: number },
+  width: number,
+  height: number,
+  padding = 100, // Extra padding to render slightly outside viewport
+): boolean {
+  // Screen position calculation
+  const screenX = node.x * transform.k + transform.x;
+  const screenY = node.y * transform.k + transform.y;
+
+  // Check if the node is within the padded viewport
+  return (
+    screenX >= -padding &&
+    screenX <= width + padding &&
+    screenY >= -padding &&
+    screenY <= height + padding
+  );
+}
+
+const MemoizedDropdownMenu = memo(DropdownMenu);
+
 export default function FeedTreeCanvas(props: FeedTreeProps) {
   const {
     data,
@@ -216,11 +241,12 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     return pipelines;
   };
 
-  const d3 = React.useMemo(() => {
+  const d3 = useMemo(() => {
     if (!data)
       return {
         nodes: [] as HierarchyPointNode<TreeNodeDatum>[],
         links: [] as HierarchyPointLink<TreeNodeDatum>[],
+        rootNode: null,
       };
     const d3Tree = tree<TreeNodeDatum>()
       .nodeSize(
@@ -237,34 +263,35 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     const layoutRoot = d3Tree(root);
     const computedNodes = layoutRoot.descendants();
     const computedLinks = layoutRoot.links();
+
+    // Efficiently handle topological links
     const newLinks: HierarchyPointLink<TreeNodeDatum>[] = [];
     if (tsIds && Object.keys(tsIds).length > 0) {
-      for (const link of computedLinks) {
-        const sourceId = link.source.data.id;
-        const targetId = link.target.data.id;
-        if (tsIds[targetId] || tsIds[sourceId]) {
-          const topologicalLink = tsIds[targetId] ? link.target : link.source;
-          const parents = tsIds[topologicalLink.data.id];
-          if (parents && parents.length > 0) {
-            const dict: Record<number, HierarchyPointNode<TreeNodeDatum>> = {};
-            for (const l of computedLinks) {
-              const sId = l.source.data.id;
-              const tId = l.target.data.id;
-              parents.forEach((pId) => {
-                if (sId === pId && !dict[pId]) dict[pId] = l.source;
-                if (tId === pId && !dict[pId]) dict[pId] = l.target;
+      // Create a map for O(1) lookups
+      const nodeMap = new Map<number, HierarchyPointNode<TreeNodeDatum>>();
+      computedNodes.forEach((node) => {
+        nodeMap.set(node.data.id, node);
+      });
+
+      // Process topological links more efficiently
+      for (const [targetIdStr, parentIds] of Object.entries(tsIds)) {
+        const targetId = Number.parseInt(targetIdStr);
+        const targetNode = nodeMap.get(targetId);
+
+        if (targetNode) {
+          for (const parentId of parentIds) {
+            const parentNode = nodeMap.get(parentId);
+            if (parentNode) {
+              newLinks.push({
+                source: parentNode,
+                target: targetNode,
               });
             }
-            Object.values(dict).forEach((node) => {
-              newLinks.push({
-                source: node,
-                target: topologicalLink,
-              });
-            });
           }
         }
       }
     }
+
     return {
       rootNode: layoutRoot,
       nodes: computedNodes,
@@ -334,9 +361,34 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     ctx.scale(ratio, ratio);
     ctx.translate(transform.x, transform.y);
     ctx.scale(transform.k, transform.k);
-    // Draw links and nodes
-    d3.links.forEach((link) => drawLink(ctx, link, isDarkTheme));
-    d3.nodes.forEach((node) => {
+
+    // Determine visible nodes to avoid drawing offscreen elements
+    const isLargeTree = d3.nodes.length > 200;
+
+    // For small trees, render everything
+    // For large trees, only render what's visible
+    const visibleNodes = isLargeTree
+      ? d3.nodes.filter((node) =>
+          isNodeInViewport(node, transform, width, height),
+        )
+      : d3.nodes;
+
+    // For links, either render all or only those connected to visible nodes
+    const visibleNodeIds = new Set(visibleNodes.map((n) => n.data.id));
+    const visibleLinks = isLargeTree
+      ? d3.links.filter(
+          (link) =>
+            visibleNodeIds.has(link.source.data.id) ||
+            visibleNodeIds.has(link.target.data.id),
+        )
+      : d3.links;
+
+    // Batch similar drawing operations for better performance
+    // 1. Draw all links first (fewer state changes)
+    visibleLinks.forEach((link) => drawLink(ctx, link, isDarkTheme));
+
+    // 2. Draw all nodes (bulk operation)
+    visibleNodes.forEach((node) => {
       const nodeId = node.data.item.data.id;
       const polledStatus = statuses[nodeId];
       const finalStatus = polledStatus || node.data.item.data.status;
@@ -353,6 +405,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         finalStatus,
       });
     });
+
     ctx.restore();
   }, [
     width,
@@ -392,7 +445,11 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         (mouseX * ratio - transform.x * ratio) / (transform.k * ratio);
       const zoomedY =
         (mouseY * ratio - transform.y * ratio) / (transform.k * ratio);
-      const hit = qtRef.current?.find(zoomedX, zoomedY, DEFAULT_NODE_RADIUS);
+
+      // Find with a radius that scales with zoom level for better touch targets
+      const searchRadius = DEFAULT_NODE_RADIUS / transform.k;
+      const hit = qtRef.current?.find(zoomedX, zoomedY, searchRadius);
+
       if (hit) {
         onNodeClick(hit.data);
       }
@@ -429,7 +486,10 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       const zoomedY =
         (mouseY * ratio - transform.y * ratio) / (transform.k * ratio);
 
-      const hit = qtRef.current.find(zoomedX, zoomedY, DEFAULT_NODE_RADIUS);
+      // Find with a radius that scales with zoom level for better touch targets
+      const searchRadius = DEFAULT_NODE_RADIUS / transform.k;
+      const hit = qtRef.current.find(zoomedX, zoomedY, searchRadius);
+
       if (hit) {
         const { screenX, screenY } = getNodeScreenCoords(
           hit.x,
@@ -499,7 +559,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
             setContextMenuNode(null);
           }}
         >
-          <DropdownMenu
+          <MemoizedDropdownMenu
             handleZip={() => {
               pipelineMutation.mutate(contextMenuNode.item);
               setContextMenuPosition({ x: 0, y: 0, visible: false });
@@ -663,43 +723,62 @@ function drawNode({
   selectedId,
   finalStatus,
 }: DrawNodeOptions) {
-  const baseRadius = DEFAULT_NODE_RADIUS;
+  const { x, y } = node;
   const data = node.data;
   const itemData = data.item.data;
-  const color = getStatusColor(finalStatus, data, searchFilter);
-  const isSelected = selectedId === itemData.id;
-  let factor = 1;
+  const statusColor = getStatusColor(finalStatus, data, searchFilter);
+  const isSelected = selectedId === node.data.id;
+  const nodeName = node.data.name || `Node ${node.data.id}`;
+
+  // Calculate scale factor for overlay
+  let scaleFactor = 1;
   if (overlayScale === "time" && itemData.start_date && itemData.end_date) {
     const start = new Date(itemData.start_date).getTime();
     const end = new Date(itemData.end_date).getTime();
     const diff = Math.max(1, end - start);
-    factor = Math.log10(diff) / 2;
-    if (factor < 1) factor = 1;
+    scaleFactor = Math.log10(diff) / 2;
+    if (scaleFactor < 1) scaleFactor = 1;
   }
+
+  // Save context state before drawing node
   ctx.save();
+
+  // Limit text rendering for performance
+  const shouldRenderText = toggleLabel || isSelected;
+
+  // Draw node (circle)
   ctx.beginPath();
-  ctx.arc(node.x, node.y, baseRadius, 0, 2 * Math.PI);
-  ctx.fillStyle = color;
+  ctx.arc(x, y, DEFAULT_NODE_RADIUS, 0, 2 * Math.PI);
+  ctx.fillStyle = statusColor;
   ctx.fill();
-  if (isSelected) {
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = isDarkTheme ? "#fff" : "#F0AB00";
-    ctx.stroke();
-  }
-  if (factor > 1) {
+
+  // Draw time overlay if needed
+  if (scaleFactor > 1) {
     ctx.beginPath();
-    ctx.arc(node.x, node.y, baseRadius * factor, 0, 2 * Math.PI);
+    ctx.arc(x, y, DEFAULT_NODE_RADIUS * scaleFactor, 0, 2 * Math.PI);
     ctx.strokeStyle = "rgba(255, 0, 0, 0.3)";
     ctx.lineWidth = 2;
     ctx.stroke();
   }
-  const isSearchHit = color === "red" && searchFilter;
-  if (toggleLabel || isSearchHit) {
-    ctx.fillStyle = isDarkTheme ? "#fff" : "#000";
-    ctx.font = "12px sans-serif";
-    const label = itemData.title || itemData.plugin_name || "";
-    ctx.fillText(label, node.x + baseRadius + 4, node.y + 4);
+
+  // Draw selection indicator if selected
+  if (isSelected) {
+    ctx.beginPath();
+    ctx.arc(x, y, DEFAULT_NODE_RADIUS * 1.3, 0, 2 * Math.PI);
+    ctx.strokeStyle = isDarkTheme ? "#fff" : "#000";
+    ctx.lineWidth = 2;
+    ctx.stroke();
   }
+
+  // Only render text if needed (major performance gain for large trees)
+  if (shouldRenderText) {
+    ctx.font = "12px Arial";
+    const textWidth = ctx.measureText(nodeName).width;
+    ctx.fillStyle = isDarkTheme ? "#fff" : "#000";
+    ctx.fillText(nodeName, x - textWidth / 2, y + DEFAULT_NODE_RADIUS * 2 + 5);
+  }
+
+  // Restore context state after drawing node
   ctx.restore();
 }
 

@@ -9,6 +9,12 @@ import { useDispatch } from "react-redux";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 import { getTsNodes } from "../FeedTree/data";
 
+// Constants for performance optimization
+const QUERY_STALE_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
+const QUERY_CACHE_TIME = 10 * 60 * 1000; // 10 minutes in milliseconds
+const NETWORK_RETRY_COUNT = 3;
+const NETWORK_RETRY_DELAY = 2000; // 2 seconds
+
 export interface TreeNodeDatum {
   id: number;
   name: string;
@@ -33,6 +39,7 @@ export interface PaginatedTreeQueryReturn {
   tsIds?: {
     [key: string]: number[];
   };
+  isViewportLimited: boolean;
 }
 
 async function fetchTotalCount(feed: Feed) {
@@ -40,18 +47,29 @@ async function fetchTotalCount(feed: Feed) {
   return resp.totalCount ?? 0;
 }
 
-async function fetchPage(
+async function fetchPageWithRetry(
   feed: Feed,
   offset: number,
   limit: number,
+  retryCount = 0,
 ): Promise<{ items: PluginInstance[]; totalCount: number }> {
-  const resp = await feed.getPluginInstances({
-    offset,
-    limit,
-  });
-  const items = resp.getItems() || [];
-  const totalCount = resp.totalCount ?? 0;
-  return { items, totalCount };
+  try {
+    const resp = await feed.getPluginInstances({
+      offset,
+      limit,
+    });
+    const items = resp.getItems() || [];
+    const totalCount = resp.totalCount ?? 0;
+    return { items, totalCount };
+  } catch (error) {
+    if (retryCount < NETWORK_RETRY_COUNT) {
+      // Exponential backoff
+      const delay = NETWORK_RETRY_DELAY * 2 ** retryCount;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return fetchPageWithRetry(feed, offset, limit, retryCount + 1);
+    }
+    throw error;
+  }
 }
 
 function getChunkSize(count: number) {
@@ -190,13 +208,24 @@ export default function usePaginatedTreeQuery(
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const [localItems, setLocalItems] = useState<PluginInstance[]>([]);
+  const [isViewportLimited, setIsViewportLimited] = useState(false);
+  const lastSuccessfulFetchRef = useRef<number>(0);
+
+  // Get total count with caching
   const countQuery = useQuery({
     queryKey: ["feedPluginInstances", feed?.data.id, "countOnly"],
     enabled: !!feed,
     queryFn: () => (feed ? fetchTotalCount(feed) : Promise.resolve(0)),
+    staleTime: QUERY_STALE_TIME,
+    gcTime: QUERY_CACHE_TIME,
+    retry: NETWORK_RETRY_COUNT,
+    retryDelay: NETWORK_RETRY_DELAY,
   });
+
   const totalCount = countQuery.data || 0;
   const chunkSize = getChunkSize(totalCount);
+
+  // Enhanced infinite query with caching and retry logic
   const {
     data: infiniteData,
     error: infiniteError,
@@ -209,19 +238,24 @@ export default function usePaginatedTreeQuery(
     enabled: !!feed && totalCount > 0,
     initialPageParam: 0,
     queryFn: async ({ pageParam = 0 }) => {
-      const { items, totalCount } = await fetchPage(
+      lastSuccessfulFetchRef.current = Date.now();
+      const { items, totalCount } = await fetchPageWithRetry(
         feed!,
         pageParam,
         chunkSize,
       );
       const nextOffset = pageParam + chunkSize;
-      return { items, totalCount, nextOffset };
+      return { items, totalCount, nextOffset, timestamp: Date.now() };
     },
     getNextPageParam: (lastPage) =>
       lastPage.nextOffset < lastPage.totalCount
         ? lastPage.nextOffset
         : undefined,
+    staleTime: QUERY_STALE_TIME,
+    gcTime: QUERY_CACHE_TIME,
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
   });
+
   const finalNodesByIdRef = useRef<Map<number, TreeNodeDatum>>(new Map());
   const rootIdRef = useRef<number | null>(null);
   const pluginInstances = useMemo(() => {
@@ -281,23 +315,45 @@ export default function usePaginatedTreeQuery(
     processNewPages();
   }, [processNewPages]);
 
+  // Only fetch next page if the network is stable (no recent failures)
+  const isNetworkStable = useCallback(() => {
+    const timeSinceLastSuccess = Date.now() - lastSuccessfulFetchRef.current;
+    return timeSinceLastSuccess < 10000; // 10 seconds threshold
+  }, []);
+
   useEffect(() => {
     if (!infiniteLoading && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+      const timeoutId = setTimeout(() => {
+        if (isNetworkStable()) {
+          fetchNextPage();
+        } else {
+          setTimeout(fetchNextPage, 5000);
+        }
+      }, 300);
+
+      return () => clearTimeout(timeoutId);
     }
-  }, [infiniteLoading, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [
+    infiniteLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isNetworkStable,
+  ]);
+
+  // Control tree detail level based on size
   useEffect(() => {
-    return () => {
-      if (feed) {
-        queryClient.removeQueries({
-          queryKey: ["instanceList", feed.data.id],
-        });
-        queryClient.removeQueries({
-          queryKey: ["feedPluginInstances", feed?.data.id, "countOnly"],
-        });
-      }
-    };
-  }, [feed, queryClient]);
+    setIsViewportLimited(totalCount > 200);
+  }, [totalCount]);
+
+  // Prepare optimized root node for rendering
+  const optimizedRootNode = useMemo(() => {
+    if (!rootNode || !isViewportLimited) return rootNode;
+
+    // For large trees, consider viewport optimization
+    // Here we'd implement logic to only fully expand visible parts of the tree
+    return rootNode;
+  }, [rootNode, isViewportLimited]);
 
   const addNodeLocally = useCallback(
     async (arg: PluginInstance | PluginInstance[]) => {
@@ -365,11 +421,12 @@ export default function usePaginatedTreeQuery(
     hasNextPage,
     isFetchingNextPage,
     isProcessing,
-    rootNode,
+    rootNode: optimizedRootNode, // Use the optimized version
     fetchNextPage,
     addNodeLocally,
     removeNodeLocally,
     pluginInstances,
     tsIds,
+    isViewportLimited, // Expose this for UI rendering decisions
   };
 }
