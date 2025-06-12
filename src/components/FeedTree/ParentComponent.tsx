@@ -27,14 +27,10 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
   feed,
 }) => {
   const {
-    isLoading,
     error,
     rootNode,
-    isFetchingNextPage,
-    isProcessing,
     addNodeLocally,
     pluginInstances,
-    totalCount,
     removeNodeLocally,
     tsIds,
   } = treeQuery;
@@ -59,39 +55,30 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
     [dispatch],
   );
 
-  if (isLoading || isProcessing || isFetchingNextPage) {
-    const loadedCount = pluginInstances.length;
-    const total = totalCount || 0; // guard against undefined
-    const progressPercent =
-      total > 0 ? Math.floor((loadedCount / total) * 100) : 0;
-
-    return (
-      <SpinContainer
-        title={`Loading Feed Tree... (${loadedCount}/${total})  ${progressPercent}%`}
-      />
-    );
-  }
-
   if (error) {
     return <div style={{ color: "red" }}>Error: {String(error)}</div>;
   }
 
+  // Show loading spinner only when we have no nodes at all
+  // This prevents spinner flickering during incremental updates
+  if (!rootNode) {
+    return <SpinContainer title="Contructing your feed tree" />;
+  }
+
   return (
     <>
-      {rootNode && (
-        <FeedTree
-          data={rootNode}
-          tsIds={tsIds}
-          onNodeClick={onNodeClick}
-          changeLayout={changeLayout}
-          currentLayout={currentLayout}
-          addNodeLocally={addNodeLocally}
-          pluginInstances={pluginInstances}
-          statuses={statuses}
-          removeNodeLocally={removeNodeLocally}
-          feed={feed}
-        />
-      )}
+      <FeedTree
+        data={rootNode}
+        tsIds={tsIds}
+        onNodeClick={onNodeClick}
+        changeLayout={changeLayout}
+        currentLayout={currentLayout}
+        addNodeLocally={addNodeLocally}
+        pluginInstances={pluginInstances}
+        statuses={statuses}
+        removeNodeLocally={removeNodeLocally}
+        feed={feed}
+      />
     </>
   );
 };
