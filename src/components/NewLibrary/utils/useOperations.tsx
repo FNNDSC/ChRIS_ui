@@ -50,6 +50,27 @@ export const getCurrentTimestamp = () =>
 
 // The createFeed flag is used to determine where this hook is called from.
 
+// Get operation name for a specific operation type and operation state
+const getOperationName = (
+  operationType: string,
+  additionalProps?: Record<string, any>,
+): string => {
+  switch (operationType) {
+    case "share":
+      return additionalProps?.share?.public
+        ? "Resource made public"
+        : "Resource shared";
+    case "rename":
+      return "Rename";
+    case "createFeed":
+      return "Feed created";
+    case "folder":
+      return "Folder created";
+    default:
+      return "Operation";
+  }
+};
+
 export const useFolderOperations = (
   origin: OriginState,
   computedPath?: string,
@@ -323,6 +344,21 @@ export const useFolderOperations = (
     setModalState({ isOpen: false, type: "" });
   };
 
+  // Display a success notification for completed operations
+  const showSuccessNotification = (
+    operationType: string,
+    additionalProps?: Record<string, any>,
+  ) => {
+    const operationName = getOperationName(operationType, additionalProps);
+
+    notification.success({
+      message: `${operationName} successfully`,
+      description: `The ${operationType} operation was completed successfully.`,
+      placement: "topRight",
+      duration: 2,
+    });
+  };
+
   // Use a mutation to get loading, error, and success states
   const handleModalSubmitMutation = useMutation({
     mutationFn: async ({
@@ -332,7 +368,71 @@ export const useFolderOperations = (
       inputValue: string;
       additionalValues?: AdditionalValues;
     }) => handleModalSubmit(inputValue, additionalValues),
+    onSuccess: () => {
+      // Show success notification based on the operation that just completed
+      showSuccessNotification(modalState.type, modalState.additionalProps);
+
+      // Clear selected paths after success
+      dispatch(clearAllPaths());
+    },
+    onError: (error: Error) => {
+      // Show error notification
+      notification.error({
+        message: "Operation Failed",
+        description: error.message || "An error occurred during the operation.",
+        placement: "topRight",
+        duration: 4,
+      });
+    },
   });
+
+  // Function to clear all selections
+  const clearAllSelections = () => {
+    dispatch(clearAllPaths());
+  };
+
+  // Handle operations
+  const handleOperations = (operationKey: string) => {
+    const operationsMap: Record<string, () => void> = {
+      createFeed: () => {
+        const defaultFeedName =
+          selectedPaths.length > 1
+            ? "Feed created from your Library"
+            : `Feed created for ${getFeedNameForSinglePath(selectedPaths[0])}`;
+        setModalState({
+          type: "createFeed",
+          isOpen: true,
+          additionalProps: {
+            createFeed: {
+              defaultFeedName,
+            },
+          },
+        });
+      },
+      download: () => {
+        handleOrigin(origin);
+        dispatch(setToggleCart());
+        dispatch(startDownload({ paths: selectedPaths, username: username }));
+        invalidateQueries();
+      },
+      anonymize: () => {
+        handleOrigin(origin);
+        dispatch(setToggleCart());
+        dispatch(startAnonymize({ paths: selectedPaths, username }));
+      },
+      delete: () => deleteMutation.mutate(selectedPaths),
+      newFolder: () => setModalState({ isOpen: true, type: "folder" }),
+      fileUpload: () => fileInputRef.current?.click(),
+      folderUpload: () => folderInputRef.current?.click(),
+      createGroup: () => setModalState({ isOpen: true, type: "group" }),
+      merge: handleMergeMutation.mutate,
+      share: () => setModalState({ isOpen: true, type: "share" }),
+      rename: setRenameModalWithDefaultName,
+      duplicate: handleDuplicateMutation.mutate,
+    };
+
+    operationsMap[operationKey]?.();
+  };
 
   // Get the feed name for a single path
   const getFeedNameForSinglePath = (selectedPayload: SelectionPayload) => {
@@ -384,54 +484,6 @@ export const useFolderOperations = (
         additionalProps: { defaultName },
       });
     }
-  };
-
-  // Function to clear all selections
-  const clearAllSelections = () => {
-    dispatch(clearAllPaths());
-  };
-
-  // Handle operations
-  const handleOperations = (operationKey: string) => {
-    const operationsMap: Record<string, () => void> = {
-      createFeed: () => {
-        const defaultFeedName =
-          selectedPaths.length > 1
-            ? "Feed created from your Library"
-            : `Feed created for ${getFeedNameForSinglePath(selectedPaths[0])}`;
-        setModalState({
-          type: "createFeed",
-          isOpen: true,
-          additionalProps: {
-            createFeed: {
-              defaultFeedName,
-            },
-          },
-        });
-      },
-      download: () => {
-        handleOrigin(origin);
-        dispatch(setToggleCart());
-        dispatch(startDownload({ paths: selectedPaths, username: username }));
-        invalidateQueries();
-      },
-      anonymize: () => {
-        handleOrigin(origin);
-        dispatch(setToggleCart());
-        dispatch(startAnonymize({ paths: selectedPaths, username }));
-      },
-      delete: () => deleteMutation.mutate(selectedPaths),
-      newFolder: () => setModalState({ isOpen: true, type: "folder" }),
-      fileUpload: () => fileInputRef.current?.click(),
-      folderUpload: () => folderInputRef.current?.click(),
-      createGroup: () => setModalState({ isOpen: true, type: "group" }),
-      merge: handleMergeMutation.mutate,
-      share: () => setModalState({ isOpen: true, type: "share" }),
-      rename: setRenameModalWithDefaultName,
-      duplicate: handleDuplicateMutation.mutate,
-    };
-
-    operationsMap[operationKey]?.();
   };
 
   // Return everything needed by the parent

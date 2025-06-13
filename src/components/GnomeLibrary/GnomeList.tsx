@@ -169,7 +169,7 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
               id={`select-${type}-${rowIndex}`}
               aria-label="Select row"
               isChecked={isSelected}
-              className={styles.largeCheckbox}
+              className={`${styles.largeCheckbox} ${styles.checkboxAlign}`}
               onChange={() => {
                 toggleSelection();
               }}
