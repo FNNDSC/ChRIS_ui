@@ -1,4 +1,4 @@
-import type { Feed } from "@fnndsc/chrisapi";
+import type { Feed, FileBrowserFolder } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
   Button,
@@ -384,6 +384,9 @@ const TableRow: React.FC<TableRowProps> = ({
   const navigate = useNavigate();
   const { isDarkTheme } = useContext(ThemeContext);
 
+  // Add a cache for folder data with proper typing
+  const folderCache = useRef<FileBrowserFolder | null>(null);
+
   /**
    * Track row progress state for background color
    */
@@ -391,10 +394,17 @@ const TableRow: React.FC<TableRowProps> = ({
   const [rowError, setRowError] = useState<boolean>(false);
 
   /**
-   * Get folder for this feed
+   * Get folder for this feed - with caching
    */
   const getFolderForThisFeed = async () => {
+    // Return cached data if available
+    if (folderCache.current) {
+      return folderCache.current;
+    }
+
+    // Otherwise fetch and cache
     const payload = await feed.getFolder();
+    folderCache.current = payload;
     return payload;
   };
 
@@ -455,7 +465,22 @@ const TableRow: React.FC<TableRowProps> = ({
             onSelect: async (event) => {
               event.stopPropagation();
               const isChecked = event.currentTarget.checked;
-              const payload = await getFolderForThisFeed();
+
+              // Only fetch folder data if the checkbox is being checked
+              // This prevents the delay when simply rendering checkboxes
+              let payload: FileBrowserFolder | null = null;
+              if (isChecked) {
+                payload = await getFolderForThisFeed();
+              } else if (isSelected) {
+                // If unchecking, we don't need to fetch again, just use the path
+                handlers.handleCheckboxChange(
+                  event,
+                  feed.data.folder_path,
+                  null,
+                  "folder",
+                );
+                return;
+              }
 
               /**
                * Create a new event object with the captured value

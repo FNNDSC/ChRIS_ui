@@ -118,14 +118,18 @@ export default function useLongPress() {
     e: React.FormEvent<HTMLInputElement>,
     path: string,
     payload:
-      | FileBrowserFolder
-      | FileBrowserFolderFile
-      | FileBrowserFolderLinkFile,
+      | (FileBrowserFolder | FileBrowserFolderFile | FileBrowserFolderLinkFile)
+      | null, // null is valid for deselection operations
     type: string,
   ) => {
     if (e.currentTarget.checked) {
-      selectFolder(path, type, payload);
+      // For selection, we need a valid payload
+      if (payload) {
+        selectFolder(path, type, payload);
+      }
     } else {
+      // For deselection, we only need the path
+      // The payload can be null in this case
       deselectFolder(path);
     }
   };
