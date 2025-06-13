@@ -505,6 +505,48 @@ const TableRow: React.FC<TableRowProps> = ({
 };
 
 /**
+ * Helper function to check if a feed is completed based on its details
+ * Used to determine if polling is needed
+ *
+ * @param details - Feed details from getPluginInstanceDetails
+ * @returns boolean - True if feed is completed or has error
+ */
+const isFeedCompleted = (details: PluginInstanceDetails | null): boolean => {
+  if (!details) return false;
+  return details.progress === 100 || Boolean(details.foundError);
+};
+
+/**
+ * Helper function to fetch updated feed data
+ *
+ * @param feedId - ID of the feed to fetch
+ * @param type - Type of feed (public or private)
+ * @returns Promise with updated feed details
+ */
+const fetchFeedDetails = async (
+  feedId: number,
+  type: string,
+): Promise<PluginInstanceDetails> => {
+  let updatedFeed: Feed | undefined = undefined;
+
+  try {
+    if (type === "private") {
+      updatedFeed = await fetchAuthenticatedFeed(feedId);
+    } else if (type === "public") {
+      updatedFeed = await fetchPublicFeed(feedId);
+    } else {
+      throw new Error(`Invalid feed type: ${type}`);
+    }
+
+    if (!updatedFeed) throw new Error("Failed to fetch feed");
+    return getPluginInstanceDetails(updatedFeed);
+  } catch (error) {
+    console.error("Error fetching feed details:", error);
+    throw error;
+  }
+};
+
+/**
  * DonutUtilization component displays the current progress of a feed
  * and notifies the parent component of progress/error changes.
  *
@@ -525,66 +567,75 @@ function DonutUtilization({
   const { isDarkTheme } = useContext(ThemeContext);
 
   /**
-   * This ref prevents multiple notifications about the initial loading state
-   * to the parent component. When a loading state is handled once, the ref
-   * is set to true to avoid duplicate notifications during re-renders.
+   * Calculate initial details synchronously and check if feed is completed
    */
-  const initialStateHandled = useRef(false);
+  const initialDetails = useMemo(() => getPluginInstanceDetails(feed), [feed]);
+  const feedCompleted = useMemo(
+    () => isFeedCompleted(initialDetails),
+    [initialDetails],
+  );
 
   /**
-   * Fetch feed details with React Query and set up polling
-   * for active feeds (progress < 100% and no errors)
+   * Notify parent of initial progress status
+   */
+  useEffect(() => {
+    onProgressUpdate(
+      initialDetails.progress,
+      Boolean(initialDetails.foundError),
+    );
+  }, [initialDetails, onProgressUpdate]);
+
+  /**
+   * Only fetch updates for feeds that aren't completed
    */
   const {
-    data: details,
+    data: fetchedDetails,
     isLoading,
     status,
   } = useQuery({
     queryKey: ["feedDetails", feed.data.id, type],
-    queryFn: async (): Promise<PluginInstanceDetails | null> => {
-      let updatedFeed: Feed | undefined = undefined;
-      try {
-        if (type === "private") {
-          updatedFeed = await fetchAuthenticatedFeed(feed.data.id);
-        } else if (type === "public") {
-          updatedFeed = await fetchPublicFeed(feed.data.id);
-        } else {
-          return null;
-        }
-        if (!updatedFeed) return null;
-        return getPluginInstanceDetails(updatedFeed);
-      } catch (error) {
-        console.error("Error fetching feed details:", error);
-        throw error;
-      }
-    },
+    queryFn: () => fetchFeedDetails(feed.data.id, type),
     refetchInterval: (query) => {
+      // Check data from the current query state
       const data = query.state.data;
       if (!data) return false;
-      if (data.progress === 100 || Boolean(data.foundError)) return false;
+
+      // Stop polling if feed is completed or has error
+      if (isFeedCompleted(data)) {
+        return false;
+      }
+
+      // Continue polling every 5 seconds
       return 5000;
     },
     refetchOnWindowFocus: false,
     staleTime: 30 * 1000,
+    enabled: !feedCompleted,
   });
 
   /**
-   * Communicate status changes to parent component
-   * Uses the query status to determine when to notify parent:
-   * - On success: send progress and error state
-   * - On error: send error notification
-   * - On initial pending: send loading notification (once)
+   * Use fetched details for active feeds, initial details for completed feeds
+   */
+  const details = fetchedDetails || initialDetails;
+
+  /**
+   * Notify parent of status updates for active feeds
    */
   useEffect(() => {
-    if (status === "success" && details) {
-      onProgressUpdate(details.progress, Boolean(details.foundError));
+    if (feedCompleted) {
+      // Already handled via initial details
+      return;
+    }
+
+    if (status === "success" && fetchedDetails) {
+      onProgressUpdate(
+        fetchedDetails.progress,
+        Boolean(fetchedDetails.foundError),
+      );
     } else if (status === "error") {
       onProgressUpdate(null, true);
-    } else if (status === "pending" && !initialStateHandled.current) {
-      initialStateHandled.current = true;
-      onProgressUpdate(null, false);
     }
-  }, [status, details, onProgressUpdate]);
+  }, [status, fetchedDetails, feedCompleted, onProgressUpdate]);
 
   const mode = isDarkTheme ? "dark" : "light";
 

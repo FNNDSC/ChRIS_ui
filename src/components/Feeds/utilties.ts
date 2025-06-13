@@ -158,9 +158,7 @@ export interface PluginInstanceDetails {
   foundError?: boolean;
 }
 
-export const getPluginInstanceDetails = async (
-  feed: Feed,
-): Promise<PluginInstanceDetails> => {
+export const getPluginInstanceDetails = (feed: Feed): PluginInstanceDetails => {
   const {
     created_jobs = 0,
     waiting_jobs = 0,
