@@ -23,14 +23,13 @@ import {
   Thead,
   Tr,
 } from "@patternfly/react-table";
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import type React from "react";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState, useRef } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router";
-import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
 import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
@@ -47,49 +46,52 @@ import { PipelineProvider } from "../PipelinesCopy/context";
 import WrapperConnect from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
-import { fetchPublicFeed, getPluginInstanceDetails } from "./utilties";
+import {
+  fetchAuthenticatedFeed,
+  fetchPublicFeed,
+  getPluginInstanceDetails,
+  type PluginInstanceDetails,
+} from "./utilties";
 
 const { Paragraph } = Typography;
 
 interface ColumnDefinition {
   id: string;
   label: string;
-  comparator: (a: Feed, b: Feed, detailsA: any, detailsB: any) => number;
+  comparator: (a: Feed, b: Feed) => number;
 }
 
-// We remove 'runtime' + 'size' columns
 const COLUMN_DEFINITIONS: ColumnDefinition[] = [
   {
     id: "id",
     label: "ID",
-    comparator: (a, b) => a.data.id - b.data.id,
+    comparator: (a: Feed, b: Feed) => Number(a.data.id) - Number(b.data.id),
   },
   {
     id: "analysis",
     label: "Analysis",
-    comparator: (a, b) => a.data.name.localeCompare(b.data.name),
+    comparator: (a: Feed, b: Feed) => a.data.name.localeCompare(b.data.name),
   },
   {
     id: "created",
     label: "Created",
-    comparator: (a, b) =>
+    comparator: (a: Feed, b: Feed) =>
       new Date(a.data.creation_date).getTime() -
       new Date(b.data.creation_date).getTime(),
   },
   {
     id: "creator",
     label: "Creator",
-    comparator: (a, b) =>
+    comparator: (a: Feed, b: Feed) =>
       a.data.owner_username.localeCompare(b.data.owner_username),
   },
   {
     id: "status",
     label: "Status",
-    comparator: (_a, _b, detailsA, detailsB) => {
-      const progressA = detailsA?.progress || 0;
-      const progressB = detailsB?.progress || 0;
-      return progressA - progressB;
-    },
+    /**
+     * Cannot sort by progress since details are loaded at row level
+     */
+    comparator: (_a: Feed, _b: Feed) => 0,
   },
 ];
 
@@ -105,52 +107,14 @@ const TableSelectable: React.FC = () => {
   const [activeSortDirection, setActiveSortDirection] =
     useState<SortByDirection>(SortByDirection.desc);
 
-  // 1) Use Queries => each feed returns an object { [feedId]: details }
-  //    Then we merge them into one dictionary feedDetails.
-  const feedQueries = useQueries({
-    queries: feedsToDisplay.map((feed) => ({
-      queryKey: ["feedDetails", feed.data.id],
-      queryFn: async () => {
-        const client = ChrisAPIClient.getClient();
-        let updatedFeed = null;
-        // Choose the appropriate feed fetch function based on type
-        if (type === "public") {
-          updatedFeed = await fetchPublicFeed(feed.data.id);
-        } else if (type === "private") {
-          updatedFeed = await client.getFeed(feed.data.id);
-        } else {
-          // If no valid type is provided, default to null
-          return { [feed.data.id]: null };
-        }
-        if (!updatedFeed) return { [feed.data.id]: null };
-        const res = await getPluginInstanceDetails(updatedFeed);
-        return { [feed.data.id]: res };
-      },
-      refetchInterval: (result: any) => {
-        const data = result.state.data;
-        // Stop polling if an error occurs
-        if (result.state.error) return false;
-        // Stop polling if no feed is returned
-        if (data && data[feed.data.id] === null) return false;
-        // Stop polling if progress is 100
-        if (data && data[feed.data.id]?.progress === 100) return false;
-        // Otherwise poll every 2 seconds
-        return 2000;
-      },
-    })),
-  });
-
-  // 2) Merge each returned object into a single dictionary
-  const feedDetails = useMemo(() => {
-    // e.g. feedQueries[i].data => { 3: { progress: 50, feedProgressText: ... } }
-    // We flatten them all into { 3: {...}, 5: {...}, etc. }
-    return Object.assign({}, ...feedQueries.map((query) => query.data || {}));
-  }, [feedQueries]);
-
-  // 3) Sorting
+  /**
+   * Get sort parameters for a given column index
+   * @param columnIndex - Index of the column to sort
+   * @returns Sort parameters
+   */
   const getSortParams = (columnIndex: number) => ({
     sortBy: {
-      index: activeSortIndex as number,
+      index: activeSortIndex,
       direction: activeSortDirection,
     },
     onSort: (
@@ -164,20 +128,29 @@ const TableSelectable: React.FC = () => {
     columnIndex,
   });
 
-  // 4) Produce sorted feeds
+  /**
+   * Produce sorted feeds based on the active sort index and direction
+   * Status column uses row-level querying and cannot be sorted
+   * All other columns can be sorted by feed properties directly
+   */
   const sortedFeeds = useMemo(() => {
-    if (activeSortIndex !== null && feedDetails) {
+    if (activeSortIndex !== null) {
       const comparator = COLUMN_DEFINITIONS[activeSortIndex].comparator;
+
       return [...feedsToDisplay].sort((a, b) =>
         activeSortDirection === SortByDirection.asc
-          ? comparator(a, b, feedDetails[a.data.id], feedDetails[b.data.id])
-          : comparator(b, a, feedDetails[b.data.id], feedDetails[a.data.id]),
+          ? comparator(a, b)
+          : comparator(b, a),
       );
     }
     return feedsToDisplay;
-  }, [feedsToDisplay, activeSortIndex, activeSortDirection, feedDetails]);
+  }, [feedsToDisplay, activeSortIndex, activeSortDirection]);
 
-  // 5) Pagination
+  /**
+   * Handle pagination changes
+   * @param _ - Event object
+   * @param newPage - New page number
+   */
   const onSetPage = (
     _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPage: number,
@@ -187,6 +160,12 @@ const TableSelectable: React.FC = () => {
     );
   };
 
+  /**
+   * Handle per-page changes
+   * @param _ - Event object
+   * @param newPerPage - New per-page value
+   * @param newPage - New page number
+   */
   const onPerPageSelect = (
     _: React.MouseEvent | React.KeyboardEvent | MouseEvent,
     newPerPage: number,
@@ -197,10 +176,19 @@ const TableSelectable: React.FC = () => {
     );
   };
 
+  /**
+   * Debounced function to handle filter changes
+   * @param search - Search query
+   * @param searchType - Search type
+   */
   const handleFilterChange = debounce((search: string, searchType: string) => {
     navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
   });
 
+  /**
+   * Handle example type changes
+   * @param event - Event object
+   */
   const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
     const id = event.currentTarget.id;
     navigate(
@@ -208,7 +196,9 @@ const TableSelectable: React.FC = () => {
     );
   };
 
-  // 6) If user is not logged in + type=private => redirect to public
+  /**
+   * Redirect to public feeds if user is not logged in and type is private
+   */
   useEffect(() => {
     if (!type || (!isLoggedIn && type === "private")) {
       navigate(
@@ -217,7 +207,11 @@ const TableSelectable: React.FC = () => {
     }
   }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
 
-  // 7) Show pagination or skeleton
+  /**
+   * Generate pagination component
+   * @param count - Total count of feeds
+   * @returns Pagination component
+   */
   const generatePagination = (count?: number) => {
     if (!count && loadingFeedState) {
       return <Skeleton width="25%" screenreaderText="Loaded Feed Count" />;
@@ -354,7 +348,6 @@ const TableSelectable: React.FC = () => {
                   allFeeds={feedsToDisplay}
                   type={type}
                   additionalKeys={[perPage, page, type, search, searchType]}
-                  details={feedDetails[feed.data.id]}
                 />
               ))}
             </Tbody>
@@ -376,7 +369,6 @@ interface TableRowProps {
   allFeeds: Feed[];
   type: string;
   additionalKeys: string[];
-  details: any;
 }
 
 // -------------- TableRow --------------
@@ -384,7 +376,7 @@ const TableRow: React.FC<TableRowProps> = ({
   rowIndex,
   feed,
   additionalKeys,
-  details,
+  type,
 }) => {
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
@@ -392,22 +384,38 @@ const TableRow: React.FC<TableRowProps> = ({
   const navigate = useNavigate();
   const { isDarkTheme } = useContext(ThemeContext);
 
+  /**
+   * Track row progress state for background color
+   */
+  const [rowProgress, setRowProgress] = useState<number | null>(null);
+  const [rowError, setRowError] = useState<boolean>(false);
+
+  /**
+   * Get folder for this feed
+   */
   const getFolderForThisFeed = async () => {
     const payload = await feed.getFolder();
     return payload;
   };
 
   const backgroundColor = isDarkTheme ? "#002952" : "#E7F1FA";
+  /**
+   * Only show special background if progress is being tracked and less than 100%
+   */
   const backgroundRow =
-    details && details.progress < 100 && !details.error
+    rowProgress !== null && rowProgress < 100 && !rowError
       ? backgroundColor
       : "inherit";
 
   const isSelected = selectedPaths.some(
     (payload) => payload.path === feed.data.folder_path,
   );
+
   const selectedBgRow = isSelected ? backgroundColor : backgroundRow;
 
+  /**
+   * Handle feed name click
+   */
   const onFeedNameClick = () => {
     navigate(
       `/feeds/${feed.data.id}?type=${feed.data.public ? "public" : "private"}`,
@@ -423,6 +431,7 @@ const TableRow: React.FC<TableRowProps> = ({
     >
       <Tr
         key={feed.data.id}
+        id={`feed-row-${feed.data.id}`}
         style={{ backgroundColor: selectedBgRow, cursor: "pointer" }}
         data-test-id={`${feed.data.name}-test`}
         onContextMenu={async (e) => {
@@ -445,15 +454,21 @@ const TableRow: React.FC<TableRowProps> = ({
             isSelected: isSelected,
             onSelect: async (event) => {
               event.stopPropagation();
-              const isChecked = event.currentTarget.checked; // Capture the checked value
+              const isChecked = event.currentTarget.checked;
               const payload = await getFolderForThisFeed();
 
-              // Create a new event object
+              /**
+               * Create a new event object with the captured value
+               */
               const newEvent = {
                 ...event,
                 stopPropagation: () => event.stopPropagation(),
                 preventDefault: () => event.preventDefault(),
-                currentTarget: { ...event.currentTarget, checked: isChecked },
+                target: {
+                  ...event.currentTarget,
+                  checked: isChecked,
+                },
+                currentTarget: event.currentTarget,
               };
 
               handlers.handleCheckboxChange(
@@ -473,25 +488,114 @@ const TableRow: React.FC<TableRowProps> = ({
           {format(new Date(feed.data.creation_date), "dd MMM yyyy, HH:mm")}
         </Td>
         <Td dataLabel="creator">{feed.data.owner_username}</Td>
-        {/* We removed the "runtime" + "size" columns */}
+        {/* Status column with progress donut */}
         <Td dataLabel="status">
-          <DonutUtilization details={details} />
+          <DonutUtilization
+            feed={feed}
+            type={type}
+            onProgressUpdate={(progress, error) => {
+              setRowProgress(progress);
+              setRowError(error);
+            }}
+          />
         </Td>
       </Tr>
     </FolderContextMenu>
   );
 };
 
-// -------------- DonutUtilization --------------
-// -------------- DonutUtilization --------------
-const DonutUtilization = ({ details }: { details: any }) => {
+/**
+ * DonutUtilization component displays the current progress of a feed
+ * and notifies the parent component of progress/error changes.
+ *
+ * @param feed - The feed object to monitor
+ * @param type - The type of feed (public or private)
+ * @param onProgressUpdate - Callback function to notify parent of progress changes
+ * @returns JSX.Element - A progress donut or loading skeleton
+ */
+function DonutUtilization({
+  feed,
+  type,
+  onProgressUpdate,
+}: {
+  feed: Feed;
+  type: string;
+  onProgressUpdate: (progress: number | null, error: boolean) => void;
+}): JSX.Element {
   const { isDarkTheme } = useContext(ThemeContext);
 
-  // Theme-based class name (if you already have .chart.dark / .chart.light)
+  /**
+   * This ref prevents multiple notifications about the initial loading state
+   * to the parent component. When a loading state is handled once, the ref
+   * is set to true to avoid duplicate notifications during re-renders.
+   */
+  const initialStateHandled = useRef(false);
+
+  /**
+   * Fetch feed details with React Query and set up polling
+   * for active feeds (progress < 100% and no errors)
+   */
+  const {
+    data: details,
+    isLoading,
+    status,
+  } = useQuery({
+    queryKey: ["feedDetails", feed.data.id, type],
+    queryFn: async (): Promise<PluginInstanceDetails | null> => {
+      let updatedFeed: Feed | undefined = undefined;
+      try {
+        if (type === "private") {
+          updatedFeed = await fetchAuthenticatedFeed(feed.data.id);
+        } else if (type === "public") {
+          updatedFeed = await fetchPublicFeed(feed.data.id);
+        } else {
+          return null;
+        }
+        if (!updatedFeed) return null;
+        return getPluginInstanceDetails(updatedFeed);
+      } catch (error) {
+        console.error("Error fetching feed details:", error);
+        throw error;
+      }
+    },
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data) return false;
+      if (data.progress === 100 || Boolean(data.foundError)) return false;
+      return 5000;
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000,
+  });
+
+  /**
+   * Communicate status changes to parent component
+   * Uses the query status to determine when to notify parent:
+   * - On success: send progress and error state
+   * - On error: send error notification
+   * - On initial pending: send loading notification (once)
+   */
+  useEffect(() => {
+    if (status === "success" && details) {
+      onProgressUpdate(details.progress, Boolean(details.foundError));
+    } else if (status === "error") {
+      onProgressUpdate(null, true);
+    } else if (status === "pending" && !initialStateHandled.current) {
+      initialStateHandled.current = true;
+      onProgressUpdate(null, false);
+    }
+  }, [status, details, onProgressUpdate]);
+
   const mode = isDarkTheme ? "dark" : "light";
 
+  if (isLoading) {
+    return <Skeleton height="40px" width="40px" />;
+  }
+
   if (!details) {
-    // Show a "greyed out" donut labeled "N/A"
+    /**
+     * Show a greyed out donut labeled "N/A" when no details available
+     */
     return (
       <Tooltip content="No feed progress data available">
         <div className={`chart ${mode}`}>
@@ -499,7 +603,6 @@ const DonutUtilization = ({ details }: { details: any }) => {
             ariaTitle="Unknown Status"
             data={{ x: "Analysis", y: 0 }}
             labels={() => null}
-            // We'll use "N/A" as the big center label
             title="?"
             thresholds={[{ value: 100, color: "#d2d2d2" }]}
             width={125}
@@ -510,25 +613,40 @@ const DonutUtilization = ({ details }: { details: any }) => {
     );
   }
 
-  const { progress = 0, foundError, feedProgressText } = details;
-  // Decide the donut color & label
+  /**
+   * Extract progress and error state with safe defaults
+   */
+  const { progress = 0, feedProgressText = "" } = details;
+  const foundError = details.foundError === true;
+
+  /**
+   * Decide the donut color & label based on progress and error state
+   */
   let title = `${progress}%`;
-  let color = "#0066cc"; // default color
+  /**
+   * Default color for the donut
+   */
+  let color = "#0066cc";
   let threshold = 100;
 
   if (foundError) {
-    color = "#c9190b"; // PF Red-100
+    /**
+     * PF Red-100 for error state
+     */
+    color = "#c9190b";
     threshold = progress;
   } else if (progress === 100) {
-    title = "✔️";
+    title = "✓";
   } else {
-    // e.g. partial progress
-    color = "#06c"; // PF Blue-400 or a green if you prefer
+    /**
+     * PF Blue-400 for partial progress
+     */
+    color = "#06c";
     threshold = progress;
   }
 
   return (
-    <Tooltip content={`Progress: ${progress}%`}>
+    <Tooltip content={feedProgressText}>
       <div className={`chart ${mode}`}>
         <ChartDonutUtilization
           ariaTitle={feedProgressText}
@@ -542,7 +660,7 @@ const DonutUtilization = ({ details }: { details: any }) => {
       </div>
     </Tooltip>
   );
-};
+}
 
 // -------------- FeedInfoColumn --------------
 const FeedInfoColumn = ({
@@ -622,6 +740,10 @@ function LoadingTable() {
       </Thead>
       <Tbody>
         {Array.from({ length: 20 }).map((_, index) => (
+          /**
+           * Using index as key is acceptable for static skeleton rows
+           */
+
           // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           <Tr key={index}>
             <Td colSpan={COLUMN_ORDER.length + 1}>
