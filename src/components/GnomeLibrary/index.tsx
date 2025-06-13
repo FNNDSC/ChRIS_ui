@@ -42,8 +42,11 @@ const GnomeLibrary = () => {
     },
     placeholderData: isPaginating ? keepPreviousData : undefined,
     structuralSharing: true,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1, // Only retry once on failure
   });
 
   // Determine if there's more data to fetch
