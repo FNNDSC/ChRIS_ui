@@ -7,6 +7,9 @@ import type {
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 
+// Initialize client at module level
+const client = ChrisAPIClient.getClient();
+
 // Define the interface for pagination
 interface PaginationInfo {
   totalCount: number;
@@ -31,13 +34,15 @@ export interface FolderHookData extends FolderTableData {
   errorMessages?: string[];
 }
 
+/**
+ * Fetches folder data from the API
+ */
 export async function fetchFolders(
   computedPath: string,
   pageNumber = 1,
   previousData?: FolderHookData,
 ): Promise<FolderHookData> {
-  const client = ChrisAPIClient.getClient();
-
+  // Use the already initialized client
   const itemsPerPage = 50;
   const errorMessages: string[] = [];
 
