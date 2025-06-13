@@ -375,15 +375,6 @@ export const useFolderOperations = (
       // Clear selected paths after success
       dispatch(clearAllPaths());
     },
-    onError: (error: Error) => {
-      // Show error notification
-      notification.error({
-        message: "Operation Failed",
-        description: error.message || "An error occurred during the operation.",
-        placement: "topRight",
-        duration: 4,
-      });
-    },
   });
 
   // Function to clear all selections
