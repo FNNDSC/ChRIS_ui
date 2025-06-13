@@ -293,23 +293,39 @@ function getCommand(
     pluginParameters = parameters.getItems() as any[];
   }
 
-  for (let i = 0; i < instanceParameters.length; i++) {
-    for (let j = 0; j < pluginParameters.length; j++) {
-      if (
-        instanceParameters[i].data.param_name === pluginParameters[j].data.name
-      ) {
-        const isBoolean = instanceParameters[i].data.type === "boolean";
-        const isString = instanceParameters[i].data.type === "string";
-        const value = instanceParameters[i].data.value;
+  // Create a lookup map for plugin parameters to avoid O(n²) nested loop
+  const pluginParamsMap = new Map();
+  for (const pluginParam of pluginParameters) {
+    pluginParamsMap.set(pluginParam.data.name, pluginParam);
+  }
 
-        const safeValue =
-          isString && needsQuoting(value) ? customQuote(value) : value;
+  // Single pass through instance parameters - O(n) complexity
+  for (const instanceParam of instanceParameters) {
+    const pluginParam = pluginParamsMap.get(instanceParam.data.param_name);
 
-        modifiedParams.push({
-          name: pluginParameters[j].data.flag,
-          value: isBoolean ? " " : isString ? safeValue : value,
-        });
-      }
+    if (pluginParam) {
+      const isBoolean = instanceParam.data.type === "boolean";
+      const isString = instanceParam.data.type === "string";
+      const value = instanceParam.data.value;
+      const paramName = instanceParam.data.param_name;
+
+      // Check if parameter name contains "password" (case insensitive)
+      const isPassword = paramName.toLowerCase().includes("password");
+
+      // If it's a password, mask the value with asterisks of the same length
+      const displayValue = isPassword
+        ? "*".repeat(value ? value.length : 0)
+        : value;
+
+      const safeValue =
+        isString && needsQuoting(displayValue)
+          ? customQuote(displayValue)
+          : displayValue;
+
+      modifiedParams.push({
+        name: pluginParam.data.flag,
+        value: isBoolean ? " " : isString ? safeValue : displayValue,
+      });
     }
   }
 

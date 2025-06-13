@@ -23,6 +23,7 @@ import {
   Select,
   SelectList,
   SelectOption,
+  Spinner,
   TextInput,
   Tooltip,
 } from "@patternfly/react-core";
@@ -36,7 +37,7 @@ import {
   fetchResource,
   needsQuoting,
 } from "../../api/common";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchParamsAndComputeEnv } from "../../store/plugin/pluginSlice";
 import { Alert } from "../Antd";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
@@ -45,7 +46,11 @@ import RequiredParam from "./RequiredParam";
 import SimpleDropdown from "./SimpleDropdown";
 import { AddNodeContext } from "./context";
 import { type InputIndex, Types } from "./types";
-import { handleGetTokens, unpackParametersIntoString } from "./utils";
+import {
+  handleGetTokens,
+  maskPasswordValue,
+  unpackParametersIntoString,
+} from "./utils";
 
 const advancedConfigList = [
   {
@@ -373,11 +378,13 @@ const CheckboxComponent = () => {
               ? customQuote(value)
               : value;
           const [id, flag] = paramsRequiredFetched[param_name];
+          const maskedValue = maskPasswordValue(flag, quotedValue);
           requiredInput[id] = {
-            value: quotedValue,
+            value: maskedValue,
             flag,
             type,
             placeholder: "",
+            paramName: param_name,
           };
         } else if (paramsDropdownFetched) {
           const quotedValue =
@@ -386,11 +393,13 @@ const CheckboxComponent = () => {
               : value;
 
           const flag = paramsDropdownFetched[param_name];
+          const maskedValue = maskPasswordValue(flag, quotedValue);
           dropdownInput[v4()] = {
-            value: quotedValue,
+            value: maskedValue,
             flag,
             type,
             placeholder: "",
+            paramName: param_name,
           };
         }
       }
@@ -413,49 +422,55 @@ const CheckboxComponent = () => {
     }
   };
 
-  const { isError, error, mutate, reset } = useMutation({
+  const { isPending, error, mutate, reset } = useMutation({
     mutationFn: () => handleCheckboxChange(),
   });
 
   return (
     <>
-      <Checkbox
-        isDisabled={!!resourceError}
-        isChecked={showPreviousRun ?? false}
-        id="fill-parameters"
-        label="Fill the form using a latest run of this plugin"
-        onChange={(_event, checked) => {
-          if (checked) {
-            //handleCheckboxChange();
-            mutate();
-          } else {
-            reset();
-            dispatch({
-              type: Types.RequiredInput,
-              payload: {
-                input: {},
-                editorValue: true,
-              },
-            });
-            dispatch({
-              type: Types.DropdownInput,
-              payload: {
-                input: {},
-                editorValue: true,
-              },
-            });
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <Checkbox
+          isDisabled={!!resourceError || isPending}
+          isChecked={showPreviousRun ?? false}
+          id="fill-parameters"
+          label={
+            <span style={{ display: "flex", alignItems: "center" }}>
+              Fill the form using a latest run of this plugin
+              {isPending && <Spinner size="sm" style={{ marginLeft: "8px" }} />}
+            </span>
           }
+          onChange={(_event, checked) => {
+            if (checked) {
+              mutate();
+            } else {
+              reset();
+              dispatch({
+                type: Types.RequiredInput,
+                payload: {
+                  input: {},
+                  editorValue: true,
+                },
+              });
+              dispatch({
+                type: Types.DropdownInput,
+                payload: {
+                  input: {},
+                  editorValue: true,
+                },
+              });
+            }
 
-          // Store the checkbox state in the reducer
-          dispatch({
-            type: Types.SetShowPreviousRun,
-            payload: {
-              showPreviousRun: checked,
-            },
-          });
-        }}
-      />
-      {isError && <Alert type="error" description={error.message} />}
+            // Store the checkbox state in the reducer
+            dispatch({
+              type: Types.SetShowPreviousRun,
+              payload: {
+                showPreviousRun: checked,
+              },
+            });
+          }}
+        />
+      </div>
+      {error && <Alert type="error" description={error.message} />}
     </>
   );
 };
