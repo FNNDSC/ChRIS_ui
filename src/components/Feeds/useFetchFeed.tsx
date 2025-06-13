@@ -13,10 +13,14 @@ export const useFetchFeed = (
   const navigate = useNavigate();
   const [api, contextHolder] = notification.useNotification();
 
+  // Convert id to number or undefined if it's not a valid number
+  const numericId = id ? Number.parseInt(id, 10) : undefined;
+  const isValidId = numericId !== undefined && !Number.isNaN(numericId);
+
   const { data: publicFeed, isError: isPublicFeedError } = useQuery({
     queryKey: ["publicFeed", id],
-    queryFn: () => fetchPublicFeed(id),
-    enabled: type === "public",
+    queryFn: () => (isValidId ? fetchPublicFeed(numericId) : undefined),
+    enabled: type === "public" && isValidId,
   });
 
   const {
@@ -25,8 +29,8 @@ export const useFetchFeed = (
     error: privateFeedError,
   } = useQuery({
     queryKey: ["authenticatedFeed", id],
-    queryFn: () => fetchAuthenticatedFeed(id),
-    enabled: type === "private" && isLoggedIn,
+    queryFn: () => (isValidId ? fetchAuthenticatedFeed(numericId) : undefined),
+    enabled: type === "private" && isLoggedIn && isValidId,
   });
 
   useEffect(() => {
@@ -49,6 +53,20 @@ export const useFetchFeed = (
       return () => clearTimeout(timer);
     }
   }, [isPrivateFeedError, privateFeedError, api, navigate]);
+
+  // Handle invalid IDs
+  useEffect(() => {
+    if (id && !isValidId) {
+      api.error({
+        message: "Invalid feed ID. Redirecting to feeds list.",
+        duration: 1.5,
+      });
+      const timer = setTimeout(() => {
+        navigate(type ? `/feeds?type=${type}` : "/feeds?type=private");
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [id, isValidId, api, navigate, type]);
 
   const feed: Feed | undefined = privateFeed || publicFeed;
 
