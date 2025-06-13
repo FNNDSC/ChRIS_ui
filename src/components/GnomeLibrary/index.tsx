@@ -2,9 +2,9 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/hooks";
-import { EmptyStateComponent, SpinContainer } from "../Common";
+import { EmptyStateComponent, SpinContainer, InfoSection } from "../Common";
 import { OperationContext, OperationsProvider } from "../NewLibrary/context";
-import Wrapper from "../Wrapper";
+import WrapperConnect from "../Wrapper";
 import GnomeCentralBreadcrumb from "./GnomeCentralBreadcrumb";
 import GnomeLibraryTable from "./GnomeList";
 import GnomeLibrarySidebar from "./GnomeSidebar";
@@ -119,7 +119,19 @@ const GnomeLibrary = () => {
 
   return (
     <OperationsProvider>
-      <Wrapper>
+      <WrapperConnect
+        titleComponent={
+          <InfoSection
+            title="Library"
+            content={
+              <>
+                The Library provides a card-focused mechanism for browsing,
+                viewing, and interacting with data in the ChRIS system.
+              </>
+            }
+          />
+        }
+      >
         <div className={styles.gnomeLibraryContainer}>
           <GnomeLibrarySidebar
             activeSidebarItem={activeSidebarItem}
@@ -177,7 +189,7 @@ const GnomeLibrary = () => {
             </span>
           </div>
         </div>
-      </Wrapper>
+      </WrapperConnect>
     </OperationsProvider>
   );
 };
