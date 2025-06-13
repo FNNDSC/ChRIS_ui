@@ -17,7 +17,7 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
-import { Alert, Popover, Spin, Typography } from "antd";
+import { Alert, Popover, Spin } from "antd";
 import React, { type ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
 import "react-activity/dist/library.css";
@@ -140,7 +140,95 @@ export const useCookieToken = () => {
   return token;
 };
 
-const { Title } = Typography;
+export const InfoIconCustom = ({
+  title,
+  p1,
+  p2,
+  p3,
+  p4,
+  customStyle,
+}: {
+  title: string;
+  p1?: React.ReactNode;
+  p2?: React.ReactNode;
+  p3?: React.ReactNode;
+  p4?: React.ReactNode;
+  customStyle?: {
+    [key: string]: React.CSSProperties;
+  };
+}) => {
+  const content = (
+    <Hint>
+      {p1}
+      {p2}
+      {p3}
+      {p4}
+    </Hint>
+  );
+
+  return (
+    <div style={{ display: "flex" }}>
+      <h4
+        className="info-section-title"
+        style={{
+          ...customStyle?.title,
+          marginBottom: 0,
+          fontSize: "1.25rem",
+          fontWeight: 500,
+          lineHeight: "1.4",
+        }}
+      >
+        {title}
+      </h4>
+      <Popover placement="top" trigger="hover" content={content}>
+        <span style={{ display: "inline-flex", alignSelf: "flex-start" }}>
+          <InfoIconComponent />
+        </span>
+      </Popover>
+    </div>
+  );
+};
+
+export const InfoSection: React.FC<{
+  title: string;
+  content?: React.ReactNode;
+}> = ({ title, content }) => (
+  <InfoIconCustom
+    customStyle={{
+      title: {
+        color: "white",
+      },
+    }}
+    title={title}
+    p1={<div className="info-section-paragraph">{content}</div>}
+  />
+);
+
+export const addInfoSectionStyles = () => {
+  if (!document.getElementById("info-section-styles")) {
+    const style = document.createElement("style");
+    style.id = "info-section-styles";
+    style.textContent = `
+      .info-section-title {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+      .info-section-paragraph {
+        color: #d2d2d2;
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-top: 0.5rem;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+};
+
+if (typeof window !== "undefined") {
+  addInfoSectionStyles();
+}
 
 export const InfoIcon = ({
   title,
@@ -170,9 +258,17 @@ export const InfoIcon = ({
 
   return (
     <div style={{ display: "flex" }}>
-      <Title level={4} style={{ ...customStyle?.title, marginBottom: 0 }}>
+      <h4
+        style={{
+          ...customStyle?.title,
+          marginBottom: 0,
+          fontSize: "1.25rem",
+          fontWeight: 500,
+          lineHeight: "1.4",
+        }}
+      >
         {title}
-      </Title>
+      </h4>
       <Popover placement="top" trigger="hover" content={content}>
         <span style={{ display: "inline-flex", alignSelf: "flex-start" }}>
           <InfoIconComponent />
@@ -436,22 +532,4 @@ export const TableEmptyState: React.FunctionComponent<EmptyTableProps> = ({
       </Tr>
     </Tbody>
   </Table>
-);
-
-const { Paragraph } = Typography;
-
-// Component for displaying name and description
-export const InfoSection: React.FC<{
-  title: string;
-  content?: React.ReactNode;
-}> = ({ title, content }) => (
-  <InfoIcon
-    customStyle={{
-      title: {
-        color: "white",
-      },
-    }}
-    title={title}
-    p1={<Paragraph>{content}</Paragraph>}
-  />
 );

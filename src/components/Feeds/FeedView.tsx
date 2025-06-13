@@ -1,6 +1,5 @@
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { Tooltip } from "@patternfly/react-core";
-import { Typography } from "antd";
 import React, { useCallback, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation, useNavigate, useParams } from "react-router";
@@ -15,7 +14,6 @@ import {
   resetSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
 import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
-
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
 import ParentComponent from "../FeedTree/ParentComponent";
@@ -29,7 +27,28 @@ import { useSearchQueryParams } from "./usePaginate";
 import { usePollAllPluginStatuses } from "./usePolledStatuses";
 import { handleMaximize, handleMinimize } from "./utilties";
 
-const { Title } = Typography;
+// Custom title component to replace Typography.Title
+const CustomTitle = ({
+  children,
+  color = "inherit",
+  className = "",
+  style = {},
+}) => (
+  <h4
+    className={`custom-title ${className}`}
+    style={{
+      margin: 0,
+      marginBottom: 0,
+      color,
+      fontSize: "1.25rem",
+      fontWeight: 500,
+      lineHeight: "1.4",
+      ...style,
+    }}
+  >
+    {children}
+  </h4>
+);
 
 const FeedView: React.FC = () => {
   const [currentLayout, setCurrentLayout] = useState(false);
@@ -108,12 +127,12 @@ const FeedView: React.FC = () => {
   };
 
   const TitleComponent = (
-    <Title level={4} style={{ marginBottom: 0, color: "white" }}>
+    <CustomTitle color="white">
       <CodeBranchIcon style={{ marginRight: "0.25em" }} />
       <Tooltip content={feed?.data.name}>
         <span>{feed ? elipses(feed?.data.name, 40) : ""}</span>
       </Tooltip>
-    </Title>
+    </CustomTitle>
   );
 
   return (
