@@ -152,6 +152,8 @@
   width: 50px;
   min-width: 50px;
   flex-shrink: 0;
+  padding-left: 16px;
+  padding-right: 0;
 }
 
 /* First column - Name */
@@ -159,6 +161,7 @@
 .fileName {
   flex: 4;
   min-width: 200px;
+  padding-left: 8px;
 }
 
 /* Second column - Date */
@@ -204,16 +207,21 @@
   overflow: hidden;
 }
 
+/* Override padding for checkbox cell */
+.checkboxCell {
+  padding-right: 0;
+}
+
 /* Right-align size column */
 .fileSizeHeader,
 .fileSize {
   justify-content: flex-end;
 }
 
-/* Checkbox is centered */
+/* Checkbox is left-aligned */
 .fileCheckboxHeader,
 .checkboxCell {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 /* 
@@ -233,16 +241,21 @@
 
 /* Checkbox styling */
 .checkboxWrapper {
-  padding: 8px;
+  padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .largeCheckbox {
   transform: scale(1.2);
   margin: 0;
+}
+
+.checkboxAlign {
+  display: flex;
+  align-items: center;
 }
 
 /* Folder/File icons */
@@ -252,6 +265,7 @@
   flex-shrink: 0;
   width: 18px;
   height: 18px;
+  margin-left: 4px;
 }
 
 /* Blue icon for links */
