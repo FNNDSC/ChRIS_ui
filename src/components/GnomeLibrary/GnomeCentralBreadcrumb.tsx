@@ -350,14 +350,14 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
                       key="file-upload"
                       onClick={handleUploadFile}
                     >
-                      File upload
+                      File Upload
                     </DropdownItem>
                     <DropdownItem
                       icon={<FolderIcon />}
                       key="folder-upload"
                       onClick={handleUploadFolder}
                     >
-                      Folder upload
+                      Folder Upload
                     </DropdownItem>
                   </DropdownList>
                 </Dropdown>
