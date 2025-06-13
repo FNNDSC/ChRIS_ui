@@ -37,9 +37,7 @@ export async function fetchFolders(
   previousData?: FolderHookData,
 ): Promise<FolderHookData> {
   const client = ChrisAPIClient.getClient();
-  await client.setUrls();
 
-  // Consistent items per page
   const itemsPerPage = 50;
   const errorMessages: string[] = [];
 
