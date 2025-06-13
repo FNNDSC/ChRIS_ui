@@ -115,12 +115,12 @@ export const fetchPublicFeeds = async (filterState: any) => {
   };
 };
 
-export async function fetchAuthenticatedFeed(id?: string) {
+export async function fetchAuthenticatedFeed(id: number) {
   if (!id) return;
 
   try {
     const client = ChrisAPIClient.getClient();
-    const feed = await client.getFeed(+id);
+    const feed = await client.getFeed(id);
 
     if (!feed) {
       throw new Error(
@@ -134,16 +134,15 @@ export async function fetchAuthenticatedFeed(id?: string) {
   }
 }
 
-export async function fetchPublicFeed(id?: string) {
+export async function fetchPublicFeed(id: number) {
   if (!id) return;
   try {
     const client = ChrisAPIClient.getClient();
-    const publicFeed = await client.getPublicFeeds({ id: +id });
+    const publicFeed = await client.getPublicFeeds({ id });
 
-    //@ts-ignore
-    if (publicFeed && publicFeed.getItems().length > 0) {
-      //@ts-ignore
-      return publicFeed.getItems()[0] as any as Feed;
+    const items = publicFeed?.getItems();
+    if (items && items.length > 0) {
+      return items[0] as Feed;
     }
     throw new Error("Failed to fetch this feed...");
   } catch (error) {
@@ -152,7 +151,7 @@ export async function fetchPublicFeed(id?: string) {
   }
 }
 
-interface PluginInstanceDetails {
+export interface PluginInstanceDetails {
   progress: number;
   feedProgressText: string;
   isFinished?: boolean;
