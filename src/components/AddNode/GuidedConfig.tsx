@@ -299,7 +299,18 @@ const GuidedConfig = () => {
         />
       )}
 
-      {resourceError && <Alert type="error" description={resourceError} />}
+      {resourceError && (
+        <span
+          style={{
+            marginLeft: "8px",
+            color: "#c9190b",
+            fontSize: "0.85rem",
+            fontStyle: "italic",
+          }}
+        >
+          Error loading data
+        </span>
+      )}
     </div>
   );
 };
@@ -469,8 +480,19 @@ const CheckboxComponent = () => {
             });
           }}
         />
+        {error && (
+          <span
+            style={{
+              marginLeft: "8px",
+              color: "#c9190b",
+              fontSize: "0.85rem",
+              fontStyle: "italic",
+            }}
+          >
+            Error loading data
+          </span>
+        )}
       </div>
-      {error && <Alert type="error" description={error.message} />}
     </>
   );
 };
