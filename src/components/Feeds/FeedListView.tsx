@@ -468,11 +468,15 @@ const TableRow: React.FC<TableRowProps> = ({
                   ...event.currentTarget,
                   checked: isChecked,
                 },
-                currentTarget: event.currentTarget,
+                // Make sure currentTarget also has the checked property
+                currentTarget: {
+                  ...event.currentTarget,
+                  checked: isChecked,
+                },
               };
 
               handlers.handleCheckboxChange(
-                newEvent,
+                newEvent as unknown as React.FormEvent<HTMLInputElement>,
                 feed.data.folder_path,
                 payload,
                 "folder",
