@@ -9,7 +9,6 @@ import {
 } from "@patternfly/react-core";
 import { App } from "antd";
 import queryString from "query-string";
-// src/components/LoginPage/SimpleLoginPage.tsx
 import type React from "react";
 import { useState } from "react";
 import { useCookies } from "react-cookie";
