@@ -25,7 +25,6 @@ import { OperationContext } from "./context";
 // Fetch folders from the server
 export async function fetchFolders(computedPath: string, pageNumber?: number) {
   const client = ChrisAPIClient.getClient();
-  await client.setUrls();
 
   const pagination = {
     limit: pageNumber ? pageNumber * 50 : 100,

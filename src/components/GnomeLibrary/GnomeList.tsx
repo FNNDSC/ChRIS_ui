@@ -56,7 +56,7 @@ interface TableProps {
     };
   };
   computedPath: string;
-  handleFolderClick: (folderName: string) => void;
+  handleFolderClick: (folder: FileBrowserFolder) => void;
   fetchMore?: boolean;
   handlePagination?: () => void;
   filesLoading?: boolean;
@@ -518,9 +518,7 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               owner={r.data.owner_username}
               size={0}
               computedPath={computedPath}
-              handleFolderClick={() =>
-                handleFolderClick(getFolderName(r, computedPath))
-              }
+              handleFolderClick={() => handleFolderClick(r)}
               handleFileClick={() => {}}
               origin={origin}
             />
