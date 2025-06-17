@@ -1,4 +1,3 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/hooks";
@@ -9,17 +8,30 @@ import GnomeCentralBreadcrumb from "./GnomeCentralBreadcrumb";
 import GnomeLibraryTable from "./GnomeList";
 import GnomeLibrarySidebar from "./GnomeSidebar";
 import styles from "./gnome.module.css";
-import { fetchFolders, type FolderHookData } from "./utils/hooks/useFolders";
+import useFolders from "./utils/hooks/useFolders";
+import type { FileBrowserFolder } from "@fnndsc/chrisapi";
+import { useQueryClient } from "@tanstack/react-query";
 
 const GnomeLibrary = () => {
   const [activeSidebarItem, setActiveSidebarItem] = useState<string>("home");
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
-  const [isPaginating, setIsPaginating] = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
   const username = useAppSelector((state) => state.user.username);
+  const queryClient = useQueryClient();
+
+  // Get selectedFolder ID from navigation state if passed
+  const selectedFolderId = location.state?.selectedFolderId as
+    | number
+    | undefined;
+
+  // Retrieve the folder object from React Query cache if we have an ID
+  const selectedFolder = selectedFolderId
+    ? queryClient.getQueryData<FileBrowserFolder>(["folder", selectedFolderId])
+    : undefined;
 
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
@@ -29,23 +41,15 @@ const GnomeLibrary = () => {
   useEffect(() => {
     if (computedPath) {
       setPageNumber(1);
-      setIsPaginating(false);
     }
   }, [computedPath]);
 
-  // fetch folders, files, link files
-  const queryKey = ["library_folders", computedPath, pageNumber];
-  const { data, isFetching } = useQuery<FolderHookData>({
-    queryKey: queryKey,
-    queryFn: (): Promise<FolderHookData> => {
-      return fetchFolders(computedPath, pageNumber, data);
-    },
-    placeholderData: isPaginating ? keepPreviousData : undefined,
-    structuralSharing: true,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: 1, // Only retry once on failure
-  });
+  // fetch folders, files, link files using the optimized hook
+  const { data, isFetching } = useFolders(
+    computedPath,
+    pageNumber,
+    selectedFolder,
+  );
 
   // Determine if there's more data to fetch
   const fetchMore =
@@ -58,7 +62,6 @@ const GnomeLibrary = () => {
    * Keeps placeholder data visible while fetching more items
    */
   const handlePagination = useCallback(() => {
-    setIsPaginating(true);
     setPageNumber((prevState) => prevState + 1);
   }, []);
 
@@ -67,20 +70,26 @@ const GnomeLibrary = () => {
    * Clears placeholder data to show loading state immediately
    */
   const navigateToPath = useCallback(
-    (path: string) => {
-      setIsPaginating(false);
-      navigate(`/library/${path}`);
+    (path: string, folder?: FileBrowserFolder) => {
+      navigate(`/library/${path}`, {
+        state: folder ? { selectedFolderId: folder.data.id } : {},
+      });
     },
     [navigate],
   );
 
   // Navigate to a folder when clicked
   const handleFolderClick = useCallback(
-    (folderName: string) => {
+    (folder: FileBrowserFolder) => {
+      // Cache the folder object in React Query cache
+      queryClient.setQueryData(["folder", folder.data.id], folder);
+
+      // Extract folder name from path
+      const folderName = folder.data.path.split("/").pop() || "";
       const newPath = `${computedPath}/${folderName}`;
-      navigateToPath(newPath);
+      navigateToPath(newPath, folder);
     },
-    [computedPath, navigateToPath],
+    [computedPath, navigateToPath, queryClient],
   );
 
   useEffect(() => {
@@ -173,7 +182,7 @@ const GnomeLibrary = () => {
                       handleFolderClick={handleFolderClick}
                       fetchMore={fetchMore}
                       handlePagination={handlePagination}
-                      filesLoading={isFetching && isPaginating}
+                      filesLoading={isFetching}
                     />
                   )
                 )}
