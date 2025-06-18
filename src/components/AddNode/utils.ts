@@ -20,7 +20,6 @@ export const unpackParametersIntoObject = (input: InputType) => {
   for (const parameter in input) {
     const [flag, value, type] = unPackForKeyValue(input[parameter]);
 
-    // Store the original value - masking will happen during display
     result[flag] = {
       value,
       type,
@@ -30,13 +29,6 @@ export const unpackParametersIntoObject = (input: InputType) => {
   return result;
 };
 
-export const maskPasswordValue = (flag: string, value: string): string => {
-  // Check if flag or parameter name contains "password" (case insensitive)
-  return flag.toLowerCase().includes("password")
-    ? "*".repeat(value ? value.length : 0)
-    : value;
-};
-
 export const unpackParametersIntoString = (input: InputType) => {
   let string = "";
 
@@ -44,8 +36,11 @@ export const unpackParametersIntoString = (input: InputType) => {
     const flag = input[parameter].flag;
     const value = input[parameter].value;
 
-    // Use the maskPasswordValue function to mask passwords (checks flag name)
-    const displayValue = maskPasswordValue(flag, value);
+    // Check if this is a password parameter and mask it with asterisks for display
+    const isPassword = flag?.toLowerCase().includes("password");
+    const displayValue = isPassword
+      ? "*".repeat(value ? value.length : 0)
+      : value;
 
     string += `${flag} ${displayValue} `;
   }

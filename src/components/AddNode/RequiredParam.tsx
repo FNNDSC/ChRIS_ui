@@ -4,7 +4,6 @@ import { type FormEvent, useContext, useEffect, useRef } from "react";
 import { AddNodeContext } from "./context";
 import type { RequiredParamProp } from "./types";
 import { Types } from "./types";
-import { maskPasswordValue } from "./utils";
 
 const RequiredParam: React.FC<RequiredParamProp> = ({ param }) => {
   const { state, dispatch } = useContext(AddNodeContext);
@@ -12,8 +11,6 @@ const RequiredParam: React.FC<RequiredParamProp> = ({ param }) => {
   const inputElement = useRef<HTMLInputElement>(null);
 
   const value = requiredInput?.[param.data.id]?.value ?? "";
-  // Mask password values for display
-  const displayValue = maskPasswordValue(param.data.flag, value);
 
   const handleInputChange = (value: string) => {
     const { id, flag, help: placeholder, type } = param.data;
@@ -48,10 +45,14 @@ const RequiredParam: React.FC<RequiredParamProp> = ({ param }) => {
         <TextInput
           className="required-params__textInput"
           ref={inputElement}
-          type="text"
+          type={
+            param.data.flag?.toLowerCase().includes("password")
+              ? "password"
+              : "text"
+          }
           aria-label="required-parameters"
           placeholder={param.data.help}
-          value={displayValue}
+          value={value}
           id={param.data.name}
           onChange={(_e, value: string) => handleInputChange(value)}
         />

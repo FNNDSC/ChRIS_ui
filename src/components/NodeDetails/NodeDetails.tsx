@@ -310,21 +310,25 @@ function getCommand(
       const paramName = instanceParam.data.param_name;
 
       // Check if parameter name contains "password" (case insensitive)
-      const isPassword = paramName.toLowerCase().includes("password");
+      const isPassword =
+        paramName.toLowerCase().includes("password") ||
+        pluginParam.data.flag?.toLowerCase().includes("password");
 
       // If it's a password, mask the value with asterisks of the same length
       const displayValue = isPassword
         ? "*".repeat(value ? value.length : 0)
         : value;
 
-      const safeValue =
-        isString && needsQuoting(displayValue)
+      // For password fields, ensure the masked value is used consistently
+      const safeValue = isPassword
+        ? displayValue
+        : isString && needsQuoting(displayValue)
           ? customQuote(displayValue)
           : displayValue;
 
       modifiedParams.push({
         name: pluginParam.data.flag,
-        value: isBoolean ? " " : isString ? safeValue : displayValue,
+        value: isBoolean ? " " : safeValue,
       });
     }
   }
