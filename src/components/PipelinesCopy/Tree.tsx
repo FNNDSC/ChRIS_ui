@@ -33,7 +33,7 @@ const nodeSize = { x: 120, y: 80 };
 const scale = 1;
 export interface TreeProps {
   translate?: Point;
-  scaleExtent: {
+  scaleExtent?: {
     min: number;
     max: number;
   };
@@ -64,7 +64,6 @@ const Tree = (props: TreeProps) => {
   const [tsIds, setTsIds] = React.useState<{
     [key: string]: number[];
   }>();
-  const { zoom, scaleExtent } = props;
 
   const bindZoomListener = React.useCallback(() => {
     const svg: Selection<SVGSVGElement, unknown, HTMLElement, any> = select(
@@ -77,11 +76,9 @@ const Tree = (props: TreeProps) => {
     const zoom: ZoomBehavior<SVGSVGElement, unknown> = d3Zoom<
       SVGSVGElement,
       unknown
-    >()
-      .scaleExtent([scaleExtent.min, scaleExtent.max])
-      .on("zoom", (event) => {
-        g.attr("transform", event.transform);
-      });
+    >().on("zoom", (event) => {
+      g.attr("transform", event.transform);
+    });
 
     svg
       .call(zoom)
@@ -89,7 +86,7 @@ const Tree = (props: TreeProps) => {
         zoom.transform,
         zoomIdentity.translate(translate.x, translate.y).scale(scale),
       );
-  }, [zoom, scaleExtent, translate.x, translate.y]);
+  }, [svgClassName, graphClassName, translate.x, translate.y]);
 
   React.useEffect(() => {
     bindZoomListener();
@@ -275,9 +272,9 @@ Tree.defaultProps = {
 };
 
 interface LinkProps {
-  linkData: any;
-  key: string;
-  orientation: "vertical";
+  linkData: HierarchyPointLink<TreeNode>;
+  orientation: "horizontal" | "vertical";
+  key?: string;
 }
 
 type LinkState = {
