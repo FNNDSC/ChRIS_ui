@@ -39,18 +39,13 @@ import {
 } from "../../api/common";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchParamsAndComputeEnv } from "../../store/plugin/pluginSlice";
-import { Alert } from "../Antd";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
 import ComputeEnvironments from "./ComputeEnvironment";
 import RequiredParam from "./RequiredParam";
 import SimpleDropdown from "./SimpleDropdown";
 import { AddNodeContext } from "./context";
 import { type InputIndex, Types } from "./types";
-import {
-  handleGetTokens,
-  maskPasswordValue,
-  unpackParametersIntoString,
-} from "./utils";
+import { handleGetTokens, unpackParametersIntoString } from "./utils";
 
 const advancedConfigList = [
   {
@@ -389,9 +384,10 @@ const CheckboxComponent = () => {
               ? customQuote(value)
               : value;
           const [id, flag] = paramsRequiredFetched[param_name];
-          const maskedValue = maskPasswordValue(flag, quotedValue);
+          // Store the original value, not the masked one
+          // Masking is only for display purposes
           requiredInput[id] = {
-            value: maskedValue,
+            value: quotedValue,
             flag,
             type,
             placeholder: "",
@@ -404,9 +400,9 @@ const CheckboxComponent = () => {
               : value;
 
           const flag = paramsDropdownFetched[param_name];
-          const maskedValue = maskPasswordValue(flag, quotedValue);
+          // Store the original value for dropdown parameters too, not masked version
           dropdownInput[v4()] = {
-            value: maskedValue,
+            value: quotedValue,
             flag,
             type,
             placeholder: "",
@@ -752,14 +748,7 @@ const AdvancedConfiguration = () => {
                   </Dropdown>
                 )}
                 <HelperText style={{ marginTop: "0.25em" }}>
-                  <HelperTextItem>
-                    <div
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-                      dangerouslySetInnerHTML={{
-                        __html: `${config.helper_text}`,
-                      }}
-                    />
-                  </HelperTextItem>
+                  <HelperTextItem>{config.helper_text}</HelperTextItem>
                 </HelperText>
               </FormGroup>
             </Form>

@@ -10,7 +10,7 @@ import {
 import React, { useContext, useEffect } from "react";
 import { CloseIcon } from "../Icons";
 import type { SimpleDropdownProps, SimpleDropdownState } from "./types";
-import { maskPasswordValue, unPackForKeyValue } from "./utils";
+import { unPackForKeyValue } from "./utils";
 
 import { v4 } from "uuid";
 import { AddNodeContext } from "./context";
@@ -144,8 +144,6 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
     return parameters;
   };
 
-  const displayValue = maskPasswordValue(paramFlag, value);
-
   return (
     <>
       <div className="plugin-configuration">
@@ -176,12 +174,14 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
         </Dropdown>
         <TextInput
           id={paramFlag}
-          type="text"
+          type={
+            paramFlag?.toLowerCase().includes("password") ? "password" : "text"
+          }
           aria-label="text"
           className="plugin-configuration__input"
           onChange={handleInputChange}
           placeholder={placeholder}
-          value={displayValue}
+          value={value}
           isDisabled={
             type === "boolean" || (params && params.dropdown.length === 0)
           }
