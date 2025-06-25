@@ -22,7 +22,7 @@ import React, { type ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
 import "react-activity/dist/library.css";
 import { Cookies } from "react-cookie";
-import ReactJson from "react-json-view";
+import ReactJson from "@microlink/react-json-view";
 import {
   ArchiveIcon,
   CubesIcon,
