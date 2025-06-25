@@ -123,8 +123,8 @@ export default function CreateFeed() {
          * @deprecated
          * The following code is deprecated and should not be used.
          * It sets analysis tags on the feed.
-        
-          
+
+
           for (const tag of state.data.tags) {
           feed.tagFeed(tag.data.id);
            }

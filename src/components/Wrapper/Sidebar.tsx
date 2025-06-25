@@ -52,38 +52,37 @@ const Sidebar: React.FC<AllProps> = () => {
           {renderLink("/", "Overview", "overview")}
         </NavItem>
         <NavGroup title="Data">
-          <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
-            {renderLink("/library", "Library", "lib")}
+          <NavItem itemId="data" isActive={sidebarActiveItem === "data"}>
+            {renderLink(`/feeds?type=${urlParam}`, "Browse Data", "data")}
           </NavItem>
-          <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
-            {renderLink("/pacs", "PACS Query/Retrieve", "pacs")}
+          <NavItem
+            itemId="uploadData"
+            isActive={sidebarActiveItem === "uploadData"}
+          >
+            {renderLink("/library", "Upload Data", "uploadData")}
           </NavItem>
-        </NavGroup>
-        <NavGroup title="Analysis">
           <NavItem
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
-            {renderLink(
-              `/feeds?type=${urlParam}`,
-              "New and Existing Analyses",
-              "analyses",
-            )}
+            {renderLink(`/feeds?type=${urlParam}`, "New Analysis", "analyses")}
           </NavItem>
+          <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
+            {renderLink("/pacs", "Retrieve PACS", "pacs")}
+          </NavItem>
+        </NavGroup>
+        <NavGroup title="Packages">
           <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            {renderLink("/catalog", "Installed Plugins", "catalog")}
+            {renderLink("/catalog", "Browse Packages", "catalog")}
           </NavItem>
           <NavItem itemId="compute" isActive={sidebarActiveItem === "compute"}>
-            {renderLink("/compute", "Compute", "compute")}
+            {renderLink("/compute", "Import Package", "compute")}
           </NavItem>
           <NavItem
             itemId="pipelines"
             isActive={sidebarActiveItem === "pipelines"}
           >
-            {renderLink("/pipelines", "Pipelines", "pipelines")}
-          </NavItem>
-          <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
-            {renderLink("/dataset", "Volume View", "dataset")}
+            {renderLink("/pipelines", "Compose Package", "pipelines")}
           </NavItem>
           {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
