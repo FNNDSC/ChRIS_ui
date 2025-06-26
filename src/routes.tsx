@@ -244,6 +244,10 @@ export const MainRouter: React.FC = () => {
       element: <Store />,
     },
     {
+      path: "import",
+      element: <Store />,
+    },
+    {
       path: "*",
       element: <NotFound />,
     },
