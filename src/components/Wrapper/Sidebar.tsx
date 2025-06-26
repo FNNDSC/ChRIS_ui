@@ -109,6 +109,10 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
           <NavItem itemId="data" isActive={sidebarActiveItem === "data"}>
             {renderLink("/data", "My Data", "data")}
           </NavItem>
+          <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
+            {renderLink("/shared", "Shared Data", "data")}
+          </NavItem>
+
           <NavExpandable
             title="Tags"
             buttonProps={{ className: styles["tags-expand"] }}
