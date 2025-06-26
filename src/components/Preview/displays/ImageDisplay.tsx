@@ -63,21 +63,32 @@ const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
 
   // Calculate image dimensions based on container size
   const imageStyles: React.CSSProperties = {
-    width: size ? `${size.width}px` : "100%",
-    height: "auto",
-    objectFit: "scale-down",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    objectFit: "contain",
+    display: "block",
+    margin: "auto",
     transition: "width 0.2s, height 0.2s",
   };
 
   return (
-    <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
+    <div
+      ref={containerRef}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        minHeight: 0,
+        minWidth: 0,
+      }}
+    >
       <img
         id={selectedFile?.data.fname || ""}
         src={url}
         alt={selectedFile?.data.fname}
-        onClick={(e) => e.preventDefault()} // Prevent default behavior on click
+        onClick={(e) => e.preventDefault()}
         onKeyDown={(e) => e.preventDefault()}
-        style={imageStyles} // Apply dynamic styles
+        style={imageStyles}
       />
     </div>
   );

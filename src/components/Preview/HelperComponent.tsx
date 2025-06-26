@@ -1,7 +1,7 @@
 import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant, Tooltip } from "@patternfly/react-core";
 import type { ReactNode } from "react";
-import ReactJson from "react-json-view";
+import ReactJson from "@microlink/react-json-view";
 import { Alert, Drawer } from "../Antd";
 import { SpinContainer } from "../Common";
 
