@@ -63,11 +63,6 @@ interface ColumnDefinition {
 
 const COLUMN_DEFINITIONS: ColumnDefinition[] = [
   {
-    id: "id",
-    label: "ID",
-    comparator: (a: Feed, b: Feed) => Number(a.data.id) - Number(b.data.id),
-  },
-  {
     id: "analysis",
     label: "Analysis",
     comparator: (a: Feed, b: Feed) => a.data.name.localeCompare(b.data.name),
