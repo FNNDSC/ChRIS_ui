@@ -6,6 +6,8 @@ import {
   PageSidebar,
   PageSidebarBody,
   Brand,
+  NavItemSeparator,
+  NavExpandable,
 } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
@@ -14,13 +16,21 @@ import { useAppSelector } from "../../store/hooks";
 import type { IUiState } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
+import styles from "./Sidebar.module.css";
+import type { FormEvent } from "react";
 
 type AllProps = IUiState & IUserState;
 
-const Sidebar: React.FC<AllProps> = () => {
+const Sidebar: React.FC<AllProps> = (props: AllProps) => {
   const queryClient = useQueryClient();
-  const { sidebarActiveItem, isNavOpen } = useAppSelector((state) => state.ui);
+  const { sidebarActiveItem, isNavOpen, isTagExpanded } = useAppSelector(
+    (state) => state.ui,
+  );
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+
+  const { onTagToggle } = props;
+
+  console.log(`Sidebar: isTagExpanded: ${isTagExpanded}`);
 
   const urlParam = isLoggedIn ? "private" : "public";
 
@@ -47,6 +57,22 @@ const Sidebar: React.FC<AllProps> = () => {
       </Link>
     );
 
+  const renderTags = () => {
+    return (
+      <>
+        <NavItem itemId="tag0" isActive={sidebarActiveItem === "tag0"}>
+          {renderLink("/tag", "(none)", "tag0")}
+        </NavItem>
+        <NavItem itemId="tag1" isActive={sidebarActiveItem === "tag1"}>
+          {renderLink("/tag/uploaded", "uploaded", "tag1")}
+        </NavItem>
+        <NavItem itemId="tag2" isActive={sidebarActiveItem === "tag2"}>
+          {renderLink("/tag/pacs", "pacs", "tag2")}
+        </NavItem>
+      </>
+    );
+  };
+
   const PageNav = (
     <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
       <NavList>
@@ -55,8 +81,19 @@ const Sidebar: React.FC<AllProps> = () => {
         </NavItem>
         <NavGroup title="Data">
           <NavItem itemId="data" isActive={sidebarActiveItem === "data"}>
-            {renderLink("/feeds", "Browse Data", "data")}
+            {renderLink("/data", "My Data", "data")}
           </NavItem>
+          <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
+            {renderLink("/shared", "Shared Data", "shared")}
+          </NavItem>
+          <NavExpandable
+            title="Tags"
+            buttonProps={{ className: styles["tags-expand"] }}
+            isExpanded={isTagExpanded}
+            onExpand={onTagToggle}
+          >
+            {renderTags()}
+          </NavExpandable>
           <NavItem
             itemId="uploadData"
             isActive={sidebarActiveItem === "uploadData"}
