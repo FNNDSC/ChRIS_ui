@@ -17,7 +17,6 @@ import type { IUiState } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
 import styles from "./Sidebar.module.css";
-import type { FormEvent } from "react";
 
 type AllProps = IUiState & IUserState;
 
