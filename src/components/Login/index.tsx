@@ -65,12 +65,17 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
           path: "/",
           maxAge: oneDayToSeconds,
         });
-        const client = ChrisAPIClient.getClient();
+
+        // Use the new method to ensure a fresh client is created with the correct token
+        const client = ChrisAPIClient.setClientWithToken(token);
+
         const user = await client.getUser();
         setCookie("isStaff", user.data.is_staff, {
           path: "/",
           maxAge: oneDayToSeconds,
         });
+
+        // Update Redux store after all cookies and client are set
         dispatch(
           setAuthTokenSuccess({
             token,

@@ -11,17 +11,36 @@ export interface IUserState {
   isStaff?: boolean;
 }
 
-const cookie = new Cookies();
-const user = cookie.get("username");
-const token = cookie.get(`${user}_token`);
-const isStaff = cookie.get("isStaff");
+// Improved cookie retrieval function that handles potential inconsistencies
+const getAuthStateFromCookies = () => {
+  const cookie = new Cookies();
+  const username = cookie.get("username");
+
+  // Only attempt to get token if username exists
+  let token = null;
+  if (username) {
+    token = cookie.get(`${username}_token`);
+  }
+
+  const isStaff = cookie.get("isStaff");
+  const isLoggedIn = !!(username && token);
+
+  return {
+    username,
+    token,
+    isStaff: !!isStaff,
+    isLoggedIn,
+  };
+};
+
+const cookieState = getAuthStateFromCookies();
 
 const initialState: IUserState = {
-  username: user,
-  token: token,
+  username: cookieState.username,
+  token: cookieState.token,
   isRememberMe: false,
-  isLoggedIn: !!token,
-  isStaff: !!isStaff,
+  isLoggedIn: cookieState.isLoggedIn,
+  isStaff: cookieState.isStaff,
 };
 
 const userSlice = createSlice({
