@@ -1,0 +1,10 @@
+.pf-v5-c-nav__section-title {
+    padding-block-start: var(--pf-v5-c-nav__section-title--PaddingTop);
+    padding-block-end: var(--pf-v5-c-nav__section-title--PaddingBottom);
+    padding-inline-start: var(--pf-v5-c-nav__section-title--PaddingLeft);
+    padding-inline-end: var(--pf-v5-c-nav__section-title--PaddingRight);
+    margin-block-end: var(--pf-v5-c-nav__section-title--MarginBottom);
+    font-size: var(--pf-v5-c-nav__section-title--FontSize);
+    color: #eeaa00;
+    border-block-end: var(--pf-v5-c-nav__section-title--BorderBottomWidth) solid var(--pf-v5-c-nav__section-title--BorderBottomColor);
+}
