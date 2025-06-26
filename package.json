@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
+    "start": "pnpm run dev:local",
     "dev": "pnpm run dev:local",
     "dev:local": "pnpm run test:prepare && vite",
     "dev:public": "vite -c testing/publicCUBE/vite.config.ts",

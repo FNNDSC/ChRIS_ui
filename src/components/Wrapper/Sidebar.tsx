@@ -39,10 +39,12 @@ const Sidebar: React.FC<AllProps> = () => {
   };
 
   const renderLink = (to: string, label: string, itemId: string) =>
-    sidebarActiveItem === itemId && sidebarActiveItem !== "analyses" ? (
-      <span style={{ color: "gray" }}>{label}</span>
+    sidebarActiveItem === itemId ? (
+      <span style={{ color: "#ffffff" }}>{label}</span>
     ) : (
-      <Link to={to}>{label}</Link>
+      <Link to={to}>
+        <span style={{ color: "#aaaaaa" }}>{label}</span>
+      </Link>
     );
 
   const PageNav = (
@@ -53,7 +55,7 @@ const Sidebar: React.FC<AllProps> = () => {
         </NavItem>
         <NavGroup title="Data">
           <NavItem itemId="data" isActive={sidebarActiveItem === "data"}>
-            {renderLink(`/feeds?type=${urlParam}`, "Browse Data", "data")}
+            {renderLink("/feeds", "Browse Data", "data")}
           </NavItem>
           <NavItem
             itemId="uploadData"
