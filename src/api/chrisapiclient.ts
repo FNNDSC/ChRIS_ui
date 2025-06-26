@@ -21,22 +21,22 @@ class ChrisAPIClient {
     const user = cookie.get("username");
     const token: string = cookie.get(`${user}_token`);
 
-    // Return existing client if it exists and was created with the same token
-    if (
-      ChrisAPIClient.client &&
-      ((token && token === ChrisAPIClient.lastCreatedWith) ||
-        (!token && !ChrisAPIClient.lastCreatedWith))
-    ) {
+    // If client exists but token has changed, just update the auth token
+    if (ChrisAPIClient.client && token !== ChrisAPIClient.lastCreatedWith) {
+      // Update the token on the existing client
+      ChrisAPIClient.client.auth = token;
+      // Update the stored token
+      ChrisAPIClient.lastCreatedWith = token;
       return ChrisAPIClient.client;
     }
 
-    // Create new client with current token
-    ChrisAPIClient.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
-      token,
-    });
-
-    // Remember what token was used to create this client
-    ChrisAPIClient.lastCreatedWith = token;
+    // Create new client if it doesn't exist yet
+    if (!ChrisAPIClient.client) {
+      ChrisAPIClient.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
+        token,
+      });
+      ChrisAPIClient.lastCreatedWith = token;
+    }
 
     return ChrisAPIClient.client;
   }
