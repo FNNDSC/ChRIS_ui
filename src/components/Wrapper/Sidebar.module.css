@@ -1,0 +1,16 @@
+.nav-group {
+    font-weight: 800;
+}
+
+.tags-expand {
+    color: #aaa;
+    font-size: var(--pf-v5-c-nav__link--FontSize);
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    padding-inline-start: var(--pf-v5-c-nav__link--PaddingLeft);
+    padding-inline-end: var(--pf-v5-c-nav__link--PaddingRight);
+    background-color: var(--pf-v5-c-nav__link--BackgroundColor);
+    border: none;
+    font-weight: 400;
+}

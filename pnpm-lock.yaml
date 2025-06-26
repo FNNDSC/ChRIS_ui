@@ -31,10 +31,10 @@ importers:
         version: 0.47.0
       '@patternfly/react-charts':
         specifier: ^7.4.0
-        version: 7.4.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.4.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-core':
         specifier: ^5.4.0
-        version: 5.4.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.4.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-icons':
         specifier: ^5.4.0
         version: 5.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -46,7 +46,7 @@ importers:
         version: 5.4.1
       '@patternfly/react-table':
         specifier: ^5.4.0
-        version: 5.4.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 5.4.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-hook/resize-observer':
         specifier: ^2.0.2
         version: 2.0.2(react@18.3.1)
@@ -1307,14 +1307,14 @@ packages:
     resolution: {integrity: sha512-T8TbSnGsxo6TDBJx/Sgv/BlVJL3tshxZP7Aq5R1mSnM5OcHY2dQaxLMu2+E8u3gN0MLOzdjurqN4ZRVuzQycOQ==}
     engines: {node: '>=8.0'}
 
-  '@patternfly/react-charts@7.4.8':
-    resolution: {integrity: sha512-Rv2ajbb7kmwcrZIolcaH8RzIMx3+6ldtJlKQoChmNggXGgKFtg3/QBlc9Qj+14LW0LSQ12ZprmRvHZ/Viyq+Qw==}
+  '@patternfly/react-charts@7.4.9':
+    resolution: {integrity: sha512-kFnl4al8A5rRyvp13xpPhP4fnIhpAr3KQzAJEfznk2JdrYMnKmNdxF3HH8KHplwH5gG4nmUWzX60lpNaFKn1/A==}
     peerDependencies:
       react: ^17 || ^18
       react-dom: ^17 || ^18
 
-  '@patternfly/react-core@5.4.12':
-    resolution: {integrity: sha512-RI1xS1JGJdE/FvpkMzawaE21oeTc/e+WbxvFXqZfLhTz60P8RzVG1nYWXDL747Onkz3SYtY79PhQ8nsLeO5sJQ==}
+  '@patternfly/react-core@5.4.14':
+    resolution: {integrity: sha512-oXVMzLs9Pa+xmdc39L2u05zbXfY3mWuOFi4GDv44GPdDexZUFy5W69+Nv5P8cwfMim55Nf5kKYpcqmatD2bBXw==}
     peerDependencies:
       react: ^17 || ^18
       react-dom: ^17 || ^18
@@ -1334,8 +1334,8 @@ packages:
   '@patternfly/react-styles@5.4.1':
     resolution: {integrity: sha512-XA8PXksD8uiA3RTwxdUwJXOCf+V6sVd+2HKapWAdRLvtSV+Sdk7NgCvalb4IAQncsddLopjPQD8gAHA298+N8w==}
 
-  '@patternfly/react-table@5.4.14':
-    resolution: {integrity: sha512-F2EXhn3wURDFs5mOQQtYSQ1ltvPwN1n/5Iv2WgSehCkw9GzpcJlT7h8t+rnf59ZiWsRjhCFqUOU9l8APnM2+rA==}
+  '@patternfly/react-table@5.4.16':
+    resolution: {integrity: sha512-K/xNdTvFKFyD6WhuBU/GCq/3LTrSaObdXSTmzefWWcPcN0gcf/J3ouiuapj951JIsP13CMmwJBNtEa3aHR8igg==}
     peerDependencies:
       react: ^17 || ^18
       react-dom: ^17 || ^18
@@ -5491,7 +5491,7 @@ snapshots:
 
   '@oozcitak/util@8.3.8': {}
 
-  '@patternfly/react-charts@7.4.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@patternfly/react-charts@7.4.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@patternfly/react-styles': 5.4.1
       '@patternfly/react-tokens': 5.4.1
@@ -5518,7 +5518,7 @@ snapshots:
       victory-voronoi-container: 37.3.6(react@18.3.1)
       victory-zoom-container: 37.3.6(react@18.3.1)
 
-  '@patternfly/react-core@5.4.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@patternfly/react-core@5.4.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@patternfly/react-icons': 5.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-styles': 5.4.1
@@ -5536,7 +5536,7 @@ snapshots:
 
   '@patternfly/react-log-viewer@5.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@patternfly/react-core': 5.4.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@patternfly/react-core': 5.4.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-icons': 5.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-styles': 5.4.1
       memoize-one: 5.2.1
@@ -5545,9 +5545,9 @@ snapshots:
 
   '@patternfly/react-styles@5.4.1': {}
 
-  '@patternfly/react-table@5.4.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@patternfly/react-table@5.4.16(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@patternfly/react-core': 5.4.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@patternfly/react-core': 5.4.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-icons': 5.4.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@patternfly/react-styles': 5.4.1
       '@patternfly/react-tokens': 5.4.1
