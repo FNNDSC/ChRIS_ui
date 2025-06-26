@@ -73,20 +73,22 @@ export const MainRouter: React.FC = () => {
   const routeToSidebarItem: Record<string, string> = {
     "/": "overview",
     "library/*": "lib",
-    "feeds/*": "analyses",
-    "feeds/:id": "analyses",
-    "plugin/:id": "catalog",
+    "data/*": "data",
+    "data/:id": "data",
+    "package/:id": "package",
+    "shared/*": "shared",
     pacs: "pacs",
     login: "login",
     signup: "signup",
-    pipelines: "pipelines",
-    catalog: "catalog",
-    compute: "compute",
-    "dataset/:feedName?": "dataset",
+    package: "package",
     "niivue/:plinstId": "niivue",
     store: "store",
     "install/*": "install",
     "*": "notFound",
+
+    tag: "tag0",
+    "tag/uploaded": "tag1",
+    "tag/pacs": "tag2",
   };
 
   const matchRoute = (path: string) => {
@@ -140,20 +142,20 @@ export const MainRouter: React.FC = () => {
     },
 
     {
-      path: "feeds/*",
+      path: "data/*",
       element: (
         <RouterProvider
           {...{ actions, state, route, setRoute }}
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedsListView />
+            <FeedsListView title="My Data" isShared={false} />
           </OperationsProvider>
         </RouterProvider>
       ),
     },
     {
-      path: "feeds/:id",
+      path: "data/:id",
       element: (
         <RouterProvider
           {...{ actions, state, route, setRoute }}
@@ -161,6 +163,19 @@ export const MainRouter: React.FC = () => {
         >
           <OperationsProvider>
             <FeedView />
+          </OperationsProvider>
+        </RouterProvider>
+      ),
+    },
+    {
+      path: "shared/*",
+      element: (
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <OperationsProvider>
+            <FeedsListView title="Shared Data" isShared={true} />
           </OperationsProvider>
         </RouterProvider>
       ),
