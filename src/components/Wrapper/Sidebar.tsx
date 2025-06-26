@@ -109,9 +109,6 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
           <NavItem itemId="data" isActive={sidebarActiveItem === "data"}>
             {renderLink("/data", "My Data", "data")}
           </NavItem>
-          <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
-            {renderLink("/shared", "Shared Data", "shared")}
-          </NavItem>
           <NavExpandable
             title="Tags"
             buttonProps={{ className: styles["tags-expand"] }}
@@ -182,23 +179,13 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
           >
             <Link to="/">Overview</Link>
           </NavItem>
-          <NavItem
-            itemId="analyses"
-            isActive={sidebarActiveItem === "analyses"}
-          >
-            <Link to="/feeds?type=public">New and Existing Analyses</Link>
+          <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
+            <Link to="/shared">Shared Data</Link>
           </NavItem>
-          <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            <Link to="/catalog">Installed Plugins</Link>
+
+          <NavItem itemId="package" isActive={sidebarActiveItem === "package"}>
+            <Link to="/catalog">Browse Packages</Link>
           </NavItem>
-          <NavItem itemId="dataset" isActive={sidebarActiveItem === "dataset"}>
-            <Link to="/dataset">Volume View</Link>
-          </NavItem>
-          {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
-            <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
-              <Link to="/store">Store</Link>
-            </NavItem>
-          )}
         </NavGroup>
       </NavList>
     </Nav>
