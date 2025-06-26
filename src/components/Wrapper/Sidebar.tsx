@@ -184,7 +184,7 @@ const AnonSidebarImpl: React.FC<AllProps> = ({
           </NavItem>
 
           <NavItem itemId="package" isActive={sidebarActiveItem === "package"}>
-            <Link to="/catalog">Browse Packages</Link>
+            <Link to="/package">Browse Packages</Link>
           </NavItem>
         </NavGroup>
       </NavList>
