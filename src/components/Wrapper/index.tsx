@@ -1,10 +1,11 @@
 import { Page } from "@patternfly/react-core";
 import type * as React from "react";
+import { useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import Header from "./Header";
 import Sidebar, { AnonSidebar } from "./Sidebar";
 import "./wrapper.css";
-import { setIsNavOpen } from "../../store/ui/uiSlice";
+import { setIsNavOpen, setIsTagExpanded } from "../../store/ui/uiSlice";
 
 type WrapperProps = {
   children: React.ReactElement[] | React.ReactElement;
@@ -14,11 +15,19 @@ type WrapperProps = {
 const Wrapper = (props: WrapperProps) => {
   const { children, titleComponent } = props;
   const dispatch = useAppDispatch();
-  const { isNavOpen, sidebarActiveItem } = useAppSelector((state) => state.ui);
+  const { isNavOpen, sidebarActiveItem, isTagExpanded } = useAppSelector(
+    (state) => state.ui,
+  );
   const user = useAppSelector((state) => state.user);
   const niivueActive = sidebarActiveItem === "niivue";
   const onNavToggle = () => {
     dispatch(setIsNavOpen(!isNavOpen));
+  };
+  const onTagToggle = (e: React.FormEvent) => {
+    console.info(
+      `onTagToggle: to setIsTagExpanded: ${!isTagExpanded} e: ${e.target}`,
+    );
+    dispatch(setIsTagExpanded(!isTagExpanded));
   };
 
   const onPageResize = (
@@ -37,9 +46,17 @@ const Wrapper = (props: WrapperProps) => {
 
   const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const sidebar = isLoggedIn ? (
-    <Sidebar isNavOpen={isNavOpen} />
+    <Sidebar
+      isNavOpen={isNavOpen}
+      isTagExpanded={isTagExpanded}
+      onTagToggle={onTagToggle}
+    />
   ) : (
-    <AnonSidebar isNavOpen={isNavOpen} />
+    <AnonSidebar
+      isNavOpen={isNavOpen}
+      isTagExpanded={isTagExpanded}
+      onTagToggle={onTagToggle}
+    />
   );
 
   return (

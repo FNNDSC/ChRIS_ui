@@ -90,13 +90,20 @@ const COLUMN_DEFINITIONS: ColumnDefinition[] = [
   },
 ];
 
-const TableSelectable: React.FC = () => {
+interface Props {
+  title: string;
+  isShared: boolean;
+}
+
+const TableSelectable = (props: Props) => {
+  const { title, isShared } = props;
   const navigate = useNavigate();
   const { feedCount, loadingFeedState, feedsToDisplay, searchFolderData } =
     useFeedListData();
 
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
-  const { perPage, page, type, search, searchType } = searchFolderData;
+  const { perPage, page, search, searchType } = searchFolderData;
+  const theType = isShared ? "public" : "private";
 
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [activeSortDirection, setActiveSortDirection] =
@@ -151,7 +158,7 @@ const TableSelectable: React.FC = () => {
     newPage: number,
   ) => {
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}&type=${type}`,
+      `?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${perPage}`,
     );
   };
 
@@ -167,7 +174,7 @@ const TableSelectable: React.FC = () => {
     newPage: number,
   ) => {
     navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}&type=${type}`,
+      `?search=${search}&searchType=${searchType}&page=${newPage}&perPage=${newPerPage}`,
     );
   };
 
@@ -177,30 +184,19 @@ const TableSelectable: React.FC = () => {
    * @param searchType - Search type
    */
   const handleFilterChange = debounce((search: string, searchType: string) => {
-    navigate(`/feeds?search=${search}&searchType=${searchType}&type=${type}`);
+    navigate(`?search=${search}&searchType=${searchType}`);
   });
-
-  /**
-   * Handle example type changes
-   * @param event - Event object
-   */
-  const onExampleTypeChange: ToggleGroupItemProps["onChange"] = (event) => {
-    const id = event.currentTarget.id;
-    navigate(
-      `/feeds?search=${search}&searchType=${searchType}&page=1&perPage=${perPage}&type=${id}`,
-    );
-  };
 
   /**
    * Redirect to public feeds if user is not logged in and type is private
    */
   useEffect(() => {
-    if (!type || (!isLoggedIn && type === "private")) {
+    if (!theType || (!isLoggedIn && theType === "private")) {
       navigate(
-        `/feeds?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}&type=public`,
+        `/shared?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}`,
       );
     }
-  }, [isLoggedIn, navigate, perPage, page, searchType, search, type]);
+  }, [isLoggedIn, navigate, perPage, page, searchType, search, theType]);
 
   /**
    * Generate pagination component
@@ -237,7 +233,7 @@ const TableSelectable: React.FC = () => {
 
   const TitleComponent = (
     <InfoSection
-      title={`New and Existing Analyses (${feedCountText})`}
+      title={`${title} (${feedCountText})`}
       content="Analyses (aka ChRIS feeds) are computational experiments where data
       are organized and processed by ChRIS plugins. In this view, you may
       view your analyses and also the ones shared with you."
@@ -262,42 +258,9 @@ const TableSelectable: React.FC = () => {
             />
           </div>
           {generatePagination(feedCount)}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <ToggleGroup
-              style={{ marginRight: "0.5em" }}
-              aria-label="Default with single selectable"
-            >
-              <ToggleGroupItem
-                text="Private Feeds"
-                buttonId="private"
-                isSelected={type === "private"}
-                onChange={onExampleTypeChange}
-                isDisabled={!isLoggedIn}
-              />
-              <ToggleGroupItem
-                text="Public Feeds"
-                buttonId="public"
-                isSelected={type === "public"}
-                onChange={onExampleTypeChange}
-              />
-            </ToggleGroup>
-            <CreateFeedProvider>
-              <PipelineProvider>
-                <AddNodeProvider>
-                  <CreateFeed />
-                </AddNodeProvider>
-              </PipelineProvider>
-            </CreateFeedProvider>
-          </div>
         </div>
 
-        {isLoggedIn && (
+        {/*isLoggedIn && (
           <Operations
             origin={{
               type: OperationContext.FEEDS,
@@ -313,7 +276,7 @@ const TableSelectable: React.FC = () => {
               },
             }}
           />
-        )}
+        )*/}
       </PageSection>
       <PageSection style={{ paddingBlockStart: "0.5em" }}>
         {loadingFeedState ? (
@@ -341,8 +304,8 @@ const TableSelectable: React.FC = () => {
                   feed={feed}
                   rowIndex={rowIndex}
                   allFeeds={feedsToDisplay}
-                  type={type}
-                  additionalKeys={[perPage, page, type, search, searchType]}
+                  type={theType}
+                  additionalKeys={[perPage, page, theType, search, searchType]}
                 />
               ))}
             </Tbody>

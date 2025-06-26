@@ -1,14 +1,20 @@
+import type { NavExpandable } from "@patternfly/react-core";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { FormEvent, MutableRefObject } from "react";
 
 // Description: state for UI Manager
 export interface IUiState {
   isNavOpen?: boolean;
   sidebarActiveItem?: string;
+  isTagExpanded: boolean;
+  onTagToggle: (e: FormEvent) => void;
 }
 
 const initialState: IUiState = {
   sidebarActiveItem: "overview",
   isNavOpen: true, // default
+  isTagExpanded: false,
+  onTagToggle: () => {},
 };
 
 const uiSlice = createSlice({
@@ -21,9 +27,13 @@ const uiSlice = createSlice({
     setSidebarActive(state, action: PayloadAction<{ activeItem: string }>) {
       state.sidebarActiveItem = action.payload.activeItem;
     },
+    setIsTagExpanded(state, action: PayloadAction<boolean>) {
+      state.isTagExpanded = action.payload;
+    },
   },
 });
 
-export const { setIsNavOpen, setSidebarActive } = uiSlice.actions;
+export const { setIsNavOpen, setSidebarActive, setIsTagExpanded } =
+  uiSlice.actions;
 
 export default uiSlice.reducer;
