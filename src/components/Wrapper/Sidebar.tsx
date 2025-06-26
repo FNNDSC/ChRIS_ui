@@ -98,30 +98,27 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             itemId="uploadData"
             isActive={sidebarActiveItem === "uploadData"}
           >
-            {renderLink("/library", "Upload Data", "uploadData")}
+            {renderLink("/upload", "Upload Data", "uploadData")}
           </NavItem>
           <NavItem
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
-            {renderLink(`/feeds?type=${urlParam}`, "New Analysis", "analyses")}
+            {renderLink("/new", "New Analysis", "analyses")}
           </NavItem>
           <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
             {renderLink("/pacs", "Retrieve PACS", "pacs")}
           </NavItem>
         </NavGroup>
         <NavGroup title="Packages">
-          <NavItem itemId="catalog" isActive={sidebarActiveItem === "catalog"}>
-            {renderLink("/catalog", "Browse Packages", "catalog")}
+          <NavItem itemId="package" isActive={sidebarActiveItem === "package"}>
+            {renderLink("/package", "Browse Packages", "catalog")}
           </NavItem>
-          <NavItem itemId="compute" isActive={sidebarActiveItem === "compute"}>
-            {renderLink("/compute", "Import Package", "compute")}
+          <NavItem itemId="import" isActive={sidebarActiveItem === "import"}>
+            {renderLink("/import", "Import Package", "import")}
           </NavItem>
-          <NavItem
-            itemId="pipelines"
-            isActive={sidebarActiveItem === "pipelines"}
-          >
-            {renderLink("/pipelines", "Compose Package", "pipelines")}
+          <NavItem itemId="compose" isActive={sidebarActiveItem === "compose"}>
+            {renderLink("/compose", "Compose Package", "compose")}
           </NavItem>
           {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
