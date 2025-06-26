@@ -110,7 +110,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             {renderLink("/data", "My Data", "data")}
           </NavItem>
           <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
-            {renderLink("/shared", "Shared Data", "data")}
+            {renderLink("/shared", "Shared Data", "shared")}
           </NavItem>
 
           <NavExpandable
