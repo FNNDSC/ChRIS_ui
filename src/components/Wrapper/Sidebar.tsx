@@ -6,7 +6,6 @@ import {
   PageSidebar,
   PageSidebarBody,
   Brand,
-  NavItemSeparator,
   NavExpandable,
 } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,6 +18,10 @@ import brandImg from "../../assets/logo_chris_dashboard.png";
 import styles from "./Sidebar.module.css";
 
 type AllProps = IUiState & IUserState;
+
+type TagInfo = {
+  title?: string;
+};
 
 const Sidebar: React.FC<AllProps> = (props: AllProps) => {
   const queryClient = useQueryClient();
@@ -56,20 +59,44 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
       </Link>
     );
 
-  const renderTags = () => {
+  const renderTag = (tag: TagInfo, idx: number) => {
+    if (typeof tag.title === "undefined") {
+      return (
+        <NavItem itemId="tag-more" onClick={onTagToggle}>
+          <span style={{ color: "#aaaaaa" }}>(more)</span>
+        </NavItem>
+      );
+    }
+
+    const tagIdx = `tag${idx}`;
+
+    const tagLink = tag.title === "(none)" ? "" : `/${tag.title}`;
+
     return (
-      <>
-        <NavItem itemId="tag0" isActive={sidebarActiveItem === "tag0"}>
-          {renderLink("/tag", "(none)", "tag0")}
-        </NavItem>
-        <NavItem itemId="tag1" isActive={sidebarActiveItem === "tag1"}>
-          {renderLink("/tag/uploaded", "uploaded", "tag1")}
-        </NavItem>
-        <NavItem itemId="tag2" isActive={sidebarActiveItem === "tag2"}>
-          {renderLink("/tag/pacs", "pacs", "tag2")}
-        </NavItem>
-      </>
+      <NavItem itemId={tagIdx} isActive={sidebarActiveItem === tagIdx}>
+        {renderLink(`/tag${tagLink}`, tag.title, tagIdx)}
+      </NavItem>
     );
+  };
+
+  const renderTags = () => {
+    const tagList: TagInfo[] = [
+      { title: "(none)" },
+      { title: "uploaded" },
+      { title: "pacs" },
+    ];
+    if (!isTagExpanded) {
+      tagList.push({});
+    }
+
+    console.info(
+      "renderTags: isTagExpanded:",
+      isTagExpanded,
+      "tagList",
+      tagList,
+    );
+
+    return <>{tagList.map((each, idx) => renderTag(each, idx))}</>;
   };
 
   const PageNav = (
@@ -88,8 +115,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
           <NavExpandable
             title="Tags"
             buttonProps={{ className: styles["tags-expand"] }}
-            isExpanded={isTagExpanded}
-            onExpand={onTagToggle}
+            isExpanded={true}
           >
             {renderTags()}
           </NavExpandable>
