@@ -1,6 +1,6 @@
 import { Text } from "@patternfly/react-core";
 import React, { useState, useContext, useEffect, useRef } from "react";
-import ReactJSON from "react-json-view";
+import ReactJSON from "@microlink/react-json-view";
 import type { IFileBlob } from "../../../api/model";
 import { ThemeContext } from "../../DarkTheme/useTheme";
 
