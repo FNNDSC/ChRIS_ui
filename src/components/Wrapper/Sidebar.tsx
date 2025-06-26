@@ -114,17 +114,14 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
           <NavItem itemId="package" isActive={sidebarActiveItem === "package"}>
             {renderLink("/package", "Browse Packages", "catalog")}
           </NavItem>
-          <NavItem itemId="import" isActive={sidebarActiveItem === "import"}>
-            {renderLink("/import", "Import Package", "import")}
-          </NavItem>
+          {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
+            <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
+              {renderLink("/import", "Import Package", "store")}
+            </NavItem>
+          )}
           <NavItem itemId="compose" isActive={sidebarActiveItem === "compose"}>
             {renderLink("/compose", "Compose Package", "compose")}
           </NavItem>
-          {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
-            <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
-              {renderLink("/store", "Store", "store")}
-            </NavItem>
-          )}
         </NavGroup>
       </NavList>
     </Nav>
