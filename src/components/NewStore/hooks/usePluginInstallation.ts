@@ -112,8 +112,9 @@ export const usePluginInstallation = (): PluginInstallationState => {
 
         notification.success({
           message: "Success",
-          description: `Installed plugin ${plugin.title} to ${plugin.url || ""}`,
+          description: `Installed plugin ${plugin.name}: ${plugin.version}`,
           placement: "bottomRight",
+          duration: 3,
         });
         updatePluginRefreshCounter(plugin.id);
       } catch (err: any) {
@@ -122,6 +123,7 @@ export const usePluginInstallation = (): PluginInstallationState => {
           message: "Installation failed",
           description: err?.message || "Installation failed",
           placement: "bottomRight",
+          duration: 3,
         });
       }
     },
@@ -159,6 +161,7 @@ export const usePluginInstallation = (): PluginInstallationState => {
           message: "Success",
           description: `Updated compute resources for plugin ${plugin.data.name}.`,
           placement: "bottomRight",
+          duration: 3,
         });
         updatePluginRefreshCounter(plugin.data.id);
       } catch (err) {
@@ -167,6 +170,7 @@ export const usePluginInstallation = (): PluginInstallationState => {
           message: "Error",
           description: `Failed to update compute resources for ${plugin.data.name}.`,
           placement: "bottomRight",
+          duration: 3,
         });
       }
     },
@@ -221,14 +225,17 @@ export const usePluginInstallation = (): PluginInstallationState => {
           // Show success notification
           notification.success({
             message: "Success",
-            description: `Installed plugin ${plugin.title}.`,
+            description: `Installed plugin ${plugin.title} to ${plugin.url || ""}`,
             placement: "bottomRight",
+            duration: 3,
           });
         } catch (err: any) {
+          console.error(err);
           notification.error({
             message: "Installation failed",
             description: `Failed to install ${plugin.title}: ${err?.message || ""}`,
             placement: "bottomRight",
+            duration: 3,
           });
         }
       });
