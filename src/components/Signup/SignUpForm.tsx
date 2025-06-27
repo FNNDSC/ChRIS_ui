@@ -1,4 +1,5 @@
 import ChrisApiClient, { type User } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   ActionGroup,
   Alert,
@@ -133,6 +134,9 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             path: "/",
             maxAge: oneDayToSeconds,
           });
+          // Initialize the ChrisAPIClient with the new token
+          // This ensures that subsequent API calls are properly authenticated
+          ChrisAPIClient.setClientWithToken(token);
           dispatch(
             setAuthTokenSuccess({
               token,
