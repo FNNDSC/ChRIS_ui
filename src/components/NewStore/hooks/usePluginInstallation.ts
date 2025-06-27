@@ -6,7 +6,6 @@
 
 import { useState, useCallback } from "react";
 import { notification } from "antd";
-import type { Plugin } from "@fnndsc/chrisapi";
 import type { ComputeResource } from "@fnndsc/chrisapi";
 import type { StorePlugin } from "./useFetchPlugins";
 import { handleInstallPlugin } from "../../PipelinesCopy/utils";
@@ -37,7 +36,7 @@ interface PluginInstallationState {
   ) => Promise<void>;
   /** Handle modification of compute resources for an existing plugin */
   handleModify: (
-    plugin: Plugin,
+    plugin: StorePlugin,
     resources: ComputeResource[],
     authHeader: string,
   ) => Promise<void>;
@@ -99,17 +98,14 @@ export const usePluginInstallation = (): PluginInstallationState => {
       authHeader: string,
     ) => {
       try {
-        // Important: Include plugin_store_url directly as the API requires it
         const pluginAdapter = {
           name: plugin.name,
           version: plugin.version,
-          // Provide plugin_store_url directly instead of relying on url mapping
           url: plugin.url,
         };
 
         // Fixed parameter order to match handleInstallPlugin function definition
         await handleInstallPlugin(authHeader, pluginAdapter, resources);
-
         notification.success({
           message: "Success",
           description: `Installed plugin ${plugin.name}: ${plugin.version}`,
@@ -145,30 +141,30 @@ export const usePluginInstallation = (): PluginInstallationState => {
    */
   const handleModify = useCallback(
     async (
-      plugin: Plugin,
+      plugin: StorePlugin,
       resources: ComputeResource[],
       authHeader: string,
     ) => {
       try {
         await postModifyComputeResource(
-          plugin.data.name,
-          plugin.data.version,
+          plugin.name,
+          plugin.version,
           resources.map((r) => r.data.name),
           authHeader,
-          plugin.collection.items[0].href,
+          plugin.url,
         );
         notification.success({
           message: "Success",
-          description: `Updated compute resources for plugin ${plugin.data.name}.`,
+          description: `Updated compute resources for plugin ${plugin.name}: ${plugin.version}.`,
           placement: "bottomRight",
           duration: 3,
         });
-        updatePluginRefreshCounter(plugin.data.id);
+        updatePluginRefreshCounter(plugin.id);
       } catch (err) {
         console.error(err);
         notification.error({
           message: "Error",
-          description: `Failed to update compute resources for ${plugin.data.name}.`,
+          description: `Failed to update compute resources for ${plugin.name}.`,
           placement: "bottomRight",
           duration: 3,
         });
@@ -225,15 +221,14 @@ export const usePluginInstallation = (): PluginInstallationState => {
           // Show success notification
           notification.success({
             message: "Success",
-            description: `Installed plugin ${plugin.title} to ${plugin.url || ""}`,
+            description: `Installed plugin ${plugin.name}: ${plugin.version}`,
             placement: "bottomRight",
             duration: 3,
           });
         } catch (err: any) {
-          console.error(err);
           notification.error({
             message: "Installation failed",
-            description: `Failed to install ${plugin.title}: ${err?.message || ""}`,
+            description: `Failed to install ${plugin.name}: ${err?.message || ""}`,
             placement: "bottomRight",
             duration: 3,
           });

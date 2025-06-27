@@ -34,14 +34,11 @@ const postModifyComputeResource = async (
 
   const computeResourceList = resourceNames.join(",");
 
-  // Extract the base URL from the store URL to build plugin store URL
-  const storeBaseUrl = storeUrl.substring(0, storeUrl.indexOf("/plugins/"));
-
   const pluginData = {
     compute_names: computeResourceList,
     name: pluginName,
     version: version,
-    plugin_store_url: `${storeBaseUrl}/`,
+    plugin_store_url: storeUrl,
   };
 
   const response = await axios.post(adminURL, pluginData, {
