@@ -120,6 +120,13 @@ const Store: React.FC = () => {
     DEFAULT_SEARCH_FIELD,
   );
 
+  /** Use Infinite Scroll */
+  const observerTarget = useRef<HTMLDivElement | null>(null);
+  useInfiniteScroll(observerTarget, {
+    fetchNextPage,
+    hasNextPage,
+  });
+
   /** Fetch available compute resources */
   const { data: computeList } = useComputeResources(isLoggedIn);
 
@@ -280,9 +287,6 @@ const Store: React.FC = () => {
   /** Determine if the Install All button should be shown */
   const showInstallAll =
     isLoggedIn && searchTerm.trim() !== "" && rawPlugins.length > 0;
-
-  /** Reference for infinite scroll observer */
-  const observerTarget = useRef<HTMLDivElement | null>(null);
 
   return (
     <>
