@@ -211,8 +211,7 @@ export const usePluginInstallation = (): PluginInstallationState => {
           const pluginAdapter = {
             name: plugin.name,
             version: plugin.version,
-            // Provide plugin_store_url directly instead of relying on url mapping
-            plugin_store_url: plugin.url,
+            url: plugin.url,
           };
 
           // Install the plugin with fixed parameter order
@@ -226,7 +225,6 @@ export const usePluginInstallation = (): PluginInstallationState => {
             placement: "bottomRight",
           });
         } catch (err: any) {
-          console.error(err);
           notification.error({
             message: "Installation failed",
             description: `Failed to install ${plugin.title}: ${err?.message || ""}`,
