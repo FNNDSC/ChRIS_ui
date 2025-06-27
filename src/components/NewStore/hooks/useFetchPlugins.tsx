@@ -46,16 +46,17 @@ export function useFetchPlugins(
 }
 
 export const aggregatePlugins = (plugins: StorePlugin[]): StorePlugin[] => {
-  const pluginMap: Record<string, StorePlugin> = {};
+  // Map key ➜ “canonical” plugin (with list)
+  const byName = new Map<string, StorePlugin>();
 
-  plugins.forEach((plugin) => {
-    const pluginName = plugin.name;
-    if (!pluginMap[pluginName]) {
-      pluginMap[pluginName] = { ...plugin, pluginsList: [plugin] };
+  for (const plugin of plugins) {
+    const entry = byName.get(plugin.name);
+    if (entry) {
+      entry.pluginsList!.push(plugin);
     } else {
-      pluginMap[pluginName].pluginsList?.push(plugin);
+      byName.set(plugin.name, { ...plugin, pluginsList: [plugin] });
     }
-  });
+  }
 
-  return Object.values(pluginMap);
+  return Array.from(byName.values());
 };
