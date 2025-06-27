@@ -149,7 +149,7 @@ const Store: React.FC = () => {
     [data],
   );
 
-  /** Aggregated plugins with duplicates processed */
+  /** Aggregated plugins with different versions for the same plugin processed */
   const allPlugins: StorePlugin[] = useMemo(
     () => aggregatePlugins(rawPlugins),
     [rawPlugins],
@@ -164,8 +164,27 @@ const Store: React.FC = () => {
    */
   const installAllPlugins = useCallback(() => {
     if (allPlugins.length > 0) {
+      // Create a map of plugins that respects user's version selections
+      const pluginsToInstall = allPlugins.map((plugin) => {
+        // Check if there's a selected version for this plugin
+        const versionSelection = selection.getSelectedVersion(plugin.id);
+
+        if (versionSelection) {
+          // Find the selected plugin version from the plugin list
+          const selectedVersionPlugin = plugin.pluginsList.find(
+            (p: StorePlugin) => p.id === versionSelection.pluginId,
+          );
+
+          // If we found the selected version, use it; otherwise use the default
+          return selectedVersionPlugin;
+        }
+
+        // No selection, use the default (current) plugin
+        return plugin;
+      });
+
       installation.installAllPlugins(
-        allPlugins,
+        pluginsToInstall,
         (pluginId) =>
           selection.getResourcesForPlugin(pluginId, defaultResource),
         (plugin, resources) =>
@@ -244,21 +263,26 @@ const Store: React.FC = () => {
     [selection],
   );
 
+  /**
+   * Track version selections for each plugin
+   *
+   * @param {string} pluginId - Plugin identifier (parent plugin)
+   * @param {string} selectedPluginId - Selected plugin version ID
+   * @param {string} version - Selected version string
+   */
+  const handleVersionChange = useCallback(
+    (pluginId: string, selectedPluginId: string, version: string) => {
+      selection.handleVersionChange(pluginId, selectedPluginId, version);
+    },
+    [selection],
+  );
+
   /** Determine if the Install All button should be shown */
   const showInstallAll =
     isLoggedIn && searchTerm.trim() !== "" && rawPlugins.length > 0;
 
   /** Reference for infinite scroll observer */
   const observerTarget = useRef<HTMLDivElement | null>(null);
-
-  /** Set up infinite scroll */
-  useInfiniteScroll(observerTarget, { fetchNextPage, hasNextPage });
-
-  /**
-   * ==========================================
-   * RENDERING
-   * ==========================================
-   */
 
   return (
     <>
@@ -337,6 +361,7 @@ const Store: React.FC = () => {
                     onInstall={handleInstall}
                     onModify={handleModify}
                     onResourcesChange={handleResourcesChange}
+                    onVersionChange={handleVersionChange}
                     refreshMap={installation.refreshMap}
                   />
                 </GridItem>
