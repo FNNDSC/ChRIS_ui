@@ -5,7 +5,11 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import Header from "./Header";
 import Sidebar, { AnonSidebar } from "./Sidebar";
 import "./wrapper.css";
-import { setIsNavOpen, setIsTagExpanded } from "../../store/ui/uiSlice";
+import {
+  setIsNavOpen,
+  setIsTagExpanded,
+  setIsPackageTagExpanded,
+} from "../../store/ui/uiSlice";
 
 type WrapperProps = {
   children: React.ReactElement[] | React.ReactElement;
@@ -15,21 +19,19 @@ type WrapperProps = {
 const Wrapper = (props: WrapperProps) => {
   const { children, titleComponent } = props;
   const dispatch = useAppDispatch();
-  const { isNavOpen, sidebarActiveItem, isTagExpanded } = useAppSelector(
-    (state) => state.ui,
-  );
+  const { isNavOpen, sidebarActiveItem, isTagExpanded, isPackageTagExpanded } =
+    useAppSelector((state) => state.ui);
   const user = useAppSelector((state) => state.user);
   const niivueActive = sidebarActiveItem === "niivue";
   const onNavToggle = () => {
     dispatch(setIsNavOpen(!isNavOpen));
   };
   const onTagToggle = (e: React.FormEvent) => {
-    console.info(
-      `onTagToggle: to setIsTagExpanded: ${!isTagExpanded} e: ${e.target}`,
-    );
     dispatch(setIsTagExpanded(!isTagExpanded));
   };
-
+  const onPackageTagToggle = (e: React.FormEvent) => {
+    dispatch(setIsPackageTagExpanded(!isPackageTagExpanded));
+  };
   const onPageResize = (
     _event: MouseEvent | TouchEvent | React.KeyboardEvent<Element>,
     data: { mobileView: boolean; windowSize: number },
@@ -50,12 +52,16 @@ const Wrapper = (props: WrapperProps) => {
       isNavOpen={isNavOpen}
       isTagExpanded={isTagExpanded}
       onTagToggle={onTagToggle}
+      isPackageTagExpanded={isPackageTagExpanded}
+      onPackageTagToggle={onPackageTagToggle}
     />
   ) : (
     <AnonSidebar
       isNavOpen={isNavOpen}
       isTagExpanded={isTagExpanded}
       onTagToggle={onTagToggle}
+      isPackageTagExpanded={isPackageTagExpanded}
+      onPackageTagToggle={onPackageTagToggle}
     />
   );
 

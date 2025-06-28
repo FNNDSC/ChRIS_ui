@@ -8,6 +8,8 @@ export interface IUiState {
   sidebarActiveItem?: string;
   isTagExpanded: boolean;
   onTagToggle: (e: FormEvent) => void;
+  isPackageTagExpanded: boolean;
+  onPackageTagToggle: (e: FormEvent) => void;
 }
 
 const initialState: IUiState = {
@@ -15,6 +17,8 @@ const initialState: IUiState = {
   isNavOpen: true, // default
   isTagExpanded: false,
   onTagToggle: () => {},
+  isPackageTagExpanded: false,
+  onPackageTagToggle: () => {},
 };
 
 const uiSlice = createSlice({
@@ -30,10 +34,17 @@ const uiSlice = createSlice({
     setIsTagExpanded(state, action: PayloadAction<boolean>) {
       state.isTagExpanded = action.payload;
     },
+    setIsPackageTagExpanded(state, action: PayloadAction<boolean>) {
+      state.isPackageTagExpanded = action.payload;
+    },
   },
 });
 
-export const { setIsNavOpen, setSidebarActive, setIsTagExpanded } =
-  uiSlice.actions;
+export const {
+  setIsNavOpen,
+  setSidebarActive,
+  setIsTagExpanded,
+  setIsPackageTagExpanded,
+} = uiSlice.actions;
 
 export default uiSlice.reducer;
