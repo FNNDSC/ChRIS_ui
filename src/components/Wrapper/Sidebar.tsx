@@ -16,6 +16,7 @@ import type { IUiState } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
 import styles from "./Sidebar.module.css";
+import type { FormEvent } from "react";
 
 type AllProps = IUiState & IUserState;
 
@@ -25,12 +26,11 @@ type TagInfo = {
 
 const Sidebar: React.FC<AllProps> = (props: AllProps) => {
   const queryClient = useQueryClient();
-  const { sidebarActiveItem, isNavOpen, isTagExpanded } = useAppSelector(
-    (state) => state.ui,
-  );
+  const { sidebarActiveItem, isNavOpen, isTagExpanded, isPackageTagExpanded } =
+    useAppSelector((state) => state.ui);
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
-  const { onTagToggle } = props;
+  const { onTagToggle, onPackageTagToggle } = props;
 
   console.log(`Sidebar: isTagExpanded: ${isTagExpanded}`);
 
@@ -59,10 +59,15 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
       </Link>
     );
 
-  const renderTag = (tag: TagInfo, idx: number) => {
+  const renderTag = (
+    tag: TagInfo,
+    idx: number,
+    onClick: (e: FormEvent) => void,
+    prefix: string,
+  ) => {
     if (typeof tag.title === "undefined") {
       return (
-        <NavItem itemId="tag-more" onClick={onTagToggle}>
+        <NavItem itemId="tag-more" onClick={onClick}>
           <span style={{ color: "#aaaaaa" }}>(more)</span>
         </NavItem>
       );
@@ -74,7 +79,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
 
     return (
       <NavItem itemId={tagIdx} isActive={sidebarActiveItem === tagIdx}>
-        {renderLink(`/tag${tagLink}`, tag.title, tagIdx)}
+        {renderLink(`/${prefix}${tagLink}`, tag.title, tagIdx)}
       </NavItem>
     );
   };
@@ -96,7 +101,26 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
       tagList,
     );
 
-    return <>{tagList.map((each, idx) => renderTag(each, idx))}</>;
+    return (
+      <>
+        {tagList.map((each, idx) => renderTag(each, idx, onTagToggle, "tag"))}
+      </>
+    );
+  };
+
+  const renderPackageTags = () => {
+    const tagList: TagInfo[] = [{ title: "imported" }, { title: "composite" }];
+    if (!isPackageTagExpanded) {
+      tagList.push({});
+    }
+
+    return (
+      <>
+        {tagList.map((each, idx) =>
+          renderTag(each, idx, onPackageTagToggle, "packagetag"),
+        )}
+      </>
+    );
   };
 
   const PageNav = (
@@ -140,6 +164,13 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
           <NavItem itemId="package" isActive={sidebarActiveItem === "package"}>
             {renderLink("/package", "Browse Packages", "catalog")}
           </NavItem>
+          <NavExpandable
+            title="Tags"
+            buttonProps={{ className: styles["tags-expand"] }}
+            isExpanded={true}
+          >
+            {renderPackageTags()}
+          </NavExpandable>
           {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
             <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
               {renderLink("/import", "Import Package", "store")}

@@ -128,21 +128,6 @@ export const MainRouter: React.FC = () => {
       path: "/",
       element: <Dashboard />,
     },
-    {
-      path: "library/*",
-      element: (
-        <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <OperationsProvider>
-              <GnomeLibrary />
-            </OperationsProvider>
-          </RouterProvider>
-        </PrivateRoute>
-      ),
-    },
 
     {
       path: "data/*",
