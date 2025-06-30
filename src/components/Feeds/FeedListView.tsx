@@ -63,6 +63,12 @@ interface ColumnDefinition {
 
 const COLUMN_DEFINITIONS: ColumnDefinition[] = [
   {
+    id: "id",
+    label: "ID",
+    comparator: (a: Feed, b: Feed) => a.data.name.localeCompare(b.data.name),
+  },
+
+  {
     id: "analysis",
     label: "Analysis",
     comparator: (a: Feed, b: Feed) => a.data.name.localeCompare(b.data.name),
@@ -389,7 +395,7 @@ const TableRow: React.FC<TableRowProps> = ({
    */
   const onFeedNameClick = () => {
     navigate(
-      `/feeds/${feed.data.id}?type=${feed.data.public ? "public" : "private"}`,
+      `/data/${feed.data.id}?type=${feed.data.public ? "public" : "private"}`,
     );
   };
 
