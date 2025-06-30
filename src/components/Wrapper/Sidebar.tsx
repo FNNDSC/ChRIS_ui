@@ -17,6 +17,10 @@ import type { IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
 import styles from "./Sidebar.module.css";
 import type { FormEvent } from "react";
+import { AddNodeProvider } from "../AddNode/context";
+import { CreateFeedProvider } from "../CreateFeed/context";
+import CreateFeed from "../CreateFeed/CreateFeed";
+import { PipelineProvider } from "../PipelinesCopy/context";
 
 type AllProps = IUiState & IUserState;
 
@@ -155,7 +159,13 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
-            {renderLink("/new", "New Analysis", "analyses")}
+            <CreateFeedProvider>
+              <PipelineProvider>
+                <AddNodeProvider>
+                  <CreateFeed />
+                </AddNodeProvider>
+              </PipelineProvider>
+            </CreateFeedProvider>
           </NavItem>
           <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
             {renderLink("/pacs", "Retrieve PACS", "pacs")}
