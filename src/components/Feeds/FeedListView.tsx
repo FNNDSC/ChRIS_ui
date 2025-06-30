@@ -97,13 +97,16 @@ interface Props {
 
 const TableSelectable = (props: Props) => {
   const { title, isShared } = props;
+  const theType = isShared ? "public" : "private";
+
   const navigate = useNavigate();
   const { feedCount, loadingFeedState, feedsToDisplay, searchFolderData } =
-    useFeedListData();
+    useFeedListData(theType);
 
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { perPage, page, search, searchType } = searchFolderData;
-  const theType = isShared ? "public" : "private";
+
+  console.info("TableSelectable: theType:", theType, "isLoggedIn:", isLoggedIn);
 
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [activeSortDirection, setActiveSortDirection] =
@@ -260,11 +263,11 @@ const TableSelectable = (props: Props) => {
           {generatePagination(feedCount)}
         </div>
 
-        {/*isLoggedIn && (
+        {isLoggedIn && (
           <Operations
             origin={{
               type: OperationContext.FEEDS,
-              additionalKeys: [perPage, page, type, search, searchType],
+              additionalKeys: [perPage, page, theType, search, searchType],
             }}
             customStyle={{
               toolbarItem: { paddingInlineStart: "0" },
@@ -276,7 +279,7 @@ const TableSelectable = (props: Props) => {
               },
             }}
           />
-        )*/}
+        )}
       </PageSection>
       <PageSection style={{ paddingBlockStart: "0.5em" }}>
         {loadingFeedState ? (

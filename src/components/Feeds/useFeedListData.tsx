@@ -17,15 +17,16 @@ const useSearchQuery = (query: URLSearchParams) => ({
   type: query.get("type") || "public",
 });
 
-export const useFeedListData = () => {
+export const useFeedListData = (theType: string) => {
   const query = useSearchQueryParams();
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
-  const { perPage, page, type, search, searchType } = useSearchQuery(query);
+  const { perPage, page, search, searchType } = useSearchQuery(query);
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["feeds", perPage, page, type, search, searchType],
-    queryFn: () => fetchFeeds({ perPage, page, type, search, searchType }),
-    enabled: type === "private" || isLoggedIn,
+    queryKey: ["feeds", perPage, page, theType, search, searchType],
+    queryFn: () =>
+      fetchFeeds({ perPage, page, type: theType, search, searchType }),
+    enabled: theType === "private" || isLoggedIn,
   });
 
   const {
@@ -33,14 +34,16 @@ export const useFeedListData = () => {
     isLoading: publicFeedLoading,
     isFetching: publicFeedFetching,
   } = useQuery({
-    queryKey: ["publicFeeds", perPage, page, type, search, searchType],
+    queryKey: ["publicFeeds", perPage, page, theType, search, searchType],
     queryFn: () =>
-      fetchPublicFeeds({ perPage, page, type, search, searchType }),
-    enabled: type === "public" || !isLoggedIn,
+      fetchPublicFeeds({ perPage, page, type: theType, search, searchType }),
+    enabled: theType === "public" || !isLoggedIn,
   });
 
   const feedCount =
-    type === "private" ? data?.totalFeedsCount : publicFeeds?.totalFeedsCount;
+    theType === "private"
+      ? data?.totalFeedsCount
+      : publicFeeds?.totalFeedsCount;
 
   const loadingFeedState =
     isLoading || isFetching || publicFeedLoading || publicFeedFetching;
@@ -49,7 +52,7 @@ export const useFeedListData = () => {
     feedCount,
     loadingFeedState,
     feedsToDisplay:
-      type === "private" ? data?.feeds || [] : publicFeeds?.feeds || [],
-    searchFolderData: { perPage, page, type, search, searchType },
+      theType === "private" ? data?.feeds || [] : publicFeeds?.feeds || [],
+    searchFolderData: { perPage, page, type: theType, search, searchType },
   };
 };
