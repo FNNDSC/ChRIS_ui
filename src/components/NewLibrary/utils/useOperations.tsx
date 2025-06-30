@@ -122,6 +122,8 @@ export const useFolderOperations = (
     // Mark the origin
     handleOrigin(origin);
 
+    console.info("handleUpload: origin:", origin);
+
     const files = Array.from(fileList || []);
     const uniqueName = name
       ? `${name}_${getCurrentTimestamp()}`
@@ -130,6 +132,15 @@ export const useFolderOperations = (
     const uploadPath = createFeed
       ? `home/${username}/uploads/${uniqueName}`
       : computedPath;
+
+    console.info(
+      "handleUpload: createFeed:",
+      createFeed,
+      "uploadPath:",
+      uploadPath,
+      "name:",
+      name,
+    );
 
     /*
     // If createFeed==true => place files in `home/username/uploads/<uniqueName>`
