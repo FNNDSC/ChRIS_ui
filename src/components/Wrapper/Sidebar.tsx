@@ -88,6 +88,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
     const tagList: TagInfo[] = [
       { title: "(none)" },
       { title: "uploaded" },
+      { title: "public" },
       { title: "pacs" },
     ];
     if (!isTagExpanded) {
