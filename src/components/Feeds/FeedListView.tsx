@@ -260,11 +260,11 @@ const TableSelectable = (props: Props) => {
           {generatePagination(feedCount)}
         </div>
 
-        {/*isLoggedIn && (
+        {isLoggedIn && (
           <Operations
             origin={{
               type: OperationContext.FEEDS,
-              additionalKeys: [perPage, page, type, search, searchType],
+              additionalKeys: [perPage, page, theType, search, searchType],
             }}
             customStyle={{
               toolbarItem: { paddingInlineStart: "0" },
@@ -276,7 +276,7 @@ const TableSelectable = (props: Props) => {
               },
             }}
           />
-        )*/}
+        )}
       </PageSection>
       <PageSection style={{ paddingBlockStart: "0.5em" }}>
         {loadingFeedState ? (
