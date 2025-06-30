@@ -22,7 +22,7 @@ import { CreateFeedProvider } from "../CreateFeed/context";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import Operations from "../NewLibrary/components/Operations";
-import { OperationContext } from "../NewLibrary/context";
+import { OperationContext, OperationsProvider } from "../NewLibrary/context";
 
 type AllProps = IUiState & IUserState;
 
@@ -155,22 +155,24 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             itemId="uploadData"
             isActive={sidebarActiveItem === "uploadData"}
           >
-            <Operations
-              origin={{
-                type: OperationContext.FEEDS,
-                additionalKeys: [],
-              }}
-              customStyle={{
-                toolbarItem: { paddingInlineStart: "0" },
-                toolbar: {
-                  paddingTop: "0",
-                  paddingBottom: "0",
-                  background: "inherit",
-                  marginTop: undefined,
-                  // marginTop: isMobile ? "0.5em" : undefined,
-                },
-              }}
-            />
+            <OperationsProvider>
+              <Operations
+                origin={{
+                  type: OperationContext.FEEDS,
+                  additionalKeys: [],
+                }}
+                customStyle={{
+                  toolbarItem: { paddingInlineStart: "0" },
+                  toolbar: {
+                    paddingTop: "0",
+                    paddingBottom: "0",
+                    background: "inherit",
+                    marginTop: undefined,
+                    // marginTop: isMobile ? "0.5em" : undefined,
+                  },
+                }}
+              />
+            </OperationsProvider>
           </NavItem>
           <NavItem
             itemId="analyses"

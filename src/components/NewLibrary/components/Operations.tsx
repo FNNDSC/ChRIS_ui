@@ -65,21 +65,12 @@ const Operations = ({
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  const isFeedsTable =
-    matchPath({ path: "/feeds", end: true }, location.pathname) !== null;
+  const isFeedsTable = true;
 
-  const OPERATION_ITEMS = useMemo(() => {
-    const baseItems = [
-      { key: "newFolder", label: "New Folder", disabled: false },
-      { key: "fileUpload", label: "File Upload", disabled: false },
-      { key: "folderUpload", label: "Folder Upload", disabled: false },
-    ];
-
-    if (isFeedsTable) {
-      baseItems[0].disabled = true;
-    }
-    return baseItems;
-  }, [isFeedsTable]);
+  const OPERATION_ITEMS = [
+    { key: "fileUpload", label: "Upload Files", disabled: false },
+    { key: "folderUpload", label: "Upload Folder", disabled: false },
+  ];
 
   const {
     modalState,
@@ -95,6 +86,8 @@ const Operations = ({
     setUserRelatedError,
     setModalState,
   } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
+
+  console.info("Operations: modalState:", modalState);
 
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
@@ -136,7 +129,7 @@ const Operations = ({
                 />
               }
             >
-              New
+              Upload Data
             </Button>
           </Dropdown>
           {userRelatedError && (
@@ -239,11 +232,7 @@ const Operations = ({
         type="file"
         hidden
         onChange={(e) => {
-          if (matchPath({ path: "/feeds", end: true }, location.pathname)) {
-            createFeedWithFile(e, "file");
-          } else {
-            handleFileChange(e);
-          }
+          createFeedWithFile(e, "file");
         }}
       />
       <input
@@ -254,11 +243,7 @@ const Operations = ({
         webkitdirectory=""
         directory=""
         onChange={(e) => {
-          if (matchPath({ path: "/feeds", end: true }, location.pathname)) {
-            createFeedWithFile(e, "folder");
-          } else {
-            handleFolderChange(e);
-          }
+          createFeedWithFile(e, "folder");
         }}
       />
 
