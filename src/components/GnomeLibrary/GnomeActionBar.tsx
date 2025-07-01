@@ -19,7 +19,7 @@ import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import { AddModal } from "../NewLibrary/components/Operations";
 import { TimesIcon, FileIcon, FolderIcon } from "@patternfly/react-icons";
 import {
-  CodeBranchIcon,
+  AnalysisIcon,
   DownloadIcon,
   ShareIcon,
   EditIcon,
@@ -232,13 +232,13 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
                       aria-label="Create Feed"
                       onClick={handleCreateFeed}
                     >
-                      <CodeBranchIcon />
+                      <AnalysisIcon />
                     </Button>
                   </Tooltip>
                 ) : (
                   <Button
                     variant="primary"
-                    icon={<CodeBranchIcon />}
+                    icon={<AnalysisIcon />}
                     onClick={handleCreateFeed}
                   >
                     Create Feed

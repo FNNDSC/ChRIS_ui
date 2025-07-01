@@ -1,7 +1,7 @@
 import type { MenuProps } from "antd";
 import type { useNavigate } from "react-router-dom";
 import { FolderOutlined } from "@ant-design/icons";
-import { CodeBranchIcon } from "../../Icons";
+import { AnalysisIcon } from "../../Icons";
 import type { PacsSeriesState } from "../types";
 import { fetchSeriesPath } from "./pacsUtils";
 import { createFeed } from "../../../store/cart/downloadSaga";
@@ -52,7 +52,7 @@ export const getSeriesContextMenuItems = (
         isSelected && hasMultipleSelected
           ? `Create Feed (${selectedCount} series)`
           : "Create Feed",
-      icon: <CodeBranchIcon />,
+      icon: <AnalysisIcon />,
       disabled: !inCube,
       onClick: handlers.showFeedCreationModal,
     },
