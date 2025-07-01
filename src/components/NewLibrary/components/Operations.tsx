@@ -21,9 +21,8 @@ import { matchPath, useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { Alert as AntdAlert, Dropdown } from "../../Antd";
+import { Alert as AntdAlert } from "../../Antd";
 import {
-  AddIcon,
   CodeBranchIcon,
   DeleteIcon,
   DownloadIcon,
@@ -36,6 +35,7 @@ import type { OriginState } from "../context";
 import { type ModalState, useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
+import UploadData from "./operations/UploadData";
 
 export type AdditionalValues = {
   share: {
@@ -114,24 +114,7 @@ const Operations = ({
       <Fragment>
         {contextHolder}
         <ToolbarItem>
-          <Dropdown
-            menu={{
-              items: OPERATION_ITEMS,
-              selectable: true,
-              onClick: (info) => handleOperations(info.key),
-            }}
-          >
-            <Button
-              size="sm"
-              icon={
-                <AddIcon
-                  style={{ color: "inherit", height: "1em", width: "1em" }}
-                />
-              }
-            >
-              Upload Data
-            </Button>
-          </Dropdown>
+          <UploadData handleOperations={handleOperations} />
           {userRelatedError && (
             <AntdAlert
               style={{ marginLeft: "1rem" }}
