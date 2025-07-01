@@ -184,10 +184,10 @@ export const useFolderOperations = (
     const files = Array.from(event.target.files || []);
     const defaultFeedName =
       type === "folder"
-        ? `Feed for ${files[0].webkitRelativePath.split("/")[0]}`
+        ? `${files[0].webkitRelativePath.split("/")[0]}`
         : files.length < 2
-          ? `Feed for ${files[0].name}`
-          : "Multiple File Upload";
+          ? `Data from ${files[0].name}`
+          : "Multiple Data Upload";
 
     setModalState({
       type: "createFeedWithFile",

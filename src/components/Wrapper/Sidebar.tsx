@@ -22,7 +22,7 @@ import { CreateFeedProvider } from "../CreateFeed/context";
 import CreateFeed from "../CreateFeed/CreateFeed";
 import { PipelineProvider } from "../PipelinesCopy/context";
 import { AddModal } from "../NewLibrary/components/Operations";
-import { OperationContext, OperationsProvider } from "../NewLibrary/context";
+import { OperationContext } from "../NewLibrary/context";
 import UploadData from "../NewLibrary/components/operations/UploadData";
 import { handleOpen } from "../Feeds/utilties";
 import { useFolderOperations } from "../NewLibrary/utils/useOperations";
@@ -178,9 +178,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
               itemId="uploadData"
               isActive={sidebarActiveItem === "uploadData"}
             >
-              <OperationsProvider>
-                <UploadData handleOperations={handleOperations} />
-              </OperationsProvider>
+              <UploadData handleOperations={handleOperations} />
             </NavItem>
             <NavItem
               itemId="analyses"
