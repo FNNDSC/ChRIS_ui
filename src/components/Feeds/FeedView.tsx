@@ -17,7 +17,7 @@ import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
 import ParentComponent from "../FeedTree/ParentComponent";
-import { CodeBranchIcon } from "../Icons";
+import { AnalysisIcon } from "../Icons";
 import NodeDetails from "../NodeDetails/NodeDetails";
 import WrapperConnect from "../Wrapper";
 import { DrawerActionButton } from "./DrawerUtils";
@@ -128,7 +128,7 @@ const FeedView: React.FC = () => {
 
   const TitleComponent = (
     <CustomTitle color="white">
-      <CodeBranchIcon style={{ marginRight: "0.25em" }} />
+      <AnalysisIcon style={{ marginRight: "0.25em" }} />
       <Tooltip content={feed?.data.name}>
         <span>{feed ? elipses(feed?.data.name, 40) : ""}</span>
       </Tooltip>

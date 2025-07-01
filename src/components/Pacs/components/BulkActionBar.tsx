@@ -10,7 +10,7 @@ import {
   ConfigProvider,
 } from "antd";
 import { useSeriesSelection } from "./SeriesSelectionContext";
-import { CodeBranchIcon } from "../../Icons";
+import { AnalysisIcon } from "../../Icons";
 import { useTheme } from "../../DarkTheme/useTheme";
 import { generateFeedName } from "./pacsUtils";
 import {
@@ -141,11 +141,7 @@ const BulkActionBar: React.FC = () => {
             <Typography.Text strong>
               {selectedSeries.length} series selected
             </Typography.Text>
-            <Button
-              icon={<CodeBranchIcon />}
-              onClick={showModal}
-              type="primary"
-            >
+            <Button icon={<AnalysisIcon />} onClick={showModal} type="primary">
               Create Feed
             </Button>
             <Button onClick={clearSelection}>Clear Selection</Button>
