@@ -16,26 +16,24 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
-import { matchPath, useLocation } from "react-router";
+import { Fragment, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { getFileName } from "../../../api/common";
 import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Alert as AntdAlert } from "../../Antd";
-import {
-  CodeBranchIcon,
-  DeleteIcon,
-  DownloadIcon,
-  DuplicateIcon,
-  EditIcon,
-  MergeIcon,
-  ShareIcon,
-} from "../../Icons";
 import type { OriginState } from "../context";
 import { type ModalState, useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
 import UploadData from "./operations/UploadData";
+import CreateAnalysis from "./operations/CreateAnalysis";
+import Download from "./operations/Download";
+import Merge from "./operations/Merge";
+import Share from "./operations/Share";
+import Rename from "./operations/Rename";
+import Delete from "./operations/Delete";
+import PayloadList from "./operations/PayloadList";
 
 export type AdditionalValues = {
   share: {
@@ -67,19 +65,12 @@ const Operations = ({
 
   const isFeedsTable = true;
 
-  const OPERATION_ITEMS = [
-    { key: "fileUpload", label: "Upload Files", disabled: false },
-    { key: "folderUpload", label: "Upload Folder", disabled: false },
-  ];
-
   const {
     modalState,
     userRelatedError,
     folderInputRef,
     fileInputRef,
-    handleFileChange,
     createFeedWithFile,
-    handleFolderChange,
     handleModalSubmitMutation,
     handleOperations,
     contextHolder,
@@ -91,23 +82,6 @@ const Operations = ({
 
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const selectedPathsCount = selectedPaths.length;
-
-  const renderOperationButton = useCallback(
-    (icon: React.ReactNode, operationKey: string, ariaLabel: string) => (
-      <Tooltip content={ariaLabel}>
-        <Button
-          style={{ marginRight: "1em" }}
-          icon={icon}
-          size="sm"
-          onClick={() => handleOperations(operationKey)}
-          variant="tertiary"
-          aria-label={ariaLabel}
-          isDisabled={operationKey === "duplicate"}
-        />
-      </Tooltip>
-    ),
-    [handleOperations],
-  );
 
   const toolbarItems = useMemo(
     () => (
@@ -126,54 +100,43 @@ const Operations = ({
           )}
         </ToolbarItem>
 
-        {selectedPathsCount > 0 && (
-          <>
-            {renderOperationButton(
-              <CodeBranchIcon />,
-              "createFeed",
-              "Create a new feed",
-            )}
-            {renderOperationButton(
-              <DownloadIcon />,
-              "download",
-              "Download selected items",
-            )}
-            {renderOperationButton(
-              <MergeIcon />,
-              "merge",
-              "Merge selected items",
-            )}
-            {renderOperationButton(
-              <DuplicateIcon />,
-              "duplicate",
-              "Copy selected items",
-            )}
-            {renderOperationButton(
-              <ShareIcon />,
-              "share",
-              "Share selected items",
-            )}
-            {renderOperationButton(<EditIcon />, "rename", "Rename")}
-            {renderOperationButton(
-              <DeleteIcon />,
-              "delete",
-              "Delete selected items",
-            )}
+        <ToolbarItem>
+          <CreateAnalysis
+            handleOperations={handleOperations}
+            count={selectedPathsCount}
+          />
 
-            <ToolbarItem>
-              <ChipGroup>
-                {selectedPaths.map((selection) => (
-                  <Chip
-                    key={selection.path}
-                    onClick={() => dispatch(removeSelectedPayload(selection))}
-                  >
-                    {getFileName(selection.path)}
-                  </Chip>
-                ))}
-              </ChipGroup>
-            </ToolbarItem>
-          </>
-        )}
+          <Download
+            handleOperations={handleOperations}
+            count={selectedPathsCount}
+          />
+
+          <Merge
+            handleOperations={handleOperations}
+            count={selectedPathsCount}
+          />
+
+          <Share
+            handleOperations={handleOperations}
+            count={selectedPathsCount}
+          />
+
+          <Delete
+            handleOperations={handleOperations}
+            count={selectedPathsCount}
+          />
+        </ToolbarItem>
+
+        <ToolbarItem>
+          <Rename
+            handleOperations={handleOperations}
+            count={selectedPathsCount}
+          />
+        </ToolbarItem>
+
+        <ToolbarItem>
+          <PayloadList selectedPaths={selectedPaths} dispatch={dispatch} />
+        </ToolbarItem>
       </Fragment>
     ),
     [
@@ -184,8 +147,6 @@ const Operations = ({
       dispatch,
       handleOperations,
       setUserRelatedError,
-      OPERATION_ITEMS,
-      renderOperationButton,
     ],
   );
 
