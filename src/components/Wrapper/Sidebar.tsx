@@ -11,8 +11,8 @@ import {
 import { type DefaultError, useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
 import { Link } from "react-router-dom";
-import { useAppSelector } from "../../store/hooks";
-import type { IUiState } from "../../store/ui/uiSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setSidebarActive, type IUiState } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
 import styles from "./Sidebar.module.css";
@@ -38,6 +38,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
   const { sidebarActiveItem, isNavOpen, isTagExpanded, isPackageTagExpanded } =
     useAppSelector((state) => state.ui);
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+  const dispatch = useAppDispatch();
 
   const { onTagToggle, onPackageTagToggle } = props;
 
@@ -148,6 +149,18 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
     setModalState,
   } = useFolderOperations(origin, undefined, undefined, true);
 
+  const uploadDataColor =
+    sidebarActiveItem === "uploadData" ? "#ffffff" : "#aaaaaa";
+
+  const uploadDataOnClick = () => {
+    dispatch(setSidebarActive({ activeItem: "uploadData" }));
+  };
+
+  const uploadOpenChange = (open: boolean) => {
+    console.info("Sidebar.uploadOpenChange: open:", open);
+    //dispatch(setSidebarActive({ activeItem: "uploadData" }));
+  };
+
   const PageNav = (
     <>
       <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
@@ -178,7 +191,11 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
               itemId="uploadData"
               isActive={sidebarActiveItem === "uploadData"}
             >
-              <UploadData handleOperations={handleOperations} />
+              <UploadData
+                handleOperations={handleOperations}
+                isSidebar={true}
+                buttonColor={uploadDataColor}
+              />
             </NavItem>
             {/*
             <NavItem
