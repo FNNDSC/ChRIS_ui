@@ -395,6 +395,7 @@ export const useFolderOperations = (
 
   // Handle operations
   const handleOperations = (operationKey: string) => {
+    console.info("useOperations.handleOperation: operationKey:", operationKey);
     const operationsMap: Record<string, () => void> = {
       createFeed: () => {
         const defaultFeedName =
