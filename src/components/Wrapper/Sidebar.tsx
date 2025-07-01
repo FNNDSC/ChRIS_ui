@@ -152,29 +152,6 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             {renderTags()}
           </NavExpandable>
           <NavItem
-            itemId="uploadData"
-            isActive={sidebarActiveItem === "uploadData"}
-          >
-            <OperationsProvider>
-              <Operations
-                origin={{
-                  type: OperationContext.FEEDS,
-                  additionalKeys: [],
-                }}
-                customStyle={{
-                  toolbarItem: { paddingInlineStart: "0" },
-                  toolbar: {
-                    paddingTop: "0",
-                    paddingBottom: "0",
-                    background: "inherit",
-                    marginTop: undefined,
-                    // marginTop: isMobile ? "0.5em" : undefined,
-                  },
-                }}
-              />
-            </OperationsProvider>
-          </NavItem>
-          <NavItem
             itemId="analyses"
             isActive={sidebarActiveItem === "analyses"}
           >
