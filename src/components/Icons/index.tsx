@@ -3,7 +3,6 @@ import {
   CogIcon,
   BrainIcon,
   TerminalIcon,
-  CodeBranchIcon,
   CalendarAltIcon,
   PlusIcon,
   FileIcon,
@@ -36,6 +35,8 @@ import {
   PlayIcon,
   PauseIcon,
   ChevronRightIcon,
+  ShareIcon,
+  DataProcessorIcon as AnalysisIcon,
 } from "@patternfly/react-icons";
 
 const CartIcon = ({
@@ -88,6 +89,7 @@ const ArchiveIcon = ({
   );
 };
 
+/*
 const ShareIcon = ({
   className,
   style,
@@ -105,6 +107,7 @@ const ShareIcon = ({
     </svg>
   );
 };
+*/
 
 const DuplicateIcon = ({ className }: { className?: string }) => {
   return (
@@ -276,7 +279,7 @@ export {
   BrainIcon,
   TerminalIcon,
   NoteEditIcon,
-  CodeBranchIcon,
+  AnalysisIcon,
   CalendarAltIcon,
   CartIcon,
   PlusIcon as AddIcon,

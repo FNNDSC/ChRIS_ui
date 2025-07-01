@@ -4,7 +4,7 @@ import { matchPath } from "react-router";
 import { Alert, Dropdown, type MenuProps } from "../../Antd";
 import {
   ArchiveIcon,
-  CodeBranchIcon,
+  AnalysisIcon,
   DeleteIcon,
   DownloadIcon,
   DuplicateIcon,
@@ -38,7 +38,7 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
   } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
 
   const items: MenuProps["items"] = [
-    { key: "createFeed", label: "Create Feed", icon: <CodeBranchIcon /> },
+    { key: "createFeed", label: "Create Feed", icon: <AnalysisIcon /> },
     { key: "download", label: "Download", icon: <DownloadIcon /> },
     { key: "merge", label: "Merge", icon: <MergeIcon /> },
     {

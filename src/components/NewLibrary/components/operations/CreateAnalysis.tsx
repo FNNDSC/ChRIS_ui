@@ -1,4 +1,4 @@
-import { CodeBranchIcon } from "../../../Icons";
+import { AnalysisIcon } from "../../../Icons";
 import OperationButton from "./OperationButton";
 
 type Props = {
@@ -17,7 +17,7 @@ export default (props: Props) => {
     <OperationButton
       handleOperations={handleOperations}
       count={count}
-      icon={<CodeBranchIcon />}
+      icon={<AnalysisIcon />}
       ariaLabel={ariaLabel}
       operationKey="createFeed"
       label={label}

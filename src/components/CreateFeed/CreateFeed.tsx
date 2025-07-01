@@ -15,7 +15,7 @@ import { MainRouterContext } from "../../routes";
 import { useAppSelector } from "../../store/hooks";
 import { AddNodeContext } from "../AddNode/context";
 import { notification } from "../Antd";
-import { CodeBranchIcon } from "../Icons";
+import { AnalysisIcon } from "../Icons";
 import PipelinesCopy from "../PipelinesCopy";
 import { PipelineContext } from "../PipelinesCopy/context";
 import BasicInformation from "./BasicInformation";
@@ -223,7 +223,7 @@ export default function CreateFeed() {
   return (
     <div>
       <Button
-        icon={<CodeBranchIcon />}
+        icon={<AnalysisIcon />}
         variant="primary"
         onClick={() => closeWizard()}
         isDisabled={!isLoggedIn}
