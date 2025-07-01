@@ -10,7 +10,7 @@ import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
 import { handleToggle } from "../Feeds/utilties";
 import {
   BrainIcon,
-  CodeBranchIcon,
+  AnalysisIcon,
   FeedBrowserIcon,
   NodeDetailsPanelIcon,
   NoteEditIcon,
@@ -50,7 +50,7 @@ const FeedDetails = () => {
       <FlexItem>
         <ButtonContainer
           title="Feed Tree Panel"
-          Icon={<CodeBranchIcon />}
+          Icon={<AnalysisIcon />}
           action="graph"
           dispatch={dispatch}
           drawerState={drawerState}
