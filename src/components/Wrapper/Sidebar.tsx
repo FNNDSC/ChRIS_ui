@@ -180,6 +180,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             >
               <UploadData handleOperations={handleOperations} />
             </NavItem>
+            {/*
             <NavItem
               itemId="analyses"
               isActive={sidebarActiveItem === "analyses"}
@@ -192,6 +193,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
                 </PipelineProvider>
               </CreateFeedProvider>
             </NavItem>
+            */}
             <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
               {renderLink("/pacs", "Retrieve PACS", "pacs")}
             </NavItem>
