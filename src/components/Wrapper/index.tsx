@@ -10,6 +10,7 @@ import {
   setIsTagExpanded,
   setIsPackageTagExpanded,
 } from "../../store/ui/uiSlice";
+import { OperationsProvider } from "../NewLibrary/context";
 
 type WrapperProps = {
   children: React.ReactElement[] | React.ReactElement;
@@ -48,13 +49,15 @@ const Wrapper = (props: WrapperProps) => {
 
   const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const sidebar = isLoggedIn ? (
-    <Sidebar
-      isNavOpen={isNavOpen}
-      isTagExpanded={isTagExpanded}
-      onTagToggle={onTagToggle}
-      isPackageTagExpanded={isPackageTagExpanded}
-      onPackageTagToggle={onPackageTagToggle}
-    />
+    <OperationsProvider>
+      <Sidebar
+        isNavOpen={isNavOpen}
+        isTagExpanded={isTagExpanded}
+        onTagToggle={onTagToggle}
+        isPackageTagExpanded={isPackageTagExpanded}
+        onPackageTagToggle={onPackageTagToggle}
+      />
+    </OperationsProvider>
   ) : (
     <AnonSidebar
       isNavOpen={isNavOpen}
