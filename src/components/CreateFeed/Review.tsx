@@ -80,7 +80,7 @@ const Review = ({ handleSave }: { handleSave: () => void }) => {
         )}
         {selectedConfig.includes("swift_storage") && (
           <div style={{ width: "60%" }}>
-            <ChrisFileDetails chrisFiles={chrisFiles} />
+            <ChrisFileDetails chrisFiles={chrisFiles} prefix={feedName} />
           </div>
         )}
         {selectedConfig.includes("local_select") && (
