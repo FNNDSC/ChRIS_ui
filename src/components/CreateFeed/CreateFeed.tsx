@@ -24,7 +24,7 @@ import Review from "./Review";
 import withSelectionAlert from "./SelectionAlert";
 import { CreateFeedContext } from "./context";
 import "./createFeed.css";
-import { createFeed, createFeedInstanceWithFS } from "./createFeedHelper";
+import { createFeeds, createFeedInstanceWithFS } from "./createFeedHelper";
 import { Types } from "./types/feed";
 
 export default function CreateFeed() {
@@ -33,7 +33,8 @@ export default function CreateFeed() {
   const queryClient = useQueryClient();
   const router = useContext(MainRouterContext);
 
-  const { state, dispatch } = useContext(CreateFeedContext);
+  const { state: stateCreateFeed, dispatch: dispatchCreateFeed } =
+    useContext(CreateFeedContext);
   const { state: addNodeState, dispatch: nodeDispatch } =
     useContext(AddNodeContext);
   const { state: pipelineState, dispatch: pipelineDispatch } =
@@ -46,10 +47,10 @@ export default function CreateFeed() {
     dropdownInput,
     requiredInput,
   } = addNodeState;
-  const { wizardOpen, data, selectedConfig } = state;
+  const { wizardOpen, data, selectedConfig } = stateCreateFeed;
 
   const getUploadFileCount = (value: number) => {
-    dispatch({
+    dispatchCreateFeed({
       type: Types.SetProgress,
       payload: {
         value,
@@ -57,7 +58,7 @@ export default function CreateFeed() {
     });
   };
   const getFeedError = (error: any) => {
-    dispatch({
+    dispatchCreateFeed({
       type: Types.SetError,
       payload: {
         feedError: error,
@@ -66,7 +67,7 @@ export default function CreateFeed() {
   };
 
   const resetAfterCompletion = () => {
-    dispatch({
+    dispatchCreateFeed({
       type: Types.ResetState,
     });
     pipelineDispatch({
@@ -85,7 +86,7 @@ export default function CreateFeed() {
 
   const handleSave = async () => {
     setFeedProcessing(true);
-    dispatch({
+    dispatchCreateFeed({
       type: Types.SetFeedCreationState,
       payload: {
         status: "Creating Feed",
@@ -100,7 +101,7 @@ export default function CreateFeed() {
         selectedConfig.includes("local_select") ||
         selectedConfig.includes("swift_storage")
       ) {
-        feed = await createFeed(
+        feed = await createFeeds(
           data,
           username,
           getUploadFileCount,
@@ -116,7 +117,7 @@ export default function CreateFeed() {
       if (feed) {
         // Set analysis name
         await feed.put({
-          name: state.data.feedName,
+          name: stateCreateFeed.data.feedName,
         });
 
         /**
@@ -135,14 +136,14 @@ export default function CreateFeed() {
 
         await note.put({
           title: "Description",
-          content: state.data.feedDescription,
+          content: stateCreateFeed.data.feedDescription,
         });
 
         queryClient.refetchQueries({
           queryKey: ["feeds"],
         });
 
-        dispatch({
+        dispatchCreateFeed({
           type: Types.SetFeedCreationState,
           payload: {
             status: "Feed Created Successfully",
@@ -164,13 +165,13 @@ export default function CreateFeed() {
   const handleDispatch = React.useCallback(
     (files: File[]) => {
       const seen = new Set();
-      const withDuplicateFiles = [...state.data.localFiles, ...files];
+      const withDuplicateFiles = [...stateCreateFeed.data.localFiles, ...files];
       const result = withDuplicateFiles.filter((el) => {
         const duplicate = seen.has(el.name);
         seen.add(el.name);
         return !duplicate;
       });
-      dispatch({
+      dispatchCreateFeed({
         type: Types.AddLocalFile,
         payload: {
           files: result,
@@ -187,7 +188,7 @@ export default function CreateFeed() {
 
       if (!selectedConfig.includes("local_select")) {
         const nonDuplicateConfig = new Set([...selectedConfig, "local_select"]);
-        dispatch({
+        dispatchCreateFeed({
           type: Types.SelectedConfig,
           payload: {
             selectedConfig: nonDuplicateConfig,
@@ -195,7 +196,7 @@ export default function CreateFeed() {
         });
       }
     },
-    [dispatch, selectedConfig, state.data.localFiles],
+    [dispatchCreateFeed, selectedConfig, stateCreateFeed.data.localFiles],
   );
 
   const handleChoseFilesClick = React.useCallback(
@@ -211,7 +212,7 @@ export default function CreateFeed() {
   const filesChoosen = data.chrisFiles.length > 0 || data.localFiles.length > 0;
 
   const closeWizard = () => {
-    dispatch({
+    dispatchCreateFeed({
       type: Types.ToggleWizard,
     });
 

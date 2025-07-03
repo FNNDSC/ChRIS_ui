@@ -1,9 +1,115 @@
-import type { Pipeline, PluginMeta, Tag } from "@fnndsc/chrisapi";
+import type {
+  Pipeline,
+  PluginInstance,
+  PluginMeta,
+  Tag,
+} from "@fnndsc/chrisapi";
 import type { EventDataNode } from "rc-tree/lib/interface";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource, fetchResources } from "../../api/common";
 import { fetchFolders } from "../NewLibrary";
-import type { DataBreadcrumb } from "./types/feed";
+import type { ChRISFeed, DataBreadcrumb } from "./types/feed";
+
+import constants from "../../datasets/constants";
+
+import type { NodeInfo, PipelineDefaultParameters } from "../../api/types";
+import { info } from "console";
+
+export const computeWorkflowNodesInfo = (
+  params: PipelineDefaultParameters[],
+): NodeInfo[] => {
+  const pipingSet = new Set();
+  const dedupParams = params.filter((each) => {
+    if (pipingSet.has(each.plugin_piping_id)) {
+      return false;
+    }
+
+    pipingSet.add(each.plugin_piping_id);
+
+    return true;
+  });
+
+  const theRet = dedupParams.map((each): NodeInfo => {
+    return {
+      piping_id: each.plugin_piping_id,
+      previous_piping_id: each.previous_plugin_piping_id,
+      compute_resource_name: "host",
+      title: each.plugin_piping_title,
+    };
+  });
+
+  console.info(
+    "utils.computeWorkflowNodesInfo: params:",
+    params,
+    "theRet:",
+    theRet,
+  );
+  return theRet;
+};
+export const getFullFeedName = (
+  analysisPrefix: string,
+  chrisFeed: ChRISFeed,
+) => {
+  return `${analysisPrefix}${constants.ANALYSIS_CONCAT_CHAR}${chrisFeed.name}`;
+};
+
+export const displayFeedName = (analysisName: string, prefix = ""): string => {
+  if (analysisName.length <= constants.MAX_DISPLAYNAME_LENGTH) {
+    return analysisName;
+  }
+
+  // ensure prefix
+  const analysisNameList = analysisName.split(constants.ANALYSIS_CONCAT_CHAR);
+  const thePrefix = prefix ? prefix : analysisNameList[0];
+
+  // remainAnalysis
+  let remainAnalysisName = analysisName.substring(thePrefix.length);
+  if (remainAnalysisName.length === 0) {
+    return thePrefix;
+  }
+
+  if (remainAnalysisName[0] === constants.ANALYSIS_CONCAT_CHAR) {
+    remainAnalysisName = remainAnalysisName.substring(1);
+  }
+
+  // remain-analysis
+  const remainAnalysisNameList = remainAnalysisName.split(
+    constants.ANALYSIS_CONCAT_CHAR,
+  );
+  remainAnalysisNameList.reverse();
+  const remainLength =
+    constants.MAX_DISPLAYNAME_LENGTH -
+    prefix.length -
+    constants.ANALYSIS_CONCAT_PHRASE.length -
+    1;
+
+  const origAnalysisNameList = analysisName.split(
+    constants.ANALYSIS_CONCAT_CHAR,
+  );
+  // count from back
+  origAnalysisNameList.reverse();
+  const [_1, lastIndex, _2] = origAnalysisNameList.reduce(
+    (r, eachName, i) => {
+      const [eachTotalLength, _, eachIsEnd] = r;
+      if (eachIsEnd) {
+        return r;
+      }
+      const newTotalLength = eachTotalLength + eachName.length + 1;
+      if (newTotalLength > remainLength) {
+        return [eachTotalLength, i, true];
+      }
+
+      return [newTotalLength, i, false];
+    },
+    [0, 0, false],
+  );
+
+  const fitAnalyistNameList = origAnalysisNameList.slice(0, lastIndex);
+  // reverse again.
+  fitAnalyistNameList.reverse();
+
+  return `${thePrefix}${constants.ANALYSIS_CONCAT_CHAR}${constants.ANALYSIS_CONCAT_PHRASE}${constants.ANALYSIS_CONCAT_CHAR}${fitAnalyistNameList.join(constants.ANALYSIS_CONCAT_CHAR)}`;
+};
 
 export const fetchTagList = async () => {
   const client = ChrisAPIClient.getClient();
@@ -72,9 +178,15 @@ export const generateTreeNodes = async (
     checkable: boolean;
   }[] = [];
 
-  const { subFoldersMap, linkFilesMap, filesMap } = await fetchFolders(
-    treeNode.breadcrumb,
-  );
+  const {
+    subFoldersMap: fetchSubFoldersMap,
+    linkFilesMap: fetchLinkFilesMap,
+    filesMap: fetchFilesMap,
+  } = await fetchFolders(treeNode.breadcrumb);
+  const subFoldersMap = fetchSubFoldersMap || [];
+  const linkFilesMap = fetchLinkFilesMap || [];
+  const filesMap = fetchFilesMap || [];
+
   const items = [...subFoldersMap, ...linkFilesMap, ...filesMap];
 
   for (let i = 0; i < items.length; i++) {
@@ -130,7 +242,7 @@ export const generatePipelineWithData = async (data: any) => {
 };
 
 /**
- 
+
 This function takes a string input as its parameter and generates a random hex color code based on the input string. The color generated will always be the same for a given input string.
 The function uses a simple hash function to generate a numerical hash value from the input string. It then uses the hash value to generate a color by selecting three values from the set of valid hex characters (0-9 and A-F), using the hash value as a seed to ensure that the same input string always generates the same color.
 */
@@ -140,7 +252,7 @@ export const stringToColour = (input: string) => {
   let hash = 0;
   /*
 The hash value is generated using a simple hashing algorithm called the Fowler–Noll–Vo (FNV) hash function, which is commonly used in computer science to generate hash values for strings.
-The FNV hash function is a non-cryptographic hash function that generates a hash value by multiplying and XORing the input data with a prime number. 
+The FNV hash function is a non-cryptographic hash function that generates a hash value by multiplying and XORing the input data with a prime number.
 */
 
   for (let i = 0; i < input.length; i++) {

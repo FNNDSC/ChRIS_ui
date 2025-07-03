@@ -13,88 +13,143 @@ import {
 import type { InputType } from "../AddNode/types";
 import { unpackParametersIntoObject } from "../AddNode/utils";
 import type { PipelineState } from "../PipelinesCopy/context";
-import type { CreateFeedData } from "./types/feed";
+import type { ChRISFeed, CreateFeedData } from "./types/feed";
 import type { AddNodeState } from "../AddNode/types";
+import { computeWorkflowNodesInfo, getFullFeedName } from "./utils";
+import client from "@fnndsc/chrisapi";
 
-export const createFeed = async (
+import {
+  createWorkflow,
+  GetFeed,
+  searchPluginsByName,
+  createPluginInstance as serverCreatePluginInstance,
+  updateFeedName,
+} from "../../api/serverApi";
+import { createInflate } from "zlib";
+import { each } from "lodash";
+import { ResearchgateIcon } from "@patternfly/react-icons";
+import { activeSegmentation } from "@cornerstonejs/tools/dist/types/stateManagement/segmentation";
+
+const createFeedCore = async (
+  dirpath: ChRISFeed[],
+  fullFeedName: string,
+  pipelineState: PipelineState,
+) => {
+  const searchPluginsResult = await searchPluginsByName("pl-dircopy");
+  console.info(
+    "createFeedCore: after searchPluginsByName: searchPluginsResult:",
+    searchPluginsResult,
+  );
+  if (!searchPluginsResult || !searchPluginsResult.data) {
+    throw new Error("Failed to find pl-dircopy. Is pl-dircopy installed? ");
+  }
+
+  const dircopy = searchPluginsResult.data[0];
+
+  console.info("createFeedCore: dircopy:", dircopy);
+
+  const theDirs = dirpath.map((each) => each.filename);
+
+  const createdInstance = await serverCreatePluginInstance(dircopy.id, theDirs);
+
+  console.info(
+    "createFeedCore: after serverCreatePluginInstance: createdInstance:",
+    createdInstance,
+  );
+
+  if (!createdInstance || !createdInstance.data) {
+    throw new Error("Failed to create a dircopy instance");
+  }
+
+  const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } =
+    pipelineState;
+
+  const pipelineID = pipelineToAdd?.data.id;
+  const resources = selectedPipeline?.[pipelineID];
+
+  console.info(
+    "createFeedCore: pipelineID:",
+    pipelineID,
+    "resources:",
+    resources,
+  );
+
+  if (resources) {
+    const { parameters } = resources;
+
+    const nodes_info = computeWorkflowNodesInfo(parameters.data);
+
+    for (const node of nodes_info) {
+      // Set compute info
+      const activeNode = computeInfo?.[pipelineID][node.piping_id];
+      // Set Title
+      const titleSet = titleInfo?.[pipelineID][node.piping_id];
+
+      if (activeNode) {
+        const compute_node = activeNode.currentlySelected;
+        node.compute_resource_name = compute_node;
+      }
+
+      if (titleSet) {
+        node.title = titleSet;
+      }
+
+      console.info(
+        "createFeedCore: pipelineID:",
+        pipelineID,
+        "computeInfo:",
+        computeInfo,
+        "activeNode:",
+        activeNode,
+        "titleInfo:",
+        titleInfo,
+        "titleSet:",
+        titleSet,
+        "node:",
+        node,
+      );
+    }
+
+    console.info(
+      "createFeedCore: to createWorkflow: pipelineID:",
+      pipelineID,
+      "nodes_info:",
+      nodes_info,
+    );
+
+    await createWorkflow(pipelineID, createdInstance.data.id, nodes_info);
+  }
+
+  const feedID = createdInstance.data?.feed_id || 0;
+  const feed = GetFeed(feedID);
+
+  await updateFeedName(feedID, fullFeedName);
+
+  return feed;
+};
+
+export const createFeeds = async (
   data: CreateFeedData,
   username: string | null | undefined,
   setUploadFileCallback: (status: number) => void,
-  selectedConfig: string[],
-  state: PipelineState,
+  createFeedConfig: string[],
+  pipelineState: PipelineState,
 ) => {
-  const { chrisFiles, localFiles } = data;
-
-  const dirpath: string[] = [];
-  let feed: Feed;
-
-  if (selectedConfig.includes("swift_storage")) {
-    dirpath.push(...chrisFiles);
-  }
-
-  if (selectedConfig.includes("local_select")) {
-    const generateUnique = generatePathForLocalFile(data);
-    const path = `home/${username}/uploads/${generateUnique}`;
-    dirpath.push(path);
-
-    try {
-      await uploadLocalFiles(localFiles, path, setUploadFileCallback);
-    } catch (error: any) {
-      // biome-ignore lint/complexity/noUselessCatch: <explanation>
-      throw error;
-    }
-  }
+  const { chrisFiles, feedName } = data;
 
   try {
-    const client = ChrisAPIClient.getClient();
-    const dircopy = await getPlugin("pl-dircopy");
-
-    if (!dircopy) {
-      throw new Error("Failed to find pl-dircopy. Is pl-dircopy installed? ");
-    }
-
-    const createdInstance = await client.createPluginInstance(dircopy.data.id, {
-      //@ts-ignore
-      dir: dirpath.join(","),
-    });
-
-    if (!createdInstance) {
-      throw new Error("Failed to create a dircopy instance");
-    }
-
-    const { pipelineToAdd, computeInfo, titleInfo, selectedPipeline } = state;
-    const id = pipelineToAdd?.data.id;
-    const resources = selectedPipeline?.[id];
-
-    if (resources) {
-      const { parameters } = resources;
-
-      const nodes_info = client.computeWorkflowNodesInfo(parameters.data);
-
-      for (const node of nodes_info) {
-        // Set compute info
-        const activeNode = computeInfo?.[id][node.piping_id];
-        // Set Title
-        const titleSet = titleInfo?.[id][node.piping_id];
-
-        if (activeNode) {
-          const compute_node = activeNode.currentlySelected;
-          node.compute_resource_name = compute_node;
-        }
-
-        if (titleSet) {
-          node.title = titleSet;
-        }
-      }
-
-      await client.createWorkflow(id, {
-        previous_plugin_inst_id: createdInstance.data.id,
-        nodes_info: JSON.stringify(nodes_info),
+    await chrisFiles.map(async (eachChRISFile) => {
+      const dirpath = [eachChRISFile];
+      const fullFeedName = await getFullFeedName(feedName, eachChRISFile);
+      console.info(
+        "createFeeds: to createFeedCore: fullFeedName:",
+        fullFeedName,
+      );
+      const feed = await createFeedCore(dirpath, fullFeedName, pipelineState);
+      Promise.resolve(feed).then((resolvedFeed) => {
+        console.info("createFeeds: resolvedFeed:", resolvedFeed);
       });
-    }
-
-    feed = (await createdInstance.getFeed()) as Feed;
-    return feed;
+    });
   } catch (e) {
     if (e instanceof Error) {
       throw new Error(e.message);
