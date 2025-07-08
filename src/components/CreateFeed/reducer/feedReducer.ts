@@ -88,8 +88,8 @@ const createFeedReducer = produce(
           ...draft.data.checkedKeys,
         };
 
-        if (!draft.data.checkedKeys[file]) {
-          checkedKeysDict[file] = action.payload.checkedKeys;
+        if (!draft.data.checkedKeys[file.filename]) {
+          checkedKeysDict[file.filename] = action.payload.checkedKeys;
         }
 
         draft.data.chrisFiles.push(file);

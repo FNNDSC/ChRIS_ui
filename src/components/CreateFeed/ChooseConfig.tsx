@@ -41,12 +41,13 @@ const ChooseConfig = ({
   user,
   showAlert,
 }: chooseConfigProps) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
+  const { state: stateCreateFeed, dispatch: dispatchCreateFeed } =
+    useContext(CreateFeedContext);
   const { dispatch: nodeDispatch } = useContext(AddNodeContext);
   const { state: addNodeState } = useContext(AddNodeContext);
-  const { selectedConfig } = state;
+  const { selectedConfig } = stateCreateFeed;
   const { pluginMeta, requiredInput } = addNodeState;
-  const { isDataSelected, localFiles, chrisFiles } = state.data;
+  const { isDataSelected, localFiles, chrisFiles } = stateCreateFeed.data;
   const { goToNextStep: onNext, goToPrevStep: onBack } = useWizardContext();
   const [isRightDrawerExpand, setRightDrawerExpand] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -148,29 +149,39 @@ const ChooseConfig = ({
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
   useEffect(() => {
     if (chrisFiles.length === 0 && selectedConfig.includes("swift_storage")) {
-      dispatch({
+      dispatchCreateFeed({
         type: Types.SelectedConfig,
         payload: {
-          selectedConfig: state.selectedConfig.filter(
+          selectedConfig: stateCreateFeed.selectedConfig.filter(
             (value: string) => value !== "swift_storage",
           ),
         },
       });
     }
-  }, [chrisFiles, dispatch, selectedConfig, state.selectedConfig]);
+  }, [
+    chrisFiles,
+    dispatchCreateFeed,
+    selectedConfig,
+    stateCreateFeed.selectedConfig,
+  ]);
 
   useEffect(() => {
     if (pluginMeta === undefined && selectedConfig.includes("fs_plugin")) {
-      dispatch({
+      dispatchCreateFeed({
         type: Types.SelectedConfig,
         payload: {
-          selectedConfig: state.selectedConfig.filter(
+          selectedConfig: stateCreateFeed.selectedConfig.filter(
             (value: any) => value !== "fs_plugin",
           ),
         },
       });
     }
-  }, [dispatch, pluginMeta, selectedConfig, state.selectedConfig]);
+  }, [
+    dispatchCreateFeed,
+    pluginMeta,
+    selectedConfig,
+    stateCreateFeed.selectedConfig,
+  ]);
 
   const resetPlugin = () => {
     notification.info({
@@ -202,13 +213,13 @@ const ChooseConfig = ({
   };
 
   const resetChRisFiles = () => {
-    dispatch({
+    dispatchCreateFeed({
       type: Types.ResetChrisFile,
     });
-    dispatch({
+    dispatchCreateFeed({
       type: Types.SelectedConfig,
       payload: {
-        selectedConfig: state.selectedConfig.filter(
+        selectedConfig: stateCreateFeed.selectedConfig.filter(
           (value: any) => value !== "swift_storage",
         ),
       },
@@ -324,6 +335,7 @@ const ChooseConfig = ({
   const fileList =
     chrisFiles.length > 0
       ? chrisFiles.map((file: string, index: number) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           <React.Fragment key={index}>
             <FileList file={file} index={index} />
           </React.Fragment>

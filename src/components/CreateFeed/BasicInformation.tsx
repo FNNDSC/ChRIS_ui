@@ -14,8 +14,9 @@ import { Types } from "./types/feed";
 import { fetchTagList } from "./utils";
 
 const BasicInformation: React.FC = () => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { feedName, feedDescription, tags } = state.data;
+  const { state: stateCreateFeed, dispatch: dispatchCreateFeed } =
+    useContext(CreateFeedContext);
+  const { feedName, feedDescription, tags } = stateCreateFeed.data;
   const [availableTagsLoaded, setAvailableTagsLoaded] =
     useState<boolean>(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
@@ -73,11 +74,11 @@ const BasicInformation: React.FC = () => {
           id="analysis-name"
           aria-label="analysis-name"
           name="analysis-name"
-          placeholder="e.g. Tractography Study"
+          placeholder="e.g. Tractography"
           value={feedName}
           ref={inputElement}
           onChange={(_event, value: string) => {
-            dispatch({
+            dispatchCreateFeed({
               type: Types.FeedNameChange,
               payload: {
                 value,
@@ -96,7 +97,7 @@ const BasicInformation: React.FC = () => {
           rows={5}
           value={feedDescription}
           onChange={(_event, value: string) => {
-            dispatch({
+            dispatchCreateFeed({
               type: Types.FeedDescriptionChange,
               payload: {
                 value,
@@ -116,7 +117,7 @@ const BasicInformation: React.FC = () => {
           options={availableTags}
           //@ts-ignore
           onChange={(tags: Tag[]) => {
-            dispatch({
+            dispatchCreateFeed({
               type: Types.TagsChange,
               payload: {
                 tags,

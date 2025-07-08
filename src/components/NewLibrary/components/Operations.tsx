@@ -34,6 +34,9 @@ import Share from "./operations/Share";
 import Rename from "./operations/Rename";
 import Delete from "./operations/Delete";
 import PayloadList from "./operations/PayloadList";
+import { AddNodeProvider } from "../../AddNode/context";
+import { CreateFeedProvider } from "../../CreateFeed/context";
+import { PipelineProvider } from "../../PipelinesCopy/context";
 
 export type AdditionalValues = {
   share: {
@@ -101,10 +104,16 @@ const Operations = ({
         </ToolbarItem>
 
         <ToolbarItem>
-          <CreateAnalysis
-            handleOperations={handleOperations}
-            count={selectedPathsCount}
-          />
+          <CreateFeedProvider>
+            <PipelineProvider>
+              <AddNodeProvider>
+                <CreateAnalysis
+                  handleOperations={handleOperations}
+                  count={selectedPathsCount}
+                />
+              </AddNodeProvider>
+            </PipelineProvider>
+          </CreateFeedProvider>
 
           <Download
             handleOperations={handleOperations}

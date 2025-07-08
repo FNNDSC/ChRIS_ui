@@ -35,6 +35,11 @@ const constants = {
     "0.3.0",
     "0.3.1",
   ],
+
+  MAX_DISPLAYNAME_LENGTH: 100,
+  MAX_ANALYSIS_NAME: 30,
+  ANALYSIS_CONCAT_CHAR: "_",
+  ANALYSIS_CONCAT_PHRASE: "...",
 };
 
 export default constants;
