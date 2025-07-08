@@ -1,8 +1,8 @@
-import { Tag, PluginInstance } from "@fnndsc/chrisapi";
+import type { Tag, PluginInstance } from "@fnndsc/chrisapi";
 
-import { IUserState } from "../../../store/user/types";
-import { Feed } from "@fnndsc/chrisapi";
-import { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
+import type { IUserState } from "../../../store/user/userSlice";
+import type { Feed } from "@fnndsc/chrisapi";
+import type { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -58,7 +58,7 @@ type CreateFeedPayload = {
     selectedConfig: string[];
   };
   [Types.AddChrisFile]: {
-    file: string;
+    file: ChRISFeed;
     checkedKeys: Key[];
   };
   [Types.RemoveChrisFile]: {
@@ -87,6 +87,15 @@ type CreateFeedPayload = {
 
 export type CreateFeedActions =
   ActionMap<CreateFeedPayload>[keyof ActionMap<CreateFeedPayload>];
+
+export interface ChRISFeed {
+  name: string;
+  filename: string;
+
+  theID: number;
+
+  createDateTime: string;
+}
 
 export interface PACSData {
   id: number;
@@ -121,7 +130,7 @@ export interface CreateFeedData {
   feedName: string;
   feedDescription: string;
   tags: Tag[];
-  chrisFiles: string[];
+  chrisFiles: ChRISFeed[];
   checkedKeys: {
     [key: string]: Key[];
   };

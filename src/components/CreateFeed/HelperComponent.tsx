@@ -8,7 +8,9 @@ import {
 import { notification } from "../Antd";
 import { DeleteIcon as TrashIcon, FileIcon, FolderIcon } from "../Icons";
 import { CreateFeedContext } from "./context";
-import { Types } from "./types/feed";
+import { type ChRISFeed, Types } from "./types/feed";
+import { displayFeedName } from "./utils";
+import { constants } from "../../datasets";
 
 export const FileList = ({ file, index }: { file: string; index: number }) => {
   const { dispatch } = useContext(CreateFeedContext);
@@ -40,7 +42,7 @@ export const FileList = ({ file, index }: { file: string; index: number }) => {
                   });
 
                   notification.info({
-                    message: `File(s) removed`,
+                    message: "File(s) removed",
                     description: `${file} file(s) removed`,
                     duration: 1,
                   });
@@ -113,21 +115,31 @@ function generateLocalFileList(
   });
 }
 
-function generateChrisFileList(chrisFiles: string[]) {
-  return chrisFiles.map((file: string, index: number) => {
-    return (
-      <React.Fragment key={index}>
-        <FileList file={file} index={index} />
-      </React.Fragment>
-    );
-  });
+function generateChrisFeed(
+  chrisFile: ChRISFeed,
+  index: number,
+  prefix: string,
+) {
+  const fullName = prefix
+    ? `${prefix}${constants.ANALYSIS_CONCAT_CHAR}${chrisFile.name}`
+    : chrisFile.name;
+  const newName = displayFeedName(fullName, prefix);
+  const theName = `(${chrisFile.theID}) ${chrisFile.createDateTime} ${chrisFile.name} => ${newName}`;
+  return (
+    <React.Fragment key={index}>
+      <FileList file={theName} index={index} />
+    </React.Fragment>
+  );
 }
 
-export const ChrisFileDetails = ({ chrisFiles }: { chrisFiles: string[] }) => {
+export const ChrisFileDetails = ({
+  chrisFiles,
+  prefix,
+}: { chrisFiles: ChRISFeed[]; prefix: string }) => {
   return (
     <>
       <p>Existing Files to add to new feed:</p>
-      {generateChrisFileList(chrisFiles)}
+      {chrisFiles.map((each, idx) => generateChrisFeed(each, idx, prefix))}
     </>
   );
 };

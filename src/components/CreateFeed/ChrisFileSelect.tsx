@@ -56,8 +56,9 @@ function getCacheTree() {
 const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
   username,
 }: ChrisFileSelectProp) => {
-  const { state, dispatch } = useContext(CreateFeedContext);
-  const { chrisFiles, checkedKeys } = state.data;
+  const { state: stateCreateFeed, dispatch: dispatchCreateFeed } =
+    useContext(CreateFeedContext);
+  const { chrisFiles, checkedKeys } = stateCreateFeed.data;
   const { goToPrevStep: onBack, goToNextStep: onNext } = useWizardContext();
   const [tree, setTree] = useState<DataBreadcrumb[]>(
     (!isEmpty(getCacheTree()) && getCacheTree()) || getEmptyTree(username),
@@ -73,7 +74,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
     if (info.node.breadcrumb) {
       const path = `${info.node.breadcrumb}`;
       if (info.checked === true) {
-        dispatch({
+        dispatchCreateFeed({
           type: Types.AddChrisFile,
           payload: {
             file: path,
@@ -86,7 +87,7 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
           duration: 1,
         });
       } else {
-        dispatch({
+        dispatchCreateFeed({
           type: Types.RemoveChrisFile,
           payload: {
             file: path,
@@ -101,10 +102,10 @@ const ChrisFileSelect: React.FC<ChrisFileSelectProp> = ({
       }
       if (info.checkedNodes.length !== 0) {
         const nonDuplicateArray = new Set([
-          ...state.selectedConfig,
+          ...stateCreateFeed.selectedConfig,
           "swift_storage",
         ]);
-        dispatch({
+        dispatchCreateFeed({
           type: Types.SelectedConfig,
           payload: {
             selectedConfig: Array.from(nonDuplicateArray),
