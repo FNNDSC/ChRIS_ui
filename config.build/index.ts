@@ -1,3 +1,3 @@
 export default {
-  API_ROOT: "http://localhost:8000/api/v1/"
+  API_ROOT: "b87f4fda-012a-4564-8c36-096e496cbedf"
 }
