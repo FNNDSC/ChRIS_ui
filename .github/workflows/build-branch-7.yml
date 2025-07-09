@@ -2,9 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ master, staging ]
-  pull_request:
-    branches: [ master, staging ]
+    branches: [ branch-7.0 ]
 
 jobs:
   build:
@@ -26,6 +24,11 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: copy config.build
+        run: cp -R config.build node_modules/config
+
+
       - name: Build
         run: pnpm build
 

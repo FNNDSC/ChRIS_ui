@@ -1,0 +1,10 @@
+{
+  "name": "config",
+  "version": "0.0.1",
+  "type": "module",
+  "module": "./index.ts",
+  "main": "./index.ts",
+  "exports": {
+    "default": "./index.ts"
+  }
+}
