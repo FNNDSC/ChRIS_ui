@@ -7,10 +7,10 @@ import WrapperConnect from "../Wrapper";
 
 const PipelinePage = () => {
   React.useEffect(() => {
-    document.title = "Pipelines Catalog";
+    document.title = "Packages Catalog";
   }, []);
   return (
-    <WrapperConnect titleComponent={<InfoSection title="Pipelines" />}>
+    <WrapperConnect titleComponent={<InfoSection title="Packages" />}>
       <PageSection>
         <PipelineProvider>
           <Pipelines />

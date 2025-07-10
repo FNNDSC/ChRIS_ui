@@ -7,7 +7,6 @@ import axios from "axios";
 import { isEmpty } from "lodash";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppSelector } from "../../store/hooks";
-import { Alert } from "../Antd";
 import { handleInstallPlugin } from "../PipelinesCopy/utils";
 import { uploadPipelineSourceFile, extractPluginInfo } from "./utils";
 import { envOptions } from "../NewStore/hooks/useFetchPlugins";
@@ -50,7 +49,7 @@ const PipelineUpload = ({
   async function installPlugin(name: string, version: string) {
     setNotification({
       type: "info",
-      description: `Installing plugin: ${name} version: ${version}…`,
+      description: `Installing package: ${name} version: ${version}…`,
     });
     let pluginMeta: ApiPlugin | null = null;
 
@@ -70,7 +69,7 @@ const PipelineUpload = ({
       }
     }
     if (!pluginMeta)
-      throw new Error(`Plugin "${name}"@${version} not found in any store.`);
+      throw new Error(`Package "${name}"@${version} not found in any store.`);
 
     const client = ChrisAPIClient.getClient();
     const crResp = await client.getComputeResources();
@@ -97,7 +96,7 @@ const PipelineUpload = ({
         while (retry) {
           try {
             await uploadPipelineSourceFile(client, file);
-            setLastSuccess("Pipeline uploaded successfully");
+            setLastSuccess("Package uploaded successfully");
             fetchPipelinesAgain();
             retry = false;
           } catch (err) {
@@ -163,7 +162,7 @@ const PipelineUpload = ({
         variant="secondary"
         onClick={() => fileInput.current?.click()}
       >
-        Upload a Pipeline
+        Upload a Package
       </Button>
 
       {lastSuccess ? (

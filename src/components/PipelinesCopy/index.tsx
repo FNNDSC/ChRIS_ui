@@ -255,7 +255,7 @@ const PipelinesCopy = () => {
       )}
 
       {isLoading ? (
-        <SpinContainer title="Fetching the Pipelines" />
+        <SpinContainer title="Fetching the Packages" />
       ) : data?.registeredPipelines && data.registeredPipelines.length > 0 ? (
         <Collapse
           style={{ marginTop: "1em" }}
@@ -305,7 +305,7 @@ const PipelinesCopy = () => {
                         ? "Loading resources..."
                         : state.pipelineToAdd?.data.id === id
                           ? "Selected"
-                          : "Select pipeline"}
+                          : "Select package"}
                     </Button>
                     <Button
                       variant="tertiary"
@@ -328,7 +328,7 @@ const PipelinesCopy = () => {
                   {resourceError?.[id] ? (
                     <Alert type="error" description={resourceError[id]} />
                   ) : loadingResources?.[id] ? (
-                    <SpinContainer title="Fetching the resources for this pipeline" />
+                    <SpinContainer title="Fetching the resources for this package" />
                   ) : (
                     <PipelinesComponent pipeline={pipeline} />
                   )}
@@ -338,7 +338,7 @@ const PipelinesCopy = () => {
           })}
         />
       ) : (
-        <EmptyStateComponent title="No Pipelines were found registered to this ChRIS instance" />
+        <EmptyStateComponent title="No Packages were found registered to this ChRIS instance" />
       )}
     </div>
   );

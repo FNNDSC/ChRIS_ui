@@ -1,5 +1,7 @@
 import config from "config";
+import { keyBy } from "lodash";
 import { Cookies } from "react-cookie";
+import { T } from "vitest/dist/chunks/environment.C5eAp3K6.js";
 
 export type Query = Record<string, any>;
 
@@ -12,18 +14,20 @@ export interface CallAPI<T> {
   method?: string;
   query?: Query;
   params?: Params;
-  isFile?: boolean;
   json?: any;
   headers?: any;
+  filename?: string;
+  filetext?: string;
 }
 
 interface ApiParams {
   query?: Query;
   method?: string;
   params?: Params;
-  isFile?: boolean;
   json?: any;
   headers?: any;
+  filename?: string;
+  filetext?: string;
 }
 
 export interface ApiResult<T> {
@@ -75,9 +79,10 @@ const callApi = <T>(
     query,
     method = "get",
     params,
-    isFile,
     json,
     headers: paramsHeaders,
+    filename,
+    filetext: paramsFiletext,
   }: ApiParams,
 ): Promise<ApiResult<T>> => {
   const { API_ROOT: CONFIG_API_ROOT } = config;
@@ -98,11 +103,17 @@ const callApi = <T>(
     theEndpoint = `${theEndpoint}?${queryToString(query)}`;
   }
 
+  if (filename) {
+    const filetext = paramsFiletext || "";
+    return postFile(theEndpoint, filename, filetext);
+  }
+
   const token = getToken();
 
   const headers: HeadersInit = {
     Authorization: `Token ${token}`,
   };
+
   let body: string | undefined = undefined;
   if (params) {
     const paramsStr = queryToString(params);
@@ -121,11 +132,38 @@ const callApi = <T>(
     body,
   };
 
-  if (isFile) {
-    return fetchFiles(theEndpoint, options);
-  }
+  return fetchCore<T>(theEndpoint, options);
+};
 
-  return fetch(theEndpoint, options)
+const postFile = <T>(
+  theEndpoint: string,
+  filename: string,
+  filetext: string,
+) => {
+  const blob = new Blob([filetext], { type: "text/plain" });
+  const formData = new FormData();
+  formData.append(filename, blob, filename);
+
+  const token = getToken();
+
+  const headers: HeadersInit = {
+    Authorization: `Token ${token}`,
+    Accept: "application/json",
+  };
+
+  return fetchCore<T>(
+    theEndpoint,
+    { method: "POST", headers, body: formData },
+    true,
+  );
+};
+
+const fetchCore = <T>(
+  endpoint: string,
+  options: RequestInit,
+  isJson = false,
+): Promise<ApiResult<T>> => {
+  return fetch(endpoint, options)
     .then((res) => {
       const status = res.status;
       return res
@@ -136,7 +174,9 @@ const callApi = <T>(
             return { status, errmsg: msg };
           }
 
-          const jsonData = collectionJsonToJson(collectionJsonData);
+          const jsonData = isJson
+            ? collectionJsonData
+            : collectionJsonToJson(collectionJsonData);
 
           console.info(
             "api.callApi: jsonData:",
@@ -146,6 +186,7 @@ const callApi = <T>(
           );
 
           const data =
+            !isJson &&
             typeof collectionJsonData.collection.total === "undefined"
               ? jsonData[0]
               : jsonData;
@@ -163,24 +204,17 @@ const callApi = <T>(
     });
 };
 
-const fetchFiles = <T>(
-  theEndpoint: string,
-  options: RequestInit,
-): Promise<ApiResult<T>> => {
-  return fetch(theEndpoint, options)
-    .then((res) => {
-      const status = res.status;
-      return res.text().then((text) => {
-        return { status, text };
-      });
-    })
-    .catch((err) => {
-      return { status: 599, errmsg: err.message };
-    });
-};
-
 export default <T>(callAPI: CallAPI<T>): Promise<ApiResult<T>> => {
-  const { endpoint, method, query, params, isFile, json, headers } = callAPI;
+  const { endpoint, method, query, params, filename, filetext, json, headers } =
+    callAPI;
 
-  return callApi<T>(endpoint, { method, query, params, isFile, json, headers });
+  return callApi<T>(endpoint, {
+    method,
+    query,
+    params,
+    filename,
+    filetext,
+    json,
+    headers,
+  });
 };

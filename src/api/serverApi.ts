@@ -1,5 +1,13 @@
 import api from "./api";
-import type { Feed, PluginInstance, Plugin, NodeInfo } from "./types";
+import type {
+  Feed,
+  PluginInstance,
+  Plugin,
+  NodeInfo,
+  UploadPipeline,
+} from "./types";
+
+import YAML from "yaml";
 
 export const GetFeedPluginInstances = (feedID: number) =>
   api<PluginInstance[]>({
@@ -62,4 +70,12 @@ export const createWorkflow = (
     headers: {
       "Content-Type": "application/vnd.collection+json",
     },
+  });
+
+export const createPipeline = (pipeline: UploadPipeline) =>
+  api({
+    endpoint: "/pipelines/sourcefiles/",
+    method: "post",
+    filename: "fname",
+    filetext: YAML.stringify(pipeline),
   });
