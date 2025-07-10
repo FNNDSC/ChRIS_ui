@@ -16,15 +16,10 @@ import { setSidebarActive, type IUiState } from "../../store/ui/uiSlice";
 import type { IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
 import styles from "./Sidebar.module.css";
-import { useContext, type FormEvent } from "react";
-import { AddNodeContext, AddNodeProvider } from "../AddNode/context";
-import { CreateFeedContext, CreateFeedProvider } from "../CreateFeed/context";
-import CreateFeed from "../CreateFeed/CreateFeed";
-import { PipelineContext, PipelineProvider } from "../PipelinesCopy/context";
+import type { FormEvent } from "react";
 import { AddModal } from "../NewLibrary/components/Operations";
 import { OperationContext } from "../NewLibrary/context";
 import UploadData from "../NewLibrary/components/operations/UploadData";
-import { handleOpen } from "../Feeds/utilties";
 import { useFolderOperations } from "../NewLibrary/utils/useOperations";
 
 type AllProps = IUiState & IUserState;
@@ -151,15 +146,6 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
 
   const uploadDataColor =
     sidebarActiveItem === "uploadData" ? "#ffffff" : "#aaaaaa";
-
-  const uploadDataOnClick = () => {
-    dispatch(setSidebarActive({ activeItem: "uploadData" }));
-  };
-
-  const uploadOpenChange = (open: boolean) => {
-    console.info("Sidebar.uploadOpenChange: open:", open);
-    //dispatch(setSidebarActive({ activeItem: "uploadData" }));
-  };
 
   const PageNav = (
     <>

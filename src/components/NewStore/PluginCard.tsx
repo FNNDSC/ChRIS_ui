@@ -144,7 +144,7 @@ const PluginCard: React.FC<PluginCardProps> = ({
       onInstall(current, selectedResources);
     } catch (err: any) {
       setIsInstalled(false);
-      triggerError(err.message || "Installation failed");
+      triggerError(err.message || "Import failed");
     }
   };
 
@@ -311,7 +311,7 @@ const PluginCard: React.FC<PluginCardProps> = ({
           ) : isLoggedIn && selectedResources.length === 0 ? (
             <span className={styles.noCompute}>No compute available</span>
           ) : (
-            <Button onClick={handleInstall}>Install</Button>
+            <Button onClick={handleInstall}>Import</Button>
           )}
         </div>
       </CardBody>
