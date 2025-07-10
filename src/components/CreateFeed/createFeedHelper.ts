@@ -1,9 +1,4 @@
-import type {
-  Feed,
-  Plugin,
-  PluginInstance,
-  PluginParameter,
-} from "@fnndsc/chrisapi";
+import type { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   fetchResource,
@@ -16,7 +11,6 @@ import type { PipelineState } from "../PipelinesCopy/context";
 import type { ChRISFeed, CreateFeedData } from "./types/feed";
 import type { AddNodeState } from "../AddNode/types";
 import { computeWorkflowNodesInfo, getFullFeedName } from "./utils";
-import client from "@fnndsc/chrisapi";
 
 import {
   createWorkflow,
@@ -25,10 +19,6 @@ import {
   createPluginInstance as serverCreatePluginInstance,
   updateFeedName,
 } from "../../api/serverApi";
-import { createInflate } from "zlib";
-import { each } from "lodash";
-import { ResearchgateIcon } from "@patternfly/react-icons";
-import { activeSegmentation } from "@cornerstonejs/tools/dist/types/stateManagement/segmentation";
 
 const createFeedCore = async (
   dirpath: ChRISFeed[],

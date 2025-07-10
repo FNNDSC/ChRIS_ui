@@ -2,6 +2,7 @@
 import type React from "react";
 import { useMemo, useState, useRef, useCallback } from "react";
 import type { Plugin } from "@fnndsc/chrisapi";
+import type { Plugin as PluginType, UploadPipeline } from "../../api/types";
 import {
   Button,
   Grid,
@@ -31,6 +32,7 @@ import { handleInstallPlugin } from "../PipelinesCopy/utils";
 import type { ComputeResource } from "@fnndsc/chrisapi";
 import postModifyComputeResource from "./hooks/updateComputeResource";
 import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
+import { createPipeline } from "../../api/serverApi";
 
 const DEFAULT_SEARCH_FIELD = "name";
 const COOKIE_NAME = "storeCreds";
@@ -95,10 +97,37 @@ const Store: React.FC = () => {
   ) => {
     const hdr = getAuthHeaderOrPrompt(plugin, resources, false);
     if (!hdr) return;
-    await handleInstallPlugin(
+    const result: PluginType = await handleInstallPlugin(
       hdr,
+      // @ts-expect-error
       { name: plugin.name, version: plugin.version, url: plugin.url },
       resources,
+    );
+    console.info(
+      "NewStore.Store.handleInstall: after handleInstallPlugin: result:",
+      result,
+    );
+
+    const pipeline: UploadPipeline = {
+      name: plugin.name,
+      authors: plugin.authors,
+      category: plugin.category,
+      description: plugin.description,
+      locked: false,
+      plugin_tree: [
+        {
+          title: plugin.name,
+          previous: null,
+          plugin: `${plugin.name} v${plugin.version}`,
+        },
+      ],
+    };
+
+    const resultPipeline = await createPipeline(pipeline);
+
+    console.info(
+      "NewStore.Store.handleInstall: after createPipeline: resultPipeline:",
+      resultPipeline,
     );
   };
 
@@ -136,6 +165,7 @@ const Store: React.FC = () => {
         const p = pending.plugin as StorePlugin;
         await handleInstallPlugin(
           hdr,
+          // @ts-expect-error
           { name: p.name, version: p.version, url: p.url },
           pending.resources,
         );
@@ -223,7 +253,7 @@ const Store: React.FC = () => {
     <>
       <Wrapper
         titleComponent={
-          <InfoSection title="Store" content="Work in Progress" />
+          <InfoSection title="Import Packages" content="Work in Progress" />
         }
       >
         <Toolbar isSticky id="store-toolbar" clearAllFilters={() => {}}>
@@ -250,7 +280,7 @@ const Store: React.FC = () => {
                   isDisabled={!allPlugins.length}
                   isLoading={isBulkInstalling}
                 >
-                  Install All
+                  Import All
                 </Button>
               </ToolbarItem>
             )}
@@ -265,9 +295,9 @@ const Store: React.FC = () => {
         </Toolbar>
 
         {isLoading ? (
-          <SpinContainer title="Fetching Plugins..." />
+          <SpinContainer title="Fetching Packages..." />
         ) : isError ? (
-          <div>Error loading plugins.</div>
+          <div>Error loading packages.</div>
         ) : (
           <>
             <Grid hasGutter sm={12} lg={6} md={6} style={{ marginTop: "1rem" }}>

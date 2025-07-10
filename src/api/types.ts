@@ -59,6 +59,8 @@ export interface Plugin {
   max_memory_limit: number;
   min_gpu_limit: number;
   max_gpu_limit: number;
+  category: string;
+  url: string;
 }
 
 export interface NodeInfo {
@@ -80,4 +82,20 @@ export interface PipelineDefaultParameters {
   previous_plugin_piping_id: number | null;
   type: string;
   value: any;
+}
+
+export interface UploadPluginInfo {
+  title: string;
+  previous: string | null;
+  plugin: string;
+  plugin_parameter_defaults?: { [key: string | number]: any };
+}
+
+export interface UploadPipeline {
+  name: string;
+  authors: string;
+  category: string;
+  description: string;
+  locked: false;
+  plugin_tree: UploadPluginInfo[];
 }

@@ -44,6 +44,7 @@
     "@cornerstonejs/dicom-image-loader": "^1.86.0",
     "@cornerstonejs/tools": "^1.86.0",
     "@fnndsc/chrisapi": "^1.22.0",
+    "@microlink/react-json-view": "^1.26.2",
     "@niivue/niivue": "0.47.0",
     "@patternfly/react-charts": "^7.4.0",
     "@patternfly/react-core": "^5.4.0",
@@ -86,7 +87,6 @@
     "react-dropzone": "^14.2.3",
     "react-error-boundary": "^4.0.13",
     "react-force-graph-2d": "^1.25.5",
-    "@microlink/react-json-view": "^1.26.2",
     "react-redux": "^9.1.2",
     "react-resizable-panels": "^2.1.4",
     "react-responsive": "^10.0.0",
@@ -101,7 +101,8 @@
     "use-ackee": "^3.1.0",
     "use-immer": "^0.10.0",
     "uuid": "^10.0.0",
-    "vite-plugin-babel-macros": "^1.0.6"
+    "vite-plugin-babel-macros": "^1.0.6",
+    "yaml": "^2.8.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
