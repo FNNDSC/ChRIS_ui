@@ -84,7 +84,10 @@ const callApi = <T>(
 
   const default_api_root = window.location.origin;
 
-  const API_ROOT = CONFIG_API_ROOT || default_api_root;
+  let API_ROOT = CONFIG_API_ROOT || default_api_root;
+  if (API_ROOT.length >= 1 && API_ROOT[API_ROOT.length - 1] === "/") {
+    API_ROOT = API_ROOT.slice(0, API_ROOT.length - 1);
+  }
 
   let theEndpoint = endpoint;
   if (!theEndpoint.includes(API_ROOT)) {
