@@ -55,19 +55,28 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   };
 
   const onLogout = () => {
+    // Store the current URL for redirect after login
+    const currentPath = location.pathname + location.search;
+
+    // Clear query cache first
     queryClient.clear();
+
+    // Remove all auth-related cookies with proper path
+    if (username) {
+      removeCookie(`${username}_token`, { path: "/" });
+    }
+    removeCookie("username", { path: "/" });
+    removeCookie("isStaff", { path: "/" });
+
+    // Reset API client after cookies are removed
     ChrisAPIClient.resetClient();
-    removeCookie("username", {
-      path: "/",
-    });
-    removeCookie(`${username}_token`, {
-      path: "/",
-    });
-    removeCookie("isStaff", {
-      path: "/",
-    });
+
+    // Update Redux state
     dispatch(clearCartOnLogout());
     dispatch(setLogoutSuccess());
+
+    // Redirect to login page with the return URL as a parameter
+    navigate(`/login?redirectTo=${encodeURIComponent(currentPath)}`);
   };
 
   const onDropdownToggle = () => {

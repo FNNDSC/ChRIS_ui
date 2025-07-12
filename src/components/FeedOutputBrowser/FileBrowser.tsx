@@ -430,7 +430,13 @@ const FileBrowser = (props: FileBrowserProps) => {
           </>
         )}
         {drawerState.preview.open && (
-          <Panel order={2} id="5" defaultSize={47} minSize={20}>
+          <Panel
+            order={2}
+            id="5"
+            defaultSize={47}
+            minSize={20}
+            style={{ overflow: "auto" }}
+          >
             <DrawerActionButton
               content="Preview"
               handleMaximize={() => {

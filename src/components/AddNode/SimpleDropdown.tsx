@@ -7,14 +7,15 @@ import {
   MenuToggle,
   TextInput,
 } from "@patternfly/react-core";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { CloseIcon } from "../Icons";
 import type { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { unPackForKeyValue } from "./utils";
-
 import { v4 } from "uuid";
 import { AddNodeContext } from "./context";
 import { Types } from "./types";
+import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
+import { useAppSelector } from "../../store/hooks";
 
 function getInitialState() {
   return {
@@ -24,6 +25,10 @@ function getInitialState() {
 
 const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
   const { state, dispatch } = useContext(AddNodeContext);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
+  // Get the current logged-in username from Redux store
+  const { username } = useAppSelector((state) => state.user);
 
   const { dropdownInput, componentList } = state;
   const [dropdownState, setDropdownState] =
@@ -32,6 +37,22 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
   const [paramFlag, value, type, placeholder] = unPackForKeyValue(
     dropdownInput[id],
   );
+
+  // Check if this is a password field
+  const isPasswordField = paramFlag?.toLowerCase().includes("password");
+
+  // Check if there's a username or user field in the form inputs
+  const userField = Object.values(dropdownInput || {}).find(
+    (input) =>
+      input?.flag?.toLowerCase().includes("username") ||
+      input?.flag?.toLowerCase().includes("user"),
+  );
+
+  // Determine if the entered username matches the logged-in user
+  const usernameMatches = userField?.value === username;
+
+  // Determine if we should show the password toggle button
+  const shouldShowPasswordToggle = isPasswordField && usernameMatches;
 
   useEffect(() => {
     if (paramFlag && !value) {
@@ -144,6 +165,10 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
     return parameters;
   };
 
+  const togglePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <>
       <div className="plugin-configuration">
@@ -172,20 +197,31 @@ const SimpleDropdown = ({ id, params }: SimpleDropdownProps) => {
         >
           <DropdownList>{dropdownItems()}</DropdownList>
         </Dropdown>
-        <TextInput
-          id={paramFlag}
-          type={
-            paramFlag?.toLowerCase().includes("password") ? "password" : "text"
-          }
-          aria-label="text"
-          className="plugin-configuration__input"
-          onChange={handleInputChange}
-          placeholder={placeholder}
-          value={value}
-          isDisabled={
-            type === "boolean" || (params && params.dropdown.length === 0)
-          }
-        />
+        <div style={{ display: "flex", flexGrow: 1 }}>
+          <TextInput
+            id={paramFlag}
+            type={isPasswordField && !showPassword ? "password" : "text"}
+            aria-label="text"
+            className="plugin-configuration__input"
+            onChange={handleInputChange}
+            placeholder={placeholder}
+            value={value}
+            isDisabled={
+              type === "boolean" || (params && params.dropdown.length === 0)
+            }
+            style={{ flexGrow: 1 }}
+          />
+          {shouldShowPasswordToggle && (
+            <Button
+              variant="plain"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              onClick={togglePassword}
+              style={{ marginLeft: "4px" }}
+            >
+              {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+            </Button>
+          )}
+        </div>
 
         <Button variant="link" onClick={deleteDropdown} icon={<CloseIcon />} />
       </div>

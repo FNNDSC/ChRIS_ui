@@ -53,6 +53,11 @@ interface PluginCardProps {
   ) => void;
   onModify?: (plugin: ChrisPlugin, computeResources: ComputeResource[]) => void;
   onResourcesChange?: (pluginId: string, resources: ComputeResource[]) => void;
+  onVersionChange?: (
+    pluginId: string,
+    selectedPluginId: string,
+    version: string,
+  ) => void;
   refreshMap?: Record<string, number>;
 }
 
@@ -62,6 +67,7 @@ const PluginCard: React.FC<PluginCardProps> = ({
   onInstall,
   onModify,
   onResourcesChange,
+  onVersionChange,
   refreshMap,
 }) => {
   const { isLoggedIn } = useAppSelector((state) => state.user);
@@ -230,10 +236,13 @@ const PluginCard: React.FC<PluginCardProps> = ({
             <Select
               id="version-select"
               isOpen={versionOpen}
-              onSelect={(e, v) => {
+              selected={current}
+              // @ts-ignore
+              onSelect={(e, val: StorePlugin) => {
                 e?.stopPropagation();
-                v && setSelectedPlugin(v as StorePlugin);
                 setVersionOpen(false);
+                setSelectedPlugin(val);
+                onVersionChange?.(basePlugin.id, val.id, val.version);
               }}
               toggle={versionToggle}
               shouldFocusToggleOnSelect
