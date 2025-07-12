@@ -4,7 +4,11 @@ import type {
   FileBrowserFolderLinkFile,
   FileBrowserFolderList,
 } from "@fnndsc/chrisapi";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import ChrisAPIClient from "../../../../api/chrisapiclient";
 
 // Define the interface for pagination
@@ -265,15 +269,45 @@ export const useFolders = (
   pageNumber = 1,
   selectedFolder?: FileBrowserFolder,
 ) => {
+  const queryKey = [
+    "library_folders",
+    computedPath,
+    pageNumber,
+    selectedFolder?.data.id,
+  ];
+
+  // Get the query client so we can access previous data
+  const queryClient = useQueryClient();
+
   return useQuery({
-    queryKey: [
-      "library_folders",
-      computedPath,
-      pageNumber,
-      selectedFolder?.data.id,
-    ],
-    queryFn: () =>
-      fetchFolders(computedPath, pageNumber, undefined, selectedFolder),
+    queryKey: queryKey,
+    queryFn: () => {
+      // Get the previous data for the current path (regardless of page number)
+      const baseQueryKey = ["library_folders", computedPath];
+
+      // Try to find the most recent data for this path by checking previous pages
+      let previousData: FolderHookData | undefined;
+      if (pageNumber > 1) {
+        // Look for data from the previous page first
+        previousData = queryClient.getQueryData<FolderHookData>([
+          ...baseQueryKey,
+          pageNumber - 1,
+          selectedFolder?.data.id,
+        ]);
+
+        // If no data from previous page, try the current page (might have partial data)
+        if (!previousData) {
+          previousData = queryClient.getQueryData<FolderHookData>(queryKey);
+        }
+      }
+
+      return fetchFolders(
+        computedPath,
+        pageNumber,
+        previousData,
+        selectedFolder,
+      );
+    },
     placeholderData: keepPreviousData,
     structuralSharing: true,
   });

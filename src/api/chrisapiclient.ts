@@ -19,25 +19,49 @@ class ChrisAPIClient {
   static getClient(): Client {
     const cookie = new Cookies();
     const user = cookie.get("username");
-    const token: string = cookie.get(`${user}_token`);
 
-    // Return existing client if it exists and was created with the same token
-    if (
-      ChrisAPIClient.client &&
-      ((token && token === ChrisAPIClient.lastCreatedWith) ||
-        (!token && !ChrisAPIClient.lastCreatedWith))
-    ) {
+    // Get token if username is available
+    const token = user ? cookie.get(`${user}_token`) : null;
+
+    // Case 1: No client exists yet, create a new one
+    if (!ChrisAPIClient.client) {
+      ChrisAPIClient.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
+        token: token || undefined,
+      });
+      ChrisAPIClient.lastCreatedWith = token;
       return ChrisAPIClient.client;
     }
 
-    // Create new client with current token
+    // Case 2: Client exists but no token is available (user logged out)
+    if (!token) {
+      // Reset client auth if it was previously authenticated
+      if (ChrisAPIClient.lastCreatedWith) {
+        ChrisAPIClient.client.auth = "";
+        ChrisAPIClient.lastCreatedWith = null;
+      }
+      return ChrisAPIClient.client;
+    }
+
+    // Case 3: Client exists and token is different from last time
+    if (token !== ChrisAPIClient.lastCreatedWith) {
+      ChrisAPIClient.client.auth = token;
+      ChrisAPIClient.lastCreatedWith = token;
+    }
+
+    return ChrisAPIClient.client;
+  }
+
+  /**
+   * Explicitly set the client with a new token
+   * Use this during login to ensure the client is properly configured
+   * @param token The authentication token
+   */
+  static setClientWithToken(token: string): Client {
+    // Always create a fresh client during explicit login
     ChrisAPIClient.client = new Client(import.meta.env.VITE_CHRIS_UI_URL, {
       token,
     });
-
-    // Remember what token was used to create this client
     ChrisAPIClient.lastCreatedWith = token;
-
     return ChrisAPIClient.client;
   }
 
@@ -45,7 +69,8 @@ class ChrisAPIClient {
    * Reset the client instance (useful for testing or logout)
    */
   static resetClient(): void {
-    ChrisAPIClient.client = null;
+    // Instead of setting to null, create a new unauthenticated client
+    ChrisAPIClient.client = new Client(import.meta.env.VITE_CHRIS_UI_URL);
     ChrisAPIClient.lastCreatedWith = null;
   }
 }
