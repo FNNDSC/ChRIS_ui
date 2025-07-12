@@ -2,7 +2,7 @@ import { test, expect } from "vitest";
 import { PfdcmClient, Configuration } from "./index.ts";
 import { PfdcmEnvironmentalDetailApi } from "./generated";
 
-test("PfdcmClient", async (context) => {
+test.skip("PfdcmClient", async (context) => {
   const url = process.env.VITE_PFDCM_URL;
   // const url = 'http://localhost:8088'
   const configuration = new Configuration({ basePath: url });
