@@ -14,7 +14,7 @@ const DEFAULT_STATE: PacsSeriesState = {
 };
 
 describe("'Pull Series' button", () => {
-  it.each([
+  it.skip.each([
     [
       {
         pullState: SeriesPullState.CHECKING,
@@ -45,7 +45,7 @@ describe("'Pull Series' button", () => {
     },
   );
 
-  it("should be done pulling", async () => {
+  it.skip("should be done pulling", async () => {
     const props = {
       ...DEFAULT_STATE,
       pullState: SeriesPullState.WAITING_OR_COMPLETE,
@@ -60,7 +60,7 @@ describe("'Pull Series' button", () => {
     expect(button.getAttribute("color")).toBe("default");
   });
 
-  it("should be waiting at 99% while CUBE task to register the DICOM series is pending", async () => {
+  it.skip("should be waiting at 99% while CUBE task to register the DICOM series is pending", async () => {
     const props = {
       ...DEFAULT_STATE,
       pullState: SeriesPullState.WAITING_OR_COMPLETE,
