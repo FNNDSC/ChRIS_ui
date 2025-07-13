@@ -14,7 +14,7 @@ import { isEmpty } from "lodash";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setSidebarActive, type IUiState } from "../../store/ui/uiSlice";
-import type { IUserState } from "../../store/user/userSlice";
+import { Role, type IUserState } from "../../store/user/userSlice";
 import brandImg from "../../assets/logo_chris_dashboard.png";
 import styles from "./Sidebar.module.css";
 import type { FormEvent } from "react";
@@ -149,6 +149,10 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
   const uploadDataColor =
     sidebarActiveItem === "uploadData" ? "#ffffff" : "#aaaaaa";
 
+  const classNameImportPackage = role === Role.Admin ? undefined : styles.hide;
+  const classNameComposePackage =
+    role === Role.Clinician ? styles.hide : undefined;
+
   const PageNav = (
     <>
       <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
@@ -204,7 +208,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             </NavItem>
             */}
             <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
-              {renderLink("/pacs", "Retrieve PACS", "pacs")}
+              {renderLink("/pacs", "Query and Retrieve PACS", "pacs")}
             </NavItem>
           </NavGroup>
           <NavGroup title="Packages">
@@ -214,6 +218,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             >
               {renderLink("/package", "Browse Packages", "catalog")}
             </NavItem>
+
             <NavExpandable
               title="Tags"
               buttonProps={{ className: styles["tags-expand"] }}
@@ -221,14 +226,20 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             >
               {renderPackageTags()}
             </NavExpandable>
+
             {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
-              <NavItem itemId="store" isActive={sidebarActiveItem === "store"}>
+              <NavItem
+                itemId="store"
+                isActive={sidebarActiveItem === "store"}
+                className={classNameImportPackage}
+              >
                 {renderLink("/import", "Import Package", "store")}
               </NavItem>
             )}
             <NavItem
               itemId="compose"
               isActive={sidebarActiveItem === "compose"}
+              className={classNameComposePackage}
             >
               {renderLink("/compose", "Compose Package", "compose")}
             </NavItem>
