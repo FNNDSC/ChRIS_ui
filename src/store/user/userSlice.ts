@@ -10,21 +10,9 @@ export enum Role {
   Admin2 = "an admin2",
 }
 
-export const Roles = [
-  Role.Clinician,
-  Role.Clinician2,
-  Role.Researcher,
-  Role.Researcher2,
-];
+export const Roles = [Role.Clinician, Role.Researcher];
 
-export const StaffRoles = [
-  Role.Clinician,
-  Role.Clinician2,
-  Role.Researcher,
-  Role.Researcher2,
-  Role.Admin,
-  Role.Admin2,
-];
+export const StaffRoles = [Role.Clinician, Role.Researcher, Role.Admin];
 
 export interface IUserState {
   username?: string | null;

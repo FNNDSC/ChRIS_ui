@@ -1,7 +1,6 @@
 import { Dropdown } from "../../../Antd";
 import { Button } from "@patternfly/react-core";
 import { AddIcon } from "../../../Icons";
-import { MouseEventHandler } from "react";
 
 const OPERATION_ITEMS = [
   { key: "fileUpload", label: "Upload Files", disabled: false },
