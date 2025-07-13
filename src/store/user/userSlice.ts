@@ -1,6 +1,31 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { Cookies } from "react-cookie";
 
+export enum Role {
+  Clinician = "a clinician",
+  Clinician2 = "a clinician2",
+  Researcher = "a researcher",
+  Researcher2 = "a researcher2",
+  Admin = "an admin",
+  Admin2 = "an admin2",
+}
+
+export const Roles = [
+  Role.Clinician,
+  Role.Clinician2,
+  Role.Researcher,
+  Role.Researcher2,
+];
+
+export const StaffRoles = [
+  Role.Clinician,
+  Role.Clinician2,
+  Role.Researcher,
+  Role.Researcher2,
+  Role.Admin,
+  Role.Admin2,
+];
+
 export interface IUserState {
   username?: string | null;
   password?: string;
@@ -9,19 +34,23 @@ export interface IUserState {
   isRememberMe?: boolean;
   isLoggedIn?: boolean;
   isStaff?: boolean;
+
+  role?: Role;
 }
 
 const cookie = new Cookies();
-const user = cookie.get("username");
-const token = cookie.get(`${user}_token`);
+const username = cookie.get("username");
+const token = cookie.get(`${username}_token`);
 const isStaff = cookie.get("isStaff");
+const role = isStaff ? Role.Admin : Role.Researcher;
 
 const initialState: IUserState = {
-  username: user,
+  username: username,
   token: token,
   isRememberMe: false,
   isLoggedIn: !!token,
   isStaff: !!isStaff,
+  role: role,
 };
 
 const userSlice = createSlice({
@@ -40,6 +69,18 @@ const userSlice = createSlice({
       state.token = action.payload.token;
       state.isLoggedIn = true;
       state.isStaff = action.payload.isStaff;
+      if (action.payload.isStaff) {
+        state.role = Role.Admin;
+      }
+    },
+    setRole: (state, action: PayloadAction<{ role: Role }>) => {
+      const { role } = action.payload;
+      console.info("userSlice.setRole: role:", role, "isStaff:", state.isStaff);
+      if (!state.isStaff && role === Role.Admin) {
+        return;
+      }
+
+      state.role = role;
     },
     setUserLogout: (state) => {
       state.username = null;
@@ -67,6 +108,7 @@ export const {
   setUserLogout,
   setLogoutSuccess,
   setAuthError,
+  setRole,
 } = userSlice.actions;
 
 export default userSlice.reducer;

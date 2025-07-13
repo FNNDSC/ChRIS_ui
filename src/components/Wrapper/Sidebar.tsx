@@ -7,6 +7,7 @@ import {
   PageSidebarBody,
   Brand,
   NavExpandable,
+  NavItemSeparator,
 } from "@patternfly/react-core";
 import { type DefaultError, useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
@@ -33,6 +34,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
   const { sidebarActiveItem, isNavOpen, isTagExpanded, isPackageTagExpanded } =
     useAppSelector((state) => state.ui);
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+  const role = useAppSelector((state) => state.user.role);
   const dispatch = useAppDispatch();
 
   const { onTagToggle, onPackageTagToggle } = props;
@@ -163,6 +165,10 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
             </NavItem>
             <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
               {renderLink("/shared", "Shared Data", "shared")}
+            </NavItem>
+
+            <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
+              {renderLink("/library", "Library", "lib")}
             </NavItem>
 
             <NavExpandable

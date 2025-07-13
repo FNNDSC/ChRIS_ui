@@ -1,5 +1,4 @@
 import "./app.css";
-import "@patternfly/react-core/dist/styles/base.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { App as AntdApp, ConfigProvider, theme } from "antd";
 import { useContext } from "react";

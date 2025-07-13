@@ -28,6 +28,7 @@ import Store from "./components/NewStore";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setSidebarActive } from "./store/ui/uiSlice";
 import { OperationsProvider } from "./components/NewLibrary/context";
+import GnomeLibrary from "./components/GnomeLibrary";
 
 interface IState {
   selectData?: Series;
@@ -127,7 +128,21 @@ export const MainRouter: React.FC = () => {
       path: "/",
       element: <Dashboard />,
     },
-
+    {
+      path: "library/*",
+      element: (
+        <PrivateRoute>
+          <RouterProvider
+            {...{ actions, state, route, setRoute }}
+            context={MainRouterContext}
+          >
+            <OperationsProvider>
+              <GnomeLibrary />
+            </OperationsProvider>
+          </RouterProvider>
+        </PrivateRoute>
+      ),
+    },
     {
       path: "data/*",
       element: (
