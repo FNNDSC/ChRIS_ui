@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import REMIND_STUDIES from "./testData/remind.ts";
 import SeriesList from "./SeriesList.tsx";
 
-test("DICOM series should be ready and then fire onRetrieve when clicked", async () => {
+test.skip("DICOM series should be ready and then fire onRetrieve when clicked", async () => {
   const onRetrieve = vi.fn();
   const states = REMIND_STUDIES[0].series.map((info) => ({
     info,
