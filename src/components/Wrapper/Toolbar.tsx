@@ -23,10 +23,17 @@ import {
   useAppSelector,
   useSignUpAllowed,
 } from "../../store/hooks";
-import { setLogoutSuccess } from "../../store/user/userSlice";
+import {
+  setLogoutSuccess,
+  Roles,
+  StaffRoles,
+  type Role,
+  setRole,
+} from "../../store/user/userSlice";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
 import CartNotify from "./CartNotify";
+import styles from "./Toolbar.module.css";
 
 type ToolbarComponentProps = {
   showToolbar: boolean;
@@ -47,8 +54,12 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
   const queryClient = useQueryClient();
   const username = useAppSelector((state) => state.user.username);
+  const role = useAppSelector((state) => state.user.role);
+  const isStaff = useAppSelector((state) => state.user.isStaff);
   const [dropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [roleDropdownOpen, setIsRoleDropdownOpen] = React.useState(false);
   const [trayOpen, setTrayOpen] = React.useState(false); // State for tray visibility
+  const roles = isStaff ? StaffRoles : Roles;
 
   const handleChange = () => {
     toggleTheme();
@@ -74,6 +85,10 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
     setIsDropdownOpen(!dropdownOpen);
   };
 
+  const onRoleDropdownToggle = () => {
+    setIsRoleDropdownOpen(!roleDropdownOpen);
+  };
+
   const copyLoginCommand = () => {
     const url = `${window.location.protocol}://${window.location.host}`;
     const command = `chrs login --ui "${url}" --cube "${
@@ -91,6 +106,17 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
       Sign out
     </DropdownItem>,
   ];
+
+  const renderRoleDropdownItem = (role: Role, idx: number) => {
+    return (
+      <DropdownItem
+        key={`role-${idx}`}
+        onClick={() => dispatch(setRole({ role }))}
+      >
+        {role}
+      </DropdownItem>
+    );
+  };
 
   const toggleTray = () => {
     setTrayOpen(!trayOpen);
@@ -140,6 +166,22 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
                 onChange={handleChange}
                 ouiaId="Basic Switch"
               />
+            </FlexItem>
+            <FlexItem>
+              <span className={styles["role-prompt"]}>I am: </span>
+              <Dropdown
+                onSelect={onRoleDropdownToggle}
+                isOpen={roleDropdownOpen}
+                toggle={(toggleRef) => (
+                  <MenuToggle ref={toggleRef} onClick={onRoleDropdownToggle}>
+                    {role}
+                  </MenuToggle>
+                )}
+              >
+                <DropdownList>
+                  {roles.map((each, idx) => renderRoleDropdownItem(each, idx))}
+                </DropdownList>
+              </Dropdown>
             </FlexItem>
             <FlexItem>
               {token ? (
