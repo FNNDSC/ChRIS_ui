@@ -80,7 +80,6 @@ const Wrapper = (props: WrapperProps) => {
       }
       sidebar={sidebar}
     >
-      {" "}
       {children}
     </Page>
   );
