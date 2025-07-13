@@ -23,4 +23,6 @@ jobs:
           node-version: 22
           cache: "pnpm"
       - run: pnpm install
+      - name: copy config.tmpl
+        run: cp -R config.tmpl node_modules/config
       - run: pnpm test
