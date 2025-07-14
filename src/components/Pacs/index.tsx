@@ -18,7 +18,7 @@ function getEnvPfdcmClient(): PfdcmClient {
 
 const PacsTitle = () => (
   <InfoSection
-    title="PACS Query and Retrieve"
+    title="Query and Retrieve PACS"
     content={
       <>
         Search for data from the hospital PACS and pull DICOM into{" "}

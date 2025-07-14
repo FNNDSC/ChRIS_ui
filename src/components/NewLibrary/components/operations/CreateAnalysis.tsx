@@ -27,7 +27,7 @@ import { MainRouterContext } from "../../../../routes";
 import Review from "../../../CreateFeed/Review";
 import { useQueryClient } from "@tanstack/react-query";
 import type { SelectionPayload } from "../../../../store/cart/types";
-import { GetFeed, GetFeedPluginInstances } from "../../../../api/serverApi";
+import { getFeed, GetFeedPluginInstances } from "../../../../api/serverApi";
 import type { Feed, PluginInstance } from "../../../../api/types";
 import { catchError } from "../../../../api/common";
 
@@ -199,7 +199,7 @@ export default (props: Props) => {
       return { name: "", filename: "", theID: -1, createDateTime: "" };
     }
 
-    const feed = await GetFeed(feedID);
+    const feed = await getFeed(feedID);
     if (!feed.data) {
       return { name: "", filename: "", theID: -1, createDateTime: "" };
     }
