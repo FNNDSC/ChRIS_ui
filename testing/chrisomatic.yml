@@ -22,10 +22,10 @@ cube:
       version: 1.2.1
     - name: pl-topologicalcopy
       version: 1.0.2
-    - name: pl-simpledsapp
-      version: 2.1.0
-    - name: pl-unstack-folders
-      version: 1.0.0
+    # - name: pl-simpledsapp
+    #   version: 2.1.0
+    # - name: pl-unstack-folders
+    #   version: 1.0.0
 
       # needed by test
     - name: pl-mri10yr06mo01da_normal

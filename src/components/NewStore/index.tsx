@@ -253,7 +253,7 @@ const Store: React.FC = () => {
     <>
       <Wrapper
         titleComponent={
-          <InfoSection title="Import Packages" content="Work in Progress" />
+          <InfoSection title="Import Package" content="Work in Progress" />
         }
       >
         <Toolbar isSticky id="store-toolbar" clearAllFilters={() => {}}>
