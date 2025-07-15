@@ -99,3 +99,23 @@ export interface UploadPipeline {
   locked: false;
   plugin_tree: UploadPluginInfo[];
 }
+
+export interface PACSSeries {
+  id: number;
+  creation_date: string; // yyyy-mm-ddTHH:MM:SS.ffffffTZ
+  folder_path: string;
+  PatientID: string;
+  PatientName: string;
+  PatientBirthDate: string;
+  PatientAge: string;
+  PatientSex: string;
+  StudyDate: string;
+  AccessionNumber: string;
+  Modality: string;
+  ProtocolName: string;
+  StudyInstanceUID: string;
+  StudyDescription: string;
+  SeriesInstanceUID: string;
+  SeriesDescription: string;
+  pacs_identifier: string;
+}

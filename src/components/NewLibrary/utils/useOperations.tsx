@@ -400,8 +400,8 @@ export const useFolderOperations = (
       createFeed: () => {
         const defaultFeedName =
           selectedPaths.length > 1
-            ? "Feed created from your Library"
-            : `Feed created for ${getFeedNameForSinglePath(selectedPaths[0])}`;
+            ? "Data created"
+            : `Data created for ${getFeedNameForSinglePath(selectedPaths[0])}`;
         setModalState({
           type: "createFeed",
           isOpen: true,

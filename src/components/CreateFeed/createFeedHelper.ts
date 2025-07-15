@@ -14,7 +14,7 @@ import { computeWorkflowNodesInfo, getFullFeedName } from "./utils";
 
 import {
   createWorkflow,
-  GetFeed,
+  getFeed,
   searchPluginsByName,
   createPluginInstance as serverCreatePluginInstance,
   updateFeedName,
@@ -111,7 +111,7 @@ const createFeedCore = async (
   }
 
   const feedID = createdInstance.data?.feed_id || 0;
-  const feed = GetFeed(feedID);
+  const feed = getFeed(feedID);
 
   await updateFeedName(feedID, fullFeedName);
 
