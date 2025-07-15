@@ -1,10 +1,12 @@
-import api from "./api";
+import { dir } from "console";
+import api, { type ApiResult } from "./api";
 import type {
   Feed,
   PluginInstance,
   Plugin,
   NodeInfo,
   UploadPipeline,
+  PACSSeries,
 } from "./types";
 
 import YAML from "yaml";
@@ -15,7 +17,7 @@ export const GetFeedPluginInstances = (feedID: number) =>
     method: "get",
   });
 
-export const GetFeed = (feedID: number) =>
+export const getFeed = (feedID: number) =>
   api<Feed>({
     endpoint: `/${feedID}/`,
     method: "get",
@@ -27,6 +29,15 @@ export const updateFeedName = (feedID: number, feedName: string) =>
     method: "put",
     json: {
       name: feedName,
+    },
+  });
+
+export const updateFeedPublic = (feedID: number, isPublic = true) =>
+  api<Feed>({
+    endpoint: `/${feedID}/`,
+    method: "put",
+    json: {
+      public: isPublic,
     },
   });
 
@@ -44,6 +55,7 @@ export const createPluginInstance = (pluginID: number, theDirs: string[]) =>
     endpoint: `/plugins/${pluginID}/instances/`,
     method: "post",
     json: {
+      previous_id: null,
       dir: theDirs.join(","),
     },
   });
@@ -72,10 +84,69 @@ export const createWorkflow = (
     },
   });
 
+type createFeedWithFilepathProp = {
+  filepath: string;
+  theName: string;
+  tags: string[];
+  patientID?: string;
+  modality?: string;
+  studyDate?: string;
+  isPublic?: boolean;
+};
+export const createFeedWithFilepath = async ({
+  filepath,
+  theName,
+  tags,
+  patientID,
+  modality,
+  studyDate,
+  isPublic,
+}: createFeedWithFilepathProp): Promise<ApiResult<Feed>> => {
+  const pluginInstanceResult = await createPluginInstance(1, [filepath]);
+  if (!pluginInstanceResult.data) {
+    return {
+      errmsg: pluginInstanceResult.errmsg,
+      status: pluginInstanceResult.status,
+    };
+  }
+
+  const {
+    data: { feed_id: feedID },
+  } = pluginInstanceResult;
+
+  await updateFeedName(feedID, theName);
+
+  if (isPublic) {
+    await updateFeedPublic(feedID, true);
+  }
+
+  const feedResult = await getFeed(feedID);
+
+  return feedResult;
+};
+
 export const createPipeline = (pipeline: UploadPipeline) =>
   api({
     endpoint: "/pipelines/sourcefiles/",
     method: "post",
     filename: "fname",
     filetext: YAML.stringify(pipeline),
+  });
+
+export const getPACSSeriesListByStudyUID = (studyUID: string) =>
+  api<PACSSeries[]>({
+    endpoint: "/pacs/series/search/",
+    method: "get",
+    query: {
+      StudyInstanceUID: studyUID,
+    },
+  });
+
+export const getPACSSeriesListBySeriesUID = (seriesUID: string) =>
+  api<PACSSeries[]>({
+    endpoint: "/pacs/series/search/",
+    method: "get",
+    query: {
+      SeriesInstanceUID: seriesUID,
+    },
   });

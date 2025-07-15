@@ -46,6 +46,13 @@ import {
 } from "./curry.ts";
 import type { Study } from "../../api/pfdcm/models.ts";
 import terribleStrictModeWorkaround from "./terribleStrictModeWorkaround.ts";
+import {
+  createFeedWithFilepath,
+  getPACSSeriesListBySeriesUID,
+  getPACSSeriesListByStudyUID,
+} from "../../api/serverApi.ts";
+import type { PACSSeries as PACSSeriesType } from "../../api/types.ts";
+import { filter } from "lodash";
 
 type PacsControllerProps = {
   getPfdcmClient: () => PfdcmClient;
@@ -277,7 +284,12 @@ const PacsController: React.FC<PacsControllerProps> = ({
    */
   const cubeSeriesQueries = useQueries({
     queries: expandedSeries.map((series) => ({
-      queryKey: ["cubeSeries", chrisClient.url, series],
+      queryKey: [
+        "cubeSeries",
+        chrisClient.url,
+        series.pacs_name,
+        series.SeriesInstanceUID,
+      ],
       queryFn: async () => {
         const list = await chrisClient.getPACSSeriesList({
           limit: 1,
@@ -317,7 +329,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
           enabled: state.done,
           retry: 300,
           retryDelay:
-            parseInt(import.meta.env.VITE_CUBE_POLL_INTERVAL_MS) || 2000,
+            Number.parseInt(import.meta.env.VITE_CUBE_POLL_INTERVAL_MS) || 2000,
         })),
       [receiveState, chrisClient.getPACSSeriesList],
     ),
@@ -421,10 +433,21 @@ const PacsController: React.FC<PacsControllerProps> = ({
   const lonk = useLonk({
     client: chrisClient,
     onDone: React.useCallback(
-      (pacs_name: string, SeriesInstanceUID: string) =>
+      async (pacs_name: string, SeriesInstanceUID: string) => {
         updateReceiveState(pacs_name, SeriesInstanceUID, (draft) => {
           draft.done = true;
-        }),
+        });
+
+        console.info(
+          "PacsController.pullFromPacs: to createFeed: seriesInstanceUID:",
+          SeriesInstanceUID,
+        );
+
+        await createFeedWithSeriesInstanceUID(SeriesInstanceUID);
+
+        return;
+      },
+
       [updateReceiveState],
     ),
     onProgress: React.useCallback(
@@ -463,7 +486,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
     shouldReconnect: errorCodeIs4xx,
     onReconnectStop: React.useCallback(
       () => setWsError(<>The WebSocket is disconnected.</>),
-      [setWsError],
+      [],
     ),
     onWebsocketError: React.useCallback(
       () =>
@@ -483,6 +506,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
    */
   const onSubmit = React.useCallback(
     (service: string, query: PACSqueryCore) => {
+      console.info("PacsController.onSubmit: query:", query);
       setPacsQuery({ service, query });
     },
     [],
@@ -494,6 +518,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
 
   const onRetrieve = React.useCallback(
     (service: string, query: PACSqueryCore) => {
+      console.info("PacsController.onRetrieve: query:", query);
       expandStudiesFor(service, query);
       setPullRequests((draft) => {
         const key = { service, query };
@@ -570,17 +595,104 @@ const PacsController: React.FC<PacsControllerProps> = ({
     [shouldPullStudy, shouldPullSeries],
   );
 
+  const createFeedWithSeriesInstanceUID = async (seriesUID: string) => {
+    console.info(
+      "PacsController.createFeedWithSeriesInstanceUID: to getPACSSeriesListBySeriesUID: folderPath:",
+      seriesUID,
+    );
+    const pacsSeriesListResult = await getPACSSeriesListBySeriesUID(seriesUID);
+    const { data: pacsSeriesList } = pacsSeriesListResult;
+    if (!pacsSeriesList) {
+      return;
+    }
+
+    for (const pacsSeries of pacsSeriesList) {
+      await createFeedWithPACSSeries(pacsSeries);
+    }
+
+    return;
+  };
+
+  const createFeedWithStudyInstanceUID = async (studyUID: string) => {
+    console.info(
+      "PacsController.createFeedWithStudyInstanceUID: start: studyUID:",
+      studyUID,
+    );
+    const pacsSeriesListResult = await getPACSSeriesListByStudyUID(studyUID);
+
+    console.info(
+      "PacsController.createFeedWithStudyInstanceUID: after getPACSSeriesListByStudyUID: pacsSeriesListResult:",
+      pacsSeriesListResult,
+    );
+
+    const { data: pacsSeriesList } = pacsSeriesListResult;
+    if (!pacsSeriesList) {
+      return;
+    }
+
+    for (const pacsSeries of pacsSeriesList) {
+      await createFeedWithPACSSeries(pacsSeries);
+    }
+
+    return;
+  };
+
+  const createFeedWithPACSSeries = async (series: PACSSeriesType) => {
+    const {
+      folder_path: thePath,
+      PatientID: patientID,
+      StudyDate: studyDate,
+      StudyDescription: studyDescription,
+      SeriesDescription: seriesDescription,
+      Modality: modality,
+    } = series;
+
+    const studyDateStr = studyDate.replace(/[^0-9]/g, "");
+
+    const theName = `PACS-${patientID}-${studyDateStr}-${studyDescription}-${seriesDescription}`;
+
+    console.info(
+      "PacsController.createFeedWithPACSSeries: to createFeedWithFilepath: folderPath:",
+      thePath,
+      "theName:",
+      theName,
+    );
+
+    const tags = ["pacs"];
+    return await createFeedWithFilepath({
+      filepath: thePath,
+      theName,
+      tags,
+      patientID,
+      modality,
+      studyDate,
+      isPublic: true,
+    });
+  };
+
   /**
    * Send request to PFDCM to pull from PACS.
    */
   const pullFromPacs = useMutation({
-    mutationFn: ({ service, query }: SpecificDicomQuery) =>
-      pfdcmClient.retrieve(service, query),
-    onMutate: (query: SpecificDicomQuery) =>
-      updatePullRequestState(query, { state: RequestState.REQUESTING }),
+    mutationFn: ({ service, query }: SpecificDicomQuery) => {
+      console.info(
+        "PacsController.pullFromPacs.mutationFn: to retrieve: service:",
+        service,
+        "query:",
+        query,
+      );
+      return pfdcmClient.retrieve(service, query);
+    },
+    onMutate: (query: SpecificDicomQuery) => {
+      console.info("PacsController.pullFromPacs.onMutate: query:", query);
+      return updatePullRequestState(query, { state: RequestState.REQUESTING });
+    },
     onError: (error, query) => updatePullRequestState(query, { error: error }),
-    onSuccess: (_, query) =>
-      updatePullRequestState(query, { state: RequestState.REQUESTED }),
+    onSuccess: async (_, query) => {
+      console.info("PacsController.pullFromPacs.onSuccess: query:", query);
+
+      updatePullRequestState(query, { state: RequestState.REQUESTED });
+    },
   });
 
   const terribleDoNotCallTwice =

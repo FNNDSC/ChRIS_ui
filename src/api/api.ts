@@ -71,7 +71,7 @@ const collectionJsonItemToJson = (item: any) =>
 const collectionJsonToJson = (theData: any) =>
   theData.collection.items.map(collectionJsonItemToJson);
 
-const callApi = <T>(
+const callApi = async <T>(
   endpoint: string,
   {
     query,
@@ -103,7 +103,7 @@ const callApi = <T>(
 
   if (filename) {
     const filetext = paramsFiletext || "";
-    return postFile(theEndpoint, filename, filetext);
+    return await postFile(theEndpoint, filename, filetext);
   }
 
   const token = getToken();
@@ -130,10 +130,10 @@ const callApi = <T>(
     body,
   };
 
-  return fetchCore<T>(theEndpoint, options);
+  return await fetchCore<T>(theEndpoint, options);
 };
 
-const postFile = <T>(
+const postFile = async <T>(
   theEndpoint: string,
   filename: string,
   filetext: string,
@@ -149,19 +149,19 @@ const postFile = <T>(
     Accept: "application/json",
   };
 
-  return fetchCore<T>(
+  return await fetchCore<T>(
     theEndpoint,
     { method: "POST", headers, body: formData },
     true,
   );
 };
 
-const fetchCore = <T>(
+const fetchCore = async <T>(
   endpoint: string,
   options: RequestInit,
   isJson = false,
 ): Promise<ApiResult<T>> => {
-  return fetch(endpoint, options)
+  return await fetch(endpoint, options)
     .then((res) => {
       const status = res.status;
       return res
