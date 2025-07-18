@@ -1,4 +1,3 @@
-import { dir } from "console";
 import api, { type ApiResult } from "./api";
 import type {
   Feed,
