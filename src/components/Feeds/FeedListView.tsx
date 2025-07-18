@@ -65,7 +65,7 @@ const COLUMN_DEFINITIONS: ColumnDefinition[] = [
   {
     id: "id",
     label: "ID",
-    comparator: (a: Feed, b: Feed) => a.data.name.localeCompare(b.data.name),
+    comparator: (a: Feed, b: Feed) => a.data.id - b.data.id,
   },
 
   {
