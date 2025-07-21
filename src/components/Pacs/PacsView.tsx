@@ -65,6 +65,7 @@ const PacsView: React.FC<PacsViewProps> = ({
         services={services}
         service={service}
         setService={setService}
+        studies={studies}
       />
       <br />
       {studies ? (

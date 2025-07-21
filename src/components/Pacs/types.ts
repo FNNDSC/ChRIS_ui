@@ -136,6 +136,60 @@ type PacsStudyState = {
   series: PacsSeriesState[];
 };
 
+export type PacsSeriesCSV = {
+  SpecificCharacterSet: string;
+  StudyDate: Date | null;
+  AccessionNumber: string;
+  RetrieveAETitle: string;
+  ModalitiesInStudy: string;
+  StudyDescription: string;
+  PatientName: string;
+  PatientID: string;
+  PatientBirthDate: Date | null;
+  PatientSex: string;
+  PatientAge: string;
+  ProtocolName: string;
+  AcquisitionProtocolName: string;
+  AcquisitionProtocolDescription: string;
+  StudyInstanceUID: string;
+  NumberOfStudyRelatedSeries: number;
+  PerformedStationAETitle: string;
+
+  SeriesDate: Date | null;
+  Modality: string;
+  SeriesDescription: string;
+  SeriesInstanceUID: string;
+  NumberOfSeriesRelatedInstances: number | null;
+};
+
+export const PacsStudyCSVKeys = [
+  "SpecificCharacterSet",
+  "StudyDate",
+  "AccessionNumber",
+  "RetrieveAETitle",
+  "ModalitiesInStudy",
+  "StudyDescription",
+  "PatientName",
+  "PatientID",
+  "PatientBirthDate",
+  "PatientSex",
+  "PatientAge",
+  "ProtocolName",
+  "AcquisitionProtocolName",
+  "AcquisitionProtocolDescription",
+  "StudyInstanceUID",
+  "NumberOfStudyRelatedSeries",
+  "PerformedStationAETitle",
+];
+
+export const PacsSeriesCSVKeys = [
+  "SeriesDate",
+  "Modality",
+  "SeriesDescription",
+  "SeriesInstanceUID",
+  "NumberOfSeriesRelatedInstances",
+];
+
 /**
  * PACS user interface preferences.
  */
