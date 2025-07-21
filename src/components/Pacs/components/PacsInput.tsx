@@ -3,6 +3,13 @@ import type { PACSqueryCore } from "../../../api/pfdcm";
 import { Select, Input, Row, Col, Grid, Segmented } from "antd";
 import { useSearchParams } from "react-router-dom";
 import type { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
+import {
+  type PacsStudyState,
+  PacsSeriesCSVKeys,
+  PacsStudyCSVKeys,
+} from "../types";
+import { DownloadIcon } from "@patternfly/react-icons";
+import OperationButton from "../../NewLibrary/components/operations/OperationButton";
 
 /** ------------------ Shared Types ------------------ **/
 type InputFieldProps = {
@@ -12,6 +19,7 @@ type InputFieldProps = {
 type PacsInputProps = {
   services: ReadonlyNonEmptyArray<string>;
   service: string;
+  studies: PacsStudyState[] | null;
   setService: (service: string) => void;
   onSubmit: (service: string, query: PACSqueryCore) => void;
 };
@@ -115,11 +123,15 @@ const PacsInput: React.FC<PacsInputProps> = ({
   service,
   setService,
   services,
+
+  studies: propsStudies,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // "searchMode" can be "mrn" or "accno"
   const searchMode = searchParams.get("searchMode") || "mrn";
+
+  const studies = propsStudies || [];
 
   // Helper to update the search mode in the URL
   const setSearchMode = React.useCallback(
@@ -185,22 +197,85 @@ const PacsInput: React.FC<PacsInputProps> = ({
     </div>
   );
 
+  const csvLine = (data: string[]) =>
+    data
+      .map((v) => v.replaceAll('"', '""')) // escape double quotes
+      .map((v) => `"${v}"`) // quote it
+      .join(","); // comma-separated
+
+  const downloadStudiesToCSV = () => {
+    const csvKeys = csvLine(PacsStudyCSVKeys.concat(PacsSeriesCSVKeys));
+    const studyCSV = studies.map(({ info, series }) =>
+      series
+        .map((eachSeries) => {
+          const studyList: string[] = PacsStudyCSVKeys.map((each) =>
+            // @ts-expect-error
+            String(info[each] || ""),
+          );
+          const seriesList = PacsSeriesCSVKeys.map((each) =>
+            // @ts-expect-error
+            String(eachSeries.info[each] || ""),
+          );
+
+          return csvLine(studyList.concat(seriesList));
+        })
+        .join("\r\n"),
+    );
+
+    const theCSV = [csvKeys].concat(studyCSV).join("\r\n");
+
+    const blob = new File([theCSV], "PACS.csv", { type: "text/csv" });
+
+    const downloadLink = document.createElement("a");
+    const dataUrl = URL.createObjectURL(blob);
+    downloadLink.href = dataUrl;
+
+    const filenameNumber =
+      searchMode === "mrn"
+        ? studies[0].info.PatientID
+        : studies[0].info.AccessionNumber;
+
+    const filename = `PACS-${searchMode}-${filenameNumber}.csv`;
+    downloadLink.download = filename;
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
+  const ariaLabel = "Download queried results as csv";
+
   return (
-    <Row gutter={2}>
+    <Row gutter={4}>
       <Col xs={24} sm={12} md={8} lg={6} xl={5}>
         {searchModeToggle}
       </Col>
       <Col
-        xs={{ span: 24, order: 1 }}
-        sm={{ span: 24, order: 1 }}
-        md={{ span: 11, order: 0 }}
-        lg={{ span: 13, order: 0 }}
-        xl={{ span: 15, order: 0 }}
+        xs={{ span: 20, order: 1 }}
+        sm={{ span: 20, order: 1 }}
+        md={{ span: 6, order: 0 }}
+        lg={{ span: 9, order: 0 }}
+        xl={{ span: 11, order: 0 }}
       >
         {input}
       </Col>
       <Col xs={24} sm={12} md={5} lg={5} xl={4}>
         {serviceDropdown}
+      </Col>
+      <Col
+        xs={{ span: 4, order: 1 }}
+        sm={{ span: 4, order: 1 }}
+        md={{ span: 4, order: 0 }}
+        lg={{ span: 4, order: 0 }}
+        xl={{ span: 4, order: 0 }}
+      >
+        <OperationButton
+          handleOperations={downloadStudiesToCSV}
+          count={studies?.length}
+          icon={<DownloadIcon />}
+          ariaLabel={ariaLabel}
+          operationKey="download"
+        />
       </Col>
     </Row>
   );
