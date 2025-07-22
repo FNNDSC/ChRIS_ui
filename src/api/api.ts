@@ -16,6 +16,7 @@ export interface CallAPI<T> {
   headers?: any;
   filename?: string;
   filetext?: string;
+  apiroot?: string;
 }
 
 interface ApiParams {
@@ -26,6 +27,7 @@ interface ApiParams {
   headers?: any;
   filename?: string;
   filetext?: string;
+  apiroot?: string;
 }
 
 export interface ApiResult<T> {
@@ -81,13 +83,14 @@ const callApi = async <T>(
     headers: paramsHeaders,
     filename,
     filetext: paramsFiletext,
+    apiroot: paramsAPIRoot,
   }: ApiParams,
 ): Promise<ApiResult<T>> => {
   const { API_ROOT: CONFIG_API_ROOT } = config;
 
   const default_api_root = window.location.origin;
 
-  let API_ROOT = CONFIG_API_ROOT || default_api_root;
+  let API_ROOT = paramsAPIRoot || CONFIG_API_ROOT || default_api_root;
   if (API_ROOT.length >= 1 && API_ROOT[API_ROOT.length - 1] === "/") {
     API_ROOT = API_ROOT.slice(0, API_ROOT.length - 1);
   }
