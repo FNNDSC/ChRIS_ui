@@ -1,4 +1,6 @@
+import config from "config";
 import api, { type ApiResult } from "./api";
+import type { PACSqueryCore } from "./pfdcm";
 import type {
   Feed,
   PluginInstance,
@@ -6,6 +8,7 @@ import type {
   NodeInfo,
   UploadPipeline,
   PACSSeries,
+  PFDCMResult,
 } from "./types";
 
 import YAML from "yaml";
@@ -148,4 +151,16 @@ export const getPACSSeriesListBySeriesUID = (seriesUID: string) =>
     query: {
       SeriesInstanceUID: seriesUID,
     },
+  });
+
+export const queryPFDCMServices = (service: string, query: PACSqueryCore) =>
+  api<PFDCMResult>({
+    endpoint: "/PACS/sync/pypx/",
+    method: "get",
+    query: {
+      PACSdirective: query,
+      PACSservice: { value: service },
+      listenerService: { value: "default" },
+    },
+    apiroot: config.PFDCM_ROOT,
   });
