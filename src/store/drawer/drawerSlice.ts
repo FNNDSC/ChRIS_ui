@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { Role } from "../user/userSlice";
 
 interface DrawerState {
   open: boolean;
@@ -30,6 +31,33 @@ const initialState: IDrawerState = {
   },
   node: {
     open: true,
+    maximized: false,
+    minimized: false,
+    currentlyActive: "node",
+  },
+  files: {
+    open: true,
+    maximized: false,
+    minimized: false,
+    currentlyActive: "files",
+  },
+  preview: {
+    open: false,
+    maximized: false,
+    minimized: false,
+    currentlyActive: "preview",
+  },
+};
+
+const initialStateClinician: IDrawerState = {
+  graph: {
+    open: false,
+    maximized: false,
+    minimized: false,
+    currentlyActive: "graph",
+  },
+  node: {
+    open: false,
     maximized: false,
     minimized: false,
     currentlyActive: "node",
@@ -84,7 +112,11 @@ const drawerSlice = createSlice({
       const { panel, currentlyActive } = action.payload;
       state[panel].currentlyActive = currentlyActive;
     },
-    resetDrawerState: () => {
+    resetDrawerState: (state, action: PayloadAction<{ role: Role }>) => {
+      const { role } = action.payload;
+      if (role === Role.Clinician) {
+        return initialStateClinician;
+      }
       return initialState;
     },
   },
