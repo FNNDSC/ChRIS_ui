@@ -70,6 +70,16 @@ export interface NodeInfo {
   title: string;
 }
 
+export interface Piping {
+  id: number;
+  pipeline_id: number;
+  plugin_id: number;
+  plugin_name: string;
+  plugin_version: string;
+  title: string;
+  previous_id: number;
+}
+
 export interface PipelineDefaultParameters {
   id: number;
   param_id: number;
