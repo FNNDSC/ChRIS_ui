@@ -16,6 +16,10 @@ export interface Feed {
   cancelled_jobs: number;
 }
 
+export enum PluginInstanceStatus {
+  SUCCESS = "finishedSuccessfully",
+}
+
 export interface PluginInstance {
   id: number;
   title: string;
@@ -29,7 +33,7 @@ export interface PluginInstance {
   start_date: string; // yyyy-mm-ddTHH:MM:SS.ffffffTZ
   end_date: string; // yyyy-mm-ddTHH:MM:SS.ffffffTZ
   output_path: string;
-  status: string;
+  status: PluginInstanceStatus;
   pipeline_id: number;
 }
 
