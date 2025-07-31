@@ -7,7 +7,9 @@ import { SpinContainer } from "../Common";
 import FeedTree from "./FeedTree";
 import type { TreeNodeDatum } from "./data";
 import type { PaginatedTreeQueryReturn } from "../Feeds/usePaginatedTreeQuery";
-import type { Feed } from "@fnndsc/chrisapi";
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
+import { collectionJsonToJson } from "../../api/api";
+import type { PluginInstance as PluginInstanceType } from "../../api/types";
 
 interface ParentComponentProps {
   changeLayout: () => void;
@@ -44,14 +46,43 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
 
   const stableRootNode = useMemo(() => rootNode, [rootNode]);
 
+  const lastPluginInstance = pluginInstances.reduce(
+    (r: PluginInstance | null, x, i) => {
+      if (r === null) {
+        return x;
+      }
+      const rJson = collectionJsonToJson(r);
+      const xJson = collectionJsonToJson(x);
+
+      return rJson.id <= xJson.id ? x : r;
+    },
+    null,
+  );
+
+  console.info(
+    "ParentComponent: pluginInstances:",
+    pluginInstances,
+    "lastPluginInstance:",
+    lastPluginInstance,
+  );
+
   useEffect(() => {
-    if (stableRootNode?.item && !selectedPlugin) {
-      dispatch(getSelectedPlugin(stableRootNode.item));
+    if (!stableRootNode?.item || selectedPlugin || !lastPluginInstance) {
+      return;
     }
-  }, [stableRootNode, dispatch, selectedPlugin]);
+
+    console.info(
+      "ParentComponent: stableRootNode:",
+      stableRootNode,
+      "lastPluginInstance:",
+      lastPluginInstance,
+    );
+    dispatch(getSelectedPlugin(lastPluginInstance));
+  }, [stableRootNode, dispatch, selectedPlugin, lastPluginInstance]);
 
   const onNodeClick = useCallback(
     (node: TreeNodeDatum) => {
+      console.info("ParentComponent: onNodeClick: node:", node.item);
       node.item && dispatch(getSelectedPlugin(node.item));
     },
     [dispatch],

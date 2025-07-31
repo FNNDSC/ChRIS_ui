@@ -104,12 +104,18 @@ const Store: React.FC = () => {
       resources,
     );
     console.info(
-      "NewStore.Store.handleInstall: after handleInstallPlugin: result:",
+      "NewStore.Store.handleInstall: after handleInstallPlugin: plugin:",
+      plugin,
+      "resources",
+      resources,
+      "result:",
       result,
     );
 
+    const pipelineName = `${plugin.name}-${plugin.version}`;
+
     const pipeline: UploadPipeline = {
-      name: plugin.name,
+      name: pipelineName,
       authors: plugin.authors,
       category: plugin.category,
       description: plugin.description,

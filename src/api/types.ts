@@ -16,6 +16,10 @@ export interface Feed {
   cancelled_jobs: number;
 }
 
+export enum PluginInstanceStatus {
+  SUCCESS = "finishedSuccessfully",
+}
+
 export interface PluginInstance {
   id: number;
   title: string;
@@ -29,7 +33,7 @@ export interface PluginInstance {
   start_date: string; // yyyy-mm-ddTHH:MM:SS.ffffffTZ
   end_date: string; // yyyy-mm-ddTHH:MM:SS.ffffffTZ
   output_path: string;
-  status: string;
+  status: PluginInstanceStatus;
   pipeline_id: number;
 }
 
@@ -68,6 +72,16 @@ export interface NodeInfo {
   previous_piping_id: number | null;
   compute_resource_name: string;
   title: string;
+}
+
+export interface Piping {
+  id: number;
+  pipeline_id: number;
+  plugin_id: number;
+  plugin_name: string;
+  plugin_version: string;
+  title: string;
+  previous_id: number;
 }
 
 export interface PipelineDefaultParameters {

@@ -19,6 +19,7 @@ import {
   createPluginInstance as serverCreatePluginInstance,
   updateFeedName,
 } from "../../api/serverApi";
+import { collectionJsonToJson } from "../../api/api";
 
 const createFeedCore = async (
   dirpath: ChRISFeed[],
@@ -55,19 +56,34 @@ const createFeedCore = async (
     pipelineState;
 
   const pipelineID = pipelineToAdd?.data.id;
-  const resources = selectedPipeline?.[pipelineID];
+  const pipeline = selectedPipeline?.[pipelineID];
 
   console.info(
     "createFeedCore: pipelineID:",
     pipelineID,
-    "resources:",
-    resources,
+    "pipeline:",
+    pipeline,
+    "pipelineToAdd:",
+    pipelineToAdd,
+    "pipelineState:",
+    pipelineState,
   );
 
-  if (resources) {
-    const { parameters } = resources;
+  if (pipeline) {
+    const { pluginPipings: propsPluginPipings, parameters } = pipeline;
 
-    const nodes_info = computeWorkflowNodesInfo(parameters.data);
+    const pluginPipings = propsPluginPipings.map((eachPluginPiping) =>
+      collectionJsonToJson(eachPluginPiping),
+    );
+
+    console.info(
+      "createFeedCore: pluginPipings:",
+      pluginPipings,
+      "params:",
+      parameters.data,
+    );
+
+    const nodes_info = computeWorkflowNodesInfo(pluginPipings, parameters.data);
 
     for (const node of nodes_info) {
       // Set compute info
