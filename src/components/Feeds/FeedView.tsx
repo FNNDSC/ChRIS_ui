@@ -27,6 +27,11 @@ import { useSearchQueryParams } from "./usePaginate";
 import { usePollAllPluginStatuses } from "./usePolledStatuses";
 import { handleMaximize, handleMinimize } from "./utilties";
 import { Role } from "../../store/user/userSlice";
+import { collectionJsonToJson } from "../../api/api";
+import {
+  PluginInstanceStatus,
+  type PluginInstance as PluginInstanceType,
+} from "../../api/types";
 
 // Custom title component to replace Typography.Title
 const CustomTitle = ({
@@ -57,57 +62,78 @@ const FeedView = () => {
   const drawerState = useAppSelector((state) => state.drawers);
   const dispatch = useAppDispatch();
   const query = useSearchQueryParams();
-  const type = query.get("type");
+  const theType = query.get("type");
   const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = params;
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const role = useAppSelector((state) => state.user.role);
-  const { feed, contextHolder } = useFetchFeed(id, type, isLoggedIn);
+  const { feed, contextHolder } = useFetchFeed(id, theType, isLoggedIn);
   const treeQuery = usePaginatedTreeQuery(feed);
   const statuses = usePollAllPluginStatuses(
     treeQuery.pluginInstances,
     treeQuery.totalCount,
   );
   useEffect(() => {
-    if (!type || (type === "private" && !isLoggedIn)) {
+    if (!theType || (theType === "private" && !isLoggedIn)) {
       const redirectTo = encodeURIComponent(
         `${location.pathname}${location.search}`,
       );
       navigate(`/login?redirectTo=${redirectTo}`);
     }
-  }, [type, isLoggedIn, location, navigate]);
+  }, [theType, isLoggedIn, location, navigate]);
 
-  console.info("FeedView: feed:", feed);
-  useEffect(() => {
-    if (!feed) {
-      return;
-    }
-
-    dispatch(getFeedSuccess(feed as Feed));
-  }, [feed, dispatch]);
+  console.info(
+    "FeedView: feed:",
+    feed,
+    "statuses:",
+    statuses,
+    "treeQuery:",
+    treeQuery,
+  );
 
   // init
   useEffect(() => {
     document.title = "My Analyses - CHRIS UI";
-    const theRole = role || Role.DefaultRole;
     dispatch(setShowToolbar(true));
-    dispatch(resetDrawerState({ role: theRole }));
     return () => {
-      const theRole = role || Role.DefaultRole;
       dispatch(resetSelectedPlugin());
       dispatch(clearSelectedFile());
-      dispatch(resetDrawerState({ role: theRole }));
       dispatch(setShowToolbar(false));
     };
   }, [dispatch]);
 
-  // role
+  // set drawer state
   useEffect(() => {
+    if (!treeQuery.totalCount) {
+      return;
+    }
+    if (treeQuery.totalCount !== treeQuery.pluginInstances.length) {
+      return;
+    }
+
+    const lastPluginInstance: PluginInstanceType = collectionJsonToJson(
+      treeQuery.pluginInstances[treeQuery.pluginInstances.length - 1],
+    );
+
+    const isSuccess =
+      lastPluginInstance.status === PluginInstanceStatus.SUCCESS;
+
     const theRole = role || Role.DefaultRole;
-    dispatch(resetDrawerState({ role: theRole }));
-  }, [role, dispatch]);
+    dispatch(resetDrawerState({ role: theRole, isSuccess }));
+    return () => {
+      const theRole = role || Role.DefaultRole;
+      dispatch(resetDrawerState({ role: theRole, isSuccess }));
+    };
+  }, [dispatch, role, treeQuery.pluginInstances, treeQuery.totalCount]);
+
+  useEffect(() => {
+    if (!feed) {
+      return;
+    }
+    dispatch(getFeedSuccess(feed as Feed));
+  }, [dispatch, feed]);
 
   const onNodeClick = useCallback(
     (node: any) => {

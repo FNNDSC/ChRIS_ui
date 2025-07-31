@@ -112,9 +112,12 @@ const drawerSlice = createSlice({
       const { panel, currentlyActive } = action.payload;
       state[panel].currentlyActive = currentlyActive;
     },
-    resetDrawerState: (state, action: PayloadAction<{ role: Role }>) => {
-      const { role } = action.payload;
-      if (role === Role.Clinician) {
+    resetDrawerState: (
+      state,
+      action: PayloadAction<{ role: Role; isSuccess: boolean }>,
+    ) => {
+      const { role, isSuccess } = action.payload;
+      if (role === Role.Clinician && isSuccess) {
         return initialStateClinician;
       }
       return initialState;
