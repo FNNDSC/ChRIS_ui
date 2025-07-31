@@ -12,40 +12,34 @@ import type { ChRISFeed, DataBreadcrumb } from "./types/feed";
 
 import constants from "../../datasets/constants";
 
-import type { NodeInfo, PipelineDefaultParameters } from "../../api/types";
-import { info } from "console";
+import type {
+  NodeInfo,
+  PipelineDefaultParameters,
+  Piping,
+} from "../../api/types";
 
 export const computeWorkflowNodesInfo = (
+  pipings: Piping[],
   params: PipelineDefaultParameters[],
 ): NodeInfo[] => {
-  const pipingSet = new Set();
-  const dedupParams = params.filter((each) => {
-    if (pipingSet.has(each.plugin_piping_id)) {
-      return false;
-    }
-
-    pipingSet.add(each.plugin_piping_id);
-
-    return true;
-  });
-
-  const theRet = dedupParams.map((each): NodeInfo => {
+  const theRet = pipings.map((each): NodeInfo => {
     return {
-      piping_id: each.plugin_piping_id,
-      previous_piping_id: each.previous_plugin_piping_id,
+      piping_id: each.id,
+      previous_piping_id: each.previous_id,
       compute_resource_name: "host",
-      title: each.plugin_piping_title,
+      title: each.title,
     };
   });
 
   console.info(
-    "utils.computeWorkflowNodesInfo: params:",
-    params,
+    "utils.computeWorkflowNodesInfo: pipings:",
+    pipings,
     "theRet:",
     theRet,
   );
   return theRet;
 };
+
 export const getFullFeedName = (
   analysisPrefix: string,
   chrisFeed: ChRISFeed,

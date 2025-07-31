@@ -33,6 +33,16 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = (props) => {
     handlePagination,
     finished,
   } = useFeedBrowser(props.statuses);
+
+  console.info(
+    "FeedOutputBrowser: pluginFilesPayload:",
+    pluginFilesPayload,
+    "selected:",
+    selected,
+    "statuses:",
+    props.statuses,
+  );
+
   return (
     <div style={{ height: "100%" }} className="feed-output-browser">
       {!finished ? (

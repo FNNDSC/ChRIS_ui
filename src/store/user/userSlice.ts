@@ -2,12 +2,16 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { Cookies } from "react-cookie";
 
 export enum Role {
+  Guest = "a guest",
+
   Clinician = "a clinician",
   Clinician2 = "a clinician2",
   Researcher = "a researcher",
   Researcher2 = "a researcher2",
   Admin = "an admin",
   Admin2 = "an admin2",
+
+  DefaultRole = Guest,
 }
 
 export const Roles = [Role.Clinician, Role.Researcher];

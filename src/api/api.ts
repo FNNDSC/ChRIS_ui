@@ -70,8 +70,10 @@ const collectionJsonItemToJson = (item: any) =>
     return r;
   }, {});
 
-const collectionJsonToJson = (theData: any) =>
-  theData.collection.items.map(collectionJsonItemToJson);
+export const collectionJsonToJson = (theData: any) => {
+  const ret = theData.collection.items.map(collectionJsonItemToJson);
+  return typeof theData.collection.total === "undefined" ? ret[0] : ret;
+};
 
 const callApi = async <T>(
   endpoint: string,
@@ -186,11 +188,7 @@ const fetchCore = async <T>(
             collectionJsonData,
           );
 
-          const data =
-            !isJson &&
-            typeof collectionJsonData.collection.total === "undefined"
-              ? jsonData[0]
-              : jsonData;
+          const data = jsonData;
 
           return { status: res.status, data: data };
         })

@@ -32,6 +32,8 @@ const FeedGraph: React.FC<IFeedProps> = ({
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
   );
+
+  console.info("FeedGraph: selectedPlugin:", selectedPlugin);
   //const { data: instances, loading } = pluginInstances;
   const graphRef = React.useRef<HTMLDivElement | null>(null);
   const fgRef = React.useRef<ForceGraphMethods>();
