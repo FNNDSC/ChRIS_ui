@@ -56,21 +56,21 @@ const createFeedCore = async (
     pipelineState;
 
   const pipelineID = pipelineToAdd?.data.id;
-  const resources = selectedPipeline?.[pipelineID];
+  const pipeline = selectedPipeline?.[pipelineID];
 
   console.info(
     "createFeedCore: pipelineID:",
     pipelineID,
-    "resources:",
-    resources,
+    "pipeline:",
+    pipeline,
     "pipelineToAdd:",
     pipelineToAdd,
     "pipelineState:",
     pipelineState,
   );
 
-  if (resources) {
-    const { pluginPipings: propsPluginPipings, parameters } = resources;
+  if (pipeline) {
+    const { pluginPipings: propsPluginPipings, parameters } = pipeline;
 
     const pluginPipings = propsPluginPipings.map((eachPluginPiping) =>
       collectionJsonToJson(eachPluginPiping),
