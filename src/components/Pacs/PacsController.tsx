@@ -666,7 +666,7 @@ const PacsController: React.FC<PacsControllerProps> = ({
       patientID,
       modality,
       studyDate,
-      isPublic: true,
+      isPublic: false,
     });
   };
 
