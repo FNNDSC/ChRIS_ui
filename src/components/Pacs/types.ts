@@ -1,14 +1,13 @@
-import type { Series, Study } from "../../api/pfdcm/models.ts";
-import type { PACSSeries } from "@fnndsc/chrisapi";
-import type SeriesMap from "../../api/lonk/seriesMap.ts";
 import type { PACSqueryCore } from "../../api/pfdcm";
+import type { Series, Study } from "../../api/pfdcm/models.ts";
+import type { PACSSeries } from "../../api/types.ts";
 
-type StudyKey = {
+export type StudyKey = {
   pacs_name: string;
   StudyInstanceUID: string;
 };
 
-type SeriesKey = {
+export type SeriesKey = {
   pacs_name: string;
   SeriesInstanceUID: string;
 };
@@ -16,7 +15,7 @@ type SeriesKey = {
 /**
  * Indicates DICOM series has not yet been registered by CUBE.
  */
-class SeriesNotRegisteredError extends Error {
+export class SeriesNotRegisteredError extends Error {
   public readonly pacs_name: string;
   public readonly SeriesInstanceUID: string;
   public constructor(pacs_name: string, SeriesInstanceUID: string) {
@@ -29,7 +28,7 @@ class SeriesNotRegisteredError extends Error {
 /**
  * The states which a DICOM series can be in.
  */
-enum SeriesPullState {
+export enum SeriesPullState {
   /**
    * Unknown whether series is available in CUBE.
    */
@@ -55,7 +54,7 @@ enum SeriesPullState {
 /**
  * The states a request can be in.
  */
-enum RequestState {
+export enum RequestState {
   NOT_REQUESTED = 0,
   REQUESTING = 1,
   REQUESTED = 2,
@@ -64,7 +63,7 @@ enum RequestState {
 /**
  * A {@link PACSqueryCore} for a specified PACS.
  */
-type SpecificDicomQuery = {
+export type SpecificDicomQuery = {
   service: string;
   query: PACSqueryCore;
 };
@@ -72,7 +71,7 @@ type SpecificDicomQuery = {
 /**
  * The state of a request for a {@link SpecificDicomQuery}.
  */
-type PacsPullRequestState = {
+export type PacsPullRequestState = {
   state: RequestState;
   error?: Error;
 };
@@ -80,12 +79,12 @@ type PacsPullRequestState = {
 /**
  * The state of requests to PFDCM to pull DICOM study/series.
  */
-type PullRequestStates = Map<SpecificDicomQuery, PacsPullRequestState>;
+export type PacsPullRequestStateMap = { [key: string]: PacsPullRequestState };
 
 /**
  * The state of a DICOM series retrieval.
  */
-type SeriesReceiveState = {
+export type SeriesReceiveState = {
   /**
    * Whether this series has been subscribed to via LONK.
    */
@@ -104,7 +103,7 @@ type SeriesReceiveState = {
   errors: string[];
 };
 
-const DEFAULT_RECEIVE_STATE: SeriesReceiveState = {
+export const DEFAULT_RECEIVE_STATE: SeriesReceiveState = {
   subscribed: false,
   done: false,
   receivedCount: 0,
@@ -116,22 +115,22 @@ Object.freeze(DEFAULT_RECEIVE_STATE);
 /**
  * The state of DICOM series reception.
  */
-type ReceiveState = SeriesMap<SeriesReceiveState>;
+export type SeriesReceiveStateMap = { [key: string]: SeriesReceiveState };
 
 /**
  * The combined state of a DICOM series in PFDCM, CUBE, and LONK.
  */
-type PacsSeriesState = Pick<SeriesReceiveState, "receivedCount"> & {
+export type PacsSeriesState = SeriesReceiveState & {
   errors: ReadonlyArray<string>;
   info: Series;
-  inCube: PACSSeries | null;
+  inCube: { data: PACSSeries } | null;
   pullState: SeriesPullState;
 };
 
 /**
  * The state of a DICOM study.
  */
-type PacsStudyState = {
+export type PacsStudyState = {
   info: Study;
   series: PacsSeriesState[];
 };
@@ -193,7 +192,7 @@ export const PacsSeriesCSVKeys = [
 /**
  * PACS user interface preferences.
  */
-type PacsPreferences = {
+export type PacsPreferences = {
   /**
    * Whether to display StudyInstanceUID and SeriesInstanceUID.
    */
@@ -208,27 +207,7 @@ type PacsPreferences = {
 /**
  * PACS user interface entire state.
  */
-interface IPacsState {
+export interface PacsState {
   preferences: PacsPreferences;
   studies: PacsStudyState[] | null;
 }
-
-export {
-  SeriesPullState,
-  RequestState,
-  DEFAULT_RECEIVE_STATE,
-  SeriesNotRegisteredError,
-};
-export type {
-  StudyKey,
-  SeriesKey,
-  IPacsState,
-  ReceiveState,
-  SeriesReceiveState,
-  PacsSeriesState,
-  PacsStudyState,
-  PacsPreferences,
-  SpecificDicomQuery,
-  PacsPullRequestState,
-  PullRequestStates,
-};

@@ -1,30 +1,20 @@
-import Client, { DownloadToken } from "@fnndsc/chrisapi";
-import useWebSocket, { Options } from "react-use-websocket";
-import { LonkHandlers, SeriesKey } from "./types.ts";
-import React from "react";
+import { useCallback, useState } from "react";
+import useWebSocket, { type Options } from "react-use-websocket";
 import LonkSubscriber from "./LonkSubscriber.ts";
+import type { LonkHandlers, SeriesKey } from "./types.ts";
 
 /**
  * A subset of the options which are passed through to {@link useWebSocket}.
  */
-type AllowedOptions = Pick<
-  Options,
-  | "onOpen"
-  | "onClose"
-  | "onReconnectStop"
-  | "shouldReconnect"
-  | "reconnectInterval"
-  | "reconnectAttempts"
-  | "retryOnError"
->;
+type AllowedOptions = Options;
 
-type UseLonkParams = LonkHandlers &
+export type UseLonkParams = LonkHandlers &
   AllowedOptions & {
-    client: Client;
+    url: string | null;
     onWebsocketError?: Options["onError"];
   };
 
-type UseLonkHook = ReturnType<typeof useWebSocket> & {
+type UseLonkHook = {
   /**
    * Subscribe to a DICOM series for receive progress notifications.
    */
@@ -44,73 +34,58 @@ type UseLonkHook = ReturnType<typeof useWebSocket> & {
  *
  * https://chrisproject.org/docs/oxidicom/lonk-ws
  */
-function useLonk({
-  client,
+export default ({
+  url,
   onDone,
   onProgress,
-  onError,
+  onLonkError,
   onMessageError,
   onWebsocketError,
   ...options
-}: UseLonkParams): UseLonkHook {
-  const getLonkUrl = React.useCallback(async () => {
-    const downloadToken = await client.createDownloadToken();
-    return getWebsocketUrl(downloadToken);
-  }, [client.createDownloadToken]);
-  const handlers = { onDone, onProgress, onError, onMessageError };
-  const [subscriber, setSubscriber] = React.useState(
-    new LonkSubscriber(handlers),
+}: UseLonkParams): UseLonkHook => {
+  const handlers = { onDone, onProgress, onLonkError, onMessageError };
+  const [subscriber, setSubscriber] = useState(
+    () => new LonkSubscriber(handlers),
   );
-  const onMessage = React.useCallback(
-    (event: MessageEvent<any>) => {
-      subscriber.handle(event.data);
-    },
-    [subscriber.handle],
-  );
-  const onOpen = React.useCallback(
-    (event: WebSocketEventMap["open"]) => {
-      // when the websocket connection (re-)opens, (re-)initialize the
-      // LonkSubscriber instance so that React.useEffect which specify
-      // the subscriber in their depdencency arrays get (re-)triggered.
-      setSubscriber(new LonkSubscriber(handlers));
-      options.onOpen?.(event);
-    },
-    [options.onOpen],
-  );
-  const hook = useWebSocket(getLonkUrl, {
+
+  const onMessage = (event: MessageEvent<any>) => {
+    subscriber.handle(event.data);
+  };
+
+  const onOpen = (event: WebSocketEventMap["open"]) => {
+    // when the websocket connection (re-)opens, (re-)initialize the
+    // LonkSubscriber instance so that React.useEffect which specify
+    // the subscriber in their depdencency arrays get (re-)triggered.
+    //
+    // need to do subscriber to have the newly updated handlers (with pacsID).
+    console.info("useLonk: onOpen: event:", event, "url:", url);
+    setSubscriber(new LonkSubscriber(handlers));
+    options.onOpen?.(event);
+  };
+
+  const theHook = useWebSocket(url, {
     ...options,
     onOpen,
     onError: onWebsocketError,
     onMessage,
   });
 
-  const subscribe = React.useCallback(
+  const subscribe = useCallback(
     (pacs_name: string, SeriesInstanceUID: string) =>
-      subscriber.subscribe(pacs_name, SeriesInstanceUID, hook),
-    // N.B.: hook must not be in the dependency array, because it changes
-    // each time the websocket sends/receives data.
-    [subscriber.subscribe],
+      subscriber.subscribe(pacs_name, SeriesInstanceUID, theHook),
+    [subscriber, theHook],
   );
+  // N.B.: hook must not be in the dependency array, because it changes
+  // each time the websocket sends/receives data.
 
-  const unsubscribeAll = React.useCallback(
-    () => subscriber.unsubscribeAll(hook),
-    [subscriber.unsubscribeAll],
+  const unsubscribeAll = useCallback(
+    () => subscriber.unsubscribeAll(theHook),
+    [subscriber, theHook],
   );
 
   return {
-    ...hook,
+    ...theHook,
     subscribe,
     unsubscribeAll,
   };
-}
-
-function getWebsocketUrl(downloadTokenResponse: DownloadToken): string {
-  const token = downloadTokenResponse.data.token;
-  return downloadTokenResponse.url
-    .replace(/^http(s?):\/\//, (_match, s) => `ws${s}://`)
-    .replace(/v1\/downloadtokens\/\d+\//, `v1/pacs/ws/?token=${token}`);
-}
-
-export type { UseLonkParams };
-export { getWebsocketUrl };
-export default useLonk;
+};

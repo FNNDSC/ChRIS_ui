@@ -1,4 +1,9 @@
-import {
+import * as E from "fp-ts/Either";
+import { identity, pipe } from "fp-ts/function";
+import type useWebSocket from "react-use-websocket";
+import deserialize from "./de.ts";
+import SeriesMap from "./seriesMap.ts";
+import type {
   Lonk,
   LonkDone,
   LonkError,
@@ -8,11 +13,6 @@ import {
   LonkUnsubscription,
   SeriesKey,
 } from "./types.ts";
-import deserialize from "./de.ts";
-import { pipe, identity } from "fp-ts/function";
-import * as E from "fp-ts/Either";
-import SeriesMap from "./seriesMap.ts";
-import useWebSocket from "react-use-websocket";
 
 /**
  * `LonkSubscriber` wraps a {@link WebSocket}, routing incoming JSON messages
@@ -58,7 +58,7 @@ class LonkSubscriber {
   }
 
   private routeLonk(data: Lonk<any>): E.Either<string, null> {
-    const { onProgress, onDone, onError } = this.handlers;
+    const { onProgress, onDone, onLonkError } = this.handlers;
     const { SeriesInstanceUID, pacs_name, message } = data;
     // note: for performance reasons, this if-else chain is in
     // descending order of case frequency.
@@ -69,7 +69,7 @@ class LonkSubscriber {
     } else if (isSubscribed(message)) {
       this.handleSubscriptionSuccess(pacs_name, SeriesInstanceUID);
     } else if (isError(message)) {
-      onError(pacs_name, SeriesInstanceUID, message.error);
+      onLonkError(pacs_name, SeriesInstanceUID, message.error);
     } else {
       return E.left(`Unrecognized message: ${JSON.stringify(message)}`);
     }

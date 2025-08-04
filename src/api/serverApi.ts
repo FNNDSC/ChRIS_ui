@@ -1,17 +1,20 @@
 import config from "config";
+import type { ReadonlyNonEmptyArray } from "fp-ts/lib/ReadonlyNonEmptyArray";
+import YAML from "yaml";
 import api, { type ApiResult } from "./api";
 import type { PACSqueryCore } from "./pfdcm";
 import type {
+  DownloadToken,
   Feed,
-  PluginInstance,
-  Plugin,
   NodeInfo,
-  UploadPipeline,
   PACSSeries,
   PFDCMResult,
+  Plugin,
+  PluginInstance,
+  UploadPipeline,
 } from "./types";
 
-import YAML from "yaml";
+console.info("api.serverApi: config:", config);
 
 export const GetFeedPluginInstances = (feedID: number) =>
   api<PluginInstance[]>({
@@ -135,6 +138,17 @@ export const createPipeline = (pipeline: UploadPipeline) =>
     filetext: YAML.stringify(pipeline),
   });
 
+export const createDownloadToken = () =>
+  api<DownloadToken>({
+    endpoint: "/downloadtokens/",
+    method: "post",
+    json: {
+      template: {
+        data: [],
+      },
+    },
+  });
+
 export const getPACSSeriesListByStudyUID = (studyUID: string) =>
   api<PACSSeries[]>({
     endpoint: "/pacs/series/search/",
@@ -153,14 +167,69 @@ export const getPACSSeriesListBySeriesUID = (seriesUID: string) =>
     },
   });
 
-export const queryPFDCMServices = (service: string, query: PACSqueryCore) =>
-  api<PFDCMResult>({
+export const queryPFDCMStudies = (service: string, query: PACSqueryCore) => {
+  // @ts-expect-error study-only
+  query.StudyOnly = true;
+
+  return api<PFDCMResult>({
     endpoint: "/PACS/sync/pypx/",
-    method: "get",
-    query: {
+    method: "post",
+    json: {
       PACSdirective: query,
       PACSservice: { value: service },
       listenerService: { value: "default" },
     },
     apiroot: config.PFDCM_ROOT,
+    isJson: true,
+  });
+};
+
+export const queryPFDCMSeries = (service: string, query: PACSqueryCore) =>
+  api<PFDCMResult>({
+    endpoint: "/PACS/sync/pypx/",
+    method: "post",
+    json: {
+      PACSdirective: query,
+      PACSservice: { value: service },
+      listenerService: { value: "default" },
+    },
+    apiroot: config.PFDCM_ROOT,
+    isJson: true,
+  });
+
+export const getPFDCMServices = () =>
+  api<ReadonlyNonEmptyArray<string>>({
+    endpoint: "/PACSservice/list/",
+    method: "get",
+    apiroot: config.PFDCM_ROOT,
+    isJson: true,
+  });
+
+export const retrievePFDCMPACS = (service: string, query: PACSqueryCore) => {
+  // biome-ignore lint/suspicious/noThenProperty: required by PACSqueryCore
+  query.then = "retrieve";
+  query.withFeedBack = true;
+
+  return api<PFDCMResult>({
+    endpoint: "/PACS/thread/pypx/",
+    method: "post",
+    json: {
+      PACSdirective: query,
+      PACSservice: { value: service },
+      listenerService: { value: "default" },
+    },
+    apiroot: config.PFDCM_ROOT,
+    isJson: true,
+  });
+};
+
+export const queryPACSSeries = (service: string, seriesInstanceUID: string) =>
+  api<PACSSeries[]>({
+    endpoint: "/pacs/series/search/",
+    method: "get",
+    query: {
+      pacs_name: service,
+      SeriesInstanceUID: seriesInstanceUID,
+      limit: 1,
+    },
   });
