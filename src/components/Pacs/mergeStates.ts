@@ -1,18 +1,18 @@
+import type { PACSSeries } from "@fnndsc/chrisapi";
+import { type UseQueryResult, useQuery } from "@tanstack/react-query";
+import type { Series, StudyAndSeries } from "../../api/pfdcm/models.ts";
 import {
   DEFAULT_RECEIVE_STATE,
+  type PacsPullRequestStateMap,
   type PacsStudyState,
-  type PullRequestStates,
-  type ReceiveState,
   type RequestState,
   type SeriesKey,
   SeriesNotRegisteredError,
   SeriesPullState,
   type SeriesReceiveState,
+  type SeriesReceiveStateMap,
   type SpecificDicomQuery,
 } from "./types.ts";
-import type { Series, StudyAndSeries } from "../../api/pfdcm/models.ts";
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import type { PACSSeries } from "@fnndsc/chrisapi";
 
 type UseQueryResultLike = Partial<
   Pick<UseQueryResult, "isError" | "isPending" | "error">
@@ -33,9 +33,9 @@ type UseQueryResultLike = Partial<
  */
 function mergeStates(
   pfdcm: ReadonlyArray<StudyAndSeries>,
-  pullRequests: PullRequestStates,
+  pullRequests: PacsPullRequestStateMap,
   cubeQueryMap: Map<string, UseQueryResult<PACSSeries | null, Error>>,
-  receiveStates: ReceiveState,
+  receiveStates: SeriesReceiveStateMap,
 ): PacsStudyState[] {
   return pfdcm.map(({ study, series }) => {
     return {

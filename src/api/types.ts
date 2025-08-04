@@ -226,3 +226,10 @@ export interface PFDCMResult {
   pypx: PYPXResult;
   status: string;
 }
+
+export interface DownloadToken {
+  id: number;
+  creation_date: string;
+  token: string;
+  owner_username: string;
+}

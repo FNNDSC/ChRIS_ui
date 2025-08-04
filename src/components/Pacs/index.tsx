@@ -1,20 +1,20 @@
-import Wrapper from "../Wrapper";
-import { Configuration as PfdcmConfig, PfdcmClient } from "../../api/pfdcm";
-
 import ChrisAPIClient from "../../api/chrisapiclient.ts";
-import PacsApp from "./PacsController.tsx";
+import { PfdcmClient, Configuration as PfdcmConfig } from "../../api/pfdcm";
+import type { State } from "../../reducers/pacs";
 import { InfoSection } from "../Common";
+import Wrapper from "../Wrapper";
+import PacsApp from "./PacsApp.tsx";
 
 /**
  * Get a PFDCM client for the URL specified by the environment variable
  * `VITE_PFDCM_URL`.
  */
-function getEnvPfdcmClient(): PfdcmClient {
+const getEnvPfdcmClient = (): PfdcmClient => {
   const config = new PfdcmConfig({
     basePath: import.meta.env.VITE_PFDCM_URL,
   });
   return new PfdcmClient(config);
-}
+};
 
 const PacsTitle = () => (
   <InfoSection
@@ -28,13 +28,18 @@ const PacsTitle = () => (
   />
 );
 
-const WrappedPacsQRApp = () => (
-  <Wrapper titleComponent={<PacsTitle />}>
-    <PacsApp
-      getChrisClient={ChrisAPIClient.getClient}
-      getPfdcmClient={getEnvPfdcmClient}
-    />
-  </Wrapper>
-);
-
-export default WrappedPacsQRApp;
+type Props = {
+  pacs: State;
+};
+export default (props: Props) => {
+  const { pacs } = props;
+  return (
+    <Wrapper titleComponent={<PacsTitle />}>
+      <PacsApp
+        getChrisClient={ChrisAPIClient.getClient}
+        getPfdcmClient={getEnvPfdcmClient}
+        pacs={pacs}
+      />
+    </Wrapper>
+  );
+};

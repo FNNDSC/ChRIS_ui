@@ -1,35 +1,35 @@
 import {
+  Brand,
   Nav,
+  NavExpandable,
   NavGroup,
   NavItem,
+  NavItemSeparator,
   NavList,
   PageSidebar,
   PageSidebarBody,
-  Brand,
-  NavExpandable,
-  NavItemSeparator,
 } from "@patternfly/react-core";
 import { type DefaultError, useQueryClient } from "@tanstack/react-query";
 import { isEmpty } from "lodash";
-import { Link } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setSidebarActive, type IUiState } from "../../store/ui/uiSlice";
-import { Role, type IUserState } from "../../store/user/userSlice";
-import brandImg from "../../assets/logo_chris_dashboard.png";
-import styles from "./Sidebar.module.css";
 import type { FormEvent } from "react";
+import { Link } from "react-router-dom";
+import brandImg from "../../assets/logo_chris_dashboard.png";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { type IUiState, setSidebarActive } from "../../store/ui/uiSlice";
+import { type IUserState, Role } from "../../store/user/userSlice";
 import { AddModal } from "../NewLibrary/components/Operations";
-import { OperationContext } from "../NewLibrary/context";
 import UploadData from "../NewLibrary/components/operations/UploadData";
+import { OperationContext } from "../NewLibrary/context";
 import { useFolderOperations } from "../NewLibrary/utils/useOperations";
+import styles from "./Sidebar.module.css";
 
-type AllProps = IUiState & IUserState;
+type Props = IUiState & IUserState;
 
 type TagInfo = {
   title?: string;
 };
 
-const Sidebar: React.FC<AllProps> = (props: AllProps) => {
+const Sidebar = (props: Props) => {
   const queryClient = useQueryClient();
   const { sidebarActiveItem, isNavOpen, isTagExpanded, isPackageTagExpanded } =
     useAppSelector((state) => state.ui);
@@ -38,8 +38,6 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
   const dispatch = useAppDispatch();
 
   const { onTagToggle, onPackageTagToggle } = props;
-
-  console.log(`Sidebar: isTagExpanded: ${isTagExpanded}`);
 
   const urlParam = isLoggedIn ? "private" : "public";
 
@@ -303,10 +301,7 @@ const Sidebar: React.FC<AllProps> = (props: AllProps) => {
 
 export default Sidebar;
 
-const AnonSidebarImpl: React.FC<AllProps> = ({
-  isNavOpen,
-  sidebarActiveItem,
-}) => {
+const AnonSidebarImpl: React.FC<Props> = ({ isNavOpen, sidebarActiveItem }) => {
   const PageNav = (
     <Nav>
       <NavList>

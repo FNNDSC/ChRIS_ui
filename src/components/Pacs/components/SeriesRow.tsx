@@ -1,6 +1,4 @@
-import { type PacsSeriesState, SeriesPullState } from "../types.ts";
-import React from "react";
-import { isSeriesLoading } from "./helpers.ts";
+import { ImportOutlined, WarningFilled } from "@ant-design/icons";
 import {
   Button,
   type ButtonProps,
@@ -12,25 +10,27 @@ import {
   Grid,
   Input,
   Modal,
+  message,
   Progress,
   Tooltip,
   Typography,
-  message,
   theme,
 } from "antd";
-import styles from "./SeriesList.module.css";
-import ModalityBadges from "./ModalityBadges.tsx";
-import { ImportOutlined, WarningFilled } from "@ant-design/icons";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../DarkTheme/useTheme";
-import { useSeriesSelection } from "./SeriesSelectionContext";
 import { getBackgroundRowColor } from "../../NewLibrary/utils/longpress.tsx";
+import { type PacsSeriesState, SeriesPullState } from "../types.ts";
+import { isSeriesLoading } from "./helpers.ts";
+import ModalityBadges from "./ModalityBadges.tsx";
 import { generateFeedName } from "./pacsUtils";
 import {
-  getSeriesContextMenuItems,
-  createSeriesFeed,
   type ContextMenuHandlers,
+  createSeriesFeed,
+  getSeriesContextMenuItems,
 } from "./SeriesContextMenu";
+import styles from "./SeriesList.module.css";
+import { useSeriesSelection } from "./SeriesSelectionContext";
 
 type SeriesRowProps = PacsSeriesState & {
   showUid?: boolean;
@@ -46,6 +46,14 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   showUid,
   onRetrieve,
 }) => {
+  console.info(
+    "SeriesRow: start: seriesUid:",
+    info.SeriesInstanceUID,
+    "pullState:",
+    pullState,
+    "receivedCount:",
+    receivedCount,
+  );
   const isLoading = React.useMemo(
     () => isSeriesLoading({ pullState, inCube }),
     [pullState, inCube],

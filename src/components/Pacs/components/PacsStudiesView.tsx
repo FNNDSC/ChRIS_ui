@@ -1,14 +1,14 @@
-import type { PacsPreferences, PacsStudyState } from "../types.ts";
-import type { PACSqueryCore } from "../../../api/pfdcm";
-import StudyCard from "./StudyCard.tsx";
 import { Collapse, type CollapseProps, Space, Typography } from "antd";
-import React from "react";
-import SeriesList from "./SeriesList.tsx";
-import { isSeriesLoading } from "./helpers.ts";
-import { SeriesSelectionProvider } from "./SeriesSelectionContext";
+import React, { useEffect } from "react";
+import type { PACSqueryCore } from "../../../api/pfdcm";
+import type { PacsPreferences, PacsStudyState } from "../types.ts";
 import BulkActionBar from "./BulkActionBar";
+import { isSeriesLoading } from "./helpers.ts";
+import SeriesList from "./SeriesList.tsx";
+import { SeriesSelectionProvider } from "./SeriesSelectionContext";
+import StudyCard from "./StudyCard.tsx";
 
-type PacsStudiesViewProps = {
+type Props = {
   preferences: PacsPreferences;
   studies: PacsStudyState[];
   onRetrieve: (query: PACSqueryCore) => void;
@@ -19,14 +19,14 @@ type PacsStudiesViewProps = {
   onStudyExpand?: (StudyInstanceUIDs: ReadonlyArray<string>) => void;
 };
 
-const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
+const PacsStudiesView: React.FC<Props> = ({
   studies,
   onRetrieve,
   expandedStudyUids,
   onStudyExpand,
   preferences,
 }) => {
-  React.useEffect(() => {
+  useEffect(() => {
     // Automatically expand first study if there is only one study
     if (studies.length === 1 && expandedStudyUids?.length === 0) {
       onStudyExpand?.([studies[0].info.StudyInstanceUID]);
@@ -111,5 +111,5 @@ const PacsStudiesView: React.FC<PacsStudiesViewProps> = ({
   );
 };
 
-export type { PacsStudiesViewProps };
+export type { Props };
 export default PacsStudiesView;
