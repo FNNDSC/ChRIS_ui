@@ -28,7 +28,6 @@ import {
   type PacsSeriesState,
   type PacsStudyState,
   SeriesPullState,
-  type SeriesReceiveStateMap,
   type StudyKey,
 } from "../components/Pacs/types";
 import {
@@ -182,15 +181,6 @@ const queryPacsSeriesByStudyUID = (
       return;
     }
 
-    console.info(
-      "queryPacsSeriesByStudyUID: studyInstanceUID:",
-      studyInstanceUID,
-      "query:",
-      query,
-      "data:",
-      data,
-    );
-
     const studyData: PacsStudyState[] = (data?.pypx.data || []).map((each) => ({
       // @ts-expect-error simplifyPypxStudyData
       info: simplifyPypxStudyData(each),
@@ -250,11 +240,12 @@ export const queryCubeSeriesStateBySeriesUID = (
     }
     const series = await queryCubeSeriesState(mySeries);
 
+    const classState2 = getClassState();
     const postStudyData = postprocessSeries(
       pacsName,
       seriesUID,
       series,
-      classState,
+      classState2,
     );
     if (!postStudyData) {
       return;
@@ -444,10 +435,6 @@ const postprocessStudyData = (
 
   // ensure that we are still the newest query
   if (queryPrompt !== myQueryPrompt || queryValue !== myQueryValue) {
-    console.info(
-      `pacs: new query: current: (${queryPrompt},${queryValue}) new: (${myQueryPrompt},${myQueryValue})`,
-    );
-
     return;
   }
 
@@ -496,8 +483,6 @@ const postprocessStudyData = (
         expandedStudySet,
       );
 
-  console.info("pacs.postprocessStudyData: expandedSeries:", expandedSeries);
-
   return {
     studyUids: studyUids,
     studyMap,
@@ -513,14 +498,6 @@ const postprocessStudyMap = (
   queryValueStudyUIDsMap: QueryValueStudyUIDsMap,
   studyMap: PacsStudyMap,
 ) => {
-  console.info(
-    "postprocessStudyMap: start: queryValues:",
-    queryValues,
-    "queryValueStudyUIDsMap:",
-    queryValueStudyUIDsMap,
-    "studyMap:",
-    studyMap,
-  );
   const studies = queryValues.flatMap((eachValue) => {
     const eachStudyUIDs = queryValueStudyUIDsMap[eachValue] || [];
     return eachStudyUIDs.reduce((r: PacsStudyState[], eachStudyUID) => {
@@ -590,8 +567,6 @@ export const onStudyExpand = (
       expandedStudySet,
     } = postprocessExpandedStudies(theExpandedStudies, studyMap, [], new Set());
 
-    console.info("pacs.onStudyExpand: expandedSeries:", expandedSeries);
-
     dispatch(
       setData(myID, {
         expandedStudies: expandedStudies,
@@ -639,14 +614,6 @@ const postprocessExpandedStudies = (
 
   const expandedSeries = expandedStudies.flatMap((studyKey) => {
     const key = studyKeyToStudyMapKey(studyKey);
-    console.info(
-      "pacs.postprocessExpandedStudies: key:",
-      key,
-      "study:",
-      studyMap[key],
-      "series:",
-      studyMap[key].series,
-    );
     return studyMap[key].series.map(
       (each): SeriesKey => ({
         pacs_name: each.info.RetrieveAETitle,
@@ -783,7 +750,6 @@ export const retrievePACS = (
       query,
     );
 
-    console.info("pacs.retrievePACS: data: isToPullRequest:", isToPullRequest);
     if (!isToPullRequest) {
       return;
     }
@@ -794,8 +760,6 @@ export const retrievePACS = (
       dispatch(setData(myID, { errmsg }));
       return;
     }
-
-    console.info("pacs.retrievePACS: data:", data);
 
     classState = getClassState();
     me = getRoot(classState);
@@ -864,10 +828,10 @@ export const updateReceiveState = (
     }
 
     // ensure that we do need to update
-    const isToUpdate = Object.keys(toUpdate).some((each) => {
+    const isToUpdate = Object.keys(toUpdate).some((each) =>
       // @ts-expect-error
-      return theFilter(mySeries[each], toUpdate[each]);
-    });
+      theFilter(mySeries[each], toUpdate[each]),
+    );
     if (!isToUpdate) {
       return;
     }
@@ -886,12 +850,6 @@ export const updateReceiveState = (
       return;
     }
 
-    console.info(
-      "pacs.updateReceiveState: to setData: myID:",
-      myID,
-      "postStudyData:",
-      postStudyData,
-    );
     dispatch(setData(myID, postStudyData));
   };
 };
@@ -909,14 +867,7 @@ export const pushReceiveStateError = (
       return;
     }
 
-    const {
-      seriesMap: mySeriesMap,
-      studyMap: myStudyMap,
-      queryPrompt,
-      queryValue,
-      queryValues,
-      queryValueStudyUIDsMap,
-    } = me;
+    const { seriesMap: mySeriesMap } = me;
 
     const seriesKey = seriesUIDToSeriesMapKey(pacsName, seriesUID);
     const mySeries = mySeriesMap[seriesKey];

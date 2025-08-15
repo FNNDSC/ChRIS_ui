@@ -18,14 +18,8 @@ import { getSeriesDescription } from "./components/utils.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
 import styles from "./PacsApp.module.css";
 import PacsView from "./PacsView.tsx";
-import {
-  DEFAULT_RECEIVE_STATE,
-  type PacsState,
-  SeriesPullState,
-  type SeriesReceiveState,
-  type SeriesReceiveStateMap,
-} from "./types.ts";
-import { createFeedWithSeriesInstanceUID } from "./utils.ts";
+import { type PacsState, SeriesPullState } from "./types.ts";
+import { createFeedWithSeriesInstanceUID, errorCodeIsNot4xx } from "./utils.ts";
 
 /**
  * ChRIS_ui "PACS Query and Retrieve" controller + view.
@@ -89,13 +83,9 @@ export default () => {
     services,
     isGetServices,
     seriesMap,
-    seriesReceiveStateMap,
-    pullRequestMap: pullRequests,
     isLoadingStudies,
     wsUrl,
   } = pacs;
-
-  console.info("PacsApp: start: pacs:", pacs);
 
   // ========================================
   // STATE
@@ -108,88 +98,6 @@ export default () => {
   // TODO create a settings component for changing preferences
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
 
-  /**
-   * The state of DICOM series, according to LONK.
-   */
-  /**
-   * List of PACS queries which the user wants to pull.
-   */
-
-  // ========================================
-  // PFDCM QUERIES AND DATA
-  // ========================================
-
-  /**
-   * The state of DICOM studies and series in PFDCM.
-   */
-
-  // ========================================
-  // CUBE QUERIES AND DATA
-  // ========================================
-
-  // We have two instances of `useQueries` for checking whether DICOM series
-  // exists in CUBE:
-  //
-  // `cubeSeriesQueries`: initial check for existence when series is expanded,
-  //                      runs once.
-  // `lastCheckQueries`:  final check for existence when series is done being
-  //                      received by oxidicom, polls repeatedly until found.
-
-  /**
-   * Poll CUBE for the existence of DICOM series which have been reported as
-   * "done" by LONK. It is necessary to poll CUBE because there will be a delay
-   * between when LONK reports the series as "done" and when CUBE will run the
-   * celery task of finally registering the series.
-   */
-  /*
-  const lastCheckQueries = useQueries({
-    queries: React.useMemo(
-      () =>
-        receiveState.entries().map(([pacs_name, SeriesInstanceUID, state]) => ({
-          queryKey: [
-            "lastCheckCubeSeriesRegistration",
-            pacs_name,
-            SeriesInstanceUID,
-          ],
-          queryFn: async () => {
-            const search = { pacs_name, SeriesInstanceUID, limit: 1 };
-            const list = await chrisClient.getPACSSeriesList(search);
-            const items = list.getItems() as ReadonlyArray<PACSSeries>;
-            if (items.length === 0) {
-              throw new SeriesNotRegisteredError(pacs_name, SeriesInstanceUID);
-            }
-            return items[0];
-          },
-          enabled: state.done,
-          retry: 300,
-          retryDelay:
-            Number.parseInt(import.meta.env.VITE_CUBE_POLL_INTERVAL_MS) || 2000,
-        })),
-      [receiveState, chrisClient.getPACSSeriesList],
-    ),
-  });
-  */
-
-  /**
-   * Map for all the CUBE queries for PACSSeries existence.
-   */
-  /*
-  const allCubeSeriesQueryMap = React.useMemo(() => {
-    const lastCheckParams = receiveState
-      .entries()
-      .map(([pacs_name, SeriesInstanceUID]) => ({
-        pacs_name,
-        SeriesInstanceUID,
-      }));
-    const lastCheckQueriesMap = createCubeSeriesQueryUidMap(
-      lastCheckParams,
-      lastCheckQueries,
-    );
-
-    return new Map([...firstCheckQueriesMap, ...lastCheckQueriesMap]);
-  }, [receiveState, lastCheckQueries, expandedSeries, cubeSeriesQueries]);
-  */
-
   // ========================================
   // COMBINED STATE OF EVERYTHING
   // ========================================
@@ -197,18 +105,12 @@ export default () => {
   /**
    * Combined states of PFDCM, LONK, and CUBE into one object.
    */
-
-  /**
-   * Entire state of the Pacs Q/R application.
-   */
   const state: PacsState = { preferences, studies };
 
   const error = wsError || pacs.errmsg;
-
   // ========================================
   // LONK WEBSOCKET
   // ========================================
-
   const lonk = useLonk({
     url: wsUrl,
     onDone: async (pacs_name: string, SeriesInstanceUID: string) => {
@@ -222,11 +124,6 @@ export default () => {
         SeriesInstanceUID,
       );
 
-      console.info(
-        "PacsApp.lonk.onDone: to createFeed: seriesInstanceUID:",
-        SeriesInstanceUID,
-      );
-
       await createFeedWithSeriesInstanceUID(SeriesInstanceUID);
 
       return;
@@ -236,12 +133,6 @@ export default () => {
       SeriesInstanceUID: string,
       ndicom: number,
     ) => {
-      console.info(
-        "PacsApp.lonk.onProgress: start: seriesUID:",
-        SeriesInstanceUID,
-        "ndicom:",
-        ndicom,
-      );
       doPacs.updateReceiveState(
         pacsID,
         pacs_name,
@@ -255,7 +146,6 @@ export default () => {
       SeriesInstanceUID: string,
       error: string,
     ) => {
-      console.info("PacsApp.lonk.onError: start:", SeriesInstanceUID);
       doPacs.pushReceiveStateError(pacsID, pacs_name, SeriesInstanceUID, error);
 
       const desc = getSeriesDescription(
@@ -268,7 +158,6 @@ export default () => {
       );
     },
     onMessageError: (data: any, error: string) => {
-      console.error("LONK message error", error, data);
       message.error(
         <>
           A <em>LONK</em> error occurred, please check the console.
@@ -279,7 +168,7 @@ export default () => {
     retryOnError: true,
     reconnectAttempts: 3,
     reconnectInterval: 3000,
-    shouldReconnect: errorCodeIs4xx,
+    shouldReconnect: errorCodeIsNot4xx,
     onReconnectStop: () => {
       console.error("PacsApp.lonk: onReconnectStop");
       setWsError(<>The WebSocket is disconnected.</>);
@@ -311,7 +200,6 @@ export default () => {
 
   // PACS RETRIEVAL
   const onRetrieve = (service: string, query: PACSqueryCore) => {
-    console.info("PacsApp.onRetrieve: query:", query);
     doPacs.expandStudies(pacsID, service, query, studies);
     doPacs.retrievePACS(pacsID, service, query);
   };
@@ -327,8 +215,6 @@ export default () => {
     const originalTitle = document.title;
     document.title = "ChRIS PACS";
 
-    console.info("PacsApp: useEffect (init): start");
-
     // doPacs
     doPacs.init();
 
@@ -340,7 +226,6 @@ export default () => {
   // Subscribe to all expanded series
   // biome-ignore lint/correctness/useExhaustiveDependencies: updateReceiveState
   useEffect(() => {
-    console.info("PacsApp: lonk.subscribe");
     for (const { pacs_name, SeriesInstanceUID } of expandedSeries) {
       lonk
         .subscribe(pacs_name, SeriesInstanceUID)
@@ -389,9 +274,4 @@ export default () => {
       </PageSection>
     </>
   );
-};
-
-const errorCodeIs4xx = (e: { code: number }) => {
-  console.info("PacsApp: lonk: errorCodeIs4xx: e:", e);
-  return e.code >= 400 && e.code < 500;
 };
