@@ -1,21 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { getRoot, useReducer } from "react-reducer-utils";
 import {
-  useNavigate,
-  useRoutes,
   matchPath,
   useLocation,
+  useNavigate,
+  useRoutes,
 } from "react-router-dom";
 import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
 import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
+import GnomeLibrary from "./components/GnomeLibrary";
 import Login from "./components/Login";
+import { OperationsProvider } from "./components/NewLibrary/context";
+import Store from "./components/NewStore";
 import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import NotFound from "./components/NotFound";
 import Pacs from "./components/Pacs";
 import PipelinePage from "./components/PipelinesPage";
-import PluginCatalog from "./components/PluginCatalog/";
 import PluginInstall from "./components/PluginInstall";
 import PrivateRoute from "./components/PrivateRoute";
 import {
@@ -24,11 +27,9 @@ import {
 } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import Store from "./components/NewStore";
+import * as DoPacs from "./reducers/pacs";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setSidebarActive } from "./store/ui/uiSlice";
-import { OperationsProvider } from "./components/NewLibrary/context";
-import GnomeLibrary from "./components/GnomeLibrary";
 
 interface IState {
   selectData?: Series;
@@ -54,6 +55,10 @@ export const MainRouter: React.FC = () => {
   const [route, setRoute] = React.useState<string>();
   const navigate = useNavigate();
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+
+  const [statePacs, doPacs] = useReducer(DoPacs);
+
+  const pacs = getRoot(statePacs) ?? DoPacs.defaultState;
 
   const actions: IActions = {
     createFeedWithData: (selectData: Series) => {
@@ -112,8 +117,9 @@ export const MainRouter: React.FC = () => {
     // Default to notFound if no match
     return routeToSidebarItem["*"];
   };
+
   // Update the active sidebar item based on the current route
-  React.useEffect(() => {
+  useEffect(() => {
     const currentPath = location.pathname;
     const sidebarItem = matchRoute(currentPath);
     dispatch(
@@ -194,7 +200,7 @@ export const MainRouter: React.FC = () => {
             {...{ actions, state, route, setRoute }}
             context={MainRouterContext}
           >
-            <Pacs />
+            <Pacs pacs={pacs} />
           </RouterProvider>
         </PrivateRoute>
       ),

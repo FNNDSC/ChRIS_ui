@@ -84,7 +84,7 @@ type LonkHandlers = {
     SeriesInstanceUID: string,
     ndicom: number,
   ) => void;
-  onError: (
+  onLonkError: (
     pacs_name: string,
     SeriesInstanceUID: string,
     error: string,

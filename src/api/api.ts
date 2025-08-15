@@ -17,6 +17,7 @@ export interface CallAPI<T> {
   filename?: string;
   filetext?: string;
   apiroot?: string;
+  isJson?: boolean;
 }
 
 interface ApiParams {
@@ -28,6 +29,7 @@ interface ApiParams {
   filename?: string;
   filetext?: string;
   apiroot?: string;
+  isJson?: boolean;
 }
 
 export interface ApiResult<T> {
@@ -86,6 +88,7 @@ const callApi = async <T>(
     filename,
     filetext: paramsFiletext,
     apiroot: paramsAPIRoot,
+    isJson,
   }: ApiParams,
 ): Promise<ApiResult<T>> => {
   const { API_ROOT: CONFIG_API_ROOT } = config;
@@ -96,6 +99,8 @@ const callApi = async <T>(
   if (API_ROOT.length >= 1 && API_ROOT[API_ROOT.length - 1] === "/") {
     API_ROOT = API_ROOT.slice(0, API_ROOT.length - 1);
   }
+
+  console.info("api.api: API_ROOT:", API_ROOT, "paramsAPIRoot:", paramsAPIRoot);
 
   let theEndpoint = endpoint;
   if (!theEndpoint.includes(API_ROOT)) {
@@ -117,7 +122,7 @@ const callApi = async <T>(
     Authorization: `Token ${token}`,
   };
 
-  let body: string | undefined = undefined;
+  let body: string | undefined;
   if (params) {
     const paramsStr = queryToString(params);
     headers["Content-Type"] = "application/x-www-form-urlencoded";
@@ -135,7 +140,7 @@ const callApi = async <T>(
     body,
   };
 
-  return await fetchCore<T>(theEndpoint, options);
+  return await fetchCore<T>(theEndpoint, options, isJson);
 };
 
 const postFile = async <T>(
@@ -204,8 +209,18 @@ const fetchCore = async <T>(
 };
 
 export default <T>(callAPI: CallAPI<T>): Promise<ApiResult<T>> => {
-  const { endpoint, method, query, params, filename, filetext, json, headers } =
-    callAPI;
+  const {
+    endpoint,
+    method,
+    query,
+    params,
+    filename,
+    filetext,
+    json,
+    headers,
+    apiroot,
+    isJson,
+  } = callAPI;
 
   return callApi<T>(endpoint, {
     method,
@@ -215,5 +230,7 @@ export default <T>(callAPI: CallAPI<T>): Promise<ApiResult<T>> => {
     filetext,
     json,
     headers,
+    apiroot,
+    isJson,
   });
 };

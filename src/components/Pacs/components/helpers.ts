@@ -1,8 +1,8 @@
-import type { useSearchParams } from "react-router-dom";
 import {
-  type ReadonlyNonEmptyArray,
   extract as extractFromNonEmpty,
+  type ReadonlyNonEmptyArray,
 } from "fp-ts/ReadonlyNonEmptyArray";
+import type { useSearchParams } from "react-router-dom";
 import { type PacsSeriesState, SeriesPullState } from "../types.ts";
 
 /**
