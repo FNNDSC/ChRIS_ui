@@ -1,8 +1,8 @@
-import { format } from "date-fns";
 import { Descriptions } from "antd";
-import ModalityBadges from "./ModalityBadges.tsx";
+import { format } from "date-fns";
 import type React from "react";
 import type { Study } from "../../../api/pfdcm/models.ts";
+import ModalityBadges from "./ModalityBadges.tsx";
 
 const StudyDetails: React.FC<{
   study: Study;

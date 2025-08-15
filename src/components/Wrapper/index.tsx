@@ -7,8 +7,8 @@ import Sidebar, { AnonSidebar } from "./Sidebar";
 import "./wrapper.css";
 import {
   setIsNavOpen,
-  setIsTagExpanded,
   setIsPackageTagExpanded,
+  setIsTagExpanded,
 } from "../../store/ui/uiSlice";
 import { OperationsProvider } from "../NewLibrary/context";
 
