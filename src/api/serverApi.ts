@@ -3,6 +3,7 @@ import type { ReadonlyNonEmptyArray } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import YAML from "yaml";
 import api, { type ApiResult } from "./api";
 import type { PACSqueryCore } from "./pfdcm";
+import { PACSqueryCoreToJSON } from "./pfdcm/generated";
 import type {
   DownloadToken,
   Feed,
@@ -206,15 +207,16 @@ export const getPFDCMServices = () =>
   });
 
 export const retrievePFDCMPACS = (service: string, query: PACSqueryCore) => {
+  const queryJSON = PACSqueryCoreToJSON(query);
   // biome-ignore lint/suspicious/noThenProperty: required by PACSqueryCore
-  query.then = "retrieve";
-  query.withFeedBack = true;
+  queryJSON.then = "retrieve";
+  queryJSON.withFeedBack = true;
 
   return api<PFDCMResult>({
     endpoint: "/PACS/thread/pypx/",
     method: "post",
     json: {
-      PACSdirective: query,
+      PACSdirective: queryJSON,
       PACSservice: { value: service },
       listenerService: { value: "default" },
     },
