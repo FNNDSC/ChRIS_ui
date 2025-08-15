@@ -6,10 +6,6 @@ import {
 import type { PACSSeries } from "../../api/types.ts";
 
 export const createFeedWithSeriesInstanceUID = async (seriesUID: string) => {
-  console.info(
-    "PacsController.createFeedWithSeriesInstanceUID: to getPACSSeriesListBySeriesUID: folderPath:",
-    seriesUID,
-  );
   const pacsSeriesListResult = await getPACSSeriesListBySeriesUID(seriesUID);
   const { data: pacsSeriesList } = pacsSeriesListResult;
   if (!pacsSeriesList) {
@@ -54,4 +50,14 @@ export const createFeedWithPACSSeries = async (series: PACSSeries) => {
     studyDate,
     isPublic: false,
   });
+};
+
+export const errorCodeIs4xx = (e: { code: number }) => {
+  console.info("PacsApp: lonk: errorCodeIs4xx: e:", e);
+  return e.code >= 400 && e.code < 500;
+};
+
+export const errorCodeIsNot4xx = (e: { code: number }) => {
+  console.info("PacsApp: lonk: errorCodeIsNot4xx: e:", e);
+  return e.code < 400 || e.code >= 500;
 };
