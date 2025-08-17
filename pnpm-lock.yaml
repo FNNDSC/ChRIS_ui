@@ -153,8 +153,8 @@ importers:
         specifier: ^1.25.5
         version: 1.26.2(react@18.3.1)
       react-reducer-utils:
-        specifier: ^5.2.1
-        version: 5.2.1
+        specifier: ^5.2.2
+        version: 5.2.2
       react-redux:
         specifier: ^9.1.2
         version: 9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1)
@@ -3244,8 +3244,8 @@ packages:
       react: ^16.8.0 || ^17 || ^18
       react-dom: ^16.8.0 || ^17 || ^18
 
-  react-reducer-utils@5.2.1:
-    resolution: {integrity: sha512-fvpWw2Xi+dAfGsMC8joh+lLcVJPJenMviudtWOiyPJsduCW5lkDpARaRXRWh/oUVHbkWQ26V2NEKkPsZUwhhbw==}
+  react-reducer-utils@5.2.2:
+    resolution: {integrity: sha512-PS0lPJhxs+vAuFkscyewN1+LanjZ1Vdh1AlZyEY906yXpsHTO22W4MhHG/U0IGgNVh+rnb8oerwPE/5jM6brjQ==}
 
   react-redux@9.2.0:
     resolution: {integrity: sha512-ROY9fvHhwOD9ySfrF0wmvu//bKCQ6AeZZq1nJNtbDC+kk5DuSuNX/n6YWYF/SYy7bSba4D4FSz8DJeKY/S/r+g==}
@@ -7292,7 +7292,7 @@ snapshots:
       react-fast-compare: 3.2.2
       warning: 4.0.3
 
-  react-reducer-utils@5.2.1:
+  react-reducer-utils@5.2.2:
     dependencies:
       react: 18.3.1
       uuid: 11.1.0
