@@ -8,7 +8,12 @@ import { PageSection } from "@patternfly/react-core";
 import { App } from "antd";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { getRoot, getRootID, useReducer } from "react-reducer-utils";
+import {
+  getRoot,
+  getRootID,
+  type ModuleToFunc,
+  useReducer,
+} from "react-reducer-utils";
 import { useLonk } from "../../api/lonk/index.ts";
 import type { PACSqueryCore } from "../../api/pfdcm/index.ts";
 import * as DoPacs from "../../reducers/pacs";
@@ -20,6 +25,8 @@ import styles from "./PacsApp.module.css";
 import PacsView from "./PacsView.tsx";
 import { type PacsState, SeriesPullState } from "./types.ts";
 import { createFeedWithSeriesInstanceUID, errorCodeIsNot4xx } from "./utils.ts";
+
+type TDoPacs = ModuleToFunc<typeof DoPacs>;
 
 /**
  * ChRIS_ui "PACS Query and Retrieve" controller + view.
@@ -71,7 +78,7 @@ export default () => {
   // ========================================
   const { message } = App.useApp();
 
-  const [statePacs, doPacs] = useReducer(DoPacs);
+  const [statePacs, doPacs] = useReducer<DoPacs.State, TDoPacs>(DoPacs);
 
   const pacsID = getRootID(statePacs);
   const pacs = getRoot(statePacs) ?? DoPacs.defaultState;
