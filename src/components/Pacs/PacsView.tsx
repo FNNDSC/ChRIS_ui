@@ -1,6 +1,6 @@
 import { Empty, Flex, Spin, Typography } from "antd";
 import type { CSSProperties } from "react";
-import type { DispatchFuncMap } from "react-reducer-utils";
+import type { DispatchFuncMap, ModuleToFunc } from "react-reducer-utils";
 import type { PACSqueryCore } from "../../api/pfdcm";
 import type * as DoPacs from "../../reducers/pacs";
 import PacsInput, {
@@ -10,6 +10,8 @@ import PacsStudiesView, {
   type Props as PacsStudiesViewProps,
 } from "./components/PacsStudiesView.tsx";
 import type { PacsState } from "./types.ts";
+
+type TDoPacs = ModuleToFunc<typeof DoPacs>;
 
 type Props = Pick<PacsInputProps, "services" | "onSubmit"> &
   Pick<PacsStudiesViewProps, "expandedStudyUids"> & {
@@ -23,7 +25,7 @@ type Props = Pick<PacsInputProps, "services" | "onSubmit"> &
 
     pacsID: string;
     pacs: DoPacs.State;
-    doPacs: DispatchFuncMap;
+    doPacs: DispatchFuncMap<DoPacs.State, TDoPacs>;
   };
 
 /**
@@ -48,6 +50,7 @@ export default (props: Props) => {
   } = props;
 
   const service = pacs.service;
+
   const setService = (service: string) => {
     doPacs.setService(pacsID, service);
   };

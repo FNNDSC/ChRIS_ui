@@ -1,5 +1,12 @@
-import React, { useEffect } from "react";
-import { getRoot, useReducer } from "react-reducer-utils";
+import path from "path";
+import React, { useEffect, useState } from "react";
+import {
+  genUUID,
+  getState,
+  type ModuleToFunc,
+  StateType,
+  useReducer,
+} from "react-reducer-utils";
 import {
   matchPath,
   useLocation,
@@ -27,9 +34,11 @@ import {
 } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import * as DoPacs from "./reducers/pacs";
+import type * as DoPacs from "./reducers/pacs";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setSidebarActive } from "./store/ui/uiSlice";
+
+type TDoPacs = ModuleToFunc<typeof DoPacs>;
 
 interface IState {
   selectData?: Series;
@@ -56,9 +65,7 @@ export const MainRouter: React.FC = () => {
   const navigate = useNavigate();
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
-  const [statePacs, doPacs] = useReducer(DoPacs);
-
-  const pacs = getRoot(statePacs) ?? DoPacs.defaultState;
+  console.info("routes: start: route:", route);
 
   const actions: IActions = {
     createFeedWithData: (selectData: Series) => {
@@ -196,12 +203,7 @@ export const MainRouter: React.FC = () => {
       path: "pacs",
       element: (
         <PrivateRoute>
-          <RouterProvider
-            {...{ actions, state, route, setRoute }}
-            context={MainRouterContext}
-          >
-            <Pacs pacs={pacs} />
-          </RouterProvider>
+          <Pacs />
         </PrivateRoute>
       ),
     },

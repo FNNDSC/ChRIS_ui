@@ -6,12 +6,22 @@ import {
   createReducer,
   genUUID,
   getRoot,
+  getState,
   type State as rState,
   setData,
   type Thunk,
 } from "react-reducer-utils";
+import type { Location } from "react-router";
+import type { URLSearchParams } from "url";
 import { STATUS_OK, STATUS_OK_CREATE } from "../api/constants";
 import type { SeriesKey } from "../api/lonk";
+import {
+  isDone as isLonkDone,
+  isError as isLonkError,
+  isProgress as isLonkProgress,
+  isSubscribed as isLonkSubscribed,
+} from "../api/lonk/LonkSubscriber";
+import type { Lonk, LonkMessageData } from "../api/lonk/types";
 import type { PACSqueryCore } from "../api/pfdcm";
 import {
   createDownloadToken,
@@ -27,9 +37,12 @@ import {
   type PacsPullRequestStateMap,
   type PacsSeriesState,
   type PacsStudyState,
+  QUERY_PROMPT,
+  SearchMode,
   SeriesPullState,
   type StudyKey,
 } from "../components/Pacs/types";
+import { createFeedWithSeriesInstanceUID } from "../components/Pacs/utils";
 import {
   seriesUIDToSeriesMapKey,
   simplifyPypxSeriesData,
@@ -63,6 +76,7 @@ export interface State extends rState {
   expandedStudyUids: string[];
   expandedSeries: SeriesKey[];
   expandedSeriesSet: Set<string>;
+  isExpandedAllDone: boolean;
 
   queryPrompt: string;
   queryValue: string;
@@ -98,6 +112,7 @@ export const defaultState: State = {
   expandedStudySet: new Set(),
   expandedSeries: [],
   expandedSeriesSet: new Set(),
+  isExpandedAllDone: false,
 
   queryPrompt: "",
   queryValue: "",
@@ -109,12 +124,49 @@ export const defaultState: State = {
   errmsg: "",
 };
 
-export const init = (): Thunk<State> => {
-  const myID = genUUID();
+export const init = (myID: string): Thunk<State> => {
   return async (dispatch, _) => {
     dispatch(_init({ myID, state: defaultState }));
     dispatch(getServices(myID));
-    dispatch(getWsUrl(myID));
+    // dispatch(getWsUrl(myID));
+  };
+};
+
+export const updateServiceQueryBySearchParams = (
+  myID: string,
+  location: Location,
+  searchParams: URLSearchParams,
+): Thunk<State> => {
+  return (dispatch, _) => {
+    if (!location.pathname.startsWith("/pacs")) {
+      return;
+    }
+
+    const service = searchParams.get("service") || "";
+    const mrn = searchParams.get(SearchMode.MRN) || "";
+    const accessionNumber = searchParams.get(SearchMode.AccessNo) || "";
+
+    if (service) {
+      dispatch(setService(myID, service));
+    }
+
+    if (mrn) {
+      dispatch(setQuery(myID, QUERY_PROMPT[SearchMode.MRN], mrn));
+    } else if (accessionNumber) {
+      dispatch(
+        setQuery(myID, QUERY_PROMPT[SearchMode.AccessNo], accessionNumber),
+      );
+    }
+  };
+};
+
+export const setQuery = (
+  myID: string,
+  queryPrompt: string,
+  queryValue: string,
+): Thunk<State> => {
+  return (dispatch, _) => {
+    dispatch(setData(myID, { queryPrompt, queryValue }));
   };
 };
 
@@ -232,13 +284,18 @@ export const queryCubeSeriesStateBySeriesUID = (
     if (!me) {
       return;
     }
-    const { seriesMap } = me;
+    const { seriesMap, studyMap } = me;
     const key = seriesUIDToSeriesMapKey(pacsName, seriesUID);
     const mySeries = seriesMap[key];
     if (!mySeries) {
       return;
     }
-    const series = await queryCubeSeriesState(mySeries);
+    const studyUID = mySeries.info.StudyInstanceUID;
+    const studyKey = studyUIDToStudyMapKey(pacsName, studyUID);
+    const study = studyMap[studyKey];
+    const count = study.info.NumberOfStudyRelatedSeries;
+
+    const series = await queryCubeSeriesState(mySeries, count);
 
     const classState2 = getClassState();
     const postStudyData = postprocessSeries(
@@ -256,16 +313,17 @@ export const queryCubeSeriesStateBySeriesUID = (
 
 const queryAllCubeSeriesState = async (studyData: PacsStudyState[]) =>
   Promise.all(
-    studyData.map(async (each) => {
-      each.series = await Promise.all(
-        each.series.map(async (eachSeries) => {
-          return await queryCubeSeriesState(eachSeries);
+    studyData.map(async (eachStudy) => {
+      const count = eachStudy.info.NumberOfStudyRelatedSeries;
+      eachStudy.series = await Promise.all(
+        eachStudy.series.map(async (eachSeries) => {
+          return await queryCubeSeriesState(eachSeries, count);
         }),
       );
     }),
   );
 
-const queryCubeSeriesState = async (series: PacsSeriesState) => {
+const queryCubeSeriesState = async (series: PacsSeriesState, count: number) => {
   const {
     info: { RetrieveAETitle: service, SeriesInstanceUID: seriesUID },
   } = series;
@@ -281,6 +339,7 @@ const queryCubeSeriesState = async (series: PacsSeriesState) => {
   if (data.length) {
     series.inCube = { data: data[0] };
     series.pullState = SeriesPullState.WAITING_OR_COMPLETE;
+    series.receivedCount = count;
   } else if (series.pullState !== SeriesPullState.PULLING) {
     series.pullState = SeriesPullState.READY;
   }
@@ -333,6 +392,10 @@ export const queryPacsStudies = (
         each,
         queryValueStudyUIDsMap,
         true,
+      );
+      console.info(
+        "pacs.queryPacsStudies: after postprocessStudyData: postStudyData:",
+        postStudyData,
       );
       if (!postStudyData) {
         return;
@@ -419,6 +482,7 @@ const postprocessStudyData = (
   isQueryPacsStudies = false,
 ) => {
   const me = getRoot(classState);
+  console.info("pacs.postprocessStudyData: getRoot:", me);
   if (!me) {
     return;
   }
@@ -434,6 +498,16 @@ const postprocessStudyData = (
   } = me;
 
   // ensure that we are still the newest query
+  console.info(
+    "pacs.postprocessStudyData: queryPrompt:",
+    queryPrompt,
+    "myQueryPrompt:",
+    myQueryPrompt,
+    "queryValue:",
+    queryValue,
+    "myQueryValue:",
+    myQueryValue,
+  );
   if (queryPrompt !== myQueryPrompt || queryValue !== myQueryValue) {
     return;
   }
@@ -550,6 +624,8 @@ export const onStudyExpand = (
   return (dispatch, getClassState) => {
     const classSate = getClassState();
     const me = getRoot(classSate);
+
+    console.info("pacs.onStudyExpand: getRoot:", me, "myID:", myID);
     if (!me) {
       return;
     }
@@ -567,12 +643,18 @@ export const onStudyExpand = (
       expandedStudySet,
     } = postprocessExpandedStudies(theExpandedStudies, studyMap, [], new Set());
 
+    console.info(
+      "pacs.onStudyExpand: to setData: expandedSeries:",
+      expandedSeries.length,
+    );
+
     dispatch(
       setData(myID, {
         expandedStudies: expandedStudies,
         expandedStudyUids,
         expandedSeries,
         expandedStudySet,
+        isExpandedAllDone: false,
       }),
     );
 
@@ -805,6 +887,107 @@ export const retrievePACS = (
   };
 };
 
+export const processLonkMsg = (
+  myID: string,
+  data: Lonk<LonkMessageData>,
+): Thunk<State> => {
+  return (dispatch, _) => {
+    const { pacs_name: pacsName, SeriesInstanceUID: seriesUID, message } = data;
+    if (isLonkDone(message)) {
+      dispatch(processLonkMsgDone(myID, pacsName, seriesUID));
+    } else if (isLonkProgress(message)) {
+      dispatch(
+        processLonkMsgProgess(myID, pacsName, seriesUID, message.ndicom),
+      );
+    } else if (isLonkSubscribed(message)) {
+      dispatch(processLonkMsgSubscribed(myID, pacsName, seriesUID));
+    } else if (isLonkError(message)) {
+      dispatch(processLonkMsgError(myID, pacsName, seriesUID, message.error));
+    }
+  };
+};
+
+export const processLonkMsgDone = (
+  myID: string,
+  pacsName: string,
+  seriesUID: string,
+): Thunk<State> => {
+  return async (dispatch, getClassState) => {
+    const classState = getClassState();
+    const me = getState(classState, myID);
+    if (!me) {
+      return;
+    }
+
+    const seriesKey = seriesUIDToSeriesMapKey(pacsName, seriesUID);
+    const series = me.seriesMap[seriesKey];
+    if (!series) {
+      return;
+    }
+    const studyUID = series.info.StudyInstanceUID;
+    const studyKey = studyUIDToStudyMapKey(pacsName, studyUID);
+    const study = me.studyMap[studyKey];
+    if (!study) {
+      return;
+    }
+    const count = study.info.NumberOfStudyRelatedSeries;
+
+    dispatch(
+      updateReceiveState(myID, pacsName, seriesUID, {
+        pullState: SeriesPullState.WAITING_OR_COMPLETE,
+        done: true,
+        receivedCount: count,
+      }),
+    );
+
+    dispatch(queryCubeSeriesStateBySeriesUID(myID, pacsName, seriesUID));
+
+    await createFeedWithSeriesInstanceUID(seriesUID);
+  };
+};
+
+export const processLonkMsgProgess = (
+  myID: string,
+  pacsName: string,
+  seriesUID: string,
+  count: number,
+): Thunk<State> => {
+  return (dispatch, _) => {
+    dispatch(
+      updateReceiveState(
+        myID,
+        pacsName,
+        seriesUID,
+        { receivedCount: count },
+        (theOrig: number, theNew: number) => theOrig < theNew,
+      ),
+    );
+  };
+};
+
+export const processLonkMsgSubscribed = (
+  myID: string,
+  pacsName: string,
+  seriesUID: string,
+): Thunk<State> => {
+  return (dispatch, _) => {
+    dispatch(
+      updateReceiveState(myID, pacsName, seriesUID, { subscribed: true }),
+    );
+  };
+};
+
+export const processLonkMsgError = (
+  myID: string,
+  pacsName: string,
+  seriesUID: string,
+  errmsg: string,
+): Thunk<State> => {
+  return (dispatch, _) => {
+    dispatch(pushReceiveStateError(myID, pacsName, seriesUID, errmsg));
+  };
+};
+
 export const updateReceiveState = (
   myID: string,
   pacsName: string,
@@ -850,7 +1033,21 @@ export const updateReceiveState = (
       return;
     }
 
-    dispatch(setData(myID, postStudyData));
+    const {
+      studyMap,
+      studies,
+      series: newSeries,
+      seriesMap: newSeriesMap,
+    } = postStudyData;
+
+    dispatch(
+      setData(myID, {
+        studyMap,
+        studies,
+        series: newSeries,
+        seriesMap: newSeriesMap,
+      }),
+    );
   };
 };
 
