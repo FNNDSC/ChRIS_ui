@@ -12,6 +12,16 @@ export type SeriesKey = {
   SeriesInstanceUID: string;
 };
 
+export enum SearchMode {
+  MRN = "mrn",
+  AccessNo = "accno",
+}
+
+export const QUERY_PROMPT = {
+  [SearchMode.MRN]: "PatientID",
+  [SearchMode.AccessNo]: "AccessionNumber",
+};
+
 /**
  * Indicates DICOM series has not yet been registered by CUBE.
  */

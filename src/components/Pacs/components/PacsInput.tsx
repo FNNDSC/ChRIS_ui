@@ -3,19 +3,13 @@ import { Col, Row, Segmented } from "antd";
 import type { ReadonlyNonEmptyArray } from "fp-ts/ReadonlyNonEmptyArray";
 import { useEffect, useState } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
-import type { PACSqueryCore } from "../../../api/pfdcm";
 import OperationButton from "../../NewLibrary/components/operations/OperationButton";
-import type { PacsStudyState } from "../types";
+import { type PacsStudyState, QUERY_PROMPT, SearchMode } from "../types";
 import PacsInputText from "./PacsInputText";
 import ScreenSizeSpan from "./ScreenSizeSpan";
 import ServiceDropdown from "./ServiceDropdown";
 
 import { downloadStudiesToCSV } from "./utils";
-
-enum SearchMode {
-  MRN = "mrn",
-  AccessNo = "accno",
-}
 
 export type Props = {
   services: ReadonlyNonEmptyArray<string>;
@@ -92,8 +86,7 @@ export default (props: Props) => {
       return;
     }
 
-    const prompt =
-      searchMode === SearchMode.MRN ? "PatientID" : "AccessionNumber";
+    const prompt = QUERY_PROMPT[searchMode];
 
     console.info(
       "PacsInput: to onSubmit: service:",

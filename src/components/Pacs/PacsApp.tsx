@@ -5,25 +5,28 @@
  */
 
 import { PageSection } from "@patternfly/react-core";
-import { App } from "antd";
-import type React from "react";
+import config from "config";
+import { access } from "fs";
 import { useEffect, useState } from "react";
 import {
+  genUUID,
   getRoot,
   getRootID,
+  getState,
   type ModuleToFunc,
+  StateType,
   useReducer,
 } from "react-reducer-utils";
-import { useLonk } from "../../api/lonk/index.ts";
+import { useLocation, useSearchParams } from "react-router-dom";
+import type { Lonk, LonkMessageData } from "../../api/lonk/types.ts";
 import type { PACSqueryCore } from "../../api/pfdcm/index.ts";
 import * as DoPacs from "../../reducers/pacs";
 import ErrorScreen from "./components/ErrorScreen.tsx";
 import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
-import { getSeriesDescription } from "./components/utils.ts";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
 import styles from "./PacsApp.module.css";
 import PacsView from "./PacsView.tsx";
-import { type PacsState, SeriesPullState } from "./types.ts";
+import { type PacsState, QUERY_PROMPT, SearchMode } from "./types.ts";
 import { createFeedWithSeriesInstanceUID, errorCodeIsNot4xx } from "./utils.ts";
 
 type TDoPacs = ModuleToFunc<typeof DoPacs>;
@@ -76,22 +79,25 @@ export default () => {
   // ========================================
   // CLIENTS AND MISC
   // ========================================
-  const { message } = App.useApp();
+  const [statePacs, doPacs] = useReducer<DoPacs.State, TDoPacs>(
+    DoPacs,
+    StateType.LOCAL,
+  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const [pacsID, _] = useState(genUUID());
 
-  const [statePacs, doPacs] = useReducer<DoPacs.State, TDoPacs>(DoPacs);
-
-  const pacsID = getRootID(statePacs);
-  const pacs = getRoot(statePacs) ?? DoPacs.defaultState;
+  const pacs = getState(statePacs, pacsID) ?? DoPacs.defaultState;
 
   const {
     expandedStudyUids,
     expandedSeries,
     studies,
     services,
+    service,
     isGetServices,
-    seriesMap,
     isLoadingStudies,
-    wsUrl,
+    isExpandedAllDone,
   } = pacs;
 
   // ========================================
@@ -101,7 +107,7 @@ export default () => {
   /**
    * Indicates a fatal error with the WebSocket.
    */
-  const [wsError, setWsError] = useState<React.ReactNode | null>(null);
+  const [wsError, setWsError] = useState("");
   // TODO create a settings component for changing preferences
   const [preferences, setPreferences] = useState(DEFAULT_PREFERENCES);
 
@@ -115,78 +121,6 @@ export default () => {
   const state: PacsState = { preferences, studies };
 
   const error = wsError || pacs.errmsg;
-  // ========================================
-  // LONK WEBSOCKET
-  // ========================================
-  const lonk = useLonk({
-    url: wsUrl,
-    onDone: async (pacs_name: string, SeriesInstanceUID: string) => {
-      doPacs.updateReceiveState(pacsID, pacs_name, SeriesInstanceUID, {
-        pullState: SeriesPullState.WAITING_OR_COMPLETE,
-        done: true,
-      });
-      doPacs.queryCubeSeriesStateBySeriesUID(
-        pacsID,
-        pacs_name,
-        SeriesInstanceUID,
-      );
-
-      await createFeedWithSeriesInstanceUID(SeriesInstanceUID);
-
-      return;
-    },
-    onProgress: (
-      pacs_name: string,
-      SeriesInstanceUID: string,
-      ndicom: number,
-    ) => {
-      doPacs.updateReceiveState(
-        pacsID,
-        pacs_name,
-        SeriesInstanceUID,
-        { receivedCount: ndicom },
-        (theOrig: number, theNew: number) => theOrig < theNew,
-      );
-    },
-    onLonkError: (
-      pacs_name: string,
-      SeriesInstanceUID: string,
-      error: string,
-    ) => {
-      doPacs.pushReceiveStateError(pacsID, pacs_name, SeriesInstanceUID, error);
-
-      const desc = getSeriesDescription(
-        pacs_name,
-        SeriesInstanceUID,
-        seriesMap,
-      );
-      message.error(
-        <>There was an error while receiving the series "{desc}"</>,
-      );
-    },
-    onMessageError: (data: any, error: string) => {
-      message.error(
-        <>
-          A <em>LONK</em> error occurred, please check the console.
-        </>,
-      );
-    },
-    heartbeat: false,
-    retryOnError: true,
-    reconnectAttempts: 3,
-    reconnectInterval: 3000,
-    shouldReconnect: errorCodeIsNot4xx,
-    onReconnectStop: () => {
-      console.error("PacsApp.lonk: onReconnectStop");
-      setWsError(<>The WebSocket is disconnected.</>);
-    },
-    onWebsocketError: () => {
-      console.error("PacsApp.lonk: onWebsocketError");
-      message.error(
-        <>There was an error with the WebSocket. Reconnecting&hellip;</>,
-      );
-    },
-  });
 
   // ========================================
   // CALLBACKS
@@ -216,35 +150,83 @@ export default () => {
   // ========================================
 
   // init
-  // biome-ignore lint/correctness/useExhaustiveDependencies: doPacs.init
   useEffect(() => {
+    doPacs.init(pacsID);
+
+    doPacs.updateServiceQueryBySearchParams(pacsID, location, searchParams);
+  }, [
+    pacsID,
+    doPacs.init,
+    doPacs.updateServiceQueryBySearchParams,
+    location,
+    searchParams,
+  ]);
+
+  useEffect(() => {
+    if (!pacsID) {
+      return;
+    }
+
+    if (!location.pathname.startsWith("/pacs")) {
+      return;
+    }
+
     // set document title.
     const originalTitle = document.title;
     document.title = "ChRIS PACS";
 
-    // doPacs
-    doPacs.init();
+    doPacs.updateServiceQueryBySearchParams(pacsID, location, searchParams);
 
     return () => {
       document.title = originalTitle;
     };
-  }, []);
+  }, [
+    pacsID,
+    location,
+    location.pathname,
+    searchParams,
+    doPacs.updateServiceQueryBySearchParams,
+  ]);
 
   // Subscribe to all expanded series
   // biome-ignore lint/correctness/useExhaustiveDependencies: updateReceiveState
   useEffect(() => {
-    for (const { pacs_name, SeriesInstanceUID } of expandedSeries) {
-      lonk
-        .subscribe(pacs_name, SeriesInstanceUID)
-        .then(({ pacs_name, SeriesInstanceUID }) => {
-          doPacs.updateReceiveState(pacsID, pacs_name, SeriesInstanceUID, {
-            subscribed: true,
-          });
-        });
+    if (wsError) {
+      return;
     }
+
+    if (isExpandedAllDone) {
+      return;
+    }
+
+    if (!expandedSeries.length) {
+      return;
+    }
+
+    const series_uids = expandedSeries
+      .map((each) => each.SeriesInstanceUID)
+      .join(",");
+
+    const url = `${config.API_ROOT}/pacs/sse/?pacs_name=${service}&series_uids=${series_uids}`;
+    const eventSource = new EventSource(url);
+
+    eventSource.onmessage = (event) => {
+      const data: Lonk<LonkMessageData> = JSON.parse(event.data);
+      doPacs.processLonkMsg(pacsID, data);
+    };
+
+    eventSource.onerror = (err) => {
+      console.error("PacsApp.eventSource.onerror: err:", err);
+      setWsError(`event error: ${err}`);
+    };
+
+    return () => {
+      console.info("PacsApp.eventSource: to return");
+      eventSource.close();
+    };
     // Note: we are subscribing to series, but never unsubscribing.
     // This is mostly harmless.
-  }, [expandedSeries]);
+  }, [expandedSeries, wsError, isExpandedAllDone]);
 
   // ========================================
   // RENDER
