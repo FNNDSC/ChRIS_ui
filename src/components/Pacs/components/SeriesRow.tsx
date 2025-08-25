@@ -128,7 +128,13 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   const showModal = () => {
     if (!hasMultipleSelected) {
       setFeedName(
-        generateFeedName({ info, errors, pullState, inCube, receivedCount }),
+        generateFeedName({
+          info,
+          errors,
+          pullState,
+          inCube,
+          receivedCount,
+        }),
       );
     }
     setIsModalOpen(true);
@@ -183,7 +189,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   };
 
   const contextMenuItems = getSeriesContextMenuItems(
-    { info, errors, pullState, inCube, receivedCount },
+    { info, errors, pullState, inCube, receivedCount: receivedCount },
     selected,
     selectedSeries.length,
     contextMenuHandlers,
@@ -254,7 +260,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
                 errors,
                 pullState,
                 inCube,
-                receivedCount,
+                receivedCount: receivedCount,
               });
             } else {
               message.info("Please retrieve the series first");
