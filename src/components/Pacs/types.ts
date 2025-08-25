@@ -131,7 +131,6 @@ export type SeriesReceiveStateMap = { [key: string]: SeriesReceiveState };
  * The combined state of a DICOM series in PFDCM, CUBE, and LONK.
  */
 export type PacsSeriesState = SeriesReceiveState & {
-  errors: ReadonlyArray<string>;
   info: Series;
   inCube: { data: PACSSeries } | null;
   pullState: SeriesPullState;
