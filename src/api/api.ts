@@ -1,5 +1,6 @@
 import config from "config";
 import { Cookies } from "react-cookie";
+import { STATUS_UNAUTHORIZED } from "./constants";
 
 export type Query = Record<string, any>;
 
@@ -100,8 +101,6 @@ const callApi = async <T>(
     API_ROOT = API_ROOT.slice(0, API_ROOT.length - 1);
   }
 
-  console.info("api.api: API_ROOT:", API_ROOT, "paramsAPIRoot:", paramsAPIRoot);
-
   let theEndpoint = endpoint;
   if (!theEndpoint.includes(API_ROOT)) {
     theEndpoint = `${API_ROOT}${endpoint}`;
@@ -166,6 +165,29 @@ const postFile = async <T>(
   );
 };
 
+const getCurrentPathQeury = () => {
+  const searchStr = getCurrentPathQeurySanitizeSearch(window.location.search);
+  return `${window.location.pathname}${searchStr}`;
+};
+
+const getCurrentPathQeurySanitizeSearch = (search: string) => {
+  if (!search) {
+    return "";
+  }
+
+  // if with only '?': remove '?'
+  if (search[0] === "?" && search.length === 1) {
+    return "";
+  }
+
+  // if not starting with '?': add '?'
+  if (search[0] !== "?") {
+    return `?${search}`;
+  }
+
+  return search;
+};
+
 const fetchCore = async <T>(
   endpoint: string,
   options: RequestInit,
@@ -177,6 +199,11 @@ const fetchCore = async <T>(
       return res
         .json()
         .then((collectionJsonData) => {
+          if (res.status === STATUS_UNAUTHORIZED) {
+            const redirectTo = encodeURIComponent(getCurrentPathQeury());
+            window.location.href = `/login?redirectTo=${redirectTo}`;
+          }
+
           if (res.status >= 400) {
             const msg = collectionJsonData.error;
             return { status, errmsg: msg };
