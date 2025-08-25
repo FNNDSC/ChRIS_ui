@@ -145,21 +145,25 @@ class LonkSubscriber {
   }
 }
 
-function isSubscribed(msg: { [key: string]: any }): msg is LonkSubscription {
+export const isSubscribed = (msg: {
+  [key: string]: any;
+}): msg is LonkSubscription => {
   return "subscribed" in msg && msg.subscribed === true;
-}
+};
 
-function isDone(msg: { [key: string]: any }): msg is LonkDone {
+export const isDone = (msg: { [key: string]: any }): msg is LonkDone => {
   return "done" in msg && msg.done === true;
-}
+};
 
-function isProgress(msg: { [key: string]: any }): msg is LonkProgress {
+export const isProgress = (msg: {
+  [key: string]: any;
+}): msg is LonkProgress => {
   return "ndicom" in msg && Number.isInteger(msg.ndicom);
-}
+};
 
-function isError(msg: { [key: string]: any }): msg is LonkError {
+export const isError = (msg: { [key: string]: any }): msg is LonkError => {
   return "error" in msg;
-}
+};
 
 export default LonkSubscriber;
 export type { LonkHandlers };
