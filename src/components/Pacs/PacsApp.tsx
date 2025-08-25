@@ -6,12 +6,9 @@
 
 import { PageSection } from "@patternfly/react-core";
 import config from "config";
-import { access } from "fs";
 import { useEffect, useState } from "react";
 import {
   genUUID,
-  getRoot,
-  getRootID,
   getState,
   type ModuleToFunc,
   StateType,
@@ -26,8 +23,7 @@ import PacsLoadingScreen from "./components/PacsLoadingScreen.tsx";
 import { DEFAULT_PREFERENCES } from "./defaultPreferences.ts";
 import styles from "./PacsApp.module.css";
 import PacsView from "./PacsView.tsx";
-import { type PacsState, QUERY_PROMPT, SearchMode } from "./types.ts";
-import { createFeedWithSeriesInstanceUID, errorCodeIsNot4xx } from "./utils.ts";
+import type { PacsState } from "./types.ts";
 
 type TDoPacs = ModuleToFunc<typeof DoPacs>;
 
@@ -189,7 +185,7 @@ export default () => {
   ]);
 
   // Subscribe to all expanded series
-  // biome-ignore lint/correctness/useExhaustiveDependencies: updateReceiveState
+  console.info("PacsApp: isExpandedAllDone:", isExpandedAllDone, "pacs:", pacs);
   useEffect(() => {
     if (wsError) {
       return;
@@ -209,6 +205,7 @@ export default () => {
 
     const url = `${config.API_ROOT}/pacs/sse/?pacs_name=${service}&series_uids=${series_uids}`;
     const eventSource = new EventSource(url);
+    console.info("PacsApp.eventSource: new eventSource");
 
     eventSource.onmessage = (event) => {
       const data: Lonk<LonkMessageData> = JSON.parse(event.data);
@@ -217,7 +214,11 @@ export default () => {
 
     eventSource.onerror = (err) => {
       console.error("PacsApp.eventSource.onerror: err:", err);
-      setWsError(`event error: ${err}`);
+      // XXX TODO: error handling.
+      //     It's possible that the error happens when isExpandedAllDone is already done.
+      //     but the useEffect is not refreshed yet.
+      //     However, it seems like we cannot detect this here because it's a function
+      //     created in the past.
     };
 
     return () => {
@@ -226,7 +227,7 @@ export default () => {
     };
     // Note: we are subscribing to series, but never unsubscribing.
     // This is mostly harmless.
-  }, [expandedSeries, wsError, isExpandedAllDone]);
+  }, [pacsID, service, expandedSeries, wsError, isExpandedAllDone, doPacs]);
 
   // ========================================
   // RENDER

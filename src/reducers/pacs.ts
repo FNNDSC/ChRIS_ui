@@ -919,6 +919,13 @@ export const processLonkMsgDone = (
       return;
     }
 
+    if (!pacsName && !seriesUID) {
+      // all-done
+      console.info("processLonkMsgDone: all done");
+      dispatch(setData<Partial<State>>(myID, { isExpandedAllDone: true }));
+      return;
+    }
+
     const seriesKey = seriesUIDToSeriesMapKey(pacsName, seriesUID);
     const series = me.seriesMap[seriesKey];
     if (!series) {
