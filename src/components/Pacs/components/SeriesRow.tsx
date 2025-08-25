@@ -128,6 +128,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   const showModal = () => {
     if (!hasMultipleSelected) {
       setFeedName(
+        // @ts-expect-error no need the SeriesReceiveState in generateFeedName
         generateFeedName({
           info,
           errors,
@@ -189,6 +190,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
   };
 
   const contextMenuItems = getSeriesContextMenuItems(
+    // @ts-expect-error no need the SeriesReceiveState in PacsSeriesState
     { info, errors, pullState, inCube, receivedCount: receivedCount },
     selected,
     selectedSeries.length,
@@ -255,6 +257,7 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
           onClick={(e) => {
             e.stopPropagation();
             if (inCube) {
+              // @ts-expect-error no need to include SeriesReceiveState in PacsSeriesState
               toggleSelection(seriesId, {
                 info,
                 errors,
