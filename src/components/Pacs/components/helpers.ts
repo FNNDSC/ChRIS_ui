@@ -51,7 +51,13 @@ function getDefaultPacsService(
 function isSeriesLoading({
   pullState,
   inCube,
-}: Pick<PacsSeriesState, "pullState" | "inCube">): boolean {
+  numberOfSeriesRelatedInstances,
+}: Pick<PacsSeriesState, "pullState" | "inCube"> & {
+  numberOfSeriesRelatedInstances: number;
+}): boolean {
+  if (numberOfSeriesRelatedInstances === 0) {
+    return false;
+  }
   if (pullState === SeriesPullState.WAITING_OR_COMPLETE) {
     return inCube === null;
   }

@@ -5,7 +5,7 @@ import {
   type ClassState,
   createReducer,
   genUUID,
-  getRoot,
+  getRootID,
   getState,
   type State as rState,
   setData,
@@ -166,7 +166,8 @@ export const setQuery = (
   queryValue: string,
 ): Thunk<State> => {
   return (dispatch, _) => {
-    dispatch(setData(myID, { queryPrompt, queryValue }));
+    const queryValues = queryValue.split(",").map((each) => each.trim());
+    dispatch(setData(myID, { queryPrompt, queryValue, queryValues }));
   };
 };
 
@@ -236,18 +237,25 @@ const queryPacsSeriesByStudyUID = (
     const studyData: PacsStudyState[] = (data?.pypx.data || []).map((each) => ({
       // @ts-expect-error simplifyPypxStudyData
       info: simplifyPypxStudyData(each),
-      series: each.series.map(
-        (eachSeries): PacsSeriesState => ({
+      series: each.series.map((eachSeries): PacsSeriesState => {
+        // @ts-expect-error simplifyPypxStudyData
+        const info = simplifyPypxSeriesData(eachSeries);
+        const pullState =
+          info.NumberOfSeriesRelatedInstances === 0
+            ? SeriesPullState.WAITING_OR_COMPLETE
+            : SeriesPullState.CHECKING;
+        const done = info.NumberOfSeriesRelatedInstances === 0;
+
+        return {
           errors: [],
-          // @ts-expect-error simplifyPypxStudyData
-          info: simplifyPypxSeriesData(eachSeries),
+          info,
           inCube: null,
-          pullState: SeriesPullState.CHECKING,
+          pullState,
           receivedCount: 0,
           subscribed: false,
-          done: false,
-        }),
-      ),
+          done,
+        };
+      }),
     }));
 
     // update cube-series-state
@@ -280,22 +288,18 @@ export const queryCubeSeriesStateBySeriesUID = (
 ): Thunk<State> => {
   return async (dispatch, getClassState) => {
     const classState = getClassState();
-    const me = getRoot(classState);
+    const me = getState(classState);
     if (!me) {
       return;
     }
-    const { seriesMap, studyMap } = me;
-    const key = seriesUIDToSeriesMapKey(pacsName, seriesUID);
-    const mySeries = seriesMap[key];
+    const { seriesMap } = me;
+    const seriesMapKey = seriesUIDToSeriesMapKey(pacsName, seriesUID);
+    const mySeries = seriesMap[seriesMapKey];
     if (!mySeries) {
       return;
     }
-    const studyUID = mySeries.info.StudyInstanceUID;
-    const studyKey = studyUIDToStudyMapKey(pacsName, studyUID);
-    const study = studyMap[studyKey];
-    const count = study.info.NumberOfStudyRelatedSeries;
 
-    const series = await queryCubeSeriesState(mySeries, count);
+    const series = await queryCubeSeriesState(mySeries);
 
     const classState2 = getClassState();
     const postStudyData = postprocessSeries(
@@ -314,18 +318,21 @@ export const queryCubeSeriesStateBySeriesUID = (
 const queryAllCubeSeriesState = async (studyData: PacsStudyState[]) =>
   Promise.all(
     studyData.map(async (eachStudy) => {
-      const count = eachStudy.info.NumberOfStudyRelatedSeries;
       eachStudy.series = await Promise.all(
         eachStudy.series.map(async (eachSeries) => {
-          return await queryCubeSeriesState(eachSeries, count);
+          return await queryCubeSeriesState(eachSeries);
         }),
       );
     }),
   );
 
-const queryCubeSeriesState = async (series: PacsSeriesState, count: number) => {
+const queryCubeSeriesState = async (series: PacsSeriesState) => {
   const {
-    info: { RetrieveAETitle: service, SeriesInstanceUID: seriesUID },
+    info: {
+      RetrieveAETitle: service,
+      SeriesInstanceUID: seriesUID,
+      NumberOfSeriesRelatedInstances: count,
+    },
   } = series;
 
   const { status, data } = await queryPACSSeries(service, seriesUID);
@@ -339,7 +346,7 @@ const queryCubeSeriesState = async (series: PacsSeriesState, count: number) => {
   if (data.length) {
     series.inCube = { data: data[0] };
     series.pullState = SeriesPullState.WAITING_OR_COMPLETE;
-    series.receivedCount = count;
+    series.receivedCount = count || 0;
   } else if (series.pullState !== SeriesPullState.PULLING) {
     series.pullState = SeriesPullState.READY;
   }
@@ -362,7 +369,6 @@ export const queryPacsStudies = (
         queryPrompt,
         queryValue,
         queryValues,
-        queryValueStudyUIDsMap,
       }),
     );
 
@@ -393,13 +399,11 @@ export const queryPacsStudies = (
         queryValueStudyUIDsMap,
         true,
       );
-      console.info(
-        "pacs.queryPacsStudies: after postprocessStudyData: postStudyData:",
-        postStudyData,
-      );
       if (!postStudyData) {
         return;
       }
+
+      Object.assign(postStudyData, { queryValueStudyUIDsMap });
 
       dispatch(setData(myID, postStudyData));
 
@@ -428,7 +432,7 @@ const postprocessSeries = (
   series: PacsSeriesState,
   classState: ClassState<State>,
 ) => {
-  const me = getRoot(classState);
+  const me = getState(classState);
   if (!me) {
     return;
   }
@@ -440,11 +444,11 @@ const postprocessSeries = (
     queryValues,
     queryValueStudyUIDsMap,
   } = me;
-  const studyKey = studyUIDToStudyMapKey(
+  const studyMapKey = studyUIDToStudyMapKey(
     pacsName,
     series.info.StudyInstanceUID,
   );
-  const myStudy = studyMap[studyKey];
+  const myStudy = studyMap[studyMapKey];
   if (!myStudy) {
     return;
   }
@@ -467,6 +471,7 @@ const postprocessSeries = (
     queryValues,
     "",
     queryValueStudyUIDsMap,
+    false,
   );
   return postStudyData;
 };
@@ -481,8 +486,13 @@ const postprocessStudyData = (
   queryValueStudyUIDsMap: QueryValueStudyUIDsMap,
   isQueryPacsStudies = false,
 ) => {
-  const me = getRoot(classState);
-  console.info("pacs.postprocessStudyData: getRoot:", me);
+  if (!studyData || studyData.length === 0) {
+    return;
+  }
+
+  const pacsName = studyData[0].info.RetrieveAETitle;
+
+  const me = getState(classState);
   if (!me) {
     return;
   }
@@ -498,30 +508,25 @@ const postprocessStudyData = (
   } = me;
 
   // ensure that we are still the newest query
-  console.info(
-    "pacs.postprocessStudyData: queryPrompt:",
-    queryPrompt,
-    "myQueryPrompt:",
-    myQueryPrompt,
-    "queryValue:",
-    queryValue,
-    "myQueryValue:",
-    myQueryValue,
-  );
   if (queryPrompt !== myQueryPrompt || queryValue !== myQueryValue) {
     return;
   }
 
   const toUpdatePacsStudyMap = studyData.reduce(
     (r: PacsStudyMap, eachStudy) => {
-      const key = `${eachStudy.info.RetrieveAETitle}-${eachStudy.info.StudyInstanceUID}`;
-      r[key] = eachStudy;
+      const studyMapKey = studyUIDToStudyMapKey(
+        eachStudy.info.RetrieveAETitle,
+        eachStudy.info.StudyInstanceUID,
+      );
+      r[studyMapKey] = eachStudy;
       return r;
     },
     {},
   );
   // studyUids
-  const studyUids = Object.keys(toUpdatePacsStudyMap);
+  const studyUids = Object.keys(toUpdatePacsStudyMap).map(
+    (each) => toUpdatePacsStudyMap[each].info.StudyInstanceUID,
+  );
 
   // studyMap
   const studyMap: PacsStudyMap = Object.assign(
@@ -537,6 +542,7 @@ const postprocessStudyData = (
 
   // studies and series
   const { studies, series } = postprocessStudyMap(
+    pacsName,
     queryValues,
     queryValueStudyUIDsMap,
     studyMap,
@@ -568,6 +574,7 @@ const postprocessStudyData = (
 };
 
 const postprocessStudyMap = (
+  pacsName: string,
   queryValues: string[],
   queryValueStudyUIDsMap: QueryValueStudyUIDsMap,
   studyMap: PacsStudyMap,
@@ -575,7 +582,8 @@ const postprocessStudyMap = (
   const studies = queryValues.flatMap((eachValue) => {
     const eachStudyUIDs = queryValueStudyUIDsMap[eachValue] || [];
     return eachStudyUIDs.reduce((r: PacsStudyState[], eachStudyUID) => {
-      const eachStudy = studyMap[eachStudyUID];
+      const studyMapKey = studyUIDToStudyMapKey(pacsName, eachStudyUID);
+      const eachStudy = studyMap[studyMapKey];
       if (!eachStudy) {
         return r;
       }
@@ -623,9 +631,8 @@ export const onStudyExpand = (
 ): Thunk<State> => {
   return (dispatch, getClassState) => {
     const classSate = getClassState();
-    const me = getRoot(classSate);
+    const me = getState(classSate);
 
-    console.info("pacs.onStudyExpand: getRoot:", me, "myID:", myID);
     if (!me) {
       return;
     }
@@ -643,11 +650,6 @@ export const onStudyExpand = (
       expandedStudySet,
     } = postprocessExpandedStudies(theExpandedStudies, studyMap, [], new Set());
 
-    console.info(
-      "pacs.onStudyExpand: to setData: expandedSeries:",
-      expandedSeries.length,
-    );
-
     dispatch(
       setData(myID, {
         expandedStudies: expandedStudies,
@@ -659,11 +661,11 @@ export const onStudyExpand = (
     );
 
     expandedSeries.filter((each) => {
-      const key = seriesUIDToSeriesMapKey(
+      const seriesMapKey = seriesUIDToSeriesMapKey(
         each.pacs_name,
         each.SeriesInstanceUID,
       );
-      const eachSeries = seriesMap[key];
+      const eachSeries = seriesMap[seriesMapKey];
       if (!eachSeries) {
         return false;
       }
@@ -695,8 +697,8 @@ const postprocessExpandedStudies = (
   );
 
   const expandedSeries = expandedStudies.flatMap((studyKey) => {
-    const key = studyKeyToStudyMapKey(studyKey);
-    return studyMap[key].series.map(
+    const studyMapKey = studyKeyToStudyMapKey(studyKey);
+    return studyMap[studyMapKey].series.map(
       (each): SeriesKey => ({
         pacs_name: each.info.RetrieveAETitle,
         SeriesInstanceUID: each.info.SeriesInstanceUID,
@@ -718,7 +720,7 @@ export const appendExpandedStudies = (
 ): Thunk<State> => {
   return (dispatch, getClassState) => {
     const classState = getClassState();
-    const me = getRoot(classState);
+    const me = getState(classState);
     if (!me) {
       return;
     }
@@ -753,7 +755,7 @@ export const appendExpandedStudiesBySeries = (
 ): Thunk<State> => {
   return (dispatch, getClassState) => {
     const classState = getClassState();
-    const me = getRoot(classState);
+    const me = getState(classState);
     if (!me) {
       return;
     }
@@ -817,7 +819,7 @@ export const retrievePACS = (
 ): Thunk<State> => {
   return async (dispatch, getClassState) => {
     let classState = getClassState();
-    let me = getRoot(classState);
+    let me = getState(classState);
     if (!me) {
       return;
     }
@@ -844,7 +846,7 @@ export const retrievePACS = (
     }
 
     classState = getClassState();
-    me = getRoot(classState);
+    me = getState(classState);
     if (!me) {
       return;
     }
@@ -931,13 +933,8 @@ export const processLonkMsgDone = (
     if (!series) {
       return;
     }
-    const studyUID = series.info.StudyInstanceUID;
-    const studyKey = studyUIDToStudyMapKey(pacsName, studyUID);
-    const study = me.studyMap[studyKey];
-    if (!study) {
-      return;
-    }
-    const count = study.info.NumberOfStudyRelatedSeries;
+
+    const count = series.info.NumberOfSeriesRelatedInstances || 0;
 
     dispatch(
       updateReceiveState(myID, pacsName, seriesUID, {
@@ -1004,7 +1001,7 @@ export const updateReceiveState = (
 ): Thunk<State> => {
   return (dispatch, getClassState) => {
     const classState = getClassState();
-    const me = getRoot(classState);
+    const me = getState(classState);
     if (!me) {
       return;
     }
@@ -1066,7 +1063,7 @@ export const pushReceiveStateError = (
 ): Thunk<State> => {
   return (dispatch, getClassState) => {
     const classState = getClassState();
-    const me = getRoot(classState);
+    const me = getState(classState);
     if (!me) {
       return;
     }
@@ -1104,8 +1101,8 @@ const retrievePACSGetSeriesByQuery = (
 ) => {
   // query.studyInstanceUID
   if (query.studyInstanceUID) {
-    const studyKey = studyUIDToStudyMapKey(service, query.studyInstanceUID);
-    const study = studyMap[studyKey];
+    const studyMapKey = studyUIDToStudyMapKey(service, query.studyInstanceUID);
+    const study = studyMap[studyMapKey];
     if (!study) {
       return { toUpdateStudies: [], toUpdateSeries: [] };
     }
@@ -1114,16 +1111,19 @@ const retrievePACSGetSeriesByQuery = (
   }
 
   // query.seriesInstanceUID
-  const seriesKey = seriesUIDToSeriesMapKey(
+  const seriesMapKey = seriesUIDToSeriesMapKey(
     service,
     query.seriesInstanceUID || "",
   );
-  const series = seriesMap[seriesKey];
+  const series = seriesMap[seriesMapKey];
   if (!series) {
     return { toUpdateStudies: [], toUpdateSeries: [] };
   }
-  const studkey2 = studyUIDToStudyMapKey(service, series.info.StudyInstanceUID);
-  const study2 = studyMap[studkey2];
+  const studyMapKey2 = studyUIDToStudyMapKey(
+    service,
+    series.info.StudyInstanceUID,
+  );
+  const study2 = studyMap[studyMapKey2];
   if (!study2) {
     return { toUpdateStudies: [], toUpdateSeries: [] };
   }
@@ -1150,8 +1150,8 @@ const checkIsToPullRequestStudy = (
   service: string,
   studyInstanceUID: string,
 ) => {
-  const key = studyUIDToStudyMapKey(service, studyInstanceUID);
-  const study = studyMap[key];
+  const studyMapKey = studyUIDToStudyMapKey(service, studyInstanceUID);
+  const study = studyMap[studyMapKey];
   if (!study) {
     return false;
   }
