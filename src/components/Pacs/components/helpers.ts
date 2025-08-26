@@ -51,10 +51,10 @@ function getDefaultPacsService(
 function isSeriesLoading({
   pullState,
   inCube,
-  numberOfSeriesRelatedInstances,
-}: Pick<PacsSeriesState, "pullState" | "inCube"> & {
-  numberOfSeriesRelatedInstances: number;
-}): boolean {
+  info,
+}: Pick<PacsSeriesState, "pullState" | "inCube" | "info">): boolean {
+  const numberOfSeriesRelatedInstances =
+    info.NumberOfSeriesRelatedInstances || 0;
   if (numberOfSeriesRelatedInstances === 0) {
     return false;
   }
