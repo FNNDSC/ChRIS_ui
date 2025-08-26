@@ -54,9 +54,18 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
     "receivedCount:",
     receivedCount,
   );
+
+  const numberOfSeriesRelatedInstances =
+    info.NumberOfSeriesRelatedInstances || 0;
+
   const isLoading = React.useMemo(
-    () => isSeriesLoading({ pullState, inCube }),
-    [pullState, inCube],
+    () =>
+      isSeriesLoading({
+        pullState,
+        inCube,
+        numberOfSeriesRelatedInstances,
+      }),
+    [pullState, inCube, numberOfSeriesRelatedInstances],
   );
 
   const tooltipTitle = React.useMemo(() => {
@@ -101,6 +110,9 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
 
   const percentDone = React.useMemo(() => {
     if (inCube) {
+      return 100;
+    }
+    if (info.NumberOfSeriesRelatedInstances === 0) {
       return 100;
     }
     if (pullState === SeriesPullState.WAITING_OR_COMPLETE) {
