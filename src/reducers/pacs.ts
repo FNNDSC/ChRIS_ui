@@ -4,15 +4,13 @@ import {
   init as _init,
   type ClassState,
   createReducer,
-  genUUID,
-  getRootID,
+  type Dispatch,
   getState,
   type State as rState,
   setData,
   type Thunk,
 } from "react-reducer-utils";
 import type { Location } from "react-router";
-import type { URLSearchParams } from "url";
 import { STATUS_OK, STATUS_OK_CREATE } from "../api/constants";
 import type { SeriesKey } from "../api/lonk";
 import {
@@ -214,7 +212,7 @@ export const setService = (myID: string, service: string): Thunk<State> => {
   };
 };
 
-const queryPacsSeriesByStudyUID = (
+const queryPacsSeriesByStudyUID = async (
   myID: string,
   service: string,
   studyInstanceUID: string,
@@ -224,62 +222,62 @@ const queryPacsSeriesByStudyUID = (
   queryValues: string[],
   eachQueryValue: string,
   queryValueStudyUIDsMap: QueryValueStudyUIDsMap,
-): Thunk<State> => {
-  return async (dispatch, getClassState) => {
-    const query = { StudyInstanceUID: studyInstanceUID };
-    // @ts-expect-error PACSqueryCore is incorrect.
-    const { status, data, errmsg } = await queryPFDCMSeries(service, query);
-    if (status !== STATUS_OK) {
-      dispatch(setData(myID, { errmsg }));
-      return;
-    }
+  dispatch: Dispatch<State>,
+  getClassState: () => ClassState<State>,
+) => {
+  const query = { StudyInstanceUID: studyInstanceUID };
+  // @ts-expect-error PACSqueryCore is incorrect.
+  const { status, data, errmsg } = await queryPFDCMSeries(service, query);
+  if (status !== STATUS_OK) {
+    dispatch(setData(myID, { errmsg }));
+    return;
+  }
 
-    const studyData: PacsStudyState[] = (data?.pypx.data || []).map((each) => ({
+  const studyData: PacsStudyState[] = (data?.pypx.data || []).map((each) => ({
+    // @ts-expect-error simplifyPypxStudyData
+    info: simplifyPypxStudyData(each),
+    series: each.series.map((eachSeries): PacsSeriesState => {
       // @ts-expect-error simplifyPypxStudyData
-      info: simplifyPypxStudyData(each),
-      series: each.series.map((eachSeries): PacsSeriesState => {
-        // @ts-expect-error simplifyPypxStudyData
-        const info = simplifyPypxSeriesData(eachSeries);
-        const pullState =
-          info.NumberOfSeriesRelatedInstances === 0 ||
-          info.NumberOfSeriesRelatedInstances === null
-            ? SeriesPullState.WAITING_OR_COMPLETE
-            : SeriesPullState.CHECKING;
-        const done = info.NumberOfSeriesRelatedInstances === 0;
+      const info = simplifyPypxSeriesData(eachSeries);
+      const pullState =
+        info.NumberOfSeriesRelatedInstances === 0 ||
+        info.NumberOfSeriesRelatedInstances === null
+          ? SeriesPullState.WAITING_OR_COMPLETE
+          : SeriesPullState.CHECKING;
+      const done = info.NumberOfSeriesRelatedInstances === 0;
 
-        return {
-          errors: [],
-          info,
-          inCube: null,
-          pullState,
-          receivedCount: 0,
-          subscribed: false,
-          done,
-        };
-      }),
-    }));
+      return {
+        errors: [],
+        info,
+        inCube: null,
+        pullState,
+        receivedCount: 0,
+        subscribed: false,
+        done,
+      };
+    }),
+  }));
 
-    // update cube-series-state
-    await queryAllCubeSeriesState(studyData);
+  // update cube-series-state
+  await queryAllCubeSeriesState(studyData);
 
-    const classState = getClassState();
+  const classState = getClassState();
 
-    const postStudyData = postprocessStudyData(
-      studyData,
-      classState,
-      queryPrompt,
-      queryValue,
-      queryValues,
-      eachQueryValue,
-      queryValueStudyUIDsMap,
-      false,
-    );
-    if (!postStudyData) {
-      return;
-    }
+  const postStudyData = postprocessStudyData(
+    studyData,
+    classState,
+    queryPrompt,
+    queryValue,
+    queryValues,
+    eachQueryValue,
+    queryValueStudyUIDsMap,
+    false,
+  );
+  if (!postStudyData) {
+    return;
+  }
 
-    dispatch(setData(myID, postStudyData));
-  };
+  dispatch(setData(myID, postStudyData));
 };
 
 export const queryCubeSeriesStateBySeriesUID = (
@@ -412,21 +410,21 @@ export const queryPacsStudies = (
 
       dispatch(setData(myID, postStudyData));
 
-      // get series data
-      studyData.map((eachStudyData) =>
-        dispatch(
-          queryPacsSeriesByStudyUID(
-            myID,
-            service,
-            eachStudyData.info.StudyInstanceUID,
-            queryPrompt,
-            queryValue,
-            queryValues,
-            each,
-            queryValueStudyUIDsMap,
-          ),
-        ),
-      );
+      // sequentially get series data
+      for (const eachStudyData of studyData) {
+        await queryPacsSeriesByStudyUID(
+          myID,
+          service,
+          eachStudyData.info.StudyInstanceUID,
+          queryPrompt,
+          queryValue,
+          queryValues,
+          each,
+          queryValueStudyUIDsMap,
+          dispatch,
+          getClassState,
+        );
+      }
     });
   };
 };
