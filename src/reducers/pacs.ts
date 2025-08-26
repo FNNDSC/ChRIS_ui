@@ -241,7 +241,8 @@ const queryPacsSeriesByStudyUID = (
         // @ts-expect-error simplifyPypxStudyData
         const info = simplifyPypxSeriesData(eachSeries);
         const pullState =
-          info.NumberOfSeriesRelatedInstances === 0
+          info.NumberOfSeriesRelatedInstances === 0 ||
+          info.NumberOfSeriesRelatedInstances === null
             ? SeriesPullState.WAITING_OR_COMPLETE
             : SeriesPullState.CHECKING;
         const done = info.NumberOfSeriesRelatedInstances === 0;
@@ -331,9 +332,10 @@ const queryCubeSeriesState = async (series: PacsSeriesState) => {
     info: {
       RetrieveAETitle: service,
       SeriesInstanceUID: seriesUID,
-      NumberOfSeriesRelatedInstances: count,
+      NumberOfSeriesRelatedInstances,
     },
   } = series;
+  const count = NumberOfSeriesRelatedInstances || 0;
 
   const { status, data } = await queryPACSSeries(service, seriesUID);
   if (status !== STATUS_OK) {
@@ -346,8 +348,11 @@ const queryCubeSeriesState = async (series: PacsSeriesState) => {
   if (data.length) {
     series.inCube = { data: data[0] };
     series.pullState = SeriesPullState.WAITING_OR_COMPLETE;
-    series.receivedCount = count || 0;
-  } else if (series.pullState !== SeriesPullState.PULLING) {
+    series.receivedCount = count;
+  } else if (
+    series.pullState !== SeriesPullState.PULLING &&
+    series.pullState !== SeriesPullState.WAITING_OR_COMPLETE
+  ) {
     series.pullState = SeriesPullState.READY;
   }
   return series;

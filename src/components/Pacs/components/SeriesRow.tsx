@@ -55,17 +55,14 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
     receivedCount,
   );
 
-  const numberOfSeriesRelatedInstances =
-    info.NumberOfSeriesRelatedInstances || 0;
-
   const isLoading = React.useMemo(
     () =>
       isSeriesLoading({
         pullState,
         inCube,
-        numberOfSeriesRelatedInstances,
+        info,
       }),
-    [pullState, inCube, numberOfSeriesRelatedInstances],
+    [pullState, inCube, info],
   );
 
   const tooltipTitle = React.useMemo(() => {
@@ -88,8 +85,11 @@ const SeriesRow: React.FC<SeriesRowProps> = ({
     if (pullState === SeriesPullState.PULLING) {
       return <>Receiving&hellip;</>;
     }
-    if (inCube === null) {
+    if (inCube === null && info.NumberOfSeriesRelatedInstances) {
       return <>Waiting...</>;
+    }
+    if (!info.NumberOfSeriesRelatedInstances) {
+      return <>No data in this series.</>;
     }
     return (
       <>
