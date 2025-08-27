@@ -26,30 +26,14 @@ export const createFeedWithPACSSeries = async (series: PACSSeries) => {
     StudyDate: studyDate,
     StudyDescription: studyDescription,
     SeriesDescription: seriesDescription,
-    Modality: modality,
   } = series;
 
   const studyDateStr = studyDate.replace(/[^0-9]/g, "");
 
   const theName = `PACS-${patientID}-${studyDateStr}-${studyDescription}-${seriesDescription}`;
 
-  console.info(
-    "PacsController.createFeedWithPACSSeries: to createFeedWithFilepath: folderPath:",
-    thePath,
-    "theName:",
-    theName,
-  );
-
   const tags = ["pacs"];
-  return await createFeedWithFilepath({
-    filepath: thePath,
-    theName,
-    tags,
-    patientID,
-    modality,
-    studyDate,
-    isPublic: false,
-  });
+  return await createFeedWithFilepath(thePath, theName, tags);
 };
 
 export const errorCodeIs4xx = (e: { code: number }) => {
