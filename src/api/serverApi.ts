@@ -17,7 +17,7 @@ import type {
 
 console.info("api.serverApi: config:", config);
 
-export const GetFeedPluginInstances = (feedID: number) =>
+export const getFeedPluginInstances = (feedID: number) =>
   api<PluginInstance[]>({
     endpoint: `/${feedID}/plugininstances/`,
     method: "get",
