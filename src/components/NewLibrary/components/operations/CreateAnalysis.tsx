@@ -1,19 +1,3 @@
-import { useCallback, useContext, useState } from "react";
-import { useAppSelector, useAppDispatch } from "../../../../store/hooks";
-import { CreateFeedContext } from "../../../CreateFeed/context";
-import { AnalysisIcon } from "../../../Icons";
-import OperationButton from "./OperationButton";
-import { AddNodeContext } from "../../../AddNode/context";
-import { PipelineContext } from "../../../PipelinesCopy/context";
-
-import PipelinesCopy from "../../../PipelinesCopy";
-
-import {
-  createFeeds,
-  createFeedInstanceWithFS,
-} from "../../../CreateFeed/createFeedHelper";
-import { type ChRISFeed, Types } from "../../../CreateFeed/types/feed";
-
 import {
   Modal,
   ModalVariant,
@@ -21,15 +5,28 @@ import {
   WizardHeader,
   WizardStep,
 } from "@patternfly/react-core";
-import BasicInformation from "../../../CreateFeed/BasicInformation";
-import withSelectionAlert from "../../../CreateFeed/SelectionAlert";
-import { MainRouterContext } from "../../../../routes";
-import Review from "../../../CreateFeed/Review";
 import { useQueryClient } from "@tanstack/react-query";
-import type { SelectionPayload } from "../../../../store/cart/types";
-import { getFeed, GetFeedPluginInstances } from "../../../../api/serverApi";
-import type { Feed, PluginInstance } from "../../../../api/types";
+import { useCallback, useContext, useState } from "react";
 import { catchError } from "../../../../api/common";
+import { getFeed, getFeedPluginInstances } from "../../../../api/serverApi";
+import type { Feed, PluginInstance } from "../../../../api/types";
+import { MainRouterContext } from "../../../../routes";
+import type { SelectionPayload } from "../../../../store/cart/types";
+import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import { AddNodeContext } from "../../../AddNode/context";
+import BasicInformation from "../../../CreateFeed/BasicInformation";
+import { CreateFeedContext } from "../../../CreateFeed/context";
+import {
+  createFeedInstanceWithFS,
+  createFeeds,
+} from "../../../CreateFeed/createFeedHelper";
+import Review from "../../../CreateFeed/Review";
+import withSelectionAlert from "../../../CreateFeed/SelectionAlert";
+import { type ChRISFeed, Types } from "../../../CreateFeed/types/feed";
+import { AnalysisIcon } from "../../../Icons";
+import PipelinesCopy from "../../../PipelinesCopy";
+import { PipelineContext } from "../../../PipelinesCopy/context";
+import OperationButton from "./OperationButton";
 
 type Props = {
   handleOperations: (operationKey: string) => void;
@@ -194,7 +191,7 @@ export default (props: Props) => {
   };
 
   const feedIDToLastChRISFile = async (feedID: number): Promise<ChRISFeed> => {
-    const pluginInstances = await GetFeedPluginInstances(feedID);
+    const pluginInstances = await getFeedPluginInstances(feedID);
     if (!pluginInstances.data) {
       return { name: "", filename: "", theID: -1, createDateTime: "" };
     }
