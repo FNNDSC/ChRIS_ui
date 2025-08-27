@@ -1,7 +1,7 @@
 import config from "config";
 import type { ReadonlyNonEmptyArray } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import YAML from "yaml";
-import api, { type ApiResult } from "./api";
+import api from "./api";
 import type { PACSqueryCore } from "./pfdcm";
 import { PACSqueryCoreToJSON } from "./pfdcm/generated";
 import type {
@@ -90,24 +90,13 @@ export const createWorkflow = (
     },
   });
 
-type createFeedWithFilepathProp = {
-  filepath: string;
-  theName: string;
-  tags: string[];
-  patientID?: string;
-  modality?: string;
-  studyDate?: string;
-  isPublic?: boolean;
-};
-export const createFeedWithFilepath = async ({
-  filepath,
-  theName,
-  tags,
-  patientID,
-  modality,
-  studyDate,
-  isPublic,
-}: createFeedWithFilepathProp): Promise<ApiResult<Feed>> => {
+export const createFeedWithFilepath = async (
+  filepath: string,
+  theName: string,
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: not using tags for now.
+  tags?: string[],
+  isPublic: boolean = false,
+) => {
   const pluginInstanceResult = await createPluginInstance(1, [filepath]);
   if (!pluginInstanceResult.data) {
     return {
