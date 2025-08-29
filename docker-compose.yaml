@@ -1,0 +1,13 @@
+name: chris-ui
+
+services:
+  chris-ui:
+    image: ghcr.io/fnndsc/chris_ui:branch-7.0
+    ports:
+      - "127.0.0.1:5173:8080"
+    restart: always
+    env:
+      CHRIS_UI_URL: ${CHRIS_UI_URL}
+      PFDCM_URL: ${PFDCM_URL}
+      SERVER_HEALTH: true
+      SERVER_PORT: 8080
