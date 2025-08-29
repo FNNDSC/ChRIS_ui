@@ -20,13 +20,19 @@ pnpm install
 pnpm run dev:public
 ```
 
+### docker-compose
+
+1. setup `docker_compose.env` based on [docker_compose.env.tmpl](https://github.com/FNNDSC/ChRIS_ui/blob/branch-7.0/docker_compose.env.tmpl)
+2. `docker compose --env-file docker_compose.env -f docker-compose.yaml up -d`
+
+
 ## Development
 
 There are two modes of development:
 
 - "local": runs the _ChRIS_ backend locally. Requires Docker, and uses more disk space + slower startup time.
 - "public": use the global, public testing server. This is the easier option, especially for non-Linux OS.
- 
+
 <details>
 <summary>
   <strong>
