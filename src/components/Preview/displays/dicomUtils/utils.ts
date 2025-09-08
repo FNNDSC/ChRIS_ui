@@ -1,10 +1,10 @@
 import * as cornerstone from "@cornerstonejs/core";
 import {
-  EVENTS,
+  init as csInitCore,
   Enums,
+  EVENTS,
   RenderingEngine,
   type Types,
-  init as csInitCore,
 } from "@cornerstonejs/core";
 import cornerstoneDICOMImageLoader from "@cornerstonejs/dicom-image-loader";
 import * as cornerstoneTools from "@cornerstonejs/tools";

@@ -13,7 +13,6 @@ import {
   getSelectedPlugin,
   resetSelectedPlugin,
 } from "../../store/pluginInstance/pluginInstanceSlice";
-import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 import FeedOutputBrowser from "../FeedOutputBrowser/FeedOutputBrowser";
 import FeedGraph from "../FeedTree/FeedGraph";
 import ParentComponent from "../FeedTree/ParentComponent";
@@ -21,17 +20,18 @@ import { AnalysisIcon } from "../Icons";
 import NodeDetails from "../NodeDetails/NodeDetails";
 import WrapperConnect from "../Wrapper";
 import { DrawerActionButton } from "./DrawerUtils";
+import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 import "./Feeds.css"; // Import your CSS file
-import { useFetchFeed } from "./useFetchFeed";
-import { useSearchQueryParams } from "./usePaginate";
-import { usePollAllPluginStatuses } from "./usePolledStatuses";
-import { handleMaximize, handleMinimize } from "./utilties";
-import { Role } from "../../store/user/userSlice";
 import { collectionJsonToJson } from "../../api/api";
 import {
   PluginInstanceStatus,
   type PluginInstance as PluginInstanceType,
 } from "../../api/types";
+import { Role } from "../../store/user/userSlice";
+import { useFetchFeed } from "./useFetchFeed";
+import { useSearchQueryParams } from "./usePaginate";
+import { usePollAllPluginStatuses } from "./usePolledStatuses";
+import { handleMaximize, handleMinimize } from "./utilties";
 
 // Custom title component to replace Typography.Title
 const CustomTitle = ({
