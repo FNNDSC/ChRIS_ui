@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Niivue } from "@niivue/niivue";
+import type { Niivue } from "@niivue/niivue";
 import {
-  NiivueCanvasProps,
   NiivueCanvas,
+  type NiivueCanvasProps,
 } from "niivue-react/src/NiivueCanvas.tsx";
-import styles from "./index.module.css";
+import React, { useState } from "react";
+import { getToken } from "../../api/api.ts";
 import { useAppSelector } from "../../store/hooks.ts";
-import ChrisAPIClient from "../../api/chrisapiclient.ts";
+import styles from "./index.module.css";
 
 /**
  * Type emitted by Niivue.onLocationChange
@@ -79,14 +79,14 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
   };
 
   const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
-  const client = ChrisAPIClient.getClient();
+  const token = getToken();
   const authedVolumes =
     isLoggedIn && volumes !== undefined
       ? volumes.map((v) => {
           return {
             ...v,
             headers: {
-              Authorization: `Token ${client.auth.token}`,
+              Authorization: `Token ${token}`,
             },
           };
         })

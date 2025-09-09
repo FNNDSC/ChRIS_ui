@@ -1,11 +1,24 @@
 // Place all the displays here for easy export
-export { default as CatchallDisplay } from "./CatchallDisplay";
-export { default as JsonDisplay } from "./JsonDisplay";
-export { default as IframeDisplay } from "./IframeDisplay";
-export { default as ImageDisplay } from "./ImageDisplay";
-export { default as DcmDisplay } from "./DcmDisplay";
-export { default as PdfDisplay } from "./PdfDisplay";
-export { default as XtkDisplay } from "./XtkDisplay";
-export { default as TextDisplay } from "./TextDisplay";
-export { default as NiiVueDisplay } from "./NiiVueDisplay.tsx";
-export { default as VideoDisplay } from "./VideoDisplay.tsx";
+import CatchallDisplay from "./CatchallDisplay";
+import DcmDisplay from "./DcmDisplay";
+import IframeDisplay from "./IframeDisplay";
+import ImageDisplay from "./ImageDisplay";
+import JsonDisplay from "./JsonDisplay";
+import NiiVueDisplay from "./NiiVueDisplay";
+import PdfDisplay from "./PdfDisplay";
+import TextDisplay from "./TextDisplay";
+import VideoDisplay from "./VideoDisplay";
+import XtkDisplay from "./XtkDisplay";
+
+export {
+  CatchallDisplay,
+  DcmDisplay,
+  IframeDisplay,
+  ImageDisplay,
+  JsonDisplay,
+  NiiVueDisplay,
+  PdfDisplay,
+  TextDisplay,
+  VideoDisplay,
+  XtkDisplay,
+};
