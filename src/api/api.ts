@@ -57,7 +57,7 @@ const queryToString = (query: Query | Params) =>
 
 let _COOKIE: any = null;
 
-const getToken = () => {
+export const getToken = () => {
   const cookie = new Cookies(_COOKIE);
   console.info("api.getToken: cookie is _COOKIE:", cookie === _COOKIE);
   _COOKIE = cookie;

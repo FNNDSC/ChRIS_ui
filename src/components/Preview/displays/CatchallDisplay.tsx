@@ -1,6 +1,6 @@
 import { memo } from "react";
-import { Alert } from "../../Antd";
 import { getFileExtension, type IFileBlob } from "../../../api/model";
+import { Alert } from "../../Antd";
 
 type AllProps = {
   selectedFile?: IFileBlob;

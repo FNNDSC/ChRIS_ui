@@ -27,8 +27,8 @@ importers:
         specifier: ^1.26.2
         version: 1.26.2(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@niivue/niivue':
-        specifier: 0.58.0
-        version: 0.58.0
+        specifier: 0.62.1
+        version: 0.62.1
       '@patternfly/react-charts':
         specifier: ^7.4.0
         version: 7.4.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -112,7 +112,7 @@ importers:
         version: 3.0.0
       niivue-react:
         specifier: github:niivue/niivue-react
-        version: https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134(@niivue/niivue@0.58.0)(react@18.3.1)(typescript@5.7.3)
+        version: https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134(@niivue/niivue@0.62.1)(react@18.3.1)(typescript@5.7.3)
       pako:
         specifier: ^1.0.11
         version: 1.0.11
@@ -1148,8 +1148,8 @@ packages:
     resolution: {integrity: sha512-h9u4u/jiIRKbq25PM+zymTyW6bhTzELvOoUd+AvYriWOAKpLGnIamaET3pnHYoI5iYphAHBI4ayx0MehR+VVPQ==}
     engines: {node: '>= 10'}
 
-  '@niivue/niivue@0.58.0':
-    resolution: {integrity: sha512-aHDAGB/LUt6yUpR6t4u+0QSfWxVQclnFOEKQOqSm4dDhvu7vlYQBT2v+OUmnibie11l6Wl8v6eS0ENQtS3OWmw==}
+  '@niivue/niivue@0.62.1':
+    resolution: {integrity: sha512-v/D91ICqROoVp+ByDs3JjzotLzC4nJ44181Gl882AaXR62BNsvT4SaDY7ob37Dgv70AScGWsapqiCkHI7gFFgQ==}
 
   '@oozcitak/dom@1.15.10':
     resolution: {integrity: sha512-0JT29/LaxVgRcGKvHmSrUTEvZ8BXvZhGl2LASRUgHqDTC1M5g1pLmVv56IYNyt3bG2CUjDkc67wnyZC14pbQrQ==}
@@ -4974,7 +4974,7 @@ snapshots:
 
   '@msgpack/msgpack@2.8.0': {}
 
-  '@niivue/niivue@0.58.0':
+  '@niivue/niivue@0.62.1':
     dependencies:
       '@lukeed/uuid': 2.0.1
       '@ungap/structured-clone': 1.2.1
@@ -6755,9 +6755,9 @@ snapshots:
     dependencies:
       fflate: 0.8.2
 
-  niivue-react@https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134(@niivue/niivue@0.58.0)(react@18.3.1)(typescript@5.7.3):
+  niivue-react@https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134(@niivue/niivue@0.62.1)(react@18.3.1)(typescript@5.7.3):
     dependencies:
-      '@niivue/niivue': 0.58.0
+      '@niivue/niivue': 0.62.1
       dequal: 2.0.3
       react: 18.3.1
       typescript: 5.7.3
