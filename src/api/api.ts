@@ -78,6 +78,14 @@ export const collectionJsonToJson = (theData: any) => {
   return typeof theData.collection.total === "undefined" ? ret[0] : ret;
 };
 
+export const sanitizeAPIRootURL = (API_ROOT: string) => {
+  if (API_ROOT.length >= 1 && API_ROOT[API_ROOT.length - 1] === "/") {
+    return API_ROOT.slice(0, API_ROOT.length - 1);
+  }
+
+  return API_ROOT;
+};
+
 const callApi = async <T>(
   endpoint: string,
   {
@@ -96,10 +104,8 @@ const callApi = async <T>(
 
   const default_api_root = window.location.origin;
 
-  let API_ROOT = paramsAPIRoot || CONFIG_API_ROOT || default_api_root;
-  if (API_ROOT.length >= 1 && API_ROOT[API_ROOT.length - 1] === "/") {
-    API_ROOT = API_ROOT.slice(0, API_ROOT.length - 1);
-  }
+  const theAPIRootURL = paramsAPIRoot || CONFIG_API_ROOT || default_api_root;
+  const API_ROOT = sanitizeAPIRootURL(theAPIRootURL);
 
   let theEndpoint = endpoint;
   if (!theEndpoint.includes(API_ROOT)) {
