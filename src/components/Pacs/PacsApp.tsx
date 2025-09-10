@@ -15,6 +15,7 @@ import {
   useReducer,
 } from "react-reducer-utils";
 import { useLocation, useSearchParams } from "react-router-dom";
+import { sanitizeAPIRootURL } from "../../api/api.ts";
 import type { Lonk, LonkMessageData } from "../../api/lonk/types.ts";
 import type { PACSqueryCore } from "../../api/pfdcm/index.ts";
 import * as DoPacs from "../../reducers/pacs";
@@ -203,7 +204,8 @@ export default () => {
       .map((each) => each.SeriesInstanceUID)
       .join(",");
 
-    const url = `${config.API_ROOT}/pacs/sse/?pacs_name=${service}&series_uids=${series_uids}`;
+    const apiRootURL = sanitizeAPIRootURL(config.API_ROOT);
+    const url = `${apiRootURL}/pacs/sse/?pacs_name=${service}&series_uids=${series_uids}`;
     const eventSource = new EventSource(url);
     console.info("PacsApp.eventSource: new eventSource");
 
