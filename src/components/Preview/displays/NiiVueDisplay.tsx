@@ -50,6 +50,7 @@ const SLICE_TYPE_LIST = [
 
 const COLOR_MAP_LIST = [
   DisplayColorMap.Gray,
+  DisplayColorMap.Actc,
   DisplayColorMap.Plasma,
   DisplayColorMap.Viridis,
   DisplayColorMap.Freesurfer,
@@ -70,7 +71,7 @@ const DISPLAY_TYPE_MAP: DisplayTypeMap = {
     calMax: 4096,
   },
   [DisplayType.ZMap]: {
-    colorMap: DisplayColorMap.Viridis,
+    colorMap: DisplayColorMap.Actc,
     calMin: -4,
     calMax: 4,
   },
@@ -140,15 +141,6 @@ export default (props: Props) => {
       theColorMap,
     );
   }
-
-  const rotateSliceType = () => {
-    const names = Object.keys(
-      SLICE_TYPE_MAP,
-    ) as (keyof typeof SLICE_TYPE_MAP)[];
-    const i = names.indexOf(sliceTypeName);
-    const next = i + 1 >= names.length ? 0 : i + 1;
-    setSliceTypeName(names[next]);
-  };
 
   const selectStyle = { width: "9em" };
 
