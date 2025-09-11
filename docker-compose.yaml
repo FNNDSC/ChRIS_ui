@@ -2,11 +2,12 @@ name: chris-ui
 
 services:
   chris-ui:
-    image: ghcr.io/fnndsc/chris_ui:branch-7.0
+    image: ghcr.io/fnndsc/chris_ui:main
+    pull_policy: always
     ports:
       - "127.0.0.1:5173:8080"
     restart: always
-    env:
+    environment:
       CHRIS_UI_URL: ${CHRIS_UI_URL}
       PFDCM_URL: ${PFDCM_URL}
       SERVER_HEALTH: true

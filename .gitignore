@@ -38,3 +38,4 @@ yarn-error.log*
 .yarnrc
 dist/
 .pnpm-store/
+/config.prod
