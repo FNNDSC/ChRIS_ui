@@ -7,7 +7,7 @@
 
 import * as childProcess from "child_process";
 
-const VERSION_ZERO = '28a5018b6f4df807245965315c11580ee7cb1f88';
+const VERSION_ZERO = 'ab2b83b3c376a66fa30ebcb764b1aaed604c656c';
 
 const date = new Date();
 const year = date.getFullYear();
