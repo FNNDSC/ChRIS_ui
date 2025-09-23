@@ -50,7 +50,7 @@ const SLICE_TYPE_LIST = [
 
 const COLOR_MAP_LIST = [
   DisplayColorMap.Gray,
-  DisplayColorMap.Actc,
+  DisplayColorMap.NIH,
   DisplayColorMap.Plasma,
   DisplayColorMap.Viridis,
   DisplayColorMap.Freesurfer,
@@ -71,7 +71,7 @@ const DISPLAY_TYPE_MAP: DisplayTypeMap = {
     calMax: 4096,
   },
   [DisplayType.ZMap]: {
-    colorMap: DisplayColorMap.Actc,
+    colorMap: DisplayColorMap.NIH,
     calMin: -4,
     calMax: 4,
   },
@@ -125,8 +125,6 @@ export default (props: Props) => {
       url: getFileResourceUrl(selectedFile),
       colormap: theColorMap,
       colormapLabel,
-      // @ts-expect-error not in doc.
-      ignoreZeroVoxels: true,
       cal_min: calMin,
       cal_max: calMax,
     });
