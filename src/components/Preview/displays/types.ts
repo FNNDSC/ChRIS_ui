@@ -14,7 +14,7 @@ export enum DisplayColorMap {
   Gray = "gray",
   Plasma = "plasma",
   Viridis = "viridis",
-  Actc = "actc",
+  NIH = "nih",
   Freesurfer = "freesurfer",
 }
 
