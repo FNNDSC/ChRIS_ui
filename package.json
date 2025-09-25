@@ -36,7 +36,8 @@
     "preview": "vite preview",
     "__helper_functions": "",
     "get-running-url": "./testing/get_running_url.sh",
-    "print-version": "node printVersion.js"
+    "print-version": "node printVersion.js",
+    "fs2niivue": "if [ -d third-party/fs2NiiVueColormaps ]; then cd third-party/fs2NiiVueColormaps; python3 fs2niivue.py; cp FreesurferColorLUT.v7.4.1.json ../../src/components/Preview/displays; rm *.json; cd ../..; else echo '[WARN] need to git submodule fs2NiiVueColormaps first'; fi"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
@@ -73,7 +74,6 @@
     "marked": "14.1.2",
     "micromark": "^4.0.0",
     "micromark-extension-gfm": "^3.0.0",
-    "niivue-react": "github:niivue/niivue-react",
     "pako": "^1.0.11",
     "papaparse": "^5.4.1",
     "preval.macro": "^5.0.0",

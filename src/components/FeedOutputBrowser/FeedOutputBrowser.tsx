@@ -1,25 +1,20 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
-import {
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateVariant,
-  Title,
-} from "@patternfly/react-core";
 import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
 import "./FeedOutputBrowser.css";
+import { EmptyStateLoader } from "./EmptyStateLoader";
 import FileBrowser from "./FileBrowser";
 import { useFeedBrowser } from "./useFeedBrowser";
 
-export interface FeedOutputBrowserProps {
+type Props = {
   handlePluginSelect: (node: PluginInstance) => void;
   explore: boolean;
   statuses: {
     [id: number]: string;
   };
-}
+};
 
-const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = (props) => {
+export default (props: Props) => {
   const {
     selected,
     pluginFilesPayload,
@@ -43,41 +38,42 @@ const FeedOutputBrowser: React.FC<FeedOutputBrowserProps> = (props) => {
     props.statuses,
   );
 
+  const isHideFetchFilesLoader = finished;
+  const isHideFileBrowser =
+    !finished || !pluginFilesPayload || !selected || isError;
+  const isHideError = !finished || !isError;
+  const isHideEmptyStateLoader =
+    !isHideFetchFilesLoader || !isHideFileBrowser || !isHideError;
+
   return (
     <div style={{ height: "100%" }} className="feed-output-browser">
-      {!finished ? (
-        <FetchFilesLoader title="Plugin executing. Files will be fetched when plugin completes" />
-      ) : pluginFilesPayload && selected && !isError ? (
-        <FileBrowser
-          selected={selected}
-          handleFileClick={handleFileClick}
-          pluginFilesPayload={pluginFilesPayload}
-          currentPath={currentPath}
-          fetchMore={fetchMore}
-          observerTarget={observerTarget}
-          handlePagination={handlePagination}
-          isLoading={filesLoading}
-        />
-      ) : isError ? (
-        <Alert type="error" description={error?.message} />
-      ) : (
-        <EmptyStateLoader title="" />
-      )}
+      <FetchFilesLoader
+        title="Plugin executing. Files will be fetched when plugin completes"
+        isHide={isHideFetchFilesLoader}
+      />
+      <FileBrowser
+        selected={selected}
+        handleFileClick={handleFileClick}
+        pluginFilesPayload={pluginFilesPayload}
+        currentPath={currentPath}
+        fetchMore={fetchMore}
+        observerTarget={observerTarget}
+        handlePagination={handlePagination}
+        isLoading={filesLoading}
+        isHide={isHideFileBrowser}
+      />
+      {!isHideError && <Alert type="error" description={error?.message} />}
+      <EmptyStateLoader title="" isHide={isHideEmptyStateLoader} />
     </div>
   );
 };
 
-export default FeedOutputBrowser;
-
-export const EmptyStateLoader = ({ title }: { title: string }) => {
-  return (
-    <EmptyState variant={EmptyStateVariant.lg}>
-      <Title headingLevel="h4" size="lg" />
-      <EmptyStateBody>{title}</EmptyStateBody>
-    </EmptyState>
-  );
+type FetchFilesLoaderProps = {
+  title: string;
+  isHide?: boolean;
 };
 
-const FetchFilesLoader = ({ title }: { title: string }) => {
-  return <SpinContainer title={title} />;
+const FetchFilesLoader = (props: FetchFilesLoaderProps) => {
+  const { title, isHide } = props;
+  return <SpinContainer title={title} isHide={isHide} />;
 };

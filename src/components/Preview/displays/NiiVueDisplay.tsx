@@ -1,38 +1,18 @@
 import { SLICE_TYPE } from "@niivue/niivue";
-import { Button } from "@patternfly/react-core";
 import { InputNumber, Select } from "antd";
-import {
-  FreeSurferColorLUT,
-  type NVROptions,
-  type NVRVolume,
-} from "niivue-react/src";
-import { useState } from "react";
+import { type CSSProperties, useState } from "react";
 import type { IFileBlob } from "../../../api/model.ts";
 import SizedNiivueCanvas from "../../SizedNiivueCanvas";
 import { getFileResourceUrl } from "./dicomUtils/utils.ts";
+import FreeSurferColorLUT from "./FreesurferColorLUT.v7.4.1.json";
 import styles from "./NiiVueDisplay.module.css";
 import {
+  type CrosshairLocation,
   DisplayColorMap,
   DisplayType,
   type DisplayTypeMap,
   SliceType,
 } from "./types.ts";
-
-type Props = {
-  selectedFile?: IFileBlob;
-};
-
-type PreviewOptions = Required<
-  Pick<
-    NVROptions,
-    | "sliceType"
-    | "isColorbar"
-    | "backColor"
-    | "isRadiologicalConvention"
-    | "crosshairWidth"
-    | "sagittalNoseLeft"
-  >
->;
 
 const SLICE_TYPE_MAP = {
   [SliceType.Axial]: SLICE_TYPE.AXIAL,
@@ -92,8 +72,13 @@ const DISPLAY_TYPE_MAP: DisplayTypeMap = {
   },
 };
 
+type Props = {
+  selectedFile?: IFileBlob;
+  isHide?: boolean;
+};
+
 export default (props: Props) => {
-  const { selectedFile } = props;
+  const { selectedFile, isHide } = props;
   const [sliceTypeName, setSliceTypeName] = useState(SliceType.Multiplanar);
   const [crosshairText, setCrosshairText] = useState("");
   const [displayType, setDisplayType] = useState(DisplayType.IMG4096);
@@ -102,43 +87,14 @@ export default (props: Props) => {
   const [calMinVal, setCalMinVal] = useState("0");
   const [calMax, setCalMax] = useState(4096);
   const [calMaxVal, setCalMaxVal] = useState("4096");
+  const [isRadiologistView, setIsRadiologistView] = useState(true);
 
-  const volumes: NVRVolume[] = [];
+  const urls = selectedFile ? [getFileResourceUrl(selectedFile)] : [];
 
-  const options: PreviewOptions = {
-    backColor: [0, 0, 0],
-    isRadiologicalConvention: true,
-    sagittalNoseLeft: true,
-    sliceType: SLICE_TYPE_MAP[sliceTypeName],
-    isColorbar: false,
-    crosshairWidth: sliceTypeName === SliceType.Multiplanar ? 0.5 : 0,
-  };
-
-  const freesurferLut = colorMap === DisplayColorMap.Freesurfer;
-
-  if (selectedFile !== undefined) {
-    const colormapLabel = colorMap === "freesurfer" ? FreeSurferColorLUT : null;
-    const theColorMap = colorMap === "freesurfer" ? "gray" : colorMap;
-    volumes.push({
-      // NiiVue gets the file extension from name
-      name: selectedFile.data.fname,
-      url: getFileResourceUrl(selectedFile),
-      colormap: theColorMap,
-      colormapLabel,
-      cal_min: calMin,
-      cal_max: calMax,
-    });
-    console.info(
-      "NiiVueDisplay: volumes:",
-      volumes,
-      "calMin:",
-      calMin,
-      "calMax:",
-      calMax,
-      "theColorMap:",
-      theColorMap,
-    );
-  }
+  const colormapLabel =
+    colorMap === DisplayColorMap.Freesurfer ? FreeSurferColorLUT : null;
+  const theColorMap =
+    colorMap === DisplayColorMap.Freesurfer ? "gray" : colorMap;
 
   const selectStyle = { width: "9em" };
 
@@ -198,59 +154,84 @@ export default (props: Props) => {
     setColorMap(value);
   };
 
+  const displayStyle: CSSProperties = {};
+  const errorStyle: CSSProperties = {};
+  if (isHide) {
+    displayStyle.display = "none";
+    errorStyle.display = "none";
+  } else if (urls.length === 0) {
+    displayStyle.display = "none";
+  } else {
+    errorStyle.display = "none";
+  }
+
+  console.info(
+    "NiiVueDisplay: displayStyle:",
+    displayStyle,
+    "isHide:",
+    isHide,
+    "urls:",
+    urls,
+  );
+
   return (
     <>
-      {volumes.length === 0 ? (
-        <h1>error</h1>
-      ) : (
-        <div className={styles.container}>
-          <div className={styles.controlBar}>
-            <Select
-              options={DISPLAY_TYPE_LIST.map((value) => ({
-                label: value,
-                value,
-              }))}
-              value={displayType}
-              onChange={safeSetDisplayType}
-              style={selectStyle}
-            />
-            <Select
-              options={COLOR_MAP_LIST.map((value) => ({ label: value, value }))}
-              value={colorMap}
-              onChange={safeSetColorMap}
-              style={selectStyle}
-            />
-            {freesurferLut && <span>{crosshairText}</span>}
-            <InputNumber
-              style={inputStyle}
-              placeholder={`minimum value`}
-              value={calMinVal}
-              onChange={(e) => safeSetCalMin(e || "")}
-            />
-            <InputNumber
-              style={inputStyle}
-              placeholder={`maximum value`}
-              value={calMaxVal}
-              onChange={(e) => safeSetCalMax(e || "")}
-            />
-            <Select
-              options={SLICE_TYPE_LIST.map((value) => ({
-                label: value,
-                value,
-              }))}
-              value={sliceTypeName}
-              onChange={setSliceTypeName}
-              style={selectStyle}
-            />
-          </div>
-          <SizedNiivueCanvas
-            size={8}
-            volumes={volumes}
-            options={options}
-            onLocationChange={(c) => setCrosshairText(c.string)}
+      <h1 style={errorStyle}>error</h1>
+      <div className={styles.container} style={displayStyle}>
+        <div className={styles.controlBar}>
+          <Select
+            options={DISPLAY_TYPE_LIST.map((value) => ({
+              label: value,
+              value,
+            }))}
+            value={displayType}
+            onChange={safeSetDisplayType}
+            style={selectStyle}
+          />
+          <Select
+            options={COLOR_MAP_LIST.map((value) => ({ label: value, value }))}
+            value={colorMap}
+            onChange={safeSetColorMap}
+            style={selectStyle}
+          />
+          <span>{crosshairText}</span>
+          <InputNumber
+            style={inputStyle}
+            placeholder={`minimum value`}
+            value={calMinVal}
+            onChange={(e) => safeSetCalMin(e || "")}
+          />
+          <InputNumber
+            style={inputStyle}
+            placeholder={`maximum value`}
+            value={calMaxVal}
+            onChange={(e) => safeSetCalMax(e || "")}
+          />
+          <Select
+            options={SLICE_TYPE_LIST.map((value) => ({
+              label: value,
+              value,
+            }))}
+            value={sliceTypeName}
+            onChange={setSliceTypeName}
+            style={selectStyle}
           />
         </div>
-      )}
+        <SizedNiivueCanvas
+          size={8}
+          urls={urls}
+          colormap={theColorMap}
+          colormapLabel={colormapLabel}
+          calMax={calMax}
+          calMin={calMin}
+          onLocationChange={(c: CrosshairLocation) =>
+            setCrosshairText(c.string)
+          }
+          sliceType={sliceTypeName}
+          isRadiologistView={isRadiologistView}
+          isHide={isHide}
+        />
+      </div>
     </>
   );
 };

@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import type { IFileBlob } from "../../../api/model";
 
-type AllProps = {
+type Props = {
   selectedFile?: IFileBlob;
+  isHide?: boolean;
 };
 
-const VideoDisplay: React.FC<AllProps> = ({ selectedFile }: AllProps) => {
+export default (props: Props) => {
+  const { selectedFile, isHide } = props;
   const [url, setUrl] = useState<string>("");
   const [sourceType, setSourceType] = useState<string>("");
 
   useEffect(() => {
-    async function constructURL() {
+    (async () => {
       const blob = await selectedFile?.getFileBlob();
       if (blob) {
         const objectUrl = window.URL.createObjectURL(
@@ -24,21 +26,20 @@ const VideoDisplay: React.FC<AllProps> = ({ selectedFile }: AllProps) => {
           window.URL.revokeObjectURL(objectUrl);
         };
       }
-    }
-
-    constructURL();
+    })();
   }, [selectedFile]);
 
-  if (!url) return null;
+  const style: CSSProperties = {};
+  if (isHide) {
+    style.display = "none";
+  }
 
   return (
-    // biome-ignore lint/a11y/useMediaCaption: <explanation>
-    <video controls width="90%" height="90%">
+    // biome-ignore lint/a11y/useMediaCaption: jsx
+    <video controls width="90%" height="90%" style={style}>
       <source src={url} type={sourceType} />
       {/* Fallback message for browsers that do not support video playback */}
       Your browser does not support the video tag.
     </video>
   );
 };
-
-export default React.memo(VideoDisplay);

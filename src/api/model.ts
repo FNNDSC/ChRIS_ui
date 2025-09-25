@@ -184,6 +184,7 @@ export const fileViewerMap: any = {
   mov: "VideoDisplay", // Add mov format
   wmv: "VideoDisplay", // Add wmv format
   mkv: "VideoDisplay", // Add mkv format
+  mha: "NiiVueDisplay",
 };
 
 // Description: get file type by file extension

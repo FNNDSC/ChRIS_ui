@@ -1,20 +1,22 @@
 import Papa from "papaparse"; // Import PapaParse for CSV parsing
-import React from "react";
+import React, { type CSSProperties, useEffect, useRef } from "react";
 import type { IFileBlob } from "../../../api/model";
 import useSize from "../../FeedTree/useSize";
 
 type AllProps = {
   selectedFile?: IFileBlob;
+  isHide?: boolean;
 };
 
-const TextDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
-  const divRef = React.useRef<HTMLDivElement>(null);
+export default (props: AllProps) => {
+  const { selectedFile, isHide } = props;
+  const divRef = useRef<HTMLDivElement>(null);
   useSize(divRef);
 
   const [content, setContent] = React.useState<string | null>(null);
   const [csvData, setCsvData] = React.useState<string[][] | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const displayContent = async () => {
       if (selectedFile) {
         const blob = await selectedFile.getFileBlob();
@@ -47,16 +49,18 @@ const TextDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
     displayContent();
   }, [selectedFile]);
 
+  const style: CSSProperties = {
+    display: "block",
+    overflow: "hidden", // Hide scrollbars on the outer container
+    width: "100%",
+    height: "100%",
+  };
+  if (isHide) {
+    style.display = "none";
+  }
+
   return (
-    <div
-      ref={divRef}
-      style={{
-        display: "block",
-        overflow: "hidden", // Hide scrollbars on the outer container
-        width: "100%",
-        height: "100%",
-      }}
-    >
+    <div ref={divRef} style={style}>
       {csvData ? (
         // Wrap table in a div to manage overflow
         <div
@@ -105,7 +109,3 @@ const TextDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
     </div>
   );
 };
-
-const MemoedTextDisplay = React.memo(TextDisplay);
-
-export default MemoedTextDisplay;

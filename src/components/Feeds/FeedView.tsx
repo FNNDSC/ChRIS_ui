@@ -1,6 +1,11 @@
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { Tooltip } from "@patternfly/react-core";
-import React, { useCallback, useEffect, useState } from "react";
+import React, {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
@@ -179,24 +184,26 @@ const FeedView = () => {
   );
 
   const isUpperShow = drawerState.graph.open || drawerState.node.open;
-  const upperStyle = {};
+  const upperStyle: CSSProperties = {};
   if (!isUpperShow) {
-    // @ts-expect-error css property
     upperStyle.display = "none";
   }
 
-  const graphStyle = {};
+  const graphStyle: CSSProperties = {};
   if (!drawerState.graph.open) {
-    // @ts-expect-error css property
     graphStyle.display = "none";
   }
 
-  const nodeStyle = {
+  const nodeStyle: CSSProperties = {
     overflow: "scroll",
   };
   if (!drawerState.node.open) {
-    // @ts-expect-error css property
     nodeStyle.display = "none";
+  }
+
+  const feedOutputBrowserStyle: CSSProperties = {};
+  if (!drawerState.files.open && !drawerState.preview.open) {
+    feedOutputBrowserStyle.display = "none";
   }
 
   return (
@@ -266,21 +273,20 @@ const FeedView = () => {
         {/* Vertical Resize Handle */}
 
         {/* Bottom Panel: Feed Output Browser */}
-        {(drawerState.files.open || drawerState.preview.open) && (
-          <Panel
-            className="custom-panel"
-            id="3"
-            order={2}
-            defaultSize={50}
-            minSize={20}
-          >
-            <FeedOutputBrowser
-              explore={true}
-              handlePluginSelect={onNodeBrowserClick}
-              statuses={statuses}
-            />
-          </Panel>
-        )}
+        <Panel
+          className="custom-panel"
+          id="3"
+          order={2}
+          defaultSize={50}
+          minSize={20}
+          style={feedOutputBrowserStyle}
+        >
+          <FeedOutputBrowser
+            explore={true}
+            handlePluginSelect={onNodeBrowserClick}
+            statuses={statuses}
+          />
+        </Panel>
       </PanelGroup>
     </WrapperConnect>
   );

@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import type { IFileBlob } from "../../../api/model";
 
-type AllProps = {
+type Props = {
   selectedFile?: IFileBlob;
+  isHide?: boolean;
 };
 
-const PdfDisplay: React.FC<AllProps> = ({ selectedFile }: AllProps) => {
+export default (props: Props) => {
+  const { selectedFile, isHide } = props;
   const [url, setUrl] = useState<string>("");
 
   useEffect(() => {
@@ -28,10 +30,13 @@ const PdfDisplay: React.FC<AllProps> = ({ selectedFile }: AllProps) => {
     constructURL();
   }, [selectedFile]);
 
-  if (!url) return null;
+  const style: CSSProperties = {};
+  if (isHide) {
+    style.display = "none";
+  }
 
   return (
-    <div className="iframe-container">
+    <div className="iframe-container" style={style}>
       <iframe
         key={selectedFile?.data.fname}
         src={url}
@@ -42,5 +47,3 @@ const PdfDisplay: React.FC<AllProps> = ({ selectedFile }: AllProps) => {
     </div>
   );
 };
-
-export default React.memo(PdfDisplay);

@@ -110,9 +110,6 @@ importers:
       micromark-extension-gfm:
         specifier: ^3.0.0
         version: 3.0.0
-      niivue-react:
-        specifier: github:niivue/niivue-react
-        version: https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134(@niivue/niivue@0.62.1)(react@18.3.1)(typescript@5.7.3)
       pako:
         specifier: ^1.0.11
         version: 1.0.11
@@ -2800,14 +2797,6 @@ packages:
 
   nifti-reader-js@0.8.0:
     resolution: {integrity: sha512-iO1iIhQDfKniy+l/86HfOPte7So+SxBmBiMSiUB2VXU7z4hSewMTlE3h0fCgfzfXvMUa+ilzLTJ2ZHmtFw6EWw==}
-
-  niivue-react@https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134:
-    resolution: {tarball: https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134}
-    version: 0.0.0
-    peerDependencies:
-      '@niivue/niivue': ^0.44.2
-      react: ^17 || ^18
-      typescript: ^5.0.0
 
   node-releases@2.0.19:
     resolution: {integrity: sha512-xxOWJsBKtzAq7DY0J+DTzuz58K8e7sJbdgwkbMWQe8UYB6ekmsQ45q0M/tJDsGaZmbC+l7n57UV8Hl5tHxO9uw==}
@@ -6754,13 +6743,6 @@ snapshots:
   nifti-reader-js@0.8.0:
     dependencies:
       fflate: 0.8.2
-
-  niivue-react@https://codeload.github.com/niivue/niivue-react/tar.gz/d7734b88359b61356fec5bfa302e02536e0a1134(@niivue/niivue@0.62.1)(react@18.3.1)(typescript@5.7.3):
-    dependencies:
-      '@niivue/niivue': 0.62.1
-      dequal: 2.0.3
-      react: 18.3.1
-      typescript: 5.7.3
 
   node-releases@2.0.19: {}
 

@@ -8,8 +8,15 @@ import {
 } from "@patternfly/react-core";
 import ResetIcon from "@patternfly/react-icons/dist/esm/icons/history-icon";
 import * as dcmjs from "dcmjs";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { IFileBlob } from "../../../api/model";
+import { SpinContainer } from "../../Common";
 import useSize from "../../FeedTree/useSize";
 import {
   AddIcon,
@@ -28,21 +35,21 @@ import {
   loadDicomImage,
   setUpTooling,
 } from "./dicomUtils/utils";
-import { SpinContainer } from "../../Common";
 
 const TOOL_KEY = "cornerstone-display";
 
-export type DcmImageProps = {
+export type Props = {
   selectedFile: IFileBlob;
   preview: string;
+  isHide?: boolean;
 };
 
 type LocalToolState = {
   [key: string]: boolean;
 };
 
-export default function DcmDisplay(props: DcmImageProps) {
-  const { selectedFile, preview } = props;
+export default (props: Props) => {
+  const { selectedFile, preview, isHide } = props;
   const dicomImageRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<HTMLDivElement>(null);
   const renderingEngineRef = useRef<any>(null);
@@ -54,7 +61,7 @@ export default function DcmDisplay(props: DcmImageProps) {
   const [previouslyActive, setPreviouslyActive] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const size = useSize(dicomImageRef);
-  const fname = selectedFile.data.fname;
+  const fname = selectedFile?.data?.fname || "";
 
   const [toolState, setToolState] = useState<LocalToolState>({
     Zoom: false,
@@ -262,11 +269,25 @@ export default function DcmDisplay(props: DcmImageProps) {
 
   const isTagModalOpen = toolState.TagInfo && tagInfo;
 
+  const style: CSSProperties = {
+    position: "relative",
+    width: "100%",
+    height: "100%",
+  };
+  if (isHide) {
+    style.display = "none";
+  }
+
+  const styleLoading: CSSProperties = {};
+  if (!isLoading) {
+    styleLoading.display = "none";
+  }
+
   return (
     <div
       ref={dicomImageRef}
       className={preview === "large" ? "dcm-preview" : ""}
-      style={{ position: "relative", width: "100%", height: "100%" }}
+      style={style}
     >
       <Toolbar className="centered-container">
         {actions.map((action) => {
@@ -288,7 +309,7 @@ export default function DcmDisplay(props: DcmImageProps) {
         })}
       </Toolbar>
 
-      {isLoading && <SpinContainer title="Fetching..." />}
+      <SpinContainer title="Fetching..." isHide={!isLoading} />
 
       <div
         ref={elementRef}
@@ -333,4 +354,4 @@ export default function DcmDisplay(props: DcmImageProps) {
       )}
     </div>
   );
-}
+};

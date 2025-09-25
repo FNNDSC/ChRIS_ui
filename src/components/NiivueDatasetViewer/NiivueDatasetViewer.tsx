@@ -1,15 +1,19 @@
+import type { Feed } from "@fnndsc/chrisapi";
+import { PageSection } from "@patternfly/react-core";
+import { css } from "@patternfly/react-styles";
+import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
+import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import { pipe } from "fp-ts/function";
+import * as O from "fp-ts/Option";
+import * as TE from "fp-ts/TaskEither";
 import React, { useEffect, useMemo, useState } from "react";
 import { useImmer } from "use-immer";
-import { PageSection } from "@patternfly/react-core";
-import WrapperConnect from "../Wrapper";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import type { ChNVROptions, ChNVRVolume } from "./models";
-import { DEFAULT_OPTIONS } from "./defaults";
-import HeaderOptionBar from "./components/HeaderOptionBar";
-import SizedNiivueCanvas, {
-  type CrosshairLocation,
-} from "../SizedNiivueCanvas";
-import type { Problem, TagsDictionary, VisualDataset } from "./types";
+import { FpClient } from "../../api/fp/chrisapi";
+import { flexRowSpaceBetween, hideOnMobile } from "../../cssUtils.ts";
+import type { CrosshairLocation } from "../Preview/displays/types.ts";
+import SizedNiivueCanvas from "../SizedNiivueCanvas/index.tsx";
+import WrapperConnect from "../Wrapper";
 import {
   type DatasetFile,
   type DatasetFilesClient,
@@ -17,31 +21,26 @@ import {
   getDataset,
   getPreClient,
 } from "./client";
-import { flexRowSpaceBetween, hideOnMobile } from "../../cssUtils.ts";
-import { FpClient } from "../../api/fp/chrisapi";
-import { pipe } from "fp-ts/function";
-import * as TE from "fp-ts/TaskEither";
-import * as O from "fp-ts/Option";
+import { getFeedOf } from "./client/getDataset";
+import { parsePluginInstanceId } from "./client/helpers";
 import DatasetPageDrawer from "./components/Drawer";
+import HeaderOptionBar from "./components/HeaderOptionBar";
 import {
-  InfoForPageHeader,
   ControlPanel,
   DatasetDescriptionText,
+  InfoForPageHeader,
 } from "./content";
-import { parsePluginInstanceId } from "./client/helpers";
-import { getFeedOf } from "./client/getDataset";
-import type { Feed } from "@fnndsc/chrisapi";
+import { DEFAULT_OPTIONS } from "./defaults";
+import { notNullSetState } from "./helpers";
+import type { ChNVROptions, ChNVRVolume } from "./models";
+import styles from "./NiivueDatasetViewer.module.css";
 import {
   type DatasetFileState,
   type DatasetVolume,
   files2states,
   volumeIsLoaded,
 } from "./statefulTypes";
-import { notNullSetState } from "./helpers";
-import styles from "./NiivueDatasetViewer.module.css";
-import { css } from "@patternfly/react-styles";
-import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
-import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import type { Problem, TagsDictionary, VisualDataset } from "./types";
 
 /**
  * The "Niivue Datasets Viewer" is a view of ChRIS_ui which implements a
@@ -321,7 +320,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
             isScaling={sizeIsScaling}
             onLocationChange={setCrosshairLocation}
             options={{ ...nvOptions, loadingText }}
-            volumes={volumes}
+            urls={volumes}
           />
           <div
             className={css(
