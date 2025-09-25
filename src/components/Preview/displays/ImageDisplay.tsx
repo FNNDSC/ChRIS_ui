@@ -1,20 +1,36 @@
-import React, { useEffect, useState, useRef } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { getFileExtension, type IFileBlob } from "../../../api/model";
-import useSize from "../../FeedTree/useSize";
+import styles from "./ImageDisplay.module.css";
 
-type AllProps = {
+type Props = {
   selectedFile?: IFileBlob;
+  isHide?: boolean;
 };
 
-const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
-  const [url, setUrl] = useState<string>("");
+export default (props: Props) => {
+  const { selectedFile, isHide } = props;
+  const [url, setUrl] = useState("");
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const size = useSize(containerRef); // Get the dimensions of the container
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const [imgClassName, setImgClassName] = useState("img-height-dominant");
 
   useEffect(() => {
+    if (isHide) {
+      return;
+    }
+
+    if (!selectedFile) {
+      return;
+    }
+
+    const fileType = getFileExtension(selectedFile.data.fname).toLowerCase();
+    if (fileType !== "png" && fileType !== "jpg" && fileType !== "jpeg") {
+      return;
+    }
+
     let objectUrl: string | null = null;
 
-    async function constructUrl() {
+    const constructUrl = async () => {
       if (!selectedFile) {
         setUrl("");
         return;
@@ -46,7 +62,7 @@ const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
       } catch (error) {
         console.error("Error constructing image URL:", error);
       }
-    }
+    };
 
     constructUrl();
 
@@ -56,33 +72,71 @@ const ImageDisplay: React.FunctionComponent<AllProps> = ({ selectedFile }) => {
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [selectedFile]);
+  }, [selectedFile, isHide]);
+
+  useEffect(() => {
+    if (!url) {
+      return;
+    }
+    if (!imgRef.current) {
+      return;
+    }
+    if (!containerRef.current) {
+      return;
+    }
+
+    // XXX use setTimeout 100ms to get the naturalWidth and naturalHeight for the images.
+    setTimeout(() => {
+      if (
+        !imgRef.current ||
+        !imgRef.current.naturalWidth ||
+        !imgRef.current.naturalHeight ||
+        !containerRef.current ||
+        !containerRef.current.clientWidth ||
+        !containerRef.current.clientHeight
+      ) {
+        return;
+      }
+
+      const containerImgWidthRatio =
+        containerRef.current.clientWidth / imgRef.current.naturalWidth;
+
+      const containerImgHeightRatio =
+        containerRef.current.clientHeight / imgRef.current.naturalHeight;
+
+      if (containerImgWidthRatio < containerImgHeightRatio) {
+        setImgClassName("img-width-dominant");
+      } else {
+        setImgClassName("img-height-dominant");
+      }
+    }, 100);
+  }, [
+    imgRef.current?.naturalWidth,
+    imgRef.current?.naturalHeight,
+    url,
+    containerRef.current?.clientWidth,
+    containerRef.current?.clientHeight,
+  ]);
 
   // Don't render if the URL isn't ready
   if (!url) return null;
 
   // Calculate image dimensions based on container size
-  const imageStyles: React.CSSProperties = {
-    width: size ? `${size.width}px` : "100%",
-    height: "auto",
-    objectFit: "scale-down",
-    transition: "width 0.2s, height 0.2s",
-  };
+  const divStyle: CSSProperties = {};
+  if (isHide) {
+    divStyle.display = "none";
+  }
 
   return (
-    <div ref={containerRef} style={{ width: "100%", height: "100%" }}>
+    <div ref={containerRef} className={styles["img-div"]} style={divStyle}>
       <img
-        id={selectedFile?.data.fname || ""}
+        className={styles[imgClassName]}
+        ref={imgRef}
         src={url}
         alt={selectedFile?.data.fname}
         onClick={(e) => e.preventDefault()} // Prevent default behavior on click
         onKeyDown={(e) => e.preventDefault()}
-        style={imageStyles} // Apply dynamic styles
       />
     </div>
   );
 };
-
-const MemoedImageDisplay = React.memo(ImageDisplay);
-
-export default MemoedImageDisplay;

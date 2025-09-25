@@ -10,6 +10,7 @@ import {
   PageSidebarBody,
 } from "@patternfly/react-core";
 import { type DefaultError, useQueryClient } from "@tanstack/react-query";
+import { style } from "d3-selection";
 import { isEmpty } from "lodash";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
@@ -72,7 +73,7 @@ const Sidebar = (props: Props) => {
   ) => {
     if (typeof tag.title === "undefined") {
       return (
-        <NavItem itemId="tag-more" onClick={onClick}>
+        <NavItem key={prefix + "tag-more"} itemId="tag-more" onClick={onClick}>
           <span style={{ color: "#aaaaaa" }}>(more)</span>
         </NavItem>
       );
@@ -83,7 +84,11 @@ const Sidebar = (props: Props) => {
     const tagLink = tag.title === "(none)" ? "" : `/${tag.title}`;
 
     return (
-      <NavItem itemId={tagIdx} isActive={sidebarActiveItem === tagIdx}>
+      <NavItem
+        key={prefix + tagIdx}
+        itemId={tagIdx}
+        isActive={sidebarActiveItem === tagIdx}
+      >
         {renderLink(`/${prefix}${tagLink}`, tag.title, tagIdx)}
       </NavItem>
     );
@@ -156,24 +161,38 @@ const Sidebar = (props: Props) => {
       <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
         <NavList>
           <NavItem
+            key="overview"
             itemId="overview"
             isActive={sidebarActiveItem === "overview"}
           >
             {renderLink("/", "Overview", "overview")}
           </NavItem>
-          <NavGroup title="Data">
-            <NavItem itemId="data" isActive={sidebarActiveItem === "data"}>
+          <NavGroup key="theData" title="Data">
+            <NavItem
+              key="data"
+              itemId="data"
+              isActive={sidebarActiveItem === "data"}
+            >
               {renderLink("/data", "My Data", "data")}
             </NavItem>
-            <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
+            <NavItem
+              key="shared"
+              itemId="shared"
+              isActive={sidebarActiveItem === "shared"}
+            >
               {renderLink("/shared", "Shared Data", "shared")}
             </NavItem>
 
-            <NavItem itemId="lib" isActive={sidebarActiveItem === "lib"}>
+            <NavItem
+              key="lib"
+              itemId="lib"
+              isActive={sidebarActiveItem === "lib"}
+            >
               {renderLink("/library", "Library", "lib")}
             </NavItem>
 
             <NavExpandable
+              key="tags"
               title="Tags"
               buttonProps={{ className: styles["tags-expand"] }}
               isExpanded={true}
@@ -182,6 +201,7 @@ const Sidebar = (props: Props) => {
             </NavExpandable>
 
             <NavItem
+              key="uploadData"
               itemId="uploadData"
               isActive={sidebarActiveItem === "uploadData"}
             >
@@ -205,12 +225,17 @@ const Sidebar = (props: Props) => {
               </CreateFeedProvider>
             </NavItem>
             */}
-            <NavItem itemId="pacs" isActive={sidebarActiveItem === "pacs"}>
+            <NavItem
+              key="pacs"
+              itemId="pacs"
+              isActive={sidebarActiveItem === "pacs"}
+            >
               {renderLink("/pacs", "Query and Retrieve PACS", "pacs")}
             </NavItem>
           </NavGroup>
-          <NavGroup title="Packages">
+          <NavGroup key="packages" title="Packages">
             <NavItem
+              key="package"
               itemId="package"
               isActive={sidebarActiveItem === "package"}
             >
@@ -218,6 +243,7 @@ const Sidebar = (props: Props) => {
             </NavItem>
 
             <NavExpandable
+              key="packageTags"
               title="Tags"
               buttonProps={{ className: styles["tags-expand"] }}
               isExpanded={true}
@@ -227,6 +253,7 @@ const Sidebar = (props: Props) => {
 
             {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
               <NavItem
+                key="store"
                 itemId="store"
                 isActive={sidebarActiveItem === "store"}
                 className={classNameImportPackage}
@@ -235,6 +262,7 @@ const Sidebar = (props: Props) => {
               </NavItem>
             )}
             <NavItem
+              key="compose"
               itemId="compose"
               isActive={sidebarActiveItem === "compose"}
               className={classNameComposePackage}

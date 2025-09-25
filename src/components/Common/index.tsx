@@ -18,11 +18,11 @@ import {
 } from "@patternfly/react-core";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@patternfly/react-table";
 import { Alert, Popover, Spin } from "antd";
-import React, { type ReactNode, useState } from "react";
+import React, { type CSSProperties, type ReactNode, useState } from "react";
 import Dots from "react-activity/dist/Dots";
 import "react-activity/dist/library.css";
-import { Cookies } from "react-cookie";
 import ReactJson from "@microlink/react-json-view";
+import { Cookies } from "react-cookie";
 import {
   ArchiveIcon,
   CubesIcon,
@@ -46,9 +46,18 @@ export const EmptyStateComponent = ({ title }: { title?: string }) => {
   );
 };
 
-export const SpinContainer = ({ title }: { title: string }) => {
+type SpinContainerProps = {
+  title: string;
+  isHide?: boolean;
+};
+export const SpinContainer = (props: SpinContainerProps) => {
+  const { title, isHide } = props;
+  const style: CSSProperties = {};
+  if (isHide) {
+    style.display = "none";
+  }
   return (
-    <div className="example">
+    <div className="example" style={style}>
       <Spin tip={title}>
         <div className="content" />
       </Spin>

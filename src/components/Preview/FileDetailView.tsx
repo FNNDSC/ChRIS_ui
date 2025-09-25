@@ -1,20 +1,19 @@
-import React from "react";
-import { ErrorBoundary } from "react-error-boundary";
-import { Label, Text } from "@patternfly/react-core";
-import { SpinContainer } from "../Common";
 import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
-import { getFileExtension, fileViewerMap } from "../../api/model";
+import { Label, Text } from "@patternfly/react-core";
+import { fileViewerMap, getFileExtension } from "../../api/model";
+import { SpinContainer } from "../Common";
 import ViewerDisplay from "./displays/ViewerDisplay";
 
-interface AllProps {
+interface Props {
   selectedFile?: FileBrowserFolderFile | PACSFile;
   preview: "large" | "small";
   handleNext?: () => void;
   handlePrevious?: () => void;
+  isHide?: boolean;
 }
 
-export default function FileDetailView(props: AllProps) {
-  const { selectedFile, preview } = props;
+export default (props: Props) => {
+  const { selectedFile, preview, isHide } = props;
   let viewerName = "";
   if (selectedFile) {
     const fileType = getFileExtension(selectedFile.data?.fname);
@@ -31,17 +30,14 @@ export default function FileDetailView(props: AllProps) {
     </Label>
   );
 
+  console.info("FileDetailView: isHide:", isHide);
+
   return (
-    <React.Suspense fallback={<SpinContainer title="Loading..." />}>
-      <ErrorBoundary fallback={errorComponent()}>
-        {selectedFile && (
-          <ViewerDisplay
-            preview={preview}
-            viewerName={viewerName}
-            selectedFile={selectedFile}
-          />
-        )}
-      </ErrorBoundary>
-    </React.Suspense>
+    <ViewerDisplay
+      preview={preview}
+      viewerName={viewerName}
+      selectedFile={selectedFile}
+      isHide={isHide}
+    />
   );
-}
+};

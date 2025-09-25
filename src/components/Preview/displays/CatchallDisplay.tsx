@@ -1,27 +1,24 @@
-import { memo } from "react";
+import type { CSSProperties } from "react";
 import { getFileExtension, type IFileBlob } from "../../../api/model";
 import { Alert } from "../../Antd";
 
-type AllProps = {
+type Props = {
   selectedFile?: IFileBlob;
+  isHide?: boolean;
 };
 
-const CatchallDisplay: React.FunctionComponent<AllProps> = (
-  props: AllProps,
-) => {
-  const noPreviewMessage = () => {
-    const { selectedFile } = props;
-    const extension = getFileExtension(selectedFile?.data.fname);
-    return (
-      <Alert
-        type="info"
-        description={`No preview available for the filetype ${extension}`}
-      />
-    );
-  };
-  return noPreviewMessage();
+export default (props: Props) => {
+  const { selectedFile, isHide } = props;
+  const extension = getFileExtension(selectedFile?.data?.fname || "");
+  const style: CSSProperties = {};
+  if (isHide) {
+    return <div style={{ display: "none" }}></div>;
+  }
+  return (
+    <Alert
+      type="info"
+      description={`No preview available for the filetype ${extension}`}
+      style={style}
+    />
+  );
 };
-
-const MemoedCatchAllDisplay = memo(CatchallDisplay);
-
-export default MemoedCatchAllDisplay;

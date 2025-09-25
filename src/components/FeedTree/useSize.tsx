@@ -1,5 +1,5 @@
-import React, { type RefObject, type MutableRefObject } from "react";
 import useResizeObserver from "@react-hook/resize-observer";
+import React, { type MutableRefObject, type RefObject } from "react";
 
 const useSize = (
   target:

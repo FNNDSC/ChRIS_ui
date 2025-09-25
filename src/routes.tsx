@@ -1,12 +1,5 @@
-import path from "path";
-import React, { useEffect, useState } from "react";
-import {
-  genUUID,
-  getState,
-  type ModuleToFunc,
-  StateType,
-  useReducer,
-} from "react-reducer-utils";
+import { useEffect, useState } from "react";
+import type { ModuleToFunc } from "react-reducer-utils";
 import {
   matchPath,
   useLocation,
@@ -22,7 +15,6 @@ import GnomeLibrary from "./components/GnomeLibrary";
 import Login from "./components/Login";
 import { OperationsProvider } from "./components/NewLibrary/context";
 import Store from "./components/NewStore";
-import NiivueDatasetViewerPage from "./components/NiivueDatasetViewer";
 import NotFound from "./components/NotFound";
 import Pacs from "./components/Pacs";
 import PipelinePage from "./components/PipelinesPage";
@@ -57,11 +49,11 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
   },
 });
 
-export const MainRouter: React.FC = () => {
+export const MainRouter = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const [state, setState] = React.useState(State);
-  const [route, setRoute] = React.useState<string>();
+  const [state, setState] = useState(State);
+  const [route, setRoute] = useState("");
   const navigate = useNavigate();
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
@@ -235,11 +227,6 @@ export const MainRouter: React.FC = () => {
     {
       path: "dataset/:feedName?",
       element: <DatasetRedirect />,
-    },
-
-    {
-      path: "niivue/:plinstId",
-      element: <NiivueDatasetViewerPage />,
     },
 
     {

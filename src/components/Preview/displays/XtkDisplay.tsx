@@ -1,23 +1,25 @@
-import type React from "react";
-import { useEffect, useRef } from "react";
+import { type CSSProperties, useEffect, useRef } from "react";
 import type { IFileBlob } from "../../../api/model";
 import { getXtkFileMode } from "../../XtkViewer/XtkViewer";
 
 type AllProps = {
-  fileItem: IFileBlob;
+  fileItem?: IFileBlob;
+  isHide?: boolean;
 };
 
 // Added with a global script
 declare const X: any;
 
-const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
-  const mode = getXtkFileMode(fileItem.fileType);
+export default (props: AllProps) => {
+  const { fileItem, isHide } = props;
+  const mode = getXtkFileMode(fileItem?.fileType);
 
   useEffect(() => {
     let r: any;
-    async function renderFileData() {
-      const fileData = await fileItem.blob?.arrayBuffer();
-      const fileName = fileItem.file?.data.fname;
+
+    const renderFileData = async () => {
+      const fileData = await fileItem?.blob?.arrayBuffer();
+      const fileName = fileItem?.file?.data.fname;
       let object: any = {};
 
       if (mode === "volume") {
@@ -41,7 +43,7 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
       r.add(object);
       r.camera.position = [0, 400, 0];
       r.render();
-    }
+    };
 
     renderFileData();
 
@@ -50,12 +52,17 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
         r.destroy();
       }
     };
-  }, [fileItem.blob, fileItem.file?.data.fname, mode]);
+  }, [fileItem?.blob, fileItem?.file?.data.fname, mode]);
 
   const renderContainerRef = useRef(null);
 
+  const style: CSSProperties = { height: "100%" };
+  if (isHide) {
+    style.display = "none";
+  }
+
   return (
-    <div style={{ height: "100%" }}>
+    <div style={style}>
       {mode === "other" ? (
         <div
           style={{
@@ -79,5 +86,3 @@ const XtkDisplay: React.FC<AllProps> = ({ fileItem }: AllProps) => {
     </div>
   );
 };
-
-export default XtkDisplay;

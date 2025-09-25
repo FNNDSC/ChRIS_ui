@@ -3,7 +3,6 @@ import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
   FileBrowserFolderList,
-  PluginInstance,
 } from "@fnndsc/chrisapi";
 import type { DataNode } from "../../store/explorer/types";
 
@@ -24,17 +23,6 @@ export interface FilesPayload {
     totalCount: number;
     hasNextPage: boolean;
   };
-}
-
-export interface FileBrowserProps {
-  pluginFilesPayload: FilesPayload;
-  handleFileClick: (path: string) => void;
-  selected: PluginInstance;
-  currentPath: string;
-  isLoading: boolean;
-  handlePagination: () => void;
-  fetchMore?: boolean;
-  observerTarget?: React.MutableRefObject<any>;
 }
 
 export interface FileBrowserState {

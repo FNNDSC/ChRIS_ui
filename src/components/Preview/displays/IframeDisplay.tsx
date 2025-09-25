@@ -1,35 +1,66 @@
-import React, { useEffect, useState, Fragment } from "react";
+import { cons } from "fp-ts/lib/ReadonlyNonEmptyArray";
+import React, {
+  type CSSProperties,
+  Fragment,
+  useEffect,
+  useState,
+} from "react";
 import { getFileExtension, type IFileBlob } from "../../../api/model";
 
-type IframeDisplayProps = {
+type Props = {
   selectedFile?: IFileBlob;
+  isHide?: boolean;
 };
 
-const IframeDisplay: React.FC<IframeDisplayProps> = ({
-  selectedFile,
-}: IframeDisplayProps) => {
+export default (props: Props) => {
+  const { selectedFile, isHide } = props;
   const [url, setURL] = useState<string>("");
 
+  console.info(
+    "IframDisplay: isHide:",
+    isHide,
+    "selectedFile:",
+    selectedFile,
+    "url:",
+    url,
+  );
+
   useEffect(() => {
+    if (isHide) {
+      return;
+    }
+
+    if (!selectedFile) {
+      return;
+    }
+
+    const constructedURL = { url: "" };
     const constructURL = async () => {
-      if (!selectedFile) return;
       const fileType = getFileExtension(selectedFile.data.fname);
       const blob = await selectedFile.getFileBlob();
 
       const type = fileType === "html" ? "text/html" : "";
-      const constructedURL = URL.createObjectURL(new Blob([blob], { type }));
-      setURL(constructedURL);
+      constructedURL.url = URL.createObjectURL(new Blob([blob], { type }));
+      setURL(constructedURL.url);
     };
 
     constructURL();
     return () => {
-      URL.revokeObjectURL(url);
+      if (!constructedURL.url) {
+        return;
+      }
+      URL.revokeObjectURL(constructedURL.url);
     };
-  }, [url, selectedFile]);
+  }, [selectedFile, isHide]);
+
+  const style: CSSProperties = {};
+  if (isHide) {
+    style.display = "none";
+  }
 
   return (
     <Fragment>
-      <div className="iframe-container">
+      <div className="iframe-container" style={style}>
         <iframe
           id="myframe"
           key={selectedFile?.data.fname}
@@ -42,5 +73,3 @@ const IframeDisplay: React.FC<IframeDisplayProps> = ({
     </Fragment>
   );
 };
-
-export default React.memo(IframeDisplay);

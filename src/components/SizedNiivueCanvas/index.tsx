@@ -1,27 +1,13 @@
-import type { Niivue } from "@niivue/niivue";
-import {
-  NiivueCanvas,
-  type NiivueCanvasProps,
-} from "niivue-react/src/NiivueCanvas.tsx";
-import React, { useState } from "react";
+import { Niivue, NVImageFromUrlOptions, SLICE_TYPE } from "@niivue/niivue";
+import { useEffect, useRef, useState } from "react";
 import { getToken } from "../../api/api.ts";
 import { useAppSelector } from "../../store/hooks.ts";
+import {
+  type ColorMap,
+  type CrosshairLocation,
+  SliceType,
+} from "../Preview/displays/types.ts";
 import styles from "./index.module.css";
-
-/**
- * Type emitted by Niivue.onLocationChange
- *
- * https://github.com/niivue/niivue/issues/860
- */
-type CrosshairLocation = {
-  string: string;
-};
-
-type SizedNiivueCanvasProps = NiivueCanvasProps & {
-  size?: number;
-  isScaling?: boolean;
-  onLocationChange?: (location: CrosshairLocation) => void;
-};
 
 /**
  * A wrapper for `NiivueCanvas` which accepts extra props `size` and `isScaling`
@@ -47,19 +33,151 @@ type SizedNiivueCanvasProps = NiivueCanvasProps & {
  * The units of `size` are arbitrary, though it is roughly calibrated to
  * the font `pt` size where `size=10` is about the same size as text size.
  */
-const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
-  size,
-  isScaling,
-  options,
-  onStart,
-  onLocationChange,
-  volumes,
-  ...props
-}) => {
+
+const SLICE_TYPE_MAP = {
+  [SliceType.Axial]: SLICE_TYPE.AXIAL,
+  [SliceType.Coronal]: SLICE_TYPE.CORONAL,
+  [SliceType.Sagittal]: SLICE_TYPE.SAGITTAL,
+  [SliceType.Multiplanar]: SLICE_TYPE.MULTIPLANAR,
+};
+
+type Props = {
+  size?: number;
+  isScaling?: boolean;
+  onLocationChange?: (location: CrosshairLocation) => void;
+  urls?: string[];
+  colormap?: string;
+  calMin?: number;
+  calMax?: number;
+  colormapLabel?: ColorMap | null;
+
+  sliceType?: SliceType;
+
+  isRadiologistView?: boolean;
+
+  isHide?: boolean;
+};
+
+export default (props: Props) => {
+  const {
+    size,
+    isScaling,
+    onLocationChange,
+    urls,
+    colormap,
+    calMin,
+    calMax,
+    colormapLabel,
+    sliceType: propsSliceType,
+    isRadiologistView,
+    isHide,
+  } = props;
+  const sliceType = propsSliceType || SliceType.Multiplanar;
+
+  // react useRef, useState, useSelector
+  const glRef = useRef<HTMLCanvasElement>(null);
+  const [theNiivue, setTheNiivue] = useState<Niivue | null>(null);
+
   const [[canvasWidth, canvasHeight], setCanvasDimensions] = useState<
     [number, number]
   >([400, 400]);
 
+  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
+
+  // useEffect
+  // biome-ignore lint/correctness/useExhaustiveDependencies: no need for the onLocationChange
+  useEffect(() => {
+    if (isHide) {
+      return;
+    }
+    if (!glRef.current) {
+      return;
+    }
+    if (theNiivue) {
+      return;
+    }
+
+    const nv = new Niivue({
+      backColor: [0, 0, 0, 0],
+      isColorbar: true,
+      crosshairWidth: 1,
+      isRadiologicalConvention: isRadiologistView,
+      sliceType: SLICE_TYPE_MAP[sliceType],
+    });
+    nv.attachToCanvas(glRef.current);
+    if (onLocationChange) {
+      nv.onLocationChange = (location) => {
+        // console.info("SizedNiivueCanvas: location:", location);
+        // onLocationChange(location as CrosshairLocation);
+      };
+    }
+    setTheNiivue(nv);
+  }, [theNiivue, isHide]);
+
+  useEffect(() => {
+    if (!theNiivue) {
+      return;
+    }
+    theNiivue.setSliceType(SLICE_TYPE_MAP[sliceType]);
+  }, [theNiivue, sliceType]);
+
+  useEffect(() => {
+    if (isHide) {
+      return;
+    }
+    if (!theNiivue) {
+      return;
+    }
+
+    if (!urls?.length) {
+      return;
+    }
+
+    const volumes = urls.map((url) =>
+      NVImageFromUrlOptions(
+        url, // url
+        undefined, // urlImageData
+        undefined, // name
+        colormap, // colormap
+        undefined, // opacity
+        calMin, // cal_min
+        calMax, // cal_max
+        undefined, // trustCalMinMax
+        undefined, // percentileFrac
+        true, // ignoreZeroVoxels
+        undefined, // useQFormNotSForm
+        undefined, // colormapNegative
+        undefined, // frame4D
+        undefined, // imageType
+        undefined, // cal_minNeg
+        undefined, // cal_maxNeg
+        true, // colorbarVisible
+        undefined, // alphaThreshold
+        colormapLabel, // colormapLabel
+      ),
+    );
+
+    console.info("SizedNiivueCanvas: volumes:", volumes);
+
+    const token = getToken();
+    const authedVolumes = !isLoggedIn
+      ? volumes
+      : volumes.map((v) => {
+          return {
+            ...v,
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          };
+        });
+
+    (async () => {
+      await theNiivue.loadVolumes(authedVolumes);
+      console.info("after theNiivue.loadVolumes:", theNiivue.volumes.length);
+    })();
+  }, [theNiivue, urls, isLoggedIn, isHide]);
+
+  /*
   const fullOptions = React.useMemo(() => {
     // set textHeight.
     // Internal to niivue, the font size scales with the outer canvas size.
@@ -70,39 +188,11 @@ const SizedNiivueCanvas: React.FC<SizedNiivueCanvasProps> = ({
     const textHeight = multiplier * (size || 10);
     return options ? { ...options, textHeight } : { textHeight };
   }, [options, size, isScaling, canvasWidth, canvasHeight]);
-
-  const fullOnStart = (nv: Niivue) => {
-    if (onLocationChange) {
-      nv.onLocationChange = (location) =>
-        onLocationChange(location as CrosshairLocation);
-    }
-  };
-
-  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
-  const token = getToken();
-  const authedVolumes =
-    isLoggedIn && volumes !== undefined
-      ? volumes.map((v) => {
-          return {
-            ...v,
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          };
-        })
-      : volumes;
+  */
 
   return (
     <div className={styles.niivueContainer}>
-      <NiivueCanvas
-        {...props}
-        volumes={authedVolumes}
-        onStart={fullOnStart}
-        options={fullOptions}
-      />
+      <canvas ref={glRef} height={canvasWidth} width={canvasHeight} />
     </div>
   );
 };
-
-export type { CrosshairLocation };
-export default SizedNiivueCanvas;

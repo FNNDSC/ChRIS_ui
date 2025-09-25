@@ -2,18 +2,19 @@ import {
   FileBrowserFolder,
   FileBrowserFolderFile,
   type FileBrowserFolderLinkFile,
+  type PluginInstance,
 } from "@fnndsc/chrisapi";
 import {
   Breadcrumb,
   BreadcrumbItem,
   Button,
   Grid,
-  Tooltip,
   Skeleton,
   Spinner,
+  Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
-import { useEffect, useMemo, useRef } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
@@ -38,8 +39,8 @@ import {
 import Operations from "../NewLibrary/components/Operations";
 import { OperationContext } from "../NewLibrary/context";
 import FileDetailView from "../Preview/FileDetailView";
-import XtkViewer from "../XtkViewer/XtkViewer";
-import type { FileBrowserProps } from "./types";
+import styles from "./FileBrowser.module.css";
+import type { FilesPayload } from "./types";
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -54,14 +55,26 @@ const columnNames = {
   size: "Size",
 };
 
-const FileBrowser = (props: FileBrowserProps) => {
+type FileBrowserProps = {
+  pluginFilesPayload?: FilesPayload;
+  handleFileClick: (path: string) => void;
+  selected?: PluginInstance;
+  currentPath: string;
+  isLoading: boolean;
+  handlePagination: () => void;
+  fetchMore?: boolean;
+  observerTarget?: React.MutableRefObject<any>;
+  isHide?: boolean;
+};
+
+export default (props: FileBrowserProps) => {
   const dispatch = useAppDispatch();
   const feed = useAppSelector((state) => state.feed.currentFeed.data);
   const handleDownloadMutation = useDownload(feed);
   const [api, contextHolder] = notification.useNotification();
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
   const {
-    pluginFilesPayload,
+    pluginFilesPayload: pluginFilesPayloadProps,
     handleFileClick,
     selected,
     currentPath: additionalKey,
@@ -69,7 +82,9 @@ const FileBrowser = (props: FileBrowserProps) => {
     fetchMore,
     handlePagination,
     isLoading,
+    isHide,
   } = props;
+  const pluginFilesPayload = pluginFilesPayloadProps || {};
 
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
@@ -120,12 +135,12 @@ const FileBrowser = (props: FileBrowserProps) => {
     };
 
     const disabledIndex = breadcrumb.findIndex(
-      (path) => path === `${selected.data.plugin_name}_${selected.data.id}`,
+      (path) => path === `${selected?.data.plugin_name}_${selected?.data.id}`,
     );
 
     const shouldNotClick =
       (disabledIndex > 1 && index <= disabledIndex) ||
-      selected.data.plugin_type === "fs";
+      selected?.data.plugin_type === "fs";
 
     return (
       <BreadcrumbItem
@@ -157,8 +172,20 @@ const FileBrowser = (props: FileBrowserProps) => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const className = isHide ? `file-browser ${styles.hide}` : "file-browser";
+
+  const previewStyle: CSSProperties = {};
+  if (!drawerState.preview.open) {
+    previewStyle.display = "none";
+  }
+
+  const isHideFileDetailView =
+    isHide ||
+    drawerState.preview.currentlyActive !== "preview" ||
+    !selectedFile;
+
   return (
-    <Grid hasGutter className="file-browser">
+    <Grid hasGutter className={className}>
       {contextHolder}
       <PanelGroup autoSaveId="conditional" direction="horizontal">
         {drawerState.files.open && (
@@ -231,7 +258,7 @@ const FileBrowser = (props: FileBrowserProps) => {
                         </Tooltip>
 
                         {additionalKey !== currentPath &&
-                          selected.data.plugin_type === "fs" && (
+                          selected?.data.plugin_type === "fs" && (
                             <Tooltip content="Return to the plugin's root directory">
                               <Button
                                 onClick={() => handleFileClick(currentPath)}
@@ -429,32 +456,36 @@ const FileBrowser = (props: FileBrowserProps) => {
             <PanelResizeHandle className="ResizeHandle" />
           </>
         )}
-        {drawerState.preview.open && (
-          <Panel order={2} id="5" defaultSize={47} minSize={20}>
-            <DrawerActionButton
-              content="Preview"
-              handleMaximize={() => {
-                handleMaximize("preview", dispatch);
-              }}
-              handleMinimize={() => {
-                handleMinimize("preview", dispatch);
-              }}
-              maximized={drawerState.preview.maximized}
-            />
 
-            {drawerState.preview.currentlyActive === "preview" &&
-              selectedFile && (
-                <FileDetailView selectedFile={selectedFile} preview="large" />
-              )}
-            {drawerState.preview.currentlyActive === "xtk" && <XtkViewer />}
-          </Panel>
-        )}
+        {/* preview */}
+        <Panel
+          order={2}
+          id="5"
+          defaultSize={47}
+          minSize={20}
+          style={previewStyle}
+        >
+          <DrawerActionButton
+            content="Preview"
+            handleMaximize={() => {
+              handleMaximize("preview", dispatch);
+            }}
+            handleMinimize={() => {
+              handleMinimize("preview", dispatch);
+            }}
+            maximized={drawerState.preview.maximized}
+          />
+
+          <FileDetailView
+            selectedFile={selectedFile}
+            preview="large"
+            isHide={isHideFileDetailView}
+          />
+        </Panel>
       </PanelGroup>
     </Grid>
   );
 };
-
-export default FileBrowser;
 
 const renderSkeletonRows = () => (
   <>
