@@ -3,7 +3,6 @@ import type { ReadonlyNonEmptyArray } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import {
   init as _init,
   type ClassState,
-  createReducer,
   type Dispatch,
   getState,
   type State as rState,
@@ -1181,5 +1180,3 @@ const checkIsToPullRequestSeries = (
 const isPullStateNeedToPullRequest = (pullState: SeriesPullState) => {
   return pullState === SeriesPullState.READY;
 };
-
-export default createReducer<State>();

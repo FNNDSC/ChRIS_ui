@@ -10,9 +10,8 @@ import { useEffect, useState } from "react";
 import {
   genUUID,
   getState,
-  type ModuleToFunc,
-  StateType,
-  useReducer,
+  type ThunkModuleToFunc,
+  useThunk,
 } from "react-reducer-utils";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { sanitizeAPIRootURL } from "../../api/api.ts";
@@ -26,7 +25,7 @@ import styles from "./PacsApp.module.css";
 import PacsView from "./PacsView.tsx";
 import type { PacsState } from "./types.ts";
 
-type TDoPacs = ModuleToFunc<typeof DoPacs>;
+type TDoPacs = ThunkModuleToFunc<typeof DoPacs>;
 
 /**
  * ChRIS_ui "PACS Query and Retrieve" controller + view.
@@ -76,10 +75,7 @@ export default () => {
   // ========================================
   // CLIENTS AND MISC
   // ========================================
-  const [statePacs, doPacs] = useReducer<DoPacs.State, TDoPacs>(
-    DoPacs,
-    StateType.LOCAL,
-  );
+  const [statePacs, doPacs] = useThunk<DoPacs.State, TDoPacs>(DoPacs);
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const [pacsID, _] = useState(genUUID());
