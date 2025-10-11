@@ -1,6 +1,9 @@
+import type {
+  DispatchFuncMap,
+  ThunkModuleToFunc,
+} from "@chhsiao1981/use-thunk";
 import { Empty, Flex, Spin, Typography } from "antd";
 import type { CSSProperties } from "react";
-import type { DispatchFuncMap, ModuleToFunc } from "react-reducer-utils";
 import type { PACSqueryCore } from "../../api/pfdcm";
 import type * as DoPacs from "../../reducers/pacs";
 import PacsInput, {
@@ -11,7 +14,7 @@ import PacsStudiesView, {
 } from "./components/PacsStudiesView.tsx";
 import type { PacsState } from "./types.ts";
 
-type TDoPacs = ModuleToFunc<typeof DoPacs>;
+type TDoPacs = ThunkModuleToFunc<typeof DoPacs>;
 
 type Props = Pick<PacsInputProps, "services" | "onSubmit"> &
   Pick<PacsStudiesViewProps, "expandedStudyUids"> & {

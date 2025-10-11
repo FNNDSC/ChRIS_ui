@@ -1,5 +1,3 @@
-import config from "config";
-import type { ReadonlyNonEmptyArray } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import {
   init as _init,
   type ClassState,
@@ -8,7 +6,9 @@ import {
   type State as rState,
   setData,
   type Thunk,
-} from "react-reducer-utils";
+} from "@chhsiao1981/use-thunk";
+import config from "config";
+import type { ReadonlyNonEmptyArray } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import type { Location } from "react-router";
 import { STATUS_OK, STATUS_OK_CREATE } from "../api/constants";
 import type { SeriesKey } from "../api/lonk";
