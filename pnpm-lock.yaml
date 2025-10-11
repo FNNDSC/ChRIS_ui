@@ -11,6 +11,9 @@ importers:
       '@ant-design/icons':
         specifier: ^5.5.1
         version: 5.5.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@chhsiao1981/use-thunk':
+        specifier: ^9.0.0
+        version: 9.0.0
       '@cornerstonejs/core':
         specifier: ^1.86.0
         version: 1.86.1(@babel/preset-env@7.26.0(@babel/core@7.26.0))(autoprefixer@10.4.20(postcss@8.5.1))(webpack@5.97.1)(wslink@2.2.2)
@@ -149,9 +152,6 @@ importers:
       react-force-graph-2d:
         specifier: ^1.25.5
         version: 1.26.2(react@18.3.1)
-      react-reducer-utils:
-        specifier: ^8.0.0
-        version: 8.0.0
       react-redux:
         specifier: ^9.1.2
         version: 9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1)
@@ -880,6 +880,9 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@chhsiao1981/use-thunk@9.0.0':
+    resolution: {integrity: sha512-y4PYV7rA0rhzrF0+BqobeC+xQ0m56yYELFQ3xvfiijtdLKWZhZqbqZOFiYQ3zuquPwVORWv+9gpHXLvXwV/eWw==}
 
   '@cornerstonejs/codec-charls@1.2.3':
     resolution: {integrity: sha512-qKUe6DN0dnGzhhfZLYhH9UZacMcudjxcaLXCrpxJImT/M/PQvZCT2rllu6VGJbWKJWG+dMVV2zmmleZcdJ7/cA==}
@@ -3233,9 +3236,6 @@ packages:
       react: ^16.8.0 || ^17 || ^18
       react-dom: ^16.8.0 || ^17 || ^18
 
-  react-reducer-utils@8.0.0:
-    resolution: {integrity: sha512-5uu6noy4yo5NPY8hmEN7i8XiTAV6UHrR6LExMHy73Gfl15LHdt4WCvNjHVlhZSAzb+f38CN1OEPkKeIvFQiloA==}
-
   react-redux@9.2.0:
     resolution: {integrity: sha512-ROY9fvHhwOD9ySfrF0wmvu//bKCQ6AeZZq1nJNtbDC+kk5DuSuNX/n6YWYF/SYy7bSba4D4FSz8DJeKY/S/r+g==}
     peerDependencies:
@@ -4716,6 +4716,11 @@ snapshots:
 
   '@biomejs/cli-win32-x64@2.1.4':
     optional: true
+
+  '@chhsiao1981/use-thunk@9.0.0':
+    dependencies:
+      react: 18.3.1
+      uuid: 11.1.0
 
   '@cornerstonejs/codec-charls@1.2.3': {}
 
@@ -7273,11 +7278,6 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-fast-compare: 3.2.2
       warning: 4.0.3
-
-  react-reducer-utils@8.0.0:
-    dependencies:
-      react: 18.3.1
-      uuid: 11.1.0
 
   react-redux@9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1):
     dependencies:
