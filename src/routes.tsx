@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { ModuleToFunc } from "react-reducer-utils";
 import {
   matchPath,
   useLocation,
@@ -26,11 +25,8 @@ import {
 } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import type * as DoPacs from "./reducers/pacs";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setSidebarActive } from "./store/ui/uiSlice";
-
-type TDoPacs = ModuleToFunc<typeof DoPacs>;
 
 interface IState {
   selectData?: Series;
