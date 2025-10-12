@@ -7,6 +7,11 @@ import type { SLICE_TYPE } from "@niivue/niivue";
  */
 export type CrosshairLocation = {
   string: string;
+  axCorSag: SLICE_TYPE;
+  frac: Float32Array;
+  mm: Float32Array;
+  vox: Float32Array;
+  xy: [number, number];
 };
 
 export enum DisplayType {

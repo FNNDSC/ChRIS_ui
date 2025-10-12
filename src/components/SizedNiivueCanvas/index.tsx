@@ -46,9 +46,9 @@ type Props = {
   isScaling?: boolean;
   onLocationChange?: (location: CrosshairLocation) => void;
   urls?: string[];
-  colormap?: string;
-  calMin?: number;
-  calMax?: number;
+  colormap: string;
+  calMin: number;
+  calMax: number;
   colormapLabel?: ColorMap | null;
 
   sliceType?: SliceType;
@@ -78,14 +78,15 @@ export default (props: Props) => {
   const glRef = useRef<HTMLCanvasElement>(null);
   const [theNiivue, setTheNiivue] = useState<Niivue | null>(null);
 
-  const [[canvasWidth, canvasHeight], setCanvasDimensions] = useState<
-    [number, number]
-  >([400, 400]);
+  const [[canvasWidth, canvasHeight], setCanvasDimensions] = useState([
+    400, 400,
+  ]);
+
+  const [volumeUrl, setVolumeUrl] = useState("");
 
   const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
 
   // useEffect
-  // biome-ignore lint/correctness/useExhaustiveDependencies: no need for the onLocationChange
   useEffect(() => {
     if (isHide) {
       return;
@@ -103,16 +104,17 @@ export default (props: Props) => {
       crosshairWidth: 1,
       isRadiologicalConvention: isRadiologistView,
       sliceType: SLICE_TYPE_MAP[sliceType],
+      isNearestInterpolation: true,
     });
     nv.attachToCanvas(glRef.current);
-    if (onLocationChange) {
-      nv.onLocationChange = (location) => {
-        // console.info("SizedNiivueCanvas: location:", location);
-        // onLocationChange(location as CrosshairLocation);
-      };
-    }
+    nv.onLocationChange = (location) => {
+      console.info("SizedNiivueCanvas: location:", location);
+      if (onLocationChange) {
+        onLocationChange(location as CrosshairLocation);
+      }
+    };
     setTheNiivue(nv);
-  }, [theNiivue, isHide]);
+  }, [theNiivue, glRef.current, isHide]);
 
   useEffect(() => {
     if (!theNiivue) {
@@ -130,6 +132,46 @@ export default (props: Props) => {
   }, [theNiivue, isRadiologistView]);
 
   useEffect(() => {
+    if (!theNiivue) {
+      return;
+    }
+
+    console.info(
+      "SizedNiivueCanvas: updated colormap: volumes:",
+      theNiivue.volumes.length,
+    );
+    if (!theNiivue.volumes.length) {
+      return;
+    }
+
+    theNiivue.volumes[0].setColormap(colormap);
+    if (colormapLabel) {
+      theNiivue.volumes[0].setColormapLabel(colormapLabel);
+    }
+
+    theNiivue.volumes[0].cal_min = calMin;
+    theNiivue.volumes[0].cal_max = calMax;
+
+    console.info(
+      "SizedNiivueCanvas: to refreshLayers: colormap:",
+      colormap,
+      "calMax:",
+      calMax,
+      "volumes[0].cal_max:",
+      theNiivue.volumes[0].cal_max,
+      "calMin:",
+      calMin,
+      "volumes[0].cal_min:",
+      theNiivue.volumes[0].cal_min,
+      "volumes:",
+      theNiivue.volumes[0],
+    );
+
+    theNiivue.refreshLayers(theNiivue.volumes[0], 0);
+    theNiivue.refreshDrawing(true);
+  }, [theNiivue, calMin, calMax, colormap, colormapLabel]);
+
+  useEffect(() => {
     if (isHide) {
       return;
     }
@@ -138,6 +180,10 @@ export default (props: Props) => {
     }
 
     if (!urls?.length) {
+      return;
+    }
+
+    if (urls[0] === volumeUrl) {
       return;
     }
 
@@ -179,6 +225,7 @@ export default (props: Props) => {
           };
         });
 
+    setVolumeUrl(urls[0]);
     (async () => {
       await theNiivue.loadVolumes(authedVolumes);
       console.info("after theNiivue.loadVolumes:", theNiivue.volumes.length);
