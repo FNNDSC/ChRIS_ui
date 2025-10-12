@@ -53,7 +53,7 @@ type Props = {
 
   sliceType?: SliceType;
 
-  isRadiologistView?: boolean;
+  isRadiologistView: boolean;
 
   isHide?: boolean;
 };
@@ -120,6 +120,14 @@ export default (props: Props) => {
     }
     theNiivue.setSliceType(SLICE_TYPE_MAP[sliceType]);
   }, [theNiivue, sliceType]);
+
+  useEffect(() => {
+    if (!theNiivue) {
+      return;
+    }
+
+    theNiivue.setRadiologicalConvention(isRadiologistView);
+  }, [theNiivue, isRadiologistView]);
 
   useEffect(() => {
     if (isHide) {

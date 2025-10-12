@@ -1,4 +1,5 @@
 import { SLICE_TYPE } from "@niivue/niivue";
+import { Switch } from "@patternfly/react-core";
 import { InputNumber, Select } from "antd";
 import { type CSSProperties, useState } from "react";
 import type { IFileBlob } from "../../../api/model.ts";
@@ -88,6 +89,7 @@ export default (props: Props) => {
   const [calMax, setCalMax] = useState(4096);
   const [calMaxVal, setCalMaxVal] = useState("4096");
   const [isRadiologistView, setIsRadiologistView] = useState(true);
+  const viewStr = isRadiologistView ? "Radiologist" : "Neurologist";
 
   const urls = selectedFile ? [getFileResourceUrl(selectedFile)] : [];
 
@@ -154,6 +156,10 @@ export default (props: Props) => {
     setColorMap(value);
   };
 
+  const onChangeRadiologistView = () => {
+    setIsRadiologistView(!isRadiologistView);
+  };
+
   const displayStyle: CSSProperties = {};
   const errorStyle: CSSProperties = {};
   if (isHide) {
@@ -215,6 +221,11 @@ export default (props: Props) => {
             value={sliceTypeName}
             onChange={setSliceTypeName}
             style={selectStyle}
+          />
+          <Switch
+            label={viewStr}
+            isChecked={isRadiologistView}
+            onChange={onChangeRadiologistView}
           />
         </div>
         <SizedNiivueCanvas
