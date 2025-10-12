@@ -98,6 +98,8 @@ export default (props: Props) => {
       return;
     }
 
+    // https://github.com/niivue/niivue/blob/main/packages/niivue/src/nvdocument.ts#L115
+    // type NVConfigOptions
     const nv = new Niivue({
       backColor: [0, 0, 0, 0],
       isColorbar: true,
@@ -187,6 +189,7 @@ export default (props: Props) => {
       return;
     }
 
+    // XXX TODO: multiple volumes (labelling)
     const volumes = urls.map((url) =>
       NVImageFromUrlOptions(
         url, // url
