@@ -95,7 +95,7 @@ export default (props: Props) => {
   const [calMax, setCalMax] = useState(4096);
   const [calMaxVal, setCalMaxVal] = useState("4096");
   const [isRadiologistView, setIsRadiologistView] = useState(true);
-  const viewStr = isRadiologistView ? "Radiologist" : "Neurologist";
+  const radiologistViewStr = isRadiologistView ? "Radiologist" : "Neurologist";
 
   const urls = selectedFile ? [getFileResourceUrl(selectedFile)] : [];
 
@@ -228,11 +228,12 @@ export default (props: Props) => {
             style={selectStyle}
           />
           <Switch
-            label={viewStr}
+            className={styles.radiologist}
+            label={radiologistViewStr}
             isChecked={isRadiologistView}
             onChange={onChangeRadiologistView}
           />
-          <span> {crosshairText} </span>
+          <span className={styles.crosshair}> {crosshairText} </span>
         </div>
         <SizedNiivueCanvas
           size={8}
