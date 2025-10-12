@@ -206,7 +206,6 @@ export default (props: Props) => {
             onChange={safeSetColorMap}
             style={selectStyle}
           />
-          <span>{crosshairText}</span>
           <InputNumber
             style={inputStyle}
             placeholder={`minimum value`}
@@ -233,6 +232,7 @@ export default (props: Props) => {
             isChecked={isRadiologistView}
             onChange={onChangeRadiologistView}
           />
+          <span> {crosshairText} </span>
         </div>
         <SizedNiivueCanvas
           size={8}
@@ -241,9 +241,10 @@ export default (props: Props) => {
           colormapLabel={colormapLabel}
           calMax={calMax}
           calMin={calMin}
-          onLocationChange={(c: CrosshairLocation) =>
-            setCrosshairText(c.string)
-          }
+          onLocationChange={(c: CrosshairLocation) => {
+            console.info("NiiVueDisplay: onLocationChange: c:", c);
+            setCrosshairText(c.string);
+          }}
           sliceType={sliceTypeName}
           isRadiologistView={isRadiologistView}
           isHide={isHide}
