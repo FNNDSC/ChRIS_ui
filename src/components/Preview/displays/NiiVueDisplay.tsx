@@ -39,7 +39,8 @@ const COLOR_MAP_LIST = [
 
 const DISPLAY_TYPE_LIST = [
   DisplayType.IMG4096,
-  DisplayType.ZMap,
+  DisplayType.ZMap5,
+  DisplayType.ZMap10,
   DisplayType.Label,
   DisplayType.IMG256,
   DisplayType.IMG65536,
@@ -51,10 +52,15 @@ const DISPLAY_TYPE_MAP: DisplayTypeMap = {
     calMin: 0,
     calMax: 4096,
   },
-  [DisplayType.ZMap]: {
+  [DisplayType.ZMap5]: {
     colorMap: DisplayColorMap.NIH,
-    calMin: -4,
-    calMax: 4,
+    calMin: -5,
+    calMax: 5,
+  },
+  [DisplayType.ZMap10]: {
+    colorMap: DisplayColorMap.NIH,
+    calMin: -10,
+    calMax: 10,
   },
   [DisplayType.Label]: {
     colorMap: DisplayColorMap.Freesurfer,
