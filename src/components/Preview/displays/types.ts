@@ -11,7 +11,8 @@ export type CrosshairLocation = {
 
 export enum DisplayType {
   IMG4096 = "img-4096",
-  ZMap = "zmap",
+  ZMap5 = "zmap-5",
+  ZMap10 = "zmap-10",
   Label = "label",
   IMG256 = "img-256",
   IMG65536 = "img-65536",
