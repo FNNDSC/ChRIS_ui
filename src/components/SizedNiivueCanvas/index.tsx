@@ -2,9 +2,28 @@ import { Niivue, NVImageFromUrlOptions, SLICE_TYPE } from "@niivue/niivue";
 import { useEffect, useRef, useState } from "react";
 import { getToken } from "../../api/api.ts";
 import { useAppSelector } from "../../store/hooks.ts";
+import FreeSurferColorLUT from "../Preview/displays/FreesurferColorLUT.v7.4.1.json";
+import BlackBody from "../Preview/displays/mipav/black_body.json";
+import Cardiac from "../Preview/displays/mipav/cardiac.json";
+import Flow from "../Preview/displays/mipav/flow.json";
+import GEColor from "../Preview/displays/mipav/ge_color.json";
+import GrayRainbow from "../Preview/displays/mipav/gray_rainbow.json";
+import HotGreen from "../Preview/displays/mipav/hot_green.json";
+import HotIron from "../Preview/displays/mipav/hot_iron.json";
+import HotMetal from "../Preview/displays/mipav/hot_metal.json";
+import Hue1 from "../Preview/displays/mipav/hue1.json";
+import Hue2 from "../Preview/displays/mipav/hue2.json";
+import IRed from "../Preview/displays/mipav/ired.json";
+import NIHMIPAV from "../Preview/displays/mipav/nih.json";
+import Rainbow from "../Preview/displays/mipav/rainbow.json";
+import Rainbow2 from "../Preview/displays/mipav/rainbow2.json";
+import Rainbow3 from "../Preview/displays/mipav/rainbow3.json";
+import Ratio from "../Preview/displays/mipav/ratio.json";
+
 import {
   type ColorMap,
   type CrosshairLocation,
+  DisplayColorMap,
   SliceType,
 } from "../Preview/displays/types.ts";
 import styles from "./index.module.css";
@@ -41,6 +60,26 @@ const SLICE_TYPE_MAP = {
   [SliceType.Multiplanar]: SLICE_TYPE.MULTIPLANAR,
 };
 
+const _COLOR_MAP: { [key: string]: ColorMap } = {
+  [DisplayColorMap.Freesurfer]: FreeSurferColorLUT,
+  [DisplayColorMap.BlackBody]: BlackBody,
+  [DisplayColorMap.Cardiac]: Cardiac,
+  [DisplayColorMap.Flow]: Flow,
+  [DisplayColorMap.GEColor]: GEColor,
+  [DisplayColorMap.GrayRainbow]: GrayRainbow,
+  [DisplayColorMap.HotGreen]: HotGreen,
+  [DisplayColorMap.HotIron]: HotIron,
+  [DisplayColorMap.HotMetal]: HotMetal,
+  [DisplayColorMap.Hue1]: Hue1,
+  [DisplayColorMap.Hue2]: Hue2,
+  [DisplayColorMap.IRed]: IRed,
+  [DisplayColorMap.NIH2]: NIHMIPAV,
+  [DisplayColorMap.Rainbow]: Rainbow,
+  [DisplayColorMap.Rainbow2]: Rainbow2,
+  [DisplayColorMap.Rainbow3]: Rainbow3,
+  [DisplayColorMap.Ratio]: Ratio,
+};
+
 type Props = {
   size?: number;
   isScaling?: boolean;
@@ -49,7 +88,6 @@ type Props = {
   colormap: string;
   calMin: number;
   calMax: number;
-  colormapLabel?: ColorMap | null;
 
   sliceType?: SliceType;
 
@@ -67,7 +105,6 @@ export default (props: Props) => {
     colormap,
     calMin,
     calMax,
-    colormapLabel,
     sliceType: propsSliceType,
     isRadiologistView,
     isHide,
@@ -115,6 +152,9 @@ export default (props: Props) => {
         onLocationChange(location as CrosshairLocation);
       }
     };
+    for (const key in _COLOR_MAP) {
+      nv.addColormap(key, _COLOR_MAP[key]);
+    }
     setTheNiivue(nv);
   }, [theNiivue, glRef.current, isHide]);
 
@@ -147,10 +187,6 @@ export default (props: Props) => {
     }
 
     theNiivue.volumes[0].setColormap(colormap);
-    if (colormapLabel) {
-      theNiivue.volumes[0].setColormapLabel(colormapLabel);
-    }
-
     theNiivue.volumes[0].cal_min = calMin;
     theNiivue.volumes[0].cal_max = calMax;
 
@@ -171,7 +207,7 @@ export default (props: Props) => {
 
     theNiivue.refreshLayers(theNiivue.volumes[0], 0);
     theNiivue.refreshDrawing(true);
-  }, [theNiivue, calMin, calMax, colormap, colormapLabel]);
+  }, [theNiivue, calMin, calMax, colormap]);
 
   useEffect(() => {
     if (isHide) {
@@ -210,7 +246,6 @@ export default (props: Props) => {
         undefined, // cal_maxNeg
         true, // colorbarVisible
         undefined, // alphaThreshold
-        colormapLabel, // colormapLabel
       ),
     );
 

@@ -7,3 +7,9 @@
 [submodule "third-party/fs2NiiVueColormaps"]
 	path = third-party/fs2NiiVueColormaps
 	url = git@github.com:niivue/fs2NiiVueColormaps.git
+[submodule "third-party/mipav"]
+	path = third-party/mipav
+	url = git@github.com:JaneliaSciComp/mipav.git
+[submodule "third-party/mipav-to-niivue"]
+	path = third-party/mipav-to-niivue
+	url = git@github.com:chhsiao1981/mipav-to-niivue.git

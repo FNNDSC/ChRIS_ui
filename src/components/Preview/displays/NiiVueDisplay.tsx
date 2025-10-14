@@ -1,11 +1,9 @@
-import { SLICE_TYPE } from "@niivue/niivue";
 import { Switch } from "@patternfly/react-core";
 import { InputNumber, Select } from "antd";
 import { type CSSProperties, useState } from "react";
 import type { IFileBlob } from "../../../api/model.ts";
 import SizedNiivueCanvas from "../../SizedNiivueCanvas";
 import { getFileResourceUrl } from "./dicomUtils/utils.ts";
-import FreeSurferColorLUT from "./FreesurferColorLUT.v7.4.1.json";
 import styles from "./NiiVueDisplay.module.css";
 import {
   type CrosshairLocation,
@@ -14,13 +12,6 @@ import {
   type DisplayTypeMap,
   SliceType,
 } from "./types.ts";
-
-const SLICE_TYPE_MAP = {
-  [SliceType.Axial]: SLICE_TYPE.AXIAL,
-  [SliceType.Coronal]: SLICE_TYPE.CORONAL,
-  [SliceType.Sagittal]: SLICE_TYPE.SAGITTAL,
-  [SliceType.Multiplanar]: SLICE_TYPE.MULTIPLANAR,
-};
 
 const SLICE_TYPE_LIST = [
   SliceType.Multiplanar,
@@ -32,15 +23,36 @@ const SLICE_TYPE_LIST = [
 const COLOR_MAP_LIST = [
   DisplayColorMap.Gray,
   DisplayColorMap.NIH,
+  DisplayColorMap.NIH2,
   DisplayColorMap.Plasma,
   DisplayColorMap.Viridis,
   DisplayColorMap.Freesurfer,
+  DisplayColorMap.BlackBody,
+  DisplayColorMap.Cardiac,
+  DisplayColorMap.Flow,
+  DisplayColorMap.GEColor,
+  DisplayColorMap.GrayRainbow,
+  DisplayColorMap.HotGreen,
+  DisplayColorMap.HotIron,
+  DisplayColorMap.HotMetal,
+  DisplayColorMap.Hue1,
+  DisplayColorMap.Hue2,
+  DisplayColorMap.IRed,
+  DisplayColorMap.Rainbow,
+  DisplayColorMap.Rainbow2,
+  DisplayColorMap.Rainbow3,
+  DisplayColorMap.Ratio,
+  DisplayColorMap.Spectrum,
+  DisplayColorMap.Stern,
+  DisplayColorMap.UCLA,
+  DisplayColorMap.VRBones,
+  DisplayColorMap.VRMusclesBones,
+  DisplayColorMap.VRRedVessels,
 ];
 
 const DISPLAY_TYPE_LIST = [
   DisplayType.IMG4096,
-  DisplayType.ZMap5,
-  DisplayType.ZMap10,
+  DisplayType.ZMap,
   DisplayType.Label,
   DisplayType.IMG256,
   DisplayType.IMG65536,
@@ -52,15 +64,10 @@ const DISPLAY_TYPE_MAP: DisplayTypeMap = {
     calMin: 0,
     calMax: 4096,
   },
-  [DisplayType.ZMap5]: {
-    colorMap: DisplayColorMap.NIH,
+  [DisplayType.ZMap]: {
+    colorMap: DisplayColorMap.Rainbow2,
     calMin: -5,
     calMax: 5,
-  },
-  [DisplayType.ZMap10]: {
-    colorMap: DisplayColorMap.NIH,
-    calMin: -10,
-    calMax: 10,
   },
   [DisplayType.Label]: {
     colorMap: DisplayColorMap.Freesurfer,
@@ -99,10 +106,7 @@ export default (props: Props) => {
 
   const urls = selectedFile ? [getFileResourceUrl(selectedFile)] : [];
 
-  const colormapLabel =
-    colorMap === DisplayColorMap.Freesurfer ? FreeSurferColorLUT : null;
-  const theColorMap =
-    colorMap === DisplayColorMap.Freesurfer ? "gray" : colorMap;
+  const theColorMap = colorMap;
 
   const selectStyle = { width: "9em" };
 
@@ -239,7 +243,6 @@ export default (props: Props) => {
           size={8}
           urls={urls}
           colormap={theColorMap}
-          colormapLabel={colormapLabel}
           calMax={calMax}
           calMin={calMin}
           onLocationChange={(c: CrosshairLocation) => {
