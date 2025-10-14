@@ -37,7 +37,8 @@
     "__helper_functions": "",
     "get-running-url": "./testing/get_running_url.sh",
     "print-version": "node printVersion.js",
-    "fs2niivue": "if [ -d third-party/fs2NiiVueColormaps ]; then cd third-party/fs2NiiVueColormaps; python3 fs2niivue.py; cp FreesurferColorLUT.v7.4.1.json ../../src/components/Preview/displays; rm *.json; cd ../..; else echo '[WARN] need to git submodule fs2NiiVueColormaps first'; fi"
+    "fs2niivue": "if [ -d third-party/fs2NiiVueColormaps ]; then cd third-party/fs2NiiVueColormaps; python3 fs2niivue.py; cp FreesurferColorLUT.v7.4.1.json ../../src/components/Preview/displays; rm *.json; cd ../..; else echo '[WARN] need to git submodule fs2NiiVueColormaps first'; fi",
+    "mipav2niivue": "mipav-to-niivue -d third-party/mipav -o src/components/Preview/displays/mipav"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",

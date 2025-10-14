@@ -16,8 +16,7 @@ export type CrosshairLocation = {
 
 export enum DisplayType {
   IMG4096 = "img-4096",
-  ZMap5 = "zmap-5",
-  ZMap10 = "zmap-10",
+  ZMap = "zmap",
   Label = "label",
   IMG256 = "img-256",
   IMG65536 = "img-65536",
@@ -31,6 +30,28 @@ export enum DisplayColorMap {
   Viridis = "viridis",
   NIH = "nih",
   Freesurfer = "freesurfer",
+  BlackBody = "black-body",
+  Cardiac = "cardiac",
+  Flow = "flow",
+  GEColor = "ge-color",
+  GrayRainbow = "gray-rainbow",
+  HotGreen = "hot-green",
+  HotIron = "hot-iron",
+  HotMetal = "hot-metal",
+  Hue1 = "hue1",
+  Hue2 = "hue2",
+  IRed = "ired",
+  NIH2 = "nih2",
+  Rainbow = "rainbow",
+  Rainbow2 = "rainbow2",
+  Rainbow3 = "rainbow3",
+  Ratio = "ratio",
+  Spectrum = "spectrum",
+  Stern = "stern",
+  UCLA = "ucla",
+  VRBones = "vr-bones",
+  VRMusclesBones = "vr-muscles/bones",
+  VRRedVessels = "vr-red-vessels",
 }
 
 export type DisplayTypeMap = {
