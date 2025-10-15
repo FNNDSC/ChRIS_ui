@@ -1,6 +1,6 @@
 import { enableMapSet } from "immer";
-import React from "react";
-import ReactDOM from "react-dom/client";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import { ThemeContextProvider } from "./components/DarkTheme/useTheme.tsx";
 import { setupStore } from "./store/configureStore.ts";
@@ -11,11 +11,11 @@ import "./main.css";
 
 enableMapSet();
 const store = setupStore();
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+const root = createRoot(document.getElementById("root")!);
+root.render(
+  <StrictMode>
     <ThemeContextProvider>
       <App store={store} />
     </ThemeContextProvider>
-  </React.StrictMode>,
+  </StrictMode>,
 );
