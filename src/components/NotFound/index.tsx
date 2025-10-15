@@ -1,7 +1,7 @@
 import { Alert } from "@patternfly/react-core";
 import WrapperConnect from "../Wrapper";
 
-const NotFound = () => {
+export default () => {
   return (
     <WrapperConnect>
       <Alert
@@ -17,5 +17,3 @@ const NotFound = () => {
     </WrapperConnect>
   );
 };
-
-export default NotFound;

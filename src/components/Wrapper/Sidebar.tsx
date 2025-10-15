@@ -4,19 +4,17 @@ import {
   NavExpandable,
   NavGroup,
   NavItem,
-  NavItemSeparator,
   NavList,
   PageSidebar,
   PageSidebarBody,
 } from "@patternfly/react-core";
 import { type DefaultError, useQueryClient } from "@tanstack/react-query";
-import { style } from "d3-selection";
 import { isEmpty } from "lodash";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import brandImg from "../../assets/logo_chris_dashboard.png";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { type IUiState, setSidebarActive } from "../../store/ui/uiSlice";
+import { useAppSelector } from "../../store/hooks";
+import type { IUiState } from "../../store/ui/uiSlice";
 import { type IUserState, Role } from "../../store/user/userSlice";
 import { AddModal } from "../NewLibrary/components/Operations";
 import UploadData from "../NewLibrary/components/operations/UploadData";
@@ -30,17 +28,18 @@ type TagInfo = {
   title?: string;
 };
 
-const Sidebar = (props: Props) => {
+export default (props: Props) => {
   const queryClient = useQueryClient();
-  const { sidebarActiveItem, isNavOpen, isTagExpanded, isPackageTagExpanded } =
-    useAppSelector((state) => state.ui);
-  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+  const {
+    sidebarActiveItem,
+    isNavOpen,
+    isTagExpanded,
+    isPackageTagExpanded,
+    onTagToggle,
+    onPackageTagToggle,
+  } = props;
+
   const role = useAppSelector((state) => state.user.role);
-  const dispatch = useAppDispatch();
-
-  const { onTagToggle, onPackageTagToggle } = props;
-
-  const urlParam = isLoggedIn ? "private" : "public";
 
   const onSelect = (
     _event: React.FormEvent<HTMLInputElement>,
@@ -49,9 +48,8 @@ const Sidebar = (props: Props) => {
     const { itemId } = selectedItem;
     // Invalidate feeds if "analyses" is selected
     if (itemId === "analyses") {
-      const queryKey = isLoggedIn ? "feeds" : "publicFeeds";
       queryClient.refetchQueries({
-        queryKey: [queryKey], // This assumes your query key for feeds is ["feeds"]
+        queryKey: ["feeds"], // This assumes your query key for feeds is ["feeds"]
       });
     }
   };
@@ -156,210 +154,155 @@ const Sidebar = (props: Props) => {
   const classNameComposePackage =
     role === Role.Clinician ? styles.hide : undefined;
 
-  const PageNav = (
-    <>
-      <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
-        <NavList>
-          <NavItem
-            key="overview"
-            itemId="overview"
-            isActive={sidebarActiveItem === "overview"}
-          >
-            {renderLink("/", "Overview", "overview")}
-          </NavItem>
-          <NavGroup key="theData" title="Data">
-            <NavItem
-              key="data"
-              itemId="data"
-              isActive={sidebarActiveItem === "data"}
-            >
-              {renderLink("/data", "My Data", "data")}
-            </NavItem>
-            <NavItem
-              key="shared"
-              itemId="shared"
-              isActive={sidebarActiveItem === "shared"}
-            >
-              {renderLink("/shared", "Shared Data", "shared")}
-            </NavItem>
-
-            <NavItem
-              key="lib"
-              itemId="lib"
-              isActive={sidebarActiveItem === "lib"}
-            >
-              {renderLink("/library", "Library", "lib")}
-            </NavItem>
-
-            <NavExpandable
-              key="tags"
-              title="Tags"
-              buttonProps={{ className: styles["tags-expand"] }}
-              isExpanded={true}
-            >
-              {renderTags()}
-            </NavExpandable>
-
-            <NavItem
-              key="uploadData"
-              itemId="uploadData"
-              isActive={sidebarActiveItem === "uploadData"}
-            >
-              <UploadData
-                handleOperations={handleOperations}
-                isSidebar={true}
-                buttonColor={uploadDataColor}
-              />
-            </NavItem>
-            {/*
-            <NavItem
-              itemId="analyses"
-              isActive={sidebarActiveItem === "analyses"}
-            >
-              <CreateFeedProvider>
-                <PipelineProvider>
-                  <AddNodeProvider>
-                    <CreateFeed />
-                  </AddNodeProvider>
-                </PipelineProvider>
-              </CreateFeedProvider>
-            </NavItem>
-            */}
-            <NavItem
-              key="pacs"
-              itemId="pacs"
-              isActive={sidebarActiveItem === "pacs"}
-            >
-              {renderLink("/pacs", "Query and Retrieve PACS", "pacs")}
-            </NavItem>
-          </NavGroup>
-          <NavGroup key="packages" title="Packages">
-            <NavItem
-              key="package"
-              itemId="package"
-              isActive={sidebarActiveItem === "package"}
-            >
-              {renderLink("/package", "Browse Packages", "catalog")}
-            </NavItem>
-
-            <NavExpandable
-              key="packageTags"
-              title="Tags"
-              buttonProps={{ className: styles["tags-expand"] }}
-              isExpanded={true}
-            >
-              {renderPackageTags()}
-            </NavExpandable>
-
-            {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
-              <NavItem
-                key="store"
-                itemId="store"
-                isActive={sidebarActiveItem === "store"}
-                className={classNameImportPackage}
-              >
-                {renderLink("/import", "Import Package", "store")}
-              </NavItem>
-            )}
-            <NavItem
-              key="compose"
-              itemId="compose"
-              isActive={sidebarActiveItem === "compose"}
-              className={classNameComposePackage}
-            >
-              {renderLink("/compose", "Compose Package", "compose")}
-            </NavItem>
-          </NavGroup>
-        </NavList>
-      </Nav>
-
-      <AddModal
-        modalState={modalState}
-        onClose={() => {
-          handleModalSubmitMutation.reset();
-          setModalState({ isOpen: false, type: "" });
-        }}
-        onSubmit={(inputValue, additionalValues) =>
-          handleModalSubmitMutation.mutate({ inputValue, additionalValues })
-        }
-        indicators={{
-          isPending: handleModalSubmitMutation.isPending,
-          isError: handleModalSubmitMutation.isError,
-          error: handleModalSubmitMutation.error as DefaultError,
-          clearErrors: () => handleModalSubmitMutation.reset(),
-        }}
-      />
-
-      <input
-        ref={fileInputRef}
-        multiple
-        type="file"
-        hidden
-        onChange={(e) => {
-          createFeedWithFile(e, "file");
-        }}
-      />
-      <input
-        ref={folderInputRef}
-        type="file"
-        hidden
-        //@ts-ignore
-        webkitdirectory=""
-        directory=""
-        onChange={(e) => {
-          createFeedWithFile(e, "folder");
-        }}
-      />
-    </>
-  );
-
   return (
     <PageSidebar isSidebarOpen={isNavOpen}>
       <PageSidebarBody>
-        <div
-          style={{ display: "flex", flexDirection: "column", height: "100%" }}
-        >
-          <div style={{ flexGrow: 1 }}>{PageNav}</div>
-          <Brand src={brandImg} alt="ChRIS Logo" />
-        </div>
-      </PageSidebarBody>
-    </PageSidebar>
-  );
-};
+        <div className={styles["page-sidebar"]}>
+          <div className={styles.nav}>
+            {" "}
+            <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
+              <NavList>
+                <NavItem
+                  key="overview"
+                  itemId="overview"
+                  isActive={sidebarActiveItem === "overview"}
+                >
+                  {renderLink("/", "Overview", "overview")}
+                </NavItem>
+                <NavGroup key="theData" title="Data">
+                  <NavItem
+                    key="data"
+                    itemId="data"
+                    isActive={sidebarActiveItem === "data"}
+                  >
+                    {renderLink("/data", "My Data", "data")}
+                  </NavItem>
+                  <NavItem
+                    key="shared"
+                    itemId="shared"
+                    isActive={sidebarActiveItem === "shared"}
+                  >
+                    {renderLink("/shared", "Shared Data", "shared")}
+                  </NavItem>
 
-export default Sidebar;
+                  <NavItem
+                    key="lib"
+                    itemId="lib"
+                    isActive={sidebarActiveItem === "lib"}
+                  >
+                    {renderLink("/library", "Library", "lib")}
+                  </NavItem>
 
-const AnonSidebarImpl: React.FC<Props> = ({ isNavOpen, sidebarActiveItem }) => {
-  const PageNav = (
-    <Nav>
-      <NavList>
-        <NavGroup title="Discover ChRIS">
-          <NavItem
-            itemId="overview"
-            isActive={sidebarActiveItem === "overview"}
-          >
-            <Link to="/">Overview</Link>
-          </NavItem>
-          <NavItem itemId="shared" isActive={sidebarActiveItem === "shared"}>
-            <Link to="/shared">Shared Data</Link>
-          </NavItem>
+                  <NavExpandable
+                    key="tags"
+                    title="Tags"
+                    buttonProps={{ className: styles["tags-expand"] }}
+                    isExpanded={true}
+                  >
+                    {renderTags()}
+                  </NavExpandable>
 
-          <NavItem itemId="package" isActive={sidebarActiveItem === "package"}>
-            <Link to="/package">Browse Packages</Link>
-          </NavItem>
-        </NavGroup>
-      </NavList>
-    </Nav>
-  );
+                  <NavItem
+                    key="uploadData"
+                    itemId="uploadData"
+                    isActive={sidebarActiveItem === "uploadData"}
+                  >
+                    <UploadData
+                      handleOperations={handleOperations}
+                      isSidebar={true}
+                      buttonColor={uploadDataColor}
+                    />
+                  </NavItem>
 
-  return (
-    <PageSidebar isSidebarOpen={isNavOpen}>
-      <PageSidebarBody>
-        <div
-          style={{ display: "flex", flexDirection: "column", height: "100%" }}
-        >
-          <div style={{ flexGrow: 1 }}>{PageNav}</div>
-          <div style={{ padding: "16px" }}>
+                  <NavItem
+                    key="pacs"
+                    itemId="pacs"
+                    isActive={sidebarActiveItem === "pacs"}
+                  >
+                    {renderLink("/pacs", "Query and Retrieve PACS", "pacs")}
+                  </NavItem>
+                </NavGroup>
+                <NavGroup key="packages" title="Packages">
+                  <NavItem
+                    key="package"
+                    itemId="package"
+                    isActive={sidebarActiveItem === "package"}
+                  >
+                    {renderLink("/package", "Browse Packages", "catalog")}
+                  </NavItem>
+
+                  <NavExpandable
+                    key="packageTags"
+                    title="Tags"
+                    buttonProps={{ className: styles["tags-expand"] }}
+                    isExpanded={true}
+                  >
+                    {renderPackageTags()}
+                  </NavExpandable>
+
+                  {!isEmpty(import.meta.env.VITE_CHRIS_STORE_URL) && (
+                    <NavItem
+                      key="store"
+                      itemId="store"
+                      isActive={sidebarActiveItem === "store"}
+                      className={classNameImportPackage}
+                    >
+                      {renderLink("/import", "Import Package", "store")}
+                    </NavItem>
+                  )}
+                  <NavItem
+                    key="compose"
+                    itemId="compose"
+                    isActive={sidebarActiveItem === "compose"}
+                    className={classNameComposePackage}
+                  >
+                    {renderLink("/compose", "Compose Package", "compose")}
+                  </NavItem>
+                </NavGroup>
+              </NavList>
+            </Nav>
+            <AddModal
+              modalState={modalState}
+              onClose={() => {
+                handleModalSubmitMutation.reset();
+                setModalState({ isOpen: false, type: "" });
+              }}
+              onSubmit={(inputValue, additionalValues) =>
+                handleModalSubmitMutation.mutate({
+                  inputValue,
+                  additionalValues,
+                })
+              }
+              indicators={{
+                isPending: handleModalSubmitMutation.isPending,
+                isError: handleModalSubmitMutation.isError,
+                error: handleModalSubmitMutation.error as DefaultError,
+                clearErrors: () => handleModalSubmitMutation.reset(),
+              }}
+            />
+            <input
+              ref={fileInputRef}
+              multiple
+              type="file"
+              hidden
+              onChange={(e) => {
+                createFeedWithFile(e, "file");
+              }}
+            />
+            <input
+              ref={folderInputRef}
+              type="file"
+              hidden
+              //@ts-ignore
+              webkitdirectory=""
+              directory=""
+              onChange={(e) => {
+                createFeedWithFile(e, "folder");
+              }}
+            />
+          </div>
+
+          <div className={styles.brand}>
             <Brand src={brandImg} alt="ChRIS Logo" />
           </div>
         </div>
@@ -367,5 +310,3 @@ const AnonSidebarImpl: React.FC<Props> = ({ isNavOpen, sidebarActiveItem }) => {
     </PageSidebar>
   );
 };
-
-export { AnonSidebarImpl as AnonSidebar };
