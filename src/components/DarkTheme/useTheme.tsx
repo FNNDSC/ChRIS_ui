@@ -1,5 +1,10 @@
-import type React from "react";
-import { createContext, useContext, useReducer, useEffect } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useReducer,
+} from "react";
 
 interface ThemeContextType {
   isDarkTheme: boolean;
@@ -35,7 +40,11 @@ const themeReducer = (
   }
 };
 
-const ThemeContextProvider = ({ children }: { children: React.ReactNode }) => {
+type ThemeContextProviderProps = {
+  children: ReactNode;
+};
+const ThemeContextProvider = (props: ThemeContextProviderProps) => {
+  const { children } = props;
   const [themeState, dispatch] = useReducer(themeReducer, {
     isDarkTheme: localStorage.getItem(THEME_STORAGE_KEY) !== "light",
   });
