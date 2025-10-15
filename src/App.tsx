@@ -15,9 +15,9 @@ import Cart from "./components/NewLibrary/components/Cart";
 import Routes from "./routes";
 import type { RootState } from "./store/root/applicationState";
 
-interface AllProps {
+type Props = {
   store: EnhancedStore<RootState>;
-}
+};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,26 +30,29 @@ const queryClient = new QueryClient({
   },
 });
 
-function App(props: AllProps) {
+export default (props: Props) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const { store } = props;
 
-  const ackeeEnvironment = {
+  /////
+  // ackee
+  /////
+  const ackeeEnv = {
     server: import.meta.env.VITE_ACKEE_SERVER,
     domainId: import.meta.env.VITE_ACKEE_DOMAIN_ID,
   };
 
-  if (
-    ackeeEnvironment.server &&
-    ackeeEnvironment.server.length > 0 &&
-    ackeeEnvironment.domainId
-  ) {
-    useAckee("/", ackeeEnvironment, {
+  if (ackeeEnv.server && ackeeEnv.server.length > 0 && ackeeEnv.domainId) {
+    // biome-ignore lint/correctness/useHookAtTopLevel: useAckee depends on env, which is immutable.
+    useAckee("/", ackeeEnv, {
       detailed: true,
       ignoreLocalhost: true,
       ignoreOwnVisits: true,
     });
   }
+
+  // to render
+  const themeAlg = isDarkTheme ? theme.darkAlgorithm : theme.defaultAlgorithm;
 
   return (
     <>
@@ -59,9 +62,7 @@ function App(props: AllProps) {
             <QueryClientProvider client={queryClient}>
               <ConfigProvider
                 theme={{
-                  algorithm: isDarkTheme
-                    ? theme.darkAlgorithm
-                    : theme.defaultAlgorithm,
+                  algorithm: themeAlg,
                   token: {
                     // var(--pf-v5-global--primary-color--200)
                     colorSuccess: "#004080",
@@ -87,6 +88,4 @@ function App(props: AllProps) {
       </Provider>
     </>
   );
-}
-
-export default App;
+};
