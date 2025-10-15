@@ -22,10 +22,10 @@ import { Drawer, List, Popconfirm, Space } from "../../Antd";
 import { DotsIndicator, EmptyStateComponent } from "../../Common";
 import { CheckCircleIcon, CloseIcon, FileIcon, FolderIcon } from "../../Icons";
 import {
-  ShowInFolder,
-  TitleNameClipped,
   elipses,
   formatBytesWithPadding,
+  ShowInFolder,
+  TitleNameClipped,
 } from "../utils/longpress";
 import "./Cart.css";
 

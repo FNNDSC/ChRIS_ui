@@ -18,3 +18,17 @@
 .hide {
     display: none;
 }
+
+.page-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.nav {
+    flex-grow: 1;
+}
+
+.brand {
+    padding: 16px;
+}

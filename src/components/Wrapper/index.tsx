@@ -1,9 +1,9 @@
 import { Page } from "@patternfly/react-core";
 import type * as React from "react";
-import { useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import AnonSidebar from "./AnonSidebar";
 import Header from "./Header";
-import Sidebar, { AnonSidebar } from "./Sidebar";
+import Sidebar from "./Sidebar";
 import "./wrapper.css";
 import {
   setIsNavOpen,
@@ -12,12 +12,12 @@ import {
 } from "../../store/ui/uiSlice";
 import { OperationsProvider } from "../NewLibrary/context";
 
-type WrapperProps = {
+type Props = {
   children: React.ReactElement[] | React.ReactElement;
   titleComponent?: React.ReactElement;
 };
 
-const Wrapper = (props: WrapperProps) => {
+export default (props: Props) => {
   const { children, titleComponent } = props;
   const dispatch = useAppDispatch();
   const { isNavOpen, sidebarActiveItem, isTagExpanded, isPackageTagExpanded } =
@@ -52,6 +52,7 @@ const Wrapper = (props: WrapperProps) => {
     <OperationsProvider>
       <Sidebar
         isNavOpen={isNavOpen}
+        sidebarActiveItem={sidebarActiveItem}
         isTagExpanded={isTagExpanded}
         onTagToggle={onTagToggle}
         isPackageTagExpanded={isPackageTagExpanded}
@@ -59,13 +60,7 @@ const Wrapper = (props: WrapperProps) => {
       />
     </OperationsProvider>
   ) : (
-    <AnonSidebar
-      isNavOpen={isNavOpen}
-      isTagExpanded={isTagExpanded}
-      onTagToggle={onTagToggle}
-      isPackageTagExpanded={isPackageTagExpanded}
-      onPackageTagToggle={onPackageTagToggle}
-    />
+    <AnonSidebar isNavOpen={isNavOpen} sidebarActiveItem={sidebarActiveItem} />
   );
 
   return (
@@ -84,5 +79,3 @@ const Wrapper = (props: WrapperProps) => {
     </Page>
   );
 };
-
-export default Wrapper;
