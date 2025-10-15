@@ -150,7 +150,9 @@ export default (props: Props) => {
   const uploadDataColor =
     sidebarActiveItem === "uploadData" ? "#ffffff" : "#aaaaaa";
 
+  // only the admin can import package.
   const classNameImportPackage = role === Role.Admin ? undefined : styles.hide;
+  // only the clinician cannot compose package.
   const classNameComposePackage =
     role === Role.Clinician ? styles.hide : undefined;
 

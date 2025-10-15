@@ -1,20 +1,21 @@
 import React from "react";
 
-interface RouterContextProps<S, A = any> {
+type RouterContextProps<S, A = any> = {
   state: S;
   actions?: A;
-}
+};
 
 type RouterContextType<S, A = any> = React.Context<RouterObjectType<S, A>>;
+
 type RouterObjectType<S, A = any> = {
   state: S;
   actions: A;
 };
 
-export function RouterContext<S, A = any>({
-  state,
-  actions,
-}: RouterContextProps<S, A>): [S, RouterContextType<S, A>] {
+export const RouterContext = <S, A = any>(
+  props: RouterContextProps<S, A>,
+): [S, RouterContextType<S, A>] => {
+  const { state, actions } = props;
   return [
     state,
     React.createContext<RouterObjectType<S, A>>({
@@ -22,35 +23,22 @@ export function RouterContext<S, A = any>({
       state,
     }),
   ];
-}
+};
 
-interface RouterProviderProps<S = any, A = any> {
+type RouterProviderProps<S = any, A = any> = {
   context: RouterContextType<S>;
   state: S;
   actions: A;
   children: React.ReactNode;
-}
+};
 
-export function RouterProvider({
-  context,
-  actions,
-  state,
-  children,
-}: RouterProviderProps) {
-  const props = {
-    context,
-    actions,
-    state,
-    children,
-  };
-  return <RouterComponent propsElement={props} />;
-}
+export const RouterProvider = (props: RouterProviderProps) => {
+  return <RouterComponent {...props} />;
+};
 
-const RouterComponent = ({
-  propsElement: { context, actions, state, children },
-}: {
-  propsElement: RouterProviderProps;
-}) => {
+const RouterComponent = (props: RouterProviderProps) => {
+  const { context, state, actions, children } = props;
+
   return (
     <context.Provider
       value={{
@@ -62,5 +50,3 @@ const RouterComponent = ({
     </context.Provider>
   );
 };
-
-export default RouterContext;

@@ -1,5 +1,5 @@
 import { Page } from "@patternfly/react-core";
-import type * as React from "react";
+import type { FormEvent, KeyboardEvent, ReactElement } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import AnonSidebar from "./AnonSidebar";
 import Header from "./Header";
@@ -13,8 +13,8 @@ import {
 import { OperationsProvider } from "../NewLibrary/context";
 
 type Props = {
-  children: React.ReactElement[] | React.ReactElement;
-  titleComponent?: React.ReactElement;
+  children: ReactElement[] | ReactElement;
+  titleComponent?: ReactElement;
 };
 
 export default (props: Props) => {
@@ -27,14 +27,14 @@ export default (props: Props) => {
   const onNavToggle = () => {
     dispatch(setIsNavOpen(!isNavOpen));
   };
-  const onTagToggle = (e: React.FormEvent) => {
+  const onTagToggle = (e: FormEvent) => {
     dispatch(setIsTagExpanded(!isTagExpanded));
   };
-  const onPackageTagToggle = (e: React.FormEvent) => {
+  const onPackageTagToggle = (e: FormEvent) => {
     dispatch(setIsPackageTagExpanded(!isPackageTagExpanded));
   };
   const onPageResize = (
-    _event: MouseEvent | TouchEvent | React.KeyboardEvent<Element>,
+    _event: MouseEvent | TouchEvent | KeyboardEvent<Element>,
     data: { mobileView: boolean; windowSize: number },
   ) => {
     if (data.mobileView) {
