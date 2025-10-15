@@ -45,7 +45,7 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
   },
 });
 
-export const MainRouter = () => {
+export default () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const [state, setState] = useState(State);
@@ -124,7 +124,7 @@ export const MainRouter = () => {
     );
   }, [location.pathname, dispatch]);
 
-  const element = useRoutes([
+  return useRoutes([
     {
       path: "/",
       element: <Dashboard />,
@@ -242,8 +242,4 @@ export const MainRouter = () => {
       element: <PluginInstall />,
     },
   ]);
-
-  return element;
 };
-
-export default MainRouter;
