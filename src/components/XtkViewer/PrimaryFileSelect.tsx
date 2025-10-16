@@ -1,5 +1,5 @@
-import { SimpleList, SimpleListItem } from "@patternfly/react-core";
 import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
+import { SimpleList, SimpleListItem } from "@patternfly/react-core";
 
 interface FsmFileSelectProps {
   files: FileBrowserFolderFile[];

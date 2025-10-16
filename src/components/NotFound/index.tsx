@@ -1,9 +1,18 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import { Alert } from "@patternfly/react-core";
-import WrapperConnect from "../Wrapper";
+import type * as DoUI from "../../reducers/ui";
+import Wrapper from "../Wrapper";
 
-export default () => {
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+
+export default (props: Props) => {
+  const { useUI } = props;
   return (
-    <WrapperConnect>
+    <Wrapper useUI={useUI}>
       <Alert
         title="Page Not Found"
         variant="danger"
@@ -14,6 +23,6 @@ export default () => {
           Home
         </a>{" "}
       </Alert>
-    </WrapperConnect>
+    </Wrapper>
   );
 };

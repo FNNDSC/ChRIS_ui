@@ -1,8 +1,7 @@
 // Store.tsx
-import type React from "react";
-import { useMemo, useState, useRef, useCallback } from "react";
-import type { Plugin } from "@fnndsc/chrisapi";
-import type { Plugin as PluginType, UploadPipeline } from "../../api/types";
+
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import type { ComputeResource, Plugin } from "@fnndsc/chrisapi";
 import {
   Button,
   Grid,
@@ -13,32 +12,42 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { notification } from "antd";
+import type React from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
+import ChrisAPIClient from "../../api/chrisapiclient";
+import { createPipeline } from "../../api/serverApi";
+import type { Plugin as PluginType, UploadPipeline } from "../../api/types";
+import type * as DoUI from "../../reducers/ui";
 import { useAppSelector } from "../../store/hooks";
 import { InfoSection, SpinContainer } from "../Common";
+import { handleInstallPlugin } from "../PipelinesCopy/utils";
 import Wrapper from "../Wrapper";
-import PluginCard from "./PluginCard";
-import StoreToggle from "./StoreToggle";
-import { StoreConfigModal } from "./StoreConfigModal";
+import postModifyComputeResource from "./hooks/updateComputeResource";
+import { useComputeResources } from "./hooks/useFetchCompute";
 import {
+  aggregatePlugins,
   envOptions,
   type StorePlugin,
   useFetchPlugins,
 } from "./hooks/useFetchPlugins";
-import { aggregatePlugins } from "./hooks/useFetchPlugins";
-import { useComputeResources } from "./hooks/useFetchCompute";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { handleInstallPlugin } from "../PipelinesCopy/utils";
-import type { ComputeResource } from "@fnndsc/chrisapi";
-import postModifyComputeResource from "./hooks/updateComputeResource";
 import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
-import { createPipeline } from "../../api/serverApi";
+import PluginCard from "./PluginCard";
+import { StoreConfigModal } from "./StoreConfigModal";
+import StoreToggle from "./StoreToggle";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
 
 const DEFAULT_SEARCH_FIELD = "name";
 const COOKIE_NAME = "storeCreds";
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // seconds
 
-const Store: React.FC = () => {
+export default (props: Props) => {
+  const { useUI } = props;
   const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
   const [cookies, setCookie, removeCookie] = useCookies([COOKIE_NAME]);
   const [selectedEnv, setSelectedEnv] = useState<string>("PUBLIC ChRIS");
@@ -258,6 +267,7 @@ const Store: React.FC = () => {
   return (
     <>
       <Wrapper
+        useUI={useUI}
         titleComponent={
           <InfoSection title="Import Package" content="Work in Progress" />
         }
@@ -344,5 +354,3 @@ const Store: React.FC = () => {
     </>
   );
 };
-
-export default Store;

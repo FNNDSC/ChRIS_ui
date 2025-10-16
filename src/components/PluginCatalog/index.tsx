@@ -1,11 +1,20 @@
 import { PageSection } from "@patternfly/react-core";
 import React from "react";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import PluginCatalog from "./PluginCatalog";
 import "./plugin-catalog.css";
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import type * as DoUI from "../../reducers/ui";
 import { InfoSection } from "../Common";
 
-const CatalogPage = () => {
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+
+export default (props: Props) => {
+  const { useUI } = props;
   React.useEffect(() => {
     document.title = "Analysis Catalog";
   }, []);
@@ -31,12 +40,10 @@ const CatalogPage = () => {
   );
 
   return (
-    <WrapperConnect titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
       <PageSection>
         <PluginCatalog />
       </PageSection>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default CatalogPage;

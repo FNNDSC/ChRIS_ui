@@ -23,20 +23,28 @@ import FeedGraph from "../FeedTree/FeedGraph";
 import ParentComponent from "../FeedTree/ParentComponent";
 import { AnalysisIcon } from "../Icons";
 import NodeDetails from "../NodeDetails/NodeDetails";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import { DrawerActionButton } from "./DrawerUtils";
 import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 import "./Feeds.css"; // Import your CSS file
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import { collectionJsonToJson } from "../../api/api";
 import {
   PluginInstanceStatus,
   type PluginInstance as PluginInstanceType,
 } from "../../api/types";
+import type * as DoUI from "../../reducers/ui";
 import { Role } from "../../store/user/userSlice";
 import { useFetchFeed } from "./useFetchFeed";
 import { useSearchQueryParams } from "./usePaginate";
 import { usePollAllPluginStatuses } from "./usePolledStatuses";
 import { handleMaximize, handleMinimize } from "./utilties";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
 
 // Custom title component to replace Typography.Title
 const CustomTitle = ({
@@ -62,7 +70,8 @@ const CustomTitle = ({
   </h4>
 );
 
-const FeedView = () => {
+export default (props: Props) => {
+  const { useUI } = props;
   const [currentLayout, setCurrentLayout] = useState(false);
   const drawerState = useAppSelector((state) => state.drawers);
   const dispatch = useAppDispatch();
@@ -88,15 +97,6 @@ const FeedView = () => {
       navigate(`/login?redirectTo=${redirectTo}`);
     }
   }, [theType, isLoggedIn, location, navigate]);
-
-  console.info(
-    "FeedView: feed:",
-    feed,
-    "statuses:",
-    statuses,
-    "treeQuery:",
-    treeQuery,
-  );
 
   // init
   useEffect(() => {
@@ -207,7 +207,7 @@ const FeedView = () => {
   }
 
   return (
-    <WrapperConnect titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
       {contextHolder}
       <PanelGroup autoSaveId="conditional" direction="vertical">
         {/* Top Panels: Graph and Node Details */}
@@ -288,8 +288,6 @@ const FeedView = () => {
           />
         </Panel>
       </PanelGroup>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default React.memo(FeedView);

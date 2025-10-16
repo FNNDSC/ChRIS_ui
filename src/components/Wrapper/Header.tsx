@@ -10,15 +10,18 @@ import type { IUserState } from "../../store/user/userSlice";
 import { BarsIcon } from "../Icons";
 import ToolbarComponent from "./Toolbar";
 
-interface IHeaderProps {
+type Props = {
   user: IUserState;
   onNavToggle: () => void;
   titleComponent?: React.ReactElement;
-}
 
-export default function Header(props: IHeaderProps) {
+  isNavOpen?: boolean;
+};
+
+export default (props: Props) => {
+  const { user, onNavToggle, titleComponent, isNavOpen } = props;
+
   const showToolbar = useAppSelector((state) => state.feed.showToolbar);
-  const isNavOpen = useAppSelector((state) => state.ui.isNavOpen); // Get the sidebar open state
 
   // Apply margin-left to MastheadContent if sidebar is open
   const mastheadContentStyle = {
@@ -28,8 +31,8 @@ export default function Header(props: IHeaderProps) {
   const pageToolbar = (
     <ToolbarComponent
       showToolbar={showToolbar}
-      token={props.user.token}
-      titleComponent={props.titleComponent}
+      token={user.token}
+      titleComponent={titleComponent}
     />
   );
 
@@ -40,7 +43,7 @@ export default function Header(props: IHeaderProps) {
           variant="plain"
           aria-label="Global navigation"
           isSidebarOpen={true}
-          onSidebarToggle={props.onNavToggle}
+          onSidebarToggle={onNavToggle}
           id="multiple-sidebar-body-nav-toggle"
         >
           <BarsIcon />
@@ -51,4 +54,4 @@ export default function Header(props: IHeaderProps) {
       </MastheadContent>
     </Masthead>
   );
-}
+};

@@ -1,3 +1,4 @@
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import {
   Button,
   Popover,
@@ -5,7 +6,6 @@ import {
   SimpleListItem,
 } from "@patternfly/react-core";
 import { useState } from "react";
-import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 
 interface CrvFileSelectProps {
   files: FileBrowserFolderFile[];

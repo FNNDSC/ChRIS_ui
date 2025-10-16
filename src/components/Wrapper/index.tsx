@@ -1,49 +1,62 @@
 import { Page } from "@patternfly/react-core";
 import type { FormEvent, KeyboardEvent, ReactElement } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import AnonSidebar from "./AnonSidebar";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import "./wrapper.css";
+
 import {
-  setIsNavOpen,
-  setIsPackageTagExpanded,
-  setIsTagExpanded,
-} from "../../store/ui/uiSlice";
+  getRootID,
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import * as DoUI from "../../reducers/ui";
 import { OperationsProvider } from "../NewLibrary/context";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 
 type Props = {
   children: ReactElement[] | ReactElement;
   titleComponent?: ReactElement;
+
+  useUI: UseThunk<DoUI.State, TDoUI>;
 };
 
 export default (props: Props) => {
-  const { children, titleComponent } = props;
-  const dispatch = useAppDispatch();
+  const {
+    children,
+    titleComponent,
+    useUI: [stateUI, doUI],
+  } = props;
+  const ui = getState(stateUI) || DoUI.defaultState;
+  const uiID = getRootID(stateUI);
+
   const { isNavOpen, sidebarActiveItem, isTagExpanded, isPackageTagExpanded } =
-    useAppSelector((state) => state.ui);
+    ui;
   const user = useAppSelector((state) => state.user);
   const niivueActive = sidebarActiveItem === "niivue";
   const onNavToggle = () => {
-    dispatch(setIsNavOpen(!isNavOpen));
+    doUI.setIsNavOpen(uiID, !isNavOpen);
   };
   const onTagToggle = (e: FormEvent) => {
-    dispatch(setIsTagExpanded(!isTagExpanded));
+    doUI.setIsTagExpanded(uiID, !isTagExpanded);
   };
   const onPackageTagToggle = (e: FormEvent) => {
-    dispatch(setIsPackageTagExpanded(!isPackageTagExpanded));
+    doUI.setIsPackageTagExpanded(uiID, !isPackageTagExpanded);
   };
   const onPageResize = (
     _event: MouseEvent | TouchEvent | KeyboardEvent<Element>,
     data: { mobileView: boolean; windowSize: number },
   ) => {
     if (data.mobileView) {
-      dispatch(setIsNavOpen(false));
+      doUI.setIsNavOpen(uiID, false);
     }
 
     // The default setting of the niivue viewer is without a sidebar active. It explicitly set's it to false in it's component.
     if (!data.mobileView && !niivueActive) {
-      dispatch(setIsNavOpen(true));
+      doUI.setIsNavOpen(uiID, true);
     }
   };
 
@@ -71,6 +84,7 @@ export default (props: Props) => {
           onNavToggle={onNavToggle}
           user={user}
           titleComponent={titleComponent}
+          isNavOpen={isNavOpen}
         />
       }
       sidebar={sidebar}

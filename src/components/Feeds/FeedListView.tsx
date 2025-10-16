@@ -1,3 +1,4 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import type { Feed, FileBrowserFolder } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
@@ -9,9 +10,6 @@ import {
   Pagination,
   Skeleton,
   Title,
-  ToggleGroup,
-  ToggleGroupItem,
-  type ToggleGroupItemProps,
   Tooltip,
 } from "@patternfly/react-core";
 import {
@@ -27,23 +25,20 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import type React from "react";
-import { useContext, useEffect, useMemo, useState, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router";
+import type * as DoUI from "../../reducers/ui";
 import { useAppSelector } from "../../store/hooks";
-import { AddNodeProvider } from "../AddNode/context";
 import { Typography } from "../Antd";
 import { InfoSection } from "../Common";
-import CreateFeed from "../CreateFeed/CreateFeed";
-import { CreateFeedProvider } from "../CreateFeed/context";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import { SearchIcon } from "../Icons";
 import { FolderContextMenu } from "../NewLibrary/components/ContextMenu";
 import Operations from "../NewLibrary/components/Operations";
 import { OperationContext } from "../NewLibrary/context";
 import useLongPress from "../NewLibrary/utils/longpress";
-import { PipelineProvider } from "../PipelinesCopy/context";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import FeedSearch from "./FeedsSearch";
 import { useFeedListData } from "./useFeedListData";
 import {
@@ -52,6 +47,8 @@ import {
   getPluginInstanceDetails,
   type PluginInstanceDetails,
 } from "./utilties";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 
 const { Paragraph } = Typography;
 
@@ -96,13 +93,14 @@ const COLUMN_DEFINITIONS: ColumnDefinition[] = [
   },
 ];
 
-interface Props {
+type Props = {
   title: string;
   isShared: boolean;
-}
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
 
-const TableSelectable = (props: Props) => {
-  const { title, isShared } = props;
+export default (props: Props) => {
+  const { title, isShared, useUI } = props;
   const theType = isShared ? "public" : "private";
 
   const navigate = useNavigate();
@@ -252,7 +250,7 @@ const TableSelectable = (props: Props) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
-    <WrapperConnect titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
       <PageSection
         stickyOnBreakpoint={{ default: "top" }}
         style={{ paddingTop: "0.25em", paddingBottom: "0" }}
@@ -323,11 +321,9 @@ const TableSelectable = (props: Props) => {
           <EmptyStateTable />
         )}
       </PageSection>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default TableSelectable;
 
 // -------------- TableRow Props --------------
 interface TableRowProps {
@@ -523,7 +519,7 @@ const fetchFeedDetails = async (
   feedId: number,
   type: string,
 ): Promise<PluginInstanceDetails> => {
-  let updatedFeed: Feed | undefined = undefined;
+  let updatedFeed: Feed | undefined;
 
   try {
     if (type === "private") {

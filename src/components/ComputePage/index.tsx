@@ -1,8 +1,16 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import { PageSection } from "@patternfly/react-core";
 import React from "react";
+import type * as DoUI from "../../reducers/ui";
 import { InfoSection } from "../Common";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import ComputeCatalog from "./ComputeCatalog";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
 
 const TitleComponent = (
   <InfoSection
@@ -21,17 +29,16 @@ const TitleComponent = (
   />
 );
 
-const ComputePage = () => {
+export default (props: Props) => {
+  const { useUI } = props;
   React.useEffect(() => {
     document.title = "Compute Catalog";
   }, []);
   return (
-    <WrapperConnect titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
       <PageSection>
         <ComputeCatalog />
       </PageSection>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default ComputePage;

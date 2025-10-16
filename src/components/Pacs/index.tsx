@@ -1,6 +1,14 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import type * as DoUI from "../../reducers/ui";
 import { InfoSection } from "../Common";
 import Wrapper from "../Wrapper";
 import PacsApp from "./PacsApp.tsx";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
 
 const PacsTitle = () => (
   <InfoSection
@@ -14,9 +22,10 @@ const PacsTitle = () => (
   />
 );
 
-export default () => {
+export default (props: Props) => {
+  const { useUI } = props;
   return (
-    <Wrapper titleComponent={<PacsTitle />}>
+    <Wrapper useUI={useUI} titleComponent={<PacsTitle />}>
       <PacsApp />
     </Wrapper>
   );

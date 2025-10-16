@@ -1,6 +1,6 @@
+import type { Feed } from "@fnndsc/chrisapi";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { IFeedState } from "./types";
-import type { Feed } from "@fnndsc/chrisapi";
 
 // Define the initial state
 const initialState: IFeedState = {

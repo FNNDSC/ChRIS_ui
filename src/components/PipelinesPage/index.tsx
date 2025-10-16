@@ -1,23 +1,31 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import { PageSection } from "@patternfly/react-core";
-import React from "react";
+import { useEffect } from "react";
+import type * as DoUI from "../../reducers/ui";
 import { InfoSection } from "../Common";
 import Pipelines from "../PipelinesCopy";
 import { PipelineProvider } from "../PipelinesCopy/context";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 
-const PipelinePage = () => {
-  React.useEffect(() => {
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+
+export default (props: Props) => {
+  const { useUI } = props;
+  useEffect(() => {
     document.title = "Packages Catalog";
   }, []);
+
   return (
-    <WrapperConnect titleComponent={<InfoSection title="Packages" />}>
+    <Wrapper useUI={useUI} titleComponent={<InfoSection title="Packages" />}>
       <PageSection>
         <PipelineProvider>
           <Pipelines />
         </PipelineProvider>
       </PageSection>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default PipelinePage;
