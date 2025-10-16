@@ -1,18 +1,27 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import type { FileBrowserFolder } from "@fnndsc/chrisapi";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import type * as DoUI from "../../reducers/ui";
 import { useAppSelector } from "../../store/hooks";
-import { EmptyStateComponent, SpinContainer, InfoSection } from "../Common";
+import { EmptyStateComponent, InfoSection, SpinContainer } from "../Common";
 import { OperationContext, OperationsProvider } from "../NewLibrary/context";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import GnomeCentralBreadcrumb from "./GnomeCentralBreadcrumb";
 import GnomeLibraryTable from "./GnomeList";
 import GnomeLibrarySidebar from "./GnomeSidebar";
 import styles from "./gnome.module.css";
 import useFolders from "./utils/hooks/useFolders";
-import type { FileBrowserFolder } from "@fnndsc/chrisapi";
-import { useQueryClient } from "@tanstack/react-query";
 
-const GnomeLibrary = () => {
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+
+export default (props: Props) => {
+  const { useUI } = props;
   const [activeSidebarItem, setActiveSidebarItem] = useState<string>("home");
   const [pageNumber, setPageNumber] = useState(1);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -129,7 +138,8 @@ const GnomeLibrary = () => {
 
   return (
     <OperationsProvider>
-      <WrapperConnect
+      <Wrapper
+        useUI={useUI}
         titleComponent={
           <InfoSection
             title="Library"
@@ -199,9 +209,7 @@ const GnomeLibrary = () => {
             </span>
           </div>
         </div>
-      </WrapperConnect>
+      </Wrapper>
     </OperationsProvider>
   );
 };
-
-export default GnomeLibrary;

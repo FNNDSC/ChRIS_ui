@@ -1,3 +1,9 @@
+import {
+  genUUID,
+  getState,
+  type ThunkModuleToFunc,
+  useThunk,
+} from "@chhsiao1981/use-thunk";
 import { useEffect, useState } from "react";
 import {
   matchPath,
@@ -25,8 +31,10 @@ import {
 } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
-import { useAppDispatch, useAppSelector } from "./store/hooks";
-import { setSidebarActive } from "./store/ui/uiSlice";
+import * as DoUI from "./reducers/ui";
+import { useAppSelector } from "./store/hooks";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 
 interface IState {
   selectData?: Series;
@@ -45,13 +53,41 @@ export const [State, MainRouterContext] = RouterContext<IState, IActions>({
   },
 });
 
+// Define the routes and their corresponding sidebar items
+const _ROUTE_TO_SIDEBAR_ITEM: Record<string, string> = {
+  "/": "overview",
+  "library/*": "lib",
+  "data/*": "data",
+  "data/:id": "data",
+  "shared/*": "shared",
+  new: "new",
+  pacs: "pacs",
+  login: "login",
+  signup: "signup",
+  "package/*": "package",
+  "package/:id": "package",
+  import: "import",
+  compose: "compose",
+  "niivue/:plinstId": "niivue",
+  store: "store",
+  "install/*": "install",
+  "*": "notFound",
+
+  tag: "tag0",
+  "tag/uploaded": "tag1",
+  "tag/pacs": "tag2",
+};
+
 export default () => {
   const location = useLocation();
-  const dispatch = useAppDispatch();
   const [state, setState] = useState(State);
   const [route, setRoute] = useState("");
   const navigate = useNavigate();
   const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+
+  const [uiID, _] = useState(genUUID());
+  const useUI = useThunk<DoUI.State, TDoUI>(DoUI);
+  const [stateUI, doUI] = useUI;
 
   console.info("routes: start: route:", route);
 
@@ -69,65 +105,42 @@ export default () => {
     },
   };
 
-  // Define the routes and their corresponding sidebar items
-  const routeToSidebarItem: Record<string, string> = {
-    "/": "overview",
-    "library/*": "lib",
-    "data/*": "data",
-    "data/:id": "data",
-    "shared/*": "shared",
-    new: "new",
-    pacs: "pacs",
-    login: "login",
-    signup: "signup",
-    "package/*": "package",
-    "package/:id": "package",
-    import: "import",
-    compose: "compose",
-    "niivue/:plinstId": "niivue",
-    store: "store",
-    "install/*": "install",
-    "*": "notFound",
-
-    tag: "tag0",
-    "tag/uploaded": "tag1",
-    "tag/pacs": "tag2",
-  };
-
   const matchRoute = (path: string) => {
     const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
 
     // Exact match first
-    if (routeToSidebarItem[normalizedPath]) {
-      return routeToSidebarItem[normalizedPath];
+    if (_ROUTE_TO_SIDEBAR_ITEM[normalizedPath]) {
+      return _ROUTE_TO_SIDEBAR_ITEM[normalizedPath];
     }
 
     // Wildcard match
-    for (const routePath of Object.keys(routeToSidebarItem)) {
+    for (const routePath of Object.keys(_ROUTE_TO_SIDEBAR_ITEM)) {
       if (matchPath({ path: routePath, end: true }, path)) {
-        return routeToSidebarItem[routePath];
+        return _ROUTE_TO_SIDEBAR_ITEM[routePath];
       }
     }
 
     // Default to notFound if no match
-    return routeToSidebarItem["*"];
+    return _ROUTE_TO_SIDEBAR_ITEM["*"];
   };
+
+  useEffect(() => {
+    doUI.init(uiID);
+  }, []);
 
   // Update the active sidebar item based on the current route
   useEffect(() => {
     const currentPath = location.pathname;
     const sidebarItem = matchRoute(currentPath);
-    dispatch(
-      setSidebarActive({
-        activeItem: sidebarItem,
-      }),
-    );
-  }, [location.pathname, dispatch]);
+    doUI.setSidebarActive(uiID, sidebarItem);
+  }, [location.pathname]);
+
+  const ui = getState(stateUI, uiID) || DoUI.defaultState;
 
   return useRoutes([
     {
       path: "/",
-      element: <Dashboard />,
+      element: <Dashboard useUI={useUI} />,
     },
     {
       path: "library/*",
@@ -138,7 +151,7 @@ export default () => {
             context={MainRouterContext}
           >
             <OperationsProvider>
-              <GnomeLibrary />
+              <GnomeLibrary useUI={useUI} />
             </OperationsProvider>
           </RouterProvider>
         </PrivateRoute>
@@ -152,7 +165,7 @@ export default () => {
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedsListView title="My Data" isShared={false} />
+            <FeedsListView title="My Data" isShared={false} useUI={useUI} />
           </OperationsProvider>
         </RouterProvider>
       ),
@@ -165,7 +178,7 @@ export default () => {
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedView />
+            <FeedView useUI={useUI} />
           </OperationsProvider>
         </RouterProvider>
       ),
@@ -178,20 +191,20 @@ export default () => {
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedsListView title="Shared Data" isShared={true} />
+            <FeedsListView title="Shared Data" isShared={true} useUI={useUI} />
           </OperationsProvider>
         </RouterProvider>
       ),
     },
     {
-      path: "plugin/:id",
-      element: <SinglePlugin />,
+      path: "package/:id",
+      element: <SinglePlugin useUI={useUI} />,
     },
     {
       path: "pacs",
       element: (
         <PrivateRoute>
-          <Pacs />
+          <Pacs useUI={useUI} />
         </PrivateRoute>
       ),
     },
@@ -205,41 +218,24 @@ export default () => {
     },
 
     {
-      path: "pipelines",
-      element: (
-        <PrivateRoute>
-          <PipelinePage />
-        </PrivateRoute>
-      ),
-    },
-    {
       path: "package",
-      element: <PipelinePage />,
+      element: <PipelinePage useUI={useUI} />,
     },
     {
       path: "compute",
-      element: <ComputePage />,
-    },
-    {
-      path: "dataset/:feedName?",
-      element: <DatasetRedirect />,
-    },
-
-    {
-      path: "store",
-      element: <Store />,
+      element: <ComputePage useUI={useUI} />,
     },
     {
       path: "import",
-      element: <Store />,
+      element: <Store useUI={useUI} />,
     },
     {
       path: "*",
-      element: <NotFound />,
+      element: <NotFound useUI={useUI} />,
     },
     {
       path: "install/*",
-      element: <PluginInstall />,
+      element: <PluginInstall useUI={useUI} />,
     },
   ]);
 };

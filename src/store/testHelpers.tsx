@@ -1,14 +1,15 @@
 /**
  * See https://redux.js.org/usage/writing-tests#setting-up-a-reusable-test-render-function
  */
-import { render, RenderOptions } from "@testing-library/react";
-import { AppStore, setupStore } from "./configureStore.ts";
-import { ApplicationState } from "./root/applicationState.ts";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { type RenderOptions, render } from "@testing-library/react";
+import { App } from "antd";
+import type React from "react";
 import { Provider } from "react-redux";
 import { MemoryRouter } from "react-router";
-import React from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { App } from "antd";
+import { type AppStore, setupStore } from "./configureStore.ts";
+import type { ApplicationState } from "./root/applicationState.ts";
 
 // This type interface extends the default options for render from RTL, as well
 // as allows the user to specify other things such as initialState, store.

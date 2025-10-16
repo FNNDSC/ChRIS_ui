@@ -1,8 +1,8 @@
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import {
-  type PayloadAction,
   createAsyncThunk,
   createSlice,
+  type PayloadAction,
 } from "@reduxjs/toolkit";
 import { catchError, fetchResource } from "../../api/common";
 import type { RootState } from "../root/applicationState";

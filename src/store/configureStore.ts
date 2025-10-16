@@ -13,10 +13,9 @@ import explorerReducer from "./explorer/explorerSlice";
 import feedReducer from "./feed/feedSlice";
 import pluginReducer from "./plugin/pluginSlice";
 import pluginInstanceReducer from "./pluginInstance/pluginInstanceSlice";
-import uiReducer from "./ui/uiSlice";
-import userReducer from "./user/userSlice";
-import { rootSaga } from "./root/rootSaga";
 import type { ApplicationState } from "./root/applicationState";
+import { rootSaga } from "./root/rootSaga";
+import userReducer from "./user/userSlice";
 
 // TODO the example here accepts Partial<RootState>:
 // https://redux.js.org/usage/writing-tests#example-app-code
@@ -35,7 +34,6 @@ export function setupStore(preloadedState?: ApplicationState) {
       feed: feedReducer,
       plugin: pluginReducer,
       instance: pluginInstanceReducer,
-      ui: uiReducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({

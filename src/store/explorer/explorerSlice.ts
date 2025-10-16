@@ -1,6 +1,6 @@
+import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { IExplorerState } from "./types";
-import type { FileBrowserFolderFile } from "@fnndsc/chrisapi";
 
 const initialState: IExplorerState = {
   selectedFile: undefined,

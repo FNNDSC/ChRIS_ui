@@ -13,8 +13,8 @@ import { isEmpty } from "lodash";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import brandImg from "../../assets/logo_chris_dashboard.png";
+import type * as DoUI from "../../reducers/ui";
 import { useAppSelector } from "../../store/hooks";
-import type { IUiState } from "../../store/ui/uiSlice";
 import { type IUserState, Role } from "../../store/user/userSlice";
 import { AddModal } from "../NewLibrary/components/Operations";
 import UploadData from "../NewLibrary/components/operations/UploadData";
@@ -22,7 +22,7 @@ import { OperationContext } from "../NewLibrary/context";
 import { useFolderOperations } from "../NewLibrary/utils/useOperations";
 import styles from "./Sidebar.module.css";
 
-type Props = IUiState & IUserState;
+type Props = DoUI.State & IUserState;
 
 type TagInfo = {
   title?: string;
@@ -94,7 +94,6 @@ export default (props: Props) => {
 
   const renderTags = () => {
     const tagList: TagInfo[] = [
-      { title: "(none)" },
       { title: "uploaded" },
       { title: "public" },
       { title: "pacs" },

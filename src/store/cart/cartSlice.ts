@@ -1,5 +1,5 @@
 // cartSlice.ts
-import { type PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type {
   ICartState,
   OperationPayload,

@@ -1,3 +1,4 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
@@ -9,18 +10,19 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import type * as DoUI from "../../reducers/ui";
 import { useAppSelector } from "../../store/hooks";
-import { Alert } from "../Antd";
-import { notification } from "../Antd";
-import { EmptyStateComponent, SpinContainer } from "../Common";
-import { InfoSection } from "../Common";
-import WrapperConnect from "../Wrapper";
+import { Alert, notification } from "../Antd";
+import { EmptyStateComponent, InfoSection, SpinContainer } from "../Common";
+import Wrapper from "../Wrapper";
 import BreadcrumbContainer from "./components/BreadcrumbContainer";
 import { FilesCard, LinkCard } from "./components/FileCard";
 import { FolderCard } from "./components/FolderCard";
 import LibraryTable from "./components/LibraryTable";
 import Operations from "./components/Operations";
 import { OperationContext } from "./context";
+
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 
 // Fetch folders from the server
 export async function fetchFolders(computedPath: string, pageNumber?: number) {
@@ -108,7 +110,11 @@ export async function fetchFolders(computedPath: string, pageNumber?: number) {
   }
 }
 
-const NewLibrary = () => {
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+export default (props: Props) => {
+  const { useUI } = props;
   const [api, contextHolder] = notification.useNotification();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -204,7 +210,7 @@ const NewLibrary = () => {
   );
 
   return (
-    <WrapperConnect titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
       {contextHolder}
       <PageSection
         stickyOnBreakpoint={{
@@ -304,8 +310,6 @@ const NewLibrary = () => {
           </Grid>
         )}
       </PageSection>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default NewLibrary;

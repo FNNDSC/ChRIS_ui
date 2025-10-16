@@ -1,3 +1,4 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import {
   Button,
   Card,
@@ -6,27 +7,36 @@ import {
   LoginPage,
 } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "../Antd";
-import React from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import type * as DoUI from "../../reducers/ui";
 import { useAppSelector } from "../../store/hooks";
+import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
 import { useSearchQueryParams } from "../Feeds/usePaginate";
 import { ExclamationCircleIcon } from "../Icons";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 
-const PluginInstall = () => {
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+
+const PluginInstall = (props: Props) => {
+  const { useUI } = props;
   const isStaff = useAppSelector((state) => state.user.isStaff);
   const [_cookie, setCookie] = useCookies();
   const navigate = useNavigate();
-  const [showHelperText, setShowHelperText] = React.useState(false);
-  const [username, setUsername] = React.useState("");
-  const [isValidUsername, setIsValidUsername] = React.useState(true);
-  const [password, setPassword] = React.useState("");
-  const [isValidPassword, setIsValidPassword] = React.useState(true);
-  const [isRememberMeChecked, setIsRememberMeChecked] = React.useState(false);
+  const [showHelperText, setShowHelperText] = useState(false);
+  const [username, setUsername] = useState("");
+  const [isValidUsername, setIsValidUsername] = useState(true);
+  const [password, setPassword] = useState("");
+  const [isValidPassword, setIsValidPassword] = useState(true);
+  const [isRememberMeChecked, setIsRememberMeChecked] = useState(false);
 
   const query = useSearchQueryParams();
   const url = query.get("uri");
@@ -36,7 +46,7 @@ const PluginInstall = () => {
     decodedURL = decodeURIComponent(url);
   }
 
-  async function handleSave() {
+  const handleSave = async () => {
     const adminURL = import.meta.env.VITE_CHRIS_UI_URL;
 
     if (!adminURL) {
@@ -74,13 +84,13 @@ const PluginInstall = () => {
       // biome-ignore lint/complexity/noUselessCatch: <explanation>
       throw error;
     }
-  }
+  };
 
   const { isPending, isSuccess, isError, error, data, mutate } = useMutation({
     mutationFn: async () => await handleSave(),
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const cookies = new Cookies();
 
     if (cookies.get("admin_username")) {
@@ -92,7 +102,7 @@ const PluginInstall = () => {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSuccess) {
       if (data) {
         const url = data.collection.items[0].links[0].href;
@@ -188,7 +198,7 @@ const PluginInstall = () => {
   );
 
   return (
-    <WrapperConnect>
+    <Wrapper useUI={useUI}>
       <LoginPage
         footerListVariants={ListVariant.inline}
         backgroundImgSrc="/assets/images/pfbg-icon.svg"
@@ -218,7 +228,7 @@ const PluginInstall = () => {
           )}
         </div>
       </LoginPage>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
 

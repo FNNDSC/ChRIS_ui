@@ -10,20 +10,29 @@ import {
   GridItem,
   PageSection,
 } from "@patternfly/react-core";
-import type React from "react";
 import { useEffect } from "react";
 import BUILD_VERSION from "../../getBuildVersion";
 import { InfoSection } from "../Common";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import FeedGraph from "./FeedGraph";
 import "./dashboard.css";
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import type * as DoUI from "../../reducers/ui";
 import {
   covidnetDataset,
   fetalBrainReconstructionDataset,
   lldDataset,
 } from "./util";
 
-const DashboardPage: React.FC = () => {
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+
+export default (props: Props) => {
+  const { useUI } = props;
+
   useEffect(() => {
     document.title = "Overview";
   }, []);
@@ -44,7 +53,7 @@ const DashboardPage: React.FC = () => {
   );
 
   return (
-    <WrapperConnect titleComponent={TitleComponent}>
+    <Wrapper titleComponent={TitleComponent} useUI={useUI}>
       <PageSection>
         <Grid hasGutter>
           <GridItem span={12}>
@@ -133,8 +142,6 @@ const DashboardPage: React.FC = () => {
           </GridItem>
         </Grid>
       </PageSection>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default DashboardPage;

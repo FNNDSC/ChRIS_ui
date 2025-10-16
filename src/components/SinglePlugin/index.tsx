@@ -5,7 +5,6 @@ import type {
   PluginParameter,
 } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "../Antd";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 import React from "react";
@@ -14,16 +13,27 @@ import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
 import { useAppSelector } from "../../store/hooks";
 import { unpackParametersIntoString } from "../AddNode/utils";
+import { Alert } from "../Antd";
 import { EmptyStateComponent, SpinContainer } from "../Common";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import {
   HeaderCardPlugin,
   HeaderSinglePlugin,
   type ParameterPayload,
 } from "./PluginCatalogComponents";
 import "./singlePlugin.css";
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import type * as DoUI from "../../reducers/ui";
 
-const SinglePlugin = () => {
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+
+export default (props: Props) => {
+  const { useUI } = props;
+
   const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const { id } = useParams() as { id: string };
   const [parameterPayload, setParameterPayload] =
@@ -167,7 +177,7 @@ const SinglePlugin = () => {
   }, [data?.plugins[0], setPluginParameters]);
 
   return (
-    <WrapperConnect>
+    <Wrapper useUI={useUI}>
       {isLoading || isFetching ? (
         <SpinContainer title="Please wait as resources for this plugin are being fetched..." />
       ) : isError ? (
@@ -187,8 +197,6 @@ const SinglePlugin = () => {
       ) : (
         <EmptyStateComponent />
       )}
-    </WrapperConnect>
+    </Wrapper>
   );
 };
-
-export default SinglePlugin;

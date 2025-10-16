@@ -1,3 +1,4 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import type { Feed } from "@fnndsc/chrisapi";
 import { PageSection } from "@patternfly/react-core";
 import { css } from "@patternfly/react-styles";
@@ -11,9 +12,10 @@ import { useImmer } from "use-immer";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { FpClient } from "../../api/fp/chrisapi";
 import { flexRowSpaceBetween, hideOnMobile } from "../../cssUtils.ts";
+import type * as DoUI from "../../reducers/ui";
 import type { CrosshairLocation } from "../Preview/displays/types.ts";
 import SizedNiivueCanvas from "../SizedNiivueCanvas/index.tsx";
-import WrapperConnect from "../Wrapper";
+import Wrapper from "../Wrapper";
 import {
   type DatasetFile,
   type DatasetFilesClient,
@@ -42,6 +44,8 @@ import {
 } from "./statefulTypes";
 import type { Problem, TagsDictionary, VisualDataset } from "./types";
 
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+
 /**
  * The "Niivue Datasets Viewer" is a view of ChRIS_ui which implements a
  * visualizer component for feeds containing datasets conforming to the
@@ -56,7 +60,13 @@ import type { Problem, TagsDictionary, VisualDataset } from "./types";
  * http://fetalmri.org. Nonetheless, the "Visual Datasets Browser"
  * is generally useful for other datasets of 3D medical images.
  */
-const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
+
+type Props = {
+  plinstId: string;
+  useUI: UseThunk<DoUI.State, TDoUI>;
+};
+const NiivueDatasetViewer = (props: Props) => {
+  const { plinstId, useUI } = props;
   const [dataset, setDataset] = useState<VisualDataset | null>(null);
   const [feed, setFeed] = useState<Feed | null>(null);
   /**
@@ -303,7 +313,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
           .map(({ state }) => state);
 
   return (
-    <WrapperConnect>
+    <Wrapper useUI={useUI}>
       <PageSection>
         <div className={hideOnMobile}>
           <div className={flexRowSpaceBetween}>
@@ -333,7 +343,7 @@ const NiivueDatasetViewer: React.FC<{ plinstId: string }> = ({ plinstId }) => {
           </div>
         </DatasetPageDrawer>
       </PageSection>
-    </WrapperConnect>
+    </Wrapper>
   );
 };
 

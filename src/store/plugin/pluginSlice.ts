@@ -1,9 +1,9 @@
+import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import {
   createAsyncThunk,
   createSlice,
   type PayloadAction,
 } from "@reduxjs/toolkit";
-import type { Plugin, PluginParameter } from "@fnndsc/chrisapi";
 import { fetchResource } from "../../api/common";
 
 // Define the initial state

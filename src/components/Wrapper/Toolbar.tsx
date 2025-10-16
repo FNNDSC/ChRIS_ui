@@ -24,10 +24,10 @@ import {
   useSignUpAllowed,
 } from "../../store/hooks";
 import {
-  setLogoutSuccess,
+  type Role,
   Roles,
   StaffRoles,
-  type Role,
+  setLogoutSuccess,
   setRole,
 } from "../../store/user/userSlice";
 import { ThemeContext } from "../DarkTheme/useTheme";
