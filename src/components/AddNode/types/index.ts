@@ -4,7 +4,7 @@ import type {
   PluginMeta,
   PluginParameter,
 } from "@fnndsc/chrisapi";
-import type { IUserState } from "../../../store/user/userSlice";
+import type * as DoUser from "../../../reducers/user";
 
 export interface InputIndex {
   [key: string]: string;
@@ -62,7 +62,7 @@ export interface GuidedConfigState {
 }
 
 export interface chooseConfigProps {
-  user?: IUserState;
+  user?: DoUser.State;
   handleFileUpload: (files: any[]) => void;
   showAlert?: boolean;
 }

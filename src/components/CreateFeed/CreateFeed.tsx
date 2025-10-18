@@ -12,7 +12,6 @@ import * as React from "react";
 import { useContext } from "react";
 import { catchError } from "../../api/common";
 import { MainRouterContext } from "../../routes";
-import { useAppSelector } from "../../store/hooks";
 import { AddNodeContext } from "../AddNode/context";
 import { notification } from "../Antd";
 import { AnalysisIcon } from "../Icons";
@@ -20,15 +19,31 @@ import PipelinesCopy from "../PipelinesCopy";
 import { PipelineContext } from "../PipelinesCopy/context";
 import BasicInformation from "./BasicInformation";
 import ChooseConfig from "./ChooseConfig";
+import { CreateFeedContext } from "./context";
 import Review from "./Review";
 import withSelectionAlert from "./SelectionAlert";
-import { CreateFeedContext } from "./context";
 import "./createFeed.css";
-import { createFeeds, createFeedInstanceWithFS } from "./createFeedHelper";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import * as DoUser from "../../reducers/user";
+import { createFeedInstanceWithFS, createFeeds } from "./createFeedHelper";
 import { Types } from "./types/feed";
 
-export default function CreateFeed() {
-  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
+type Props = {
+  useUser: UseThunk<DoUser.State, TDoUser>;
+};
+
+export default (props: Props) => {
+  const { useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn, username } = user;
+
   const [feedProcessing, setFeedProcessing] = React.useState(false);
   const queryClient = useQueryClient();
   const router = useContext(MainRouterContext);
@@ -40,7 +55,6 @@ export default function CreateFeed() {
   const { state: pipelineState, dispatch: pipelineDispatch } =
     useContext(PipelineContext);
 
-  const user = useAppSelector((state) => state.user);
   const {
     pluginMeta,
 
@@ -84,7 +98,7 @@ export default function CreateFeed() {
     pluginMeta !== undefined
   );
 
-  const handleSave = async () => {
+  const onSave = async () => {
     setFeedProcessing(true);
     dispatchCreateFeed({
       type: Types.SetFeedCreationState,
@@ -92,16 +106,15 @@ export default function CreateFeed() {
         status: "Creating Feed",
       },
     });
-    const username = user?.username;
 
     try {
-      let feed: Feed | undefined | null = undefined;
+      let feed: Feed | undefined | null = null;
 
       if (
         selectedConfig.includes("local_select") ||
         selectedConfig.includes("swift_storage")
       ) {
-        feed = await createFeeds(
+        await createFeeds(
           data,
           username,
           getUploadFileCount,
@@ -288,15 +301,15 @@ export default function CreateFeed() {
             id={4}
             name="Review"
             footer={{
-              onNext: handleSave,
+              onNext: onSave,
               nextButtonText: "Create Analysis",
               isNextDisabled: !!(!enableSave || feedProcessing),
             }}
           >
-            <Review handleSave={handleSave} />
+            <Review handleSave={onSave} />
           </WizardStep>
         </Wizard>
       </Modal>
     </div>
   );
-}
+};

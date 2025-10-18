@@ -1,4 +1,6 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import type { FileBrowserFolderFile, PACSFile } from "@fnndsc/chrisapi";
+import type * as DoUser from "../../../reducers/user";
 import {
   CatchallDisplay,
   DcmDisplay,
@@ -12,11 +14,15 @@ import {
   XtkDisplay,
 } from "./index";
 
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
 type Props = {
   selectedFile?: FileBrowserFolderFile | PACSFile;
   viewerName: string;
   preview?: string;
   isHide?: boolean;
+
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 // XXX Because it is possible that some special display requires some persistently attached (ex: d3/niivue/canvas/etc., we use display-none strategy.

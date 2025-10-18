@@ -1,3 +1,4 @@
+import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import {
   Badge,
   Button,
@@ -7,35 +8,36 @@ import {
   Popover,
   Tooltip,
 } from "@patternfly/react-core";
+import { FileIcon, FolderIcon, TimesIcon } from "@patternfly/react-icons";
 import { useContext, useEffect, useRef, useState } from "react";
-import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import { clearAllPaths, clearSelectedPaths } from "../../store/cart/cartSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import {
-  useFolderOperations,
-  type ModalState,
-} from "../NewLibrary/utils/useOperations";
-import type { OriginState } from "../NewLibrary/context";
-import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
-import { AddModal } from "../NewLibrary/components/Operations";
-import { TimesIcon, FileIcon, FolderIcon } from "@patternfly/react-icons";
-import {
   AnalysisIcon,
-  DownloadIcon,
-  ShareIcon,
-  EditIcon,
   DeleteIcon,
+  DownloadIcon,
+  EditIcon,
   ExternalLinkSquareAltIcon,
+  ShareIcon,
 } from "../Icons";
+import { AddModal } from "../NewLibrary/components/Operations";
+import type { OriginState } from "../NewLibrary/context";
+import {
+  type ModalState,
+  useFolderOperations,
+} from "../NewLibrary/utils/useOperations";
 import styles from "./gnome.module.css";
-import { clearAllPaths, clearSelectedPaths } from "../../store/cart/cartSlice";
 
 type Props = {
+  username: string;
   origin: OriginState;
   computedPath?: string;
   folderList?: FileBrowserFolderList;
 };
 
-const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
+const GnomeBulkActionBar = (props: Props) => {
+  const { username, origin, computedPath, folderList } = props;
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useAppSelector((s) => s.cart.selectedPaths);
   const [useIconsOnly, setUseIconsOnly] = useState(false);
@@ -44,7 +46,7 @@ const GnomeBulkActionBar = ({ origin, computedPath, folderList }: Props) => {
   const [isSelectionPopoverOpen, setIsSelectionPopoverOpen] = useState(false);
 
   const { modalState, handleModalSubmitMutation, handleOperations } =
-    useFolderOperations(origin, computedPath, folderList, false);
+    useFolderOperations(username, origin, computedPath, folderList, false);
 
   useEffect(() => {
     const checkWidth = () => {

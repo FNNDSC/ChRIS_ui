@@ -233,3 +233,18 @@ export interface DownloadToken {
   token: string;
   owner_username: string;
 }
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  is_staff: boolean;
+}
+
+export interface Link {
+  [key: string]: string;
+}
+
+export interface AuthToken {
+  token: string;
+}

@@ -1,4 +1,10 @@
 import {
+  getRootID,
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import {
   Brand,
   Nav,
   NavExpandable,
@@ -13,16 +19,22 @@ import { isEmpty } from "lodash";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 import brandImg from "../../assets/logo_chris_dashboard.png";
-import type * as DoUI from "../../reducers/ui";
-import { useAppSelector } from "../../store/hooks";
-import { type IUserState, Role } from "../../store/user/userSlice";
+import { Role } from "../../reducers/types";
+import * as DoUI from "../../reducers/ui";
+import * as DoUser from "../../reducers/user";
 import { AddModal } from "../NewLibrary/components/Operations";
 import UploadData from "../NewLibrary/components/operations/UploadData";
 import { OperationContext } from "../NewLibrary/context";
 import { useFolderOperations } from "../NewLibrary/utils/useOperations";
 import styles from "./Sidebar.module.css";
 
-type Props = DoUI.State & IUserState;
+type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
+type Props = {
+  useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
+};
 
 type TagInfo = {
   title?: string;
@@ -30,17 +42,22 @@ type TagInfo = {
 
 export default (props: Props) => {
   const queryClient = useQueryClient();
-  const {
-    sidebarActiveItem,
-    isNavOpen,
-    isTagExpanded,
-    isPackageTagExpanded,
-    onTagToggle,
-    onPackageTagToggle,
-  } = props;
+  const { useUI, useUser } = props;
+  const [classStateUI, doUI] = useUI;
+  const [classStateUser, _2] = useUser;
+  const ui = getState(classStateUI) || DoUI.defaultState;
+  const uiID = getRootID(classStateUI);
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { sidebarActiveItem, isNavOpen, isTagExpanded, isPackageTagExpanded } =
+    ui;
+  const { role, username } = user;
 
-  const role = useAppSelector((state) => state.user.role);
-
+  const onTagToggle = (e: FormEvent) => {
+    doUI.setIsTagExpanded(uiID, !isTagExpanded);
+  };
+  const onPackageTagToggle = (e: FormEvent) => {
+    doUI.setIsPackageTagExpanded(uiID, !isPackageTagExpanded);
+  };
   const onSelect = (
     _event: React.FormEvent<HTMLInputElement>,
     selectedItem: any,
@@ -144,7 +161,7 @@ export default (props: Props) => {
     handleModalSubmitMutation,
     handleOperations,
     setModalState,
-  } = useFolderOperations(origin, undefined, undefined, true);
+  } = useFolderOperations(username, origin, undefined, undefined, true);
 
   const uploadDataColor =
     sidebarActiveItem === "uploadData" ? "#ffffff" : "#aaaaaa";
@@ -163,13 +180,6 @@ export default (props: Props) => {
             {" "}
             <Nav onSelect={onSelect} aria-label="ChRIS Demo site navigation">
               <NavList>
-                <NavItem
-                  key="overview"
-                  itemId="overview"
-                  isActive={sidebarActiveItem === "overview"}
-                >
-                  {renderLink("/", "Overview", "overview")}
-                </NavItem>
                 <NavGroup key="theData" title="Data">
                   <NavItem
                     key="data"

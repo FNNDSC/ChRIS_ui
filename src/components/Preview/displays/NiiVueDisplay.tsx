@@ -1,7 +1,9 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import { Switch } from "@patternfly/react-core";
 import { InputNumber, Select } from "antd";
 import { type CSSProperties, useState } from "react";
 import type { IFileBlob } from "../../../api/model.ts";
+import type * as DoUser from "../../../reducers/user";
 import SizedNiivueCanvas from "../../SizedNiivueCanvas";
 import { getFileResourceUrl } from "./dicomUtils/utils.ts";
 import styles from "./NiiVueDisplay.module.css";
@@ -86,13 +88,17 @@ const DISPLAY_TYPE_MAP: DisplayTypeMap = {
   },
 };
 
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
 type Props = {
   selectedFile?: IFileBlob;
   isHide?: boolean;
+
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export default (props: Props) => {
-  const { selectedFile, isHide } = props;
+  const { selectedFile, isHide, useUser } = props;
   const [sliceTypeName, setSliceTypeName] = useState(SliceType.Multiplanar);
   const [crosshairText, setCrosshairText] = useState("");
   const [displayType, setDisplayType] = useState(DisplayType.IMG4096);
@@ -252,6 +258,7 @@ export default (props: Props) => {
           sliceType={sliceTypeName}
           isRadiologistView={isRadiologistView}
           isHide={isHide}
+          useUser={useUser}
         />
       </div>
     </>

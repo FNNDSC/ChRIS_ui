@@ -1,16 +1,14 @@
-// src/components/PipelineUpload.tsx
-import { useEffect, useRef, useState } from "react";
-import { useCookies } from "react-cookie";
+import type { Plugin as ApiPlugin, ComputeResource } from "@fnndsc/chrisapi";
 import { Button } from "@patternfly/react-core";
 import CheckCircleIcon from "@patternfly/react-icons/dist/esm/icons/check-circle-icon";
 import axios from "axios";
 import { isEmpty } from "lodash";
+import { useEffect, useRef, useState } from "react";
+import { useCookies } from "react-cookie";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useAppSelector } from "../../store/hooks";
-import { handleInstallPlugin } from "../PipelinesCopy/utils";
-import { uploadPipelineSourceFile, extractPluginInfo } from "./utils";
 import { envOptions } from "../NewStore/hooks/useFetchPlugins";
-import type { Plugin as ApiPlugin, ComputeResource } from "@fnndsc/chrisapi";
+import { handleInstallPlugin } from "../PipelinesCopy/utils";
+import { extractPluginInfo, uploadPipelineSourceFile } from "./utils";
 
 interface Notification {
   type: "warning" | "info" | "error" | undefined;
@@ -24,10 +22,13 @@ export interface PluginsResponse {
 
 const COOKIE_NAME = "storeCreds";
 
-const PipelineUpload = ({
-  fetchPipelinesAgain,
-}: { fetchPipelinesAgain: () => void }) => {
-  const isStaff = useAppSelector((s) => s.user.isStaff);
+type Props = {
+  fetchPipelinesAgain: () => void;
+  isStaff: boolean;
+};
+
+export default (props: Props) => {
+  const { fetchPipelinesAgain, isStaff } = props;
   const [cookies] = useCookies([COOKIE_NAME]);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -82,6 +83,7 @@ const PipelineUpload = ({
     if (!authHeader)
       throw new Error("Please configure admin credentials in the Store first.");
 
+    // @ts-expect-error XXX pluginMeta
     await handleInstallPlugin(authHeader, pluginMeta, crList);
   }
 
@@ -194,5 +196,3 @@ const PipelineUpload = ({
     </div>
   );
 };
-
-export default PipelineUpload;

@@ -8,7 +8,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useContext, useState } from "react";
 import { catchError } from "../../../../api/common";
-import { getFeed, getFeedPluginInstances } from "../../../../api/serverApi";
+import { getData, getDataInstances } from "../../../../api/serverApi";
 import type { Feed, PluginInstance } from "../../../../api/types";
 import { MainRouterContext } from "../../../../routes";
 import type { SelectionPayload } from "../../../../store/cart/types";
@@ -191,12 +191,12 @@ export default (props: Props) => {
   };
 
   const feedIDToLastChRISFile = async (feedID: number): Promise<ChRISFeed> => {
-    const pluginInstances = await getFeedPluginInstances(feedID);
+    const pluginInstances = await getDataInstances(feedID);
     if (!pluginInstances.data) {
       return { name: "", filename: "", theID: -1, createDateTime: "" };
     }
 
-    const feed = await getFeed(feedID);
+    const feed = await getData(feedID);
     if (!feed.data) {
       return { name: "", filename: "", theID: -1, createDateTime: "" };
     }

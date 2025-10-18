@@ -16,8 +16,15 @@ import { InfoSection } from "../Common";
 import Wrapper from "../Wrapper";
 import FeedGraph from "./FeedGraph";
 import "./dashboard.css";
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import { useNavigate } from "react-router";
 import type * as DoUI from "../../reducers/ui";
+import * as DoUser from "../../reducers/user";
+import Title from "./Title";
 import {
   covidnetDataset,
   fetalBrainReconstructionDataset,
@@ -25,35 +32,32 @@ import {
 } from "./util";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export default (props: Props) => {
-  const { useUI } = props;
+  const { useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn } = user;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Overview";
-  }, []);
+    if (isLoggedIn) {
+      navigate("/data");
+      return;
+    }
 
-  const TitleComponent = (
-    <InfoSection
-      title="Welcome to ChRIS"
-      content={
-        <>
-          Retrieve, analyze, and visualize <i>any data</i> using a powerful
-          cloud computing platform: ChRIS. <b>Let's get started.</b>
-          <p>
-            Build: <code className="build-version">{BUILD_VERSION}</code>
-          </p>
-        </>
-      }
-    />
-  );
+    document.title = "Overview";
+  }, [isLoggedIn]);
 
   return (
-    <Wrapper titleComponent={TitleComponent} useUI={useUI}>
+    <Wrapper titleComponent={Title} useUI={useUI} useUser={useUser}>
       <PageSection>
         <Grid hasGutter>
           <GridItem span={12}>

@@ -72,6 +72,7 @@ const getOperationName = (
 };
 
 export const useFolderOperations = (
+  username: string,
   origin: OriginState,
   computedPath?: string,
   folderList?: FileBrowserFolderList,
@@ -81,7 +82,6 @@ export const useFolderOperations = (
 
   // perform operations on selected paths
   const { selectedPaths } = useAppSelector((state) => state.cart);
-  const username = useAppSelector((state) => state.user.username) as string;
   const dispatch = useAppDispatch();
 
   const [modalState, setModalState] = useState<ModalState>({

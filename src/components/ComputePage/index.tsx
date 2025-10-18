@@ -1,41 +1,29 @@
 import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import { PageSection } from "@patternfly/react-core";
-import React from "react";
+import { useEffect } from "react";
 import type * as DoUI from "../../reducers/ui";
-import { InfoSection } from "../Common";
+import type * as DoUser from "../../reducers/user";
 import Wrapper from "../Wrapper";
 import ComputeCatalog from "./ComputeCatalog";
+import Title from "./Title";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
-const TitleComponent = (
-  <InfoSection
-    title="Compute"
-    content={
-      <>
-        This page presents the available <b>Compute</b> environments that are
-        known to ChRIS. These denote computers and clusters/clouds that can be
-        selected to run various <b>plugins</b> and <b>pipelines</b>. The special{" "}
-        <b>host</b> environment is always available and is the actual server
-        that is running ChRIS. It is generally not recommended to run intensive
-        computation on the <b>host</b> environment. Adding new <b>Compute</b> to
-        ChRIS is typically enabled by using the separate ChRIS admin interface.
-      </>
-    }
-  />
-);
-
 export default (props: Props) => {
-  const { useUI } = props;
-  React.useEffect(() => {
+  const { useUI, useUser } = props;
+
+  useEffect(() => {
     document.title = "Compute Catalog";
   }, []);
+
   return (
-    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} useUser={useUser} titleComponent={Title}>
       <PageSection>
         <ComputeCatalog />
       </PageSection>

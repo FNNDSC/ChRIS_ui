@@ -9,7 +9,7 @@ import CrvFileSelect from "./CrvFileSelect";
 import FsmFileSelect from "./PrimaryFileSelect";
 import "./xtk-viewer.css";
 
-// X and dat are loaded in from script file
+// XXX X and dat in xtk are loaded in from script file.
 declare const X: any;
 declare const dat: any;
 

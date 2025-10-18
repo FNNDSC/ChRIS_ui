@@ -1,4 +1,8 @@
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
@@ -11,6 +15,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type * as DoUI from "../../reducers/ui";
+import * as DoUser from "../../reducers/user";
 import { useAppSelector } from "../../store/hooks";
 import { Alert, notification } from "../Antd";
 import { EmptyStateComponent, InfoSection, SpinContainer } from "../Common";
@@ -23,6 +28,7 @@ import Operations from "./components/Operations";
 import { OperationContext } from "./context";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 // Fetch folders from the server
 export async function fetchFolders(computedPath: string, pageNumber?: number) {
@@ -112,15 +118,18 @@ export async function fetchFolders(computedPath: string, pageNumber?: number) {
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 export default (props: Props) => {
-  const { useUI } = props;
+  const { useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { username } = user;
   const [api, contextHolder] = notification.useNotification();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [pageNumber, setPageNumber] = useState(1);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
-  const username = useAppSelector((state) => state.user.username);
   const currentLayout = useAppSelector((state) => state.cart.currentLayout);
   const decodedPath = decodeURIComponent(pathname);
   const currentPathSplit = decodedPath.split("/library/")[1];
@@ -210,7 +219,7 @@ export default (props: Props) => {
   );
 
   return (
-    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} useUser={useUser} titleComponent={TitleComponent}>
       {contextHolder}
       <PageSection
         stickyOnBreakpoint={{

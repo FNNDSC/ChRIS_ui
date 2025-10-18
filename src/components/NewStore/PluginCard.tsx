@@ -1,5 +1,9 @@
-import type { ComputeResource } from "@fnndsc/chrisapi";
-import type { Plugin as ChrisPlugin } from "@fnndsc/chrisapi";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import type { Plugin as ChrisPlugin, ComputeResource } from "@fnndsc/chrisapi";
 import {
   Button,
   Card,
@@ -16,19 +20,25 @@ import { format } from "date-fns";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { useAppSelector } from "../../store/hooks";
+import * as DoUser from "../../reducers/user";
 import { CheckCircleIcon } from "../Icons";
 import type { StorePlugin } from "./hooks/useFetchPlugins";
-
 import styles from "./PluginCard.module.css";
+
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 const NOTIF_DURATION = 3;
 
-async function checkInstallation(
+type ReturnCheckInstallation = {
+  installed: boolean;
+  computeResources: ComputeResource[];
+};
+
+const checkInstallation = async (
   name: string,
   version: string,
   isLoggedIn?: boolean,
-): Promise<{ installed: boolean; computeResources: ComputeResource[] }> {
+): Promise<ReturnCheckInstallation> => {
   const client = ChrisAPIClient.getClient();
   const resp = await client.getPlugins({ name, version });
   if (!resp.data?.length) {
@@ -42,9 +52,9 @@ async function checkInstallation(
   const crList = await real.getPluginComputeResources();
   const crItems = crList.getItems() || [];
   return { installed: true, computeResources: crItems as ComputeResource[] };
-}
+};
 
-interface PluginCardProps {
+type Props = {
   basePlugin: StorePlugin;
   computeList?: ComputeResource[];
   onInstall?: (
@@ -54,17 +64,25 @@ interface PluginCardProps {
   onModify?: (plugin: ChrisPlugin, computeResources: ComputeResource[]) => void;
   onResourcesChange?: (pluginId: string, resources: ComputeResource[]) => void;
   refreshMap?: Record<string, number>;
-}
 
-const PluginCard: React.FC<PluginCardProps> = ({
-  basePlugin,
-  computeList = [],
-  onInstall,
-  onModify,
-  onResourcesChange,
-  refreshMap,
-}) => {
-  const { isLoggedIn } = useAppSelector((state) => state.user);
+  useUser: UseThunk<DoUser.State, TDoUser>;
+};
+
+export default (props: Props) => {
+  const {
+    basePlugin,
+    computeList = [],
+    onInstall,
+    onModify,
+    onResourcesChange,
+    refreshMap,
+    useUser,
+  } = props;
+
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn } = user;
+
   const [versionOpen, setVersionOpen] = useState(false);
   const [resourceOpen, setResourceOpen] = useState(false);
   const [selectedPlugin, setSelectedPlugin] = useState<StorePlugin | null>(
@@ -85,7 +103,7 @@ const PluginCard: React.FC<PluginCardProps> = ({
   const current = selectedPlugin ?? basePlugin;
   const refreshCount = refreshMap?.[current.id] ?? 0;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: useEffect
   useEffect(() => {
     let alive = true;
     setChecking(true);
@@ -318,5 +336,3 @@ const PluginCard: React.FC<PluginCardProps> = ({
     </Card>
   );
 };
-
-export default PluginCard;

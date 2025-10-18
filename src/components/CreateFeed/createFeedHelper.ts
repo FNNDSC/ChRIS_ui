@@ -1,32 +1,30 @@
 import type { Plugin, PluginInstance, PluginParameter } from "@fnndsc/chrisapi";
+import { collectionJsonToJson } from "../../api/api";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import {
   fetchResource,
   limitConcurrency,
   uploadWrapper,
 } from "../../api/common";
-import type { InputType } from "../AddNode/types";
+import {
+  createWorkflow,
+  getData,
+  searchPrimitivePackagesByName,
+  createPrimitivePackageInstance as serverCreatePluginInstance,
+  updateDataName,
+} from "../../api/serverApi";
+import type { AddNodeState, InputType } from "../AddNode/types";
 import { unpackParametersIntoObject } from "../AddNode/utils";
 import type { PipelineState } from "../PipelinesCopy/context";
 import type { ChRISFeed, CreateFeedData } from "./types/feed";
-import type { AddNodeState } from "../AddNode/types";
 import { computeWorkflowNodesInfo, getFullFeedName } from "./utils";
-
-import {
-  createWorkflow,
-  getFeed,
-  searchPluginsByName,
-  createPluginInstance as serverCreatePluginInstance,
-  updateFeedName,
-} from "../../api/serverApi";
-import { collectionJsonToJson } from "../../api/api";
 
 const createFeedCore = async (
   dirpath: ChRISFeed[],
   fullFeedName: string,
   pipelineState: PipelineState,
 ) => {
-  const searchPluginsResult = await searchPluginsByName("pl-dircopy");
+  const searchPluginsResult = await searchPrimitivePackagesByName("pl-dircopy");
   console.info(
     "createFeedCore: after searchPluginsByName: searchPluginsResult:",
     searchPluginsResult,
@@ -127,9 +125,9 @@ const createFeedCore = async (
   }
 
   const feedID = createdInstance.data?.feed_id || 0;
-  const feed = getFeed(feedID);
+  const feed = getData(feedID);
 
-  await updateFeedName(feedID, fullFeedName);
+  await updateDataName(feedID, fullFeedName);
 
   return feed;
 };
