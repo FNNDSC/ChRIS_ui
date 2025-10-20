@@ -1,8 +1,5 @@
-import type { Tag, PluginInstance } from "@fnndsc/chrisapi";
-
-import type { IUserState } from "../../../store/user/userSlice";
-import type { Feed } from "@fnndsc/chrisapi";
-import type { EventDataNode, DataNode, Key } from "rc-tree/lib/interface";
+import type { Tag } from "@fnndsc/chrisapi";
+import type { DataNode, EventDataNode, Key } from "rc-tree/lib/interface";
 
 type ActionMap<M extends { [index: string]: any }> = {
   [Key in keyof M]: M[Key] extends undefined
@@ -146,12 +143,6 @@ export interface CreateFeedState {
   uploadProgress: number;
   feedError: any;
   creatingFeedStatus: string;
-}
-
-export interface CreateFeedReduxProp {
-  user?: IUserState;
-  addFeed?: (feed: Feed) => void;
-  getSelectedPlugin?: (item: PluginInstance) => void;
 }
 
 export interface ChrisFileSelectProp {

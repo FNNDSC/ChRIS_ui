@@ -1,6 +1,9 @@
 export default {
   API_ROOT: "b87f4fda-012a-4564-8c36-096e496cbedf",
   PFDCM_ROOT: "700e747e-619f-4007-ad8d-47677c0d0b46",
+  AUTH_ROOT: "b87f4fda-012a-4564-8c36-096e496cbedf",
+  USER_ROOT: "b87f4fda-012a-4564-8c36-096e496cbedf",
+
   PUBLIC_USER: "fnndsc",
 
   STORE_ROOT: "79e63221-ccf9-43c3-bf0d-45d05db72c48",

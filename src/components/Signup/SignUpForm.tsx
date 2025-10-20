@@ -1,4 +1,8 @@
-import ChrisApiClient, { type User } from "@fnndsc/chrisapi";
+import {
+  getRootID,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import {
   ActionGroup,
   Alert,
@@ -13,32 +17,48 @@ import {
 } from "@patternfly/react-core";
 import { EyeIcon, EyeSlashIcon } from "@patternfly/react-icons";
 import { validate } from "email-validator";
-import { has } from "lodash";
-import React from "react";
-import { useCookies } from "react-cookie";
-import { useNavigate } from "react-router-dom";
+import { type FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAppDispatch } from "../../store/hooks";
-import { setAuthTokenSuccess } from "../../store/user/userSlice";
+import type * as DoUser from "../../reducers/user";
+
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Validated = {
   error: undefined | "error" | "default" | "success" | "warning";
 };
 
-interface SignUpFormProps {
+type Props = {
+  useUser: UseThunk<DoUser.State, TDoUser>;
   isShowPasswordEnabled?: boolean;
   showPasswordAriaLabel?: string;
   hidePasswordAriaLabel?: string;
-}
+};
 
-const SignUpForm: React.FC<SignUpFormProps> = ({
-  isShowPasswordEnabled = true,
-  hidePasswordAriaLabel = "Hide password",
-  showPasswordAriaLabel = "Show password",
-}: SignUpFormProps) => {
-  const dispatch = useAppDispatch();
-  const [_cookies, setCookie] = useCookies<string>([""]);
-  const [userState, setUserState] = React.useState<{
+export default (props: Props) => {
+  const {
+    useUser: [classStateUser, doUser],
+    isShowPasswordEnabled: propsIsShowPasswordEnabled,
+    showPasswordAriaLabel: propsShowPasswordAriaLabel,
+    hidePasswordAriaLabel: propsHidePasswordAriaLabel,
+  } = props;
+  const userID = getRootID(classStateUser);
+
+  const isShowPasswordEnabled =
+    typeof propsIsShowPasswordEnabled === "undefined"
+      ? true
+      : propsIsShowPasswordEnabled;
+
+  const showPasswordAriaLabel =
+    typeof propsShowPasswordAriaLabel === "undefined"
+      ? "Show password"
+      : propsShowPasswordAriaLabel;
+
+  const hidePasswordAriaLabel =
+    typeof propsHidePasswordAriaLabel === "undefined"
+      ? "Hide password"
+      : propsHidePasswordAriaLabel;
+
+  const [userState, setUserState] = useState<{
     username: string;
     validated: Validated["error"];
     invalidText: string;
@@ -47,7 +67,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     validated: "default",
     invalidText: "",
   });
-  const [emailState, setEmailState] = React.useState<{
+  const [emailState, setEmailState] = useState<{
     email: string;
     validated: Validated["error"];
     invalidText: string;
@@ -56,7 +76,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     validated: "default",
     invalidText: "",
   });
-  const [passwordState, setPasswordState] = React.useState<{
+  const [passwordState, setPasswordState] = useState<{
     password: string;
     validated: Validated["error"];
     invalidText: string;
@@ -66,20 +86,21 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     invalidText: "",
   });
 
-  const [loading, setLoading] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [isServerDown, setIsServerDown] = React.useState(false);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isServerDown, setIsServerDown] = useState(false);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsServerDown(false);
+    let isError = false;
     if (!userState.username) {
       setUserState({
         ...userState,
         validated: "error",
         invalidText: "Username is required",
       });
+      isError = true;
     }
 
     if (!emailState.email || !validate(emailState.email)) {
@@ -88,6 +109,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         validated: "error",
         invalidText: "Email is Required",
       });
+      isError = true;
     }
 
     if (!passwordState.password) {
@@ -96,90 +118,19 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         validated: "error",
         invalidText: "Password is Required",
       });
+      isError = true;
     }
 
-    setLoading(true);
-    const userURL = import.meta.env.VITE_CHRIS_UI_USERS_URL;
-    const authURL = import.meta.env.VITE_CHRIS_UI_AUTH_URL;
-    let user: User;
-    let token: string;
-
-    if (userURL) {
-      try {
-        user = await ChrisApiClient.createUser(
-          userURL,
-          userState.username,
-          passwordState.password,
-          emailState.email,
-        );
-
-        token = await ChrisApiClient.getAuthToken(
-          authURL,
-          userState.username,
-          passwordState.password,
-        );
-
-        if (user && token) {
-          const oneDayToSeconds = 24 * 60 * 60;
-          setCookie("username", user.data.username, {
-            path: "/",
-            maxAge: oneDayToSeconds,
-          });
-          setCookie(`${user.data.username}_token`, token, {
-            path: "/",
-            maxAge: oneDayToSeconds,
-          });
-          setCookie("isStaff", user.data.is_staff, {
-            path: "/",
-            maxAge: oneDayToSeconds,
-          });
-          dispatch(
-            setAuthTokenSuccess({
-              token,
-              username: user.data.username,
-              isStaff: user.data.is_staff,
-            }),
-          );
-          const then = new URLSearchParams(location.search).get("then");
-          if (then) navigate(then);
-          else navigate("/");
-        }
-      } catch (error) {
-        if (has(error, "response")) {
-          if (has(error, "response.data.username")) {
-            setLoading(false);
-            setUserState({
-              ...userState,
-              invalidText: "This username is already registered",
-              validated: "error",
-            });
-          }
-
-          if (has(error, "response.data.email")) {
-            setLoading(false);
-            setEmailState({
-              ...emailState,
-              invalidText: "This email address already exists",
-              validated: "error",
-            });
-          }
-
-          if (has(error, "response.data.password")) {
-            setLoading(false);
-            setPasswordState({
-              ...passwordState,
-              invalidText: "Password should be at least 8 characters",
-              validated: "error",
-            });
-          } else if (!has(error, "response.data")) {
-            setIsServerDown(true);
-            setLoading(false);
-          }
-        } else {
-          setLoading(false);
-        }
-      }
+    if (isError) {
+      return;
     }
+
+    doUser.createUser(
+      userID,
+      userState.username,
+      passwordState.password,
+      emailState.email,
+    );
   };
 
   const passwordInput = (
@@ -201,7 +152,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   );
 
   return (
-    <Form onSubmit={handleSubmit} noValidate>
+    <Form onSubmit={onSubmit} noValidate>
       {isServerDown && (
         <FormAlert>
           <Alert
@@ -304,5 +255,3 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     </Form>
   );
 };
-
-export default SignUpForm;

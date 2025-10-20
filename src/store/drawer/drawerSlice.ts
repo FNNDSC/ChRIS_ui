@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { Role } from "../user/userSlice";
+import { Role } from "../../reducers/types";
 
 interface DrawerState {
   open: boolean;

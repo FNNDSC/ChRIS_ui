@@ -2,63 +2,131 @@ import config from "config";
 import type { ReadonlyNonEmptyArray } from "fp-ts/lib/ReadonlyNonEmptyArray";
 import YAML from "yaml";
 import api from "./api";
+import { STATUS_OK } from "./constants";
 import type { PACSqueryCore } from "./pfdcm";
 import { PACSqueryCoreToJSON } from "./pfdcm/generated";
 import type {
+  AuthToken,
   DownloadToken,
   Feed,
+  Link,
   NodeInfo,
   PACSSeries,
   PFDCMResult,
   Plugin,
   PluginInstance,
   UploadPipeline,
+  User,
 } from "./types";
 
 console.info("api.serverApi: config:", config);
 
-export const getFeedPluginInstances = (feedID: number) =>
-  api<PluginInstance[]>({
-    endpoint: `/${feedID}/plugininstances/`,
-    method: "get",
-  });
-
-export const getFeed = (feedID: number) =>
-  api<Feed>({
-    endpoint: `/${feedID}/`,
-    method: "get",
-  });
-
-export const updateFeedName = (feedID: number, feedName: string) =>
-  api<Feed>({
-    endpoint: `/${feedID}/`,
-    method: "put",
+export const createUser = (username: string, password: string, email: string) =>
+  api<User>({
+    endpoint: "/users/",
+    apiroot: config.USER_ROOT,
     json: {
-      name: feedName,
+      username,
+      password,
+      email,
+    },
+    method: "post",
+    isSignUpLogin: true,
+    headers: {
+      "Content-Type": "application/json",
     },
   });
 
-export const updateFeedPublic = (feedID: number, isPublic = true) =>
+export const getAuthToken = (username: string, password: string) =>
+  api<AuthToken>({
+    endpoint: "/auth-token/",
+    apiroot: config.AUTH_ROOT,
+    json: {
+      username,
+      password,
+    },
+    method: "post",
+    isSignUpLogin: true,
+    isJson: true,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+export const getUserID = async (): Promise<string> => {
+  const { status, data, errmsg } = await getLinkMap();
+  if (!data) {
+    return "";
+  }
+  if (status !== STATUS_OK) {
+    return "";
+  }
+
+  const userLink = data.user;
+  if (!userLink) {
+    return "";
+  }
+  const userLinkList = userLink.split("/");
+  return userLinkList[userLinkList.length - 2];
+};
+
+export const getUser = (userID: string) =>
+  api<User>({
+    endpoint: `/users/${userID}/`,
+  });
+
+export const getLinkMap = () =>
+  api<Link>({
+    endpoint: "/",
+    isLink: true,
+    query: { limit: 1 },
+  });
+
+export const getDataInstances = (dataID: number) =>
+  api<PluginInstance[]>({
+    endpoint: `/${dataID}/plugininstances/`,
+    method: "get",
+  });
+
+export const getData = (dataID: number) =>
   api<Feed>({
-    endpoint: `/${feedID}/`,
+    endpoint: `/${dataID}/`,
+    method: "get",
+  });
+
+export const updateDataName = (dataID: number, dataName: string) =>
+  api<Feed>({
+    endpoint: `/${dataID}/`,
+    method: "put",
+    json: {
+      name: dataName,
+    },
+  });
+
+export const updateDataPublic = (dataID: number, isPublic = true) =>
+  api<Feed>({
+    endpoint: `/${dataID}/`,
     method: "put",
     json: {
       public: isPublic,
     },
   });
 
-export const searchPluginsByName = (pluginName: string) =>
+export const searchPrimitivePackagesByName = (packageName: string) =>
   api<Plugin[]>({
     endpoint: "/plugins/search/",
     method: "get",
     query: {
-      name: pluginName,
+      name: packageName,
     },
   });
 
-export const createPluginInstance = (pluginID: number, theDirs: string[]) =>
+export const createPrimitivePackageInstance = (
+  packageID: number,
+  theDirs: string[],
+) =>
   api<PluginInstance>({
-    endpoint: `/plugins/${pluginID}/instances/`,
+    endpoint: `/plugins/${packageID}/instances/`,
     method: "post",
     json: {
       previous_id: null,
@@ -90,14 +158,16 @@ export const createWorkflow = (
     },
   });
 
-export const createFeedWithFilepath = async (
+export const createDataWithFilepath = async (
   filepath: string,
   theName: string,
   // biome-ignore lint/correctness/noUnusedFunctionParameters: not using tags for now.
   tags?: string[],
   isPublic: boolean = false,
 ) => {
-  const pluginInstanceResult = await createPluginInstance(1, [filepath]);
+  const pluginInstanceResult = await createPrimitivePackageInstance(1, [
+    filepath,
+  ]);
   if (!pluginInstanceResult.data) {
     return {
       errmsg: pluginInstanceResult.errmsg,
@@ -109,18 +179,18 @@ export const createFeedWithFilepath = async (
     data: { feed_id: feedID },
   } = pluginInstanceResult;
 
-  await updateFeedName(feedID, theName);
+  await updateDataName(feedID, theName);
 
   if (isPublic) {
-    await updateFeedPublic(feedID, true);
+    await updateDataPublic(feedID, true);
   }
 
-  const feedResult = await getFeed(feedID);
+  const feedResult = await getData(feedID);
 
   return feedResult;
 };
 
-export const createPipeline = (pipeline: UploadPipeline) =>
+export const createPackage = (pipeline: UploadPipeline) =>
   api({
     endpoint: "/pipelines/sourcefiles/",
     method: "post",

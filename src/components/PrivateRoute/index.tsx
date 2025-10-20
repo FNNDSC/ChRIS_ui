@@ -1,11 +1,25 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useAppSelector } from "../../store/hooks";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import { Navigate } from "react-router-dom";
+import * as DoUser from "../../reducers/user";
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
-  const location = useLocation();
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
+type Props = {
+  children: JSX.Element;
+  useUser: UseThunk<DoUser.State, TDoUser>;
+};
+
+export default (props: Props) => {
+  const { children, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn } = user;
   const redirectTo = encodeURIComponent(
-    `${location.pathname}${location.search}`,
+    `${window.location.pathname}${window.location.search}`,
   );
 
   return isLoggedIn ? (
@@ -14,5 +28,3 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
     <Navigate to={`/login?redirectTo=${redirectTo}`} />
   );
 };
-
-export default PrivateRoute;

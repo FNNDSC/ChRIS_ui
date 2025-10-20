@@ -10,11 +10,9 @@ import type { IExplorerState } from "../explorer/types";
 import type { IFeedState } from "../feed/types";
 import type { IPluginState } from "../plugin/pluginSlice";
 import type { IPluginInstanceState } from "../pluginInstance/types";
-import type { IUserState } from "../user/userSlice";
 
 export interface ApplicationState {
   feed: IFeedState;
-  user: IUserState;
   plugin: IPluginState;
   instance: IPluginInstanceState;
   drawers: IDrawerState;

@@ -12,8 +12,8 @@ importers:
         specifier: ^5.5.1
         version: 5.5.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@chhsiao1981/use-thunk':
-        specifier: ^9.0.2
-        version: 9.0.2
+        specifier: ^9.0.3
+        version: 9.0.3
       '@cornerstonejs/core':
         specifier: ^1.86.0
         version: 1.86.1(@babel/preset-env@7.26.0(@babel/core@7.26.0))(autoprefixer@10.4.20(postcss@8.5.1))(webpack@5.97.1)(wslink@2.2.2)
@@ -162,11 +162,11 @@ importers:
         specifier: ^10.0.0
         version: 10.0.0(react@18.3.1)
       react-router:
-        specifier: ^6.26.2
-        version: 6.28.2(react@18.3.1)
+        specifier: ^6.30.1
+        version: 6.30.1(react@18.3.1)
       react-router-dom:
-        specifier: ^6.26.2
-        version: 6.28.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^6.30.1
+        version: 6.30.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-use-websocket:
         specifier: ^4.13.0
         version: 4.13.0
@@ -881,8 +881,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@chhsiao1981/use-thunk@9.0.2':
-    resolution: {integrity: sha512-O70KPctsiA6Ff7sVNFtWlc1hqdylYS2HMM+Lf75XlRC6z6DLzw7z+o3pyS8lyAjr4BtyHfxJwcIufFqDFEjzLw==}
+  '@chhsiao1981/use-thunk@9.0.3':
+    resolution: {integrity: sha512-0yAcJ6l4EKeXjzEhUCpq7mKx3FKJcZCjzvbNkW3U7VKV8NRTfQaDxxOprC4mrzP+lRhOPzCYr0tm7wL51X+a1A==}
 
   '@cornerstonejs/codec-charls@1.2.3':
     resolution: {integrity: sha512-qKUe6DN0dnGzhhfZLYhH9UZacMcudjxcaLXCrpxJImT/M/PQvZCT2rllu6VGJbWKJWG+dMVV2zmmleZcdJ7/cA==}
@@ -1315,8 +1315,8 @@ packages:
       react-redux:
         optional: true
 
-  '@remix-run/router@1.21.1':
-    resolution: {integrity: sha512-KeBYSwohb8g4/wCcnksvKTYlg69O62sQeLynn2YE+5z7JWEj95if27kclW9QqbrlsQ2DINI8fjbV3zyuKfwjKg==}
+  '@remix-run/router@1.23.0':
+    resolution: {integrity: sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==}
     engines: {node: '>=14.0.0'}
 
   '@restart/hooks@0.4.16':
@@ -3260,15 +3260,15 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
 
-  react-router-dom@6.28.2:
-    resolution: {integrity: sha512-O81EWqNJWqvlN/a7eTudAdQm0TbI7hw+WIi7OwwMcTn5JMyZ0ibTFNGz+t+Lju0df4LcqowCegcrK22lB1q9Kw==}
+  react-router-dom@6.30.1:
+    resolution: {integrity: sha512-llKsgOkZdbPU1Eg3zK8lCn+sjD9wMRZZPuzmdWWX5SUs8OFkN5HnFVC0u5KMeMaC9aoancFI/KoLuKPqN+hxHw==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  react-router@6.28.2:
-    resolution: {integrity: sha512-BgFY7+wEGVjHCiqaj2XiUBQ1kkzfg6UoKYwEe0wv+FF+HNPCxtS/MVPvLAPH++EsuCMReZl9RYVGqcHLk5ms3A==}
+  react-router@6.30.1:
+    resolution: {integrity: sha512-X1m21aEmxGXqENEPG3T6u0Th7g0aS4ZmoNynhbs+Cn+q+QGTLt+d5IQ2bHAXKzKcxGJjxACpVbnYQSCRcfxHlQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
@@ -4717,7 +4717,7 @@ snapshots:
   '@biomejs/cli-win32-x64@2.1.4':
     optional: true
 
-  '@chhsiao1981/use-thunk@9.0.2':
+  '@chhsiao1981/use-thunk@9.0.3':
     dependencies:
       react: 18.3.1
       uuid: 11.1.0
@@ -5194,7 +5194,7 @@ snapshots:
       react: 18.3.1
       react-redux: 9.2.0(@types/react@18.3.18)(react@18.3.1)(redux@5.0.1)
 
-  '@remix-run/router@1.21.1': {}
+  '@remix-run/router@1.23.0': {}
 
   '@restart/hooks@0.4.16(react@18.3.1)':
     dependencies:
@@ -7301,16 +7301,16 @@ snapshots:
       react: 18.3.1
       shallow-equal: 3.1.0
 
-  react-router-dom@6.28.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router-dom@6.30.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@remix-run/router': 1.21.1
+      '@remix-run/router': 1.23.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-router: 6.28.2(react@18.3.1)
+      react-router: 6.30.1(react@18.3.1)
 
-  react-router@6.28.2(react@18.3.1):
+  react-router@6.30.1(react@18.3.1):
     dependencies:
-      '@remix-run/router': 1.21.1
+      '@remix-run/router': 1.23.0
       react: 18.3.1
 
   react-textarea-autosize@8.5.7(@types/react@18.3.18)(react@18.3.1):

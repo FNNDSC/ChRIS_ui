@@ -1,10 +1,14 @@
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import type { FileBrowserFolder } from "@fnndsc/chrisapi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type * as DoUI from "../../reducers/ui";
-import { useAppSelector } from "../../store/hooks";
+import * as DoUser from "../../reducers/user";
 import { EmptyStateComponent, InfoSection, SpinContainer } from "../Common";
 import { OperationContext, OperationsProvider } from "../NewLibrary/context";
 import Wrapper from "../Wrapper";
@@ -15,13 +19,19 @@ import styles from "./gnome.module.css";
 import useFolders from "./utils/hooks/useFolders";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export default (props: Props) => {
-  const { useUI } = props;
+  const { useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { username } = user;
+
   const [activeSidebarItem, setActiveSidebarItem] = useState<string>("home");
   const [pageNumber, setPageNumber] = useState(1);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
@@ -29,7 +39,6 @@ export default (props: Props) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const location = useLocation();
-  const username = useAppSelector((state) => state.user.username);
   const queryClient = useQueryClient();
 
   // Get selectedFolder ID from navigation state if passed
@@ -109,7 +118,7 @@ export default (props: Props) => {
     }
   }, [isFirstLoad, pathname, username, navigate]);
 
-  const handleSidebarItemClick = (item: string) => {
+  const onSidebarItemClick = (item: string) => {
     setActiveSidebarItem(item);
     if (item === "home") {
       navigateToPath(`home/${username}`);
@@ -140,6 +149,7 @@ export default (props: Props) => {
     <OperationsProvider>
       <Wrapper
         useUI={useUI}
+        useUser={useUser}
         titleComponent={
           <InfoSection
             title="Library"
@@ -156,7 +166,7 @@ export default (props: Props) => {
           <GnomeLibrarySidebar
             activeSidebarItem={activeSidebarItem}
             computedPath={computedPath}
-            handleSidebarItemClick={handleSidebarItemClick}
+            handleSidebarItemClick={onSidebarItemClick}
             origin={{
               type: OperationContext.LIBRARY,
               additionalKeys: [computedPath],

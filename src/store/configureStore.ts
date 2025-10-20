@@ -15,7 +15,6 @@ import pluginReducer from "./plugin/pluginSlice";
 import pluginInstanceReducer from "./pluginInstance/pluginInstanceSlice";
 import type { ApplicationState } from "./root/applicationState";
 import { rootSaga } from "./root/rootSaga";
-import userReducer from "./user/userSlice";
 
 // TODO the example here accepts Partial<RootState>:
 // https://redux.js.org/usage/writing-tests#example-app-code
@@ -27,7 +26,6 @@ export function setupStore(preloadedState?: ApplicationState) {
   // Create store with Redux Toolkit's configureStore
   const store = configureStore({
     reducer: {
-      user: userReducer,
       cart: cartReducer,
       drawers: drawerReducer,
       explorer: explorerReducer,

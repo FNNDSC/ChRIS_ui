@@ -1,4 +1,8 @@
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import type { Feed, FileBrowserFolder } from "@fnndsc/chrisapi";
 import { ChartDonutUtilization } from "@patternfly/react-charts";
 import {
@@ -29,6 +33,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router";
 import type * as DoUI from "../../reducers/ui";
+import * as DoUser from "../../reducers/user";
 import { useAppSelector } from "../../store/hooks";
 import { Typography } from "../Antd";
 import { InfoSection } from "../Common";
@@ -49,6 +54,7 @@ import {
 } from "./utilties";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 const { Paragraph } = Typography;
 
@@ -97,17 +103,20 @@ type Props = {
   title: string;
   isShared: boolean;
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export default (props: Props) => {
-  const { title, isShared, useUI } = props;
+  const { title, isShared, useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn, username } = user;
   const theType = isShared ? "public" : "private";
 
   const navigate = useNavigate();
   const { feedCount, loadingFeedState, feedsToDisplay, searchFolderData } =
-    useFeedListData(theType);
+    useFeedListData(theType, isLoggedIn);
 
-  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { perPage, page, search, searchType } = searchFolderData;
 
   console.info("TableSelectable: theType:", theType, "isLoggedIn:", isLoggedIn);
@@ -250,7 +259,7 @@ export default (props: Props) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
-    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} useUser={useUser} titleComponent={TitleComponent}>
       <PageSection
         stickyOnBreakpoint={{ default: "top" }}
         style={{ paddingTop: "0.25em", paddingBottom: "0" }}
@@ -269,6 +278,7 @@ export default (props: Props) => {
 
         {isLoggedIn && (
           <Operations
+            username=""
             origin={{
               type: OperationContext.FEEDS,
               additionalKeys: [perPage, page, theType, search, searchType],
@@ -307,6 +317,7 @@ export default (props: Props) => {
             <Tbody>
               {sortedFeeds.map((feed, rowIndex) => (
                 <TableRow
+                  username={username}
                   key={feed.data.id}
                   feed={feed}
                   rowIndex={rowIndex}
@@ -326,21 +337,18 @@ export default (props: Props) => {
 };
 
 // -------------- TableRow Props --------------
-interface TableRowProps {
+type TableRowProps = {
   rowIndex: number;
   feed: Feed;
   allFeeds: Feed[];
   type: string;
   additionalKeys: string[];
-}
+  username: string;
+};
 
 // -------------- TableRow --------------
-const TableRow: React.FC<TableRowProps> = ({
-  rowIndex,
-  feed,
-  additionalKeys,
-  type,
-}) => {
+const TableRow = (props: TableRowProps) => {
+  const { rowIndex, feed, additionalKeys, type, username } = props;
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
   const { handleOnClick } = handlers;
@@ -397,6 +405,7 @@ const TableRow: React.FC<TableRowProps> = ({
 
   return (
     <FolderContextMenu
+      username={username}
       origin={{
         type: OperationContext.FEEDS,
         additionalKeys: additionalKeys,
@@ -736,65 +745,60 @@ const COLUMN_ORDER = [
 ];
 
 // -------------- EmptyStateTable --------------
-function EmptyStateTable() {
-  return (
-    <Table variant="compact" aria-label="Empty Table">
-      <Thead>
-        <Tr>
-          <Th />
-          {COLUMN_ORDER.map(({ label }) => (
-            <Th scope="col" key={label}>
-              {label}
-            </Th>
-          ))}
-        </Tr>
-      </Thead>
-      <Tbody>
-        <Tr>
-          <Td colSpan={COLUMN_ORDER.length + 1}>
-            <EmptyState variant={EmptyStateVariant.full}>
-              <EmptyStateIcon icon={SearchIcon} />
-              <Title headingLevel="h4" size="lg">
-                No Data Available
-              </Title>
-              <Paragraph>
-                There are no analyses to display at this time. Please check back
-                later or adjust your filters.
-              </Paragraph>
-            </EmptyState>
-          </Td>
-        </Tr>
-      </Tbody>
-    </Table>
-  );
-}
+const EmptyStateTable = () => (
+  <Table variant="compact" aria-label="Empty Table">
+    <Thead>
+      <Tr>
+        <Th />
+        {COLUMN_ORDER.map(({ label }) => (
+          <Th scope="col" key={label}>
+            {label}
+          </Th>
+        ))}
+      </Tr>
+    </Thead>
+    <Tbody>
+      <Tr>
+        <Td colSpan={COLUMN_ORDER.length + 1}>
+          <EmptyState variant={EmptyStateVariant.full}>
+            <EmptyStateIcon icon={SearchIcon} />
+            <Title headingLevel="h4" size="lg">
+              No Data Available
+            </Title>
+            <Paragraph>
+              There are no analyses to display at this time. Please check back
+              later or adjust your filters.
+            </Paragraph>
+          </EmptyState>
+        </Td>
+      </Tr>
+    </Tbody>
+  </Table>
+);
 
 // -------------- LoadingTable --------------
-function LoadingTable() {
-  return (
-    <Table variant="compact" aria-label="Loading Table">
-      <Thead>
-        <Tr>
-          <Th screenReaderText="loading data" />
-          {COLUMN_ORDER.map(({ label }) => (
-            <Th key={label}>{label}</Th>
-          ))}
-        </Tr>
-      </Thead>
-      <Tbody>
-        {Array.from({ length: 20 }).map((_, index) => (
-          /**
-           * Using index as key is acceptable for static skeleton rows
-           */
-
-          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-          <Tr key={index}>
-            <Td colSpan={COLUMN_ORDER.length + 1}>
-              <Skeleton width="100%" height="40px" />
-            </Td>
-          </Tr>
+const LoadingTable = () => (
+  <Table variant="compact" aria-label="Loading Table">
+    <Thead>
+      <Tr>
+        <Th screenReaderText="loading data" />
+        {COLUMN_ORDER.map(({ label }) => (
+          <Th key={label}>{label}</Th>
         ))}
-      </Tbody>
-    </Table>
-  );
-}
+      </Tr>
+    </Thead>
+    <Tbody>
+      {Array.from({ length: 20 }).map((_, index) => (
+        /**
+         * Using index as key is acceptable for static skeleton rows
+         */
+
+        <Tr key={index}>
+          <Td colSpan={COLUMN_ORDER.length + 1}>
+            <Skeleton width="100%" height="40px" />
+          </Td>
+        </Tr>
+      ))}
+    </Tbody>
+  </Table>
+);

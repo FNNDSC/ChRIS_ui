@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import DisplayPage from "../DisplayPage";
 
-const ComputeCatalog = () => {
-  const [computeResources, setComputeResources] = React.useState<any[]>();
-  const [loading, setLoading] = React.useState(false);
-  const [pageState, setPageState] = React.useState({
+export default () => {
+  const [computeResources, setComputeResources] = useState<any[]>();
+  const [loading, setLoading] = useState(false);
+  const [pageState, setPageState] = useState({
     page: 1,
     perPage: 10,
     search: "",
@@ -14,7 +14,7 @@ const ComputeCatalog = () => {
   });
 
   const { page, perPage, search, searchType } = pageState;
-  const [selectedCompute, setSelectedCompute] = React.useState<any>();
+  const [selectedCompute, setSelectedCompute] = useState<any>();
 
   const onSetPage = (_event: any, page: number) => {
     setPageState({
@@ -28,7 +28,7 @@ const ComputeCatalog = () => {
       perPage,
     });
   };
-  const handleFilterChange = (value: string) => {
+  const onFilterChange = (value: string) => {
     setPageState({
       ...pageState,
       search: value,
@@ -66,13 +66,14 @@ const ComputeCatalog = () => {
     fetchComputeResources(perPage, page, search, searchType);
   }, [perPage, page, search, searchType]);
 
-  const handleSearch = (search: string, searchType: string) => {
+  const onSearch = (search: string, searchType: string) => {
     setPageState({
       ...pageState,
       search,
       searchType,
     });
   };
+
   return (
     <>
       <DisplayPage
@@ -81,17 +82,15 @@ const ComputeCatalog = () => {
         onSetPage={onSetPage}
         onPerPageSelect={onPerPageSelect}
         resources={computeResources}
-        handleFilterChange={handleFilterChange}
+        handleFilterChange={onFilterChange}
         selectedResource={selectedCompute}
         setSelectedResource={(compute: any) => {
           setSelectedCompute(compute);
         }}
         title="Compute"
-        handleComputeSearch={handleSearch}
+        handleComputeSearch={onSearch}
         search={pageState.search}
       />
     </>
   );
 };
-
-export default ComputeCatalog;

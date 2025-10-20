@@ -1,8 +1,9 @@
 import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import type { DefaultError } from "@tanstack/react-query";
+import { Alert, Dropdown, type MenuProps } from "antd";
+import { useCallback, useRef, useState } from "react";
 import { matchPath } from "react-router";
 import { useLocation } from "react-router-dom";
-import { Alert, Dropdown, type MenuProps } from "antd";
 import {
   AnalysisIcon,
   DeleteIcon,
@@ -12,24 +13,20 @@ import {
   MergeIcon,
   ShareIcon,
 } from "../Icons";
-import type { OriginState } from "../NewLibrary/context";
-import { useCallback, useRef, useState } from "react";
 import { AddModal } from "../NewLibrary/components/Operations";
+import type { OriginState } from "../NewLibrary/context";
 import { useFolderOperations } from "../NewLibrary/utils/useOperations";
 
-interface GnomeContextMenuProps {
+type Props = {
   children: React.ReactNode;
+  username: string;
   origin: OriginState;
   computedPath: string;
   folderList?: FileBrowserFolderList;
-}
+};
 
-export const GnomeContextMenu: React.FC<GnomeContextMenuProps> = ({
-  children,
-  origin,
-  computedPath,
-  folderList,
-}) => {
+export const GnomeContextMenu = (props: Props) => {
+  const { children, username, origin, computedPath, folderList } = props;
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -46,7 +43,13 @@ export const GnomeContextMenu: React.FC<GnomeContextMenuProps> = ({
     contextHolder,
     setUserRelatedError,
     setModalState,
-  } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
+  } = useFolderOperations(
+    username,
+    origin,
+    computedPath,
+    folderList,
+    isFeedsTable,
+  );
 
   // Handler for when menu is opened/closed - Google Drive-like behavior
   // Don't clear selections when menu is closed

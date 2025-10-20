@@ -1,25 +1,37 @@
 import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import {
   Masthead,
   MastheadContent,
   MastheadToggle,
   PageToggleButton,
 } from "@patternfly/react-core";
 import type React from "react";
+import * as DoUser from "../../reducers/user";
 import { useAppSelector } from "../../store/hooks";
-import type { IUserState } from "../../store/user/userSlice";
 import { BarsIcon } from "../Icons";
-import ToolbarComponent from "./Toolbar";
+import Toolbar from "./Toolbar";
+
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
-  user: IUserState;
   onNavToggle: () => void;
   titleComponent?: React.ReactElement;
 
   isNavOpen?: boolean;
+
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export default (props: Props) => {
-  const { user, onNavToggle, titleComponent, isNavOpen } = props;
+  const { useUser, onNavToggle, titleComponent, isNavOpen } = props;
+
+  const [classStateUser, _] = useUser;
+
+  const user = getState(classStateUser) || DoUser.defaultState;
 
   const showToolbar = useAppSelector((state) => state.feed.showToolbar);
 
@@ -27,14 +39,6 @@ export default (props: Props) => {
   const mastheadContentStyle = {
     marginLeft: isNavOpen ? "12rem" : "0", // Adjust based on sidebar state
   };
-
-  const pageToolbar = (
-    <ToolbarComponent
-      showToolbar={showToolbar}
-      token={user.token}
-      titleComponent={titleComponent}
-    />
-  );
 
   return (
     <Masthead display={{ default: "inline" }}>
@@ -50,7 +54,12 @@ export default (props: Props) => {
         </PageToggleButton>
       </MastheadToggle>
       <MastheadContent style={mastheadContentStyle}>
-        {pageToolbar}
+        <Toolbar
+          showToolbar={showToolbar}
+          token={user.token}
+          titleComponent={titleComponent}
+          useUser={useUser}
+        />
       </MastheadContent>
     </Masthead>
   );

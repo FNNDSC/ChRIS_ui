@@ -174,10 +174,10 @@ export const fileViewerMap: any = {
   nii: "NiiVueDisplay",
   gz: "CatchallDisplay",
   mgz: "NiiVueDisplay",
-  fsm: "XtkDisplay",
-  crv: "XtkDisplay",
-  smoothwm: "XtkDisplay",
-  pial: "XtkDisplay",
+  // fsm: "XtkDisplay",
+  // crv: "XtkDisplay",
+  // smoothwm: "XtkDisplay",
+  // pial: "XtkDisplay",
   "nii.gz": "NiiVueDisplay",
   mp4: "VideoDisplay", // Add mp4 format
   avi: "VideoDisplay", // Add avi format

@@ -1,4 +1,10 @@
 import {
+  getRootID,
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import {
   Button,
   Dropdown,
   DropdownItem,
@@ -17,45 +23,42 @@ import { useCookies } from "react-cookie";
 import { useMediaQuery } from "react-responsive";
 import { useLocation, useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import { type Role, Roles, StaffRoles } from "../../reducers/types";
+import * as DoUser from "../../reducers/user";
 import { clearCartOnLogout } from "../../store/cart/cartSlice";
-import {
-  useAppDispatch,
-  useAppSelector,
-  useSignUpAllowed,
-} from "../../store/hooks";
-import {
-  type Role,
-  Roles,
-  StaffRoles,
-  setLogoutSuccess,
-  setRole,
-} from "../../store/user/userSlice";
+import { useAppDispatch, useSignUpAllowed } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
 import CartNotify from "./CartNotify";
 import styles from "./Toolbar.module.css";
 
-type ToolbarComponentProps = {
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
+type Props = {
   showToolbar: boolean;
   titleComponent?: React.ReactElement;
   token?: string | null;
+
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
-const ToolbarComponent: React.FC<ToolbarComponentProps> = (
-  props: ToolbarComponentProps,
-) => {
+export default (props: Props) => {
   const isSmallerScreen = useMediaQuery({ maxWidth: 1224 });
   const { signUpAllowed } = useSignUpAllowed();
-  const { token, titleComponent } = props;
+  const {
+    token,
+    titleComponent,
+    useUser: [classStateUser, doUser],
+  } = props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [_, _setCookie, removeCookie] = useCookies();
   const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
   const queryClient = useQueryClient();
-  const username = useAppSelector((state) => state.user.username);
-  const role = useAppSelector((state) => state.user.role);
-  const isStaff = useAppSelector((state) => state.user.isStaff);
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const userID = getRootID(classStateUser);
+  const { username, role, isStaff } = user;
   const [dropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [roleDropdownOpen, setIsRoleDropdownOpen] = React.useState(false);
   const [trayOpen, setTrayOpen] = React.useState(false); // State for tray visibility
@@ -78,7 +81,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
       path: "/",
     });
     dispatch(clearCartOnLogout());
-    dispatch(setLogoutSuccess());
+    doUser.setUserLogout(userID);
   };
 
   const onDropdownToggle = () => {
@@ -111,7 +114,7 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
     return (
       <DropdownItem
         key={`role-${idx}`}
-        onClick={() => dispatch(setRole({ role }))}
+        onClick={() => doUser.setRole(userID, role)}
       >
         {role}
       </DropdownItem>
@@ -235,5 +238,3 @@ const ToolbarComponent: React.FC<ToolbarComponentProps> = (
     </>
   );
 };
-
-export default ToolbarComponent;

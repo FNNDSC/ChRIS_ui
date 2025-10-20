@@ -3,7 +3,6 @@ import type { DefaultError } from "@tanstack/react-query";
 import { matchPath } from "react-router";
 import { Alert, Dropdown, type MenuProps } from "../../Antd";
 import {
-  ArchiveIcon,
   AnalysisIcon,
   DeleteIcon,
   DownloadIcon,
@@ -16,15 +15,16 @@ import type { OriginState } from "../context";
 import { useFolderOperations } from "../utils/useOperations";
 import { AddModal } from "./Operations";
 
-interface ContextMenuProps {
+type Props = {
   children: React.ReactElement;
   computedPath?: string;
+  username: string;
   origin: OriginState;
   folderList?: FileBrowserFolderList;
-}
+};
 
-export const FolderContextMenu = (props: ContextMenuProps) => {
-  const { children, origin, folderList, computedPath } = props;
+export const FolderContextMenu = (props: Props) => {
+  const { children, username, origin, folderList, computedPath } = props;
   const isFeedsTable =
     matchPath({ path: "/feeds", end: true }, location.pathname) !== null; // This checks if the path matches and returns true or false
   const {
@@ -35,7 +35,13 @@ export const FolderContextMenu = (props: ContextMenuProps) => {
     contextHolder,
     setUserRelatedError,
     setModalState,
-  } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
+  } = useFolderOperations(
+    username,
+    origin,
+    computedPath,
+    folderList,
+    isFeedsTable,
+  );
 
   const items: MenuProps["items"] = [
     { key: "createFeed", label: "Create Feed", icon: <AnalysisIcon /> },

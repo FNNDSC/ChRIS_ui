@@ -1,15 +1,9 @@
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { Tooltip } from "@patternfly/react-core";
-import React, {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
-import type { IDrawerState } from "../../store/drawer/drawerSlice";
 import { resetDrawerState } from "../../store/drawer/drawerSlice";
 import { clearSelectedFile } from "../../store/explorer/explorerSlice";
 import { getFeedSuccess, setShowToolbar } from "../../store/feed/feedSlice";
@@ -27,23 +21,30 @@ import Wrapper from "../Wrapper";
 import { DrawerActionButton } from "./DrawerUtils";
 import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 import "./Feeds.css"; // Import your CSS file
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import { collectionJsonToJson } from "../../api/api";
 import {
   PluginInstanceStatus,
   type PluginInstance as PluginInstanceType,
 } from "../../api/types";
+import { Role } from "../../reducers/types";
 import type * as DoUI from "../../reducers/ui";
-import { Role } from "../../store/user/userSlice";
+import * as DoUser from "../../reducers/user";
 import { useFetchFeed } from "./useFetchFeed";
 import { useSearchQueryParams } from "./usePaginate";
 import { usePollAllPluginStatuses } from "./usePolledStatuses";
 import { handleMaximize, handleMinimize } from "./utilties";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 // Custom title component to replace Typography.Title
@@ -71,7 +72,11 @@ const CustomTitle = ({
 );
 
 export default (props: Props) => {
-  const { useUI } = props;
+  const { useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { role, isLoggedIn } = user;
+
   const [currentLayout, setCurrentLayout] = useState(false);
   const drawerState = useAppSelector((state) => state.drawers);
   const dispatch = useAppDispatch();
@@ -81,14 +86,14 @@ export default (props: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = params;
-  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
-  const role = useAppSelector((state) => state.user.role);
+
   const { feed, contextHolder } = useFetchFeed(id, theType, isLoggedIn);
   const treeQuery = usePaginatedTreeQuery(feed);
   const statuses = usePollAllPluginStatuses(
     treeQuery.pluginInstances,
     treeQuery.totalCount,
   );
+
   useEffect(() => {
     if (!theType || (theType === "private" && !isLoggedIn)) {
       const redirectTo = encodeURIComponent(
@@ -142,7 +147,6 @@ export default (props: Props) => {
 
   const onNodeClick = useCallback(
     (node: any) => {
-      console.info("onNodeClick: node:", node);
       dispatch(clearSelectedFile());
       dispatch(getSelectedPlugin(node.item));
     },
@@ -156,18 +160,6 @@ export default (props: Props) => {
       dispatch(getSelectedPlugin(node));
     },
     [dispatch],
-  );
-
-  const handleDrawerAction = useCallback(
-    (mode: keyof IDrawerState) => (
-      <DrawerActionButton
-        content={mode}
-        handleMaximize={() => handleMaximize(mode, dispatch)}
-        handleMinimize={() => handleMinimize(mode, dispatch)}
-        maximized={drawerState[mode].maximized}
-      />
-    ),
-    [drawerState, dispatch],
   );
 
   const changeLayout = () => {
@@ -207,7 +199,7 @@ export default (props: Props) => {
   }
 
   return (
-    <Wrapper useUI={useUI} titleComponent={TitleComponent}>
+    <Wrapper useUI={useUI} useUser={useUser} titleComponent={TitleComponent}>
       {contextHolder}
       <PanelGroup autoSaveId="conditional" direction="vertical">
         {/* Top Panels: Graph and Node Details */}
@@ -230,7 +222,12 @@ export default (props: Props) => {
                   minSize={20}
                   style={graphStyle}
                 >
-                  {handleDrawerAction("graph")}
+                  <DrawerActionButton
+                    content={"graph"}
+                    handleMaximize={() => handleMaximize("graph", dispatch)}
+                    handleMinimize={() => handleMinimize("graph", dispatch)}
+                    maximized={drawerState.graph.maximized}
+                  />
                   {!currentLayout ? (
                     <ParentComponent
                       changeLayout={changeLayout}
@@ -260,7 +257,12 @@ export default (props: Props) => {
                 minSize={20}
                 style={nodeStyle}
               >
-                {handleDrawerAction("node")}
+                <DrawerActionButton
+                  content={"node"}
+                  handleMaximize={() => handleMaximize("node", dispatch)}
+                  handleMinimize={() => handleMinimize("node", dispatch)}
+                  maximized={drawerState.node.maximized}
+                />
                 <div className="node-block">
                   <NodeDetails />
                 </div>
@@ -285,6 +287,7 @@ export default (props: Props) => {
             explore={true}
             handlePluginSelect={onNodeBrowserClick}
             statuses={statuses}
+            useUser={useUser}
           />
         </Panel>
       </PanelGroup>

@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAppSelector } from "../../store/hooks";
-import { fetchFeeds, fetchPublicFeeds } from "./utilties"; // Your API functions
-import { useLocation } from "react-router";
 import { useMemo } from "react";
+import { useLocation } from "react-router";
+import { fetchFeeds, fetchPublicFeeds } from "./utilties"; // Your API functions
 
 export function useSearchQueryParams() {
   const { search } = useLocation();
@@ -17,9 +16,8 @@ const useSearchQuery = (query: URLSearchParams) => ({
   type: query.get("type") || "public",
 });
 
-export const useFeedListData = (theType: string) => {
+export const useFeedListData = (theType: string, isLoggedIn: boolean) => {
   const query = useSearchQueryParams();
-  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
   const { perPage, page, search, searchType } = useSearchQuery(query);
 
   const { data, isLoading, isFetching } = useQuery({

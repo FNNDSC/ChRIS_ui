@@ -13,7 +13,6 @@ import {
 } from "react-router-dom";
 import ComputePage from "./components/ComputePage";
 import Dashboard from "./components/Dashboard";
-import DatasetRedirect from "./components/DatasetRedirect";
 import FeedsListView from "./components/Feeds/FeedListView";
 import FeedView from "./components/Feeds/FeedView";
 import GnomeLibrary from "./components/GnomeLibrary";
@@ -32,22 +31,23 @@ import {
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import * as DoUI from "./reducers/ui";
-import { useAppSelector } from "./store/hooks";
+import * as DoUser from "./reducers/user";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
-interface IState {
+interface State {
   selectData?: Series;
 }
 
 export type Series = any[];
 
-interface IActions {
+interface Actions {
   createFeedWithData: (data: Series) => void;
   clearFeedData: () => void;
 }
 
-export const [State, MainRouterContext] = RouterContext<IState, IActions>({
+export const [State, MainRouterContext] = RouterContext<State, Actions>({
   state: {
     selectData: [] as Series,
   },
@@ -83,15 +83,19 @@ export default () => {
   const [state, setState] = useState(State);
   const [route, setRoute] = useState("");
   const navigate = useNavigate();
-  const isLoggedIn = useAppSelector((state) => state.user.isLoggedIn);
 
   const [uiID, _] = useState(genUUID());
+
   const useUI = useThunk<DoUI.State, TDoUI>(DoUI);
-  const [stateUI, doUI] = useUI;
+  const [_2, doUI] = useUI;
+  const useUser = useThunk<DoUser.State, TDoUser>(DoUser);
+  const [classStateUser, doUser] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn } = user;
 
   console.info("routes: start: route:", route);
 
-  const actions: IActions = {
+  const actions: Actions = {
     createFeedWithData: (selectData: Series) => {
       setState({ selectData });
       const type = isLoggedIn ? "private" : "public";
@@ -126,6 +130,7 @@ export default () => {
 
   useEffect(() => {
     doUI.init(uiID);
+    doUser.init();
   }, []);
 
   // Update the active sidebar item based on the current route
@@ -135,39 +140,24 @@ export default () => {
     doUI.setSidebarActive(uiID, sidebarItem);
   }, [location.pathname]);
 
-  const ui = getState(stateUI, uiID) || DoUI.defaultState;
-
   return useRoutes([
     {
       path: "/",
-      element: <Dashboard useUI={useUI} />,
+      element: <Dashboard useUI={useUI} useUser={useUser} />,
     },
     {
       path: "library/*",
       element: (
-        <PrivateRoute>
+        <PrivateRoute useUser={useUser}>
           <RouterProvider
             {...{ actions, state, route, setRoute }}
             context={MainRouterContext}
           >
             <OperationsProvider>
-              <GnomeLibrary useUI={useUI} />
+              <GnomeLibrary useUI={useUI} useUser={useUser} />
             </OperationsProvider>
           </RouterProvider>
         </PrivateRoute>
-      ),
-    },
-    {
-      path: "data/*",
-      element: (
-        <RouterProvider
-          {...{ actions, state, route, setRoute }}
-          context={MainRouterContext}
-        >
-          <OperationsProvider>
-            <FeedsListView title="My Data" isShared={false} useUI={useUI} />
-          </OperationsProvider>
-        </RouterProvider>
       ),
     },
     {
@@ -178,7 +168,25 @@ export default () => {
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedView useUI={useUI} />
+            <FeedView useUI={useUI} useUser={useUser} />
+          </OperationsProvider>
+        </RouterProvider>
+      ),
+    },
+    {
+      path: "data/*",
+      element: (
+        <RouterProvider
+          {...{ actions, state, route, setRoute }}
+          context={MainRouterContext}
+        >
+          <OperationsProvider>
+            <FeedsListView
+              title="My Data"
+              isShared={false}
+              useUI={useUI}
+              useUser={useUser}
+            />
           </OperationsProvider>
         </RouterProvider>
       ),
@@ -191,51 +199,55 @@ export default () => {
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedsListView title="Shared Data" isShared={true} useUI={useUI} />
+            <FeedsListView
+              title="Shared Data"
+              isShared={true}
+              useUI={useUI}
+              useUser={useUser}
+            />
           </OperationsProvider>
         </RouterProvider>
       ),
     },
     {
       path: "package/:id",
-      element: <SinglePlugin useUI={useUI} />,
+      element: <SinglePlugin useUI={useUI} useUser={useUser} />,
     },
     {
       path: "pacs",
       element: (
-        <PrivateRoute>
-          <Pacs useUI={useUI} />
+        <PrivateRoute useUser={useUser}>
+          <Pacs useUI={useUI} useUser={useUser} />
         </PrivateRoute>
       ),
     },
     {
       path: "login",
-      element: <Login />,
+      element: <Login useUser={useUser} />,
     },
     {
       path: "signup",
-      element: <Signup />,
+      element: <Signup useUser={useUser} />,
     },
-
     {
       path: "package",
-      element: <PipelinePage useUI={useUI} />,
+      element: <PipelinePage useUI={useUI} useUser={useUser} />,
     },
     {
       path: "compute",
-      element: <ComputePage useUI={useUI} />,
+      element: <ComputePage useUI={useUI} useUser={useUser} />,
     },
     {
       path: "import",
-      element: <Store useUI={useUI} />,
-    },
-    {
-      path: "*",
-      element: <NotFound useUI={useUI} />,
+      element: <Store useUI={useUI} useUser={useUser} />,
     },
     {
       path: "install/*",
-      element: <PluginInstall useUI={useUI} />,
+      element: <PluginInstall useUI={useUI} useUser={useUser} />,
+    },
+    {
+      path: "*",
+      element: <NotFound useUI={useUI} useUser={useUser} />,
     },
   ]);
 };

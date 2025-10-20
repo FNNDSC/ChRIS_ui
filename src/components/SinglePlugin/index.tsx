@@ -11,7 +11,6 @@ import React from "react";
 import { useParams } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
-import { useAppSelector } from "../../store/hooks";
 import { unpackParametersIntoString } from "../AddNode/utils";
 import { Alert } from "../Antd";
 import { EmptyStateComponent, SpinContainer } from "../Common";
@@ -22,19 +21,28 @@ import {
   type ParameterPayload,
 } from "./PluginCatalogComponents";
 import "./singlePlugin.css";
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import type * as DoUI from "../../reducers/ui";
+import * as DoUser from "../../reducers/user";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export default (props: Props) => {
-  const { useUI } = props;
+  const { useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn } = user;
 
-  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
   const { id } = useParams() as { id: string };
   const [parameterPayload, setParameterPayload] =
     React.useState<ParameterPayload>();
@@ -177,7 +185,7 @@ export default (props: Props) => {
   }, [data?.plugins[0], setPluginParameters]);
 
   return (
-    <Wrapper useUI={useUI}>
+    <Wrapper useUI={useUI} useUser={useUser}>
       {isLoading || isFetching ? (
         <SpinContainer title="Please wait as resources for this plugin are being fetched..." />
       ) : isError ? (

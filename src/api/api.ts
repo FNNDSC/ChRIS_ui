@@ -8,7 +8,7 @@ export type Params = Record<string, any>;
 
 export type Files = Record<string, any>;
 
-export interface CallAPI<T> {
+export interface ApiParams {
   endpoint: string;
   method?: string;
   query?: Query;
@@ -19,18 +19,8 @@ export interface CallAPI<T> {
   filetext?: string;
   apiroot?: string;
   isJson?: boolean;
-}
-
-interface ApiParams {
-  query?: Query;
-  method?: string;
-  params?: Params;
-  json?: any;
-  headers?: any;
-  filename?: string;
-  filetext?: string;
-  apiroot?: string;
-  isJson?: boolean;
+  isLink?: boolean;
+  isSignUpLogin?: boolean;
 }
 
 export interface ApiResult<T> {
@@ -57,12 +47,16 @@ const queryToString = (query: Query | Params) =>
 
 let _COOKIE: any = null;
 
+export const refreshCookie = () => {
+  _COOKIE = new Cookies(null);
+};
+
 export const getToken = () => {
-  const cookie = new Cookies(_COOKIE);
-  console.info("api.getToken: cookie is _COOKIE:", cookie === _COOKIE);
-  _COOKIE = cookie;
-  const username = cookie.get("username");
-  const token: string = cookie.get(`${username}_token`);
+  if (!_COOKIE) {
+    _COOKIE = new Cookies(_COOKIE);
+  }
+  const username = _COOKIE.get("username");
+  const token: string = _COOKIE.get(`${username}_token`);
   return token;
 };
 
@@ -73,7 +67,19 @@ const collectionJsonItemToJson = (item: any) =>
     return r;
   }, {});
 
-export const collectionJsonToJson = (theData: any) => {
+const collectionJsonLinkToJson = (links: any[]) => {
+  return links.reduce((r: any, x: any) => {
+    const key = x.rel;
+    const link = x.href;
+    r[key] = link;
+    return r;
+  }, {});
+};
+
+export const collectionJsonToJson = (theData: any, isLink = false) => {
+  if (isLink) {
+    return collectionJsonLinkToJson(theData.collection.links);
+  }
   const ret = theData.collection.items.map(collectionJsonItemToJson);
   return typeof theData.collection.total === "undefined" ? ret[0] : ret;
 };
@@ -86,9 +92,9 @@ export const sanitizeAPIRootURL = (API_ROOT: string) => {
   return API_ROOT;
 };
 
-const callApi = async <T>(
-  endpoint: string,
-  {
+export default async <T>(apiParams: ApiParams): Promise<ApiResult<T>> => {
+  const {
+    endpoint,
     query,
     method = "get",
     params,
@@ -98,8 +104,10 @@ const callApi = async <T>(
     filetext: paramsFiletext,
     apiroot: paramsAPIRoot,
     isJson,
-  }: ApiParams,
-): Promise<ApiResult<T>> => {
+    isLink,
+    isSignUpLogin,
+  } = apiParams;
+
   const { API_ROOT: CONFIG_API_ROOT } = config;
 
   const default_api_root = window.location.origin;
@@ -116,17 +124,21 @@ const callApi = async <T>(
     theEndpoint = `${theEndpoint}?${queryToString(query)}`;
   }
 
+  // XXX special case for uploading files.
   if (filename) {
     const filetext = paramsFiletext || "";
     return await postFile(theEndpoint, filename, filetext);
   }
 
-  const token = getToken();
+  // init header with token
+  const headers: HeadersInit = {};
 
-  const headers: HeadersInit = {
-    Authorization: `Token ${token}`,
-  };
+  if (!isSignUpLogin) {
+    const token = getToken();
+    headers.Authorization = `Token ${token}`;
+  }
 
+  // setup body
   let body: string | undefined;
   if (params) {
     const paramsStr = queryToString(params);
@@ -136,6 +148,8 @@ const callApi = async <T>(
     body = JSON.stringify(json);
     headers["Content-Type"] = "application/json";
   }
+
+  // post-setup header
   const theHeaders = paramsHeaders || {};
   Object.assign(headers, theHeaders);
 
@@ -145,7 +159,7 @@ const callApi = async <T>(
     body,
   };
 
-  return await fetchCore<T>(theEndpoint, options, isJson);
+  return await fetchCore<T>(theEndpoint, options, isJson, isLink);
 };
 
 const postFile = async <T>(
@@ -198,6 +212,7 @@ const fetchCore = async <T>(
   endpoint: string,
   options: RequestInit,
   isJson = false,
+  isLink = false,
 ): Promise<ApiResult<T>> => {
   return await fetch(endpoint, options)
     .then((res) => {
@@ -217,7 +232,7 @@ const fetchCore = async <T>(
 
           const jsonData = isJson
             ? collectionJsonData
-            : collectionJsonToJson(collectionJsonData);
+            : collectionJsonToJson(collectionJsonData, isLink);
 
           console.info(
             "api.callApi: jsonData:",
@@ -239,31 +254,4 @@ const fetchCore = async <T>(
     .catch((err) => {
       return { status: 599, errmsg: err.message };
     });
-};
-
-export default <T>(callAPI: CallAPI<T>): Promise<ApiResult<T>> => {
-  const {
-    endpoint,
-    method,
-    query,
-    params,
-    filename,
-    filetext,
-    json,
-    headers,
-    apiroot,
-    isJson,
-  } = callAPI;
-
-  return callApi<T>(endpoint, {
-    method,
-    query,
-    params,
-    filename,
-    filetext,
-    json,
-    headers,
-    apiroot,
-    isJson,
-  });
 };

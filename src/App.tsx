@@ -54,38 +54,41 @@ export default (props: Props) => {
   // to render
   const themeAlg = isDarkTheme ? theme.darkAlgorithm : theme.defaultAlgorithm;
 
+  const futureRouter = {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true,
+  };
+
   return (
-    <>
-      <Provider store={store}>
-        <CookiesProvider>
-          <BrowserRouter>
-            <QueryClientProvider client={queryClient}>
-              <ConfigProvider
-                theme={{
-                  algorithm: themeAlg,
-                  token: {
-                    // var(--pf-v5-global--primary-color--200)
-                    colorSuccess: "#004080",
+    <Provider store={store}>
+      <CookiesProvider>
+        <BrowserRouter future={futureRouter}>
+          <QueryClientProvider client={queryClient}>
+            <ConfigProvider
+              theme={{
+                algorithm: themeAlg,
+                token: {
+                  // var(--pf-v5-global--primary-color--200)
+                  colorSuccess: "#004080",
+                },
+                components: {
+                  Progress: {
+                    // var(--pf-v5-global--primary-color--100)
+                    defaultColor: "#0066CC",
                   },
-                  components: {
-                    Progress: {
-                      // var(--pf-v5-global--primary-color--100)
-                      defaultColor: "#0066CC",
-                    },
-                  },
-                }}
-              >
-                <AntdApp>
-                  <div className="patternfly-font">
-                    <Cart />
-                    <Routes />
-                  </div>
-                </AntdApp>
-              </ConfigProvider>
-            </QueryClientProvider>
-          </BrowserRouter>
-        </CookiesProvider>
-      </Provider>
-    </>
+                },
+              }}
+            >
+              <AntdApp>
+                <div className="patternfly-font">
+                  <Cart />
+                  <Routes />
+                </div>
+              </AntdApp>
+            </ConfigProvider>
+          </QueryClientProvider>
+        </BrowserRouter>
+      </CookiesProvider>
+    </Provider>
   );
 };

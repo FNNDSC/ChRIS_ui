@@ -1,7 +1,12 @@
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import { Niivue, NVImageFromUrlOptions, SLICE_TYPE } from "@niivue/niivue";
 import { useEffect, useRef, useState } from "react";
 import { getToken } from "../../api/api.ts";
-import { useAppSelector } from "../../store/hooks.ts";
+import * as DoUser from "../../reducers/user";
 import FreeSurferColorLUT from "../Preview/displays/FreesurferColorLUT.v7.4.1.json";
 import BlackBody from "../Preview/displays/mipav/black_body.json";
 import Cardiac from "../Preview/displays/mipav/cardiac.json";
@@ -19,7 +24,6 @@ import Rainbow from "../Preview/displays/mipav/rainbow.json";
 import Rainbow2 from "../Preview/displays/mipav/rainbow2.json";
 import Rainbow3 from "../Preview/displays/mipav/rainbow3.json";
 import Ratio from "../Preview/displays/mipav/ratio.json";
-
 import {
   type ColorMap,
   type CrosshairLocation,
@@ -80,6 +84,8 @@ const _COLOR_MAP: { [key: string]: ColorMap } = {
   [DisplayColorMap.Ratio]: Ratio,
 };
 
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
 type Props = {
   size?: number;
   isScaling?: boolean;
@@ -94,6 +100,8 @@ type Props = {
   isRadiologistView: boolean;
 
   isHide?: boolean;
+
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export default (props: Props) => {
@@ -108,6 +116,8 @@ export default (props: Props) => {
     sliceType: propsSliceType,
     isRadiologistView,
     isHide,
+
+    useUser,
   } = props;
   const sliceType = propsSliceType || SliceType.Multiplanar;
 
@@ -121,7 +131,9 @@ export default (props: Props) => {
 
   const [volumeUrl, setVolumeUrl] = useState("");
 
-  const isLoggedIn = useAppSelector(({ user }) => user.isLoggedIn);
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isLoggedIn } = user;
 
   // useEffect
   useEffect(() => {

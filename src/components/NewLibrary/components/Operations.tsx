@@ -3,8 +3,6 @@ import {
   ActionGroup,
   Button,
   Checkbox,
-  Chip,
-  ChipGroup,
   Form,
   HelperText,
   HelperTextItem,
@@ -13,30 +11,27 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarItem,
-  Tooltip,
 } from "@patternfly/react-core";
 import type { DefaultError } from "@tanstack/react-query";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import { getFileName } from "../../../api/common";
-import { removeSelectedPayload } from "../../../store/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { Alert as AntdAlert } from "../../Antd";
 import type { OriginState } from "../context";
 import { type ModalState, useFolderOperations } from "../utils/useOperations";
 import LayoutSwitch from "./LayoutSwitch";
 import "./Operations.css";
-import UploadData from "./operations/UploadData";
-import CreateAnalysis from "./operations/CreateAnalysis";
-import Download from "./operations/Download";
-import Merge from "./operations/Merge";
-import Share from "./operations/Share";
-import Rename from "./operations/Rename";
-import Delete from "./operations/Delete";
-import PayloadList from "./operations/PayloadList";
 import { AddNodeProvider } from "../../AddNode/context";
 import { CreateFeedProvider } from "../../CreateFeed/context";
 import { PipelineProvider } from "../../PipelinesCopy/context";
+import CreateAnalysis from "./operations/CreateAnalysis";
+import Delete from "./operations/Delete";
+import Download from "./operations/Download";
+import Merge from "./operations/Merge";
+import PayloadList from "./operations/PayloadList";
+import Rename from "./operations/Rename";
+import Share from "./operations/Share";
+import UploadData from "./operations/UploadData";
 
 export type AdditionalValues = {
   share: {
@@ -44,7 +39,8 @@ export type AdditionalValues = {
   };
 };
 
-interface OperationProps {
+type Props = {
+  username: string;
   origin: OriginState;
   computedPath?: string;
   folderList?: FileBrowserFolderList;
@@ -54,15 +50,17 @@ interface OperationProps {
   customClassName?: {
     [key: string]: string;
   };
-}
+};
 
-const Operations = ({
-  origin,
-  computedPath,
-  folderList,
-  customStyle,
-  customClassName,
-}: OperationProps) => {
+export default (props: Props) => {
+  const {
+    username,
+    origin,
+    computedPath,
+    folderList,
+    customStyle,
+    customClassName,
+  } = props;
   const location = useLocation();
   const dispatch = useAppDispatch();
 
@@ -79,7 +77,13 @@ const Operations = ({
     contextHolder,
     setUserRelatedError,
     setModalState,
-  } = useFolderOperations(origin, computedPath, folderList, isFeedsTable);
+  } = useFolderOperations(
+    username,
+    origin,
+    computedPath,
+    folderList,
+    isFeedsTable,
+  );
 
   console.info("Operations: modalState:", modalState);
 
@@ -217,8 +221,6 @@ const Operations = ({
     </>
   );
 };
-
-export default Operations;
 
 const MODAL_TYPE_LABELS: Record<
   string,

@@ -1,6 +1,8 @@
-// Store.tsx
-
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import type { ComputeResource, Plugin } from "@fnndsc/chrisapi";
 import {
   Button,
@@ -12,16 +14,14 @@ import {
   ToolbarItem,
 } from "@patternfly/react-core";
 import { notification } from "antd";
-import type React from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import { createPipeline } from "../../api/serverApi";
+import { createPackage } from "../../api/serverApi";
 import type { Plugin as PluginType, UploadPipeline } from "../../api/types";
 import type * as DoUI from "../../reducers/ui";
-import { useAppSelector } from "../../store/hooks";
+import * as DoUser from "../../reducers/user";
 import { InfoSection, SpinContainer } from "../Common";
-import { handleInstallPlugin } from "../PipelinesCopy/utils";
+import { handleInstallPlugin as onInstallPlugin } from "../PipelinesCopy/utils";
 import Wrapper from "../Wrapper";
 import postModifyComputeResource from "./hooks/updateComputeResource";
 import { useComputeResources } from "./hooks/useFetchCompute";
@@ -37,9 +37,11 @@ import { StoreConfigModal } from "./StoreConfigModal";
 import StoreToggle from "./StoreToggle";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 const DEFAULT_SEARCH_FIELD = "name";
@@ -47,8 +49,10 @@ const COOKIE_NAME = "storeCreds";
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // seconds
 
 export default (props: Props) => {
-  const { useUI } = props;
-  const { isStaff, isLoggedIn } = useAppSelector((state) => state.user);
+  const { useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isStaff, isLoggedIn, token } = user;
   const [cookies, setCookie, removeCookie] = useCookies([COOKIE_NAME]);
   const [selectedEnv, setSelectedEnv] = useState<string>("PUBLIC ChRIS");
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -85,7 +89,6 @@ export default (props: Props) => {
       isModify: boolean,
     ): string | null => {
       if (isStaff) {
-        const token = ChrisAPIClient.getClient().auth.token;
         return `Token ${token}`;
       }
       const cookie = cookies[COOKIE_NAME];
@@ -100,13 +103,13 @@ export default (props: Props) => {
     [cookies, isStaff],
   );
 
-  const handleInstall = async (
+  const onInstall = async (
     plugin: StorePlugin,
     resources: ComputeResource[],
   ) => {
     const hdr = getAuthHeaderOrPrompt(plugin, resources, false);
     if (!hdr) return;
-    const result: PluginType = await handleInstallPlugin(
+    const result: PluginType = await onInstallPlugin(
       hdr,
       // @ts-expect-error
       { name: plugin.name, version: plugin.version, url: plugin.url },
@@ -138,7 +141,7 @@ export default (props: Props) => {
       ],
     };
 
-    const resultPipeline = await createPipeline(pipeline);
+    const resultPipeline = await createPackage(pipeline);
 
     console.info(
       "NewStore.Store.handleInstall: after createPipeline: resultPipeline:",
@@ -146,7 +149,7 @@ export default (props: Props) => {
     );
   };
 
-  const handleModify = async (plugin: Plugin, resources: ComputeResource[]) => {
+  const onModify = async (plugin: Plugin, resources: ComputeResource[]) => {
     const hdr = getAuthHeaderOrPrompt(plugin, resources, true);
     if (!hdr) return;
     try {
@@ -164,7 +167,7 @@ export default (props: Props) => {
     }
   };
 
-  const handleModalConfirm = async (username: string, password: string) => {
+  const onModalConfirm = async (username: string, password: string) => {
     if (!pending) return;
     const creds = btoa(`${username}:${password}`);
     const hdr = `Basic ${creds}`;
@@ -178,7 +181,7 @@ export default (props: Props) => {
         });
       } else {
         const p = pending.plugin as StorePlugin;
-        await handleInstallPlugin(
+        await onInstallPlugin(
           hdr,
           // @ts-expect-error
           { name: p.name, version: p.version, url: p.url },
@@ -235,7 +238,7 @@ export default (props: Props) => {
           ? [defaultResource]
           : [];
       try {
-        await handleInstall(plg, resources);
+        await onInstall(plg, resources);
       } finally {
         setRefreshMap((prev) => ({
           ...prev,
@@ -268,6 +271,7 @@ export default (props: Props) => {
     <>
       <Wrapper
         useUI={useUI}
+        useUser={useUser}
         titleComponent={
           <InfoSection title="Import Package" content="Work in Progress" />
         }
@@ -322,10 +326,11 @@ export default (props: Props) => {
                   <PluginCard
                     basePlugin={plugin}
                     computeList={computeList || []}
-                    onInstall={handleInstall}
-                    onModify={handleModify}
+                    onInstall={onInstall}
+                    onModify={onModify}
                     onResourcesChange={handleResourcesChange}
                     refreshMap={refreshMap}
+                    useUser={useUser}
                   />
                 </GridItem>
               ))}
@@ -348,7 +353,7 @@ export default (props: Props) => {
       <StoreConfigModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        onConfirm={handleModalConfirm}
+        onConfirm={onModalConfirm}
         modalError={modalError}
       />
     </>

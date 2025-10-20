@@ -1,33 +1,42 @@
-import ChrisApiClient from "@fnndsc/chrisapi";
 import {
-  ListItem,
   ListVariant,
-  LoginFooterItem,
   LoginForm,
   LoginMainFooterBandItem,
   LoginPage,
 } from "@patternfly/react-core";
 import { App } from "antd";
-import queryString from "query-string";
-import type React from "react";
-import { useState } from "react";
-import { useCookies } from "react-cookie";
+import { type FormEvent, type MouseEvent, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import ChrisAPIClient from "../../api/chrisapiclient";
-import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 import ChRIS_Logo from "../../assets/chris-logo.png";
-import { useAppDispatch } from "../../store/hooks.ts";
-import { setAuthTokenSuccess } from "../../store/user/userSlice";
+import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 import "./Login.css";
+import {
+  getRootID,
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import * as DoUser from "../../reducers/user";
 import { useSignUpAllowed } from "../../store/hooks.ts";
+import FooterListItems from "./FooterListItems.tsx";
+
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Status = "idle" | "loading" | "success" | "error";
 
-export const SimpleLoginPage: React.FunctionComponent = () => {
+type Props = {
+  useUser: UseThunk<DoUser.State, TDoUser>;
+};
+
+export default (props: Props) => {
+  const {
+    useUser: [classStateUser, doUser],
+  } = props;
+  const userID = getRootID(classStateUser);
+  const user = getState(classStateUser) || DoUser.defaultState;
+
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
-  const [_cookies, setCookie] = useCookies<string>([""]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>("idle");
@@ -38,90 +47,28 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
   // Use the message API from Ant Design
   const { message } = App.useApp();
 
-  async function handleSubmit(
-    event:
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>
-      | React.KeyboardEvent,
-  ) {
-    event.preventDefault();
-
-    const authURL = import.meta.env.VITE_CHRIS_UI_AUTH_URL;
-
-    setStatus("loading");
-
-    try {
-      const token = await ChrisApiClient.getAuthToken(
-        authURL,
-        username,
-        password,
-      );
-      if (token && username) {
-        const oneDayToSeconds = 24 * 60 * 60;
-        setCookie(`${username}_token`, token, {
-          path: "/",
-          maxAge: oneDayToSeconds,
-        });
-        setCookie("username", username, {
-          path: "/",
-          maxAge: oneDayToSeconds,
-        });
-        const client = ChrisAPIClient.getClient();
-        const user = await client.getUser();
-        setCookie("isStaff", user.data.is_staff, {
-          path: "/",
-          maxAge: oneDayToSeconds,
-        });
-        dispatch(
-          setAuthTokenSuccess({
-            token,
-            username: username,
-            isStaff: user.data.is_staff,
-          }),
-        );
-
-        setStatus("success");
-
-        const { redirectTo } = queryString.parse(location.search) as {
-          redirectTo: string;
-        };
-        if (redirectTo?.startsWith("/library")) {
-          navigate(`/library/home/${username}`);
-        } else if (redirectTo?.startsWith("/feeds")) {
-          const feedIdMatch = redirectTo.match(/^\/feeds\/\d+/);
-          if (feedIdMatch) {
-            navigate("/feeds?type=private");
-          } else {
-            navigate(redirectTo);
-          }
-        } else if (redirectTo) {
-          const decodedRedirectTo = decodeURIComponent(redirectTo);
-          navigate(decodedRedirectTo);
-        } else {
-          navigate("/");
-        }
-      }
-    } catch (error: any) {
-      setStatus("error");
-      message.error(
-        error.response
-          ? "Invalid Credentials"
-          : "There was a problem connecting to the server!",
-        3,
-      );
+  useEffect(() => {
+    if (!user.errmsg) {
+      setStatus("success");
+      return;
     }
-  }
 
-  const handleUsernameChange = (
-    _event: React.FormEvent<HTMLInputElement>,
-    value: string,
+    message.error(user.errmsg, 3);
+    setStatus("error");
+  }, [user.errmsg]);
+
+  const onSubmit = (
+    e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
   ) => {
+    e.preventDefault();
+    doUser.login(userID, username, password);
+  };
+
+  const onChangeUsername = (e: FormEvent<HTMLInputElement>, value: string) => {
     setUsername(value);
   };
 
-  const handlePasswordChange = (
-    _event: React.FormEvent<HTMLInputElement>,
-    value: string,
-  ) => {
+  const onChangePassword = (e: FormEvent<HTMLInputElement>, value: string) => {
     setPassword(value);
   };
 
@@ -138,56 +85,30 @@ export const SimpleLoginPage: React.FunctionComponent = () => {
     </LoginMainFooterBandItem>
   );
 
-  const listItem = (
-    <>
-      <ListItem>
-        <LoginFooterItem href="https://web.chrisproject.org/">
-          Terms of Use{" "}
-        </LoginFooterItem>
-      </ListItem>
-      <ListItem>
-        <LoginFooterItem href="https://web.chrisproject.org/">
-          Help
-        </LoginFooterItem>
-      </ListItem>
-      <ListItem>
-        <LoginFooterItem href="https://web.chrisproject.org/">
-          Privacy Policy
-        </LoginFooterItem>
-      </ListItem>
-    </>
-  );
-
-  const loginForm = (
-    <LoginForm
-      usernameLabel="Username"
-      usernameValue={username}
-      onChangeUsername={handleUsernameChange}
-      passwordLabel="Password"
-      passwordValue={password}
-      onChangePassword={handlePasswordChange}
-      onLoginButtonClick={handleSubmit}
-      loginButtonLabel="Log in"
-      isLoginButtonDisabled={status === "loading"}
-    />
-  );
-
   return (
     <LoginPage
       className="login pf-background"
       footerListVariants={ListVariant.inline}
       brandImgSrc={window.innerWidth < 1200 ? ChRIS_Logo_Inline : ChRIS_Logo}
       brandImgAlt="ChRIS logo"
-      footerListItems={listItem}
+      footerListItems={FooterListItems}
       textContent="ChRIS is a general-purpose, open source, distributed data and computation platform that connects a community of researchers, developers, and clinicians together."
       loginTitle="Log in to your account"
       loginSubtitle="Enter your single sign-on LDAP credentials."
       signUpForAccountMessage={signUpForAccountMessage}
       forgotCredentials={forgotCredentials}
     >
-      {loginForm}
+      <LoginForm
+        usernameLabel="Username"
+        usernameValue={username}
+        onChangeUsername={onChangeUsername}
+        passwordLabel="Password"
+        passwordValue={password}
+        onChangePassword={onChangePassword}
+        onLoginButtonClick={onSubmit}
+        loginButtonLabel="Log in"
+        isLoginButtonDisabled={status === "loading"}
+      />
     </LoginPage>
   );
 };
-
-export default SimpleLoginPage;

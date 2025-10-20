@@ -1,4 +1,9 @@
-import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import user from "@fnndsc/chrisapi/dist/types/user";
 import {
   Button,
   Card,
@@ -13,7 +18,7 @@ import { Cookies, useCookies } from "react-cookie";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import type * as DoUI from "../../reducers/ui";
-import { useAppSelector } from "../../store/hooks";
+import * as DoUser from "../../reducers/user";
 import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
 import { useSearchQueryParams } from "../Feeds/usePaginate";
@@ -21,14 +26,18 @@ import { ExclamationCircleIcon } from "../Icons";
 import Wrapper from "../Wrapper";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
-const PluginInstall = (props: Props) => {
-  const { useUI } = props;
-  const isStaff = useAppSelector((state) => state.user.isStaff);
+export default (props: Props) => {
+  const { useUI, useUser } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { isStaff } = user;
   const [_cookie, setCookie] = useCookies();
   const navigate = useNavigate();
   const [showHelperText, setShowHelperText] = useState(false);
@@ -198,7 +207,7 @@ const PluginInstall = (props: Props) => {
   );
 
   return (
-    <Wrapper useUI={useUI}>
+    <Wrapper useUI={useUI} useUser={useUser}>
       <LoginPage
         footerListVariants={ListVariant.inline}
         backgroundImgSrc="/assets/images/pfbg-icon.svg"
@@ -231,5 +240,3 @@ const PluginInstall = (props: Props) => {
     </Wrapper>
   );
 };
-
-export default PluginInstall;

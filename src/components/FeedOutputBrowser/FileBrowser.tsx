@@ -1,4 +1,9 @@
 import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import {
   FileBrowserFolder,
   FileBrowserFolderFile,
   type FileBrowserFolderLinkFile,
@@ -16,6 +21,7 @@ import {
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import * as DoUser from "../../reducers/user";
 import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
   clearSelectedFile,
@@ -42,6 +48,8 @@ import FileDetailView from "../Preview/FileDetailView";
 import styles from "./FileBrowser.module.css";
 import type { FilesPayload } from "./types";
 
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
 const previewAnimationTiming = {
@@ -55,7 +63,7 @@ const columnNames = {
   size: "Size",
 };
 
-type FileBrowserProps = {
+type Props = {
   pluginFilesPayload?: FilesPayload;
   handleFileClick: (path: string) => void;
   selected?: PluginInstance;
@@ -65,14 +73,10 @@ type FileBrowserProps = {
   fetchMore?: boolean;
   observerTarget?: React.MutableRefObject<any>;
   isHide?: boolean;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
-export default (props: FileBrowserProps) => {
-  const dispatch = useAppDispatch();
-  const feed = useAppSelector((state) => state.feed.currentFeed.data);
-  const handleDownloadMutation = useDownload(feed);
-  const [api, contextHolder] = notification.useNotification();
-  const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
+export default (props: Props) => {
   const {
     pluginFilesPayload: pluginFilesPayloadProps,
     handleFileClick,
@@ -83,12 +87,22 @@ export default (props: FileBrowserProps) => {
     handlePagination,
     isLoading,
     isHide,
+    useUser,
   } = props;
+
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { username } = user;
+
+  const dispatch = useAppDispatch();
+  const feed = useAppSelector((state) => state.feed.currentFeed.data);
+  const handleDownloadMutation = useDownload(feed);
+  const [api, contextHolder] = notification.useNotification();
+  const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
   const pluginFilesPayload = pluginFilesPayloadProps || {};
 
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const drawerState = useAppSelector((state) => state.drawers);
-  const username = useAppSelector((state) => state.user.username);
   const { subFoldersMap, linkFilesMap, filesMap, folderList } =
     pluginFilesPayload;
   const breadcrumb = useMemo(() => additionalKey.split("/"), [additionalKey]);
@@ -229,6 +243,7 @@ export default (props: FileBrowserProps) => {
                     origin={origin}
                     computedPath={additionalKey}
                     folderList={folderList}
+                    username={username}
                   />
                   <div className="file-browser-header">
                     <div className="file-browser-header-row">
@@ -480,6 +495,7 @@ export default (props: FileBrowserProps) => {
             selectedFile={selectedFile}
             preview="large"
             isHide={isHideFileDetailView}
+            useUser={useUser}
           />
         </Panel>
       </PanelGroup>

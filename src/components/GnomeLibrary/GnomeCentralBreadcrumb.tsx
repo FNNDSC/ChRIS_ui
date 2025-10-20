@@ -1,11 +1,4 @@
-import type React from "react";
-import {
-  useRef,
-  useState,
-  useEffect,
-  type KeyboardEvent,
-  type ChangeEvent,
-} from "react";
+import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,21 +9,28 @@ import {
   MenuToggle,
 } from "@patternfly/react-core";
 import {
-  HomeIcon,
   EllipsisVIcon,
   FileUploadIcon,
   FolderIcon,
+  HomeIcon,
   TimesIcon,
 } from "@patternfly/react-icons";
 import {
-  useFolderOperations,
-  type ModalState,
-} from "../NewLibrary/utils/useOperations";
+  type KeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AddModal } from "../NewLibrary/components/Operations";
-import styles from "./gnome.module.css";
-import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
 import type { OriginState } from "../NewLibrary/context";
+import {
+  type ModalState,
+  useFolderOperations,
+} from "../NewLibrary/utils/useOperations";
+import styles from "./gnome.module.css";
 
+// XXX for webkitdirectory in InputHTMLAttributes
 declare module "react" {
   interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
     directory?: string;
@@ -38,19 +38,16 @@ declare module "react" {
   }
 }
 
-interface GnomeCentralBreadcrumbProps {
+type Props = {
+  username: string;
   path: string;
   onPathChange: (p: string) => void;
   origin: OriginState;
   foldersList?: FileBrowserFolderList;
-}
+};
 
-const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
-  path,
-  onPathChange,
-  origin,
-  foldersList,
-}) => {
+export default (props: Props) => {
+  const { username, path, onPathChange, origin, foldersList } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isEditing, setEditing] = useState(false);
 
@@ -75,7 +72,7 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     handleModalSubmitMutation,
     contextHolder,
     setModalState,
-  } = useFolderOperations(origin, path || "", foldersList, false);
+  } = useFolderOperations(username, origin, path || "", foldersList, false);
 
   useEffect(() => {
     if (!isEditing) {
@@ -194,7 +191,7 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
       });
     }
 
-    const items: React.ReactNode[] = [];
+    const items: ReactNode[] = [];
 
     const firstSeg = segmentsFull[0];
     if (firstSeg.toLowerCase() === "home") {
@@ -298,6 +295,8 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
             </div>
           ) : (
             <>
+              {/** biome-ignore lint/a11y/noStaticElementInteractions: breadcrumb */}
+              {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: breadcrumb */}
               <div
                 className={styles.breadcrumbScrollContainer}
                 ref={breadcrumbContainerRef}
@@ -369,5 +368,3 @@ const GnomeCentralBreadcrumb: React.FC<GnomeCentralBreadcrumbProps> = ({
     </>
   );
 };
-
-export default GnomeCentralBreadcrumb;
