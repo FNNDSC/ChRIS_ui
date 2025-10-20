@@ -30,11 +30,13 @@ import {
 } from "./components/Routing/RouterContext";
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
+import * as DoDrawer from "./reducers/drawer";
 import * as DoUI from "./reducers/ui";
 import * as DoUser from "./reducers/user";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 interface State {
   selectData?: Series;
@@ -93,6 +95,9 @@ export default () => {
   const user = getState(classStateUser) || DoUser.defaultState;
   const { isLoggedIn } = user;
 
+  const useDrawer = useThunk<DoDrawer.State, TDoDrawer>(DoDrawer);
+  const [_3, doDrawer] = useDrawer;
+
   console.info("routes: start: route:", route);
 
   const actions: Actions = {
@@ -131,6 +136,7 @@ export default () => {
   useEffect(() => {
     doUI.init(uiID);
     doUser.init();
+    doDrawer.init();
   }, []);
 
   // Update the active sidebar item based on the current route
@@ -143,7 +149,9 @@ export default () => {
   return useRoutes([
     {
       path: "/",
-      element: <Dashboard useUI={useUI} useUser={useUser} />,
+      element: (
+        <Dashboard useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+      ),
     },
     {
       path: "library/*",
@@ -154,7 +162,11 @@ export default () => {
             context={MainRouterContext}
           >
             <OperationsProvider>
-              <GnomeLibrary useUI={useUI} useUser={useUser} />
+              <GnomeLibrary
+                useUI={useUI}
+                useUser={useUser}
+                useDrawer={useDrawer}
+              />
             </OperationsProvider>
           </RouterProvider>
         </PrivateRoute>
@@ -168,7 +180,7 @@ export default () => {
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedView useUI={useUI} useUser={useUser} />
+            <FeedView useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
           </OperationsProvider>
         </RouterProvider>
       ),
@@ -186,6 +198,7 @@ export default () => {
               isShared={false}
               useUI={useUI}
               useUser={useUser}
+              useDrawer={useDrawer}
             />
           </OperationsProvider>
         </RouterProvider>
@@ -204,6 +217,7 @@ export default () => {
               isShared={true}
               useUI={useUI}
               useUser={useUser}
+              useDrawer={useDrawer}
             />
           </OperationsProvider>
         </RouterProvider>
@@ -211,13 +225,15 @@ export default () => {
     },
     {
       path: "package/:id",
-      element: <SinglePlugin useUI={useUI} useUser={useUser} />,
+      element: (
+        <SinglePlugin useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+      ),
     },
     {
       path: "pacs",
       element: (
         <PrivateRoute useUser={useUser}>
-          <Pacs useUI={useUI} useUser={useUser} />
+          <Pacs useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
         </PrivateRoute>
       ),
     },
@@ -231,23 +247,31 @@ export default () => {
     },
     {
       path: "package",
-      element: <PipelinePage useUI={useUI} useUser={useUser} />,
+      element: (
+        <PipelinePage useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+      ),
     },
     {
       path: "compute",
-      element: <ComputePage useUI={useUI} useUser={useUser} />,
+      element: (
+        <ComputePage useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+      ),
     },
     {
       path: "import",
-      element: <Store useUI={useUI} useUser={useUser} />,
+      element: <Store useUI={useUI} useUser={useUser} useDrawer={useDrawer} />,
     },
     {
       path: "install/*",
-      element: <PluginInstall useUI={useUI} useUser={useUser} />,
+      element: (
+        <PluginInstall useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+      ),
     },
     {
       path: "*",
-      element: <NotFound useUI={useUI} useUser={useUser} />,
+      element: (
+        <NotFound useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+      ),
     },
   ]);
 };

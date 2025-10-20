@@ -1,8 +1,8 @@
+import type { PluginMeta } from "@fnndsc/chrisapi";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import DisplayPage from "../DisplayPage";
-import type { PluginMeta } from "@fnndsc/chrisapi";
-import { useQuery } from "@tanstack/react-query";
 
 const PluginCatalog = () => {
   const [pageState, setPageState] = React.useState({

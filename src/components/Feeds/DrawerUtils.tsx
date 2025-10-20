@@ -60,14 +60,14 @@ export const DrawerCloseButtonWithTooltip = ({
 };
 
 interface DrawerActionTypes {
-  handleMaximize: () => void;
-  handleMinimize: () => void;
+  onMaximize: () => void;
+  onMinimize: () => void;
   content: string;
   maximized: boolean;
 }
 export const DrawerActionButton = ({
-  handleMaximize,
-  handleMinimize,
+  onMaximize: handleMaximize,
+  onMinimize: handleMinimize,
   maximized,
 }: DrawerActionTypes) => {
   return (

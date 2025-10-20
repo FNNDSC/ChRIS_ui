@@ -1,28 +1,41 @@
 import { Flex, FlexItem } from "@patternfly/react-core";
-import type React from "react";
 import { useEffect, useState } from "react";
 import { fetchNote } from "../../api/common";
-import type { IDrawerState } from "../../store/drawer/drawerSlice";
-import { setDrawerCurrentlyActive } from "../../store/drawer/drawerSlice";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import { Badge } from "../Antd";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
-import { handleToggle } from "../Feeds/utilties";
 import {
-  BrainIcon,
   AnalysisIcon,
+  BrainIcon,
   FeedBrowserIcon,
   NodeDetailsPanelIcon,
   NoteEditIcon,
   PreviewIcon,
   TerminalIcon,
 } from "../Icons";
+import ButtonContainer from "./ButtonContainer";
 import "./feed-details.css";
+import {
+  getRootID,
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import * as DoDrawer from "../../reducers/drawer";
 
-const FeedDetails = () => {
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+
+type Props = {
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+};
+
+export default (props: Props) => {
+  const { useDrawer } = props;
+  const [classStateDrawer, doDrawer] = useDrawer;
+  const drawerState = getState(classStateDrawer) || DoDrawer.defaultState;
+  const drawerID = getRootID(classStateDrawer);
+
   const currentFeed = useAppSelector((state) => state.feed.currentFeed.data);
-  const dispatch = useAppDispatch();
-  const drawerState = useAppSelector((state) => state.drawers);
 
   const node = drawerState.node.currentlyActive === "node";
   const note = drawerState.node.currentlyActive === "note";
@@ -49,19 +62,19 @@ const FeedDetails = () => {
     >
       <FlexItem>
         <ButtonContainer
+          actionType="graph"
+          icon={<AnalysisIcon />}
           title="Feed Tree Panel"
-          Icon={<AnalysisIcon />}
-          action="graph"
-          dispatch={dispatch}
-          drawerState={drawerState}
           isDisabled={drawerState.graph.open}
+          useDrawer={useDrawer}
         />
       </FlexItem>
 
       <FlexItem>
         <ButtonContainer
+          actionType="node"
           title={node ? "Configuration Panel" : note ? "Feed Note" : "Terminal"}
-          Icon={
+          icon={
             node ? (
               <NodeDetailsPanelIcon />
             ) : note ? (
@@ -70,32 +83,28 @@ const FeedDetails = () => {
               <TerminalIcon />
             )
           }
-          action="node"
-          dispatch={dispatch}
-          drawerState={drawerState}
           isDisabled={drawerState.node.open}
+          useDrawer={useDrawer}
         />
       </FlexItem>
 
       <FlexItem>
         <ButtonContainer
+          actionType="files"
           title="Files Table Panel"
-          Icon={<FeedBrowserIcon />}
-          action="files"
-          dispatch={dispatch}
-          drawerState={drawerState}
+          icon={<FeedBrowserIcon />}
           isDisabled={drawerState.files.open}
+          useDrawer={useDrawer}
         />
       </FlexItem>
 
       <FlexItem>
         <ButtonContainer
+          actionType="preview"
           title="Preview Panel"
-          Icon={preview ? <PreviewIcon /> : <BrainIcon />}
-          action="preview"
-          dispatch={dispatch}
-          drawerState={drawerState}
+          icon={preview ? <PreviewIcon /> : <BrainIcon />}
           isDisabled={drawerState.preview.open}
+          useDrawer={useDrawer}
         />
       </FlexItem>
 
@@ -106,19 +115,9 @@ const FeedDetails = () => {
           content={!node && terminal ? "Configuration Panel" : "Terminal"}
           onClick={() => {
             if (terminal) {
-              dispatch(
-                setDrawerCurrentlyActive({
-                  panel: "node",
-                  currentlyActive: "node",
-                }),
-              );
+              doDrawer.setDrawerCurrentlyActive(drawerID, "node", "node");
             } else {
-              dispatch(
-                setDrawerCurrentlyActive({
-                  panel: "node",
-                  currentlyActive: "terminal",
-                }),
-              );
+              doDrawer.setDrawerCurrentlyActive(drawerID, "node", "terminal");
             }
           }}
           Icon={!node && terminal ? <NodeDetailsPanelIcon /> : <TerminalIcon />}
@@ -134,19 +133,9 @@ const FeedDetails = () => {
             content={!note ? "Feed Note" : "Configuration Panel"}
             onClick={() => {
               if (note) {
-                dispatch(
-                  setDrawerCurrentlyActive({
-                    panel: "node",
-                    currentlyActive: "node",
-                  }),
-                );
+                doDrawer.setDrawerCurrentlyActive(drawerID, "node", "node");
               } else {
-                dispatch(
-                  setDrawerCurrentlyActive({
-                    panel: "node",
-                    currentlyActive: "note",
-                  }),
-                );
+                doDrawer.setDrawerCurrentlyActive(drawerID, "node", "note");
               }
             }}
             Icon={!node && note ? <NodeDetailsPanelIcon /> : <NoteEditIcon />}
@@ -162,19 +151,9 @@ const FeedDetails = () => {
           content={preview ? "Visualization Panel" : "Preview Panel"}
           onClick={() => {
             if (preview) {
-              dispatch(
-                setDrawerCurrentlyActive({
-                  panel: "preview",
-                  currentlyActive: "xtk",
-                }),
-              );
+              doDrawer.setDrawerCurrentlyActive(drawerID, "preview", "xtk");
             } else {
-              dispatch(
-                setDrawerCurrentlyActive({
-                  panel: "preview",
-                  currentlyActive: "preview",
-                }),
-              );
+              doDrawer.setDrawerCurrentlyActive(drawerID, "preview", "preview");
             }
           }}
           Icon={preview ? <BrainIcon /> : <PreviewIcon />}
@@ -182,37 +161,5 @@ const FeedDetails = () => {
         />
       </FlexItem>
     </Flex>
-  );
-};
-
-export default FeedDetails;
-
-export const ButtonContainer = ({
-  action,
-  dispatch,
-  Icon,
-  title,
-  drawerState,
-  isDisabled,
-}: {
-  action: keyof IDrawerState;
-  dispatch: any;
-  Icon: React.ReactNode;
-  title: string;
-  drawerState: IDrawerState;
-  isDisabled: boolean;
-}) => {
-  return (
-    <ButtonWithTooltip
-      position="bottom"
-      className="button-style large-button"
-      content={<span>{title}</span>}
-      Icon={Icon}
-      variant="primary"
-      onClick={() => {
-        handleToggle(action as keyof IDrawerState, drawerState, dispatch);
-      }}
-      isDisabled={isDisabled}
-    />
   );
 };

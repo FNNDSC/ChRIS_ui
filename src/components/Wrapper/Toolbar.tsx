@@ -17,29 +17,28 @@ import {
   Tooltip,
 } from "@patternfly/react-core";
 import { BarsIcon } from "@patternfly/react-icons"; // Add a tools icon
-import { useQueryClient } from "@tanstack/react-query";
-import React from "react";
-import { useCookies } from "react-cookie";
+import { type ReactElement, useContext, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { useLocation, useNavigate } from "react-router";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import { useNavigate } from "react-router";
+import type * as DoDrawer from "../../reducers/drawer";
 import { type Role, Roles, StaffRoles } from "../../reducers/types";
 import * as DoUser from "../../reducers/user";
-import { clearCartOnLogout } from "../../store/cart/cartSlice";
-import { useAppDispatch, useSignUpAllowed } from "../../store/hooks";
+import { useSignUpAllowed } from "../../store/hooks";
 import { ThemeContext } from "../DarkTheme/useTheme";
 import FeedDetails from "../FeedDetails";
 import CartNotify from "./CartNotify";
 import styles from "./Toolbar.module.css";
 
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   showToolbar: boolean;
-  titleComponent?: React.ReactElement;
+  title?: ReactElement;
   token?: string | null;
 
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
@@ -47,41 +46,27 @@ export default (props: Props) => {
   const { signUpAllowed } = useSignUpAllowed();
   const {
     token,
-    titleComponent,
+    title,
     useUser: [classStateUser, doUser],
+    useDrawer,
   } = props;
-  const dispatch = useAppDispatch();
+
   const navigate = useNavigate();
-  const location = useLocation();
-  const [_, _setCookie, removeCookie] = useCookies();
-  const { isDarkTheme, toggleTheme } = React.useContext(ThemeContext);
-  const queryClient = useQueryClient();
+  const { isDarkTheme, toggleTheme } = useContext(ThemeContext);
   const user = getState(classStateUser) || DoUser.defaultState;
   const userID = getRootID(classStateUser);
   const { username, role, isStaff } = user;
-  const [dropdownOpen, setIsDropdownOpen] = React.useState(false);
-  const [roleDropdownOpen, setIsRoleDropdownOpen] = React.useState(false);
-  const [trayOpen, setTrayOpen] = React.useState(false); // State for tray visibility
+  const [dropdownOpen, setIsDropdownOpen] = useState(false);
+  const [roleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
+  const [trayOpen, setTrayOpen] = useState(false); // State for tray visibility
   const roles = isStaff ? StaffRoles : Roles;
 
-  const handleChange = () => {
+  const onChange = () => {
     toggleTheme();
   };
 
   const onLogout = () => {
-    queryClient.clear();
-    ChrisAPIClient.resetClient();
-    removeCookie("username", {
-      path: "/",
-    });
-    removeCookie(`${username}_token`, {
-      path: "/",
-    });
-    removeCookie("isStaff", {
-      path: "/",
-    });
-    dispatch(clearCartOnLogout());
-    doUser.setUserLogout(userID);
+    doUser.logout(userID);
   };
 
   const onDropdownToggle = () => {
@@ -134,10 +119,12 @@ export default (props: Props) => {
           width: "100%",
         }}
       >
-        <FlexItem>{titleComponent && titleComponent}</FlexItem>
+        <FlexItem>{title}</FlexItem>
         {/* Center */}
         <FlexItem flex={{ default: "flex_1" }}>
-          {props.showToolbar && !isSmallerScreen && <FeedDetails />}
+          {props.showToolbar && !isSmallerScreen && (
+            <FeedDetails useDrawer={useDrawer} />
+          )}
         </FlexItem>
 
         {/* Right section */}
@@ -166,7 +153,7 @@ export default (props: Props) => {
                 id="simple-switch"
                 label="Theme"
                 isChecked={isDarkTheme}
-                onChange={handleChange}
+                onChange={onChange}
                 ouiaId="Basic Switch"
               />
             </FlexItem>
@@ -207,7 +194,7 @@ export default (props: Props) => {
                     variant="link"
                     onClick={() => {
                       navigate(
-                        `/login?redirectTo=${location.pathname}${location.search}`,
+                        `/login?redirectTo=${window.location.pathname}${window.location.search}`,
                       );
                     }}
                   >
@@ -230,11 +217,14 @@ export default (props: Props) => {
       </Flex>
 
       {/* Modal tray for FeedDetails */}
-      {isSmallerScreen && trayOpen && (
-        <Modal isOpen={trayOpen} onClose={toggleTray} title="" variant="small">
-          <FeedDetails />
-        </Modal>
-      )}
+      <Modal
+        isOpen={isSmallerScreen && trayOpen}
+        onClose={toggleTray}
+        aria-label="Data"
+        variant="small"
+      >
+        <FeedDetails useDrawer={useDrawer} />
+      </Modal>
     </>
   );
 };

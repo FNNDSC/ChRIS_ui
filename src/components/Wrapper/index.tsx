@@ -11,23 +11,26 @@ import {
   type UseThunk,
 } from "@chhsiao1981/use-thunk";
 import { Page } from "@patternfly/react-core";
+import type * as DoDrawer from "../../reducers/drawer";
 import * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 import { OperationsProvider } from "../NewLibrary/context";
 
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   children: ReactElement[] | ReactElement;
-  titleComponent?: ReactElement;
+  title?: ReactElement;
 
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { children, titleComponent, useUI, useUser } = props;
+  const { children, title, useUI, useUser, useDrawer } = props;
   const [classStateUI, doUI] = useUI;
   const ui = getState(classStateUI) || DoUI.defaultState;
   const uiID = getRootID(classStateUI);
@@ -71,8 +74,9 @@ export default (props: Props) => {
         <Header
           onNavToggle={onNavToggle}
           useUser={useUser}
-          titleComponent={titleComponent}
+          titleComponent={title}
           isNavOpen={isNavOpen}
+          useDrawer={useDrawer}
         />
       }
       sidebar={sidebar}

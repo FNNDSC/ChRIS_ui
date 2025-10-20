@@ -1,24 +1,27 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
 import { Alert } from "../Antd";
-import { SpinContainer } from "../Common";
 import "./FeedOutputBrowser.css";
 import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
+import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoUser from "../../reducers/user";
 import { EmptyStateLoader } from "./EmptyStateLoader";
+import FetchFilesLoader from "./FetchFilesLoader";
 import FileBrowser from "./FileBrowser";
 import { useFeedBrowser } from "./useFeedBrowser";
 
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   handlePluginSelect: (node: PluginInstance) => void;
   explore: boolean;
   statuses: { [id: number]: string };
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { useUser, statuses } = props;
+  const { useUser, useDrawer, statuses } = props;
   const {
     selected,
     pluginFilesPayload,
@@ -31,7 +34,7 @@ export default (props: Props) => {
     observerTarget,
     handlePagination,
     finished,
-  } = useFeedBrowser(statuses);
+  } = useFeedBrowser(statuses, useDrawer);
 
   const isHideFetchFilesLoader = finished;
   const isHideFileBrowser =
@@ -57,19 +60,10 @@ export default (props: Props) => {
         isLoading={filesLoading}
         isHide={isHideFileBrowser}
         useUser={useUser}
+        useDrawer={useDrawer}
       />
       {!isHideError && <Alert type="error" description={error?.message} />}
       <EmptyStateLoader title="" isHide={isHideEmptyStateLoader} />
     </div>
   );
-};
-
-type FetchFilesLoaderProps = {
-  title: string;
-  isHide?: boolean;
-};
-
-const FetchFilesLoader = (props: FetchFilesLoaderProps) => {
-  const { title, isHide } = props;
-  return <SpinContainer title={title} isHide={isHide} />;
 };

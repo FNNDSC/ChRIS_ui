@@ -1,7 +1,15 @@
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
+import * as DoDrawer from "../../reducers/drawer";
 import { useAppSelector } from "../../store/hooks";
-import { fetchFolders } from "../NewLibrary";
+import fetchFolders from "../NewLibrary/utils/fetchFolders";
+
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 const TERMINAL_STATUSES = [
   "finishedSuccessfully",
@@ -17,8 +25,14 @@ const getInitialDownloadState = () => ({
   fetchingFiles: false,
 });
 
-export const useFeedBrowser = (statuses: Record<number, string>) => {
-  const drawerState = useAppSelector((state) => state.drawers);
+export const useFeedBrowser = (
+  statuses: Record<number, string>,
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>,
+) => {
+  const [classStateDrawer, _] = useDrawer;
+  const drawer = getState(classStateDrawer) || DoDrawer.defaultState;
+  const { files, preview } = drawer;
+
   const selected = useAppSelector((state) => state.instance.selectedPlugin);
   const [download, setDownload] = useState(getInitialDownloadState);
   const [currentPath, setCurrentPath] = useState("");
@@ -108,8 +122,8 @@ export const useFeedBrowser = (statuses: Record<number, string>) => {
     download,
     selected,
     pluginFilesPayload,
-    filesStatus: drawerState.files,
-    previewStatus: drawerState.preview,
+    filesStatus: files,
+    previewStatus: preview,
     currentPath,
     observerTarget,
     fetchMore,

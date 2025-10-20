@@ -1,14 +1,16 @@
 import type React from "react";
+import type { ReactNode } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import { Dropdown, type MenuProps } from "../Antd";
 import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
 
-const DropdownMenu = ({
-  handleZip,
-}: {
-  handleZip: () => void;
-}) => {
+type Props = {
+  onZip: () => void;
+  children: ReactNode;
+};
+export default (props: Props) => {
+  const { onZip, children } = props;
   const dispatch = useAppDispatch();
   const { selectedPlugin } = useAppSelector((state) => {
     return state.instance;
@@ -67,11 +69,11 @@ const DropdownMenu = ({
     }
 
     if (e.key === "5") {
-      handleZip();
+      onZip();
     }
   };
 
-  const handleMenuClick: MenuProps["onClick"] = (e) => {
+  const onMenuClick: MenuProps["onClick"] = (e) => {
     e.domEvent.stopPropagation();
 
     handleOperations(e);
@@ -83,7 +85,7 @@ const DropdownMenu = ({
   };
 
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  const handleLongPress: MenuProps["onTouchStart"] = (e) => {
+  const onLongPress: MenuProps["onTouchStart"] = (e) => {
     // Our mobile experience is horribly broken due to the drawers. This feature will be tested once that is in order
     e.preventDefault();
     // Open the dropdown on long press
@@ -98,12 +100,12 @@ const DropdownMenu = ({
     <Dropdown
       menu={{
         items,
-        onClick: !isMobile ? handleMenuClick : undefined,
-        onTouchStart: isMobile ? handleLongPress : undefined,
+        onClick: !isMobile ? onMenuClick : undefined,
+        onTouchStart: isMobile ? onLongPress : undefined,
       }}
       open={true} // Force it to be open
-    />
+    >
+      {children}
+    </Dropdown>
   );
 };
-
-export default DropdownMenu;

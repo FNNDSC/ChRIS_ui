@@ -10,12 +10,14 @@ import {
   PageToggleButton,
 } from "@patternfly/react-core";
 import type React from "react";
+import type * as DoDrawer from "../../reducers/drawer";
 import * as DoUser from "../../reducers/user";
 import { useAppSelector } from "../../store/hooks";
 import { BarsIcon } from "../Icons";
 import Toolbar from "./Toolbar";
 
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   onNavToggle: () => void;
@@ -24,10 +26,11 @@ type Props = {
   isNavOpen?: boolean;
 
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { useUser, onNavToggle, titleComponent, isNavOpen } = props;
+  const { useUser, useDrawer, onNavToggle, titleComponent, isNavOpen } = props;
 
   const [classStateUser, _] = useUser;
 
@@ -57,8 +60,9 @@ export default (props: Props) => {
         <Toolbar
           showToolbar={showToolbar}
           token={user.token}
-          titleComponent={titleComponent}
+          title={titleComponent}
           useUser={useUser}
+          useDrawer={useDrawer}
         />
       </MastheadContent>
     </Masthead>

@@ -1,22 +1,22 @@
 import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { useMutation } from "@tanstack/react-query";
-import { Input, Switch, notification } from "antd";
+import { Input, notification, Switch } from "antd";
 import type { HierarchyPointLink, HierarchyPointNode } from "d3-hierarchy";
 import { hierarchy, tree } from "d3-hierarchy";
 import { type Quadtree, quadtree } from "d3-quadtree";
 import { select } from "d3-selection";
-import { type D3ZoomEvent, type ZoomBehavior, zoom as d3Zoom } from "d3-zoom";
+import { type D3ZoomEvent, zoom as d3Zoom, type ZoomBehavior } from "d3-zoom";
 import { throttle } from "lodash";
 import type React from "react";
 import {
+  memo,
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
-  useLayoutEffect,
-  memo,
-  useMemo,
 } from "react";
 import { useImmer } from "use-immer";
 import ChrisAPIClient from "../../api/chrisapiclient";
@@ -45,7 +45,7 @@ export interface TreeNodeDatum {
 }
 
 export type FeedTreeScaleType = "time" | "cpu" | "memory" | "none";
-export interface FeedTreeProps {
+export type FeedTreeProps = {
   data: TreeNodeDatum;
   tsIds?: TSID;
   currentLayout: boolean;
@@ -58,7 +58,8 @@ export interface FeedTreeProps {
     [id: number]: string;
   };
   feed?: Feed;
-}
+  isStaff: boolean;
+};
 
 const NODE_SIZE = { x: 120, y: 80 };
 const SEPARATION = { siblings: 0.75, nonSiblings: 0.75 };
@@ -108,15 +109,15 @@ function getInitialState(): State {
   };
 }
 
-function Modals({
-  addNodeLocally,
-  removeNodeLocally,
-  feed,
-}: {
+type ModalsProps = {
   addNodeLocally: (inst: PluginInstance | PluginInstance[]) => void;
   removeNodeLocally: (ids: number[]) => void;
   feed?: Feed;
-}) {
+  isStaff: boolean;
+};
+
+const Modals = (props: ModalsProps) => {
+  const { addNodeLocally, removeNodeLocally, feed, isStaff } = props;
   return (
     <>
       <AddNodeProvider>
@@ -124,11 +125,11 @@ function Modals({
       </AddNodeProvider>
       <DeleteNode removeNodeLocally={removeNodeLocally} feed={feed} />
       <PipelineProvider>
-        <AddPipeline addNodeLocally={addNodeLocally} />
+        <AddPipeline addNodeLocally={addNodeLocally} isStaff={isStaff} />
       </PipelineProvider>
     </>
   );
-}
+};
 
 function isNodeInViewport(
   node: HierarchyPointNode<TreeNodeDatum>,
@@ -152,7 +153,7 @@ function isNodeInViewport(
 
 const MemoizedDropdownMenu = memo(DropdownMenu);
 
-export default function FeedTreeCanvas(props: FeedTreeProps) {
+export default (props: FeedTreeProps) => {
   const {
     data,
     tsIds,
@@ -163,6 +164,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
     removeNodeLocally,
     statuses,
     feed,
+    isStaff,
   } = props;
   const dispatch = useAppDispatch();
   const { isDarkTheme } = useContext(ThemeContext);
@@ -545,8 +547,10 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
         feed={feed}
         addNodeLocally={addNodeLocally}
         removeNodeLocally={removeNodeLocally}
+        isStaff={isStaff}
       />
       {contextMenuPosition.visible && contextMenuNode && (
+        // biome-ignore lint/a11y/noStaticElementInteractions: onMouseLeave div.
         <div
           style={{
             position: "absolute",
@@ -560,7 +564,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
           }}
         >
           <MemoizedDropdownMenu
-            handleZip={() => {
+            onZip={() => {
               pipelineMutation.mutate(contextMenuNode.item);
               setContextMenuPosition({ x: 0, y: 0, visible: false });
               setContextMenuNode(null);
@@ -641,7 +645,7 @@ export default function FeedTreeCanvas(props: FeedTreeProps) {
       />
     </div>
   );
-}
+};
 
 function drawLink(
   ctx: CanvasRenderingContext2D,

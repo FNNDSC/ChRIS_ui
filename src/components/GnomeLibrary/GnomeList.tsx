@@ -1,9 +1,14 @@
 import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import {
   FileBrowserFolder,
   FileBrowserFolderFile,
   type FileBrowserFolderLinkFile,
 } from "@fnndsc/chrisapi";
-import { Button, Skeleton, Spinner, Checkbox } from "@patternfly/react-core";
+import { Button, Checkbox, Skeleton, Spinner } from "@patternfly/react-core";
 import {
   AngleDownIcon,
   ExternalLinkSquareAltIcon,
@@ -12,11 +17,16 @@ import {
   SortAmountDownIcon,
   SortAmountUpIcon,
 } from "@patternfly/react-icons";
-import { Drawer, Tag, notification } from "antd";
+import { Drawer, notification, Tag } from "antd";
 import { format } from "date-fns";
 import type React from "react";
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import * as DoUser from "../../reducers/user";
+import {
+  clearSelectedPaths,
+  setSelectedPaths,
+} from "../../store/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { formatBytes } from "../Feeds/utilties";
 import {
@@ -32,37 +42,8 @@ import GnomeBulkActionBar from "./GnomeActionBar";
 import { GnomeContextMenu } from "./GnomeContextMenu";
 import styles from "./gnome.module.css";
 import { useInfiniteScroll } from "./utils/hooks/useInfiniteScroll";
-import {
-  setSelectedPaths,
-  clearSelectedPaths,
-} from "../../store/cart/cartSlice";
 
-interface TableProps {
-  data: {
-    folders: FileBrowserFolder[];
-    files: FileBrowserFolderFile[];
-    linkFiles: FileBrowserFolderLinkFile[];
-    filesPagination?: {
-      totalCount: number;
-      hasNextPage: boolean;
-    };
-    foldersPagination?: {
-      totalCount: number;
-      hasNextPage: boolean;
-    };
-    linksPagination?: {
-      totalCount: number;
-      hasNextPage: boolean;
-    };
-  };
-  computedPath: string;
-  handleFolderClick: (folder: FileBrowserFolder) => void;
-  fetchMore?: boolean;
-  handlePagination?: () => void;
-  filesLoading?: boolean;
-}
-
-interface RowProps {
+type RowProps = {
   rowIndex: number;
   key: string;
   resource:
@@ -81,21 +62,26 @@ interface RowProps {
     type: OperationContext;
     additionalKeys: string[];
   };
-}
 
-export const GnomeBaseRow: React.FC<RowProps> = ({
-  resource,
-  name,
-  date,
-  owner,
-  size,
-  type,
-  computedPath,
-  handleFolderClick,
-  handleFileClick,
-  origin,
-  rowIndex,
-}) => {
+  username: string;
+};
+
+export const GnomeBaseRow = (props: RowProps) => {
+  const {
+    resource,
+    name,
+    date,
+    owner,
+    size,
+    type,
+    computedPath,
+    handleFolderClick,
+    handleFileClick,
+    origin,
+    rowIndex,
+    username,
+  } = props;
+
   // Redux dispatch for selection management
   const dispatch = useAppDispatch();
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
@@ -157,7 +143,11 @@ export const GnomeBaseRow: React.FC<RowProps> = ({
   };
 
   return (
-    <GnomeContextMenu origin={origin} computedPath={computedPath}>
+    <GnomeContextMenu
+      username={username}
+      origin={origin}
+      computedPath={computedPath}
+    >
       <li
         key={pathForCart}
         ref={scrollToNewResource}
@@ -244,18 +234,55 @@ export const GnomeFileRow: React.FC<Omit<RowProps, "type">> = (props) => (
   <GnomeBaseRow {...props} type="file" />
 );
 
-export const GnomeLinkRow: React.FC<Omit<RowProps, "type">> = (props) => (
+type GnomeLinkRowProps = Omit<RowProps, "type">;
+export const GnomeLinkRow = (props: GnomeLinkRowProps) => (
   <GnomeBaseRow {...props} type="link" />
 );
 
-const GnomeLibraryTable: React.FC<TableProps> = ({
-  data,
-  computedPath,
-  handleFolderClick,
-  fetchMore,
-  handlePagination,
-  filesLoading,
-}) => {
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
+type Props = {
+  data: {
+    folders: FileBrowserFolder[];
+    files: FileBrowserFolderFile[];
+    linkFiles: FileBrowserFolderLinkFile[];
+    filesPagination?: {
+      totalCount: number;
+      hasNextPage: boolean;
+    };
+    foldersPagination?: {
+      totalCount: number;
+      hasNextPage: boolean;
+    };
+    linksPagination?: {
+      totalCount: number;
+      hasNextPage: boolean;
+    };
+  };
+  computedPath: string;
+  handleFolderClick: (folder: FileBrowserFolder) => void;
+  fetchMore?: boolean;
+  handlePagination?: () => void;
+  filesLoading?: boolean;
+
+  useUser: UseThunk<DoUser.State, TDoUser>;
+};
+
+export default (props: Props) => {
+  const {
+    data,
+    computedPath,
+    handleFolderClick,
+    fetchMore,
+    handlePagination,
+    filesLoading,
+
+    useUser,
+  } = props;
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { username } = user;
+
   const navigate = useNavigate();
   const [preview, setShowPreview] = useState(false);
   const [selectedFile, setSelectedFile] = useState<FileBrowserFolderFile>();
@@ -280,13 +307,13 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
     loadingDelay: 300, // Wait 300ms after loading before allowing another fetch
   });
 
-  const handleFileClick = (file: FileBrowserFolderFile) => {
+  const onFileClick = (file: FileBrowserFolderFile) => {
     setSelectedFile(file);
     setShowPreview(true);
   };
 
   // Handle clicks on link entries: resolve to folder or file
-  const handleLinkClick = async (resource: FileBrowserFolderLinkFile) => {
+  const onLinkClick = async (resource: FileBrowserFolderLinkFile) => {
     try {
       const linked = await resource.getLinkedResource();
       // folder link
@@ -314,7 +341,7 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
     }
   };
 
-  const handleSort = (columnIndex: number) => {
+  const onSort = (columnIndex: number) => {
     setSortBy((prev) => ({
       index: columnIndex,
       direction:
@@ -401,7 +428,11 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
         placement="right"
       >
         {selectedFile && (
-          <FileDetailView selectedFile={selectedFile} preview="large" />
+          <FileDetailView
+            selectedFile={selectedFile}
+            preview="large"
+            useUser={useUser}
+          />
         )}
       </Drawer>
 
@@ -409,13 +440,15 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
         <div className={styles.fileListHeader}>
           {/* Checkbox header */}
           <div className={styles.fileCheckboxHeader} />
+          {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
+          {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <explanation> */}
           <div
             className={`${styles.fileNameHeader} ${styles.clickableHeader}`}
-            onClick={() => handleSort(0)}
+            onClick={() => onSort(0)}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                handleSort(0);
+                onSort(0);
               }
             }}
             aria-label="Sort by name"
@@ -433,13 +466,15 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               )}
             </div>
           </div>
+          {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
+          {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <explanation> */}
           <div
             className={`${styles.fileDateHeader} ${styles.clickableHeader}`}
-            onClick={() => handleSort(1)}
+            onClick={() => onSort(1)}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                handleSort(1);
+                onSort(1);
               }
             }}
             aria-label="Sort by creation date"
@@ -457,13 +492,15 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               )}
             </div>
           </div>
+          {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
+          {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <explanation> */}
           <div
             className={`${styles.fileOwnerHeader} ${styles.clickableHeader}`}
-            onClick={() => handleSort(2)}
+            onClick={() => onSort(2)}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                handleSort(2);
+                onSort(2);
               }
             }}
             aria-label="Sort by creator"
@@ -481,13 +518,15 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               )}
             </div>
           </div>
+          {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
+          {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <explanation> */}
           <div
             className={`${styles.fileSizeHeader} ${styles.clickableHeader}`}
-            onClick={() => handleSort(3)}
+            onClick={() => onSort(3)}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                handleSort(3);
+                onSort(3);
               }
             }}
             aria-label="Sort by size"
@@ -521,6 +560,7 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               handleFolderClick={() => handleFolderClick(r)}
               handleFileClick={() => {}}
               origin={origin}
+              username={username}
             />
           ))}
 
@@ -535,8 +575,9 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               size={r.data.fsize}
               computedPath={computedPath}
               handleFolderClick={() => {}}
-              handleFileClick={() => handleFileClick(r)}
+              handleFileClick={() => onFileClick(r)}
               origin={origin}
+              username={username}
             />
           ))}
 
@@ -551,8 +592,9 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
               size={r.data.fsize}
               computedPath={computedPath}
               handleFolderClick={() => {}}
-              handleFileClick={() => handleLinkClick(r)}
+              handleFileClick={() => onLinkClick(r)}
               origin={origin}
+              username={username}
             />
           ))}
           {/* Sentinel element for infinite scrolling */}
@@ -572,6 +614,7 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
           )}
           {/* Show scroll indicator when near bottom and not loading */}
           {isNearBottom && fetchMore && !filesLoading && (
+            // biome-ignore lint/a11y/useAriaPropsSupportedByRole: <explanation>
             <div
               className={styles.scrollIndicator}
               aria-label="Continue scrolling to load more items"
@@ -585,9 +628,11 @@ const GnomeLibraryTable: React.FC<TableProps> = ({
         </div>
       </div>
 
-      <GnomeBulkActionBar origin={origin} computedPath={computedPath} />
+      <GnomeBulkActionBar
+        origin={origin}
+        computedPath={computedPath}
+        username={username}
+      />
     </>
   );
 };
-
-export default GnomeLibraryTable;

@@ -1,22 +1,16 @@
-import type {
-  Pipeline,
-  PluginInstance,
-  PluginMeta,
-  Tag,
-} from "@fnndsc/chrisapi";
+import type { Pipeline, PluginMeta, Tag } from "@fnndsc/chrisapi";
 import type { EventDataNode } from "rc-tree/lib/interface";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource, fetchResources } from "../../api/common";
-import { fetchFolders } from "../NewLibrary";
-import type { ChRISFeed, DataBreadcrumb } from "./types/feed";
-
-import constants from "../../datasets/constants";
-
 import type {
   NodeInfo,
   PipelineDefaultParameters,
   Piping,
 } from "../../api/types";
+
+import constants from "../../datasets/constants";
+import fetchFolders from "../NewLibrary/utils/fetchFolders";
+import type { ChRISFeed, DataBreadcrumb } from "./types/feed";
 
 export const computeWorkflowNodesInfo = (
   pipings: Piping[],

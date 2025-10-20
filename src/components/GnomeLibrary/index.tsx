@@ -7,6 +7,7 @@ import type { FileBrowserFolder } from "@fnndsc/chrisapi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 import { EmptyStateComponent, InfoSection, SpinContainer } from "../Common";
@@ -18,16 +19,18 @@ import GnomeLibrarySidebar from "./GnomeSidebar";
 import styles from "./gnome.module.css";
 import useFolders from "./utils/hooks/useFolders";
 
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { useUI, useUser } = props;
+  const { useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
   const { username } = user;
@@ -150,7 +153,8 @@ export default (props: Props) => {
       <Wrapper
         useUI={useUI}
         useUser={useUser}
-        titleComponent={
+        useDrawer={useDrawer}
+        title={
           <InfoSection
             title="Library"
             content={
@@ -177,6 +181,7 @@ export default (props: Props) => {
           <div className={styles.gnomeLibraryContent}>
             <div className={styles.libraryMainContent}>
               <GnomeCentralBreadcrumb
+                username={username}
                 path={computedPath}
                 onPathChange={navigateToPath}
                 origin={{
@@ -203,6 +208,7 @@ export default (props: Props) => {
                       fetchMore={fetchMore}
                       handlePagination={handlePagination}
                       filesLoading={isFetching}
+                      useUser={useUser}
                     />
                   )
                 )}
