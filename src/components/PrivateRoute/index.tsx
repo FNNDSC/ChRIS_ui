@@ -17,12 +17,12 @@ export default (props: Props) => {
   const { children, useUser } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { isLoggedIn } = user;
+  const { isLoggedIn, isInit } = user;
   const redirectTo = encodeURIComponent(
     `${window.location.pathname}${window.location.search}`,
   );
 
-  return isLoggedIn ? (
+  return isLoggedIn || !isInit ? (
     children
   ) : (
     <Navigate to={`/login?redirectTo=${redirectTo}`} />

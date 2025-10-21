@@ -1,18 +1,18 @@
-import React from "react";
 import {
   Drawer,
-  DrawerPanelContent,
+  DrawerActions,
+  DrawerCloseButton,
   DrawerContent,
   DrawerContentBody,
   DrawerHead,
-  DrawerActions,
-  DrawerCloseButton,
+  DrawerPanelContent,
 } from "@patternfly/react-core";
-import styles from "./Drawer.module.css";
-import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
 import { css } from "@patternfly/react-styles";
+import BackgroundColor from "@patternfly/react-styles/css/utilities/BackgroundColor/BackgroundColor";
 import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
+import React from "react";
 import { EllipsisVIcon } from "../../Icons";
+import styles from "./Drawer.module.css";
 
 /**
  * A drawer which smushes the main content.
@@ -83,6 +83,7 @@ export const DatasetPageDrawer: React.FC<
         </DrawerContent>
       </Drawer>
       <button
+        type="button"
         onClick={onClick}
         className={css(...buttonStyles, ...buttonHidden)}
       >

@@ -3,7 +3,6 @@ import {
   type ThunkModuleToFunc,
   type UseThunk,
 } from "@chhsiao1981/use-thunk";
-import user from "@fnndsc/chrisapi/dist/types/user";
 import {
   Button,
   Card,
@@ -12,11 +11,11 @@ import {
   LoginPage,
 } from "@patternfly/react-core";
 import { useMutation } from "@tanstack/react-query";
-import type React from "react";
-import { useEffect, useState } from "react";
+import { type FormEvent, type MouseEvent, useEffect, useState } from "react";
 import { Cookies, useCookies } from "react-cookie";
 import { useNavigate } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
+import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 import { Alert } from "../Antd";
@@ -27,14 +26,16 @@ import Wrapper from "../Wrapper";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { useUI, useUser } = props;
+  const { useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
   const { isStaff } = user;
@@ -55,7 +56,7 @@ export default (props: Props) => {
     decodedURL = decodeURIComponent(url);
   }
 
-  const handleSave = async () => {
+  const onSave = async () => {
     const adminURL = import.meta.env.VITE_CHRIS_UI_URL;
 
     if (!adminURL) {
@@ -96,7 +97,7 @@ export default (props: Props) => {
   };
 
   const { isPending, isSuccess, isError, error, data, mutate } = useMutation({
-    mutationFn: async () => await handleSave(),
+    mutationFn: async () => await onSave(),
   });
 
   useEffect(() => {
@@ -142,26 +143,26 @@ export default (props: Props) => {
     }
   }, [isSuccess]);
 
-  const handleUsernameChange = (
-    _event: React.FormEvent<HTMLInputElement>,
+  const onChangeUsername = (
+    _event: FormEvent<HTMLInputElement>,
     value: string,
   ) => {
     setUsername(value);
   };
 
-  const handlePasswordChange = (
-    _event: React.FormEvent<HTMLInputElement>,
+  const onChangePassword = (
+    _event: FormEvent<HTMLInputElement>,
     value: string,
   ) => {
     setPassword(value);
   };
 
-  const onRememberMeClick = () => {
+  const onChangeRememberMe = () => {
     setIsRememberMeChecked(!isRememberMeChecked);
   };
 
   const onLoginButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
   ) => {
     event.preventDefault();
     setIsValidUsername(!!username);
@@ -192,22 +193,22 @@ export default (props: Props) => {
       helperTextIcon={<ExclamationCircleIcon />}
       usernameLabel="Username"
       usernameValue={username}
-      onChangeUsername={handleUsernameChange}
+      onChangeUsername={onChangeUsername}
       isValidUsername={isValidUsername}
       passwordLabel="Password"
       passwordValue={password}
-      onChangePassword={handlePasswordChange}
+      onChangePassword={onChangePassword}
       isValidPassword={isValidPassword}
       rememberMeLabel="Keep me logged in."
       isRememberMeChecked={isRememberMeChecked}
-      onChangeRememberMe={onRememberMeClick}
+      onChangeRememberMe={onChangeRememberMe}
       onLoginButtonClick={onLoginButtonClick}
       loginButtonLabel="Log in"
     />
   );
 
   return (
-    <Wrapper useUI={useUI} useUser={useUser}>
+    <Wrapper useUI={useUI} useUser={useUser} useDrawer={useDrawer}>
       <LoginPage
         footerListVariants={ListVariant.inline}
         backgroundImgSrc="/assets/images/pfbg-icon.svg"

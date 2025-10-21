@@ -9,6 +9,7 @@ export const useFetchFeed = (
   id: string | undefined,
   type: string | null,
   isLoggedIn?: boolean,
+  isInit?: boolean,
 ) => {
   const navigate = useNavigate();
   const [api, contextHolder] = notification.useNotification();
@@ -34,11 +35,15 @@ export const useFetchFeed = (
   });
 
   useEffect(() => {
+    if (!isInit) {
+      return;
+    }
+
     if (!type || (type === "private" && !isLoggedIn)) {
       const redirectTo = encodeURIComponent(window.location.href);
       navigate(`/login?redirectTo=${redirectTo}`);
     }
-  }, [type, isLoggedIn, navigate]);
+  }, [type, isLoggedIn, navigate, isInit]);
 
   useEffect(() => {
     if (isPrivateFeedError) {

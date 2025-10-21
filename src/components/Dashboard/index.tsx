@@ -11,8 +11,6 @@ import {
   PageSection,
 } from "@patternfly/react-core";
 import { useEffect } from "react";
-import BUILD_VERSION from "../../getBuildVersion";
-import { InfoSection } from "../Common";
 import Wrapper from "../Wrapper";
 import FeedGraph from "./FeedGraph";
 import "./dashboard.css";
@@ -22,6 +20,7 @@ import {
   type UseThunk,
 } from "@chhsiao1981/use-thunk";
 import { useNavigate } from "react-router";
+import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 import Title from "./Title";
@@ -33,14 +32,16 @@ import {
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { useUI, useUser } = props;
+  const { useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
   const { isLoggedIn } = user;
@@ -57,7 +58,12 @@ export default (props: Props) => {
   }, [isLoggedIn]);
 
   return (
-    <Wrapper titleComponent={Title} useUI={useUI} useUser={useUser}>
+    <Wrapper
+      title={Title}
+      useUI={useUI}
+      useUser={useUser}
+      useDrawer={useDrawer}
+    >
       <PageSection>
         <Grid hasGutter>
           <GridItem span={12}>

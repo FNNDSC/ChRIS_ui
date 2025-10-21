@@ -17,9 +17,9 @@ import { ThemeContext } from "../DarkTheme/useTheme";
 import { usePaginate } from "../Feeds/usePaginate";
 import "./Pipelines.css";
 import { DownloadIcon } from "@patternfly/react-icons";
-import PipelineUpload from "./PipelineUploadCopy";
-import PipelinesComponent from "./PipelinesComponent";
 import { PIPELINEQueryTypes, PipelineContext, Types } from "./context";
+import PipelinesComponent from "./PipelinesComponent";
+import PipelineUpload from "./PipelineUploadCopy";
 import { useDownloadSource } from "./useDownloadSource";
 
 type LoadingResources = {
@@ -29,7 +29,12 @@ type LoadingResourceError = {
   [key: string]: string;
 };
 
-const PipelinesCopy = () => {
+type Props = {
+  isStaff: boolean;
+};
+
+export default (props: Props) => {
+  const { isStaff } = props;
   const queryClient = useQueryClient();
   const { state, dispatch } = useContext(PipelineContext);
   const { isDarkTheme } = useContext(ThemeContext);
@@ -248,7 +253,10 @@ const PipelinesCopy = () => {
         />
       </div>
 
-      {<PipelineUpload fetchPipelinesAgain={fetchPipelinesAgain} />}
+      <PipelineUpload
+        fetchPipelinesAgain={fetchPipelinesAgain}
+        isStaff={isStaff}
+      />
 
       {isError && (
         <Alert type="error" description={<span>{error.message}</span>} />
@@ -343,5 +351,3 @@ const PipelinesCopy = () => {
     </div>
   );
 };
-
-export default PipelinesCopy;

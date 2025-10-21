@@ -18,6 +18,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
 import { createPackage } from "../../api/serverApi";
 import type { Plugin as PluginType, UploadPipeline } from "../../api/types";
+import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 import { InfoSection, SpinContainer } from "../Common";
@@ -38,10 +39,12 @@ import StoreToggle from "./StoreToggle";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 const DEFAULT_SEARCH_FIELD = "name";
@@ -49,7 +52,7 @@ const COOKIE_NAME = "storeCreds";
 const COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // seconds
 
 export default (props: Props) => {
-  const { useUI, useUser } = props;
+  const { useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
   const { isStaff, isLoggedIn, token } = user;
@@ -272,7 +275,8 @@ export default (props: Props) => {
       <Wrapper
         useUI={useUI}
         useUser={useUser}
-        titleComponent={
+        useDrawer={useDrawer}
+        title={
           <InfoSection title="Import Package" content="Work in Progress" />
         }
       >

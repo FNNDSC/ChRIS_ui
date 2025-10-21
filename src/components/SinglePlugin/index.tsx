@@ -7,7 +7,7 @@ import type {
 import { useQuery } from "@tanstack/react-query";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
-import React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
@@ -26,26 +26,28 @@ import {
   type ThunkModuleToFunc,
   type UseThunk,
 } from "@chhsiao1981/use-thunk";
+import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { useUI, useUser } = props;
+  const { useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
   const { isLoggedIn } = user;
 
   const { id } = useParams() as { id: string };
-  const [parameterPayload, setParameterPayload] =
-    React.useState<ParameterPayload>();
+  const [parameterPayload, setParameterPayload] = useState<ParameterPayload>();
 
   // Function to fetch the Readme from the Repo.
   const fetchReadme = async (currentPluginMeta: PluginMeta) => {
@@ -103,7 +105,7 @@ export default (props: Props) => {
     }
   };
 
-  const setPluginParameters = React.useCallback(
+  const setPluginParameters = useCallback(
     async (plugin: Plugin) => {
       let generatedCommand = "";
       const params = { limit: 10, offset: 0 };
@@ -178,14 +180,14 @@ export default (props: Props) => {
     return authorArray.map((author) => author.replace(emailRegex, "").trim());
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (data?.plugins && data.plugins.length > 0) {
       setPluginParameters(data.plugins[0]);
     }
   }, [data?.plugins[0], setPluginParameters]);
 
   return (
-    <Wrapper useUI={useUI} useUser={useUser}>
+    <Wrapper useUI={useUI} useUser={useUser} useDrawer={useDrawer}>
       {isLoading || isFetching ? (
         <SpinContainer title="Please wait as resources for this plugin are being fetched..." />
       ) : isError ? (

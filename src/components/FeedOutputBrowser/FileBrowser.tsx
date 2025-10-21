@@ -1,4 +1,5 @@
 import {
+  getRootID,
   getState,
   type ThunkModuleToFunc,
   type UseThunk,
@@ -14,15 +15,14 @@ import {
   BreadcrumbItem,
   Button,
   Grid,
-  Skeleton,
   Spinner,
   Tooltip,
 } from "@patternfly/react-core";
 import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import * as DoDrawer from "../../reducers/drawer";
 import * as DoUser from "../../reducers/user";
-import { setFilePreviewPanel } from "../../store/drawer/drawerSlice";
 import {
   clearSelectedFile,
   setSelectedFile,
@@ -31,7 +31,7 @@ import useDownload, { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { notification } from "../Antd";
 import { ClipboardCopyContainer } from "../Common";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
-import { handleMaximize, handleMinimize } from "../Feeds/utilties";
+import { onMaximize, onMinimize } from "../Feeds/utilties";
 import {
   getFileName,
   getLinkFileName,
@@ -46,8 +46,10 @@ import Operations from "../NewLibrary/components/Operations";
 import { OperationContext } from "../NewLibrary/context";
 import FileDetailView from "../Preview/FileDetailView";
 import styles from "./FileBrowser.module.css";
+import SkeletonRows from "./SkeletonRows";
 import type { FilesPayload } from "./types";
 
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
@@ -73,6 +75,8 @@ type Props = {
   fetchMore?: boolean;
   observerTarget?: React.MutableRefObject<any>;
   isHide?: boolean;
+
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
   useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
@@ -87,12 +91,18 @@ export default (props: Props) => {
     handlePagination,
     isLoading,
     isHide,
+
+    useDrawer,
     useUser,
   } = props;
 
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
   const { username } = user;
+
+  const [classStateDrawer, doDrawer] = useDrawer;
+  const drawer = getState(classStateDrawer) || DoDrawer.defaultState;
+  const drawerID = getRootID(classStateDrawer);
 
   const dispatch = useAppDispatch();
   const feed = useAppSelector((state) => state.feed.currentFeed.data);
@@ -102,7 +112,6 @@ export default (props: Props) => {
   const pluginFilesPayload = pluginFilesPayloadProps || {};
 
   const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
-  const drawerState = useAppSelector((state) => state.drawers);
   const { subFoldersMap, linkFilesMap, filesMap, folderList } =
     pluginFilesPayload;
   const breadcrumb = useMemo(() => additionalKey.split("/"), [additionalKey]);
@@ -189,20 +198,18 @@ export default (props: Props) => {
   const className = isHide ? `file-browser ${styles.hide}` : "file-browser";
 
   const previewStyle: CSSProperties = {};
-  if (!drawerState.preview.open) {
+  if (!drawer.preview.open) {
     previewStyle.display = "none";
   }
 
   const isHideFileDetailView =
-    isHide ||
-    drawerState.preview.currentlyActive !== "preview" ||
-    !selectedFile;
+    isHide || drawer.preview.currentlyActive !== "preview" || !selectedFile;
 
   return (
     <Grid hasGutter className={className}>
       {contextHolder}
       <PanelGroup autoSaveId="conditional" direction="horizontal">
-        {drawerState.files.open && (
+        {drawer.files.open && (
           <>
             <Panel
               className="custom-panel"
@@ -214,13 +221,13 @@ export default (props: Props) => {
             >
               <DrawerActionButton
                 content="Files"
-                handleMaximize={() => {
-                  handleMaximize("files", dispatch);
+                onMaximize={() => {
+                  onMaximize(drawerID, "files", doDrawer);
                 }}
-                handleMinimize={() => {
-                  handleMinimize("files", dispatch);
+                onMinimize={() => {
+                  onMinimize(drawerID, doDrawer);
                 }}
-                maximized={drawerState.files.maximized}
+                maximized={drawer.files.maximized}
               />
 
               <>
@@ -338,7 +345,7 @@ export default (props: Props) => {
                       </Thead>
                       <Tbody>
                         {isLoading && noFiles ? (
-                          renderSkeletonRows()
+                          <SkeletonRows />
                         ) : (
                           <>
                             {filesMap?.map(
@@ -356,8 +363,8 @@ export default (props: Props) => {
                                   handleFileClick={() => {
                                     toggleAnimation();
                                     dispatch(setSelectedFile(resource));
-                                    !drawerState.preview.open &&
-                                      dispatch(setFilePreviewPanel());
+                                    !drawer.preview.open &&
+                                      doDrawer.setFilePreviewPanel(drawerID);
                                   }}
                                   origin={origin}
                                 />
@@ -403,8 +410,10 @@ export default (props: Props) => {
                                               linkedResource as FileBrowserFolderFile,
                                             ),
                                           );
-                                          !drawerState.preview.open &&
-                                            dispatch(setFilePreviewPanel());
+                                          !drawer.preview.open &&
+                                            doDrawer.setFilePreviewPanel(
+                                              drawerID,
+                                            );
                                         }
                                       }
                                     } catch (error) {
@@ -482,13 +491,13 @@ export default (props: Props) => {
         >
           <DrawerActionButton
             content="Preview"
-            handleMaximize={() => {
-              handleMaximize("preview", dispatch);
+            onMaximize={() => {
+              onMaximize(drawerID, "preview", doDrawer);
             }}
-            handleMinimize={() => {
-              handleMinimize("preview", dispatch);
+            onMinimize={() => {
+              onMinimize(drawerID, doDrawer);
             }}
-            maximized={drawerState.preview.maximized}
+            maximized={drawer.preview.maximized}
           />
 
           <FileDetailView
@@ -502,27 +511,3 @@ export default (props: Props) => {
     </Grid>
   );
 };
-
-const renderSkeletonRows = () => (
-  <>
-    {Array.from({ length: 5 }).map((_, index) => (
-      <Tr key={`skeleton-row-${index}`}>
-        <Th>
-          <Skeleton width="20px" />
-        </Th>
-        <Th>
-          <Skeleton width="100px" />
-        </Th>
-        <Th>
-          <Skeleton width="80px" />
-        </Th>
-        <Th>
-          <Skeleton width="80px" />
-        </Th>
-        <Th>
-          <Skeleton width="60px" />
-        </Th>
-      </Tr>
-    ))}
-  </>
-);

@@ -1,75 +1,43 @@
 import type {
-  DrawerPayloadType,
-  IDrawerState,
-} from "../../store/drawer/drawerSlice";
-import { setDrawerState } from "../../store/drawer/drawerSlice";
-
-import type {
-  Feed,
-  FeedList,
-  PluginInstance,
-  PublicFeedList,
-} from "@fnndsc/chrisapi";
+  DispatchFuncMap,
+  ThunkModuleToFunc,
+} from "@chhsiao1981/use-thunk";
+import type { Feed, FeedList, PublicFeedList } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient";
-import { fetchResource } from "../../api/common";
+import type * as DoDrawer from "../../reducers/drawer";
+import type { ActionType } from "../../reducers/drawer";
 
-export const handleDrawerActions = (
-  actionType: keyof IDrawerState,
-  open: boolean,
-  maximized: boolean,
-  minimized: boolean,
-  dispatch: any,
-  action: (action: DrawerPayloadType) => {
-    type: any;
-    payload: {
-      actionType: keyof IDrawerState;
-      open: boolean;
-      maximized: boolean;
-      minimized: boolean;
-    };
-  },
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+
+export const onMaximize = (
+  drawerID: string,
+  actionType: ActionType,
+  doDrawer: DispatchFuncMap<DoDrawer.State, TDoDrawer>,
 ) => {
-  dispatch(
-    action({
-      actionType,
-      open,
-      maximized,
-      minimized,
-    }),
-  );
+  doDrawer.maximize(drawerID, actionType);
 };
 
-export const handleMaximize = (
-  actionType: keyof IDrawerState,
-  dispatch: any,
+export const onMinimize = (
+  drawerID: string,
+  doDrawer: DispatchFuncMap<DoDrawer.State, TDoDrawer>,
 ) => {
-  handleDrawerActions(actionType, true, true, false, dispatch, setDrawerState);
+  doDrawer.minimize(drawerID);
 };
 
-export const handleMinimize = (
-  actionType: keyof IDrawerState,
-  dispatch: any,
+export const onOpen = (
+  drawerID: string,
+  actionType: ActionType,
+  doDrawer: DispatchFuncMap<DoDrawer.State, TDoDrawer>,
 ) => {
-  handleDrawerActions(actionType, true, false, true, dispatch, setDrawerState);
+  doDrawer.setDrawerState(drawerID, actionType, true, false, false);
 };
 
-export const handleOpen = (actionType: keyof IDrawerState, dispatch: any) => {
-  handleDrawerActions(actionType, true, false, false, dispatch, setDrawerState);
-};
-
-export const handleToggle = (
-  actionType: keyof IDrawerState,
-  drawerState: IDrawerState,
-  dispatch: any,
+export const onToggle = (
+  drawerID: string,
+  actionType: ActionType,
+  doDrawer: DispatchFuncMap<DoDrawer.State, TDoDrawer>,
 ) => {
-  handleDrawerActions(
-    actionType,
-    !drawerState[actionType].open,
-    drawerState[actionType].maximized,
-    false,
-    dispatch,
-    setDrawerState,
-  );
+  doDrawer.toggle(drawerID, actionType);
 };
 
 export const fetchFeeds = async (filterState: any) => {

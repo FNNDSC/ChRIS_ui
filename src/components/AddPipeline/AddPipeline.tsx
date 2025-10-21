@@ -11,11 +11,12 @@ import { SpinContainer } from "../Common";
 import Pipelines from "../PipelinesCopy";
 import { PipelineContext, Types } from "../PipelinesCopy/context";
 
-const AddPipeline = ({
-  addNodeLocally,
-}: {
+type Props = {
   addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
-}) => {
+  isStaff: boolean;
+};
+export default (props: Props) => {
+  const { addNodeLocally, isStaff } = props;
   const { state, dispatch } = useContext(PipelineContext);
   const { pipelineToAdd, selectedPipeline, computeInfo, titleInfo } = state;
   const reactDispatch = useAppDispatch();
@@ -155,7 +156,7 @@ const AddPipeline = ({
         </Fragment>,
       ]}
     >
-      <Pipelines />
+      <Pipelines isStaff={isStaff} />
       {mutation.isError || mutation.isSuccess || mutation.isPending ? (
         <div id="indicators">
           {mutation.isError && (
@@ -170,5 +171,3 @@ const AddPipeline = ({
     </Modal>
   );
 };
-
-export default AddPipeline;

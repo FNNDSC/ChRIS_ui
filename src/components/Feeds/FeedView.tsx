@@ -4,10 +4,9 @@ import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
-import { resetDrawerState } from "../../store/drawer/drawerSlice";
 import { clearSelectedFile } from "../../store/explorer/explorerSlice";
 import { getFeedSuccess, setShowToolbar } from "../../store/feed/feedSlice";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch } from "../../store/hooks";
 import {
   getSelectedPlugin,
   resetSelectedPlugin,
@@ -22,6 +21,7 @@ import { DrawerActionButton } from "./DrawerUtils";
 import usePaginatedTreeQuery from "./usePaginatedTreeQuery";
 import "./Feeds.css"; // Import your CSS file
 import {
+  getRootID,
   getState,
   type ThunkModuleToFunc,
   type UseThunk,
@@ -31,54 +31,40 @@ import {
   PluginInstanceStatus,
   type PluginInstance as PluginInstanceType,
 } from "../../api/types";
+import * as DoDrawer from "../../reducers/drawer";
 import { Role } from "../../reducers/types";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
+import CustomTitle from "./CustomTitle";
 import { useFetchFeed } from "./useFetchFeed";
 import { useSearchQueryParams } from "./usePaginate";
 import { usePollAllPluginStatuses } from "./usePolledStatuses";
-import { handleMaximize, handleMinimize } from "./utilties";
+import { onMaximize, onMinimize } from "./utilties";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
-// Custom title component to replace Typography.Title
-const CustomTitle = ({
-  // @ts-expect-error children as any
-  children,
-  color = "inherit",
-  className = "",
-  style = {},
-}) => (
-  <h4
-    className={`custom-title ${className}`}
-    style={{
-      margin: 0,
-      marginBottom: 0,
-      color,
-      fontSize: "1.25rem",
-      fontWeight: 500,
-      lineHeight: "1.4",
-      ...style,
-    }}
-  >
-    {children}
-  </h4>
-);
-
 export default (props: Props) => {
-  const { useUI, useUser } = props;
+  const { useUI, useUser, useDrawer } = props;
+
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { role, isLoggedIn } = user;
+  const { role, isLoggedIn, isInit } = user;
+
+  console.info("FeedView: isLoggedIn:", isLoggedIn, "isInit:", isInit);
+
+  const [classStateDrawer, doDrawer] = useDrawer;
+  const drawerState = getState(classStateDrawer) || DoDrawer.defaultState;
+  const drawerID = getRootID(classStateDrawer);
 
   const [currentLayout, setCurrentLayout] = useState(false);
-  const drawerState = useAppSelector((state) => state.drawers);
   const dispatch = useAppDispatch();
   const query = useSearchQueryParams();
   const theType = query.get("type");
@@ -87,7 +73,7 @@ export default (props: Props) => {
   const location = useLocation();
   const { id } = params;
 
-  const { feed, contextHolder } = useFetchFeed(id, theType, isLoggedIn);
+  const { feed, contextHolder } = useFetchFeed(id, theType, isLoggedIn, isInit);
   const treeQuery = usePaginatedTreeQuery(feed);
   const statuses = usePollAllPluginStatuses(
     treeQuery.pluginInstances,
@@ -95,13 +81,17 @@ export default (props: Props) => {
   );
 
   useEffect(() => {
+    if (!isInit) {
+      return;
+    }
+
     if (!theType || (theType === "private" && !isLoggedIn)) {
       const redirectTo = encodeURIComponent(
         `${location.pathname}${location.search}`,
       );
       navigate(`/login?redirectTo=${redirectTo}`);
     }
-  }, [theType, isLoggedIn, location, navigate]);
+  }, [theType, isLoggedIn, isInit, location, navigate]);
 
   // init
   useEffect(() => {
@@ -112,7 +102,7 @@ export default (props: Props) => {
       dispatch(clearSelectedFile());
       dispatch(setShowToolbar(false));
     };
-  }, [dispatch]);
+  }, [dispatch, isInit]);
 
   // set drawer state
   useEffect(() => {
@@ -131,10 +121,10 @@ export default (props: Props) => {
       lastPluginInstance.status === PluginInstanceStatus.SUCCESS;
 
     const theRole = role || Role.DefaultRole;
-    dispatch(resetDrawerState({ role: theRole, isSuccess }));
+    doDrawer.resetDrawerState(drawerID, theRole, isSuccess);
     return () => {
       const theRole = role || Role.DefaultRole;
-      dispatch(resetDrawerState({ role: theRole, isSuccess }));
+      doDrawer.resetDrawerState(drawerID, theRole, isSuccess);
     };
   }, [dispatch, role, treeQuery.pluginInstances, treeQuery.totalCount]);
 
@@ -199,7 +189,12 @@ export default (props: Props) => {
   }
 
   return (
-    <Wrapper useUI={useUI} useUser={useUser} titleComponent={TitleComponent}>
+    <Wrapper
+      useUI={useUI}
+      useUser={useUser}
+      useDrawer={useDrawer}
+      title={TitleComponent}
+    >
       {contextHolder}
       <PanelGroup autoSaveId="conditional" direction="vertical">
         {/* Top Panels: Graph and Node Details */}
@@ -224,8 +219,8 @@ export default (props: Props) => {
                 >
                   <DrawerActionButton
                     content={"graph"}
-                    handleMaximize={() => handleMaximize("graph", dispatch)}
-                    handleMinimize={() => handleMinimize("graph", dispatch)}
+                    onMaximize={() => onMaximize(drawerID, "graph", doDrawer)}
+                    onMinimize={() => onMinimize(drawerID, doDrawer)}
                     maximized={drawerState.graph.maximized}
                   />
                   {!currentLayout ? (
@@ -259,12 +254,12 @@ export default (props: Props) => {
               >
                 <DrawerActionButton
                   content={"node"}
-                  handleMaximize={() => handleMaximize("node", dispatch)}
-                  handleMinimize={() => handleMinimize("node", dispatch)}
+                  onMaximize={() => onMaximize(drawerID, "node", doDrawer)}
+                  onMinimize={() => onMinimize(drawerID, doDrawer)}
                   maximized={drawerState.node.maximized}
                 />
                 <div className="node-block">
-                  <NodeDetails />
+                  <NodeDetails useDrawer={useDrawer} />
                 </div>
               </Panel>
             </PanelGroup>
@@ -288,6 +283,7 @@ export default (props: Props) => {
             handlePluginSelect={onNodeBrowserClick}
             statuses={statuses}
             useUser={useUser}
+            useDrawer={useDrawer}
           />
         </Panel>
       </PanelGroup>

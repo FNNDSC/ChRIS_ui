@@ -1,3 +1,4 @@
+import type { Feed } from "@fnndsc/chrisapi";
 import {
   Panel,
   PanelMain,
@@ -6,9 +7,8 @@ import {
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
+import type React from "react";
 import FeedButton from "../components/FeedButton";
-import React from "react";
-import { Feed } from "@fnndsc/chrisapi";
 
 const DatasetDescriptionText: React.FC<{
   feed: Feed | null;

@@ -32,6 +32,7 @@ import type React from "react";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router";
+import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 import { useAppSelector } from "../../store/hooks";
@@ -55,6 +56,7 @@ import {
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 const { Paragraph } = Typography;
 
@@ -104,13 +106,14 @@ type Props = {
   isShared: boolean;
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
 };
 
 export default (props: Props) => {
-  const { title, isShared, useUI, useUser } = props;
+  const { title, isShared, useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { isLoggedIn, username } = user;
+  const { isLoggedIn, username, isInit } = user;
   const theType = isShared ? "public" : "private";
 
   const navigate = useNavigate();
@@ -118,8 +121,6 @@ export default (props: Props) => {
     useFeedListData(theType, isLoggedIn);
 
   const { perPage, page, search, searchType } = searchFolderData;
-
-  console.info("TableSelectable: theType:", theType, "isLoggedIn:", isLoggedIn);
 
   const [activeSortIndex, setActiveSortIndex] = useState<number>(0);
   const [activeSortDirection, setActiveSortDirection] =
@@ -207,12 +208,25 @@ export default (props: Props) => {
    * Redirect to public feeds if user is not logged in and type is private
    */
   useEffect(() => {
+    if (!isInit) {
+      return;
+    }
+
     if (!theType || (!isLoggedIn && theType === "private")) {
       navigate(
         `/shared?search=${search}&searchType=${searchType}&page=${page}&perPage=${perPage}`,
       );
     }
-  }, [isLoggedIn, navigate, perPage, page, searchType, search, theType]);
+  }, [
+    isLoggedIn,
+    isInit,
+    navigate,
+    perPage,
+    page,
+    searchType,
+    search,
+    theType,
+  ]);
 
   /**
    * Generate pagination component
@@ -259,7 +273,12 @@ export default (props: Props) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   return (
-    <Wrapper useUI={useUI} useUser={useUser} titleComponent={TitleComponent}>
+    <Wrapper
+      useUI={useUI}
+      useUser={useUser}
+      useDrawer={useDrawer}
+      title={TitleComponent}
+    >
       <PageSection
         stickyOnBreakpoint={{ default: "top" }}
         style={{ paddingTop: "0.25em", paddingBottom: "0" }}

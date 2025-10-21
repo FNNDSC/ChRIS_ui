@@ -5,7 +5,6 @@
  */
 
 import type { ICartState } from "../cart/types";
-import type { IDrawerState } from "../drawer/drawerSlice";
 import type { IExplorerState } from "../explorer/types";
 import type { IFeedState } from "../feed/types";
 import type { IPluginState } from "../plugin/pluginSlice";
@@ -15,7 +14,6 @@ export interface ApplicationState {
   feed: IFeedState;
   plugin: IPluginState;
   instance: IPluginInstanceState;
-  drawers: IDrawerState;
   explorer: IExplorerState;
   cart: ICartState;
 }

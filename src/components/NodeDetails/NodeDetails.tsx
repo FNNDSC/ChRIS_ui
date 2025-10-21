@@ -13,19 +13,27 @@ import {
 import React, { Fragment, type ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router";
-import { needsQuoting, customQuote } from "../../api/common";
+import { customQuote, needsQuoting } from "../../api/common";
 import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
 import { isPlVisualDataset } from "../DatasetRedirect/getDatasets";
 import FeedNote from "../FeedDetails/FeedNote";
 import { CalendarAltIcon, PreviewIcon } from "../Icons";
 import "./NodeDetails.css";
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
+import * as DoDrawer from "../../reducers/drawer";
 import PluginLog from "./PluginLog";
 import PluginTitle from "./PluginTitle";
 import Status from "./Status";
 import StatusTitle from "./StatusTitle";
-import { getErrorCodeMessage } from "./utils";
 import { usePluginInstanceResourceQuery } from "./usePluginInstanceResource";
+import { getErrorCodeMessage } from "./utils";
+
+type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 
 interface INodeState {
   plugin?: Plugin;
@@ -41,14 +49,22 @@ function getInitialState() {
   };
 }
 
-const NodeDetails: React.FC = () => {
+type Props = {
+  useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+};
+
+export default (props: Props) => {
+  const { useDrawer } = props;
+  const [classStateDrawer, _] = useDrawer;
+  const drawer = getState(classStateDrawer) || DoDrawer.defaultState;
+  const { node } = drawer;
+
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
   );
   const navigate = useNavigate();
   const feed = useAppSelector((state) => state.feed.currentFeed.data);
-  const drawerState = useAppSelector((state) => state.drawers);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isExpanded, setIsExpanded] = React.useState(true);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
@@ -132,9 +148,9 @@ const NodeDetails: React.FC = () => {
       }
     >
       <div className="node-details">
-        {drawerState.node.currentlyActive === "terminal" ? (
+        {node.currentlyActive === "terminal" ? (
           <PluginLog text={text} log={data?.pluginLog} />
-        ) : drawerState.node.currentlyActive === "note" ? (
+        ) : node.currentlyActive === "note" ? (
           <FeedNote />
         ) : (
           <>
@@ -246,8 +262,6 @@ const NodeDetails: React.FC = () => {
     </ErrorBoundary>
   );
 };
-
-export default NodeDetails;
 
 function getRuntimeString(selected: PluginInstance) {
   let runtime = 0;

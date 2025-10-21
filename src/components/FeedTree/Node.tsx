@@ -1,35 +1,21 @@
 import type { PluginInstance } from "@fnndsc/chrisapi";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { notification } from "antd";
 import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
-import {
-  Fragment,
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-} from "react";
-import ChrisAPIClient from "../../api/chrisapiclient";
+import { Fragment, useCallback, useContext, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import {
-  getSelectedPlugin,
-  setPluginInstancesAndSelectedPlugin,
-} from "../../store/pluginInstance/pluginInstanceSlice";
 
-import AddNodeConnect from "../AddNode/AddNode";
-import { AddNodeProvider } from "../AddNode/context";
-import AddPipeline from "../AddPipeline/AddPipeline";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import DeleteNode from "../DeleteNode";
-import { PipelineProvider } from "../PipelinesCopy/context";
 import type { FeedTreeScaleType } from "./Controls";
 import DropdownMenu from "./DropdownMenu";
 import type { Point, TreeNodeDatum } from "./data";
+import NodeModal from "./NodeModal";
+import { getStatusClass, setNodeTransform } from "./NodeUtils";
+import usePipelineMutation from "./usePipelineMutation";
 
-/** Type definitions */
-type NodeWrapperProps = {
+/** Constants */
+const DEFAULT_NODE_CIRCLE_RADIUS = 12;
+
+type Props = {
   tsNodes?: PluginInstance[];
   data: TreeNodeDatum;
   position: Point;
@@ -39,209 +25,15 @@ type NodeWrapperProps = {
   overlayScale?: FeedTreeScaleType;
   toggleLabel: boolean;
   searchFilter: string;
-  addNodeLocally: (instance: PluginInstance) => void;
-};
-
-type NodeProps = NodeWrapperProps & {
+  addNodeLocally: (instance: PluginInstance | PluginInstance[]) => void;
   status?: string;
   overlaySize?: number;
   currentId: boolean;
+
+  isStaff: boolean;
 };
 
-/** Constants */
-const DEFAULT_NODE_CIRCLE_RADIUS = 12;
-
-/** Helper Functions */
-
-/**
- * Sets the transform attribute for a node based on its orientation.
- */
-const setNodeTransform = (
-  orientation: "horizontal" | "vertical",
-  position: Point,
-) => {
-  return orientation === "horizontal"
-    ? `translate(${position.y},${position.x})`
-    : `translate(${position.x}, ${position.y})`;
-};
-
-/**
- * Determines the CSS class for a node based on its status.
- */
-const getStatusClass = (
-  status: string | undefined,
-  data: TreeNodeDatum,
-  pluginInstances: PluginInstance[],
-  searchFilter: string,
-): string => {
-  if (!status) return "";
-
-  let statusClass = "";
-
-  switch (status) {
-    case "started":
-    case "scheduled":
-    case "registeringFiles":
-    case "created":
-      statusClass = "active";
-      break;
-    case "waiting":
-      statusClass = "queued";
-      break;
-    case "finishedSuccessfully":
-      statusClass = "success";
-      break;
-    case "finishedWithError":
-    case "cancelled":
-      statusClass = "error";
-      break;
-    default:
-      break;
-  }
-
-  if (
-    searchFilter.length > 0 &&
-    (data.item?.data.plugin_name
-      ?.toLowerCase()
-      .includes(searchFilter.toLowerCase()) ||
-      data.item?.data.title?.toLowerCase().includes(searchFilter.toLowerCase()))
-  ) {
-    statusClass = "search";
-  }
-
-  const previous_id = data.item?.data?.previous_id;
-  if (previous_id) {
-    const parentNode = pluginInstances.find(
-      (node) => node.data.id === previous_id,
-    );
-
-    if (
-      parentNode &&
-      (parentNode.data.status === "cancelled" ||
-        parentNode.data.status === "finishedWithError")
-    ) {
-      statusClass = "notExecuted";
-    }
-  }
-
-  return statusClass;
-};
-
-/**
- * Custom hook to handle pipeline mutation logic.
- */
-const usePipelineMutation = (
-  selectedPlugin: PluginInstance | undefined,
-  pluginInstances: PluginInstance[],
-  dispatch: any,
-) => {
-  const [api, contextHolder] = notification.useNotification();
-
-  const fetchPipelines = async () => {
-    const client = ChrisAPIClient.getClient();
-
-    try {
-      const pipelineList = await client.getPipelines({
-        name: "zip v20240311",
-      });
-
-      const pipelines = pipelineList.getItems();
-
-      if (pipelines && pipelines.length > 0) {
-        const pipeline = pipelines[0];
-        const { id } = pipeline.data;
-
-        //@ts-ignore
-        const workflow = await client.createWorkflow(id, {
-          previous_plugin_inst_id: selectedPlugin?.data.id,
-        });
-
-        const pluginInstancesResponse = await workflow.getPluginInstances({
-          limit: 1000,
-        });
-
-        const instanceItems = pluginInstancesResponse.getItems();
-
-        if (instanceItems && instanceItems.length > 0) {
-          const firstInstance = instanceItems[instanceItems.length - 1];
-          const completeList = [...pluginInstances, ...instanceItems];
-
-          dispatch(getSelectedPlugin(firstInstance));
-
-          const pluginInstanceObj = {
-            selected: firstInstance,
-            pluginInstances: completeList,
-          };
-
-          dispatch(setPluginInstancesAndSelectedPlugin(pluginInstanceObj));
-          //dispatch(getPluginInstanceStatusRequest(pluginInstanceObj));
-        }
-      } else {
-        throw new Error(
-          "The pipeline to zip is not registered. Please contact an admin",
-        );
-      }
-      return pipelines;
-    } catch (error) {
-      // biome-ignore lint/complexity/noUselessCatch: <explanation>
-      throw error;
-    }
-  };
-
-  const mutation = useMutation({
-    mutationFn: fetchPipelines,
-  });
-
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      api.success({
-        message: "Zipping process started...",
-      });
-      mutation.reset();
-    } else if (mutation.isError) {
-      api.error({
-        message: (mutation.error as Error).message,
-      });
-    } else if (mutation.isPending) {
-      api.info({
-        message: "Preparing to initiate the zipping process...",
-      });
-    }
-  }, [
-    api,
-    mutation.error,
-    mutation.isSuccess,
-    mutation.isError,
-    mutation.isPending,
-    mutation.reset,
-  ]);
-
-  return { mutation, contextHolder };
-};
-
-/** Components */
-
-/**
- * Modals component to render all modal components.
- */
-const Modals = ({
-  addNodeLocally,
-}: { addNodeLocally: (instance: PluginInstance) => void }) => (
-  <>
-    <AddNodeProvider>
-      <AddNodeConnect addNodeLocally={addNodeLocally} />
-    </AddNodeProvider>
-    <DeleteNode />
-    <PipelineProvider>
-      <AddPipeline />
-    </PipelineProvider>
-  </>
-);
-
-/**
- * Node component representing a single node in the tree.
- */
-const Node = (props: NodeProps) => {
+export default (props: Props) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const nodeRef = useRef<SVGGElement>(null);
   const textRef = useRef<SVGTextElement>(null);
@@ -256,6 +48,7 @@ const Node = (props: NodeProps) => {
     overlaySize,
     searchFilter,
     addNodeLocally,
+    isStaff,
   } = props;
 
   const dispatch = useAppDispatch();
@@ -308,9 +101,9 @@ const Node = (props: NodeProps) => {
 
   return (
     <Fragment>
-      <Modals addNodeLocally={addNodeLocally} />
+      <NodeModal addNodeLocally={addNodeLocally} isStaff={isStaff} />
       {contextHolder}
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+      {/** biome-ignore lint/a11y/noStaticElementInteractions: svg with onClick */}
       <g
         id={`${data.id}`}
         ref={nodeRef}
@@ -319,7 +112,7 @@ const Node = (props: NodeProps) => {
         }}
       >
         <DropdownMenu
-          handleZip={() => {
+          onZip={() => {
             mutation.mutate();
           }}
         >
@@ -346,70 +139,3 @@ const Node = (props: NodeProps) => {
     </Fragment>
   );
 };
-
-const NodeMemoed = memo(Node);
-
-/**
- * NodeWrapper component to connect the Node component with Redux state.
- */
-const NodeWrapper = (props: NodeWrapperProps) => {
-  const { data, overlayScale } = props;
-  const intitalStatus = data.item?.data.status;
-  const instance = data?.item;
-
-  const activeStatus = useQuery<string | undefined, Error>({
-    queryKey: ["pluginInstance", instance?.data.id],
-    queryFn: async (): Promise<string | undefined> => {
-      if (instance) {
-        const pluginDetails = await instance.get();
-        return pluginDetails.data.status; // e.g. "finishedSuccessfully"
-      }
-      return undefined;
-    },
-    enabled: !!instance,
-    refetchInterval: (data) => {
-      const status = data.state.data;
-      if (
-        status === "finishedWithError" ||
-        status === "cancelled" ||
-        status === "finishedSuccessfully"
-      ) {
-        return false;
-      }
-      return 7000;
-    },
-  });
-
-  const currentId = useAppSelector((state) => {
-    return state.instance.selectedPlugin?.data.id === data.id;
-  });
-
-  let scale: number | undefined;
-  if (overlayScale === "time") {
-    const instanceData = data.item?.data;
-    if (instanceData) {
-      const start = new Date(instanceData.start_date);
-      const end = new Date(instanceData.end_date);
-      scale = Math.log10(end.getTime() - start.getTime()) / 2;
-    }
-  }
-
-  return (
-    <NodeMemoed
-      {...props}
-      status={activeStatus.data || intitalStatus}
-      overlaySize={scale}
-      currentId={currentId}
-    />
-  );
-};
-
-export default memo(NodeWrapper, (prevProps, nextProps) => {
-  return (
-    prevProps.data === nextProps.data &&
-    prevProps.position === nextProps.position &&
-    prevProps.parent === nextProps.parent &&
-    prevProps.toggleLabel === nextProps.toggleLabel &&
-    prevProps.orientation === nextProps.orientation
-  );
-});

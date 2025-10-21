@@ -31,6 +31,8 @@ export interface State extends rState {
 
   role: Role;
 
+  isInit: boolean;
+
   errmsg?: string;
 }
 
@@ -42,6 +44,8 @@ export const defaultState: State = {
   isRememberMe: false,
   isLoggedIn: false,
   isStaff: false,
+
+  isInit: false,
 
   role: Role.Guest,
 };
@@ -80,6 +84,7 @@ export const init = (): Thunk<State> => {
       token,
       isStaff,
       role,
+      isInit: true,
       isLoggedIn,
     });
 
@@ -186,7 +191,7 @@ export const setRole = (myID: string, role: Role): Thunk<State> => {
   };
 };
 
-export const setUserLogout = (myID: string): Thunk<State> => {
+export const logout = (myID: string): Thunk<State> => {
   return async (dispatch, getClassState) => {
     const classState = getClassState();
     const state = getState(classState, myID);
@@ -210,6 +215,8 @@ export const setUserLogout = (myID: string): Thunk<State> => {
     };
 
     dispatch(setData(myID, toUpdate));
+
+    window.location.href = "/";
   };
 };
 
