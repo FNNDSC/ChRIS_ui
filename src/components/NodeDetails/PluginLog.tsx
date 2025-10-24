@@ -1,9 +1,12 @@
-import React from "react";
-import type { NodeDetailsProps } from "../../store/resources/types";
-import LogTerminal from "./LogTerminal";
 import { isEmpty } from "lodash";
+import React from "react";
+import LogTerminal from "./LogTerminal";
 
-const PluginLog = ({ text, log }: NodeDetailsProps) => {
+type Props = {
+  text?: string;
+  log?: any;
+};
+const PluginLog = ({ text, log }: Props) => {
   let terminalOutput = text ? text : "";
   terminalOutput +=
     log && !isEmpty(log) ? log.compute.logs : "Fetching logs ......";

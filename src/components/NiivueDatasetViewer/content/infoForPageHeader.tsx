@@ -1,6 +1,6 @@
-import { InfoIcon } from "../../Common";
-import { Typography } from "../../Antd";
 import type React from "react";
+import { Typography } from "../../Antd";
+import { InfoIcon } from "../../Common";
 
 const InfoForPageHeader: React.FC = () => (
   <InfoIcon
@@ -25,7 +25,7 @@ const InfoForPageHeader: React.FC = () => (
             target="_blank"
             rel="noreferrer nofollow"
           >
-            https://chrisproject.org/docs/visual_dataset
+            s https://chrisproject.org/docs/visual_dataset
           </a>
           .
         </p>

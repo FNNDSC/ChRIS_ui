@@ -33,6 +33,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router";
 import type * as DoDrawer from "../../reducers/drawer";
+import type * as DoFeed from "../../reducers/feed";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
 import { useAppSelector } from "../../store/hooks";
@@ -57,6 +58,7 @@ import {
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 const { Paragraph } = Typography;
 
@@ -107,10 +109,11 @@ type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
 };
 
 export default (props: Props) => {
-  const { title, isShared, useUI, useUser, useDrawer } = props;
+  const { title, isShared, useUI, useUser, useDrawer, useFeed } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
   const { isLoggedIn, username, isInit, isStaff } = user;
@@ -277,6 +280,7 @@ export default (props: Props) => {
       useUI={useUI}
       useUser={useUser}
       useDrawer={useDrawer}
+      useFeed={useFeed}
       title={TitleComponent}
     >
       <PageSection

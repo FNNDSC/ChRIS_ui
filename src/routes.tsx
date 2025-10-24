@@ -32,6 +32,7 @@ import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import * as DoDrawer from "./reducers/drawer";
 import * as DoExplorer from "./reducers/explorer";
+import * as DoFeed from "./reducers/feed";
 import * as DoUI from "./reducers/ui";
 import * as DoUser from "./reducers/user";
 
@@ -39,6 +40,7 @@ type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 type TDoExplorer = ThunkModuleToFunc<typeof DoExplorer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 interface State {
   selectData?: Series;
@@ -103,6 +105,9 @@ export default () => {
   const useExplorer = useThunk<DoExplorer.State, TDoExplorer>(DoExplorer);
   const [_4, doExplorer] = useExplorer;
 
+  const useFeed = useThunk<DoFeed.State, TDoFeed>(DoFeed);
+  const [_5, doFeed] = useExplorer;
+
   console.info("routes: start: route:", route);
 
   const actions: Actions = {
@@ -143,6 +148,7 @@ export default () => {
     doUser.init();
     doDrawer.init();
     doExplorer.init();
+    doFeed.init();
   }, []);
 
   // Update the active sidebar item based on the current route
@@ -156,7 +162,12 @@ export default () => {
     {
       path: "/",
       element: (
-        <Dashboard useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+        <Dashboard
+          useUI={useUI}
+          useUser={useUser}
+          useDrawer={useDrawer}
+          useFeed={useFeed}
+        />
       ),
     },
     {
@@ -172,6 +183,7 @@ export default () => {
                 useUI={useUI}
                 useUser={useUser}
                 useDrawer={useDrawer}
+                useFeed={useFeed}
               />
             </OperationsProvider>
           </RouterProvider>
@@ -191,6 +203,7 @@ export default () => {
               useUser={useUser}
               useDrawer={useDrawer}
               useExplorer={useExplorer}
+              useFeed={useFeed}
             />
           </OperationsProvider>
         </RouterProvider>
@@ -210,6 +223,7 @@ export default () => {
               useUI={useUI}
               useUser={useUser}
               useDrawer={useDrawer}
+              useFeed={useFeed}
             />
           </OperationsProvider>
         </RouterProvider>
@@ -229,6 +243,7 @@ export default () => {
               useUI={useUI}
               useUser={useUser}
               useDrawer={useDrawer}
+              useFeed={useFeed}
             />
           </OperationsProvider>
         </RouterProvider>
@@ -237,14 +252,24 @@ export default () => {
     {
       path: "package/:id",
       element: (
-        <SinglePlugin useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+        <SinglePlugin
+          useUI={useUI}
+          useUser={useUser}
+          useDrawer={useDrawer}
+          useFeed={useFeed}
+        />
       ),
     },
     {
       path: "pacs",
       element: (
         <PrivateRoute useUser={useUser}>
-          <Pacs useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+          <Pacs
+            useUI={useUI}
+            useUser={useUser}
+            useDrawer={useDrawer}
+            useFeed={useFeed}
+          />
         </PrivateRoute>
       ),
     },
@@ -259,29 +284,56 @@ export default () => {
     {
       path: "package",
       element: (
-        <PipelinePage useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+        <PipelinePage
+          useUI={useUI}
+          useUser={useUser}
+          useDrawer={useDrawer}
+          useFeed={useFeed}
+        />
       ),
     },
     {
       path: "compute",
       element: (
-        <ComputePage useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+        <ComputePage
+          useUI={useUI}
+          useUser={useUser}
+          useDrawer={useDrawer}
+          useFeed={useFeed}
+        />
       ),
     },
     {
       path: "import",
-      element: <Store useUI={useUI} useUser={useUser} useDrawer={useDrawer} />,
+      element: (
+        <Store
+          useUI={useUI}
+          useUser={useUser}
+          useDrawer={useDrawer}
+          useFeed={useFeed}
+        />
+      ),
     },
     {
       path: "install/*",
       element: (
-        <PluginInstall useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+        <PluginInstall
+          useUI={useUI}
+          useUser={useUser}
+          useDrawer={useDrawer}
+          useFeed={useFeed}
+        />
       ),
     },
     {
       path: "*",
       element: (
-        <NotFound useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+        <NotFound
+          useUI={useUI}
+          useUser={useUser}
+          useDrawer={useDrawer}
+          useFeed={useFeed}
+        />
       ),
     },
   ]);

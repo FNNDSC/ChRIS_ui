@@ -1,11 +1,10 @@
-import React from "react";
+import { ClockIcon } from "@patternfly/react-icons";
 
 import FillCheckIcon from "@patternfly/react-icons/dist/esm/icons/check-icon";
 import ExclaimationIcon from "@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon";
+import React from "react";
 import { useAppSelector } from "../../store/hooks";
 import { SpinContainer } from "../Common";
-import { Spin } from "antd";
-import { ClockIcon } from "@patternfly/react-icons";
 
 const StatusTitle = ({ pluginStatus }: { pluginStatus: any }) => {
   const selected = useAppSelector((state) => state.instance.selectedPlugin);
@@ -15,7 +14,7 @@ const StatusTitle = ({ pluginStatus }: { pluginStatus: any }) => {
         title: string;
         icon: any;
       }
-    | undefined = undefined;
+    | undefined;
 
   const finishedStatuses = [
     "finishedSuccessfully",

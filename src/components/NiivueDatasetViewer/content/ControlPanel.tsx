@@ -1,11 +1,11 @@
 import { Alert, Flex, FlexItem } from "@patternfly/react-core";
-import React from "react";
 import Sizing from "@patternfly/react-styles/css/utilities/Sizing/sizing";
 import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import { Problem } from "../types";
+import type React from "react";
+import FilesMenu, { type FilesMenuProps } from "../components/FilesMenu";
+import type { DatasetFileState } from "../statefulTypes";
+import type { Problem } from "../types";
 import { FooterContent } from "./footer";
-import FilesMenu, { FilesMenuProps } from "../components/FilesMenu";
-import { DatasetFileState } from "../statefulTypes";
 
 type ControlPanelProps = Omit<FilesMenuProps, "fileStates"> & {
   problems: Problem[];

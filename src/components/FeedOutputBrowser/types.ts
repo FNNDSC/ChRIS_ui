@@ -4,7 +4,6 @@ import type {
   FileBrowserFolderLinkFile,
   FileBrowserFolderList,
 } from "@fnndsc/chrisapi";
-import type { DataNode } from "../../store/explorer/types";
 
 export interface FilesPayload {
   filesMap?: FileBrowserFolderFile[];
@@ -23,13 +22,6 @@ export interface FilesPayload {
     totalCount: number;
     hasNextPage: boolean;
   };
-}
-
-export interface FileBrowserState {
-  directory: DataNode;
-  breadcrumbs: DataNode[];
-  currentFile: DataNode[];
-  previewingFile?: DataNode; // file selected for preview
 }
 
 export interface Label {

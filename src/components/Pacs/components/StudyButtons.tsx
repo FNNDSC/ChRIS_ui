@@ -1,5 +1,5 @@
-import { Flex, Button, Tooltip, type TooltipProps } from "antd";
 import { AppstoreOutlined, ImportOutlined } from "@ant-design/icons";
+import { Button, Flex, Tooltip, type TooltipProps } from "antd";
 
 type StudyButtonsProps = {
   ohifUrl?: string;

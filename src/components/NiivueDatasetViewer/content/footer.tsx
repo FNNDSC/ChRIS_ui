@@ -1,9 +1,9 @@
-import { hideOnDesktop, hideOnMobileInline } from "../../../cssUtils.ts";
 import { Chip, Popover, TextContent } from "@patternfly/react-core";
-import BUILD_VERSION from "../../../getBuildVersion.ts";
 import { css } from "@patternfly/react-styles";
 import Display from "@patternfly/react-styles/css/utilities/Display/display.js";
 import Flex from "@patternfly/react-styles/css/utilities/Flex/flex.js";
+import { hideOnDesktop, hideOnMobileInline } from "../../../cssUtils.ts";
+import BUILD_VERSION from "../../../getBuildVersion.ts";
 
 const FeedbackButton = () => (
   <Popover
@@ -26,7 +26,7 @@ const FeedbackButton = () => (
 const FnndscCopyright = () => (
   <>
     &copy;&nbsp;2024{" "}
-    <a href="https://www.fnndsc.org/" target="_blank">
+    <a href="https://www.fnndsc.org/" target="_blank" rel="noopener">
       <span className={hideOnMobileInline}>
         Fetal-Neonatal Neuroimaging Developmental Science Center
       </span>

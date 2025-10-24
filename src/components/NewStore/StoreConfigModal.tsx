@@ -1,13 +1,13 @@
-import React from "react";
 import {
-  Modal,
+  ActionGroup,
+  Alert,
   Form,
   FormGroup,
-  TextInput,
-  ActionGroup,
+  Modal,
   Button as PFButton,
-  Alert,
+  TextInput,
 } from "@patternfly/react-core";
+import React from "react";
 
 interface StoreConfigModalProps {
   isOpen: boolean;

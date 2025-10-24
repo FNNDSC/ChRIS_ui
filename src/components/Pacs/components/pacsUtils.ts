@@ -1,6 +1,6 @@
-import type { PacsSeriesState } from "../types.ts";
-import ChrisAPIClient from "../../../api/chrisapiclient";
 import type { PACSSeries, PACSSeriesList } from "@fnndsc/chrisapi";
+import ChrisAPIClient from "../../../api/chrisapiclient";
+import type { PacsSeriesState } from "../types.ts";
 
 /**
  * Format a birth date into YYYYMMDD format

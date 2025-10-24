@@ -26,6 +26,7 @@ import {
   type UseThunk,
 } from "@chhsiao1981/use-thunk";
 import * as DoDrawer from "../../reducers/drawer";
+import * as DoFeed from "../../reducers/feed";
 import PluginLog from "./PluginLog";
 import PluginTitle from "./PluginTitle";
 import Status from "./Status";
@@ -34,6 +35,7 @@ import { usePluginInstanceResourceQuery } from "./usePluginInstanceResource";
 import { getErrorCodeMessage } from "./utils";
 
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 interface INodeState {
   plugin?: Plugin;
@@ -51,20 +53,24 @@ function getInitialState() {
 
 type Props = {
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
 };
 
 export default (props: Props) => {
-  const { useDrawer } = props;
+  const { useDrawer, useFeed } = props;
   const [classStateDrawer, _] = useDrawer;
   const drawer = getState(classStateDrawer) || DoDrawer.defaultState;
   const { node } = drawer;
+
+  const [classStateFeed, _2] = useFeed;
+  const feedState = getState(classStateFeed) || DoFeed.defaultState;
+  const { data: feed } = feedState;
 
   const [nodeState, setNodeState] = React.useState<INodeState>(getInitialState);
   const selectedPlugin = useAppSelector(
     (state) => state.instance.selectedPlugin,
   );
   const navigate = useNavigate();
-  const feed = useAppSelector((state) => state.feed.currentFeed.data);
   const { plugin, instanceParameters, pluginParameters } = nodeState;
   const [isExpanded, setIsExpanded] = React.useState(true);
   const [isErrorExpanded, setisErrorExpanded] = React.useState(false);
@@ -151,7 +157,7 @@ export default (props: Props) => {
         {node.currentlyActive === "terminal" ? (
           <PluginLog text={text} log={data?.pluginLog} />
         ) : node.currentlyActive === "note" ? (
-          <FeedNote />
+          <FeedNote useFeed={useFeed} />
         ) : (
           <>
             <PluginTitle />

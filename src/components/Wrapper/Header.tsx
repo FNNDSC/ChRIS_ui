@@ -11,6 +11,7 @@ import {
 } from "@patternfly/react-core";
 import type React from "react";
 import type * as DoDrawer from "../../reducers/drawer";
+import * as DoFeed from "../../reducers/feed";
 import * as DoUser from "../../reducers/user";
 import { useAppSelector } from "../../store/hooks";
 import { BarsIcon } from "../Icons";
@@ -18,6 +19,7 @@ import Toolbar from "./Toolbar";
 
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 type Props = {
   onNavToggle: () => void;
@@ -27,16 +29,27 @@ type Props = {
 
   useUser: UseThunk<DoUser.State, TDoUser>;
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
 };
 
 export default (props: Props) => {
-  const { useUser, useDrawer, onNavToggle, titleComponent, isNavOpen } = props;
+  const {
+    useUser,
+    useDrawer,
+    useFeed,
+    onNavToggle,
+    titleComponent,
+    isNavOpen,
+  } = props;
 
   const [classStateUser, _] = useUser;
 
   const user = getState(classStateUser) || DoUser.defaultState;
 
-  const showToolbar = useAppSelector((state) => state.feed.showToolbar);
+  const [classStateFeed, _2] = useFeed;
+  const feed = getState(classStateFeed) || DoFeed.defaultState;
+
+  const { showToolbar } = feed;
 
   // Apply margin-left to MastheadContent if sidebar is open
   const mastheadContentStyle = {
@@ -63,6 +76,7 @@ export default (props: Props) => {
           title={titleComponent}
           useUser={useUser}
           useDrawer={useDrawer}
+          useFeed={useFeed}
         />
       </MastheadContent>
     </Masthead>

@@ -1,6 +1,6 @@
-import React from "react";
-import { Button } from "@patternfly/react-core";
 import { SLICE_TYPE } from "@niivue/niivue";
+import { Button } from "@patternfly/react-core";
+import type React from "react";
 
 const SLICE_NAMES: { [key: string]: [SLICE_TYPE, boolean] } = {
   Axial: [SLICE_TYPE.AXIAL, false],

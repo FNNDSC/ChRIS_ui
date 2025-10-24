@@ -4,7 +4,6 @@ import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
-import { getFeedSuccess, setShowToolbar } from "../../store/feed/feedSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
   getSelectedPlugin,
@@ -32,6 +31,7 @@ import {
 } from "../../api/types";
 import * as DoDrawer from "../../reducers/drawer";
 import type * as DoExplorer from "../../reducers/explorer";
+import type * as DoFeed from "../../reducers/feed";
 import { Role } from "../../reducers/types";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
@@ -45,16 +45,18 @@ type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 type TDoExplorer = ThunkModuleToFunc<typeof DoExplorer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
   useExplorer: UseThunk<DoExplorer.State, TDoExplorer>;
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
 };
 
 export default (props: Props) => {
-  const { useUI, useUser, useDrawer, useExplorer } = props;
+  const { useUI, useUser, useDrawer, useExplorer, useFeed } = props;
 
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
@@ -66,6 +68,9 @@ export default (props: Props) => {
 
   const [classStateExplorer, doExplorer] = useExplorer;
   const explorerID = getRootID(classStateExplorer);
+
+  const [classStateFeed, doFeed] = useFeed;
+  const feedID = getRootID(classStateFeed);
 
   const [currentLayout, setCurrentLayout] = useState(false);
   const dispatch = useAppDispatch();
@@ -99,11 +104,11 @@ export default (props: Props) => {
   // init
   useEffect(() => {
     document.title = "My Analyses - CHRIS UI";
-    dispatch(setShowToolbar(true));
+    doFeed.setShowToolbar(feedID, true);
     return () => {
       dispatch(resetSelectedPlugin());
       doExplorer.clearSelectedFile(explorerID);
-      dispatch(setShowToolbar(false));
+      doFeed.setShowToolbar(feedID, false);
     };
   }, [dispatch, isInit]);
 
@@ -135,7 +140,7 @@ export default (props: Props) => {
     if (!feed) {
       return;
     }
-    dispatch(getFeedSuccess(feed as Feed));
+    doFeed.feedSuccess(feedID, feed);
   }, [dispatch, feed]);
 
   const onNodeClick = useCallback(
@@ -196,6 +201,7 @@ export default (props: Props) => {
       useUI={useUI}
       useUser={useUser}
       useDrawer={useDrawer}
+      useFeed={useFeed}
       title={TitleComponent}
     >
       {contextHolder}
@@ -263,7 +269,7 @@ export default (props: Props) => {
                   maximized={drawerState.node.maximized}
                 />
                 <div className="node-block">
-                  <NodeDetails useDrawer={useDrawer} />
+                  <NodeDetails useDrawer={useDrawer} useFeed={useFeed} />
                 </div>
               </Panel>
             </PanelGroup>
@@ -289,6 +295,7 @@ export default (props: Props) => {
             useUser={useUser}
             useDrawer={useDrawer}
             useExplorer={useExplorer}
+            useFeed={useFeed}
           />
         </Panel>
       </PanelGroup>

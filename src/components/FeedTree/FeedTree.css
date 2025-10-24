@@ -70,16 +70,11 @@
 }
 
 .grabbable {
-  cursor: move;
   cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
 }
 
 .grabbable:active {
   cursor: grabbing;
-  cursor: -moz-grabbing;
-  cursor: -webkit-grabbing;
 }
 
 .link {

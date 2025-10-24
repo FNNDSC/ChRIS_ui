@@ -1,9 +1,10 @@
 // src/components/Store/utils/useComputeResources.ts
-import { useEffect } from "react";
+
+import type { ComputeResource } from "@fnndsc/chrisapi";
 import { useQuery } from "@tanstack/react-query";
 import { notification } from "antd";
+import { useEffect } from "react";
 import ChrisAPIClient from "../../../api/chrisapiclient";
-import type { ComputeResource } from "@fnndsc/chrisapi";
 
 export function useComputeResources(isLoggedIn?: boolean) {
   const {

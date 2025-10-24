@@ -5,13 +5,13 @@ import {
   TextInput,
   Title,
 } from "@patternfly/react-core";
-import { EditIcon } from "../Icons";
 import { useMutation } from "@tanstack/react-query";
-import { Alert } from "../Antd";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setPluginTitle } from "../../store/pluginInstance/pluginInstanceSlice";
+import { Alert } from "../Antd";
 import { SpinContainer } from "../Common";
+import { EditIcon } from "../Icons";
 
 const PluginTitle = () => {
   const dispatch = useAppDispatch();

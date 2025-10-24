@@ -23,8 +23,9 @@ import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import * as DoDrawer from "../../reducers/drawer";
 import * as DoExplorer from "../../reducers/explorer";
+import * as DoFeed from "../../reducers/feed";
 import * as DoUser from "../../reducers/user";
-import useDownload, { useAppSelector } from "../../store/hooks";
+import useDownload from "../../store/hooks";
 import { notification } from "../Antd";
 import { ClipboardCopyContainer } from "../Common";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
@@ -49,6 +50,7 @@ import type { FilesPayload } from "./types";
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoExplorer = ThunkModuleToFunc<typeof DoExplorer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -77,6 +79,7 @@ type Props = {
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
   useUser: UseThunk<DoUser.State, TDoUser>;
   useExplorer: UseThunk<DoExplorer.State, TDoExplorer>;
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
 };
 
 export default (props: Props) => {
@@ -94,6 +97,7 @@ export default (props: Props) => {
     useDrawer,
     useUser,
     useExplorer,
+    useFeed,
   } = props;
 
   const [classStateUser, _] = useUser;
@@ -109,7 +113,10 @@ export default (props: Props) => {
   const explorer = getState(classStateExplorer) || DoExplorer.defaultState;
   const { selectedFile } = explorer;
 
-  const feed = useAppSelector((state) => state.feed.currentFeed.data);
+  const [classStateFeed, _2] = useFeed;
+  const feedState = getState(classStateFeed) || DoFeed.defaultState;
+  const { data: feed } = feedState;
+
   const handleDownloadMutation = useDownload(feed);
   const [api, contextHolder] = notification.useNotification();
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;

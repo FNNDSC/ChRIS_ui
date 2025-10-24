@@ -1,12 +1,12 @@
-import React from "react";
+import { Niivue } from "@niivue/niivue";
 import {
   Dropdown,
   DropdownItem,
   DropdownList,
   MenuToggle,
-  MenuToggleElement,
+  type MenuToggleElement,
 } from "@patternfly/react-core";
-import { Niivue } from "@niivue/niivue";
+import React from "react";
 
 const _NIIVUE = new Niivue();
 const NIIVUE_COLORMAPS = _NIIVUE.colormaps();

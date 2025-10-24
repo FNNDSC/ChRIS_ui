@@ -22,7 +22,9 @@ export default (props: Props) => {
     `${window.location.pathname}${window.location.search}`,
   );
 
-  return isLoggedIn || !isInit ? (
+  const isValid = isLoggedIn || !isInit;
+
+  return isValid ? (
     children
   ) : (
     <Navigate to={`/login?redirectTo=${redirectTo}`} />

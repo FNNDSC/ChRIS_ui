@@ -1,8 +1,8 @@
+import type { Feed } from "@fnndsc/chrisapi";
 import { Button, Tooltip } from "@patternfly/react-core";
-import { AnalysisIcon as MdCallSplit } from "../../Icons";
-import React from "react";
+import type React from "react";
 import { useNavigate } from "react-router";
-import { Feed } from "@fnndsc/chrisapi";
+import { AnalysisIcon as MdCallSplit } from "../../Icons";
 
 /**
  * Link to a feed.

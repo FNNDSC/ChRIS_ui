@@ -98,6 +98,7 @@ const NiivueDatasetViewer = (props: Props) => {
   const [nvSize, setNvSize] = useState(10);
   const [sizeIsScaling, setSizeIsScaling] = useState(false);
   const [crosshairLocation, setCrosshairLocation] = useState<CrosshairLocation>(
+    // @ts-expect-error
     { string: "" },
   );
 

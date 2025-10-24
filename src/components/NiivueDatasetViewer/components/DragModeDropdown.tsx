@@ -1,12 +1,12 @@
-import React from "react";
+import { DRAG_MODE } from "@niivue/niivue";
 import {
   Dropdown,
   DropdownItem,
   DropdownList,
   MenuToggle,
-  MenuToggleElement,
+  type MenuToggleElement,
 } from "@patternfly/react-core";
-import { DRAG_MODE } from "@niivue/niivue";
+import React from "react";
 
 /**
  * Names shown in the dropdown list.

@@ -21,6 +21,7 @@ import { type ReactElement, useContext, useState } from "react";
 import { useMediaQuery } from "react-responsive";
 import { useNavigate } from "react-router";
 import type * as DoDrawer from "../../reducers/drawer";
+import type * as DoFeed from "../../reducers/feed";
 import { type Role, Roles, StaffRoles } from "../../reducers/types";
 import * as DoUser from "../../reducers/user";
 import { useSignUpAllowed } from "../../store/hooks";
@@ -31,6 +32,7 @@ import styles from "./Toolbar.module.css";
 
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 type Props = {
   showToolbar: boolean;
@@ -39,6 +41,7 @@ type Props = {
 
   useUser: UseThunk<DoUser.State, TDoUser>;
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
 };
 
 export default (props: Props) => {
@@ -49,13 +52,16 @@ export default (props: Props) => {
     title,
     useUser: [classStateUser, doUser],
     useDrawer,
+    useFeed,
   } = props;
 
   const navigate = useNavigate();
   const { isDarkTheme, toggleTheme } = useContext(ThemeContext);
+
   const user = getState(classStateUser) || DoUser.defaultState;
   const userID = getRootID(classStateUser);
   const { username, role, isStaff } = user;
+
   const [dropdownOpen, setIsDropdownOpen] = useState(false);
   const [roleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
   const [trayOpen, setTrayOpen] = useState(false); // State for tray visibility
@@ -123,7 +129,7 @@ export default (props: Props) => {
         {/* Center */}
         <FlexItem flex={{ default: "flex_1" }}>
           {props.showToolbar && !isSmallerScreen && (
-            <FeedDetails useDrawer={useDrawer} />
+            <FeedDetails useDrawer={useDrawer} useFeed={useFeed} />
           )}
         </FlexItem>
 
@@ -223,7 +229,7 @@ export default (props: Props) => {
         aria-label="Data"
         variant="small"
       >
-        <FeedDetails useDrawer={useDrawer} />
+        <FeedDetails useDrawer={useDrawer} useFeed={useFeed} />
       </Modal>
     </>
   );

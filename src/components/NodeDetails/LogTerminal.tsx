@@ -1,5 +1,5 @@
-import { LogViewer, LogViewerSearch } from "@patternfly/react-log-viewer";
 import { Toolbar, ToolbarContent, ToolbarItem } from "@patternfly/react-core";
+import { LogViewer, LogViewerSearch } from "@patternfly/react-log-viewer";
 
 type LogTerminalProps = {
   text: string;

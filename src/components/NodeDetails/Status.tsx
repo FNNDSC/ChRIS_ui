@@ -1,4 +1,4 @@
-import { Steps, Spin } from "../Antd";
+import { Spin, Steps } from "../Antd";
 
 const Status = ({ pluginStatus }: { pluginStatus: any }) => {
   if (pluginStatus && pluginStatus.length > 0) {
