@@ -8,13 +8,12 @@ import {
   TextInput,
 } from "@patternfly/react-core";
 import React, { useContext, useEffect } from "react";
-import { CloseIcon } from "../Icons";
-import type { SimpleDropdownProps, SimpleDropdownState } from "./types";
-import { unPackForKeyValue } from "./utils";
-
 import { v4 } from "uuid";
+import { CloseIcon } from "../Icons";
 import { AddNodeContext } from "./context";
+import type { SimpleDropdownProps, SimpleDropdownState } from "./types";
 import { Types } from "./types";
+import { unPackForKeyValue } from "./utils";
 
 function getInitialState() {
   return {

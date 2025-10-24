@@ -31,12 +31,14 @@ import {
 import Signup from "./components/Signup";
 import SinglePlugin from "./components/SinglePlugin";
 import * as DoDrawer from "./reducers/drawer";
+import * as DoExplorer from "./reducers/explorer";
 import * as DoUI from "./reducers/ui";
 import * as DoUser from "./reducers/user";
 
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+type TDoExplorer = ThunkModuleToFunc<typeof DoExplorer>;
 
 interface State {
   selectData?: Series;
@@ -98,6 +100,9 @@ export default () => {
   const useDrawer = useThunk<DoDrawer.State, TDoDrawer>(DoDrawer);
   const [_3, doDrawer] = useDrawer;
 
+  const useExplorer = useThunk<DoExplorer.State, TDoExplorer>(DoExplorer);
+  const [_4, doExplorer] = useExplorer;
+
   console.info("routes: start: route:", route);
 
   const actions: Actions = {
@@ -137,6 +142,7 @@ export default () => {
     doUI.init(uiID);
     doUser.init();
     doDrawer.init();
+    doExplorer.init();
   }, []);
 
   // Update the active sidebar item based on the current route
@@ -180,7 +186,12 @@ export default () => {
           context={MainRouterContext}
         >
           <OperationsProvider>
-            <FeedView useUI={useUI} useUser={useUser} useDrawer={useDrawer} />
+            <FeedView
+              useUI={useUI}
+              useUser={useUser}
+              useDrawer={useDrawer}
+              useExplorer={useExplorer}
+            />
           </OperationsProvider>
         </RouterProvider>
       ),

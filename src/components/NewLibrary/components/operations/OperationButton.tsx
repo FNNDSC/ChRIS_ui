@@ -1,4 +1,4 @@
-import { Tooltip, Button } from "@patternfly/react-core";
+import { Button, Tooltip } from "@patternfly/react-core";
 
 type Props = {
   handleOperations: (operationKey: string) => void;

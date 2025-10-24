@@ -113,7 +113,7 @@ export default (props: Props) => {
   const { title, isShared, useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { isLoggedIn, username, isInit } = user;
+  const { isLoggedIn, username, isInit, isStaff } = user;
   const theType = isShared ? "public" : "private";
 
   const navigate = useNavigate();
@@ -297,7 +297,8 @@ export default (props: Props) => {
 
         {isLoggedIn && (
           <Operations
-            username=""
+            username={username}
+            isStaff={isStaff}
             origin={{
               type: OperationContext.FEEDS,
               additionalKeys: [perPage, page, theType, search, searchType],

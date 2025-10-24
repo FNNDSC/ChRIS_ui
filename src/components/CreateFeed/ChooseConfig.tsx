@@ -18,23 +18,23 @@ import {
   Tooltip,
   useWizardContext,
 } from "@patternfly/react-core";
-import { Alert, Steps, notification } from "../Antd";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useAppSelector } from "../../store/hooks";
-import GuidedConfig from "../AddNode/GuidedConfig";
 import { AddNodeContext } from "../AddNode/context";
+import GuidedConfig from "../AddNode/GuidedConfig";
 import {
   Types as AddNodeTypes,
   type chooseConfigProps,
 } from "../AddNode/types";
+import { Alert, notification, Steps } from "../Antd";
 import DragAndUpload from "../DragFileUpload";
 import { SettingsIcon, DeleteIcon as TrashIcon, UploadIcon } from "../Icons";
 import ChrisFileSelect from "./ChrisFileSelect";
+import { CreateFeedContext } from "./context";
 import DataPacks from "./DataPacks";
 import { FileList } from "./HelperComponent";
 import LocalFileUpload from "./LocalFileUpload";
-import { CreateFeedContext } from "./context";
-import { Types } from "./types/feed";
+import { type ChRISFeed, Types } from "./types/feed";
 
 const ChooseConfig = ({
   handleFileUpload,
@@ -334,10 +334,9 @@ const ChooseConfig = ({
 
   const fileList =
     chrisFiles.length > 0
-      ? chrisFiles.map((file: string, index: number) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+      ? chrisFiles.map((chrisFile: ChRISFeed, index: number) => (
           <React.Fragment key={index}>
-            <FileList file={file} index={index} />
+            <FileList file={chrisFile.filename} index={index} />
           </React.Fragment>
         ))
       : null;

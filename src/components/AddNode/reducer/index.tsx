@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { getInitialNodeState } from "../context";
-import { Types, type AddNodeState, type InputType } from "../types";
+import { type AddNodeState, type InputType, Types } from "../types";
 
 export const addNodeReducer = produce((draft: AddNodeState, action: any) => {
   switch (action.type) {

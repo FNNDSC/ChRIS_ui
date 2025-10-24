@@ -41,6 +41,7 @@ export type AdditionalValues = {
 
 type Props = {
   username: string;
+  isStaff: boolean;
   origin: OriginState;
   computedPath?: string;
   folderList?: FileBrowserFolderList;
@@ -55,6 +56,7 @@ type Props = {
 export default (props: Props) => {
   const {
     username,
+    isStaff,
     origin,
     computedPath,
     folderList,
@@ -114,6 +116,7 @@ export default (props: Props) => {
                 <CreateAnalysis
                   handleOperations={handleOperations}
                   count={selectedPathsCount}
+                  isStaff={isStaff}
                 />
               </AddNodeProvider>
             </PipelineProvider>

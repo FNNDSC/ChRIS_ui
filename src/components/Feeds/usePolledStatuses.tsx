@@ -1,6 +1,6 @@
+import type { PluginInstance } from "@fnndsc/chrisapi";
 import { useQueries } from "@tanstack/react-query";
 import React from "react";
-import type { PluginInstance } from "@fnndsc/chrisapi";
 
 export function usePollAllPluginStatuses(
   pluginInstances: PluginInstance[],

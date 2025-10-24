@@ -1,9 +1,9 @@
 import type { Pipeline } from "@fnndsc/chrisapi";
-import { Form } from "../Antd";
 import { useContext } from "react";
+import { Form } from "../Antd";
 import { EmptyStateComponent } from "../Common";
-import ListCompute from "./ListCompute";
 import { PipelineContext, Types } from "./context";
+import ListCompute from "./ListCompute";
 
 type OwnProps = {
   currentPipeline: Pipeline;

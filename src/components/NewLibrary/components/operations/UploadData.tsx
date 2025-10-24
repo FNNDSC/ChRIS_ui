@@ -1,5 +1,5 @@
-import { Dropdown } from "../../../Antd";
 import { Button } from "@patternfly/react-core";
+import { Dropdown } from "../../../Antd";
 import { AddIcon } from "../../../Icons";
 
 const OPERATION_ITEMS = [

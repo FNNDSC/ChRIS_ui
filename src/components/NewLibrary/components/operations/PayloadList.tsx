@@ -1,6 +1,6 @@
-import { ChipGroup, Chip } from "@patternfly/react-core";
-import { removeSelectedPayload } from "../../../../store/cart/cartSlice";
+import { Chip, ChipGroup } from "@patternfly/react-core";
 import { getFileName } from "../../../../api/common";
+import { removeSelectedPayload } from "../../../../store/cart/cartSlice";
 import type { SelectionPayload } from "../../../../store/cart/types";
 import type { AppDispatch } from "../../../../store/configureStore";
 

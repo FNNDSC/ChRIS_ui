@@ -1,6 +1,6 @@
-import type { InputType, InputIndex } from "./types";
 import type { PluginParameter } from "@fnndsc/chrisapi";
 import { v4 } from "uuid";
+import type { InputIndex, InputType } from "./types";
 
 export const unPackForKeyValue = (input: InputIndex) => {
   const flag = input ? input.flag : "";
@@ -99,7 +99,8 @@ export const handleGetTokens = (
   const dictionary: InputIndex = {};
   let requiredInput: InputType = {};
   let dropdownInput: InputType = {};
-  let specialCharIndex = undefined;
+  // biome-ignore lint/suspicious/noImplicitAnyLet: <explanation>
+  let specialCharIndex;
 
   const flags = totalParams?.map((param) => param.data.flag);
   const helperValues = totalParams?.map((param) => {

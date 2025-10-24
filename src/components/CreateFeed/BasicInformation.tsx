@@ -1,15 +1,15 @@
-import type React from "react";
-import { useState, useEffect, useContext, useRef, useCallback } from "react";
+import type { Tag } from "@fnndsc/chrisapi";
 import {
   Form,
   FormGroup,
-  TextInput,
   TextArea,
+  TextInput,
   useWizardContext,
 } from "@patternfly/react-core";
+import type React from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { CreateFeedContext } from "./context";
-import type { Tag } from "@fnndsc/chrisapi";
 import { Types } from "./types/feed";
 import { fetchTagList } from "./utils";
 

@@ -1,18 +1,17 @@
-import React, { useState, useContext, useCallback, useEffect } from "react";
-import { CreateFeedContext } from "./context";
 import { useWizardContext } from "@patternfly/react-core";
+import { isEmpty } from "lodash";
 import type { EventDataNode, Key } from "rc-tree/lib/interface";
-import { Tree, notification } from "../Antd";
-
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { notification, Tree } from "../Antd";
+import { CreateFeedContext } from "./context";
 import {
-  Types,
-  type Info,
-  type DataBreadcrumb,
-  type ChrisFileSelectProp,
   type CheckedKeys,
+  type ChrisFileSelectProp,
+  type DataBreadcrumb,
+  type Info,
+  Types,
 } from "./types/feed";
 import { generateTreeNodes, getNewTreeData } from "./utils";
-import { isEmpty } from "lodash";
 
 const { DirectoryTree } = Tree;
 

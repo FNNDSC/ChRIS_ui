@@ -1,9 +1,9 @@
-import React, { useCallback, useContext, useEffect } from "react";
 import { WizardContext } from "@patternfly/react-core";
-import { CreateFeedContext } from "./context";
-import { Types } from "./types/feed";
-import { LocalFileList } from "./HelperComponent";
+import React, { useCallback, useContext, useEffect } from "react";
 import { notification } from "../Antd";
+import { CreateFeedContext } from "./context";
+import { LocalFileList } from "./HelperComponent";
+import { Types } from "./types/feed";
 
 const LocalFileUpload = () => {
   const { state, dispatch } = useContext(CreateFeedContext);

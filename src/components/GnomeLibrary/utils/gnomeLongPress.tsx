@@ -238,7 +238,10 @@ export function getBackgroundRowColor(
 export function TitleNameClipped({
   name,
   value,
-}: { name: string; value: number }) {
+}: {
+  name: string;
+  value: number;
+}) {
   const clippedName = elipses(name, value);
 
   return (

@@ -1,16 +1,15 @@
-import type React from "react";
-import { Nav, NavList, NavItem } from "@patternfly/react-core";
-import { Flex, FlexItem } from "@patternfly/react-core";
+import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
+import { Flex, FlexItem, Nav, NavItem, NavList } from "@patternfly/react-core";
 import {
-  HomeIcon,
-  FolderIcon,
-  ShareIcon,
   CubeIcon,
+  FolderIcon,
+  HomeIcon,
+  ShareIcon,
   TreeviewIcon,
 } from "@patternfly/react-icons";
-import styles from "./gnome.module.css";
+import type React from "react";
 import type { OriginState } from "../NewLibrary/context";
-import type { FileBrowserFolderList } from "@fnndsc/chrisapi";
+import styles from "./gnome.module.css";
 
 interface GnomeLibrarySidebarProps {
   activeSidebarItem: string;

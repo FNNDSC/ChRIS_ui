@@ -1,14 +1,14 @@
 /**
  * Utils to be abstracted out
  */
-import { PluginInstance } from "@fnndsc/chrisapi";
+import type { PluginInstance } from "@fnndsc/chrisapi";
 
 export function bytesToSize(bytes: number) {
   const sizes: string[] = ["B", "KB", "MB", "GB", "TB"];
   if (bytes === 0) return "N/A";
   const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
   if (i === 0) return `${bytes} ${sizes[i]}`;
-  return `${(bytes / Math.pow(1024, i)).toFixed(0)} ${sizes[i]}`;
+  return `${(bytes / 1024 ** i).toFixed(0)} ${sizes[i]}`;
 }
 
 // Format plugin name to "Name_vVersion_ID"

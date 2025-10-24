@@ -193,6 +193,7 @@ const GnomeBulkActionBar = (props: Props) => {
                   </div>
                 }
               >
+                {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
                 <div
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent event bubbling

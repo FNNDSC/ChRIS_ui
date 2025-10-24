@@ -199,7 +199,8 @@ export const logout = (myID: string): Thunk<State> => {
       return;
     }
 
-    const username = state.username;
+    const { username } = state;
+
     const cookie = new Cookies();
     cookie.remove("username");
     cookie.remove(`${username}_token`);

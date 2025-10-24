@@ -18,7 +18,8 @@ const defaultThemeContext: ThemeContextType = {
   toggleTheme: () => {},
 };
 
-const ThemeContext = createContext<ThemeContextType>(defaultThemeContext);
+export const ThemeContext =
+  createContext<ThemeContextType>(defaultThemeContext);
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
@@ -43,7 +44,7 @@ const themeReducer = (
 type Props = {
   children: ReactNode;
 };
-const ThemeContextProvider = (props: Props) => {
+export const ThemeContextProvider = (props: Props) => {
   const { children } = props;
   const [themeState, dispatch] = useReducer(themeReducer, {
     isDarkTheme: localStorage.getItem(THEME_STORAGE_KEY) !== "light",
@@ -80,5 +81,3 @@ const ThemeContextProvider = (props: Props) => {
     </ThemeContext.Provider>
   );
 };
-
-export { ThemeContext, ThemeContextProvider };

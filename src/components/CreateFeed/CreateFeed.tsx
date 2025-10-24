@@ -42,7 +42,7 @@ export default (props: Props) => {
   const { useUser } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { isLoggedIn, username } = user;
+  const { isLoggedIn, username, isStaff } = user;
 
   const [feedProcessing, setFeedProcessing] = React.useState(false);
   const queryClient = useQueryClient();
@@ -295,7 +295,7 @@ export default (props: Props) => {
             )}
           </WizardStep>
           <WizardStep id={3} name="Pipelines">
-            <PipelinesCopy />
+            <PipelinesCopy isStaff={isStaff} />
           </WizardStep>
           <WizardStep
             id={4}

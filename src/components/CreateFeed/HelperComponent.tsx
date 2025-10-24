@@ -1,16 +1,16 @@
-import React, { useContext } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
   Flex,
   FlexItem,
 } from "@patternfly/react-core";
+import React, { useContext } from "react";
+import { constants } from "../../datasets";
 import { notification } from "../Antd";
-import { DeleteIcon as TrashIcon, FileIcon, FolderIcon } from "../Icons";
+import { FileIcon, FolderIcon, DeleteIcon as TrashIcon } from "../Icons";
 import { CreateFeedContext } from "./context";
 import { type ChRISFeed, Types } from "./types/feed";
 import { displayFeedName } from "./utils";
-import { constants } from "../../datasets";
 
 export const FileList = ({ file, index }: { file: string; index: number }) => {
   const { dispatch } = useContext(CreateFeedContext);
@@ -135,7 +135,10 @@ function generateChrisFeed(
 export const ChrisFileDetails = ({
   chrisFiles,
   prefix,
-}: { chrisFiles: ChRISFeed[]; prefix: string }) => {
+}: {
+  chrisFiles: ChRISFeed[];
+  prefix: string;
+}) => {
   return (
     <>
       <p>Existing Files to add to new feed:</p>

@@ -1,6 +1,7 @@
 import { Chip, ChipGroup } from "@patternfly/react-core";
+import type React from "react";
+import { useContext } from "react";
 import { pluralize } from "../../api/common";
-import React, { useContext } from "react";
 import { MainRouterContext } from "../../routes";
 
 /** Wraps step component to add an alert to the top */

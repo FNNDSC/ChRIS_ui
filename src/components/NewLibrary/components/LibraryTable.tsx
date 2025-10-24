@@ -1,3 +1,8 @@
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import type {
   FileBrowserFolder,
   FileBrowserFolderFile,
@@ -20,6 +25,7 @@ import { Drawer, Tag } from "antd";
 import { format } from "date-fns";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router";
+import * as DoUser from "../../../reducers/user";
 import { useAppSelector } from "../../../store/hooks";
 import { getIcon } from "../../Common";
 import { ThemeContext } from "../../DarkTheme/useTheme";
@@ -35,6 +41,8 @@ import { FolderContextMenu } from "./ContextMenu";
 import { getFileName, getLinkFileName } from "./FileCard";
 import { getFolderName } from "./FolderCard";
 
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+
 interface TableProps {
   data: {
     folders: FileBrowserFolder[];
@@ -46,6 +54,8 @@ interface TableProps {
   fetchMore?: boolean;
   handlePagination?: () => void;
   filesLoading?: boolean;
+
+  useUser: UseThunk<DoUser.State, TDoUser>;
 }
 
 const columnNames = {
@@ -74,6 +84,8 @@ interface RowProps {
     type: OperationContext;
     additionalKeys: string[];
   };
+
+  username: string;
 }
 
 export const BaseRow: React.FC<RowProps> = ({
@@ -87,6 +99,8 @@ export const BaseRow: React.FC<RowProps> = ({
   handleFolderClick,
   handleFileClick,
   origin,
+
+  username,
 }) => {
   const { handlers } = useLongPress();
   const { handleOnClick } = handlers;
@@ -117,7 +131,12 @@ export const BaseRow: React.FC<RowProps> = ({
     }
   };
   return (
-    <FolderContextMenu origin={origin} key={path} computedPath={computedPath}>
+    <FolderContextMenu
+      origin={origin}
+      key={path}
+      computedPath={computedPath}
+      username={username}
+    >
       <Tr
         ref={scrollToNewResource}
         style={{ background: highlightedBgRow, cursor: "pointer" }}
@@ -147,6 +166,7 @@ export const BaseRow: React.FC<RowProps> = ({
         <Td dataLabel={columnNames.name} modifier="nowrap">
           <div style={{ display: "flex", alignItems: "center" }}>
             {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+            {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
             <div
               onClick={(e) => {
                 e.stopPropagation();
@@ -227,7 +247,11 @@ const LibraryTable: React.FC<TableProps> = ({
   data,
   computedPath,
   handleFolderClick,
+  useUser,
 }) => {
+  const [classStateUser, _] = useUser;
+  const user = getState(classStateUser) || DoUser.defaultState;
+  const { username } = user;
   const navigate = useNavigate();
   const [preview, setShowPreview] = useState(false);
   const [selectedFile, setSelectedFile] = useState<FileBrowserFolderFile>();
@@ -297,7 +321,11 @@ const LibraryTable: React.FC<TableProps> = ({
         placement="right"
       >
         {selectedFile && (
-          <FileDetailView selectedFile={selectedFile} preview="large" />
+          <FileDetailView
+            selectedFile={selectedFile}
+            preview="large"
+            useUser={useUser}
+          />
         )}
       </Drawer>
 
@@ -352,6 +380,7 @@ const LibraryTable: React.FC<TableProps> = ({
                 return;
               }}
               origin={origin}
+              username={username}
             />
           ))}
           {data.files.map((resource: FileBrowserFolderFile, index) => (
@@ -371,6 +400,7 @@ const LibraryTable: React.FC<TableProps> = ({
                 handleFileClick(resource);
               }}
               origin={origin}
+              username={username}
             />
           ))}
           {data.linkFiles.map((resource: FileBrowserFolderLinkFile, index) => (
@@ -390,6 +420,7 @@ const LibraryTable: React.FC<TableProps> = ({
                 navigate(resource.data.path);
               }}
               origin={origin}
+              username={username}
             />
           ))}
         </Tbody>

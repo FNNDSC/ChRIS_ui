@@ -10,10 +10,10 @@ import { type ITreeChart, TreeModel } from "../../api/model";
 import { useAppSelector } from "../../store/hooks";
 import { type FeedTreeScaleType, NodeScaleDropdown } from "./Controls";
 import "./FeedTree.css";
-import { SpinContainer } from "../Common";
-import useSize from "./useSize";
-import usePaginatedTreeQuery from "../Feeds/usePaginatedTreeQuery";
 import type { Feed } from "@fnndsc/chrisapi";
+import { SpinContainer } from "../Common";
+import usePaginatedTreeQuery from "../Feeds/usePaginatedTreeQuery";
+import useSize from "./useSize";
 
 interface IFeedProps {
   onNodeClick: (node: PluginInstance) => void;

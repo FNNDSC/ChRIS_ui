@@ -1,5 +1,5 @@
-import OperationButton from "./OperationButton";
 import { MergeIcon } from "../../../Icons";
+import OperationButton from "./OperationButton";
 
 type Props = {
   handleOperations: (operationKey: string) => void;

@@ -7,7 +7,7 @@ import { AddIcon, DeleteIcon, PatternflyArchiveIcon } from "../Icons";
 
 type Props = {
   onZip: () => void;
-  children: ReactNode;
+  children?: ReactNode;
 };
 export default (props: Props) => {
   const { onZip, children } = props;

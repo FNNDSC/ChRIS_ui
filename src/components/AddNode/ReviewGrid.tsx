@@ -1,5 +1,5 @@
-import { RenderFlexItem } from "../Common";
 import type { Plugin } from "@fnndsc/chrisapi";
+import { RenderFlexItem } from "../Common";
 
 interface PluginDetailsProps {
   generatedCommand: string;

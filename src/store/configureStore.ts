@@ -8,7 +8,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import logger from "redux-logger";
 import createSagaMiddleware from "redux-saga";
 import cartReducer from "./cart/cartSlice";
-import explorerReducer from "./explorer/explorerSlice";
 import feedReducer from "./feed/feedSlice";
 import pluginReducer from "./plugin/pluginSlice";
 import pluginInstanceReducer from "./pluginInstance/pluginInstanceSlice";
@@ -26,7 +25,6 @@ export function setupStore(preloadedState?: ApplicationState) {
   const store = configureStore({
     reducer: {
       cart: cartReducer,
-      explorer: explorerReducer,
       feed: feedReducer,
       plugin: pluginReducer,
       instance: pluginInstanceReducer,
