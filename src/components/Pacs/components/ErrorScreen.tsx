@@ -1,4 +1,3 @@
-import type React from "react";
 import {
   EmptyState,
   EmptyStateBody,
@@ -8,6 +7,7 @@ import {
   TextContent,
   TextVariants,
 } from "@patternfly/react-core";
+import type React from "react";
 import { ExclamationCircleIcon } from "../../Icons";
 
 const ErrorScreen: React.FC<React.PropsWithChildren> = ({ children }) => (

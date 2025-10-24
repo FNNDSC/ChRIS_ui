@@ -1,10 +1,10 @@
-import type { Study } from "../../../api/pfdcm/models.ts";
+import { Col, Row } from "antd";
 import type React from "react";
-import { Row, Col } from "antd";
-import StudyDetails from "./StudyDetails.tsx";
-import StudyButtons from "./StudyButtons.tsx";
-import type { PacsPreferences } from "../types.ts";
+import type { Study } from "../../../api/pfdcm/models.ts";
 import { DEFAULT_PREFERENCES } from "../defaultPreferences.ts";
+import type { PacsPreferences } from "../types.ts";
+import StudyButtons from "./StudyButtons.tsx";
+import StudyDetails from "./StudyDetails.tsx";
 
 type StudyCardProps = {
   study: Study;

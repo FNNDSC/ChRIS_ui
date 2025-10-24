@@ -1,5 +1,4 @@
-import { ChNVROptions } from "../models";
-import { Updater } from "use-immer";
+import { SLICE_TYPE } from "@niivue/niivue";
 import {
   Divider,
   Form,
@@ -10,14 +9,15 @@ import {
   Slider,
   Switch,
 } from "@patternfly/react-core";
-import RadiologcalConventionToggle from "./RadiologcalConventionToggle";
-import { hideOnDesktop } from "../../../cssUtils";
-import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
 import { css } from "@patternfly/react-styles";
-import SliceTypeButton from "./SliceTypeButton";
-import React from "react";
-import { SLICE_TYPE } from "@niivue/niivue";
+import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
+import type React from "react";
+import type { Updater } from "use-immer";
+import { hideOnDesktop } from "../../../cssUtils";
 import { DEFAULT_OPTIONS } from "../defaults.ts";
+import type { ChNVROptions } from "../models";
+import RadiologcalConventionToggle from "./RadiologcalConventionToggle";
+import SliceTypeButton from "./SliceTypeButton";
 
 type SettingsTabProps = {
   options: ChNVROptions;

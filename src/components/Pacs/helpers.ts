@@ -3,7 +3,7 @@ import {
   type Study,
   StudyAndSeries,
 } from "../../api/pfdcm/models.ts";
-import type { SeriesKey, StudyKey } from "./types.ts";
+import type { StudyKey } from "./types.ts";
 
 /**
  * A type subset of {@link StudyAndSeries}.
@@ -16,36 +16,6 @@ type StudyAndSeriesUidOnly = {
     SeriesInstanceUID: string;
   }>;
 };
-
-/**
- * Zip together the `pacs_name` from `studies` with every series in `studyAndSeries`.
- */
-function zipPacsNameAndSeriesUids(
-  studies: ReadonlyArray<StudyKey>,
-  studyAndSeries?: ReadonlyArray<StudyAndSeriesUidOnly>,
-): SeriesKey[] {
-  if (!studyAndSeries) {
-    return [];
-  }
-  const studyUidToPacsName = studies.reduce(
-    (map, { StudyInstanceUID, pacs_name }) =>
-      map.set(StudyInstanceUID, pacs_name),
-    new Map(),
-  );
-  return studyAndSeries
-    .map(({ study, series }) => ({
-      study,
-      series,
-      pacs_name: studyUidToPacsName.get(study.StudyInstanceUID),
-    }))
-    .filter(({ pacs_name }) => pacs_name !== undefined)
-    .flatMap(({ series, pacs_name }) =>
-      series.map(({ SeriesInstanceUID }) => ({
-        pacs_name,
-        SeriesInstanceUID,
-      })),
-    );
-}
 
 function studyToStudyKey(
   s: Pick<Study, "StudyInstanceUID" | "RetrieveAETitle">,
@@ -66,4 +36,4 @@ function seriesToStudyKey(
 }
 
 export type { StudyAndSeriesUidOnly };
-export { zipPacsNameAndSeriesUids, studyToStudyKey, seriesToStudyKey };
+export { studyToStudyKey, seriesToStudyKey };

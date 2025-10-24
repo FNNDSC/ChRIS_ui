@@ -4,8 +4,8 @@ import { useState } from "react";
 import ChrisAPIClient from "../../../api/chrisapiclient";
 import { clearSelectedPaths } from "../../../store/cart/cartSlice";
 import type { SelectionPayload } from "../../../store/cart/types";
-import { type OriginState, useOperationsContext } from "../context";
 import { useAppDispatch } from "../../../store/hooks.ts";
+import { type OriginState, useOperationsContext } from "../context";
 
 type DeletionErrors = { path: string; message: string }[];
 

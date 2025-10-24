@@ -1,6 +1,6 @@
 import { List } from "antd";
-import type { PacsSeriesState } from "../types.ts";
 import type React from "react";
+import type { PacsSeriesState } from "../types.ts";
 import SeriesRow from "./SeriesRow.tsx";
 
 type SeriesListProps = {

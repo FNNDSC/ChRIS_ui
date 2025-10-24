@@ -1,23 +1,23 @@
 import {
+  Button,
   Card,
   CardBody,
   CardTitle,
-  Form,
-  FormGroup,
-  Button,
   Flex,
   FlexItem,
-  Tooltip,
-  TextContent,
-  Text,
-  TextVariants,
+  Form,
+  FormGroup,
   Slider,
+  Text,
+  TextContent,
+  TextVariants,
+  Tooltip,
 } from "@patternfly/react-core";
 import { RedoIcon } from "@patternfly/react-icons";
+import type React from "react";
+import type { ChNVRVolume } from "../models";
+import type { DatasetVolume } from "../statefulTypes";
 import ColormapDropdown from "./ColormapDropdown";
-import React from "react";
-import { ChNVRVolume } from "../models";
-import { DatasetVolume } from "../statefulTypes";
 
 type VolumeOptionsFormProps = {
   name: string;

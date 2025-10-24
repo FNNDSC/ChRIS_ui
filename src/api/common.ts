@@ -1,15 +1,15 @@
-import axios, { type AxiosProgressEvent } from "axios";
-import ChrisAPIClient from "./chrisapiclient";
 import type {
+  ComputeResource,
+  Feed,
   Pipeline,
   PipelineList,
-  PluginPiping,
-  Feed,
-  Plugin,
   PipelinePipingDefaultParameterList,
-  ComputeResource,
+  Plugin,
+  PluginPiping,
 } from "@fnndsc/chrisapi";
+import axios, { type AxiosProgressEvent } from "axios";
 import { quote } from "shlex";
+import ChrisAPIClient from "./chrisapiclient";
 
 export function elipses(str: string, len: number) {
   if (str.length <= len) return str;
@@ -312,7 +312,7 @@ export function catchError(errorRequest: any) {
     const data = errorRequest.response.data;
     // Iterate through each key in the data object
     for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
+      if (Object.hasOwn(data, key)) {
         const value = data[key];
         // Check if the value is an array with at least one message
         if (Array.isArray(value) && value.length > 0) {

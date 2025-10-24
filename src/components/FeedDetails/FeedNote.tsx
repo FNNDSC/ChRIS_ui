@@ -1,12 +1,25 @@
+import {
+  getState,
+  type ThunkModuleToFunc,
+  type UseThunk,
+} from "@chhsiao1981/use-thunk";
 import { Button, Form, FormGroup, TextArea } from "@patternfly/react-core";
-import React, { useEffect } from "react";
+import { type ChangeEvent, useEffect, useState } from "react";
 import { fetchNote } from "../../api/common";
-import { useAppSelector } from "../../store/hooks";
+import * as DoFeed from "../../reducers/feed";
 
-const FeedNote = () => {
-  const [value, setValue] = React.useState("");
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
-  const feed = useAppSelector((state) => state.feed.currentFeed.data);
+type Props = {
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
+};
+export default (props: Props) => {
+  const { useFeed } = props;
+  const [classStateFeed, _] = useFeed;
+  const feedState = getState(classStateFeed) || DoFeed.defaultState;
+  const { data: feed } = feedState;
+
+  const [value, setValue] = useState("");
 
   useEffect(() => {
     fetchNote(feed).then((note) => {
@@ -14,9 +27,9 @@ const FeedNote = () => {
     });
   }, [feed]);
 
-  const [typing, setTyping] = React.useState(false);
+  const [typing, setTyping] = useState(false);
   const handleChange = (
-    _event: React.ChangeEvent<HTMLTextAreaElement>,
+    _event: ChangeEvent<HTMLTextAreaElement>,
     value: string,
   ) => {
     setValue(value);
@@ -78,5 +91,3 @@ const FeedNote = () => {
     </>
   );
 };
-
-export default FeedNote;

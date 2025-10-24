@@ -1,7 +1,7 @@
 import { ToggleGroup, ToggleGroupItem } from "@patternfly/react-core";
-import React from "react";
-import { ChNVROptions } from "../models.ts";
-import { Updater } from "use-immer";
+import type React from "react";
+import type { Updater } from "use-immer";
+import type { ChNVROptions } from "../models.ts";
 
 type RadiologcalConventionToggleProps = {
   options: ChNVROptions;

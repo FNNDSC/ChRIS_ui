@@ -1,7 +1,7 @@
-import InProgress from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
-import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
-import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 import { CheckIcon } from "@patternfly/react-icons";
+import ClockIcon from "@patternfly/react-icons/dist/esm/icons/clock-icon";
+import InProgress from "@patternfly/react-icons/dist/esm/icons/in-progress-icon";
+import TimesCircleIcon from "@patternfly/react-icons/dist/esm/icons/times-circle-icon";
 
 /** Example label interface that might come back from the server. */
 export interface PluginDetails {

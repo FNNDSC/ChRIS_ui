@@ -1,10 +1,10 @@
+import { FolderOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import type { useNavigate } from "react-router-dom";
-import { FolderOutlined } from "@ant-design/icons";
+import { createFeed } from "../../../store/cart/downloadSaga";
 import { AnalysisIcon } from "../../Icons";
 import type { PacsSeriesState } from "../types";
 import { fetchSeriesPath } from "./pacsUtils";
-import { createFeed } from "../../../store/cart/downloadSaga";
 
 // Types for context menu handlers
 export interface ContextMenuHandlers {

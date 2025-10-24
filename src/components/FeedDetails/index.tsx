@@ -1,7 +1,6 @@
 import { Flex, FlexItem } from "@patternfly/react-core";
 import { useEffect, useState } from "react";
 import { fetchNote } from "../../api/common";
-import { useAppSelector } from "../../store/hooks";
 import { Badge } from "../Antd";
 import { ButtonWithTooltip } from "../Feeds/DrawerUtils";
 import {
@@ -22,20 +21,26 @@ import {
   type UseThunk,
 } from "@chhsiao1981/use-thunk";
 import * as DoDrawer from "../../reducers/drawer";
+import * as DoFeed from "../../reducers/feed";
 
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+type TDoFeed = ThunkModuleToFunc<typeof DoFeed>;
 
 type Props = {
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+  useFeed: UseThunk<DoFeed.State, TDoFeed>;
 };
 
 export default (props: Props) => {
-  const { useDrawer } = props;
+  const { useDrawer, useFeed } = props;
   const [classStateDrawer, doDrawer] = useDrawer;
   const drawerState = getState(classStateDrawer) || DoDrawer.defaultState;
   const drawerID = getRootID(classStateDrawer);
 
-  const currentFeed = useAppSelector((state) => state.feed.currentFeed.data);
+  const [classStateFeed, _] = useFeed;
+  const feedState = getState(classStateFeed) || DoFeed.defaultState;
+
+  const { data: currentFeed } = feedState;
 
   const node = drawerState.node.currentlyActive === "node";
   const note = drawerState.node.currentlyActive === "note";

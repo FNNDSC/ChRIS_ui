@@ -1,12 +1,12 @@
-import type React from "react";
-import { useState } from "react";
 import {
   Dropdown,
   DropdownGroup,
-  DropdownList,
   DropdownItem,
+  DropdownList,
   MenuToggle,
 } from "@patternfly/react-core";
+import type React from "react";
+import { useState } from "react";
 import { envOptions } from "./hooks/useFetchPlugins";
 
 interface StoreToggleProps {

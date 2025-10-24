@@ -1,5 +1,5 @@
-import { ChNVROptions, UsualVolumeSettings } from "./models.ts";
 import { DRAG_MODE, SLICE_TYPE } from "@niivue/niivue";
+import type { ChNVROptions, UsualVolumeSettings } from "./models.ts";
 
 const DEFAULT_OPTIONS: ChNVROptions = {
   isColorbar: true,

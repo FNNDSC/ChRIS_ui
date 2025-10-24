@@ -1,4 +1,4 @@
-import { DraftFunction, Updater } from "use-immer";
+import type { DraftFunction, Updater } from "use-immer";
 
 /**
  * Wrap an `Updater` to be used in contexts where you are sure `x` is not `null`.

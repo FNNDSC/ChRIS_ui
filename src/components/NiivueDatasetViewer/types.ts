@@ -1,5 +1,5 @@
-import { PluginInstance } from "@fnndsc/chrisapi";
-import React from "react";
+import type { PluginInstance } from "@fnndsc/chrisapi";
+import type React from "react";
 
 /**
  * A "Visual Dataset" in _ChRIS_ comprises two plugin instances:

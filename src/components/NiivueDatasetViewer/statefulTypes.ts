@@ -1,5 +1,9 @@
-import { DatasetFile } from "./client";
-import { ChNVRVolume, SupportedVolumeSettings, VolumeSettings } from "./models";
+import type { DatasetFile } from "./client";
+import type {
+  ChNVRVolume,
+  SupportedVolumeSettings,
+  VolumeSettings,
+} from "./models";
 
 /**
  * A volume's state and its original default options.

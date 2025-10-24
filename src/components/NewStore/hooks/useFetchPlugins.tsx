@@ -1,6 +1,6 @@
+import type { Plugin as ApiPlugin } from "@fnndsc/chrisapi";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import type { Plugin as ApiPlugin } from "@fnndsc/chrisapi";
 
 const LIMIT = 100;
 

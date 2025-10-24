@@ -1,48 +1,48 @@
 import {
+  HelperText,
+  HelperTextItem,
+  Hint,
+  HintBody,
+  HintTitle,
+  Label,
+  LabelGroup,
+  List,
+  ListItem,
   Menu,
   MenuContent,
   MenuItem,
   MenuItemAction,
   MenuList,
-  LabelGroup,
-  Label,
-  Spinner,
-  Tabs,
-  Tab,
-  HelperText,
-  HelperTextItem,
   Panel,
   PanelMain,
   PanelMainBody,
-  TabTitleText,
-  TabTitleIcon,
-  List,
-  ListItem,
-  HintTitle,
-  HintBody,
-  Hint,
   SearchInput,
+  Spinner,
+  Tab,
+  Tabs,
+  TabTitleIcon,
+  TabTitleText,
 } from "@patternfly/react-core";
 import {
-  PlusIcon,
-  PlusCircleIcon,
-  FolderOpenIcon,
-  FolderCloseIcon,
   BrainIcon,
   DesktopIcon,
+  FolderCloseIcon,
+  FolderOpenIcon,
+  PlusCircleIcon,
+  PlusIcon,
 } from "@patternfly/react-icons";
-import { TagSet } from "../client/models";
-import { TagsDictionary } from "../types";
-import React from "react";
-import { DatasetFileState, volumeIsLoaded } from "../statefulTypes";
-import { ChNVRVolume } from "../models";
-import VolumeOptionsForm from "./VolumeOptionsForm";
-import TagColors from "./TagColors";
 import { css } from "@patternfly/react-styles";
 import Spacing from "@patternfly/react-styles/css/utilities/Spacing/spacing";
-import tabStyle from "./pfTabHeight.module.css";
+import React from "react";
+import type { TagSet } from "../client/models";
+import type { ChNVRVolume } from "../models";
+import { type DatasetFileState, volumeIsLoaded } from "../statefulTypes";
+import type { TagsDictionary } from "../types";
 import styles from "./FilesMenu.module.css";
-import SettingsTab, { SettingsTabProps } from "./SettingsTab.tsx";
+import tabStyle from "./pfTabHeight.module.css";
+import SettingsTab, { type SettingsTabProps } from "./SettingsTab.tsx";
+import TagColors from "./TagColors";
+import VolumeOptionsForm from "./VolumeOptionsForm";
 
 type FilesMenuProps = SettingsTabProps & {
   fileStates: ReadonlyArray<DatasetFileState>;

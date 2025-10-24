@@ -1,22 +1,22 @@
-import React from "react";
 import {
   Button,
-  Flex,
-  Typography,
-  Modal,
-  Input,
-  message,
-  theme,
   ConfigProvider,
+  Flex,
+  Input,
+  Modal,
+  message,
+  Typography,
+  theme,
 } from "antd";
-import { useSeriesSelection } from "./SeriesSelectionContext";
-import { AnalysisIcon } from "../../Icons";
+import React from "react";
 import { useTheme } from "../../DarkTheme/useTheme";
+import { AnalysisIcon } from "../../Icons";
 import { generateFeedName } from "./pacsUtils";
 import {
-  createSeriesFeed,
   type ContextMenuHandlers,
+  createSeriesFeed,
 } from "./SeriesContextMenu";
+import { useSeriesSelection } from "./SeriesSelectionContext";
 
 const BulkActionBar: React.FC = () => {
   const {

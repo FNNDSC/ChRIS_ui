@@ -1,11 +1,10 @@
-import React from "react";
-import { ChNVROptions } from "../models";
-import { Updater } from "use-immer";
-
-import DragModeDropdown from "./DragModeDropdown";
-import SliceTypeButton from "./SliceTypeButton";
 import { Flex, FlexItem } from "@patternfly/react-core";
+import type React from "react";
+import type { Updater } from "use-immer";
+import type { ChNVROptions } from "../models";
+import DragModeDropdown from "./DragModeDropdown";
 import RadiologcalConventionToggle from "./RadiologcalConventionToggle.tsx";
+import SliceTypeButton from "./SliceTypeButton";
 
 type HeaderOptionsBarProps = {
   options: ChNVROptions;

@@ -1,5 +1,5 @@
-import { TagsDictionary } from "../types";
-import { Label, LabelProps } from "@patternfly/react-core";
+import { Label, type LabelProps } from "@patternfly/react-core";
+import type { TagsDictionary } from "../types";
 
 const COLORS: ReadonlyArray<LabelProps["color"]> = [
   "blue",

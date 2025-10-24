@@ -4,6 +4,7 @@
   background-size: cover;
 }
 
+/* biome-ignore lint/correctness/noUnknownMediaFeatureName: <explanation> */
 @media (max-width: 576px) and (-webkit-min-device-pixel-ratio: 2),
   (max-width: 576px) and (min-resolution: 192dpi) {
   .pf-background {
@@ -17,6 +18,7 @@
   }
 }
 
+/* biome-ignore lint/correctness/noUnknownMediaFeatureName: <explanation> */
 @media (min-width: 576px) and (-webkit-min-device-pixel-ratio: 2),
   (min-width: 576px) and (min-resolution: 192dpi) {
   .pf-background {
