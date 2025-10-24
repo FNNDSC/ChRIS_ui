@@ -1,5 +1,5 @@
 import { select } from "d3-selection";
-import React, { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const Marker = () => {
   const markerRef = useRef<SVGMarkerElement>(null);
@@ -23,4 +23,4 @@ const Marker = () => {
   );
 };
 
-export default React.memo(Marker);
+export default Marker;

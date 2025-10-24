@@ -1,15 +1,15 @@
 // -------------------- 1) Imports --------------------
-import { Fragment, useEffect, useState } from "react";
+
 import type { Feed } from "@fnndsc/chrisapi";
 import { Button, Modal, ModalVariant, Spinner } from "@patternfly/react-core";
 import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-
+import { Fragment, useEffect, useState } from "react";
+import ChrisAPIClient from "../../api/chrisapiclient";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getNodeOperations } from "../../store/plugin/pluginSlice";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 import { Alert } from "../Antd";
-import ChrisAPIClient from "../../api/chrisapiclient";
 
 // -------------------- 2) Props & Interfaces --------------------
 interface DeleteNodeProps {

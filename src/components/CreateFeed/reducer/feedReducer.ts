@@ -1,23 +1,23 @@
 import { produce } from "immer";
+import type { Key } from "rc-tree/lib/interface";
+import type { State as MainRouterContextState } from "../../../routes";
 import {
-  type CreateFeedData,
   type CreateFeedActions,
+  type CreateFeedData,
   type CreateFeedState,
   Types,
 } from "../types/feed";
-import type { Key } from "rc-tree/lib/interface";
-import type { State as MainRouterContextState } from "../../../routes";
 
 /*
 import { Series } from "../../../../pages/DataLibrary/Library";
 */
 
 function getDefaultCreateFeedData(selectedData?: any[]): CreateFeedData {
-  const initData = {
+  const initData: CreateFeedData = {
     feedName: "",
     feedDescription: "",
     tags: [],
-    chrisFiles: [] as string[],
+    chrisFiles: [],
     localFiles: [],
     checkedKeys: {},
     isDataSelected: false,
@@ -99,7 +99,7 @@ const createFeedReducer = produce(
 
       case Types.RemoveChrisFile: {
         draft.data.chrisFiles = draft.data.chrisFiles.filter(
-          (path) => path !== action.payload.file,
+          (path) => path.filename !== action.payload.file,
         );
 
         draft.data.checkedKeys = Object.keys(draft.data.checkedKeys).reduce(

@@ -4,7 +4,6 @@ import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { elipses } from "../../api/common";
-import { clearSelectedFile } from "../../store/explorer/explorerSlice";
 import { getFeedSuccess, setShowToolbar } from "../../store/feed/feedSlice";
 import { useAppDispatch } from "../../store/hooks";
 import {
@@ -32,6 +31,7 @@ import {
   type PluginInstance as PluginInstanceType,
 } from "../../api/types";
 import * as DoDrawer from "../../reducers/drawer";
+import type * as DoExplorer from "../../reducers/explorer";
 import { Role } from "../../reducers/types";
 import type * as DoUI from "../../reducers/ui";
 import * as DoUser from "../../reducers/user";
@@ -44,25 +44,28 @@ import { onMaximize, onMinimize } from "./utilties";
 type TDoUI = ThunkModuleToFunc<typeof DoUI>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
+type TDoExplorer = ThunkModuleToFunc<typeof DoExplorer>;
 
 type Props = {
   useUI: UseThunk<DoUI.State, TDoUI>;
   useUser: UseThunk<DoUser.State, TDoUser>;
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
+  useExplorer: UseThunk<DoExplorer.State, TDoExplorer>;
 };
 
 export default (props: Props) => {
-  const { useUI, useUser, useDrawer } = props;
+  const { useUI, useUser, useDrawer, useExplorer } = props;
 
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { role, isLoggedIn, isInit } = user;
-
-  console.info("FeedView: isLoggedIn:", isLoggedIn, "isInit:", isInit);
+  const { role, isLoggedIn, isInit, isStaff } = user;
 
   const [classStateDrawer, doDrawer] = useDrawer;
   const drawerState = getState(classStateDrawer) || DoDrawer.defaultState;
   const drawerID = getRootID(classStateDrawer);
+
+  const [classStateExplorer, doExplorer] = useExplorer;
+  const explorerID = getRootID(classStateExplorer);
 
   const [currentLayout, setCurrentLayout] = useState(false);
   const dispatch = useAppDispatch();
@@ -99,7 +102,7 @@ export default (props: Props) => {
     dispatch(setShowToolbar(true));
     return () => {
       dispatch(resetSelectedPlugin());
-      dispatch(clearSelectedFile());
+      doExplorer.clearSelectedFile(explorerID);
       dispatch(setShowToolbar(false));
     };
   }, [dispatch, isInit]);
@@ -137,7 +140,7 @@ export default (props: Props) => {
 
   const onNodeClick = useCallback(
     (node: any) => {
-      dispatch(clearSelectedFile());
+      doExplorer.clearSelectedFile(explorerID);
       dispatch(getSelectedPlugin(node.item));
     },
     [dispatch],
@@ -146,7 +149,7 @@ export default (props: Props) => {
   const onNodeBrowserClick = useCallback(
     (node: PluginInstance) => {
       console.info("onNodeBrowserClick: start: node:", node);
-      dispatch(clearSelectedFile());
+      doExplorer.clearSelectedFile(explorerID);
       dispatch(getSelectedPlugin(node));
     },
     [dispatch],
@@ -230,6 +233,7 @@ export default (props: Props) => {
                       treeQuery={treeQuery}
                       statuses={statuses}
                       feed={feed}
+                      isStaff={isStaff}
                     />
                   ) : (
                     <FeedGraph
@@ -284,6 +288,7 @@ export default (props: Props) => {
             statuses={statuses}
             useUser={useUser}
             useDrawer={useDrawer}
+            useExplorer={useExplorer}
           />
         </Panel>
       </PanelGroup>

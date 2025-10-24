@@ -7,7 +7,7 @@ import {
 } from "d3-hierarchy";
 import { type Selection, select } from "d3-selection";
 import { linkVertical } from "d3-shape";
-import { type ZoomBehavior, zoom as d3Zoom, zoomIdentity } from "d3-zoom";
+import { zoom as d3Zoom, type ZoomBehavior, zoomIdentity } from "d3-zoom";
 import React, {
   Fragment,
   useContext,
@@ -15,19 +15,19 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { type TreeNode, getFeedTree } from "../../api/common";
+import { getFeedTree, type TreeNode } from "../../api/common";
 import { EmptyStateComponent, SpinContainer } from "../Common";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import {
+  getTsNodesWithPipings,
   type Point,
   type Separation,
-  getTsNodesWithPipings,
 } from "../FeedTree/data";
+import TransitionGroupWrapper from "../FeedTree/TransitionGroupWrapper";
 import useSize from "../FeedTree/useSize";
+import { PipelineContext } from "./context";
 import NodeData from "./NodeData";
 import SelectAllCompute from "./SelectAllCompute";
-import { PipelineContext } from "./context";
 
 const nodeSize = { x: 120, y: 80 };
 const scale = 1;
@@ -117,8 +117,8 @@ const Tree = (props: TreeProps) => {
 
   const generateTree = () => {
     const d3Tree = tree<TreeNode>().nodeSize([nodeSize.x, nodeSize.y]);
-    let nodes: HierarchyPointNode<TreeNode>[] | undefined = undefined;
-    let links: HierarchyPointLink<TreeNode>[] | undefined = undefined;
+    let nodes: HierarchyPointNode<TreeNode>[] | undefined;
+    let links: HierarchyPointLink<TreeNode>[] | undefined;
     let newLinks: HierarchyPointLink<TreeNode>[] = [];
     if (data) {
       const rootNode = d3Tree(hierarchy(data[0]));
@@ -167,7 +167,7 @@ const Tree = (props: TreeProps) => {
                 }
 
                 for (const key in dict) {
-                  if (Object.prototype.hasOwnProperty.call(dict, key)) {
+                  if (Object.hasOwn(dict, key)) {
                     newLinksToAdd.push({
                       source: dict[key],
                       target: topologicalLink,

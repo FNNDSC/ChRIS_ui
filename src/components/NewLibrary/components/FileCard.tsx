@@ -1,3 +1,4 @@
+import type { ThunkModuleToFunc, UseThunk } from "@chhsiao1981/use-thunk";
 import type {
   FileBrowserFolderFile,
   FileBrowserFolderLinkFile,
@@ -20,6 +21,7 @@ import type React from "react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { getFileExtension } from "../../../api/model";
+import type * as DoUser from "../../../reducers/user";
 import useDownload, { useAppSelector } from "../../../store/hooks";
 import { notification } from "../../Antd";
 import { getIcon } from "../../Common";
@@ -32,6 +34,8 @@ import useLongPress, {
   getBackgroundRowColor,
 } from "../utils/longpress";
 import { FolderContextMenu } from "./ContextMenu";
+
+type TDoUser = ThunkModuleToFunc<typeof DoUser>;
 
 type Pagination = {
   totalCount: number;
@@ -51,6 +55,8 @@ type ComponentProps = {
   isChecked?: boolean;
   icon: React.ReactElement;
   bgRow?: string;
+
+  username: string;
 };
 
 const PresentationComponent: React.FC<ComponentProps> = ({
@@ -66,9 +72,14 @@ const PresentationComponent: React.FC<ComponentProps> = ({
   isChecked,
   icon,
   bgRow,
+  username,
 }) => (
   <GridItem xl={4} lg={5} xl2={3} md={6} sm={12}>
-    <FolderContextMenu origin={origin} computedPath={computedPath}>
+    <FolderContextMenu
+      username={username}
+      origin={origin}
+      computedPath={computedPath}
+    >
       <Card
         style={{ cursor: "pointer", background: bgRow || "inherit" }}
         isCompact
@@ -132,11 +143,13 @@ type LinkCardProps = {
   linkFiles: FileBrowserFolderLinkFile[];
   computedPath: string;
   pagination?: Pagination;
+  username: string;
 };
 
 export const LinkCard: React.FC<LinkCardProps> = ({
   linkFiles,
   computedPath,
+  username,
 }) => {
   return (
     <>
@@ -145,6 +158,7 @@ export const LinkCard: React.FC<LinkCardProps> = ({
           key={val.data.fname}
           linkFile={val}
           computedPath={computedPath}
+          username={username}
         />
       ))}
     </>
@@ -160,6 +174,9 @@ type FilesCardProps = {
   fetchMore?: boolean;
   handlePagination?: () => void;
   filesLoading?: boolean;
+
+  username: string;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export const FilesCard: React.FC<FilesCardProps> = ({
@@ -169,6 +186,8 @@ export const FilesCard: React.FC<FilesCardProps> = ({
   fetchMore,
   handlePagination,
   filesLoading,
+  username,
+  useUser,
 }) => (
   <>
     {files.map((file) => (
@@ -180,6 +199,8 @@ export const FilesCard: React.FC<FilesCardProps> = ({
         fetchMore={fetchMore}
         filesLoading={filesLoading}
         handlePagination={handlePagination}
+        username={username}
+        useUser={useUser}
       />
     ))}
   </>
@@ -193,6 +214,9 @@ type SubFileCardProps = {
   fetchMore?: boolean;
   handlePagination?: () => void;
   filesLoading?: boolean;
+
+  username: string;
+  useUser: UseThunk<DoUser.State, TDoUser>;
 };
 
 export const getFileName = (
@@ -208,6 +232,8 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
   fetchMore,
   handlePagination,
   filesLoading,
+  username,
+  useUser,
 }) => {
   const { isDarkTheme } = useContext(ThemeContext);
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
@@ -310,6 +336,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
         bgRow={
           isNewFile ? getBackgroundRowColor(true, isDarkTheme) : selectedBgRow
         }
+        username={username}
       />
       <Modal
         className="library-preview"
@@ -319,7 +346,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
         isOpen={preview}
         onClose={() => setIsPreview(false)}
       >
-        <FileDetailView selectedFile={file} preview="large" />
+        <FileDetailView selectedFile={file} preview="large" useUser={useUser} />
       </Modal>
     </>
   );
@@ -328,6 +355,7 @@ export const SubFileCard: React.FC<SubFileCardProps> = ({
 type SubLinkCardProps = {
   linkFile: FileBrowserFolderLinkFile;
   computedPath: string;
+  username: string;
 };
 
 export const getLinkFileName = (file: FileBrowserFolderLinkFile) => {
@@ -337,6 +365,7 @@ export const getLinkFileName = (file: FileBrowserFolderLinkFile) => {
 export const SubLinkCard: React.FC<SubLinkCardProps> = ({
   linkFile,
   computedPath,
+  username,
 }) => {
   const navigate = useNavigate();
   const { isDarkTheme } = useContext(ThemeContext);
@@ -406,6 +435,7 @@ export const SubLinkCard: React.FC<SubLinkCardProps> = ({
         date={linkFile.data.creation_date}
         icon={icon}
         bgRow={selectedBgRow}
+        username={username}
       />
     </>
   );

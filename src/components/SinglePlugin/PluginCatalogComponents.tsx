@@ -26,8 +26,8 @@ import {
   MenuToggle,
   Modal,
   Tab,
-  TabTitleText,
   Tabs,
+  TabTitleText,
   TextInput,
 } from "@patternfly/react-core";
 import { CheckCircleIcon, UserAltIcon } from "@patternfly/react-icons";

@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect } from "react";
 import { differenceInSeconds } from "date-fns";
+import { useEffect, useRef, useState } from "react";
 
 // Custom hook to handle new resource highlighting
 const useNewResourceHighlight = (creationDate: string) => {

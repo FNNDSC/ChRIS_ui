@@ -1,6 +1,7 @@
+import type Client from "@fnndsc/chrisapi";
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import ChrisAPIClient from "../../api/chrisapiclient.ts";
 import constants from "../../datasets/constants.ts";
-import Client, { Feed, PluginInstance } from "@fnndsc/chrisapi";
 
 type DatasetSearchResult = {
   warnings: string[];

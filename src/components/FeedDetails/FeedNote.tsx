@@ -1,7 +1,7 @@
+import { Button, Form, FormGroup, TextArea } from "@patternfly/react-core";
 import React, { useEffect } from "react";
-import { TextArea, FormGroup, Form, Button } from "@patternfly/react-core";
-import { useAppSelector } from "../../store/hooks";
 import { fetchNote } from "../../api/common";
+import { useAppSelector } from "../../store/hooks";
 
 const FeedNote = () => {
   const [value, setValue] = React.useState("");

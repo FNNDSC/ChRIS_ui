@@ -1,9 +1,9 @@
 import { Button } from "@patternfly/react-core";
-import { Badge } from "../Antd";
 import { isEmpty } from "lodash";
 import { useEffect, useState } from "react";
 import { setToggleCart } from "../../store/cart/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { Badge } from "../Antd";
 import { BrainIcon } from "../Icons";
 
 const CartNotify = () => {

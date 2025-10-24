@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { Alert } from "../Antd";
 import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
 import React, { useContext, useEffect, useRef } from "react";
-import { type TreeNode, fetchComputeInfo } from "../../api/common";
+import { fetchComputeInfo, type TreeNode } from "../../api/common";
+import { Alert } from "../Antd";
 import { stringToColour } from "../CreateFeed/utils";
 import { ThemeContext } from "../DarkTheme/useTheme";
-import { PipelineContext, Types, type ComputeInfoPayload } from "./context";
+import { type ComputeInfoPayload, PipelineContext, Types } from "./context";
 
 export interface Point {
   x: number;
@@ -138,6 +138,7 @@ const NodeData = (props: NodeProps) => {
         <span>Fetching the compute environments for this node...</span>
       )}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+      {/** biome-ignore lint/a11y/noStaticElementInteractions: <explanation> */}
       <g
         id={`${data.id}`}
         ref={nodeRef}

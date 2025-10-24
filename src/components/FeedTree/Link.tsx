@@ -1,8 +1,8 @@
-import React, { Fragment } from "react";
-import { linkHorizontal, linkVertical } from "d3-shape";
-import type TreeNodeDatum from "./data";
 import type { HierarchyPointNode } from "d3-hierarchy";
 import { select } from "d3-selection";
+import { linkHorizontal, linkVertical } from "d3-shape";
+import React, { Fragment } from "react";
+import type { TreeNodeDatum } from "./data";
 
 export interface TreeLinkDatum {
   source: HierarchyPointNode<TreeNodeDatum>;

@@ -1,15 +1,14 @@
 // usePaginatedTreeQuery.ts
 
+import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
 import { useCallback, useEffect, useMemo } from "react";
+import { collectionJsonToJson } from "../../api/api";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { getSelectedPlugin } from "../../store/pluginInstance/pluginInstanceSlice";
 import { SpinContainer } from "../Common";
-import FeedTree from "./FeedTree";
-import type { TreeNodeDatum } from "./data";
 import type { PaginatedTreeQueryReturn } from "../Feeds/usePaginatedTreeQuery";
-import type { Feed, PluginInstance } from "@fnndsc/chrisapi";
-import { collectionJsonToJson } from "../../api/api";
-import type { PluginInstance as PluginInstanceType } from "../../api/types";
+import type { TreeNodeDatum } from "./data";
+import FeedTree from "./FeedTree";
 
 interface ParentComponentProps {
   changeLayout: () => void;
@@ -19,6 +18,7 @@ interface ParentComponentProps {
     [id: number]: string;
   };
   feed?: Feed;
+  isStaff: boolean;
 }
 
 const ParentComponent: React.FC<ParentComponentProps> = ({
@@ -27,6 +27,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
   treeQuery,
   statuses,
   feed,
+  isStaff,
 }) => {
   const {
     error,
@@ -158,6 +159,7 @@ const ParentComponent: React.FC<ParentComponentProps> = ({
         statuses={statuses}
         removeNodeLocally={removeNodeLocally}
         feed={feed}
+        isStaff={isStaff}
       />
     </>
   );

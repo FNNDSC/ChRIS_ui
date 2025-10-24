@@ -41,9 +41,9 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { fetchParamsAndComputeEnv } from "../../store/plugin/pluginSlice";
 import { ClipboardCopyFixed, ErrorAlert } from "../Common";
 import ComputeEnvironments from "./ComputeEnvironment";
+import { AddNodeContext } from "./context";
 import RequiredParam from "./RequiredParam";
 import SimpleDropdown from "./SimpleDropdown";
-import { AddNodeContext } from "./context";
 import { type InputIndex, Types } from "./types";
 import { handleGetTokens, unpackParametersIntoString } from "./utils";
 

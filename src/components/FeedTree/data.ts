@@ -5,7 +5,6 @@ import type {
   PluginPiping,
 } from "@fnndsc/chrisapi";
 import { fetchResource } from "../../api/common";
-import type { TSID } from "./ParentComponent";
 
 export interface Datum {
   id?: number;

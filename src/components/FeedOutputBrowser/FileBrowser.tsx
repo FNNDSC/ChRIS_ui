@@ -22,12 +22,9 @@ import { Table, Tbody, Th, Thead, Tr } from "@patternfly/react-table";
 import { type CSSProperties, useEffect, useMemo, useRef } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import * as DoDrawer from "../../reducers/drawer";
+import * as DoExplorer from "../../reducers/explorer";
 import * as DoUser from "../../reducers/user";
-import {
-  clearSelectedFile,
-  setSelectedFile,
-} from "../../store/explorer/explorerSlice";
-import useDownload, { useAppDispatch, useAppSelector } from "../../store/hooks";
+import useDownload, { useAppSelector } from "../../store/hooks";
 import { notification } from "../Antd";
 import { ClipboardCopyContainer } from "../Common";
 import { DrawerActionButton } from "../Feeds/DrawerUtils";
@@ -51,6 +48,7 @@ import type { FilesPayload } from "./types";
 
 type TDoDrawer = ThunkModuleToFunc<typeof DoDrawer>;
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
+type TDoExplorer = ThunkModuleToFunc<typeof DoExplorer>;
 
 const previewAnimation = [{ opacity: "0.0" }, { opacity: "1.0" }];
 
@@ -78,6 +76,7 @@ type Props = {
 
   useDrawer: UseThunk<DoDrawer.State, TDoDrawer>;
   useUser: UseThunk<DoUser.State, TDoUser>;
+  useExplorer: UseThunk<DoExplorer.State, TDoExplorer>;
 };
 
 export default (props: Props) => {
@@ -94,24 +93,28 @@ export default (props: Props) => {
 
     useDrawer,
     useUser,
+    useExplorer,
   } = props;
 
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { username } = user;
+  const { username, isStaff } = user;
 
   const [classStateDrawer, doDrawer] = useDrawer;
   const drawer = getState(classStateDrawer) || DoDrawer.defaultState;
   const drawerID = getRootID(classStateDrawer);
 
-  const dispatch = useAppDispatch();
+  const [classStateExplorer, doExplorer] = useExplorer;
+  const explorerID = getRootID(classStateExplorer);
+  const explorer = getState(classStateExplorer) || DoExplorer.defaultState;
+  const { selectedFile } = explorer;
+
   const feed = useAppSelector((state) => state.feed.currentFeed.data);
   const handleDownloadMutation = useDownload(feed);
   const [api, contextHolder] = notification.useNotification();
   const { isSuccess, isError, error: downloadError } = handleDownloadMutation;
   const pluginFilesPayload = pluginFilesPayloadProps || {};
 
-  const selectedFile = useAppSelector((state) => state.explorer.selectedFile);
   const { subFoldersMap, linkFilesMap, filesMap, folderList } =
     pluginFilesPayload;
   const breadcrumb = useMemo(() => additionalKey.split("/"), [additionalKey]);
@@ -146,7 +149,7 @@ export default (props: Props) => {
 
   const generateBreadcrumb = (value: string, index: number) => {
     const onClick = () => {
-      dispatch(clearSelectedFile());
+      doExplorer.clearSelectedFile(explorerID);
       if (index === breadcrumb.length - 1) {
         return;
       }
@@ -251,6 +254,7 @@ export default (props: Props) => {
                     computedPath={additionalKey}
                     folderList={folderList}
                     username={username}
+                    isStaff={isStaff}
                   />
                   <div className="file-browser-header">
                     <div className="file-browser-header-row">
@@ -362,11 +366,15 @@ export default (props: Props) => {
                                   handleFolderClick={() => {}}
                                   handleFileClick={() => {
                                     toggleAnimation();
-                                    dispatch(setSelectedFile(resource));
+                                    doExplorer.setSelectedFile(
+                                      explorerID,
+                                      resource,
+                                    );
                                     !drawer.preview.open &&
                                       doDrawer.setFilePreviewPanel(drawerID);
                                   }}
                                   origin={origin}
+                                  username={username}
                                 />
                               ),
                             )}
@@ -405,10 +413,9 @@ export default (props: Props) => {
                                             FileBrowserFolderFile
                                         ) {
                                           toggleAnimation();
-                                          dispatch(
-                                            setSelectedFile(
-                                              linkedResource as FileBrowserFolderFile,
-                                            ),
+                                          doExplorer.setSelectedFile(
+                                            explorerID,
+                                            linkedResource as FileBrowserFolderFile,
                                           );
                                           !drawer.preview.open &&
                                             doDrawer.setFilePreviewPanel(
@@ -425,6 +432,7 @@ export default (props: Props) => {
                                     }
                                   }}
                                   origin={origin}
+                                  username={username}
                                 />
                               ),
                             )}
@@ -444,6 +452,7 @@ export default (props: Props) => {
                                   }
                                   handleFileClick={() => {}}
                                   origin={origin}
+                                  username={username}
                                 />
                               ),
                             )}

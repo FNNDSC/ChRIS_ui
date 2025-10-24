@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useReducer } from "react";
+import type React from "react";
+import { createContext, useContext, useReducer } from "react";
 import { MainRouterContext } from "../../../routes";
 import { createFeedReducer, getInitialState } from "../reducer/feedReducer";
-import { CreateFeedState } from "../types/feed";
+import type { CreateFeedState } from "../types/feed";
 
 const CreateFeedContext = createContext<{
   state: CreateFeedState;

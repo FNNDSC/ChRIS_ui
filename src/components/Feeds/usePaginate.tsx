@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from "react";
-import { useLocation } from "react-router";
 import { debounce } from "lodash";
+import { useCallback, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { useAppDispatch } from "../../store/hooks.ts";
 
 export interface FilterState {

@@ -1,49 +1,45 @@
 import {
-  TrashIcon,
-  CogIcon,
-  BrainIcon,
-  TerminalIcon,
-  CalendarAltIcon,
-  PlusIcon,
-  FileIcon,
-  FolderIcon,
-  DownloadIcon,
-  SearchPlusIcon,
-  SearchIcon,
-  InfoIcon,
-  DatabaseIcon,
-  QuestionCircleIcon,
-  ThLargeIcon,
-  CompressArrowsAltIcon,
-  ExpandArrowsAltIcon,
-  CloseIcon,
-  CubesIcon,
-  UploadIcon,
-  CogsIcon,
+  DataProcessorIcon as AnalysisIcon,
   AngleDoubleLeftIcon,
   AngleDoubleRightIcon,
-  HomeIcon,
-  ExternalLinkSquareAltIcon,
-  ExclamationCircleIcon,
-  EllipsisVIcon,
-  EditIcon,
-  FileArchiveIcon as PatternflyArchiveIcon,
-  CheckCircleIcon,
   BarsIcon,
-  GripVerticalIcon,
-  ToolsIcon,
-  PlayIcon,
-  PauseIcon,
+  BrainIcon,
+  CalendarAltIcon,
+  CheckCircleIcon,
   ChevronRightIcon,
+  CloseIcon,
+  CogIcon,
+  CogsIcon,
+  CompressArrowsAltIcon,
+  CubesIcon,
+  DatabaseIcon,
+  DownloadIcon,
+  EditIcon,
+  EllipsisVIcon,
+  ExclamationCircleIcon,
+  ExpandArrowsAltIcon,
+  ExternalLinkSquareAltIcon,
+  FileIcon,
+  FolderIcon,
+  GripVerticalIcon,
+  HomeIcon,
+  InfoIcon,
+  FileArchiveIcon as PatternflyArchiveIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  QuestionCircleIcon,
+  SearchIcon,
+  SearchPlusIcon,
   ShareIcon,
-  DataProcessorIcon as AnalysisIcon,
+  TerminalIcon,
+  ThLargeIcon,
+  ToolsIcon,
+  TrashIcon,
+  UploadIcon,
 } from "@patternfly/react-icons";
 
-const CartIcon = ({
-  style,
-}: {
-  [key: string]: React.CSSProperties;
-}) => {
+const CartIcon = ({ style }: { [key: string]: React.CSSProperties }) => {
   return (
     <svg
       fill="currentColor"
@@ -74,7 +70,10 @@ const MergeIcon = ({ className }: { className?: string }) => {
 const ArchiveIcon = ({
   className,
   style,
-}: { className?: string; style?: React.CSSProperties }) => {
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) => {
   return (
     <svg
       style={style}

@@ -32,11 +32,13 @@ export const FolderCard = ({
   folders,
   handleFolderClick,
   computedPath,
+  username,
 }: {
   folders: FileBrowserFolder[];
   handleFolderClick: (path: string) => void;
   computedPath: string;
   pagination?: Pagination;
+  username: string;
 }) => {
   return (
     <Fragment>
@@ -47,6 +49,7 @@ export const FolderCard = ({
             folder={folder}
             computedPath={computedPath}
             handleFolderClick={handleFolderClick}
+            username={username}
           />
         );
       })}
@@ -58,6 +61,7 @@ interface SubFolderCardProps {
   folder: FileBrowserFolder;
   computedPath: string;
   handleFolderClick: (path: string) => void;
+  username: string;
 }
 
 export function getFolderName(folder: FileBrowserFolder, computedPath: string) {
@@ -68,7 +72,7 @@ export function getFolderName(folder: FileBrowserFolder, computedPath: string) {
 }
 
 export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
-  const { folder, computedPath, handleFolderClick } = props;
+  const { folder, computedPath, handleFolderClick, username } = props;
   const isDarkTheme = useContext(ThemeContext).isDarkTheme;
   const selectedPaths = useAppSelector((state) => state.cart.selectedPaths);
   const { handlers } = useLongPress();
@@ -110,6 +114,7 @@ export const SubFolderCard: React.FC<SubFolderCardProps> = (props) => {
           additionalKeys: [computedPath],
         }}
         computedPath={computedPath}
+        username={username}
       >
         <Card
           style={{

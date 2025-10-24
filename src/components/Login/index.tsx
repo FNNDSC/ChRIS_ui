@@ -6,7 +6,7 @@ import {
 } from "@patternfly/react-core";
 import { App } from "antd";
 import { type FormEvent, type MouseEvent, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ChRIS_Logo from "../../assets/chris-logo.png";
 import ChRIS_Logo_Inline from "../../assets/chris-logo-inline.png";
 import "./Login.css";
@@ -35,8 +35,6 @@ export default (props: Props) => {
   const userID = getRootID(classStateUser);
   const user = getState(classStateUser) || DoUser.defaultState;
 
-  const navigate = useNavigate();
-  const location = useLocation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<Status>("idle");

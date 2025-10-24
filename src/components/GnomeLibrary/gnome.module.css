@@ -1,4 +1,4 @@
-/* 
+/*
  * GnomeLibrary styles module
  * This file contains all styles for the Gnome Library components
  * including the main layout, file list, action bar, and breadcrumb navigation
@@ -143,7 +143,7 @@
   border: none;
 }
 
-/* 
+/*
  * COLUMN SIZING
  */
 /* Checkbox column */
@@ -185,7 +185,7 @@
   min-width: 100px;
 }
 
-/* 
+/*
  * COLUMN CELL STYLING
  */
 /* All cells get consistent padding and alignment */
@@ -224,7 +224,7 @@
   justify-content: flex-start;
 }
 
-/* 
+/*
  * HEADER CONTENT STRUCTURE
  */
 /* All column headers have this wrapper for consistent structure */

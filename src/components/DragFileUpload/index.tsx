@@ -1,9 +1,9 @@
 import { Tooltip } from "@patternfly/react-core";
 import { useCallback, useContext, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { UploadIcon as IconUpload } from "../Icons";
 import { CreateFeedContext } from "../CreateFeed/context";
 import { Types } from "../CreateFeed/types/feed";
+import { UploadIcon as IconUpload } from "../Icons";
 import "./DragFileUpload.css";
 
 const baseStyle = {

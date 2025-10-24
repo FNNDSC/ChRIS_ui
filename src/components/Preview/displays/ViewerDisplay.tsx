@@ -11,7 +11,6 @@ import {
   PdfDisplay,
   TextDisplay,
   VideoDisplay,
-  XtkDisplay,
 } from "./index";
 
 type TDoUser = ThunkModuleToFunc<typeof DoUser>;
@@ -85,7 +84,7 @@ export default (props: Props) => {
       {/* @ts-expect-error dcmdisplay */}
       <DcmDisplay {...props} isHide={!isShowDCM} />
       <PdfDisplay {...props} isHide={!isShowPDF} />
-      <XtkDisplay {...props} isHide={!isShowXtk} />
+      {/* <XtkDisplay {...props} isHide={!isShowXtk} /> */}
       <TextDisplay {...props} isHide={!isShowText} />
       <NiiVueDisplay {...props} isHide={!isShowNiivue} />
       <VideoDisplay {...props} isHide={!isShowVideo} />

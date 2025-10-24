@@ -37,7 +37,7 @@ export default (props: Props) => {
   const { useUI, useUser, useDrawer } = props;
   const [classStateUser, _] = useUser;
   const user = getState(classStateUser) || DoUser.defaultState;
-  const { username } = user;
+  const { username, isStaff } = user;
   const [api, contextHolder] = notification.useNotification();
   const { pathname } = window.location;
   const navigate = useNavigate();
@@ -147,6 +147,7 @@ export default (props: Props) => {
       >
         <Operations
           username={username}
+          isStaff={isStaff}
           origin={{
             type: OperationContext.LIBRARY,
             additionalKeys: [computedPath],
@@ -191,6 +192,7 @@ export default (props: Props) => {
                   fetchMore={fetchMore}
                   handlePagination={handlePagination}
                   filesLoading={isFetching}
+                  useUser={useUser}
                 />
                 {fetchMore && !isFetching && (
                   <Button onClick={handlePagination} variant="link">
@@ -211,11 +213,13 @@ export default (props: Props) => {
               handleFolderClick={handleFolderClick}
               computedPath={computedPath}
               pagination={data?.foldersPagination}
+              username={username}
             />
             <LinkCard
               linkFiles={data?.linkFilesMap || []}
               pagination={data?.linksPagination}
               computedPath={computedPath}
+              username={username}
             />
             <FilesCard
               files={data?.filesMap || []}
@@ -225,6 +229,8 @@ export default (props: Props) => {
               fetchMore={fetchMore}
               handlePagination={handlePagination}
               filesLoading={isFetching}
+              username={username}
+              useUser={useUser}
             />
             {fetchMore && !isFetching && (
               <Button onClick={handlePagination} variant="link">

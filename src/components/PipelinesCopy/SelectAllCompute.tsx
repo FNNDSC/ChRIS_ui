@@ -7,13 +7,13 @@ import {
   SelectOption,
 } from "@patternfly/react-core";
 import { useQuery } from "@tanstack/react-query";
-import { Avatar } from "../Antd";
 import React, { useContext } from "react";
+import { useLocation } from "react-router";
 import ChrisAPIClient from "../../api/chrisapiclient";
 import { fetchResource } from "../../api/common";
+import { Avatar } from "../Antd";
 import { stringToColour } from "../CreateFeed/utils";
 import { PipelineContext, Types } from "./context";
-import { useLocation } from "react-router";
 
 type OwnProps = {
   pipeline: Pipeline;
