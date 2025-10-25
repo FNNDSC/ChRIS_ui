@@ -1,5 +1,6 @@
 import config from "config";
 import { Cookies } from "react-cookie";
+import type { List } from "../api/types";
 import { STATUS_UNAUTHORIZED } from "./constants";
 
 export type Query = Record<string, any>;
@@ -76,7 +77,10 @@ const collectionJsonLinkToJson = (links: any[]) => {
   }, {});
 };
 
-export const collectionJsonToJson = (theData: any, isLink = false) => {
+export const collectionJsonToJson = <T>(
+  theData: any,
+  isLink = false,
+): T | T[] | List<T> => {
   if (isLink) {
     return collectionJsonLinkToJson(theData.collection.links);
   }

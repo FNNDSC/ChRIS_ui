@@ -8,8 +8,8 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useContext, useState } from "react";
 import { catchError } from "../../../../api/common";
-import { getData, getDataInstances } from "../../../../api/serverApi";
-import type { PluginInstance } from "../../../../api/types";
+import { getData, getPkgInstances } from "../../../../api/serverApi";
+import type { PkgInstance } from "../../../../api/types";
 import { MainRouterContext } from "../../../../routes";
 import type { SelectionPayload } from "../../../../store/cart/types";
 import { useAppSelector } from "../../../../store/hooks";
@@ -188,7 +188,7 @@ export default (props: Props) => {
   };
 
   const feedIDToLastChRISFile = async (feedID: number): Promise<ChRISFeed> => {
-    const pluginInstances = await getDataInstances(feedID);
+    const pluginInstances = await getPkgInstances(feedID);
     if (!pluginInstances.data) {
       return { name: "", filename: "", theID: -1, createDateTime: "" };
     }
@@ -204,7 +204,7 @@ export default (props: Props) => {
       "data:",
       pluginInstances.data,
     );
-    pluginInstances.data.sort((a: PluginInstance, b: PluginInstance) => {
+    pluginInstances.data.sort((a: PkgInstance, b: PkgInstance) => {
       return b.id - a.id;
     });
     const { output_path: filename } = pluginInstances.data[0];

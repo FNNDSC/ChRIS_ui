@@ -2,7 +2,7 @@ import type Client from "@fnndsc/chrisapi";
 import type { ComputeResource, Plugin, PluginMeta } from "@fnndsc/chrisapi";
 import axios from "axios";
 import { fetchResource } from "../../api/common";
-import type { Plugin as PluginType } from "../../api/types";
+import type { Pkg as PluginType } from "../../api/types";
 
 type Params = {
   [key: string]: string | number;

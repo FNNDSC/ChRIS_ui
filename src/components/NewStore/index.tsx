@@ -16,8 +16,8 @@ import {
 import { notification } from "antd";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
-import { createPackage } from "../../api/serverApi";
-import type { Plugin as PluginType, UploadPipeline } from "../../api/types";
+import { createPkg } from "../../api/serverApi";
+import type { Pkg as PluginType, UploadPipeline } from "../../api/types";
 import type * as DoDrawer from "../../reducers/drawer";
 import type * as DoFeed from "../../reducers/feed";
 import type * as DoUI from "../../reducers/ui";
@@ -147,7 +147,7 @@ export default (props: Props) => {
       ],
     };
 
-    const resultPipeline = await createPackage(pipeline);
+    const resultPipeline = await createPkg(pipeline);
 
     console.info(
       "NewStore.Store.handleInstall: after createPipeline: resultPipeline:",
